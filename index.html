@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111315">
+  <meta name="description" content="FORJA — organize seu dia e cumpra o que promete a si mesmo.">
+  <title>FORJA — Disciplina diária</title>
+  <style>
+    :root {
+      --bg: #111315;
+      --panel: #1b1e21;
+      --border: #303438;
+      --text: #f2f2ef;
+      --muted: #92989e;
+      --accent: #d6b779;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+    }
+
+    .container {
+      width: min(100% - 32px, 620px);
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: 850;
+      letter-spacing: 5px;
+    }
+
+    .tagline {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .date {
+      margin-top: 30px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    h1 {
+      font-size: clamp(25px, 6vw, 34px);
+      line-height: 1.2;
+      margin: 10px 0;
+    }
+
+    .quote {
+      margin: 26px 0;
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+    }
+
+    .author {
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .quote p { margin: 0; font-size: 16px; }
+
+    .source {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 10px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 30px 0 14px;
+    }
+
+    h2 { font-size: 18px; margin: 0; }
+
+    .progress-label {
+      color: var(--accent);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .track {
+      height: 6px;
+      background: #303438;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .fill {
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      transition: width .2s ease;
+    }
+
+    .tasks {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .task input {
+      width: 19px;
+      height: 19px;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .task-name { flex: 1; overflow-wrap: anywhere; }
+
+    .task.done .task-name {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .delete {
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      font-size: 19px;
+      padding: 4px 7px;
+      cursor: pointer;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 26px 10px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    form {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    input[type="text"] {
+      min-width: 0;
+      flex: 1;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 13px;
+      font-size: 14px;
+    }
+
+    button.add {
+      background: var(--accent);
+      color: #171717;
+      border: 0;
+      border-radius: 9px;
+      padding: 0 18px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    footer {
+      margin-top: 36px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <div class="logo">FORJA</div>
+      <div class="tagline">DISCIPLINA DIÁRIA</div>
+    </header>
+
+    <div class="date" id="today"></div>
+    <h1>Faça o que importa.</h1>
+    <p style="color:var(--muted);margin-top:0">
+      Organize seu dia. Cumpra seus compromissos.
+    </p>
+
+    <section class="quote" aria-label="Citação do dia">
+      <div class="author">David Goggins</div>
+      <p>“Stay hard.”</p>
+      <div class="source">Fonte: expressão associada a David Goggins.</div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Missões de hoje</h2>
+        <div class="progress-label" id="progressText">0 de 0</div>
+      </div>
+
+      <div class="track">
+        <div class="fill" id="progressFill"></div>
+      </div>
+
+      <div class="tasks" id="tasks"></div>
+
+      <form id="taskForm">
+        <input
+          id="taskInput"
+          type="text"
+          maxlength="120"
+          placeholder="Adicionar uma missão..."
+          aria-label="Nome da missão"
+          required
+        >
+        <button class="add" type="submit">Adicionar</button>
+      </form>
+    </section>
+
+    <footer>
+      Menos promessas. Mais ação.
+    </footer>
+  </main>
+
+  <script>
+    const today = new Date();
+    const dateKey =
+      today.getFullYear() + "-" +
+      String(today.getMonth() + 1).padStart(2, "0") + "-" +
+      String(today.getDate()).padStart(2, "0");
+
+    document.getElementById("today").textContent =
+      new Intl.DateTimeFormat("pt-BR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+      }).format(today);
+
+    const storageKey = "forja-missoes-" + dateKey;
+    const tasksElement = document.getElementById("tasks");
+    const form = document.getElementById("taskForm");
+    const input = document.getElementById("taskInput");
+
+    let tasks = [];
+
+    try {
+      tasks = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      if (!Array.isArray(tasks)) tasks = [];
+    } catch {
+      tasks = [];
+    }
+
+    function save() {
+      localStorage.setItem(storageKey, JSON.stringify(tasks));
+    }
+
+    function render() {
+      tasksElement.replaceChildren();
+
+      if (tasks.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent =
+          "Seu dia começa com uma decisão. Adicione sua primeira missão.";
+        tasksElement.appendChild(empty);
+      }
+
+      tasks.forEach(task => {
+        const row = document.createElement("div");
+        row.className = "task" + (task.done ? " done" : "");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+        checkbox.setAttribute("aria-label", "Concluir " + task.name);
+
+        checkbox.addEventListener("change", () => {
+          task.done = checkbox.checked;
+          save();
+          render();
+        });
+
+        const name = document.createElement("span");
+        name.className = "task-name";
+        name.textContent = task.name;
+
+        const remove = document.createElement("button");
+        remove.className = "delete";
+        remove.type = "button";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", "Excluir " + task.name);
+
+        remove.addEventListener("click", () => {
+          tasks = tasks.filter(item => item.id !== task.id);
+          save();
+          render();
+        });
+
+        row.append(checkbox, name, remove);
+        tasksElement.appendChild(row);
+      });
+
+      const completed = tasks.filter(task => task.done).length;
+      const total = tasks.length;
+      const percent = total ? Math.round(completed / total * 100) : 0;
+
+      document.getElementById("progressText").textContent =
+        `${completed} de ${total} · ${percent}%`;
+
+      document.getElementById("progressFill").style.width = percent + "%";
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const name = input.value.trim();
+      if (!name) return;
+
+      tasks.push({
+        id: Date.now().toString() + Math.random().toString(16).slice(2),
+        name,
+        done: false
+      });
+
+      save();
+      render();
+      input.value = "";
+      input.focus();
+    });
+
+    render();
+  </script>
+</body>
+</html>
