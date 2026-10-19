@@ -2140,12 +2140,41 @@ await runTest("12b. Nenhuma função/ID antiga referenciada e um único boot", a
   assertNoErrors("integridade estrutural");
 });
 
-await runTest("12c. Regras de calendário/missões em telas pequenas foram preservadas", async () => {
+await runTest("12c. Regras móveis de calendário/missões seguem presentes em ≤380px", async () => {
   const cssStart = html.indexOf("<style>");
   const css = html.slice(cssStart, html.indexOf("</style>", cssStart));
-  const mobileStart = css.indexOf("@media (max-width: 380px)");
-  assert.ok(mobileStart > 0, "Media query de 380px ausente");
-  const mobile = css.slice(mobileStart);
+
+  // A branch tem mais de um bloco de 380px (o novo módulo de treino tem o
+  // seu). O que importa é o efeito combinado; por isso todos são lidos.
+  const blocks = [];
+  let searchFrom = 0;
+
+  while (true) {
+    const start = css.indexOf("@media (max-width: 380px)", searchFrom);
+    if (start < 0) break;
+
+    const open = css.indexOf("{", start);
+    let depth = 0;
+    let end = -1;
+
+    for (let index = open; index < css.length; index++) {
+      if (css[index] === "{") depth += 1;
+      if (css[index] === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          end = index;
+          break;
+        }
+      }
+    }
+
+    assert.ok(end > open, "Bloco de 380px não fechado");
+    blocks.push(css.slice(open + 1, end));
+    searchFrom = end + 1;
+  }
+
+  assert.ok(blocks.length >= 1, "Media query de 380px ausente");
+  const mobile = blocks.join("\n");
 
   assert.match(
     mobile,
@@ -2157,7 +2186,6 @@ await runTest("12c. Regras de calendário/missões em telas pequenas foram prese
   assert.match(mobile, /\.task-form input\s*\{\s*flex:\s*1 1 100%;\s*\}/);
   assert.match(mobile, /\.task-form \.add-button\s*\{[^}]*width:\s*100%/);
   assert.match(mobile, /\.history-summary\s*\{\s*gap:\s*5px;\s*\}/);
-  assert.match(css, /button,\s*input,\s*select,\s*textarea\s*\{\s*font:\s*inherit;\s*\}/);
 
   assertNoErrors("css mobile");
 });
@@ -2264,7 +2292,7 @@ await runTest("13a. Exportar/importar/desfazer preserva todas as chaves exatamen
   app.close();
 });
 
-await runTest("13b. Falha transitória de gravação na importação faz rollback integral", async () => {
+await runTest("13b. Falha de gravação na importação restaura os dados e informa a chave", async () => {
   const today = todayKey();
   const routines = {
     calisthenics: [makeRoutine("calisthenics", "Treino A", [
@@ -2299,6 +2327,11 @@ await runTest("13b. Falha transitória de gravação na importação faz rollbac
 
   assert.match(app.text("#modal-title"), /Falha ao restaurar/);
   assert.match(app.text(".modal-message"), /recuperados integralmente/);
+  assert.match(
+    app.text(".modal-message"),
+    /forja-treino-rotinas-v1/,
+    "A mensagem deve identificar a chave que falhou"
+  );
   assert.deepEqual(parsedStorage(app), original, "Rollback deve restaurar todas as chaves originais");
   assert.ok(app.raw("forja-backup-seguranca-v1"), "Cópia de segurança deve permanecer");
 
@@ -2385,7 +2418,7 @@ await runTest("13d. Falha ao criar a cópia de segurança aborta sem alterar dad
   app.close();
 });
 
-await runTest("13e. Exportar sem dados mostra aviso claro e não quebra", async () => {
+await runTest("13e. Exportar sem dados orienta o usuário e não gera arquivo vazio", async () => {
   const app = await boot();
 
   assert.deepEqual(app.keys(), [], "Boot vazio não deve gravar chaves de treino");

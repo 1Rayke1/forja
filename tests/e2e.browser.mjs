@@ -207,6 +207,38 @@ await check('Sem overflow horizontal em 320, 360, 390, 430, 768 e 1280', async (
   await page.setViewport({ width: 390, height: 844 });
 });
 
+await check('Regras móveis de calendário/missões aplicadas em 320px', async () => {
+  await page.setViewport({ width: 320, height: 700 });
+  await sleep(200);
+
+  const styles = await page.evaluate(() => {
+    const read = (selector, property) => {
+      const element = document.querySelector(selector);
+      return element ? getComputedStyle(element)[property] : null;
+    };
+
+    return {
+      calendarPadding: read('.calendar-panel', 'paddingLeft'),
+      missionsPadding: read('.missions-panel', 'paddingLeft'),
+      gridGap: read('.calendar-grid', 'gap'),
+      dayFont: read('.day', 'fontSize'),
+      taskWrap: read('.task-form', 'flexWrap'),
+      taskInputWidth: read('.task-form input', 'width'),
+      summaryGap: read('.history-summary', 'gap')
+    };
+  });
+
+  assert.equal(styles.calendarPadding, '12px');
+  assert.equal(styles.missionsPadding, '12px');
+  assert.equal(styles.gridGap, '3px');
+  assert.equal(styles.dayFont, '12px');
+  assert.equal(styles.taskWrap, 'wrap');
+  assert.ok(parseFloat(styles.taskInputWidth) >= 240, 'input estreito: ' + styles.taskInputWidth);
+  assert.equal(styles.summaryGap, '5px');
+
+  await page.setViewport({ width: 390, height: 844 });
+});
+
 await check('Cartões de modalidade são tocáveis e não sobrepostos (320px)', async () => {
   await page.setViewport({ width: 320, height: 700 });
   await page.evaluate(() => document.getElementById('workout-heading').scrollIntoView());

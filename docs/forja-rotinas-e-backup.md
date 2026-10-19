@@ -284,12 +284,12 @@ Executam o `index.html` real, com o mesmo script do navegador.
 | 11c | Missões antigas em formato de texto continuam funcionando e são convertidas sem perda | ✅ |
 | 12a | IDs únicos com modal, editor e execução abertos | ✅ |
 | 12b | Nenhuma função/ID removida ainda referenciada; boot e intervalo únicos; bloco de calendário idêntico à `main` (SHA-256) | ✅ |
-| 12c | Regras de calendário/missões em telas ≤ 380 px preservadas | ✅ |
+| 12c | Regras móveis de calendário/missões presentes no conjunto de blocos ≤ 380 px | ✅ |
 | 13a | Exportar → alterar → importar → desfazer reproduz todas as chaves exatamente | ✅ |
-| 13b | Falha transitória de `setItem` na importação faz rollback integral e informa o erro | ✅ |
+| 13b | Falha de `setItem` na importação restaura os dados e informa a chave | ✅ |
 | 13c | Falha também no rollback é reportada com as chaves afetadas; cópia de segurança permanece | ✅ |
 | 13d | Falha ao criar a cópia de segurança aborta a importação sem alterar dados | ✅ |
-| 13e | Exportar sem dados mostra aviso claro, não gera download e não lança erro | ✅ |
+| 13e | Exportar sem dados orienta o usuário e não gera arquivo vazio | ✅ |
 | 14a | Pausar a sessão durante o descanso pendente, recarregar e retomar mantém o avanço | ✅ |
 | 14b | Pausar só o descanso pendente, recarregar e retomar mantém o avanço | ✅ |
 | 14c | Estado inconsistente (`pendingAdvance` sem séries concluídas) não pula séries | ✅ |
@@ -323,15 +323,18 @@ Resolução do navegador, nesta ordem:
 3. binário do `@sparticuz/chromium` (fallback).
 
 Em contêineres mínimos sem `libnss3`/`libnspr4`, use o Chrome do sistema via
-`PUPPETEER_EXECUTABLE_PATH` ou instale essas bibliotecas. Screenshots e
-downloads do teste vão para um diretório temporário informado no final.
+`PUPPETEER_EXECUTABLE_PATH`, instale essas bibliotecas ou aponte
+`LD_LIBRARY_PATH` para as versões incluídas em
+`@sparticuz/chromium/bin/al2023.tar.br`. Screenshots e downloads do teste vão
+para um diretório temporário informado no final.
 
 | Verificação | Resultado |
 | --- | --- |
 | Console limpo na carga | ✅ |
 | Sem overflow horizontal em 320/360/390/430/768/1280 px | ✅ |
+| Regras móveis computadas em 320 px (padding 12 px, gap 3 px, fonte 12 px, wrap) | ✅ |
 | Cartões de modalidade tocáveis e sem sobreposição em 320 px | ✅ |
-| Fluxo completo de rotinas A/B nas duas modalidades | ✅ |
+| Fluxo completo de rotinas A/B/C nas duas modalidades | ✅ |
 | Duplicar/renomear/excluir com confirmação | ✅ |
 | Execução, descanso, pausa, retomada, reload no meio da sessão | ✅ |
 | Cancelar sessão não registra treino | ✅ |
@@ -340,7 +343,7 @@ downloads do teste vão para um diretório temporário informado no final.
 | Calendário e missões após as mudanças | ✅ |
 | Nenhum erro de console durante todo o fluxo | ✅ |
 
-Resultado: **11/11** em ambiente limpo (`git archive` → `npm ci` → `npm test`
+Resultado: **12/12** em ambiente limpo (`git archive` → `npm ci` → `npm test`
 → `npm run test:e2e`).
 
 ### 5.3 Auditoria de layout
@@ -373,25 +376,33 @@ Casos parciais não são descartados: rotinas, exercícios e sessões com itens
 inválidos têm o JSON original copiado para
 `forja-treino-dados-preservados-v1` antes de qualquer normalização.
 
-### 6.1 Regressões encontradas e corrigidas na revisão final
+### 6.1 Revisão final: achados e correções
 
-| # | Problema | Correção | Teste |
+| # | Achado | Correção | Teste |
 | --- | --- | --- | --- |
-| 1 | `normalizeSessionV2` descartava `pendingAdvance` sempre que o descanso estava pausado. Pausar a sessão durante o descanso (ou recarregar) desligava o avanço automático para sempre. | Preserva `pendingAdvance` quando o exercício atual realmente terminou (`completedSets >= sets`), mesmo com descanso/sessão pausados. | 14a, 14b, 14d |
+| 1 | **Regressão funcional:** `normalizeSessionV2` descartava `pendingAdvance` sempre que o descanso estava pausado. Pausar a sessão durante o descanso (ou recarregar) desligava o avanço automático permanentemente. | Preserva `pendingAdvance` somente quando o exercício atual realmente terminou (`completedSets >= sets`), mesmo com descanso/sessão pausados. | 14a, 14b, 14d |
 | 2 | Abrir o site só com calendário/missões gravava `forja-treino-rotinas-v1` vazio sem ação do usuário. | `loadRoutines` só grava a chave quando a migração criou alguma rotina. | 15a |
-| 3 | Regras de `.calendar-panel`, `.missions-panel`, `.calendar-grid`, `.day`, `.task-form` e `.history-summary` em ≤ 380 px existiam na `main` e tinham sido perdidas. | Restauradas no bloco `@media (max-width: 380px)`. | 12c |
-| 4 | Rollback da importação reconstruía valores a partir de objetos e não informava falhas parciais; erros de `setItem` não eram convertidos em mensagem útil. | Rollback usa os valores brutos (`collectCurrentRawSnapshot`), retorna `{ok, failedKeys}`, restaura todas as chaves possíveis e informa quais falharam. | 13b, 13c |
-| 5 | Exportar sem nenhum dado lançava erro em vez de orientar o usuário. | Aviso amigável e retorno antecipado, sem gerar download. | 13e |
+| 3 | Falha de gravação na importação já recuperava os dados, mas a mensagem não dizia qual chave falhou e o rollback reconstruía o JSON a partir de objetos parseados. | O rollback usa os valores brutos (`collectCurrentRawSnapshot`), converte erros de `setItem` com a chave e informa `failedKeys`; todas as chaves possíveis são restauradas. | 13b, 13c |
+| 4 | Exportar sem nenhum dado gerava um arquivo de backup vazio. | Aviso claro e retorno antecipado, sem download. | 13e |
+
+Os itens 2–4 são endurecimento/UX; apenas o item 1 alterava o comportamento
+funcional do treino.
+
+**Suspeita descartada (CSS):** o primeiro bloco `@media (max-width: 380px)`
+da branch só tinha `.workout-panel`, mas as regras de calendário/missões
+existem em um segundo bloco de 380 px do novo módulo. O Chromium real confirma
+em 320 px: `padding` 12 px, `gap` 3 px, fonte 12 px e `.task-form` com `wrap`.
+Não havia regressão visual e **nenhum CSS foi alterado**; os testes 12c e o
+E2E computado apenas travam esse comportamento.
 
 O bloco de calendário/missões foi comparado por SHA-256 com a `main`
 (`3505b01`): é idêntico. Os testes 12b/12c também garantem que os controles
-`task-form`, `prev-month` e `next-month` têm um único listener e que o CSS
-móvel da `main` está presente.
+`task-form`, `prev-month` e `next-month` têm um único listener.
 
 Como prova de que os novos testes não são vazios, a suíte foi executada
-contra o `index.html` anterior (`96cdeb4`): **31/39**, com falhas exatamente
-nos oito testes ligados às correções acima (12c, 13b, 13c, 13e, 14a, 14b,
-14d, 15a).
+contra o `index.html` anterior (`96cdeb4`): **32/39**, com falhas nos sete
+testes ligados aos itens 1–4 (13b, 13c, 13e, 14a, 14b, 14d, 15a). O teste
+12c passa nas duas versões, confirmando que as regras móveis nunca sumiram.
 
 ---
 
@@ -409,7 +420,8 @@ nos oito testes ligados às correções acima (12c, 13b, 13c, 13e, 14a, 14b,
   pode usar `PUPPETEER_EXECUTABLE_PATH` e remover o pacote, mas ele fica em
   `devDependencies` para o `npm install` funcionar sem configuração.
 - **Ambiente mínimo**: o Chromium empacotado exige bibliotecas do sistema
-  (`libnss3`, `libnspr4`). Em Debian/Ubuntu: `sudo apt install libnss3`.
+  (`libnss3`, `libnspr4`). Em Debian/Ubuntu: `sudo apt install libnss3`; nestes
+  testes, as bibliotecas foram extraídas do próprio pacote (`al2023.tar.br`).
 - **Sem sincronização**: os dados continuam locais ao navegador/dispositivo.
 - **Migração reversível por preservação**: as chaves antigas ficam intactas;
   não existe botão "desfazer migração", pois não há nada a desfazer. Para
