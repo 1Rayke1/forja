@@ -9,6 +9,8 @@
     "serve": "python3 -m http.server 8080 --bind 127.0.0.1"
   },
   "devDependencies": {
-    "jsdom": "^30.0.0"
+    "@sparticuz/chromium": "^138.0.2",
+    "jsdom": "^30.0.0",
+    "puppeteer-core": "^24.43.1"
   }
 }

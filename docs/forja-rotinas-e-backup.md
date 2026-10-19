@@ -129,12 +129,22 @@ por natureza**: nenhuma chave antiga é alterada ou removida.
      arquivada em `forja-treino-dados-preservados-v1` e removida apenas da
      chave de execução, com aviso explícito na tela.
 
-3. **Dados ilegíveis**
+3. **Dados ilegíveis ou parcialmente inválidos**
    JSON inválido nunca é apagado em silêncio:
    - histórico ilegível permanece na chave e é arquivado;
-   - rotinas irreconhecíveis são arquivadas antes de carregar uma base vazia;
+   - rotinas irreconhecíveis **ou parcialmente inválidas** são arquivadas antes
+     de carregar o que for válido (nada é descartado sem cópia em
+     `forja-treino-dados-preservados-v1`);
+   - exercícios antigos com estrutura inesperada ou itens inválidos são
+     arquivados; os itens legíveis continuam migrando;
+   - se o JSON de exercícios antigos estiver totalmente ilegível, **nenhuma
+     rotina vazia é gravada** — assim o dado pode ser recuperado e migrado
+     depois sem bloqueio;
+   - sessão ativa com exercícios/progresso não reconhecidos é normalizada,
+     mas o original é arquivado antes de qualquer regravação;
    - sessão ativa ilegível é arquivada e não é retomada.
-   Em todos os casos a tela mostra um aviso.
+   Em todos os casos a tela mostra um aviso. Arquivamentos idênticos são
+   deduplicados para não crescerem a cada carregamento.
 
 4. **Formato não reconhecido no futuro**
    Campos ausentes recebem valores seguros; exercícios sem nome são
@@ -252,6 +262,10 @@ Executam o `index.html` real, com o mesmo script do navegador.
 | 1 | Leitura de dados antigos e migração (exercícios, histórico, sessão ativa, ids/cargas) | ✅ |
 | 1b | JSON corrompido é preservado e a interface segue funcionando | ✅ |
 | 1c | Rotinas ausentes reconstruídas a partir do legado | ✅ |
+| 1d | Auditoria: calendário, missões, exercícios e histórico intactos após migração, CRUD e treino; segundo boot idempotente | ✅ |
+| 1e | Rotinas/exercícios parcialmente inválidos são arquivados, não descartados; arquivamento sem duplicatas | ✅ |
+| 1f | Formato antigo ilegível não é sobrescrito por rotinas vazias e a interface segue funcional | ✅ |
+| 1g | Sessão ativa com itens/progresso não reconhecidos preserva o JSON original | ✅ |
 | 2 | Criar, editar, reordenar, remover, duplicar, renomear e excluir rotinas | ✅ |
 | 2b | Rotina vazia não inicia; alterações não salvas são protegidas | ✅ |
 | 3 | Rotinas e históricos independentes por modalidade; carga só na Musculação | ✅ |
@@ -266,11 +280,31 @@ Executam o `index.html` real, com o mesmo script do navegador.
 | 9 | Meta viewport e media queries responsivas presentes | ✅ |
 | 10 | Todos os ids usados no script existem; nenhum erro de console | ✅ |
 
-Resultado: **16/16**.
+Resultado: **20/20**.
 
 ### 5.2 Navegador real — `npm run test:e2e`
 
-Chromium headless, página servida por HTTP, viewport móvel.
+O script sobe o próprio servidor HTTP (porta efêmera em `127.0.0.1`), abre o
+Chromium headless e usa viewport móvel. Não é necessário iniciar `python3 -m
+http.server` nem qualquer processo externo.
+
+Dependências instaladas por `npm install`:
+
+| Pacote | Papel |
+| --- | --- |
+| `jsdom` | testes de unidade/integração |
+| `puppeteer-core` | controle do navegador |
+| `@sparticuz/chromium` | binário de Chromium empacotado, usado quando não há Chrome no sistema |
+
+Resolução do navegador, nesta ordem:
+
+1. `PUPPETEER_EXECUTABLE_PATH`;
+2. Chrome/Chromium em caminhos comuns do Linux, macOS e Windows;
+3. binário do `@sparticuz/chromium` (fallback).
+
+Em contêineres mínimos sem `libnss3`/`libnspr4`, use o Chrome do sistema via
+`PUPPETEER_EXECUTABLE_PATH` ou instale essas bibliotecas. Screenshots e
+downloads do teste vão para um diretório temporário informado no final.
 
 | Verificação | Resultado |
 | --- | --- |
@@ -286,7 +320,8 @@ Chromium headless, página servida por HTTP, viewport móvel.
 | Calendário e missões após as mudanças | ✅ |
 | Nenhum erro de console durante todo o fluxo | ✅ |
 
-Resultado: **11/11**.
+Resultado: **11/11** em ambiente limpo (`git archive` → `npm ci` → `npm test`
+→ `npm run test:e2e`).
 
 ### 5.3 Auditoria de layout
 
@@ -296,7 +331,30 @@ de toque de pelo menos 34 px.
 
 ---
 
-## 6. Limitações conhecidas
+## 6. Auditoria de preservação (revisão do PR #1)
+
+Verificação explícita do que a migração e o uso normal tocam:
+
+| Dado | Migração | Uso normal | Teste |
+| --- | --- | --- | --- |
+| `forja-missoes-*` (objetos e strings antigas) | não altera (byte a byte) | só a chave do dia editado | 1d, 8 |
+| `forja-treino-exercicios-v1` | lê e mantém intacta | nunca é regravada | 1, 1d, 1e, 1f |
+| `forja-treino-historico-v1` | mantém intacto | novo registro é inserido; antigos preservados | 1, 1d, 6 |
+| `forja-treino-sessao-ativa-v1` | muda de formato (documentado), original arquivado | progresso normal da sessão | 1, 1d, 1g |
+| Chaves `forja-*` desconhecidas | não altera | não são tocadas | 1d |
+| Chaves fora de `forja-` | não altera | não são tocadas | 1d |
+
+A auditoria 1d também confirma que um segundo carregamento é idempotente: não
+duplica a “Rotina padrão”, não reescreve histórico, missões ou exercícios
+antigos, e mantém a sessão já migrada estável.
+
+Casos parciais não são descartados: rotinas, exercícios e sessões com itens
+inválidos têm o JSON original copiado para
+`forja-treino-dados-preservados-v1` antes de qualquer normalização.
+
+---
+
+## 7. Limitações conhecidas
 
 - **Alvos de toque**: alguns botões de ícone têm 34 px (abaixo dos 44 px
   recomendados por WCAG). Foram aumentados na auditoria, mas ainda não
@@ -305,6 +363,12 @@ de toque de pelo menos 34 px.
   autoplay do navegador; a interface nunca depende dele.
 - **Testes em um único navegador**: a verificação visual e E2E usou Chromium.
   Firefox e Safari não foram testados nesta rodada.
+- **Peso das dependências de teste**: `@sparticuz/chromium` ocupa cerca de
+  66 MB em `node_modules` (não entra no site publicado). Quem já tem Chrome
+  pode usar `PUPPETEER_EXECUTABLE_PATH` e remover o pacote, mas ele fica em
+  `devDependencies` para o `npm install` funcionar sem configuração.
+- **Ambiente mínimo**: o Chromium empacotado exige bibliotecas do sistema
+  (`libnss3`, `libnspr4`). Em Debian/Ubuntu: `sudo apt install libnss3`.
 - **Sem sincronização**: os dados continuam locais ao navegador/dispositivo.
 - **Migração reversível por preservação**: as chaves antigas ficam intactas;
   não existe botão "desfazer migração", pois não há nada a desfazer. Para

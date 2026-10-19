@@ -505,6 +505,421 @@ await runTest("1c. Rotinas ausentes são reconstruídas a partir do legado", asy
   app.close();
 });
 
+await runTest("1d. Auditoria: calendário, missões, exercícios e histórico são preservados", async () => {
+  const today = todayKey();
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterday = [
+    yesterdayDate.getFullYear(),
+    String(yesterdayDate.getMonth() + 1).padStart(2, "0"),
+    String(yesterdayDate.getDate()).padStart(2, "0")
+  ].join("-");
+
+  const missionsToday = [
+    { id: "m1", text: "Beber água", done: true },
+    { id: "m2", text: "Ler 20 páginas", done: false }
+  ];
+  const missionsLegacy = ["Caminhar 30 min", "Alongar"];
+  const legacyExercises = {
+    calisthenics: [
+      { id: "c1", name: "Flexão", sets: 3, reps: "12", rest: 60, load: "" },
+      { id: "c2", name: "Barra fixa", sets: 4, reps: "6", rest: 90, load: "" }
+    ],
+    weights: [
+      { id: "w1", name: "Supino reto", sets: 4, reps: "8", rest: 120, load: "50 kg" }
+    ]
+  };
+  const legacyHistory = [
+    {
+      id: "h1", date: yesterday, modality: "calisthenics",
+      durationMs: 1800000, completedSets: 7,
+      exercises: [
+        { id: "c1", name: "Flexão", plannedSets: 3, reps: "12", completedSets: 3 },
+        { id: "c2", name: "Barra fixa", plannedSets: 4, reps: "6", completedSets: 4 }
+      ]
+    },
+    {
+      id: "h2", date: "2026-10-10", modality: "weights",
+      durationMs: 2400000, completedSets: 9,
+      exercises: [
+        { id: "w1", name: "Supino reto", plannedSets: 4, reps: "8", load: "50 kg", completedSets: 4 }
+      ]
+    }
+  ];
+  const legacyActive = {
+    id: "legacy-audit",
+    date: today,
+    modality: "weights",
+    startedAt: Date.now() - 90000,
+    elapsedMs: 0,
+    running: true,
+    completedSets: { w1: 2 },
+    restEndAt: null,
+    restRemainingMs: 0,
+    restPaused: false
+  };
+  const foreignForjaKey = "forja-preferencias-visuais";
+  const foreignValue = { tema: "escuro", dourado: true };
+  const unrelatedKey = "outro-app-qualquer";
+  const unrelatedValue = "não deve ser tocado";
+
+  const app = await boot({
+    ["forja-missoes-" + today]: missionsToday,
+    ["forja-missoes-" + yesterday]: missionsLegacy,
+    "forja-treino-exercicios-v1": legacyExercises,
+    "forja-treino-historico-v1": legacyHistory,
+    "forja-treino-sessao-ativa-v1": legacyActive,
+    [foreignForjaKey]: foreignValue,
+    [unrelatedKey]: unrelatedValue
+  });
+
+  const untouchedKeys = [
+    "forja-missoes-" + today,
+    "forja-missoes-" + yesterday,
+    "forja-treino-exercicios-v1",
+    "forja-treino-historico-v1",
+    foreignForjaKey,
+    unrelatedKey
+  ];
+
+  const rawSnapshot = () => Object.fromEntries(
+    app.keys().map(key => [key, app.raw(key)])
+  );
+
+  const afterMigration = rawSnapshot();
+
+  untouchedKeys.forEach(key => {
+    assert.equal(
+      afterMigration[key],
+      seedRaw(key),
+      "A migração alterou " + key
+    );
+  });
+
+  // A sessão ativa é o único dado que muda de formato; o original fica arquivado.
+  assert.equal(
+    JSON.parse(afterMigration["forja-treino-sessao-ativa-legada-v1"]).session.id,
+    "legacy-audit"
+  );
+  assert.equal(
+    JSON.parse(afterMigration["forja-treino-sessao-ativa-legada-v1"]).session.completedSets.w1,
+    2
+  );
+
+  // Rotinas padrão criadas com ids/cargas originais.
+  const routines = app.data("forja-treino-rotinas-v1");
+  assert.equal(routines.calisthenics.length, 1);
+  assert.equal(routines.weights.length, 1);
+  assert.deepEqual(
+    routines.calisthenics[0].sections.main.map(item => item.id),
+    ["c1", "c2"]
+  );
+  assert.equal(routines.weights[0].sections.main[0].load, "50 kg");
+
+  const migration = app.data("forja-treino-migracao-v1");
+  assert.equal(migration.source, "forja-treino-exercicios-v1");
+  assert.deepEqual(
+    migration.routinesCreated.map(item => [item.modality, item.exercises]),
+    [["calisthenics", 2], ["weights", 1]]
+  );
+
+  // Nada foi arquivado como "corrompido" em uma migração saudável.
+  assert.equal(app.raw("forja-treino-dados-preservados-v1"), null);
+
+  // Missões em formato antigo continuam legíveis através da função do app.
+  const legacyTasks = app.w.readTasks(new Date(
+    Number(yesterday.slice(0, 4)),
+    Number(yesterday.slice(5, 7)) - 1,
+    Number(yesterday.slice(8, 10))
+  ));
+  assert.deepEqual(
+    Array.from(legacyTasks, task => String(task.text)),
+    missionsLegacy
+  );
+
+  // Segundo carregamento: idempotente, sem rotinas duplicadas nem reescritas.
+  const storedAfterFirstBoot = rawSnapshot();
+  app.close();
+
+  const second = await boot(storedAfterFirstBoot);
+  const afterSecondBoot = Object.fromEntries(
+    second.keys().map(key => [key, second.raw(key)])
+  );
+
+  assert.deepEqual(
+    afterSecondBoot["forja-treino-rotinas-v1"],
+    storedAfterFirstBoot["forja-treino-rotinas-v1"],
+    "Rotinas não devem mudar no segundo boot"
+  );
+  assert.deepEqual(
+    afterSecondBoot["forja-treino-historico-v1"],
+    storedAfterFirstBoot["forja-treino-historico-v1"]
+  );
+  assert.deepEqual(
+    afterSecondBoot["forja-treino-exercicios-v1"],
+    storedAfterFirstBoot["forja-treino-exercicios-v1"]
+  );
+  assert.deepEqual(
+    afterSecondBoot["forja-treino-sessao-ativa-legada-v1"],
+    storedAfterFirstBoot["forja-treino-sessao-ativa-legada-v1"]
+  );
+  assert.equal(
+    JSON.parse(afterSecondBoot["forja-treino-rotinas-v1"]).calisthenics.length,
+    1
+  );
+  assert.equal(
+    JSON.parse(afterSecondBoot["forja-treino-sessao-ativa-v1"]).version,
+    2
+  );
+
+  // A sessão ativa migrada reabre; descartá-la não altera o histórico.
+  assert.equal(second.$("#execution-screen").hidden, false);
+  assert.equal(second.text("#current-name"), "Supino reto");
+  second.click("#end-session");
+  await wait(20);
+  second.modalAction("discard");
+  await wait(30);
+  assert.equal(second.raw("forja-treino-sessao-ativa-v1"), null);
+  assert.equal(
+    second.data("forja-treino-historico-v1").length,
+    legacyHistory.length
+  );
+
+  // Histórico visível por modalidade, com os registros antigos intactos.
+  await second.chooseMode("calisthenics");
+  assert.equal(second.text("#history-total"), "1");
+  await second.chooseMode("weights");
+  assert.equal(second.text("#history-total"), "1");
+
+  // Adicionar missão muda somente a chave do dia atual.
+  const rawBeforeMission = Object.fromEntries(
+    second.keys().map(key => [key, second.raw(key)])
+  );
+  second.$("#task-input").value = "Nova missão de auditoria";
+  second.$("#task-form").dispatchEvent(new second.w.Event("submit", {
+    bubbles: true, cancelable: true
+  }));
+  await wait(30);
+
+  untouchedKeys.forEach(key => {
+    if (key === "forja-missoes-" + today) return;
+    assert.equal(second.raw(key), rawBeforeMission[key], "Missão alterou " + key);
+  });
+  assert.equal(
+    second.data("forja-missoes-" + today).length,
+    missionsToday.length + 1
+  );
+
+  // CRUD de rotina muda somente a chave de rotinas.
+  const rawBeforeRoutines = Object.fromEntries(
+    second.keys().map(key => [key, second.raw(key)])
+  );
+  await second.chooseMode("calisthenics");
+  await second.createRoutine("Rotina de auditoria");
+  await second.addExercise({ name: "Agachamento livre", sets: 1, reps: "15", rest: 0 });
+  await second.saveRoutine();
+  await second.backToRoutines();
+  await wait(20);
+
+  untouchedKeys.forEach(key => {
+    assert.equal(second.raw(key), rawBeforeRoutines[key], "Rotina alterou " + key);
+  });
+  assert.equal(
+    second.data("forja-treino-historico-v1").length,
+    legacyHistory.length
+  );
+
+  // Concluir um treino acrescenta ao histórico e preserva os registros antigos.
+  await second.startRoutine("Rotina de auditoria");
+  await second.completeSet();
+  await wait(40);
+  assert.equal(second.$("#execution-summary").hidden, false);
+  assert.match(second.text("#summary-title"), /Treino concluído/);
+
+  const historyAfterWorkout = second.data("forja-treino-historico-v1");
+  assert.equal(historyAfterWorkout.length, legacyHistory.length + 1);
+  assert.deepEqual(historyAfterWorkout.slice(1), legacyHistory);
+  assert.deepEqual(
+    second.data("forja-missoes-" + today).slice(0, missionsToday.length),
+    missionsToday
+  );
+  assert.equal(
+    second.raw("forja-treino-exercicios-v1"),
+    rawBeforeMission["forja-treino-exercicios-v1"]
+  );
+
+  assertNoErrors("auditoria de preservação");
+  second.close();
+
+  function seedRaw(key) {
+    const value = {
+      ["forja-missoes-" + today]: missionsToday,
+      ["forja-missoes-" + yesterday]: missionsLegacy,
+      "forja-treino-exercicios-v1": legacyExercises,
+      "forja-treino-historico-v1": legacyHistory,
+      [foreignForjaKey]: foreignValue,
+      [unrelatedKey]: unrelatedValue
+    }[key];
+    return typeof value === "string" ? value : JSON.stringify(value);
+  }
+});
+
+await runTest("1e. Conteúdo parcialmente inválido é arquivado, nunca descartado", async () => {
+  const validRoutine = makeRoutine("calisthenics", "Treino válido", [
+    { name: "Flexão", sets: 2, reps: "10", rest: 0 }
+  ]);
+  const routinesRaw = {
+    calisthenics: [
+      validRoutine,
+      { id: "sem-nome", sections: {} }
+    ],
+    weights: []
+  };
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesRaw,
+    "forja-treino-exercicios-v1": {
+      calisthenics: [
+        { id: "ok", name: "Exercício legível", sets: 2, reps: "10", rest: 30 },
+        { id: "ruim", sets: 3, reps: "10", rest: 30 }
+      ],
+      weights: []
+    }
+  });
+
+  // A rotina válida carrega; a inválida não é mostrada.
+  await app.chooseMode("calisthenics");
+  assert.equal(app.$$(".routine-card").length, 1);
+
+  // O armazenamento original permanece intacto após o boot.
+  assert.equal(
+    app.raw("forja-treino-rotinas-v1"),
+    JSON.stringify(routinesRaw)
+  );
+
+  const preserved = app.data("forja-treino-dados-preservados-v1");
+  assert.ok(preserved, "Conteúdo parcialmente inválido deve ser arquivado");
+  assert.ok(preserved.some(item => item.key === "forja-treino-rotinas-v1" && item.raw === JSON.stringify(routinesRaw)));
+  assert.ok(preserved.some(item => item.key === "forja-treino-exercicios-v1"));
+  assert.match(app.text("#toast"), /preservad/i);
+
+  // Reiniciar não duplica arquivamentos idênticos.
+  const stored = Object.fromEntries(app.keys().map(key => [key, app.raw(key)]));
+  app.close();
+
+  const second = await boot(stored);
+  const preservedAgain = second.data("forja-treino-dados-preservados-v1");
+  const routineArchives = preservedAgain.filter(item => {
+    return item.key === "forja-treino-rotinas-v1" &&
+      item.raw === JSON.stringify(routinesRaw);
+  });
+  assert.equal(routineArchives.length, 1, "O mesmo conteúdo não deve ser arquivado duas vezes");
+
+  assertNoErrors("arquivamento parcial");
+  second.close();
+});
+
+await runTest("1f. Formato antigo ilegível não é sobrescrito por rotinas vazias", async () => {
+  const corruptLegacy = "{isto não é json";
+
+  const app = await boot({
+    "forja-treino-exercicios-v1": corruptLegacy
+  });
+
+  // Nenhuma rotina vazia é gravada, permitindo recuperar o dado e migrar depois.
+  assert.equal(app.raw("forja-treino-rotinas-v1"), null);
+  assert.equal(app.raw("forja-treino-exercicios-v1"), corruptLegacy);
+  const preserved = app.data("forja-treino-dados-preservados-v1");
+  assert.equal(preserved[0].key, "forja-treino-exercicios-v1");
+  assert.equal(preserved[0].raw, corruptLegacy);
+  assert.match(app.text("#toast"), /ilegíveis|preservad/i);
+
+  // Segundo boot mantém o comportamento e não duplica o arquivo.
+  const stored = Object.fromEntries(app.keys().map(key => [key, app.raw(key)]));
+  app.close();
+
+  const second = await boot(stored);
+  assert.equal(second.raw("forja-treino-rotinas-v1"), null);
+  assert.equal(second.raw("forja-treino-exercicios-v1"), corruptLegacy);
+  assert.equal(
+    second.data("forja-treino-dados-preservados-v1")
+      .filter(item => item.raw === corruptLegacy).length,
+    1
+  );
+
+  // A interface continua funcional: cria rotina do zero e salva.
+  await second.chooseMode("calisthenics");
+  await second.createRoutine("Rotina nova");
+  await second.addExercise({ name: "Remada", sets: 2, reps: "10", rest: 30 });
+  await second.saveRoutine();
+  assert.equal(second.data("forja-treino-rotinas-v1").calisthenics.length, 1);
+  assert.equal(second.raw("forja-treino-exercicios-v1"), corruptLegacy);
+
+  assertNoErrors("legado ilegível");
+  second.close();
+});
+
+await runTest("1g. Sessão ativa com itens não reconhecidos preserva o original", async () => {
+  const routines = {
+    calisthenics: [makeRoutine("calisthenics", "Treino A", [
+      { id: "ex1", name: "Flexão", sets: 3, reps: "10", rest: 0 },
+      { id: "ex2", name: "Barra", sets: 2, reps: "5", rest: 0 }
+    ])],
+    weights: []
+  };
+
+  const sessionRaw = {
+    version: 2,
+    id: "sessao-parcial",
+    date: todayKey(),
+    modality: "calisthenics",
+    routineId: "calisthenics-routine-treino-a",
+    routineName: "Treino A",
+    startedAt: Date.now() - 20000,
+    elapsedMs: 0,
+    running: true,
+    currentIndex: 0,
+    completedSets: { ex1: 1, fantasma: 4 },
+    totalPlannedSets: 5,
+    queue: [
+      { id: "ex1", name: "Flexão", sets: 3, type: "reps", reps: "10", rest: 0, section: "main" },
+      { id: "quebrado" }
+    ],
+    status: "active",
+    restEndAt: null,
+    restRemainingMs: 0,
+    restPaused: false,
+    pendingAdvance: false
+  };
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routines,
+    "forja-treino-sessao-ativa-v1": sessionRaw
+  });
+
+  // Sessão normalizada continua utilizável.
+  assert.equal(app.text("#current-name"), "Flexão");
+  assert.equal(app.text("#current-sets-value").replace(/\s+/g, " "), "1 / 3");
+
+  // Original arquivado antes de qualquer regravação.
+  const preserved = app.data("forja-treino-dados-preservados-v1");
+  assert.ok(preserved.some(item => {
+    return item.key === "forja-treino-sessao-ativa-v1" &&
+      item.raw === JSON.stringify(sessionRaw);
+  }));
+  assert.match(app.text("#toast"), /preservad/i);
+
+  // Concluir uma série regrava apenas a versão normalizada; o arquivo permanece.
+  await app.completeSet();
+  assert.equal(app.data("forja-treino-sessao-ativa-v1").version, 2);
+  assert.ok(app.data("forja-treino-dados-preservados-v1").some(item => {
+    return item.raw === JSON.stringify(sessionRaw);
+  }));
+
+  assertNoErrors("sessão parcial");
+  app.close();
+});
+
 /* ------------------------------------------------------------------ */
 /* 2. CRUD de rotinas                                                  */
 /* ------------------------------------------------------------------ */

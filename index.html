@@ -2820,13 +2820,23 @@ function removeStorageKey(key) {
 
 function archivePreservedValue(key, raw, reason) {
   const stored = parseStorageValue(PRESERVED_DATA_KEY);
-  const list = stored.exists && Array.isArray(stored.value) ? stored.value : [];
+  const list = stored.exists && Array.isArray(stored.value)
+    ? stored.value.slice()
+    : [];
+  const rawString = typeof raw === "string" ? raw : JSON.stringify(raw);
+
+  // O mesmo conteúdo não é arquivado duas vezes em carregamentos seguidos.
+  const existingIndex = list.findIndex(item => {
+    return isPlainObject(item) && item.key === key && item.raw === rawString;
+  });
+
+  if (existingIndex >= 0) list.splice(existingIndex, 1);
 
   list.unshift({
     archivedAt: new Date().toISOString(),
     key,
     reason,
-    raw: typeof raw === "string" ? raw : JSON.stringify(raw)
+    raw: rawString
   });
 
   saveJSON(PRESERVED_DATA_KEY, list.slice(0, 20));
@@ -2972,11 +2982,28 @@ function normalizeRoutinesData(raw) {
   return result;
 }
 
-function countRoutineEntries(raw) {
-  if (!isPlainObject(raw)) return 0;
-  return ["calisthenics", "weights"].reduce((total, mode) => {
-    return total + (Array.isArray(raw[mode]) ? raw[mode].length : 0);
-  }, 0);
+function countRoutineData(raw) {
+  const stats = { routines: 0, exercises: 0 };
+  if (!isPlainObject(raw)) return stats;
+
+  ["calisthenics", "weights"].forEach(mode => {
+    if (!Array.isArray(raw[mode])) return;
+
+    raw[mode].forEach(routine => {
+      stats.routines += 1;
+
+      SECTION_ORDER.forEach(section => {
+        const list = isPlainObject(routine) &&
+          isPlainObject(routine.sections) &&
+          Array.isArray(routine.sections[section])
+          ? routine.sections[section]
+          : [];
+        stats.exercises += list.length;
+      });
+    });
+  });
+
+  return stats;
 }
 
 function flattenRoutine(routine) {
@@ -3087,21 +3114,36 @@ function loadRoutines() {
     }
 
     const normalized = normalizeRoutinesData(stored.value);
-    const rawCount = countRoutineEntries(stored.value);
+    const rawStats = countRoutineData(stored.value);
     const normalizedCount = normalized.calisthenics.length + normalized.weights.length;
+    const normalizedExercises = normalized.calisthenics
+      .concat(normalized.weights)
+      .reduce((total, routine) => total + countRoutineExercises(routine), 0);
 
-    if (rawCount > 0 && normalizedCount === 0) {
+    if (
+      (rawStats.routines > 0 && normalizedCount === 0) ||
+      rawStats.routines > normalizedCount ||
+      rawStats.exercises > normalizedExercises
+    ) {
       archivePreservedValue(
         WORKOUT_ROUTINES_KEY,
         stored.raw,
-        "Rotinas em formato não reconhecido"
+        rawStats.routines > 0 && normalizedCount === 0
+          ? "Rotinas em formato não reconhecido"
+          : "Rotinas parcialmente inválidas"
       );
       bootNotices.push(
-        "Algumas rotinas não puderam ser reconhecidas. O conteúdo original foi preservado."
+        "Algumas rotinas ou exercícios não puderam ser lidos. O conteúdo original foi preservado."
       );
     }
 
     return normalized;
+  }
+
+  if (legacyExercisesCorrupt) {
+    // Não grava rotinas vazias para não inviabilizar uma migração futura
+    // caso o dado antigo seja recuperado manualmente.
+    return { calisthenics: [], weights: [] };
   }
 
   const migrated = migrateLegacyExercisesToRoutines();
@@ -3119,10 +3161,70 @@ function loadRoutines() {
   return migrated.routines;
 }
 
+let legacyExercisesCorrupt = false;
+
+function countLegacyExercises(raw) {
+  if (!isPlainObject(raw)) return { entries: 0 };
+
+  let entries = 0;
+
+  ["calisthenics", "weights"].forEach(mode => {
+    if (!Array.isArray(raw[mode])) return;
+    entries += raw[mode].length;
+  });
+
+  return { entries };
+}
+
 function loadLegacyExercises() {
   const stored = parseStorageValue(WORKOUT_EXERCISES_KEY);
-  if (!stored.exists || stored.error) return { calisthenics: [], weights: [] };
-  return normalizeLegacyExercises(stored.value);
+  legacyExercisesCorrupt = false;
+
+  if (!stored.exists) return { calisthenics: [], weights: [] };
+
+  if (stored.error || !isPlainObject(stored.value)) {
+    legacyExercisesCorrupt = true;
+    archivePreservedValue(
+      WORKOUT_EXERCISES_KEY,
+      stored.raw,
+      "Exercícios do formato antigo ilegíveis"
+    );
+    bootNotices.push(
+      "Os exercícios do formato antigo estavam ilegíveis. O conteúdo original foi preservado e nenhuma rotina foi criada automaticamente."
+    );
+    return { calisthenics: [], weights: [] };
+  }
+
+  const normalized = normalizeLegacyExercises(stored.value);
+  const rawStats = countLegacyExercises(stored.value);
+  const normalizedCount = normalized.calisthenics.length + normalized.weights.length;
+  const invalidShape = ["calisthenics", "weights"].some(mode => {
+    return stored.value[mode] !== undefined && !Array.isArray(stored.value[mode]);
+  });
+
+  if (invalidShape) {
+    archivePreservedValue(
+      WORKOUT_EXERCISES_KEY,
+      stored.raw,
+      "Exercícios antigos com estrutura inesperada"
+    );
+    bootNotices.push(
+      "A estrutura dos exercícios antigos era inesperada. O conteúdo original foi preservado."
+    );
+  }
+
+  if (rawStats.entries > normalizedCount) {
+    archivePreservedValue(
+      WORKOUT_EXERCISES_KEY,
+      stored.raw,
+      "Exercícios antigos parcialmente inválidos"
+    );
+    bootNotices.push(
+      "Alguns exercícios do formato antigo não puderam ser lidos. O conteúdo original foi preservado."
+    );
+  }
+
+  return normalized;
 }
 
 /* Sessão ativa: leitura, migração e normalização */
@@ -3355,6 +3457,13 @@ function loadActiveWorkout() {
   }
 
   if (stored.value.version === 2) {
+    const rawQueueLength = Array.isArray(stored.value.queue)
+      ? stored.value.queue.length
+      : 0;
+    const rawCompleted = Object.values(
+      isPlainObject(stored.value.completedSets) ? stored.value.completedSets : {}
+    ).reduce((sum, count) => sum + (Number(count) || 0), 0);
+
     const normalized = normalizeSessionV2(stored.value);
     if (!normalized) {
       archivePreservedValue(
@@ -3368,6 +3477,23 @@ function loadActiveWorkout() {
       );
       return null;
     }
+
+    const normalizedCompleted = totalCompletedSets(normalized);
+
+    if (
+      normalized.queue.length < rawQueueLength ||
+      normalizedCompleted < rawCompleted
+    ) {
+      archivePreservedValue(
+        WORKOUT_ACTIVE_KEY,
+        stored.raw,
+        "Sessão ativa com exercícios ou progresso não reconhecidos"
+      );
+      bootNotices.push(
+        "Parte da sessão ativa não pôde ser lida. O conteúdo original foi preservado antes de continuar."
+      );
+    }
+
     return normalized;
   }
 

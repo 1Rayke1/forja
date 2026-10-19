@@ -1,29 +1,153 @@
 /*
-  Teste end-to-end em navegador real (opcional).
+  Teste end-to-end em navegador real.
 
-  Requer Chromium disponível via puppeteer-core/@sparticuz/chromium ou
-  PUPPETEER_EXECUTABLE_PATH. Sobe a própria página com `http.server`.
+  Sobe a própria página em um servidor HTTP local (nenhum processo externo é
+  necessário) e usa puppeteer-core com um Chromium já instalado no sistema
+  (PUPPETEER_EXECUTABLE_PATH) ou o binário empacotado em
+  @sparticuz/chromium. As duas dependências estão em devDependencies.
 
   Uso:
-    python3 -m http.server 8080 --bind 127.0.0.1 &
+    npm install
     npm run test:e2e
+
+  Variáveis opcionais:
+    PUPPETEER_EXECUTABLE_PATH  caminho de um Chrome/Chromium local
+    FORJA_URL                  usa um servidor já em execução
 */
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import http from 'node:http';
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = [];
-const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH ||
-  await chromium.executablePath();
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const artifactsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'forja-e2e-'));
+const artifactPath = name => path.join(artifactsDir, name);
 
-const browser = await puppeteer.launch({
-  args: [...chromium.args, '--no-sandbox'],
-  defaultViewport: { width: 390, height: 844 },
-  executablePath,
-  headless: true
-});
+let puppeteer;
+try {
+  puppeteer = (await import('puppeteer-core')).default;
+} catch (error) {
+  console.error(
+    'puppeteer-core não está instalado. Rode "npm install" na raiz do projeto.'
+  );
+  process.exit(1);
+}
+
+let chromium = null;
+try {
+  chromium = (await import('@sparticuz/chromium')).default;
+} catch (error) {
+  // Sem o binário empacotado; usamos um Chrome do sistema se existir.
+}
+
+const systemCandidates = [
+  process.env.PUPPETEER_EXECUTABLE_PATH,
+  '/usr/bin/google-chrome',
+  '/usr/bin/google-chrome-stable',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+].filter(Boolean);
+
+let executablePath = systemCandidates.find(candidate => fs.existsSync(candidate));
+let launchArgs = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'];
+
+if (!executablePath && chromium) {
+  executablePath = await chromium.executablePath();
+  launchArgs = [...chromium.args, '--no-sandbox', '--disable-dev-shm-usage'];
+}
+
+if (!executablePath) {
+  console.error(
+    'Nenhum navegador encontrado. Defina PUPPETEER_EXECUTABLE_PATH apontando ' +
+    'para um Chrome/Chromium ou instale @sparticuz/chromium (npm install).'
+  );
+  process.exit(1);
+}
+
+function startStaticServer(rootDir) {
+  const mime = {
+    '.html': 'text/html; charset=utf-8',
+    '.js': 'text/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.svg': 'image/svg+xml'
+  };
+
+  return new Promise((resolve, reject) => {
+    const server = http.createServer((request, response) => {
+      const requestUrl = new URL(request.url, 'http://127.0.0.1');
+      const relative = requestUrl.pathname === '/'
+        ? 'index.html'
+        : decodeURIComponent(requestUrl.pathname).replace(/^\/+/, '');
+      const filePath = path.resolve(rootDir, relative);
+
+      if (!filePath.startsWith(rootDir + path.sep) && filePath !== rootDir) {
+        response.statusCode = 403;
+        response.end('forbidden');
+        return;
+      }
+
+      // O app é um único index.html; não expõe node_modules, .git ou testes.
+      if (relative !== 'index.html') {
+        response.statusCode = 404;
+        response.end('not found');
+        return;
+      }
+
+      fs.readFile(filePath, (error, data) => {
+        if (error) {
+          response.statusCode = 404;
+          response.end('not found');
+          return;
+        }
+
+        response.setHeader(
+          'Content-Type',
+          mime[path.extname(filePath)] || 'application/octet-stream'
+        );
+        response.end(data);
+      });
+    });
+
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => {
+      resolve({
+        server,
+        url: 'http://127.0.0.1:' + server.address().port + '/index.html'
+      });
+    });
+  });
+}
+
+const localServer = process.env.FORJA_URL
+  ? null
+  : await startStaticServer(repoRoot);
+const BASE = process.env.FORJA_URL || localServer.url;
+
+let browser;
+try {
+  browser = await puppeteer.launch({
+    args: launchArgs,
+    defaultViewport: { width: 390, height: 844 },
+    executablePath,
+    headless: true
+  });
+} catch (error) {
+  console.error(
+    'Não foi possível iniciar o navegador (' + executablePath + '): ' + error.message +
+    '\nDica: defina PUPPETEER_EXECUTABLE_PATH para um Chrome/Chromium compatível.'
+  );
+  if (localServer) localServer.server.close();
+  process.exit(1);
+}
 const page = await browser.newPage();
 const consoleErrors = [];
 page.on('console', m => { if (m.type() === 'error') consoleErrors.push('console: ' + m.text()); });
@@ -47,7 +171,6 @@ async function check(name, fn) {
   catch (e) { results.push([name, 'fail']); console.log('❌ ' + name + '\n   ' + e.message.split('\n')[0]); }
 }
 
-const BASE = process.env.FORJA_URL || 'http://127.0.0.1:8080/index.html';
 
 await page.goto(BASE, { waitUntil: 'networkidle0' });
 await sleep(200);
@@ -189,7 +312,7 @@ await check('Execução, descanso, pausa, retomada e recarregamento no meio da s
   assert.equal(await text('#current-name'), 'Mobilidade de ombro');
   assert.equal(await text('#execution-position'), 'Exercício 1 de 4');
   assert.equal((await text('#current-sets-value')).replace(/\s+/g, ' '), '0 / 2');
-  await page.screenshot({ path: '/tmp/e2e-execution.png' });
+  await page.screenshot({ path: artifactPath('e2e-execution.png') });
 
   // pausar treino e retomar
   await click('#pause-session');
@@ -245,7 +368,7 @@ await check('Execução, descanso, pausa, retomada e recarregamento no meio da s
   assert.equal(summaryVisible, true, 'Resumo não apareceu');
   assert.equal(await text('#summary-sets'), '8/8');
   assert.match(await text('#summary-title'), /Treino concluído/);
-  await page.screenshot({ path: '/tmp/e2e-summary.png' });
+  await page.screenshot({ path: artifactPath('e2e-summary.png') });
   await click('#summary-close');
   await sleep(200);
   assert.equal(await page.evaluate(() => document.getElementById('execution-screen').hidden), true);
@@ -273,8 +396,7 @@ await check('Cancelar sessão não registra treino', async () => {
 });
 
 await check('Exportação e importação via seletor de arquivo', async () => {
-  const downloadPath = '/tmp/forja-download';
-  fs.rmSync(downloadPath, { recursive: true, force: true });
+  const downloadPath = artifactPath('downloads');
   fs.mkdirSync(downloadPath, { recursive: true });
   const client = await page.createCDPSession();
   await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath });
@@ -287,7 +409,7 @@ await check('Exportação e importação via seletor de arquivo', async () => {
     if (files.length) { file = files[0]; break; }
   }
   assert.ok(file, 'Download do backup não aconteceu');
-  const content = fs.readFileSync(downloadPath + '/' + file, 'utf8');
+  const content = fs.readFileSync(path.join(downloadPath, file), 'utf8');
   const backup = JSON.parse(content);
   assert.equal(backup.app, 'FORJA');
   assert.ok(backup.keys['forja-treino-rotinas-v1']);
@@ -300,12 +422,12 @@ await check('Exportação e importação via seletor de arquivo', async () => {
     document.getElementById('import-backup-button').click();
   });
   const input = await page.$('#import-backup-input');
-  await input.uploadFile(downloadPath + '/' + file);
+  await input.uploadFile(path.join(downloadPath, file));
   await sleep(400);
   assert.match(await text('#modal-title'), /Restaurar backup/);
   const preview = await page.$eval('.modal-details', e => e.textContent);
   assert.match(preview, /Histórico: 1 treino/);
-  await page.screenshot({ path: '/tmp/e2e-import.png' });
+  await page.screenshot({ path: artifactPath('e2e-import.png') });
   await page.evaluate(() => document.querySelector('[data-modal-action="restore"]').click());
   await sleep(400);
   const restored = await page.evaluate(() => ({
@@ -333,10 +455,11 @@ await check('Exportação e importação via seletor de arquivo', async () => {
 });
 
 await check('JSON inválido é rejeitado sem alterar dados', async () => {
-  fs.writeFileSync('/tmp/bad-backup.json', '{isto não é json');
+  const badBackupPath = artifactPath('bad-backup.json');
+  fs.writeFileSync(badBackupPath, '{isto não é json');
   const before = await page.evaluate(() => JSON.stringify(localStorage));
   const input = await page.$('#import-backup-input');
-  await input.uploadFile('/tmp/bad-backup.json');
+  await input.uploadFile(badBackupPath);
   await sleep(350);
   assert.match(await text('#modal-title'), /Arquivo inválido/);
   await page.evaluate(() => document.querySelector('[data-modal-action="close"]').click());
@@ -390,7 +513,7 @@ await check('Calendário e missões funcionam após as mudanças', async () => {
   await page.evaluate(() => document.getElementById('prev-month').click());
   await sleep(150);
   assert.equal(await text('#month-title'), title);
-  await page.screenshot({ path: '/tmp/e2e-calendar.png' });
+  await page.screenshot({ path: artifactPath('e2e-calendar.png') });
 });
 
 await check('Nenhum erro de console durante todo o fluxo', async () => {
@@ -402,5 +525,8 @@ const failed = results.filter(r => r[1] === 'fail');
 console.log('E2E navegador real — ' + (results.length - failed.length) + '/' + results.length + ' verificações aprovadas');
 if (failed.length) console.log('Falhas: ' + failed.map(f => f[0]).join(' | '));
 console.log('='.repeat(60));
+console.log('Artefatos (screenshots/downloads): ' + artifactsDir);
+
 await browser.close();
+if (localServer) localServer.server.close();
 process.exitCode = failed.length ? 1 : 0;
