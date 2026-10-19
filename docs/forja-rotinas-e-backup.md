@@ -279,8 +279,27 @@ Executam o `index.html` real, com o mesmo script do navegador.
 | 8 | Calendário e missões antes/depois; navegação de meses; restauração | ✅ |
 | 9 | Meta viewport e media queries responsivas presentes | ✅ |
 | 10 | Todos os ids usados no script existem; nenhum erro de console | ✅ |
+| 11a | Calendário: troca de dia, conclusão, exclusão, estado vazio, pontos e persistência por dia | ✅ |
+| 11b | Um envio cria exatamente um item; navegação de meses sem listeners duplicados | ✅ |
+| 11c | Missões antigas em formato de texto continuam funcionando e são convertidas sem perda | ✅ |
+| 12a | IDs únicos com modal, editor e execução abertos | ✅ |
+| 12b | Nenhuma função/ID removida ainda referenciada; boot e intervalo únicos; bloco de calendário idêntico à `main` (SHA-256) | ✅ |
+| 12c | Regras de calendário/missões em telas ≤ 380 px preservadas | ✅ |
+| 13a | Exportar → alterar → importar → desfazer reproduz todas as chaves exatamente | ✅ |
+| 13b | Falha transitória de `setItem` na importação faz rollback integral e informa o erro | ✅ |
+| 13c | Falha também no rollback é reportada com as chaves afetadas; cópia de segurança permanece | ✅ |
+| 13d | Falha ao criar a cópia de segurança aborta a importação sem alterar dados | ✅ |
+| 13e | Exportar sem dados mostra aviso claro, não gera download e não lança erro | ✅ |
+| 14a | Pausar a sessão durante o descanso pendente, recarregar e retomar mantém o avanço | ✅ |
+| 14b | Pausar só o descanso pendente, recarregar e retomar mantém o avanço | ✅ |
+| 14c | Estado inconsistente (`pendingAdvance` sem séries concluídas) não pula séries | ✅ |
+| 14d | Descanso pendente no último exercício conclui a sessão uma única vez | ✅ |
+| 15a | Boot com apenas missões não grava nenhuma chave de treino | ✅ |
+| 15b | Migração idempotente em três carregamentos consecutivos | ✅ |
+| 15c | Sessão antiga com progresso extra migra e preserva o original arquivado | ✅ |
+| 15d | Rotinas existentes impedem migração duplicada do legado | ✅ |
 
-Resultado: **20/20** — incluindo execução em ambiente limpo
+Resultado: **39/39** — incluindo execução em ambiente limpo
 (`git archive` → `npm ci` → `npm test`).
 
 ### 5.2 Navegador real — `npm run test:e2e`
@@ -338,10 +357,11 @@ Verificação explícita do que a migração e o uso normal tocam:
 
 | Dado | Migração | Uso normal | Teste |
 | --- | --- | --- | --- |
-| `forja-missoes-*` (objetos e strings antigas) | não altera (byte a byte) | só a chave do dia editado | 1d, 8 |
-| `forja-treino-exercicios-v1` | lê e mantém intacta | nunca é regravada | 1, 1d, 1e, 1f |
-| `forja-treino-historico-v1` | mantém intacto | novo registro é inserido; antigos preservados | 1, 1d, 6 |
-| `forja-treino-sessao-ativa-v1` | muda de formato (documentado), original arquivado | progresso normal da sessão | 1, 1d, 1g |
+| `forja-missoes-*` (objetos e strings antigas) | não altera (byte a byte) | só a chave do dia editado | 1d, 8, 11a–11c |
+| `forja-treino-exercicios-v1` | lê e mantém intacta | nunca é regravada | 1, 1d, 1e, 1f, 15b, 15d |
+| `forja-treino-historico-v1` | mantém intacto | novo registro é inserido; antigos preservados | 1, 1d, 6, 13a |
+| `forja-treino-sessao-ativa-v1` | muda de formato (documentado), original arquivado | progresso normal da sessão | 1, 1d, 1g, 14a–14d, 15c |
+| `forja-backup-seguranca-v1` | não entra no backup | criada antes de importar; permite desfazer | 7, 13a–13d |
 | Chaves `forja-*` desconhecidas | não altera | não são tocadas | 1d |
 | Chaves fora de `forja-` | não altera | não são tocadas | 1d |
 
@@ -352,6 +372,26 @@ antigos, e mantém a sessão já migrada estável.
 Casos parciais não são descartados: rotinas, exercícios e sessões com itens
 inválidos têm o JSON original copiado para
 `forja-treino-dados-preservados-v1` antes de qualquer normalização.
+
+### 6.1 Regressões encontradas e corrigidas na revisão final
+
+| # | Problema | Correção | Teste |
+| --- | --- | --- | --- |
+| 1 | `normalizeSessionV2` descartava `pendingAdvance` sempre que o descanso estava pausado. Pausar a sessão durante o descanso (ou recarregar) desligava o avanço automático para sempre. | Preserva `pendingAdvance` quando o exercício atual realmente terminou (`completedSets >= sets`), mesmo com descanso/sessão pausados. | 14a, 14b, 14d |
+| 2 | Abrir o site só com calendário/missões gravava `forja-treino-rotinas-v1` vazio sem ação do usuário. | `loadRoutines` só grava a chave quando a migração criou alguma rotina. | 15a |
+| 3 | Regras de `.calendar-panel`, `.missions-panel`, `.calendar-grid`, `.day`, `.task-form` e `.history-summary` em ≤ 380 px existiam na `main` e tinham sido perdidas. | Restauradas no bloco `@media (max-width: 380px)`. | 12c |
+| 4 | Rollback da importação reconstruía valores a partir de objetos e não informava falhas parciais; erros de `setItem` não eram convertidos em mensagem útil. | Rollback usa os valores brutos (`collectCurrentRawSnapshot`), retorna `{ok, failedKeys}`, restaura todas as chaves possíveis e informa quais falharam. | 13b, 13c |
+| 5 | Exportar sem nenhum dado lançava erro em vez de orientar o usuário. | Aviso amigável e retorno antecipado, sem gerar download. | 13e |
+
+O bloco de calendário/missões foi comparado por SHA-256 com a `main`
+(`3505b01`): é idêntico. Os testes 12b/12c também garantem que os controles
+`task-form`, `prev-month` e `next-month` têm um único listener e que o CSS
+móvel da `main` está presente.
+
+Como prova de que os novos testes não são vazios, a suíte foi executada
+contra o `index.html` anterior (`96cdeb4`): **31/39**, com falhas exatamente
+nos oito testes ligados às correções acima (12c, 13b, 13c, 13e, 14a, 14b,
+14d, 15a).
 
 ---
 

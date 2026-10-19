@@ -48,7 +48,7 @@ body {
   line-height: 1.5;
 }
 
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 
 button { -webkit-tap-highlight-color: transparent; }
 
@@ -1698,7 +1698,16 @@ body.modal-open { overflow: hidden; }
 }
 
 @media (max-width: 380px) {
-  .workout-panel { padding: 12px; }
+  .calendar-panel, .missions-panel, .workout-panel {
+    padding: 12px;
+  }
+
+  .calendar-grid { gap: 3px; }
+  .day { font-size: 12px; }
+  .task-form { flex-wrap: wrap; }
+  .task-form input { flex: 1 1 100%; }
+  .task-form .add-button { min-height: 42px; width: 100%; }
+  .history-summary { gap: 5px; }
 
   .modality-grid { gap: 8px; }
 
@@ -3148,7 +3157,14 @@ function loadRoutines() {
 
   const migrated = migrateLegacyExercisesToRoutines();
 
-  if (saveJSON(WORKOUT_ROUTINES_KEY, migrated.routines) && migrated.created.length > 0) {
+  if (migrated.created.length === 0) {
+    // Nada a migrar: não cria chave nova só por abrir o site.
+    // Assim, um usuário que só usa calendário/missões não tem dados
+    // de treino gravados sem ação própria.
+    return migrated.routines;
+  }
+
+  if (saveJSON(WORKOUT_ROUTINES_KEY, migrated.routines)) {
     recordMigration({
       source: WORKOUT_EXERCISES_KEY,
       routinesCreated: migrated.created
@@ -3268,6 +3284,8 @@ function normalizeSessionV2(raw) {
   const completedSets = normalizeCompletedSets(raw.completedSets, queue);
   const totalPlannedSets = queue.reduce((sum, exercise) => sum + exercise.sets, 0);
   const currentIndex = clampInteger(raw.currentIndex, 0, queue.length - 1, 0);
+  const currentExercise = queue[currentIndex];
+  const currentDone = Number(completedSets[currentExercise.id]) || 0;
 
   let running = raw.running !== false;
   let startedAt = Number(raw.startedAt) || null;
@@ -3314,7 +3332,10 @@ function normalizeSessionV2(raw) {
     restEndAt,
     restRemainingMs,
     restPaused,
-    pendingAdvance: Boolean(raw.pendingAdvance) && !restPaused,
+    // O avanço pendente precisa sobreviver à pausa (descanso ou sessão).
+    // Só é aceito quando o exercício atual realmente terminou, para não
+    // pular séries caso o estado salvo esteja inconsistente.
+    pendingAdvance: Boolean(raw.pendingAdvance) && currentDone >= currentExercise.sets,
     restPlannedSeconds: clampInteger(raw.restPlannedSeconds, 0, 3600, 0)
   };
 }
@@ -6078,6 +6099,13 @@ function buildBackupObject() {
 function exportBackup() {
   let backup;
 
+  if (getForjaStorageKeys().length === 0) {
+    showToast(
+      "Ainda não há dados do FORJA para exportar. Crie missões ou rotinas primeiro."
+    );
+    return false;
+  }
+
   try {
     backup = buildBackupObject();
   } catch (error) {
@@ -6270,8 +6298,8 @@ function makeBackupPreview(validated, currentKeys) {
   return details;
 }
 
-function collectCurrentKeysForSnapshot() {
-  const keys = {};
+function collectCurrentRawSnapshot() {
+  const rawValues = {};
 
   getForjaStorageKeys().forEach(key => {
     const stored = parseStorageValue(key);
@@ -6283,10 +6311,10 @@ function collectCurrentKeysForSnapshot() {
       );
     }
 
-    if (stored.exists) keys[key] = stored.value;
+    if (stored.exists) rawValues[key] = stored.raw;
   });
 
-  return keys;
+  return rawValues;
 }
 
 function writeKeysTransaction(keys) {
@@ -6296,31 +6324,50 @@ function writeKeysTransaction(keys) {
   });
 
   Object.keys(keys).forEach(key => {
-    localStorage.setItem(key, JSON.stringify(keys[key]));
+    try {
+      localStorage.setItem(key, JSON.stringify(keys[key]));
+    } catch (error) {
+      throw new Error("Falha ao gravar \"" + key + "\": " + error.message);
+    }
   });
 
   Object.keys(keys).forEach(key => {
     const raw = localStorage.getItem(key);
-    if (raw === null) throw new Error("Falha ao gravar " + key + ".");
-    JSON.parse(raw);
+
+    if (raw === null) {
+      throw new Error("Falha ao verificar \"" + key + "\" após a gravação.");
+    }
+
+    try {
+      JSON.parse(raw);
+    } catch (error) {
+      throw new Error("O dado \"" + key + "\" ficou inválido após a gravação.");
+    }
   });
 }
 
-function rollbackToSafety(safetyKeys) {
-  try {
-    getForjaStorageKeys(true).forEach(key => {
-      if (key === SAFETY_BACKUP_KEY) return;
+function rollbackToSafety(safetyRawValues) {
+  const failedKeys = [];
+
+  getForjaStorageKeys(true).forEach(key => {
+    if (key === SAFETY_BACKUP_KEY) return;
+
+    try {
       localStorage.removeItem(key);
-    });
+    } catch (error) {
+      failedKeys.push(key);
+    }
+  });
 
-    Object.keys(safetyKeys).forEach(key => {
-      localStorage.setItem(key, JSON.stringify(safetyKeys[key]));
-    });
+  Object.keys(safetyRawValues).forEach(key => {
+    try {
+      localStorage.setItem(key, safetyRawValues[key]);
+    } catch (error) {
+      failedKeys.push(key);
+    }
+  });
 
-    return true;
-  } catch (error) {
-    return false;
-  }
+  return { ok: failedKeys.length === 0, failedKeys };
 }
 
 function reloadApplicationData() {
@@ -6354,9 +6401,14 @@ function reloadApplicationData() {
 
 function applyRestore(keys, options = {}) {
   let currentKeys;
+  let currentRaw;
 
   try {
-    currentKeys = collectCurrentKeysForSnapshot();
+    currentRaw = collectCurrentRawSnapshot();
+    currentKeys = {};
+    Object.keys(currentRaw).forEach(key => {
+      currentKeys[key] = JSON.parse(currentRaw[key]);
+    });
   } catch (error) {
     showToast(error.message, "error", 6000);
     return false;
@@ -6378,13 +6430,16 @@ function applyRestore(keys, options = {}) {
   try {
     writeKeysTransaction(keys);
   } catch (error) {
-    const rolledBack = rollbackToSafety(currentKeys);
+    const rollback = rollbackToSafety(currentRaw);
 
     showModal({
       title: "Falha ao restaurar",
-      message: rolledBack
-        ? "Não foi possível concluir a restauração. Seus dados anteriores foram recuperados. Detalhe: " + error.message
-        : "Não foi possível concluir a restauração nem recuperar todos os dados. O conteúdo atual está preservado neste navegador. Detalhe: " + error.message,
+      message: rollback.ok
+        ? "Não foi possível concluir a restauração. Seus dados anteriores foram recuperados integralmente. Detalhe: " + error.message
+        : "Não foi possível concluir a restauração nem recuperar todas as chaves. " +
+          "Chaves com problema: " + rollback.failedKeys.join(", ") + ". " +
+          "A cópia de segurança anterior continua em forja-backup-seguranca-v1. " +
+          "Detalhe: " + error.message,
       actions: [
         { id: "close", label: "Fechar", className: "secondary-button" }
       ]

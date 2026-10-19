@@ -9,6 +9,7 @@ import { JSDOM, VirtualConsole } from "jsdom";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -348,6 +349,77 @@ async function runTest(name, fn) {
   } finally {
     closeAllApps();
   }
+}
+
+function parsedStorage(app, options = {}) {
+  const includeSafety = options.includeSafety === true;
+  const snapshot = {};
+
+  app.keys().forEach(key => {
+    if (!includeSafety && key === "forja-backup-seguranca-v1") return;
+    snapshot[key] = app.data(key);
+  });
+
+  return snapshot;
+}
+
+function installFailingStorage(app, options) {
+  const real = app.w.localStorage;
+  const state = {
+    failOn: options.failOn,
+    times: options.times === undefined ? 1 : options.times,
+    hits: 0
+  };
+
+  const fake = {
+    get length() {
+      return real.length;
+    },
+    key(index) {
+      return real.key(index);
+    },
+    getItem(key) {
+      return real.getItem(key);
+    },
+    setItem(key, value) {
+      if (key === state.failOn && state.hits < state.times) {
+        state.hits += 1;
+        const error = new Error("QuotaExceededError simulado");
+        error.name = "QuotaExceededError";
+        throw error;
+      }
+      real.setItem(key, value);
+    },
+    removeItem(key) {
+      return real.removeItem(key);
+    },
+    clear() {
+      return real.clear();
+    }
+  };
+
+  Object.defineProperty(app.w, "localStorage", {
+    value: fake,
+    configurable: true
+  });
+
+  return {
+    state,
+    real,
+    restore() {
+      Object.defineProperty(app.w, "localStorage", {
+        value: real,
+        configurable: true
+      });
+    }
+  };
+}
+
+function formatSelected(w, year, month, day) {
+  return w.eval(
+    "formatDate(new Date(" + year + ", " + month + ", " + day + "), " +
+    "{ weekday: \"long\", day: \"numeric\", month: \"long\", year: \"numeric\" })"
+  );
 }
 
 async function waitFor(predicate, options = {}) {
@@ -1754,6 +1826,907 @@ await runTest("10. Integridade: ids referenciados existem e nenhum erro de conso
   });
 
   assertNoErrors("integridade");
+  app.close();
+});
+
+/* ------------------------------------------------------------------ */
+/* 11. Regressão do calendário e das missões                           */
+/* ------------------------------------------------------------------ */
+
+await runTest("11a. Calendário e missões: dias, conclusão, exclusão e persistência", async () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const todayDay = now.getDate();
+  const otherDay = todayDay === 1 ? 2 : 1;
+  const pad = value => String(value).padStart(2, "0");
+  const keyFor = day => "forja-missoes-" + year + "-" + pad(month + 1) + "-" + pad(day);
+  const todayKeyStr = keyFor(todayDay);
+  const otherKeyStr = keyFor(otherDay);
+
+  const app = await boot({
+    [todayKeyStr]: [
+      { id: "t1", text: "Missão A", done: false },
+      { id: "t2", text: "Missão B", done: true }
+    ],
+    [otherKeyStr]: [
+      { id: "o1", text: "Missão de outro dia", done: false }
+    ]
+  });
+
+  const fmt = day => formatSelected(app.w, year, month, day);
+
+  assert.equal(app.text("#selected-date"), fmt(todayDay));
+  assert.equal(app.text("#progress-label"), "1 de 2 · 50%");
+  assert.equal(app.$$(".task").length, 2);
+  assert.equal(app.$$("#calendar-grid .day.selected").length, 1);
+  assert.equal(app.$$("#calendar-grid .day.has-tasks").length, 2);
+
+  // Trocar de dia mostra apenas as missões daquele dia.
+  const otherButton = app.$$("#calendar-grid .day").find(button => {
+    return !button.disabled && button.textContent.trim() === String(otherDay);
+  });
+  assert.ok(otherButton, "Dia alternativo não encontrado no calendário");
+  app.click(otherButton);
+  await wait(30);
+
+  assert.equal(app.text("#selected-date"), fmt(otherDay));
+  assert.equal(app.text("#progress-label"), "0 de 1 · 0%");
+  assert.equal(app.$$(".task").length, 1);
+  assert.equal(app.text(".task-text"), "Missão de outro dia");
+
+  // Persistência diária: adicionar no outro dia não toca no dia atual.
+  app.$("#task-input").value = "Nova missão do outro dia";
+  app.$("#task-form").dispatchEvent(new app.w.Event("submit", {
+    bubbles: true, cancelable: true
+  }));
+  await wait(30);
+  assert.equal(app.data(otherKeyStr).length, 2);
+  assert.equal(app.data(todayKeyStr).length, 2);
+
+  // Voltar ao dia de hoje pelo calendário.
+  const todayButton = app.$$("#calendar-grid .day").find(button => {
+    return !button.disabled && button.textContent.trim() === String(todayDay);
+  });
+  app.click(todayButton);
+  await wait(30);
+  assert.equal(app.text("#selected-date"), fmt(todayDay));
+  assert.equal(app.$$(".task").length, 2);
+
+  // Concluir uma tarefa.
+  const checkbox = app.$$(".task input[type=checkbox]")[0];
+  checkbox.checked = true;
+  checkbox.dispatchEvent(new app.w.Event("change", { bubbles: true }));
+  await wait(30);
+  assert.equal(app.text("#progress-label"), "2 de 2 · 100%");
+  assert.equal(app.data(todayKeyStr)[0].done, true);
+  assert.equal(app.data(otherKeyStr)[1].done, false);
+
+  // Excluir uma tarefa.
+  app.click(app.$$(".task .delete-button")[0]);
+  await wait(30);
+  assert.equal(app.data(todayKeyStr).length, 1);
+  assert.equal(app.data(otherKeyStr).length, 2);
+
+  // Excluir todas: estado vazio e ponto do dia removido.
+  app.click(app.$$(".task .delete-button")[0]);
+  await wait(30);
+  assert.equal(app.data(todayKeyStr).length, 0);
+  assert.equal(app.$$(".task").length, 0);
+  assert.ok(app.text(".empty"), "Estado vazio deve aparecer");
+  assert.equal(app.$$("#calendar-grid .day.selected.has-tasks").length, 0);
+  assert.equal(app.$$("#calendar-grid .day.has-tasks").length, 1);
+
+  // Recarregar: missões continuam salvas por dia.
+  const raw = parsedStorage(app);
+  app.close();
+
+  const second = await boot(raw);
+  assert.equal(
+    second.text("#selected-date"),
+    formatSelected(second.w, year, month, todayDay)
+  );
+  assert.equal(second.text("#progress-label"), "0 de 0 · 0%");
+  assert.equal(second.$$(".task").length, 0);
+  assert.equal(second.data(otherKeyStr).length, 2);
+  assert.equal(second.data(otherKeyStr)[1].text, "Nova missão do outro dia");
+  assert.equal(second.$$("#calendar-grid .day.has-tasks").length, 1);
+
+  // Navegação de meses preservada e sem perder missões.
+  const beforeNavigation = second.w.eval(
+    "({ year: displayedYear, month: displayedMonth })"
+  );
+  const title = second.text("#month-title");
+  second.click("#next-month");
+  await wait(25);
+  const afterNext = second.w.eval(
+    "({ year: displayedYear, month: displayedMonth })"
+  );
+  assert.equal(
+    afterNext.month,
+    (beforeNavigation.month + 1) % 12
+  );
+  second.click("#prev-month");
+  await wait(25);
+  assert.equal(second.text("#month-title"), title);
+  assert.equal(second.data(otherKeyStr).length, 2);
+
+  assertNoErrors("calendário completo");
+  second.close();
+});
+
+await runTest("11b. Um envio cria exatamente um item (sem listeners duplicados)", async () => {
+  const today = todayKey();
+  const app = await boot();
+
+  const before = app.$$(".task").length;
+  app.$("#task-input").value = "Missão única";
+  app.$("#task-form").dispatchEvent(new app.w.Event("submit", {
+    bubbles: true, cancelable: true
+  }));
+  await wait(30);
+  assert.equal(app.$$(".task").length, before + 1);
+  assert.equal(app.data("forja-missoes-" + today).length, 1);
+
+  // Navegar dois meses avança exatamente dois meses.
+  const start = app.w.eval("displayedMonth");
+  app.click("#next-month");
+  app.click("#next-month");
+  await wait(30);
+  const after = app.w.eval("displayedMonth");
+  assert.equal(after, (start + 2) % 12);
+  app.click("#prev-month");
+  app.click("#prev-month");
+  await wait(30);
+  assert.equal(app.w.eval("displayedMonth"), start);
+
+  // Duas submissões iguais geram duas missões (e não quatro).
+  app.$("#task-input").value = "Segunda missão";
+  app.$("#task-form").dispatchEvent(new app.w.Event("submit", {
+    bubbles: true, cancelable: true
+  }));
+  await wait(20);
+  app.$("#task-input").value = "Terceira missão";
+  app.$("#task-form").dispatchEvent(new app.w.Event("submit", {
+    bubbles: true, cancelable: true
+  }));
+  await wait(30);
+  assert.equal(app.data("forja-missoes-" + today).length, 3);
+
+  assertNoErrors("listeners únicos");
+  app.close();
+});
+
+await runTest("11c. Missões antigas em formato de texto continuam funcionando", async () => {
+  const today = todayKey();
+  const app = await boot({
+    ["forja-missoes-" + today]: ["Missão em texto 1", "Missão em texto 2"]
+  });
+
+  assert.equal(app.$$(".task").length, 2);
+  assert.equal(app.text(".task-text"), "Missão em texto 1");
+  assert.equal(app.text("#progress-label"), "0 de 2 · 0%");
+
+  const checkbox = app.$$(".task input[type=checkbox]")[0];
+  checkbox.checked = true;
+  checkbox.dispatchEvent(new app.w.Event("change", { bubbles: true }));
+  await wait(30);
+
+  const stored = app.data("forja-missoes-" + today);
+  assert.equal(stored.length, 2);
+  assert.equal(stored[0].text, "Missão em texto 1");
+  assert.equal(stored[0].done, true);
+  assert.equal(stored[1].text, "Missão em texto 2");
+  assert.equal(stored[1].done, false);
+  assert.equal(app.text("#progress-label"), "1 de 2 · 50%");
+
+  const raw = parsedStorage(app);
+  app.close();
+
+  const second = await boot(raw);
+  assert.equal(second.text("#progress-label"), "1 de 2 · 50%");
+  assert.equal(second.$$(".task.done").length, 1);
+
+  assertNoErrors("missões antigas");
+  second.close();
+});
+
+/* ------------------------------------------------------------------ */
+/* 12. Integridade estrutural e conflitos                              */
+/* ------------------------------------------------------------------ */
+
+await runTest("12a. IDs únicos inclusive com modal, editor e execução abertos", async () => {
+  const routines = {
+    calisthenics: [makeRoutine("calisthenics", "Treino A", [
+      { id: "ex1", name: "Flexão", sets: 1, reps: "10", rest: 0 }
+    ])],
+    weights: []
+  };
+
+  const app = await boot({ "forja-treino-rotinas-v1": routines });
+
+  const assertUniqueIds = label => {
+    const ids = app.$$("[id]").map(element => element.id);
+    const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+    assert.deepEqual(duplicates, [], "IDs duplicados (" + label + "): " + duplicates.join(", "));
+    assert.ok(ids.length > 20);
+  };
+
+  assertUniqueIds("inicial");
+
+  await app.chooseMode("calisthenics");
+  app.click("#new-routine");
+  await wait(25);
+  assertUniqueIds("modal aberto");
+  app.modalAction("cancel");
+  await wait(20);
+
+  await app.openRoutine("Treino A");
+  assertUniqueIds("editor aberto");
+  app.click("#back-from-editor");
+  await wait(20);
+
+  await app.startRoutine("Treino A");
+  assertUniqueIds("execução aberta");
+
+  app.click("#end-session");
+  await wait(25);
+  assertUniqueIds("modal sobre execução");
+  app.modalAction("discard");
+  await wait(30);
+
+  assertNoErrors("ids únicos");
+  app.close();
+});
+
+await runTest("12b. Nenhuma função/ID antiga referenciada e um único boot", async () => {
+  const scriptStart = html.indexOf("<script>");
+  const script = html.slice(scriptStart, html.indexOf("</script>", scriptStart));
+
+  const removedFunctions = [
+    "beginExerciseEdit", "cancelExerciseEdit", "completeSet", "deleteExercise",
+    "endRest", "finishWorkout", "getActiveForMode", "getModeExercises",
+    "pauseWorkout", "readJSON", "renderExercises", "renderHistory",
+    "renderWorkout", "resumeWorkout", "saveExercises", "saveHistory",
+    "selectWorkoutMode", "setWorkoutNotice", "startWorkout",
+    "updateWorkoutTimers", "validExercisesData"
+  ];
+
+  removedFunctions.forEach(name => {
+    assert.equal(
+      new RegExp("\\b" + name + "\\s*\\(").test(script),
+      false,
+      "Função removida ainda referenciada: " + name
+    );
+  });
+
+  [
+    "workout-content", "session-timer", "session-caption", "start-workout",
+    "pause-workout", "resume-workout", "finish-workout", "exercise-list",
+    "workout-notice", "choose-calisthenics", "choose-weight"
+  ].forEach(id => {
+    assert.equal(
+      script.includes(id),
+      false,
+      "ID removido ainda referenciado: " + id
+    );
+  });
+
+  // Ligação única dos controles do calendário/missões.
+  [
+    "task-form", "prev-month", "next-month"
+  ].forEach(id => {
+    const pattern = new RegExp(
+      "getElementById\\(\"" + id + "\"\\)\\.addEventListener\\(",
+      "g"
+    );
+    const count = (script.match(pattern) || []).length;
+    assert.equal(count, 1, "Listener duplicado ou ausente em #" + id);
+  });
+
+  assert.equal((script.match(/function bootWorkoutModule\s*\(/g) || []).length, 1);
+  assert.equal((script.match(/^bootWorkoutModule\(\);/gm) || []).length, 1);
+  assert.equal((script.match(/setInterval\(workoutTick/g) || []).length, 1);
+
+  // O bloco de calendário/missões é idêntico ao da main (3505b01).
+  const scriptContent = script.slice(script.indexOf(">") + 1);
+  const calendarBlock = scriptContent.split("/* FORJA TREINO")[0].trim();
+  assert.equal(
+    createHash("sha256").update(calendarBlock).digest("hex"),
+    "30a825330793e156adc357ae714f022c853033c1016ee66ffeaec1ab705928c5",
+    "O código de calendário/missões mudou em relação à main"
+  );
+
+  assertNoErrors("integridade estrutural");
+});
+
+await runTest("12c. Regras de calendário/missões em telas pequenas foram preservadas", async () => {
+  const cssStart = html.indexOf("<style>");
+  const css = html.slice(cssStart, html.indexOf("</style>", cssStart));
+  const mobileStart = css.indexOf("@media (max-width: 380px)");
+  assert.ok(mobileStart > 0, "Media query de 380px ausente");
+  const mobile = css.slice(mobileStart);
+
+  assert.match(
+    mobile,
+    /\.calendar-panel,\s*\.missions-panel,\s*\.workout-panel\s*\{\s*padding:\s*12px;/
+  );
+  assert.match(mobile, /\.calendar-grid\s*\{\s*gap:\s*3px;\s*\}/);
+  assert.match(mobile, /\.day\s*\{\s*font-size:\s*12px;\s*\}/);
+  assert.match(mobile, /\.task-form\s*\{\s*flex-wrap:\s*wrap;\s*\}/);
+  assert.match(mobile, /\.task-form input\s*\{\s*flex:\s*1 1 100%;\s*\}/);
+  assert.match(mobile, /\.task-form \.add-button\s*\{[^}]*width:\s*100%/);
+  assert.match(mobile, /\.history-summary\s*\{\s*gap:\s*5px;\s*\}/);
+  assert.match(css, /button,\s*input,\s*select,\s*textarea\s*\{\s*font:\s*inherit;\s*\}/);
+
+  assertNoErrors("css mobile");
+});
+
+/* ------------------------------------------------------------------ */
+/* 13. Backup: round-trip, rollback e falhas                           */
+/* ------------------------------------------------------------------ */
+
+await runTest("13a. Exportar/importar/desfazer preserva todas as chaves exatamente", async () => {
+  const today = todayKey();
+  const routines = {
+    calisthenics: [makeRoutine("calisthenics", "Treino A", [
+      { id: "ex1", name: "Flexão", sets: 2, reps: "10", rest: 30 }
+    ])],
+    weights: []
+  };
+  const activeSession = {
+    version: 2,
+    id: "session-roundtrip",
+    date: today,
+    modality: "calisthenics",
+    routineId: routines.calisthenics[0].id,
+    routineName: "Treino A",
+    startedAt: Date.now() - 30000,
+    elapsedMs: 0,
+    running: true,
+    currentIndex: 0,
+    completedSets: { ex1: 1 },
+    totalPlannedSets: 2,
+    queue: routines.calisthenics[0].sections.main,
+    status: "active",
+    restEndAt: null,
+    restRemainingMs: 0,
+    restPaused: false,
+    pendingAdvance: false,
+    restPlannedSeconds: 0
+  };
+
+  const seed = {
+    ["forja-missoes-" + today]: [{ id: "m1", text: "Missão do round-trip", done: false }],
+    "forja-treino-exercicios-v1": {
+      calisthenics: [{ id: "legacy1", name: "Legado", sets: 2, reps: "10", rest: 30 }],
+      weights: []
+    },
+    "forja-treino-rotinas-v1": routines,
+    "forja-treino-historico-v1": [{
+      id: "h1", date: today, modality: "calisthenics", routineName: "Treino A",
+      durationMs: 120000, completedSets: 2, status: "completed",
+      exercises: [{ id: "ex1", name: "Flexão", plannedSets: 2, completedSets: 2 }]
+    }],
+    "forja-treino-sessao-ativa-v1": activeSession,
+    "forja-treino-migracao-v1": {
+      version: 2, updatedAt: new Date().toISOString(), source: "teste"
+    },
+    "forja-treino-sessao-ativa-legada-v1": {
+      archivedAt: new Date().toISOString(),
+      session: { id: "antiga", modality: "weights", completedSets: {} }
+    },
+    "forja-treino-dados-preservados-v1": [{
+      archivedAt: new Date().toISOString(),
+      key: "forja-treino-historico-v1",
+      reason: "teste",
+      raw: "conteudo preservado"
+    }]
+  };
+
+  const app = await boot(seed);
+  const original = parsedStorage(app);
+
+  const backup = app.w.buildBackupObject();
+  assert.ok(backup.keys["forja-treino-exercicios-v1"]);
+  assert.ok(backup.keys["forja-treino-sessao-ativa-legada-v1"]);
+  assert.ok(backup.keys["forja-treino-dados-preservados-v1"]);
+  assert.ok(backup.keys["forja-treino-migracao-v1"]);
+  assert.equal(backup.keys["forja-backup-seguranca-v1"], undefined);
+
+  // Altera o estado atual antes de restaurar.
+  app.set("forja-missoes-" + today, []);
+  app.set("forja-treino-rotinas-v1", { calisthenics: [], weights: [] });
+  app.w.localStorage.removeItem("forja-treino-sessao-ativa-legada-v1");
+  app.w.localStorage.removeItem("forja-treino-dados-preservados-v1");
+  const mutated = parsedStorage(app);
+
+  await app.importFile(backup);
+  app.modalAction("restore");
+  await wait(220);
+
+  assert.deepEqual(parsedStorage(app), original, "Restauração deve reproduzir todas as chaves");
+
+  // Desfazer volta exatamente ao estado imediatamente anterior à importação.
+  app.click("#restore-safety-backup");
+  await wait(40);
+  assert.match(app.text("#modal-title"), /Desfazer última importação/);
+  app.modalAction("restore");
+  await wait(220);
+
+  assert.deepEqual(parsedStorage(app), mutated, "Desfazer deve restaurar o estado anterior");
+
+  // A cópia de segurança não entra em um novo backup.
+  const secondBackup = app.w.buildBackupObject();
+  assert.equal(secondBackup.keys["forja-backup-seguranca-v1"], undefined);
+
+  assertNoErrors("round-trip de backup");
+  app.close();
+});
+
+await runTest("13b. Falha transitória de gravação na importação faz rollback integral", async () => {
+  const today = todayKey();
+  const routines = {
+    calisthenics: [makeRoutine("calisthenics", "Treino A", [
+      { id: "ex1", name: "Flexão", sets: 2, reps: "10", rest: 0 }
+    ])],
+    weights: []
+  };
+
+  const app = await boot({
+    ["forja-missoes-" + today]: [{ id: "m1", text: "Original", done: false }],
+    "forja-treino-rotinas-v1": routines,
+    "forja-treino-historico-v1": [{
+      id: "h1", date: today, modality: "calisthenics", durationMs: 1000,
+      completedSets: 1, exercises: []
+    }]
+  });
+
+  const original = parsedStorage(app);
+  const backup = app.w.buildBackupObject();
+  backup.keys["forja-missoes-" + today] = [{ id: "novo", text: "Importada", done: false }];
+  backup.keys["forja-treino-historico-v1"] = [];
+
+  const guard = installFailingStorage(app, {
+    failOn: "forja-treino-rotinas-v1",
+    times: 1
+  });
+
+  await app.importFile(backup);
+  app.modalAction("restore");
+  await wait(180);
+  guard.restore();
+
+  assert.match(app.text("#modal-title"), /Falha ao restaurar/);
+  assert.match(app.text(".modal-message"), /recuperados integralmente/);
+  assert.deepEqual(parsedStorage(app), original, "Rollback deve restaurar todas as chaves originais");
+  assert.ok(app.raw("forja-backup-seguranca-v1"), "Cópia de segurança deve permanecer");
+
+  assertNoErrors("rollback integral");
+  app.close();
+});
+
+await runTest("13c. Falha também no rollback é reportada sem esconder as chaves afetadas", async () => {
+  const today = todayKey();
+  const app = await boot({
+    ["forja-missoes-" + today]: [{ id: "m1", text: "Original", done: false }],
+    "forja-treino-historico-v1": [{
+      id: "h1", date: today, modality: "calisthenics", durationMs: 1000,
+      completedSets: 1, exercises: []
+    }],
+    "forja-treino-rotinas-v1": {
+      calisthenics: [makeRoutine("calisthenics", "A", [
+        { id: "ex1", name: "Flexão", sets: 1, reps: "10", rest: 0 }
+      ])],
+      weights: []
+    }
+  });
+
+  const original = parsedStorage(app);
+  const backup = app.w.buildBackupObject();
+  backup.keys["forja-missoes-" + today] = [{ id: "novo", text: "Importada", done: false }];
+
+  // Falha na gravação e novamente no rollback da mesma chave.
+  const guard = installFailingStorage(app, {
+    failOn: "forja-treino-rotinas-v1",
+    times: 2
+  });
+
+  await app.importFile(backup);
+  app.modalAction("restore");
+  await wait(200);
+  guard.restore();
+
+  assert.match(app.text("#modal-title"), /Falha ao restaurar/);
+  assert.match(app.text(".modal-message"), /forja-treino-rotinas-v1/);
+  assert.match(app.text(".modal-message"), /forja-backup-seguranca-v1/);
+
+  // As demais chaves voltam ao conteúdo original.
+  assert.equal(app.raw("forja-missoes-" + today), JSON.stringify(original["forja-missoes-" + today]));
+  assert.equal(
+    app.raw("forja-treino-historico-v1"),
+    JSON.stringify(original["forja-treino-historico-v1"])
+  );
+
+  // A cópia de segurança contém o estado anterior completo.
+  const safety = app.data("forja-backup-seguranca-v1");
+  assert.deepEqual(safety.keys, original);
+
+  assertNoErrors("falha no rollback");
+  app.close();
+});
+
+await runTest("13d. Falha ao criar a cópia de segurança aborta sem alterar dados", async () => {
+  const today = todayKey();
+  const app = await boot({
+    ["forja-missoes-" + today]: [{ id: "m1", text: "Original", done: false }],
+    "forja-treino-historico-v1": []
+  });
+
+  const original = parsedStorage(app);
+  const backup = app.w.buildBackupObject();
+  backup.keys["forja-missoes-" + today] = [{ id: "novo", text: "Importada", done: false }];
+
+  const guard = installFailingStorage(app, {
+    failOn: "forja-backup-seguranca-v1",
+    times: 1
+  });
+
+  await app.importFile(backup);
+  app.modalAction("restore");
+  await wait(180);
+  guard.restore();
+
+  assert.deepEqual(parsedStorage(app), original);
+  assert.equal(app.raw("forja-backup-seguranca-v1"), null);
+  assert.match(app.text("#toast"), /Não foi possível salvar/);
+
+  assertNoErrors("falha na cópia de segurança");
+  app.close();
+});
+
+await runTest("13e. Exportar sem dados mostra aviso claro e não quebra", async () => {
+  const app = await boot();
+
+  assert.deepEqual(app.keys(), [], "Boot vazio não deve gravar chaves de treino");
+
+  app.click("#export-backup");
+  await wait(30);
+
+  assert.equal(app.downloads.length, 0);
+  assert.match(app.text("#toast"), /Ainda não há dados do FORJA para exportar/);
+
+  assertNoErrors("exportação vazia");
+  app.close();
+});
+
+/* ------------------------------------------------------------------ */
+/* 14. Avanço pendente após pausa e recarga                            */
+/* ------------------------------------------------------------------ */
+
+function pendingRoutine() {
+  return {
+    calisthenics: [makeRoutine("calisthenics", "Treino pendente", [
+      { id: "p1", name: "Exercício 1", sets: 2, reps: "10", rest: 1 },
+      { id: "p2", name: "Exercício 2", sets: 1, reps: "10", rest: 0 }
+    ])],
+    weights: []
+  };
+}
+
+await runTest("14a. Pausar a sessão durante o descanso pendente e recarregar mantém o avanço", async () => {
+  const app = await boot({ "forja-treino-rotinas-v1": pendingRoutine() });
+  await app.chooseMode("calisthenics");
+  await app.startRoutine();
+
+  await app.completeSet();
+  app.click("#skip-rest");
+  await wait(30);
+  await app.completeSet();
+  assert.equal(app.$("#execution-rest").hidden, false);
+  assert.match(app.text("#rest-caption"), /avança para Exercício 2/);
+
+  app.click("#pause-session");
+  await wait(30);
+
+  const raw = parsedStorage(app);
+  app.close();
+
+  const second = await boot(raw);
+  assert.equal(second.$("#execution-screen").hidden, false);
+  assert.equal(second.text("#current-position"), "Exercício 1 de 2");
+
+  const stored = second.data("forja-treino-sessao-ativa-v1");
+  assert.equal(stored.pendingAdvance, true);
+  assert.equal(stored.restPaused, true);
+  assert.equal(stored.running, false);
+
+  second.click("#resume-session");
+  const advanced = await waitFor(() => {
+    return second.text("#current-position") === "Exercício 2 de 2";
+  }, { timeout: 5000 });
+
+  assert.equal(advanced, true, "O avanço pendente deve continuar após recarregar");
+  assert.equal(second.text("#current-name"), "Exercício 2");
+
+  assertNoErrors("avanço pendente pausado");
+  second.close();
+});
+
+await runTest("14b. Pausar apenas o descanso pendente e recarregar mantém o avanço", async () => {
+  const app = await boot({ "forja-treino-rotinas-v1": pendingRoutine() });
+  await app.chooseMode("calisthenics");
+  await app.startRoutine();
+
+  await app.completeSet();
+  app.click("#skip-rest");
+  await wait(30);
+  await app.completeSet();
+  app.click("#pause-rest");
+  await wait(30);
+
+  const raw = parsedStorage(app);
+  app.close();
+
+  const second = await boot(raw);
+  const stored = second.data("forja-treino-sessao-ativa-v1");
+  assert.equal(stored.pendingAdvance, true);
+  assert.equal(stored.restPaused, true);
+
+  second.click("#resume-rest");
+  const advanced = await waitFor(() => {
+    return second.text("#current-position") === "Exercício 2 de 2";
+  }, { timeout: 5000 });
+
+  assert.equal(advanced, true, "O avanço deve ocorrer após o descanso retomado");
+  assertNoErrors("descanso pendente pausado");
+  second.close();
+});
+
+await runTest("14c. Estado inconsistente não pula séries pendentes", async () => {
+  const routines = pendingRoutine();
+  const queue = routines.calisthenics[0].sections.main;
+  const session = {
+    version: 2,
+    id: "sessao-inconsistente",
+    date: todayKey(),
+    modality: "calisthenics",
+    routineId: routines.calisthenics[0].id,
+    routineName: "Treino pendente",
+    startedAt: Date.now() - 5000,
+    elapsedMs: 0,
+    running: false,
+    currentIndex: 0,
+    completedSets: { p1: 0, p2: 0 },
+    totalPlannedSets: 3,
+    queue,
+    status: "active",
+    restEndAt: null,
+    restRemainingMs: 700,
+    restPaused: true,
+    pendingAdvance: true,
+    restPlannedSeconds: 1
+  };
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routines,
+    "forja-treino-sessao-ativa-v1": session
+  });
+
+  // O estado inconsistente é aceito na tela, mas o avanço pendente é
+  // descartado em memória (o armazenamento só é regravado em uma ação).
+  assert.equal(app.w.eval("activeWorkout.pendingAdvance"), false);
+  app.click("#resume-session");
+  await wait(1200);
+
+  assert.equal(app.text("#current-position"), "Exercício 1 de 2");
+  assert.match(app.text("#complete-set"), /Concluir série 1 de 2/);
+  assert.equal(app.$("#complete-set").disabled, false);
+
+  assertNoErrors("estado inconsistente");
+  app.close();
+});
+
+await runTest("14d. Descanso pendente no último exercício conclui a sessão uma única vez", async () => {
+  const routines = {
+    calisthenics: [makeRoutine("calisthenics", "Único", [
+      { id: "u1", name: "Único exercício", sets: 1, reps: "10", rest: 1 }
+    ])],
+    weights: []
+  };
+  const queue = routines.calisthenics[0].sections.main;
+  const session = {
+    version: 2,
+    id: "sessao-ultimo-pendente",
+    date: todayKey(),
+    modality: "calisthenics",
+    routineId: routines.calisthenics[0].id,
+    routineName: "Único",
+    startedAt: Date.now() - 5000,
+    elapsedMs: 0,
+    running: false,
+    currentIndex: 0,
+    completedSets: { u1: 1 },
+    totalPlannedSets: 1,
+    queue,
+    status: "active",
+    restEndAt: null,
+    restRemainingMs: 700,
+    restPaused: true,
+    pendingAdvance: true,
+    restPlannedSeconds: 1
+  };
+
+  const raw = {
+    "forja-treino-rotinas-v1": JSON.stringify(routines),
+    "forja-treino-sessao-ativa-v1": JSON.stringify(session)
+  };
+
+  const second = await boot(raw);
+  assert.equal(second.$("#execution-summary").hidden, true);
+  assert.equal(second.$("#execution-rest").hidden, false);
+  assert.equal(second.w.eval("activeWorkout.pendingAdvance"), true);
+
+  second.click("#resume-session");
+  const finished = await waitFor(() => {
+    return !second.$("#execution-summary").hidden;
+  }, { timeout: 5000 });
+
+  assert.equal(finished, true, "O resumo deve aparecer após o descanso pendente");
+  assert.equal(second.text("#summary-title"), "Treino concluído");
+  assert.equal(second.text("#summary-sets"), "1/1");
+
+  const history = second.data("forja-treino-historico-v1");
+  assert.equal(history.length, 1);
+  assert.equal(history[0].status, "completed");
+  assert.equal(second.raw("forja-treino-sessao-ativa-v1"), null);
+
+  assertNoErrors("pendente no último exercício");
+  second.close();
+});
+
+/* ------------------------------------------------------------------ */
+/* 15. Idempotência e preservação na migração                          */
+/* ------------------------------------------------------------------ */
+
+await runTest("15a. Carregar só com missões não grava nenhuma chave de treino", async () => {
+  const today = todayKey();
+  const seed = {
+    ["forja-missoes-" + today]: [{ id: "m1", text: "Só missão", done: false }]
+  };
+  const expected = {
+    ["forja-missoes-" + today]: JSON.stringify(seed["forja-missoes-" + today])
+  };
+
+  const app = await boot(seed);
+
+  assert.deepEqual(app.keys(), Object.keys(expected).sort());
+  assert.equal(app.raw("forja-treino-rotinas-v1"), null);
+  assert.equal(app.raw("forja-treino-migracao-v1"), null);
+  assert.equal(app.raw("forja-treino-sessao-ativa-v1"), null);
+  assert.equal(app.text(".task-text"), "Só missão");
+
+  assertNoErrors("boot só com missões");
+  app.close();
+});
+
+await runTest("15b. Migração é idempotente em três carregamentos consecutivos", async () => {
+  const legacyExercises = {
+    calisthenics: [{ id: "c1", name: "Flexão", sets: 3, reps: "12", rest: 60 }],
+    weights: [{ id: "w1", name: "Supino", sets: 4, reps: "8", rest: 120, load: "40 kg" }]
+  };
+  const legacyHistory = [{
+    id: "h1", date: "2026-10-01", modality: "calisthenics",
+    durationMs: 60000, completedSets: 3, exercises: []
+  }];
+
+  const snapshots = [];
+  let raw = {
+    "forja-treino-exercicios-v1": JSON.stringify(legacyExercises),
+    "forja-treino-historico-v1": JSON.stringify(legacyHistory)
+  };
+  const legacyRaw = raw["forja-treino-exercicios-v1"];
+
+  for (let bootIndex = 0; bootIndex < 3; bootIndex++) {
+    const app = await boot(raw);
+    const snapshot = parsedStorage(app);
+    snapshots.push(snapshot);
+    assert.equal(app.raw("forja-treino-exercicios-v1"), legacyRaw);
+    app.close();
+    raw = snapshot;
+  }
+
+  const routines = snapshots[0]["forja-treino-rotinas-v1"];
+  assert.equal(routines.calisthenics.length, 1);
+  assert.equal(routines.weights.length, 1);
+
+  for (let index = 1; index < snapshots.length; index++) {
+    assert.deepEqual(
+      snapshots[index]["forja-treino-rotinas-v1"],
+      routines,
+      "Rotinas não podem mudar entre carregamentos"
+    );
+    assert.deepEqual(
+      snapshots[index]["forja-treino-historico-v1"],
+      legacyHistory
+    );
+    assert.equal(
+      snapshots[index]["forja-treino-migracao-v1"].routinesCreated.length,
+      2
+    );
+  }
+});
+
+await runTest("15c. Sessão antiga com progresso extra migra e preserva o original", async () => {
+  const legacyExercises = {
+    calisthenics: [
+      { id: "c1", name: "Flexão", sets: 3, reps: "12", rest: 0 },
+      { id: "c2", name: "Barra", sets: 2, reps: "5", rest: 0 }
+    ],
+    weights: []
+  };
+
+  const legacySession = {
+    id: "legado-extra",
+    date: todayKey(),
+    modality: "calisthenics",
+    startedAt: Date.now() - 45000,
+    elapsedMs: 0,
+    running: true,
+    completedSets: { c1: 1, c2: 0, fantasma: 7 },
+    restEndAt: null,
+    restRemainingMs: 0,
+    restPaused: false
+  };
+
+  const app = await boot({
+    "forja-treino-exercicios-v1": legacyExercises,
+    "forja-treino-sessao-ativa-v1": legacySession
+  });
+
+  const active = app.data("forja-treino-sessao-ativa-v1");
+  assert.equal(active.version, 2);
+  assert.deepEqual(active.queue.map(item => item.id), ["c1", "c2"]);
+  assert.deepEqual(active.completedSets, { c1: 1, c2: 0 });
+
+  const archived = app.data("forja-treino-sessao-ativa-legada-v1");
+  assert.equal(archived.session.id, "legado-extra");
+  assert.equal(archived.session.completedSets.fantasma, 7);
+
+  assert.equal(app.text("#current-name"), "Flexão");
+  assert.equal(app.text("#current-sets-value").replace(/\s+/g, " "), "1 / 3");
+
+  assertNoErrors("sessão antiga com progresso extra");
+  app.close();
+});
+
+await runTest("15d. Rotinas existentes impedem migração duplicada do legado", async () => {
+  const existing = {
+    calisthenics: [makeRoutine("calisthenics", "Minha rotina", [
+      { id: "existente", name: "Exercício atual", sets: 1, reps: "10", rest: 0 }
+    ])],
+    weights: []
+  };
+  const legacyExercises = {
+    calisthenics: [{ id: "c1", name: "Exercício antigo", sets: 2, reps: "8", rest: 30 }],
+    weights: []
+  };
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": existing,
+    "forja-treino-exercicios-v1": legacyExercises
+  });
+
+  await app.chooseMode("calisthenics");
+  assert.equal(app.$$(".routine-card").length, 1);
+  assert.equal(app.text(".routine-name"), "Minha rotina");
+  assert.equal(app.raw("forja-treino-migracao-v1"), null);
+  assert.equal(
+    app.raw("forja-treino-exercicios-v1"),
+    JSON.stringify(legacyExercises)
+  );
+
+  assertNoErrors("rotinas existentes");
   app.close();
 });
 
