@@ -17,9 +17,12 @@
   --muted: #a5a5a5;
   --border: #303030;
   --green: #8bc99a;
+  --red: #ff8585;
 }
 
 * { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -28,6 +31,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   line-height: 1.5;
 }
+
+button, input, select { font: inherit; }
+
+button { -webkit-tap-highlight-color: transparent; }
 
 .container {
   width: min(100% - 32px, 720px);
@@ -106,7 +113,7 @@ section { margin: 27px 0; }
   margin: 0;
 }
 
-.calendar-panel, .missions-panel {
+.calendar-panel, .missions-panel, .workout-panel {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -241,7 +248,8 @@ section { margin: 27px 0; }
   margin-bottom: 15px;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="number"] {
   width: 100%;
   min-width: 0;
   padding: 12px;
@@ -253,16 +261,20 @@ input[type="text"] {
   outline: none;
 }
 
-input[type="text"]:focus { border-color: var(--gold); }
+input:focus { border-color: var(--gold); }
 
-.add-button {
+.add-button, .primary-button {
   border: 0;
   border-radius: 8px;
-  padding: 0 16px;
+  padding: 11px 16px;
   background: var(--gold);
   color: #17130b;
   font-weight: bold;
   cursor: pointer;
+}
+
+.task-form .add-button {
+  padding: 0 16px;
 }
 
 .task-list {
@@ -308,7 +320,7 @@ input[type="text"]:focus { border-color: var(--gold); }
   padding: 2px 5px;
 }
 
-.delete-button:hover { color: #ff8585; }
+.delete-button:hover { color: var(--red); }
 
 .empty {
   text-align: center;
@@ -317,41 +329,22 @@ input[type="text"]:focus { border-color: var(--gold); }
   font-size: 13px;
 }
 
-footer {
-  border-top: 1px solid var(--border);
-  text-align: center;
-  color: #777;
-  padding: 22px 0 28px;
-  font-size: 11px;
-  letter-spacing: 1px;
-}
-
-@media (max-width: 380px) {
-  .calendar-panel, .missions-panel { padding: 12px; }
-  .calendar-grid { gap: 3px; }
-  .day { font-size: 12px; }
-  .task-form { flex-wrap: wrap; }
-  .add-button { min-height: 42px; }
-}
-
 /* FORJA TREINO */
-.workout-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 17px;
+
+.workout-heading {
+  margin-bottom: 6px;
 }
 
 .workout-buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 16px;
+  margin: 18px 0;
 }
 
 .workout-choice {
   min-width: 0;
-  padding: 18px 10px;
+  padding: 17px 9px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--panel2);
@@ -369,20 +362,283 @@ footer {
 .workout-choice span {
   display: block;
   margin-top: 6px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: normal;
   color: var(--muted);
 }
 
-.workout-message {
-  margin-top: 14px;
-  padding: 14px;
-  border-radius: 8px;
-  background: #111;
-  color: var(--muted);
-  font-size: 13px;
+.workout-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 19px 0;
 }
 
+.workout-subtitle {
+  font-size: 15px;
+  font-weight: bold;
+  margin: 0 0 12px;
+}
+
+.workout-form {
+  display: grid;
+  gap: 11px;
+}
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.field-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.workout-form input { width: 100%; }
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.secondary-button, .small-button {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.small-button:disabled,
+.primary-button:disabled,
+.workout-choice:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.danger-button {
+  color: var(--red);
+  border-color: #573333;
+}
+
+.workout-status {
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 14px;
+  margin: 14px 0;
+}
+
+.status-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.timer-number {
+  color: var(--gold);
+  font-size: clamp(28px, 8vw, 38px);
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  margin: 3px 0;
+}
+
+.timer-caption {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.status-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.rest-panel {
+  border: 1px solid #5a4a28;
+  background: #211c12;
+  border-radius: 9px;
+  padding: 14px;
+  margin: 12px 0;
+}
+
+.rest-panel .timer-number { font-size: 32px; }
+
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exercise-card {
+  background: #141414;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.exercise-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.exercise-name {
+  font-size: 15px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.exercise-details {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+  line-height: 1.7;
+}
+
+.set-progress {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: bold;
+  margin: 12px 0 8px;
+}
+
+.set-track {
+  height: 4px;
+  background: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.set-track-fill {
+  height: 100%;
+  background: var(--green);
+  transition: width .2s;
+}
+
+.exercise-actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.complete-set-button {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--gold);
+  color: #17130b;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.complete-set-button:disabled {
+  background: #333;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.workout-notice {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 12px;
+  border-radius: 8px;
+  background: #111;
+  margin-top: 12px;
+}
+
+.history-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.summary-item {
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 6px;
+  text-align: center;
+  min-width: 0;
+}
+
+.summary-value {
+  color: var(--gold);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.summary-label {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  background: #141414;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.history-title {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.history-details {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: #777;
+  padding: 22px 0 28px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 380px) {
+  .calendar-panel, .missions-panel, .workout-panel {
+    padding: 12px;
+  }
+
+  .calendar-grid { gap: 3px; }
+  .day { font-size: 12px; }
+  .task-form { flex-wrap: wrap; }
+  .task-form input { flex: 1 1 100%; }
+  .task-form .add-button { min-height: 42px; width: 100%; }
+  .field-grid.three { grid-template-columns: 1fr 1fr; }
+  .exercise-top { flex-direction: column; }
+  .history-summary { gap: 5px; }
+}
 </style>
 </head>
 
@@ -422,7 +678,7 @@ footer {
       <div class="calendar-grid" id="calendar-grid"></div>
       <p class="calendar-hint">
         Selecione um dia para consultar ou organizar sua rotina.
-        Os pequenos pontos indicam dias com missões.
+        Os pontos indicam dias com missões.
       </p>
     </div>
   </section>
@@ -451,11 +707,165 @@ footer {
       <div class="task-list" id="task-list"></div>
     </div>
   </section>
+
+  <!-- FORJA TREINO -->
+  <section aria-labelledby="workout-heading">
+    <div class="workout-panel">
+      <h2 class="section-title workout-heading" id="workout-heading">
+        FORJA TREINO
+      </h2>
+      <p class="subtitle">Treine com intenção. Registre sua evolução.</p>
+
+      <div class="workout-buttons">
+        <button type="button" class="workout-choice active"
+          id="choose-calisthenics" aria-pressed="true">
+          CALISTENIA
+          <span>Exercícios com peso corporal</span>
+        </button>
+
+        <button type="button" class="workout-choice"
+          id="choose-weight" aria-pressed="false">
+          MUSCULAÇÃO
+          <span>Exercícios com cargas</span>
+        </button>
+      </div>
+
+      <div id="workout-content">
+        <div class="workout-status">
+          <div class="status-label">Tempo de treino</div>
+          <div class="timer-number" id="session-timer">00:00</div>
+          <div class="timer-caption" id="session-caption">
+            Inicie um treino para começar a registrar suas séries.
+          </div>
+
+          <div class="status-actions">
+            <button type="button" class="primary-button" id="start-workout">
+              Iniciar treino
+            </button>
+            <button type="button" class="secondary-button" id="pause-workout" hidden>
+              Pausar
+            </button>
+            <button type="button" class="secondary-button" id="resume-workout" hidden>
+              Retomar
+            </button>
+            <button type="button" class="secondary-button" id="finish-workout" hidden>
+              Finalizar treino
+            </button>
+          </div>
+        </div>
+
+        <div class="rest-panel" id="rest-panel" hidden>
+          <div class="status-label">Tempo de descanso</div>
+          <div class="timer-number" id="rest-timer">00:00</div>
+          <div class="timer-caption" id="rest-caption">
+            Descanse antes da próxima série.
+          </div>
+          <div class="status-actions">
+            <button type="button" class="secondary-button" id="pause-rest">
+              Pausar descanso
+            </button>
+            <button type="button" class="secondary-button" id="resume-rest" hidden>
+              Retomar descanso
+            </button>
+            <button type="button" class="secondary-button" id="skip-rest">
+              Encerrar descanso
+            </button>
+          </div>
+        </div>
+
+        <div class="workout-notice" id="workout-notice">
+          Adicione seus exercícios abaixo. Seus registros ficam salvos
+          neste navegador.
+        </div>
+
+        <div class="workout-divider"></div>
+
+        <h3 class="workout-subtitle" id="exercise-form-heading">
+          Adicionar exercício
+        </h3>
+
+        <form class="workout-form" id="exercise-form">
+          <div>
+            <label class="field-label" for="exercise-name">Nome do exercício</label>
+            <input id="exercise-name" type="text" maxlength="100"
+              placeholder="Ex.: Flexão de braço" required>
+          </div>
+
+          <div class="field-grid three">
+            <div>
+              <label class="field-label" for="exercise-sets">Séries</label>
+              <input id="exercise-sets" type="number"
+                min="1" max="30" value="4" required>
+            </div>
+            <div>
+              <label class="field-label" for="exercise-reps">Repetições</label>
+              <input id="exercise-reps" type="text"
+                maxlength="30" value="12" placeholder="Ex.: 12 ou 8–12" required>
+            </div>
+            <div>
+              <label class="field-label" for="exercise-rest">Descanso (seg.)</label>
+              <input id="exercise-rest" type="number"
+                min="0" max="3600" value="60" required>
+            </div>
+          </div>
+
+          <div id="load-field" hidden>
+            <label class="field-label" for="exercise-load">
+              Carga utilizada (kg ou outra unidade)
+            </label>
+            <input id="exercise-load" type="text"
+              maxlength="50" placeholder="Ex.: 20 kg">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="primary-button" id="exercise-submit">
+              Adicionar exercício
+            </button>
+            <button type="button" class="secondary-button"
+              id="cancel-edit" hidden>
+              Cancelar edição
+            </button>
+          </div>
+        </form>
+
+        <div class="workout-divider"></div>
+
+        <h3 class="workout-subtitle" id="exercise-list-heading">
+          Seus exercícios
+        </h3>
+        <div class="exercise-list" id="exercise-list"></div>
+
+        <div class="workout-divider"></div>
+
+        <h3 class="workout-subtitle">Histórico de treinos</h3>
+        <div class="history-summary">
+          <div class="summary-item">
+            <div class="summary-value" id="history-total">0</div>
+            <div class="summary-label">Treinos</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="history-sets">0</div>
+            <div class="summary-label">Séries concluídas</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="history-time">0h</div>
+            <div class="summary-label">Tempo treinando</div>
+          </div>
+        </div>
+
+        <div class="history-list" id="history-list"></div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>MENOS PROMESSAS. MAIS AÇÃO.</footer>
 
 <script>
+"use strict";
+
+/* CALENDÁRIO E MISSÕES */
+
 const monthNames = [
   "Janeiro", "Fevereiro", "Março", "Abril",
   "Maio", "Junho", "Julho", "Agosto",
@@ -488,7 +898,6 @@ function readTasks(date) {
     const parsed = JSON.parse(saved);
     if (!Array.isArray(parsed)) return [];
 
-    // Mantém compatibilidade com missões antigas.
     return parsed.map((task, index) => {
       if (typeof task === "string") {
         return {
@@ -546,15 +955,18 @@ function renderCalendar() {
     const label = document.createElement("div");
     label.className = "weekday";
     label.textContent = weekday;
-    label.setAttribute("aria-label",
-      ["Domingo", "Segunda-feira", "Terça-feira",
-       "Quarta-feira", "Quinta-feira", "Sexta-feira",
-       "Sábado"][index]);
+    label.setAttribute("aria-label", [
+      "Domingo", "Segunda-feira", "Terça-feira",
+      "Quarta-feira", "Quinta-feira", "Sexta-feira",
+      "Sábado"
+    ][index]);
     grid.appendChild(label);
   });
 
   const firstDay = new Date(displayedYear, displayedMonth, 1).getDay();
-  const daysInMonth = new Date(displayedYear, displayedMonth + 1, 0).getDate();
+  const daysInMonth =
+    new Date(displayedYear, displayedMonth + 1, 0).getDate();
+
   const selectedKey = dateKey(selectedDate);
   const todayKey = dateKey(today);
 
@@ -571,6 +983,7 @@ function renderCalendar() {
     const date = new Date(displayedYear, displayedMonth, day);
     const key = dateKey(date);
     const button = document.createElement("button");
+
     button.type = "button";
     button.className = "day";
     button.textContent = day;
@@ -579,9 +992,13 @@ function renderCalendar() {
     }));
 
     if (key === todayKey) button.classList.add("today");
-    if (key === selectedKey) button.classList.add("selected");
-    if (readTasks(date).length > 0) button.classList.add("has-tasks");
-    if (key === selectedKey) button.setAttribute("aria-pressed", "true");
+    if (key === selectedKey) {
+      button.classList.add("selected");
+      button.setAttribute("aria-pressed", "true");
+    }
+    if (readTasks(date).length > 0) {
+      button.classList.add("has-tasks");
+    }
 
     button.addEventListener("click", () => {
       selectedDate = new Date(date);
@@ -638,6 +1055,7 @@ function renderMissions() {
       const current = readTasks(selectedDate);
       const item = current.find(entry => entry.id === task.id);
       if (!item) return;
+
       item.done = checkbox.checked;
       saveTasks(selectedDate, current);
       renderCalendar();
@@ -657,6 +1075,7 @@ function renderMissions() {
     remove.addEventListener("click", () => {
       const current = readTasks(selectedDate)
         .filter(entry => entry.id !== task.id);
+
       if (saveTasks(selectedDate, current)) {
         renderCalendar();
         renderMissions();
@@ -677,7 +1096,8 @@ document.getElementById("task-form").addEventListener("submit", event => {
 
   const tasks = readTasks(selectedDate);
   tasks.push({
-    id: Date.now().toString() + "-" + Math.random().toString(36).slice(2, 8),
+    id: Date.now().toString() + "-" +
+      Math.random().toString(36).slice(2, 8),
     text,
     done: false
   });
@@ -725,9 +1145,924 @@ document.getElementById("next-month").addEventListener("click", () => {
   changeDisplayedMonth(1);
 });
 
+
+/* FORJA TREINO
+   Chaves independentes: as missões existentes não são alteradas. */
+
+const WORKOUT_EXERCISES_KEY = "forja-treino-exercicios-v1";
+const WORKOUT_HISTORY_KEY = "forja-treino-historico-v1";
+const WORKOUT_ACTIVE_KEY = "forja-treino-sessao-ativa-v1";
+
+const MODE_NAMES = {
+  calisthenics: "Calistenia",
+  weights: "Musculação"
+};
+
+let selectedWorkoutMode = "calisthenics";
+let editingExerciseId = null;
+let timerInterval = null;
+
+function readJSON(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : JSON.parse(value);
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function saveJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (error) {
+    alert("Não foi possível salvar os dados do treino. Verifique o espaço disponível no navegador.");
+    return false;
+  }
+}
+
+function createId() {
+  return Date.now().toString(36) +
+    Math.random().toString(36).slice(2, 9);
+}
+
+function validExercisesData(value) {
+  if (!value || typeof value !== "object") {
+    return { calisthenics: [], weights: [] };
+  }
+
+  return {
+    calisthenics: Array.isArray(value.calisthenics)
+      ? value.calisthenics : [],
+    weights: Array.isArray(value.weights)
+      ? value.weights : []
+  };
+}
+
+let workoutExercises = validExercisesData(
+  readJSON(WORKOUT_EXERCISES_KEY, {
+    calisthenics: [],
+    weights: []
+  })
+);
+
+let workoutHistory = readJSON(WORKOUT_HISTORY_KEY, []);
+if (!Array.isArray(workoutHistory)) workoutHistory = [];
+
+let activeWorkout = readJSON(WORKOUT_ACTIVE_KEY, null);
+
+if (
+  activeWorkout &&
+  typeof activeWorkout === "object" &&
+  !activeWorkout.completedSets
+) {
+  activeWorkout.completedSets = {};
+}
+
+function saveExercises() {
+  return saveJSON(WORKOUT_EXERCISES_KEY, workoutExercises);
+}
+
+function saveHistory() {
+  return saveJSON(WORKOUT_HISTORY_KEY, workoutHistory);
+}
+
+function saveActiveWorkout() {
+  if (activeWorkout) {
+    return saveJSON(WORKOUT_ACTIVE_KEY, activeWorkout);
+  }
+
+  try {
+    localStorage.removeItem(WORKOUT_ACTIVE_KEY);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function formatClock(totalSeconds) {
+  const seconds = Math.max(0, Math.floor(totalSeconds || 0));
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainder = seconds % 60;
+
+  if (hours > 0) {
+    return `${String(hours).padStart(2, "0")}:` +
+      `${String(minutes).padStart(2, "0")}:` +
+      `${String(remainder).padStart(2, "0")}`;
+  }
+
+  return `${String(minutes).padStart(2, "0")}:` +
+    `${String(remainder).padStart(2, "0")}`;
+}
+
+function formatRest(seconds) {
+  const value = Number(seconds) || 0;
+
+  if (value < 60) return `${value} s`;
+
+  const minutes = Math.floor(value / 60);
+  const remainder = value % 60;
+
+  return remainder
+    ? `${minutes} min ${remainder} s`
+    : `${minutes} min`;
+}
+
+function getElapsedMs() {
+  if (!activeWorkout) return 0;
+
+  let elapsed = Number(activeWorkout.elapsedMs) || 0;
+
+  if (activeWorkout.running && activeWorkout.startedAt) {
+    elapsed += Math.max(0, Date.now() - activeWorkout.startedAt);
+  }
+
+  return elapsed;
+}
+
+function getRestRemainingMs() {
+  if (!activeWorkout) return 0;
+
+  if (activeWorkout.restEndAt && !activeWorkout.restPaused) {
+    return Math.max(0, activeWorkout.restEndAt - Date.now());
+  }
+
+  return Math.max(0, Number(activeWorkout.restRemainingMs) || 0);
+}
+
+function getModeExercises(mode = selectedWorkoutMode) {
+  return workoutExercises[mode] || [];
+}
+
+function getActiveForMode(mode = selectedWorkoutMode) {
+  return Boolean(activeWorkout && activeWorkout.modality === mode);
+}
+
+function setWorkoutNotice(message) {
+  document.getElementById("workout-notice").textContent = message;
+}
+
+function selectWorkoutMode(mode) {
+  if (!MODE_NAMES[mode]) return;
+
+  selectedWorkoutMode = mode;
+
+  document.getElementById("choose-calisthenics").classList.toggle(
+    "active", mode === "calisthenics"
+  );
+  document.getElementById("choose-weight").classList.toggle(
+    "active", mode === "weights"
+  );
+
+  document.getElementById("choose-calisthenics").setAttribute(
+    "aria-pressed", String(mode === "calisthenics")
+  );
+  document.getElementById("choose-weight").setAttribute(
+    "aria-pressed", String(mode === "weights")
+  );
+
+  document.getElementById("load-field").hidden = mode !== "weights";
+  document.getElementById("exercise-list-heading").textContent =
+    "Exercícios de " + MODE_NAMES[mode].toLowerCase();
+
+  cancelExerciseEdit(false);
+  renderWorkout();
+}
+
+document.getElementById("choose-calisthenics").addEventListener(
+  "click", () => selectWorkoutMode("calisthenics")
+);
+
+document.getElementById("choose-weight").addEventListener(
+  "click", () => selectWorkoutMode("weights")
+);
+
+
+/* Cadastro e edição de exercícios */
+
+const exerciseForm = document.getElementById("exercise-form");
+
+exerciseForm.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const name = document.getElementById("exercise-name").value.trim();
+  const sets = Number(document.getElementById("exercise-sets").value);
+  const reps = document.getElementById("exercise-reps").value.trim();
+  const rest = Number(document.getElementById("exercise-rest").value);
+  const load = document.getElementById("exercise-load").value.trim();
+
+  if (!name || !reps) {
+    alert("Preencha o nome do exercício e as repetições.");
+    return;
+  }
+
+  if (!Number.isInteger(sets) || sets < 1 || sets > 30) {
+    alert("Informe de 1 a 30 séries.");
+    return;
+  }
+
+  if (!Number.isInteger(rest) || rest < 0 || rest > 3600) {
+    alert("O descanso deve estar entre 0 e 3600 segundos.");
+    return;
+  }
+
+  const exercises = getModeExercises();
+  const previous = editingExerciseId
+    ? exercises.find(item => item.id === editingExerciseId)
+    : null;
+
+  const exercise = {
+    id: previous ? previous.id : createId(),
+    name,
+    sets,
+    reps,
+    rest,
+    load: selectedWorkoutMode === "weights" ? load : ""
+  };
+
+  if (previous) {
+    const index = exercises.findIndex(item => item.id === previous.id);
+    exercises[index] = exercise;
+  } else {
+    exercises.push(exercise);
+  }
+
+  if (saveExercises()) {
+    cancelExerciseEdit(false);
+    renderWorkout();
+    setWorkoutNotice(previous
+      ? "Exercício atualizado."
+      : "Exercício adicionado à sua rotina.");
+  }
+});
+
+function beginExerciseEdit(id) {
+  const exercise = getModeExercises().find(item => item.id === id);
+  if (!exercise) return;
+
+  editingExerciseId = id;
+
+  document.getElementById("exercise-name").value = exercise.name;
+  document.getElementById("exercise-sets").value = exercise.sets;
+  document.getElementById("exercise-reps").value = exercise.reps;
+  document.getElementById("exercise-rest").value = exercise.rest;
+  document.getElementById("exercise-load").value = exercise.load || "";
+
+  document.getElementById("exercise-form-heading").textContent =
+    "Editar exercício";
+  document.getElementById("exercise-submit").textContent =
+    "Salvar alterações";
+  document.getElementById("cancel-edit").hidden = false;
+
+  document.getElementById("exercise-name").focus();
+  document.getElementById("exercise-form-heading").scrollIntoView({
+    behavior: "smooth",
+    block: "nearest"
+  });
+}
+
+function cancelExerciseEdit(clearForm = true) {
+  editingExerciseId = null;
+
+  document.getElementById("exercise-form-heading").textContent =
+    "Adicionar exercício";
+  document.getElementById("exercise-submit").textContent =
+    "Adicionar exercício";
+  document.getElementById("cancel-edit").hidden = true;
+
+  if (clearForm) {
+    exerciseForm.reset();
+    document.getElementById("exercise-sets").value = 4;
+    document.getElementById("exercise-reps").value = "12";
+    document.getElementById("exercise-rest").value = 60;
+    document.getElementById("exercise-load").value = "";
+  }
+}
+
+document.getElementById("cancel-edit").addEventListener("click", () => {
+  cancelExerciseEdit(true);
+});
+
+function deleteExercise(id) {
+  const exercise = getModeExercises().find(item => item.id === id);
+  if (!exercise) return;
+
+  if (!confirm(`Excluir o exercício "${exercise.name}"?`)) return;
+
+  workoutExercises[selectedWorkoutMode] =
+    getModeExercises().filter(item => item.id !== id);
+
+  if (editingExerciseId === id) cancelExerciseEdit(true);
+
+  if (saveExercises()) {
+    renderWorkout();
+    setWorkoutNotice("Exercício excluído.");
+  }
+}
+
+
+/* Controle da sessão de treino */
+
+function startWorkout() {
+  if (activeWorkout) {
+    if (activeWorkout.modality === selectedWorkoutMode) {
+      if (!activeWorkout.running) {
+        resumeWorkout();
+      } else {
+        alert("Este treino já está em andamento.");
+      }
+      return;
+    }
+
+    alert(
+      `Você já tem um treino de ${MODE_NAMES[activeWorkout.modality]} em andamento. ` +
+      "Retome ou finalize esse treino antes de iniciar outro."
+    );
+    return;
+  }
+
+  activeWorkout = {
+    id: createId(),
+    date: dateKey(new Date()),
+    modality: selectedWorkoutMode,
+    startedAt: Date.now(),
+    elapsedMs: 0,
+    running: true,
+    completedSets: {},
+    restEndAt: null,
+    restRemainingMs: 0,
+    restPaused: false
+  };
+
+  if (saveActiveWorkout()) {
+    renderWorkout();
+    setWorkoutNotice(
+      "Treino iniciado. Conclua cada série no botão do exercício para registrar seu progresso."
+    );
+  } else {
+    activeWorkout = null;
+    renderWorkout();
+  }
+}
+
+function pauseWorkout() {
+  if (!activeWorkout || !activeWorkout.running) return;
+
+  const now = Date.now();
+  activeWorkout.elapsedMs = getElapsedMs();
+  activeWorkout.running = false;
+  activeWorkout.startedAt = null;
+
+  if (activeWorkout.restEndAt && !activeWorkout.restPaused) {
+    activeWorkout.restRemainingMs = Math.max(
+      0, activeWorkout.restEndAt - now
+    );
+    activeWorkout.restEndAt = null;
+    activeWorkout.restPaused = true;
+  }
+
+  saveActiveWorkout();
+  renderWorkout();
+}
+
+function resumeWorkout() {
+  if (!activeWorkout || activeWorkout.running) return;
+
+  activeWorkout.running = true;
+  activeWorkout.startedAt = Date.now();
+
+  if (activeWorkout.restPaused && activeWorkout.restRemainingMs > 0) {
+    activeWorkout.restEndAt =
+      Date.now() + activeWorkout.restRemainingMs;
+    activeWorkout.restPaused = false;
+  }
+
+  saveActiveWorkout();
+  renderWorkout();
+}
+
+function finishWorkout() {
+  if (!activeWorkout) return;
+
+  const modality = activeWorkout.modality;
+  const elapsedMs = getElapsedMs();
+  const completedSets = { ...activeWorkout.completedSets };
+
+  const exerciseSnapshot = getModeExercises(modality).map(exercise => ({
+    id: exercise.id,
+    name: exercise.name,
+    plannedSets: Number(exercise.sets) || 0,
+    reps: exercise.reps,
+    load: exercise.load || "",
+    completedSets: Number(completedSets[exercise.id]) || 0
+  }));
+
+  const totalCompletedSets = Object.values(completedSets).reduce(
+    (sum, count) => sum + (Number(count) || 0), 0
+  );
+
+  if (!confirm("Finalizar este treino e salvar no histórico?")) return;
+
+  const record = {
+    id: activeWorkout.id || createId(),
+    date: activeWorkout.date,
+    modality,
+    durationMs: elapsedMs,
+    completedSets: totalCompletedSets,
+    exercises: exerciseSnapshot
+  };
+
+  workoutHistory.unshift(record);
+  workoutHistory = workoutHistory.slice(0, 200);
+
+  if (!saveHistory()) {
+    workoutHistory.shift();
+    return;
+  }
+
+  activeWorkout = null;
+  saveActiveWorkout();
+
+  renderWorkout();
+  setWorkoutNotice(
+    "Treino salvo no histórico. Cada sessão concluída ajuda a acompanhar sua evolução."
+  );
+}
+
+document.getElementById("start-workout").addEventListener(
+  "click", startWorkout
+);
+document.getElementById("pause-workout").addEventListener(
+  "click", pauseWorkout
+);
+document.getElementById("resume-workout").addEventListener(
+  "click", resumeWorkout
+);
+document.getElementById("finish-workout").addEventListener(
+  "click", finishWorkout
+);
+
+
+/* Conclusão das séries e descanso */
+
+function completeSet(exerciseId) {
+  if (!activeWorkout) {
+    alert("Inicie um treino antes de registrar suas séries.");
+    return;
+  }
+
+  if (activeWorkout.modality !== selectedWorkoutMode) {
+    alert(
+      `Seu treino ativo é de ${MODE_NAMES[activeWorkout.modality]}. ` +
+      "Finalize-o antes de registrar séries nesta modalidade."
+    );
+    return;
+  }
+
+  if (!activeWorkout.running) {
+    alert("Retome o treino antes de concluir uma série.");
+    return;
+  }
+
+  if (activeWorkout.restEndAt && getRestRemainingMs() > 0) {
+    alert("Seu descanso ainda está em andamento. Você pode encerrá-lo quando estiver pronto.");
+    return;
+  }
+
+  const exercise = getModeExercises().find(
+    item => item.id === exerciseId
+  );
+  if (!exercise) return;
+
+  const done = Number(activeWorkout.completedSets[exerciseId]) || 0;
+
+  if (done >= Number(exercise.sets)) {
+    alert("Todas as séries planejadas deste exercício já foram concluídas.");
+    return;
+  }
+
+  activeWorkout.completedSets[exerciseId] = done + 1;
+
+  if (done + 1 < Number(exercise.sets) && Number(exercise.rest) > 0) {
+    const restMs = Number(exercise.rest) * 1000;
+    activeWorkout.restRemainingMs = restMs;
+    activeWorkout.restEndAt = Date.now() + restMs;
+    activeWorkout.restPaused = false;
+  } else {
+    activeWorkout.restRemainingMs = 0;
+    activeWorkout.restEndAt = null;
+    activeWorkout.restPaused = false;
+  }
+
+  saveActiveWorkout();
+  renderWorkout();
+
+  if (done + 1 === Number(exercise.sets)) {
+    setWorkoutNotice(`Séries de "${exercise.name}" concluídas.`);
+  } else {
+    setWorkoutNotice(
+      `Série ${done + 1} de ${exercise.sets} concluída. O descanso começou automaticamente.`
+    );
+  }
+}
+
+function pauseRest() {
+  if (!activeWorkout || !activeWorkout.restEndAt) return;
+
+  activeWorkout.restRemainingMs = getRestRemainingMs();
+  activeWorkout.restEndAt = null;
+  activeWorkout.restPaused = true;
+
+  saveActiveWorkout();
+  renderWorkout();
+}
+
+function resumeRest() {
+  if (!activeWorkout || !activeWorkout.restPaused) return;
+
+  if (activeWorkout.restRemainingMs <= 0) {
+    endRest();
+    return;
+  }
+
+  activeWorkout.restEndAt =
+    Date.now() + activeWorkout.restRemainingMs;
+  activeWorkout.restPaused = false;
+
+  saveActiveWorkout();
+  renderWorkout();
+}
+
+function endRest() {
+  if (!activeWorkout) return;
+
+  activeWorkout.restEndAt = null;
+  activeWorkout.restRemainingMs = 0;
+  activeWorkout.restPaused = false;
+
+  saveActiveWorkout();
+  renderWorkout();
+  setWorkoutNotice("Descanso encerrado. Quando estiver pronto, faça a próxima série.");
+}
+
+document.getElementById("pause-rest").addEventListener("click", pauseRest);
+document.getElementById("resume-rest").addEventListener("click", resumeRest);
+document.getElementById("skip-rest").addEventListener("click", endRest);
+
+function playRestSound() {
+  try {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) return;
+
+    const context = new AudioContextClass();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = 880;
+    gain.gain.value = 0.12;
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.25);
+
+    oscillator.onended = () => {
+      context.close().catch(() => {});
+    };
+  } catch (error) {
+    // O navegador pode bloquear sons automáticos.
+  }
+}
+
+
+/* Renderização da área de treino */
+
+function renderExercises() {
+  const list = document.getElementById("exercise-list");
+  const exercises = getModeExercises();
+  list.innerHTML = "";
+
+  if (exercises.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = selectedWorkoutMode === "calisthenics"
+      ? "Nenhum exercício cadastrado. Adicione flexões, barras ou outros movimentos."
+      : "Nenhum exercício cadastrado. Adicione seus exercícios e registre as cargas.";
+    list.appendChild(empty);
+    return;
+  }
+
+  const sameActiveMode = getActiveForMode();
+  const restRemaining = getRestRemainingMs();
+  const restBlocking = Boolean(
+    activeWorkout &&
+    (activeWorkout.restEndAt || activeWorkout.restPaused) &&
+    restRemaining > 0
+  );
+
+  exercises.forEach(exercise => {
+    const plannedSets = Number(exercise.sets) || 1;
+    const done = sameActiveMode
+      ? Math.min(
+          plannedSets,
+          Number(activeWorkout.completedSets[exercise.id]) || 0
+        )
+      : 0;
+
+    const card = document.createElement("article");
+    card.className = "exercise-card";
+
+    const top = document.createElement("div");
+    top.className = "exercise-top";
+
+    const info = document.createElement("div");
+
+    const name = document.createElement("div");
+    name.className = "exercise-name";
+    name.textContent = exercise.name;
+
+    const details = document.createElement("div");
+    details.className = "exercise-details";
+
+    const detailsParts = [
+      `${plannedSets} séries × ${exercise.reps} repetições`,
+      `Descanso: ${formatRest(exercise.rest)}`
+    ];
+
+    if (selectedWorkoutMode === "weights" && exercise.load) {
+      detailsParts.push(`Carga: ${exercise.load}`);
+    }
+
+    details.textContent = detailsParts.join(" · ");
+
+    info.append(name, details);
+    top.appendChild(info);
+    card.appendChild(top);
+
+    const progressText = document.createElement("div");
+    progressText.className = "set-progress";
+    progressText.textContent = sameActiveMode
+      ? `${done} de ${plannedSets} séries concluídas`
+      : `${plannedSets} séries planejadas`;
+    card.appendChild(progressText);
+
+    const track = document.createElement("div");
+    track.className = "set-track";
+
+    const fill = document.createElement("div");
+    fill.className = "set-track-fill";
+    fill.style.width = `${done / plannedSets * 100}%`;
+
+    track.appendChild(fill);
+    card.appendChild(track);
+
+    const actions = document.createElement("div");
+    actions.className = "exercise-actions";
+
+    const complete = document.createElement("button");
+    complete.type = "button";
+    complete.className = "complete-set-button";
+
+    if (done >= plannedSets) {
+      complete.textContent = "Séries concluídas";
+      complete.disabled = true;
+    } else if (!activeWorkout) {
+      complete.textContent = "Inicie o treino para registrar";
+      complete.disabled = true;
+    } else if (!sameActiveMode) {
+      complete.textContent = "Outra modalidade está ativa";
+      complete.disabled = true;
+    } else if (!activeWorkout.running) {
+      complete.textContent = "Retome o treino para continuar";
+      complete.disabled = true;
+    } else if (restBlocking) {
+      complete.textContent = "Aguarde o descanso";
+      complete.disabled = true;
+    } else {
+      complete.textContent = `Concluir série ${done + 1} de ${plannedSets}`;
+      complete.addEventListener("click", () => completeSet(exercise.id));
+    }
+
+    actions.appendChild(complete);
+
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "small-button";
+    edit.textContent = "Editar";
+    edit.addEventListener("click", () => beginExerciseEdit(exercise.id));
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "small-button danger-button";
+    remove.textContent = "Excluir";
+    remove.addEventListener("click", () => deleteExercise(exercise.id));
+
+    actions.append(edit, remove);
+    card.appendChild(actions);
+    list.appendChild(card);
+  });
+}
+
+function renderHistory() {
+  const list = document.getElementById("history-list");
+  list.innerHTML = "";
+
+  document.getElementById("history-total").textContent =
+    workoutHistory.length;
+
+  const totalSets = workoutHistory.reduce(
+    (sum, record) => sum + (Number(record.completedSets) || 0), 0
+  );
+
+  document.getElementById("history-sets").textContent = totalSets;
+
+  const totalMs = workoutHistory.reduce(
+    (sum, record) => sum + (Number(record.durationMs) || 0), 0
+  );
+
+  const totalMinutes = Math.floor(totalMs / 60000);
+  const totalHours = Math.floor(totalMinutes / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  document.getElementById("history-time").textContent =
+    totalHours > 0
+      ? `${totalHours}h${remainingMinutes ? ` ${remainingMinutes}m` : ""}`
+      : `${totalMinutes}m`;
+
+  if (workoutHistory.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Seus treinos finalizados aparecerão aqui.";
+    list.appendChild(empty);
+    return;
+  }
+
+  workoutHistory.slice(0, 10).forEach(record => {
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    const title = document.createElement("div");
+    title.className = "history-title";
+
+    const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(record.date || "")
+      ? new Date(
+          Number(record.date.slice(0, 4)),
+          Number(record.date.slice(5, 7)) - 1,
+          Number(record.date.slice(8, 10))
+        )
+      : null;
+
+    const dateText = parsedDate
+      ? formatDate(parsedDate, {
+          day: "2-digit", month: "short", year: "numeric"
+        })
+      : "Data não informada";
+
+    title.textContent =
+      `${MODE_NAMES[record.modality] || "Treino"} · ${dateText}`;
+
+    const details = document.createElement("div");
+    details.className = "history-details";
+
+    const durationSeconds = Math.floor(
+      (Number(record.durationMs) || 0) / 1000
+    );
+
+    details.textContent =
+      `${formatClock(durationSeconds)} de duração · ` +
+      `${Number(record.completedSets) || 0} séries concluídas`;
+
+    item.append(title, details);
+
+    if (Array.isArray(record.exercises) && record.exercises.length > 0) {
+      const exerciseDetails = document.createElement("div");
+      exerciseDetails.className = "history-details";
+
+      exerciseDetails.textContent = record.exercises
+        .filter(exercise => Number(exercise.completedSets) > 0)
+        .map(exercise =>
+          `${exercise.name}: ${exercise.completedSets}/${exercise.plannedSets} séries`
+        )
+        .join(" · ") || "Nenhuma série registrada.";
+
+      item.appendChild(exerciseDetails);
+    }
+
+    list.appendChild(item);
+  });
+}
+
+function renderWorkout() {
+  const sameMode = getActiveForMode();
+
+  const startButton = document.getElementById("start-workout");
+  const pauseButton = document.getElementById("pause-workout");
+  const resumeButton = document.getElementById("resume-workout");
+  const finishButton = document.getElementById("finish-workout");
+
+  startButton.hidden = Boolean(activeWorkout);
+  pauseButton.hidden = !sameMode || !activeWorkout.running;
+  resumeButton.hidden = !sameMode || activeWorkout.running;
+  finishButton.hidden = !sameMode;
+
+  if (activeWorkout && !sameMode) {
+    document.getElementById("session-caption").textContent =
+      `Há um treino de ${MODE_NAMES[activeWorkout.modality]} ativo. ` +
+      "Volte para essa modalidade para continuar ou finalizá-lo.";
+  } else if (sameMode && activeWorkout.running) {
+    document.getElementById("session-caption").textContent =
+      `Treino de ${MODE_NAMES[selectedWorkoutMode]} em andamento.`;
+  } else if (sameMode) {
+    document.getElementById("session-caption").textContent =
+      "Treino pausado. Retome quando estiver pronto.";
+  } else {
+    document.getElementById("session-caption").textContent =
+      "Inicie um treino para começar a registrar suas séries.";
+  }
+
+  const restPanel = document.getElementById("rest-panel");
+  const hasRest = Boolean(
+    sameMode &&
+    (activeWorkout.restEndAt || activeWorkout.restPaused) &&
+    getRestRemainingMs() > 0
+  );
+
+  restPanel.hidden = !hasRest;
+
+  if (hasRest) {
+    const paused = activeWorkout.restPaused || !activeWorkout.running;
+
+    document.getElementById("pause-rest").hidden =
+      paused || !activeWorkout.restEndAt;
+    document.getElementById("resume-rest").hidden =
+      !activeWorkout.restPaused || !activeWorkout.running;
+    document.getElementById("skip-rest").hidden = false;
+
+    document.getElementById("rest-caption").textContent = paused
+      ? "Descanso pausado."
+      : "Respire e prepare-se para a próxima série.";
+  }
+
+  renderExercises();
+  renderHistory();
+  updateWorkoutTimers();
+}
+
+
+/* Os relógios usam timestamps reais para compensar atrasos
+   quando o navegador reduz a frequência de atualização em segundo plano. */
+
+function updateWorkoutTimers() {
+  document.getElementById("session-timer").textContent =
+    formatClock(Math.floor(getElapsedMs() / 1000));
+
+  if (!activeWorkout) {
+    document.getElementById("rest-timer").textContent = "00:00";
+    return;
+  }
+
+  const remainingMs = getRestRemainingMs();
+
+  document.getElementById("rest-timer").textContent =
+    formatClock(Math.ceil(remainingMs / 1000));
+
+  if (
+    activeWorkout.restEndAt &&
+    !activeWorkout.restPaused &&
+    remainingMs <= 0
+  ) {
+    activeWorkout.restEndAt = null;
+    activeWorkout.restRemainingMs = 0;
+    activeWorkout.restPaused = false;
+
+    saveActiveWorkout();
+    playRestSound();
+    renderWorkout();
+
+    setWorkoutNotice(
+      "Descanso concluído. Quando estiver pronto, comece a próxima série."
+    );
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    updateWorkoutTimers();
+    renderWorkout();
+  }
+});
+
 updateTodayLabel();
 renderCalendar();
 renderMissions();
+renderWorkout();
+
+timerInterval = window.setInterval(updateWorkoutTimers, 250);
 </script>
 </body>
 </html>
