@@ -333,6 +333,56 @@ footer {
   .task-form { flex-wrap: wrap; }
   .add-button { min-height: 42px; }
 }
+
+/* FORJA TREINO */
+.workout-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 17px;
+}
+
+.workout-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.workout-choice {
+  min-width: 0;
+  padding: 18px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel2);
+  color: var(--text);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.workout-choice.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: #30291b;
+}
+
+.workout-choice span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--muted);
+}
+
+.workout-message {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #111;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 </style>
 </head>
 
