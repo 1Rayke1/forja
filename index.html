@@ -2,366 +2,664 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#111315">
-  <meta name="description" content="FORJA — organize seu dia e cumpra o que promete a si mesmo.">
-  <title>FORJA — Disciplina diária</title>
-  <style>
-    :root {
-      --bg: #111315;
-      --panel: #1b1e21;
-      --border: #303438;
-      --text: #f2f2ef;
-      --muted: #92989e;
-      --accent: #d6b779;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>FORJA — Disciplina Diária</title>
 
-    * { box-sizing: border-box; }
+<style>
+:root {
+  --bg: #101010;
+  --panel: #191919;
+  --panel2: #222222;
+  --gold: #e7c779;
+  --text: #f5f5f5;
+  --muted: #a5a5a5;
+  --border: #303030;
+  --green: #8bc99a;
+}
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, sans-serif;
-      line-height: 1.5;
-    }
+* { box-sizing: border-box; }
 
-    .container {
-      width: min(100% - 32px, 620px);
-      margin: 0 auto;
-      padding: 32px 0 48px;
-    }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+}
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
+.container {
+  width: min(100% - 32px, 720px);
+  margin: auto;
+}
 
-    .logo {
-      font-size: 27px;
-      font-weight: 850;
-      letter-spacing: 5px;
-    }
+header {
+  padding: 25px 0 18px;
+  border-bottom: 1px solid var(--border);
+}
 
-    .tagline {
-      color: var(--muted);
-      font-size: 12px;
-    }
+.logo {
+  color: var(--gold);
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: 4px;
+}
 
-    .date {
-      margin-top: 30px;
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-    }
+.tagline {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 3px;
+  margin-top: 2px;
+}
 
-    h1 {
-      font-size: clamp(25px, 6vw, 34px);
-      line-height: 1.2;
-      margin: 10px 0;
-    }
+.hero { padding: 27px 0 23px; }
 
-    .quote {
-      margin: 26px 0;
-      padding: 20px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 10px;
-    }
+.eyebrow {
+  color: var(--gold);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
 
-    .author {
-      color: var(--accent);
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
+h1 {
+  font-size: clamp(29px, 7vw, 42px);
+  line-height: 1.15;
+  margin: 9px 0;
+  letter-spacing: -1px;
+}
 
-    .quote p { margin: 0; font-size: 16px; }
+.subtitle {
+  color: var(--muted);
+  margin: 0;
+  font-size: 14px;
+}
 
-    .source {
-      color: var(--muted);
-      font-size: 10px;
-      margin-top: 10px;
-    }
+.quote {
+  margin-top: 24px;
+  padding: 15px 17px;
+  border-left: 2px solid var(--gold);
+  background: var(--panel);
+  border-radius: 0 8px 8px 0;
+}
 
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin: 30px 0 14px;
-    }
+.quote-author {
+  font-size: 12px;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
 
-    h2 { font-size: 18px; margin: 0; }
+.quote-text { font-size: 15px; }
 
-    .progress-label {
-      color: var(--accent);
-      font-size: 13px;
-      white-space: nowrap;
-    }
+.quote-source {
+  color: #777;
+  font-size: 10px;
+  margin-top: 5px;
+}
 
-    .track {
-      height: 6px;
-      background: #303438;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
+section { margin: 27px 0; }
 
-    .fill {
-      height: 100%;
-      width: 0;
-      background: var(--accent);
-      transition: width .2s ease;
-    }
+.section-title {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0;
+}
 
-    .tasks {
-      display: grid;
-      gap: 10px;
-    }
+.calendar-panel, .missions-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 17px;
+}
 
-    .task {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-    }
+.month-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 16px 0 18px;
+}
 
-    .task input {
-      width: 19px;
-      height: 19px;
-      accent-color: var(--accent);
-      flex-shrink: 0;
-    }
+.month-title {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
 
-    .task-name { flex: 1; overflow-wrap: anywhere; }
+.nav-button {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--gold);
+  background: var(--panel2);
+  font-size: 22px;
+  cursor: pointer;
+}
 
-    .task.done .task-name {
-      color: var(--muted);
-      text-decoration: line-through;
-    }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
 
-    .delete {
-      color: var(--muted);
-      background: transparent;
-      border: 0;
-      font-size: 19px;
-      padding: 4px 7px;
-      cursor: pointer;
-    }
+.weekday {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 5px 0;
+}
 
-    .empty {
-      color: var(--muted);
-      text-align: center;
-      padding: 26px 10px;
-      border: 1px dashed var(--border);
-      border-radius: 10px;
-      font-size: 14px;
-    }
+.day {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
 
-    form {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
+.day:disabled {
+  background: transparent;
+  cursor: default;
+}
 
-    input[type="text"] {
-      min-width: 0;
-      flex: 1;
-      background: var(--panel);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 13px;
-      font-size: 14px;
-    }
+.day.today { border-color: var(--gold); }
 
-    button.add {
-      background: var(--accent);
-      color: #171717;
-      border: 0;
-      border-radius: 9px;
-      padding: 0 18px;
-      font-weight: 750;
-      cursor: pointer;
-    }
+.day.selected {
+  background: var(--gold);
+  color: #17130b;
+  font-weight: bold;
+}
 
-    button:focus-visible, input:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 3px;
-    }
+.day.has-tasks::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+}
 
-    footer {
-      margin-top: 36px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 11px;
-    }
-  </style>
+.day.selected.has-tasks::after {
+  background: #17130b;
+}
+
+.calendar-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 13px 0 0;
+}
+
+.selected-date {
+  color: var(--gold);
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.missions-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 17px;
+}
+
+.progress-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 10px;
+  background: #333;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--gold);
+  transition: width .2s;
+}
+
+.task-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #111;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+
+input[type="text"]:focus { border-color: var(--gold); }
+
+.add-button {
+  border: 0;
+  border-radius: 8px;
+  padding: 0 16px;
+  background: var(--gold);
+  color: #17130b;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  background: #141414;
+  border-radius: 8px;
+}
+
+.task input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold);
+  flex-shrink: 0;
+}
+
+.task-text {
+  flex: 1;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+.task.done .task-text {
+  color: #777;
+  text-decoration: line-through;
+}
+
+.delete-button {
+  border: 0;
+  background: transparent;
+  color: #999;
+  font-size: 19px;
+  cursor: pointer;
+  padding: 2px 5px;
+}
+
+.delete-button:hover { color: #ff8585; }
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 17px 5px;
+  font-size: 13px;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: #777;
+  padding: 22px 0 28px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 380px) {
+  .calendar-panel, .missions-panel { padding: 12px; }
+  .calendar-grid { gap: 3px; }
+  .day { font-size: 12px; }
+  .task-form { flex-wrap: wrap; }
+  .add-button { min-height: 42px; }
+}
+</style>
 </head>
+
 <body>
-  <main class="container">
-    <header>
-      <div class="logo">FORJA</div>
-      <div class="tagline">DISCIPLINA DIÁRIA</div>
-    </header>
+<header>
+  <div class="container">
+    <div class="logo">FORJA</div>
+    <div class="tagline">DISCIPLINA DIÁRIA</div>
+  </div>
+</header>
 
-    <div class="date" id="today"></div>
+<main class="container">
+  <div class="hero">
+    <div class="eyebrow" id="today-label"></div>
     <h1>Faça o que importa.</h1>
-    <p style="color:var(--muted);margin-top:0">
-      Organize seu dia. Cumpra seus compromissos.
-    </p>
+    <p class="subtitle">Organize seu dia. Cumpra seus compromissos.</p>
 
-    <section class="quote" aria-label="Citação do dia">
-      <div class="author">David Goggins</div>
-      <p>“Stay hard.”</p>
-      <div class="source">Fonte: expressão associada a David Goggins.</div>
-    </section>
+    <div class="quote">
+      <div class="quote-author">David Goggins</div>
+      <div class="quote-text">“Stay hard.”</div>
+      <div class="quote-source">Fonte: expressão associada a David Goggins.</div>
+    </div>
+  </div>
 
-    <section>
-      <div class="section-head">
-        <h2>Missões de hoje</h2>
-        <div class="progress-label" id="progressText">0 de 0</div>
+  <section aria-labelledby="calendar-heading">
+    <div class="calendar-panel">
+      <h2 class="section-title" id="calendar-heading">Seu calendário</h2>
+
+      <div class="month-navigation">
+        <button class="nav-button" id="prev-month"
+          type="button" aria-label="Mês anterior">‹</button>
+        <div class="month-title" id="month-title"></div>
+        <button class="nav-button" id="next-month"
+          type="button" aria-label="Próximo mês">›</button>
       </div>
 
-      <div class="track">
-        <div class="fill" id="progressFill"></div>
+      <div class="calendar-grid" id="calendar-grid"></div>
+      <p class="calendar-hint">
+        Selecione um dia para consultar ou organizar sua rotina.
+        Os pequenos pontos indicam dias com missões.
+      </p>
+    </div>
+  </section>
+
+  <section aria-labelledby="missions-heading">
+    <div class="missions-panel">
+      <div class="missions-heading">
+        <div>
+          <h2 class="section-title" id="missions-heading">Missões</h2>
+          <div class="selected-date" id="selected-date"></div>
+          <div class="progress-label" id="progress-label">0 de 0 · 0%</div>
+        </div>
       </div>
 
-      <div class="tasks" id="tasks"></div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
 
-      <form id="taskForm">
-        <input
-          id="taskInput"
-          type="text"
-          maxlength="120"
-          placeholder="Adicionar uma missão..."
-          aria-label="Nome da missão"
-          required
-        >
-        <button class="add" type="submit">Adicionar</button>
+      <form class="task-form" id="task-form">
+        <input id="task-input" type="text" maxlength="180"
+          placeholder="Qual é sua missão?" autocomplete="off"
+          aria-label="Nova missão" required>
+        <button class="add-button" type="submit">Adicionar</button>
       </form>
-    </section>
 
-    <footer>
-      Menos promessas. Mais ação.
-    </footer>
-  </main>
+      <div class="task-list" id="task-list"></div>
+    </div>
+  </section>
+</main>
 
-  <script>
-    const today = new Date();
-    const dateKey =
-      today.getFullYear() + "-" +
-      String(today.getMonth() + 1).padStart(2, "0") + "-" +
-      String(today.getDate()).padStart(2, "0");
+<footer>MENOS PROMESSAS. MAIS AÇÃO.</footer>
 
-    document.getElementById("today").textContent =
-      new Intl.DateTimeFormat("pt-BR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long"
-      }).format(today);
+<script>
+const monthNames = [
+  "Janeiro", "Fevereiro", "Março", "Abril",
+  "Maio", "Junho", "Julho", "Agosto",
+  "Setembro", "Outubro", "Novembro", "Dezembro"
+];
 
-    const storageKey = "forja-missoes-" + dateKey;
-    const tasksElement = document.getElementById("tasks");
-    const form = document.getElementById("taskForm");
-    const input = document.getElementById("taskInput");
+const weekdays = ["D", "S", "T", "Q", "Q", "S", "S"];
 
-    let tasks = [];
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
-    try {
-      tasks = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      if (!Array.isArray(tasks)) tasks = [];
-    } catch {
-      tasks = [];
-    }
+let selectedDate = new Date(today);
+let displayedYear = today.getFullYear();
+let displayedMonth = today.getMonth();
 
-    function save() {
-      localStorage.setItem(storageKey, JSON.stringify(tasks));
-    }
+function dateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
-    function render() {
-      tasksElement.replaceChildren();
+function readTasks(date) {
+  const key = "forja-missoes-" + dateKey(date);
 
-      if (tasks.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.textContent =
-          "Seu dia começa com uma decisão. Adicione sua primeira missão.";
-        tasksElement.appendChild(empty);
+  try {
+    const saved = localStorage.getItem(key);
+    if (!saved) return [];
+
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [];
+
+    // Mantém compatibilidade com missões antigas.
+    return parsed.map((task, index) => {
+      if (typeof task === "string") {
+        return {
+          id: "old-" + index,
+          text: task,
+          done: false
+        };
       }
 
-      tasks.forEach(task => {
-        const row = document.createElement("div");
-        row.className = "task" + (task.done ? " done" : "");
+      return {
+        id: task.id || "task-" + index,
+        text: String(task.text || task.title || ""),
+        done: Boolean(task.done || task.completed)
+      };
+    }).filter(task => task.text.trim());
+  } catch (error) {
+    return [];
+  }
+}
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = task.done;
-        checkbox.setAttribute("aria-label", "Concluir " + task.name);
+function saveTasks(date, tasks) {
+  try {
+    localStorage.setItem(
+      "forja-missoes-" + dateKey(date),
+      JSON.stringify(tasks)
+    );
+    return true;
+  } catch (error) {
+    alert("Não foi possível salvar. Verifique o espaço disponível no navegador.");
+    return false;
+  }
+}
 
-        checkbox.addEventListener("change", () => {
-          task.done = checkbox.checked;
-          save();
-          render();
-        });
+function formatDate(date, options = {}) {
+  return date.toLocaleDateString("pt-BR", options);
+}
 
-        const name = document.createElement("span");
-        name.className = "task-name";
-        name.textContent = task.name;
+function updateTodayLabel() {
+  document.getElementById("today-label").textContent =
+    formatDate(today, {
+      weekday: "long",
+      day: "numeric",
+      month: "long"
+    });
+}
 
-        const remove = document.createElement("button");
-        remove.className = "delete";
-        remove.type = "button";
-        remove.textContent = "×";
-        remove.setAttribute("aria-label", "Excluir " + task.name);
+function renderCalendar() {
+  const grid = document.getElementById("calendar-grid");
+  grid.innerHTML = "";
 
-        remove.addEventListener("click", () => {
-          tasks = tasks.filter(item => item.id !== task.id);
-          save();
-          render();
-        });
+  document.getElementById("month-title").textContent =
+    `${monthNames[displayedMonth]} ${displayedYear}`;
 
-        row.append(checkbox, name, remove);
-        tasksElement.appendChild(row);
-      });
+  weekdays.forEach((weekday, index) => {
+    const label = document.createElement("div");
+    label.className = "weekday";
+    label.textContent = weekday;
+    label.setAttribute("aria-label",
+      ["Domingo", "Segunda-feira", "Terça-feira",
+       "Quarta-feira", "Quinta-feira", "Sexta-feira",
+       "Sábado"][index]);
+    grid.appendChild(label);
+  });
 
-      const completed = tasks.filter(task => task.done).length;
-      const total = tasks.length;
-      const percent = total ? Math.round(completed / total * 100) : 0;
+  const firstDay = new Date(displayedYear, displayedMonth, 1).getDay();
+  const daysInMonth = new Date(displayedYear, displayedMonth + 1, 0).getDate();
+  const selectedKey = dateKey(selectedDate);
+  const todayKey = dateKey(today);
 
-      document.getElementById("progressText").textContent =
-        `${completed} de ${total} · ${percent}%`;
+  for (let i = 0; i < firstDay; i++) {
+    const blank = document.createElement("button");
+    blank.className = "day";
+    blank.disabled = true;
+    blank.tabIndex = -1;
+    blank.setAttribute("aria-hidden", "true");
+    grid.appendChild(blank);
+  }
 
-      document.getElementById("progressFill").style.width = percent + "%";
-    }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(displayedYear, displayedMonth, day);
+    const key = dateKey(date);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "day";
+    button.textContent = day;
+    button.setAttribute("aria-label", formatDate(date, {
+      day: "numeric", month: "long", year: "numeric"
+    }));
 
-    form.addEventListener("submit", event => {
-      event.preventDefault();
-      const name = input.value.trim();
-      if (!name) return;
+    if (key === todayKey) button.classList.add("today");
+    if (key === selectedKey) button.classList.add("selected");
+    if (readTasks(date).length > 0) button.classList.add("has-tasks");
+    if (key === selectedKey) button.setAttribute("aria-pressed", "true");
 
-      tasks.push({
-        id: Date.now().toString() + Math.random().toString(16).slice(2),
-        name,
-        done: false
-      });
-
-      save();
-      render();
-      input.value = "";
-      input.focus();
+    button.addEventListener("click", () => {
+      selectedDate = new Date(date);
+      renderCalendar();
+      renderMissions();
     });
 
-    render();
-  </script>
+    grid.appendChild(button);
+  }
+}
+
+function renderMissions() {
+  const tasks = readTasks(selectedDate);
+  const list = document.getElementById("task-list");
+  const completed = tasks.filter(task => task.done).length;
+  const percent = tasks.length
+    ? Math.round(completed / tasks.length * 100)
+    : 0;
+
+  document.getElementById("selected-date").textContent =
+    formatDate(selectedDate, {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
+  document.getElementById("progress-label").textContent =
+    `${completed} de ${tasks.length} · ${percent}%`;
+
+  document.getElementById("progress-fill").style.width = percent + "%";
+  list.innerHTML = "";
+
+  if (tasks.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = dateKey(selectedDate) === dateKey(today)
+      ? "Seu dia começa com uma decisão. Adicione sua primeira missão."
+      : "Nenhuma missão para este dia. Organize seus compromissos.";
+    list.appendChild(empty);
+    return;
+  }
+
+  tasks.forEach(task => {
+    const row = document.createElement("div");
+    row.className = "task" + (task.done ? " done" : "");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = task.done;
+    checkbox.setAttribute("aria-label", "Concluir " + task.text);
+
+    checkbox.addEventListener("change", () => {
+      const current = readTasks(selectedDate);
+      const item = current.find(entry => entry.id === task.id);
+      if (!item) return;
+      item.done = checkbox.checked;
+      saveTasks(selectedDate, current);
+      renderCalendar();
+      renderMissions();
+    });
+
+    const text = document.createElement("span");
+    text.className = "task-text";
+    text.textContent = task.text;
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "delete-button";
+    remove.textContent = "×";
+    remove.setAttribute("aria-label", "Excluir " + task.text);
+
+    remove.addEventListener("click", () => {
+      const current = readTasks(selectedDate)
+        .filter(entry => entry.id !== task.id);
+      if (saveTasks(selectedDate, current)) {
+        renderCalendar();
+        renderMissions();
+      }
+    });
+
+    row.append(checkbox, text, remove);
+    list.appendChild(row);
+  });
+}
+
+document.getElementById("task-form").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const input = document.getElementById("task-input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const tasks = readTasks(selectedDate);
+  tasks.push({
+    id: Date.now().toString() + "-" + Math.random().toString(36).slice(2, 8),
+    text,
+    done: false
+  });
+
+  if (saveTasks(selectedDate, tasks)) {
+    input.value = "";
+    renderCalendar();
+    renderMissions();
+  }
+});
+
+document.getElementById("prev-month").addEventListener("click", () => {
+  displayedMonth--;
+  if (displayedMonth < 0) {
+    displayedMonth = 11;
+    displayedYear--;
+  }
+  renderCalendar();
+});
+
+document.getElementById("next-month").addEventListener("click", () => {
+  displayedMonth++;
+  if (displayedMonth > 11) {
+    displayedMonth = 0;
+    displayedYear++;
+  }
+  renderCalendar();
+});
+
+updateTodayLabel();
+renderCalendar();
+renderMissions();
+</script>
 </body>
 </html>
