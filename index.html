@@ -639,22 +639,40 @@ document.getElementById("task-form").addEventListener("submit", event => {
   }
 });
 
-document.getElementById("prev-month").addEventListener("click", () => {
-  displayedMonth--;
-  if (displayedMonth < 0) {
-    displayedMonth = 11;
-    displayedYear--;
-  }
+function changeDisplayedMonth(offset) {
+  const nextMonth = new Date(
+    displayedYear,
+    displayedMonth + offset,
+    1
+  );
+
+  displayedYear = nextMonth.getFullYear();
+  displayedMonth = nextMonth.getMonth();
+
+  const lastDay = new Date(
+    displayedYear,
+    displayedMonth + 1,
+    0
+  ).getDate();
+
+  const day = Math.min(selectedDate.getDate(), lastDay);
+
+  selectedDate = new Date(
+    displayedYear,
+    displayedMonth,
+    day
+  );
+
   renderCalendar();
+  renderMissions();
+}
+
+document.getElementById("prev-month").addEventListener("click", () => {
+  changeDisplayedMonth(-1);
 });
 
 document.getElementById("next-month").addEventListener("click", () => {
-  displayedMonth++;
-  if (displayedMonth > 11) {
-    displayedMonth = 0;
-    displayedYear++;
-  }
-  renderCalendar();
+  changeDisplayedMonth(1);
 });
 
 updateTodayLabel();
