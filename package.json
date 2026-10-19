@@ -1,0 +1,16 @@
+{
+  "name": "forja",
+  "version": "2.0.0",
+  "private": true,
+  "description": "FORJA — disciplina diária: calendário, missões e treinos com rotinas A/B/C.",
+  "scripts": {
+    "test": "node tests/forja.test.mjs",
+    "test:e2e": "node tests/e2e.browser.mjs",
+    "serve": "python3 -m http.server 8080 --bind 127.0.0.1"
+  },
+  "devDependencies": {
+    "@sparticuz/chromium": "^138.0.2",
+    "jsdom": "^30.0.0",
+    "puppeteer-core": "^24.43.1"
+  }
+}
