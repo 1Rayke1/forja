@@ -280,7 +280,8 @@ Executam o `index.html` real, com o mesmo script do navegador.
 | 9 | Meta viewport e media queries responsivas presentes | ✅ |
 | 10 | Todos os ids usados no script existem; nenhum erro de console | ✅ |
 
-Resultado: **20/20**.
+Resultado: **20/20** — incluindo execução em ambiente limpo
+(`git archive` → `npm ci` → `npm test`).
 
 ### 5.2 Navegador real — `npm run test:e2e`
 
