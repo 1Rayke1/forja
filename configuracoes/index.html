@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>Dados e preferências · FORJA</title>
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/treino.css">
+<link rel="stylesheet" href="../assets/css/execucao.css">
+<link rel="stylesheet" href="../assets/css/configuracoes.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+
+<body data-page="configuracoes" data-root="../">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="../index.html">FORJA</a>
+    <div class="tagline">DISCIPLINA DIÁRIA</div>
+  </div>
+  <nav class="app-nav" aria-label="Navegação principal">
+    <div class="container app-nav-inner">
+      <a class="nav-link" href="../index.html" data-nav="inicio">Início</a>
+      <a class="nav-link" href="../treino/index.html" data-nav="treino">Treino</a>
+      <a class="nav-link" href="../progresso/index.html" data-nav="progresso">Progresso</a>
+      <a class="nav-link" href="../configuracoes/index.html" data-nav="configuracoes" aria-current="page" class="is-current">Dados</a>
+    </div>
+  </nav>
+</header>
+
+<main class="container" id="conteudo">
+  <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
+    <div class="active-session-text">
+      <strong>Treino em andamento</strong>
+      <span id="active-session-summary"></span>
+    </div>
+    <div class="active-session-actions">
+      <a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a>
+      <a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a>
+    </div>
+  </section>
+
+  <nav class="screen-toolbar" aria-label="Voltar">
+    <a class="back-link" href="../index.html">← Início</a>
+    <span class="eyebrow">Dados</span>
+  </nav>
+
+  <div class="page-head">
+    <h1 class="screen-title">Dados e preferências</h1>
+    <p class="screen-subtitle">Faça backup, restaure seus dados e ajuste o descanso.</p>
+  </div>
+
+  <section class="backup-panel" aria-labelledby="backup-heading">
+    <h2 class="section-title" id="backup-heading">Seus dados</h2>
+    <p class="backup-description">
+      Exporte um backup JSON com missões, calendário, rotinas, biblioteca, histórico e
+      sessão ativa. A importação valida o arquivo e pede confirmação antes
+      de substituir qualquer dado.
+    </p>
+    <div class="backup-actions">
+      <button type="button" class="secondary-button" id="export-backup">Exportar backup JSON</button>
+      <button type="button" class="secondary-button" id="import-backup-button">Importar backup JSON</button>
+      <button type="button" class="secondary-button" id="restore-safety-backup" hidden>Desfazer última importação</button>
+    </div>
+    <input type="file" id="import-backup-input" accept=".json,application/json" hidden>
+    <div class="backup-meta" id="backup-status">
+      Seus dados permanecem apenas neste navegador. Faça backups regulares.
+    </div>
+  </section>
+
+  <section class="preferences-panel" aria-labelledby="preferences-heading">
+    <h2 class="section-title" id="preferences-heading">Preferências do descanso</h2>
+    <label class="check-row">
+      <input type="checkbox" id="pref-sound">
+      <span>Tocar um aviso sonoro quando o descanso terminar</span>
+    </label>
+    <label class="check-row">
+      <input type="checkbox" id="pref-vibrate">
+      <span>Vibrar quando o descanso terminar (se o aparelho permitir)</span>
+    </label>
+  </section>
+
+  <section class="storage-panel" aria-labelledby="storage-heading">
+    <h2 class="section-title" id="storage-heading">Onde seus dados ficam</h2>
+    <p>Os dados do FORJA ficam salvos apenas neste navegador. Eles não são sincronizados entre celular, computador ou outros navegadores. Para levar seus dados para outro aparelho, exporte um backup e importe-o lá.</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../assets/js/forja-core.js" defer></script>
+<script src="../assets/js/forja-dados.js" defer></script>
+<script src="../assets/js/forja-biblioteca.js" defer></script>
+<script src="../assets/js/forja-sessao.js" defer></script>
+<script src="../assets/js/forja-treino.js" defer></script>
+<script src="../assets/js/forja-progresso.js" defer></script>
+<script src="../assets/js/forja-backup.js" defer></script>
+<script src="../assets/js/forja-app.js" defer></script>
+</body>
+</html>

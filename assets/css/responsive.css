@@ -1,0 +1,84 @@
+/* FORJA — regras móveis (telas estreitas) aplicadas por último. */
+@media (hover: none) {
+  .modality-card:hover { border-color: var(--border); }
+}
+
+@media (max-width: 560px) {
+  .modality-card {
+    min-height: 162px;
+    padding: 14px;
+  }
+
+  .modality-top { margin-bottom: 16px; }
+
+  .modality-name { font-size: 14px; letter-spacing: 1px; }
+
+  .modality-desc { font-size: 10px; }
+
+  .focus-grid { grid-template-columns: 1fr 1fr; }
+
+  .focus-grid .focus-stat:last-child { grid-column: 1 / -1; }
+
+  .field-grid.three { grid-template-columns: 1fr 1fr; }
+
+  .field-grid.three > :first-child { grid-column: 1 / -1; }
+
+  .execution-wrap { width: min(100% - 24px, 680px); }
+
+  .summary-stats { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 380px) {
+  .workout-panel { padding: 12px; }
+
+  .modality-grid { gap: 8px; }
+
+  .modality-card {
+    min-height: 150px;
+    padding: 11px;
+  }
+
+  .modality-icon { width: 30px; height: 30px; }
+
+  .modality-name { font-size: 12px; letter-spacing: .6px; }
+
+  .modality-desc { font-size: 9px; }
+
+  .modality-meta { font-size: 9px; padding-top: 11px; }
+
+  .routine-actions .spacer { display: none; }
+
+  .editor-toolbar-actions { width: 100%; justify-content: space-between; }
+
+  .routine-actions .primary-button { width: 100%; flex: 1 1 100%; }
+
+  .routine-actions .secondary-button { flex: 1; }
+
+  .editor-exercise { flex-wrap: wrap; }
+
+  .exercise-tools { margin-left: auto; }
+
+  .field-grid { grid-template-columns: 1fr; }
+
+  .field-grid.three { grid-template-columns: 1fr 1fr; }
+
+  .field-grid.three > :first-child { grid-column: auto; }
+
+  .focus-name { font-size: 30px; }
+
+  .focus-grid { grid-template-columns: 1fr 1fr; }
+
+  .execution-footer .secondary-button,
+  .execution-footer .danger-button { flex: 1 1 100%; }
+
+  .summary-stats { grid-template-columns: 1fr 1fr; }
+
+  .backup-actions button { flex: 1 1 100%; }
+
+  .modal-backdrop { padding: 10px; align-items: flex-end; }
+
+  .modal-card { max-height: 92vh; }
+
+  .routine-name-input { font-size: 22px; }
+}
+

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>Execução do treino · FORJA</title>
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/treino.css">
+<link rel="stylesheet" href="../assets/css/execucao.css">
+<link rel="stylesheet" href="../assets/css/configuracoes.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+
+<body data-page="executar" data-root="../">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="../index.html">FORJA</a>
+    <div class="tagline">DISCIPLINA DIÁRIA</div>
+  </div>
+  <nav class="app-nav" aria-label="Navegação principal">
+    <div class="container app-nav-inner">
+      <a class="nav-link" href="../index.html" data-nav="inicio">Início</a>
+      <a class="nav-link" href="../treino/index.html" data-nav="treino" aria-current="page" class="is-current">Treino</a>
+      <a class="nav-link" href="../progresso/index.html" data-nav="progresso">Progresso</a>
+      <a class="nav-link" href="../configuracoes/index.html" data-nav="configuracoes">Dados</a>
+    </div>
+  </nav>
+</header>
+
+<main class="container" id="conteudo">
+  <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
+    <div class="active-session-text">
+      <strong>Treino em andamento</strong>
+      <span id="active-session-summary"></span>
+    </div>
+    <div class="active-session-actions">
+      <a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a>
+      <a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a>
+    </div>
+  </section>
+
+  <section class="execution-screen" id="execution-screen" aria-labelledby="execution-title">
+    <div class="execution-wrap">
+
+      <div class="execution-empty" id="execution-empty" hidden>
+        <span class="eyebrow">Treino</span>
+        <h1 class="screen-title">Nenhum treino em andamento</h1>
+        <p class="screen-subtitle">Inicie uma rotina na sua modalidade. Enquanto a sessão estiver ativa, ela aparece no topo de todas as páginas.</p>
+        <a class="primary-button full-width" href="index.html">Escolher treino</a>
+      </div>
+
+      <div id="execution-live" hidden>
+        <header class="execution-header">
+          <button type="button" class="session-back" id="minimize-session" aria-label="Voltar sem encerrar o treino">←</button>
+          <div class="execution-heading">
+            <div class="eyebrow" id="execution-mode"></div>
+            <h1 class="execution-title" id="execution-title"></h1>
+          </div>
+          <div class="execution-clock" id="execution-clock" aria-live="off">00:00</div>
+        </header>
+
+        <div class="execution-progress">
+          <div class="execution-progress-meta">
+            <span id="execution-position"></span>
+            <span><strong id="execution-progress-label"></strong></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="execution-progress-fill"></div>
+          </div>
+        </div>
+
+        <article class="exercise-focus">
+          <div class="section-badge" id="current-section"></div>
+          <div class="exercise-position" id="current-position"></div>
+          <h2 class="focus-name" id="current-name"></h2>
+          <div class="focus-plan" id="current-plan"></div>
+
+          <div class="focus-grid">
+            <div class="focus-stat">
+              <div class="focus-stat-label">Séries feitas</div>
+              <div class="focus-stat-value" id="current-sets-value">0 <small>/ 0</small></div>
+            </div>
+            <div class="focus-stat">
+              <div class="focus-stat-label">Alvo por série</div>
+              <div class="focus-stat-value" id="current-plan-value">—</div>
+            </div>
+            <div class="focus-stat">
+              <div class="focus-stat-label">Descanso</div>
+              <div class="focus-stat-value" id="current-rest-value">—</div>
+            </div>
+          </div>
+
+          <div class="session-notes" id="session-notes" hidden>
+            <strong>Observação</strong>
+            <span id="session-notes-text"></span>
+          </div>
+        </article>
+
+        <section class="set-panel" aria-labelledby="set-progress-heading">
+          <div class="set-count" id="set-progress-heading">
+            <strong id="set-count-label">Séries concluídas</strong>
+            <span id="set-progress-label"></span>
+          </div>
+          <div class="set-pips" id="set-pips" aria-hidden="true"></div>
+
+          <section class="timer-panel" id="timer-panel" aria-label="Cronômetro da série" hidden>
+            <div class="timer-head">
+              <span class="status-label" id="set-timer-status"></span>
+              <span class="timer-elapsed" id="set-timer-elapsed"></span>
+            </div>
+            <div class="timer-display" id="set-timer-display" role="timer" aria-live="off">00:00</div>
+            <div class="progress-track timer-track">
+              <div class="progress-fill" id="set-timer-fill"></div>
+            </div>
+            <p class="timer-caption" id="set-timer-caption"></p>
+            <div class="timer-actions">
+              <button type="button" class="primary-button" id="set-timer-start">Iniciar série</button>
+              <button type="button" class="secondary-button" id="set-timer-pause" hidden>Pausar série</button>
+              <button type="button" class="primary-button" id="set-timer-resume" hidden>Retomar série</button>
+              <button type="button" class="primary-button" id="set-timer-finish" hidden>Concluir série</button>
+              <button type="button" class="secondary-button" id="set-timer-skip" hidden>Descartar cronômetro</button>
+              <button type="button" class="nav-text-button" id="set-timer-manual">Registrar sem cronômetro</button>
+            </div>
+          </section>
+
+          <section class="log-panel" id="log-panel" aria-labelledby="log-heading">
+            <h3 class="form-heading" id="log-heading">Registro da série</h3>
+            <div class="log-fields">
+              <div class="field-block" id="log-reps-field">
+                <label class="field-label" for="log-reps">Repetições feitas</label>
+                <input id="log-reps" type="text" maxlength="30" autocomplete="off">
+              </div>
+              <div class="field-block" id="log-load-field">
+                <label class="field-label" for="log-load">Carga usada</label>
+                <input id="log-load" type="text" maxlength="50" autocomplete="off" placeholder="Ex.: 20 kg">
+              </div>
+            </div>
+            <ul class="log-list" id="log-list"></ul>
+          </section>
+
+          <button type="button" class="big-set-button" id="complete-set">Concluir série</button>
+          <button type="button" class="secondary-button full-width" id="start-rest" hidden>Iniciar descanso</button>
+        </section>
+
+        <nav class="exercise-nav" aria-label="Navegar entre exercícios">
+          <button type="button" class="nav-text-button" id="previous-exercise">← Exercício anterior</button>
+          <button type="button" class="nav-text-button" id="skip-exercise">Pular exercício</button>
+          <button type="button" class="nav-text-button" id="next-exercise" hidden>Próximo exercício →</button>
+        </nav>
+
+        <section class="rest-panel" id="execution-rest" aria-live="polite" hidden>
+          <div class="rest-label">Descanso</div>
+          <div class="rest-timer" id="rest-timer">00:00</div>
+          <div class="rest-caption" id="rest-caption"></div>
+          <div class="rest-actions">
+            <button type="button" class="secondary-button" id="pause-rest">Pausar descanso</button>
+            <button type="button" class="secondary-button" id="resume-rest" hidden>Retomar descanso</button>
+            <button type="button" class="primary-button" id="skip-rest">Pular descanso</button>
+          </div>
+        </section>
+
+        <div class="session-paused-overlay" id="session-paused-overlay" hidden>
+          <strong>Treino pausado</strong>
+          <span>O cronômetro está parado. Retome quando estiver pronto.</span>
+        </div>
+
+        <footer class="execution-footer" id="execution-footer">
+          <button type="button" class="secondary-button" id="pause-session">Pausar treino</button>
+          <button type="button" class="secondary-button" id="resume-session" hidden>Retomar treino</button>
+          <button type="button" class="secondary-button danger-button" id="end-session">Encerrar sessão</button>
+        </footer>
+      </div>
+
+      <section class="session-summary" id="execution-summary" aria-labelledby="summary-title" hidden>
+        <p class="summary-routine" id="summary-routine"></p>
+        <h2 id="summary-title">Treino concluído</h2>
+        <p id="summary-description"></p>
+        <div class="summary-stats">
+          <div class="summary-stat"><div class="summary-value" id="summary-duration">00:00</div><div class="summary-label">duração</div></div>
+          <div class="summary-stat"><div class="summary-value" id="summary-sets">0/0</div><div class="summary-label">séries</div></div>
+          <div class="summary-stat"><div class="summary-value" id="summary-exercises-stat">0/0</div><div class="summary-label">exercícios</div></div>
+          <div class="summary-stat"><div class="summary-value" id="summary-status-stat">—</div><div class="summary-label">situação</div></div>
+        </div>
+        <ul class="summary-exercises" id="summary-exercises"></ul>
+        <div class="summary-actions">
+          <a class="secondary-button" id="summary-history-link" href="../progresso/index.html">Ver no progresso</a>
+          <button type="button" class="primary-button" id="summary-close">Voltar à modalidade</button>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../assets/js/forja-core.js" defer></script>
+<script src="../assets/js/forja-dados.js" defer></script>
+<script src="../assets/js/forja-biblioteca.js" defer></script>
+<script src="../assets/js/forja-sessao.js" defer></script>
+<script src="../assets/js/forja-treino.js" defer></script>
+<script src="../assets/js/forja-progresso.js" defer></script>
+<script src="../assets/js/forja-backup.js" defer></script>
+<script src="../assets/js/forja-app.js" defer></script>
+</body>
+</html>

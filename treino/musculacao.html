@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>Musculação · FORJA</title>
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/treino.css">
+<link rel="stylesheet" href="../assets/css/execucao.css">
+<link rel="stylesheet" href="../assets/css/configuracoes.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+
+<body data-page="musculacao" data-root="../">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="../index.html">FORJA</a>
+    <div class="tagline">DISCIPLINA DIÁRIA</div>
+  </div>
+  <nav class="app-nav" aria-label="Navegação principal">
+    <div class="container app-nav-inner">
+      <a class="nav-link" href="../index.html" data-nav="inicio">Início</a>
+      <a class="nav-link" href="../treino/index.html" data-nav="treino" aria-current="page" class="is-current">Treino</a>
+      <a class="nav-link" href="../progresso/index.html" data-nav="progresso">Progresso</a>
+      <a class="nav-link" href="../configuracoes/index.html" data-nav="configuracoes">Dados</a>
+    </div>
+  </nav>
+</header>
+
+<main class="container" id="conteudo">
+  <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
+    <div class="active-session-text">
+      <strong>Treino em andamento</strong>
+      <span id="active-session-summary"></span>
+    </div>
+    <div class="active-session-actions">
+      <a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a>
+      <a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a>
+    </div>
+  </section>
+
+    <div class="screen-toolbar">
+    <a class="back-link" href="index.html">← Treino</a>
+    <span class="eyebrow">Treino · Musculação</span>
+  </div>
+
+  <div class="page-head">
+    <h1 class="screen-title" id="modality-title">MUSCULAÇÃO</h1>
+    <p class="screen-subtitle" id="modality-subtitle"></p>
+  </div>
+
+  <div class="active-hint" id="modality-active-hint" hidden>
+    <span>Sessão ativa: <strong data-active-name></strong></span>
+    <a class="primary-button small-button" href="executar.html">Abrir execução</a>
+  </div>
+
+  <section class="section-block" aria-labelledby="routines-heading">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title" id="routines-heading">Rotinas</h2>
+        <p class="routine-count" id="routine-count"></p>
+      </div>
+      <button type="button" class="primary-button" id="new-routine">+ Nova rotina</button>
+    </div>
+    <div class="routine-list" id="routine-list"></div>
+    <p class="section-note">Rotinas de musculação ficam separadas das outras modalidades. Organize aquecimento, treino principal, abdômen e finalizador.</p>
+  </section>
+
+  <section class="section-block" aria-labelledby="modality-history-heading">
+    <h2 class="section-title" id="modality-history-heading">Histórico recente</h2>
+    <div class="history-summary" aria-label="Resumo do histórico">
+      <div class="summary-item"><div class="summary-value" id="history-total">0</div><div class="summary-label">treinos</div></div>
+      <div class="summary-item"><div class="summary-value" id="history-completed">0</div><div class="summary-label">concluídos</div></div>
+      <div class="summary-item"><div class="summary-value" id="history-sets">0</div><div class="summary-label">séries</div></div>
+      <div class="summary-item"><div class="summary-value" id="history-time">0 min</div><div class="summary-label">tempo</div></div>
+    </div>
+    <div class="history-list" id="modality-history-list"></div>
+    <a class="secondary-button full-width" id="history-more" href="../progresso/index.html" hidden>Ver histórico e progresso</a>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../assets/js/forja-core.js" defer></script>
+<script src="../assets/js/forja-dados.js" defer></script>
+<script src="../assets/js/forja-biblioteca.js" defer></script>
+<script src="../assets/js/forja-sessao.js" defer></script>
+<script src="../assets/js/forja-treino.js" defer></script>
+<script src="../assets/js/forja-progresso.js" defer></script>
+<script src="../assets/js/forja-backup.js" defer></script>
+<script src="../assets/js/forja-app.js" defer></script>
+</body>
+</html>

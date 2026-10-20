@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>Progresso · FORJA</title>
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/treino.css">
+<link rel="stylesheet" href="../assets/css/execucao.css">
+<link rel="stylesheet" href="../assets/css/configuracoes.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+
+<body data-page="progresso" data-root="../">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="../index.html">FORJA</a>
+    <div class="tagline">DISCIPLINA DIÁRIA</div>
+  </div>
+  <nav class="app-nav" aria-label="Navegação principal">
+    <div class="container app-nav-inner">
+      <a class="nav-link" href="../index.html" data-nav="inicio">Início</a>
+      <a class="nav-link" href="../treino/index.html" data-nav="treino">Treino</a>
+      <a class="nav-link" href="../progresso/index.html" data-nav="progresso" aria-current="page" class="is-current">Progresso</a>
+      <a class="nav-link" href="../configuracoes/index.html" data-nav="configuracoes">Dados</a>
+    </div>
+  </nav>
+</header>
+
+<main class="container" id="conteudo">
+  <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
+    <div class="active-session-text">
+      <strong>Treino em andamento</strong>
+      <span id="active-session-summary"></span>
+    </div>
+    <div class="active-session-actions">
+      <a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a>
+      <a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a>
+    </div>
+  </section>
+
+  <nav class="screen-toolbar" aria-label="Voltar">
+    <a class="back-link" href="../index.html">← Início</a>
+    <span class="eyebrow">Progresso</span>
+  </nav>
+
+  <div class="page-head">
+    <h1 class="screen-title">Progresso</h1>
+    <p class="screen-subtitle">Totais e histórico calculados somente com os treinos registrados neste navegador.</p>
+  </div>
+
+  <div class="filter-group" role="group" aria-label="Filtrar por modalidade">
+    <button type="button" class="filter-button" data-filter="all" aria-pressed="true">Todas</button>
+    <button type="button" class="filter-button" data-filter="calisthenics" aria-pressed="false">Calistenia</button>
+    <button type="button" class="filter-button" data-filter="weights" aria-pressed="false">Musculação</button>
+  </div>
+  <p class="scope-note">Exibindo: <strong id="progress-scope">Todas as modalidades</strong></p>
+
+  <section class="section-block" aria-labelledby="progress-summary-heading">
+    <h2 class="section-title" id="progress-summary-heading">Resumo</h2>
+    <div class="history-summary progress-summary" aria-label="Totais">
+      <div class="summary-item"><div class="summary-value" id="progress-sessions">0</div><div class="summary-label">treinos</div></div>
+      <div class="summary-item"><div class="summary-value" id="progress-completed">0</div><div class="summary-label">concluídos</div></div>
+      <div class="summary-item"><div class="summary-value" id="progress-partial">0</div><div class="summary-label">parciais</div></div>
+      <div class="summary-item"><div class="summary-value" id="progress-sets">0/0</div><div class="summary-label">séries feitas</div></div>
+      <div class="summary-item"><div class="summary-value" id="progress-time">0 min</div><div class="summary-label">tempo total</div></div>
+    </div>
+    <p class="limit-note" id="progress-limit-note" hidden></p>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-routines-heading">
+    <h2 class="section-title" id="progress-routines-heading">Por rotina</h2>
+    <ul class="progress-list" id="progress-routines"></ul>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-exercises-heading">
+    <h2 class="section-title" id="progress-exercises-heading">Por exercício</h2>
+    <ul class="progress-list" id="progress-exercises"></ul>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-history-heading">
+    <h2 class="section-title" id="progress-history-heading">Histórico</h2>
+    <div class="history-list" id="progress-history"></div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../assets/js/forja-core.js" defer></script>
+<script src="../assets/js/forja-dados.js" defer></script>
+<script src="../assets/js/forja-biblioteca.js" defer></script>
+<script src="../assets/js/forja-sessao.js" defer></script>
+<script src="../assets/js/forja-treino.js" defer></script>
+<script src="../assets/js/forja-progresso.js" defer></script>
+<script src="../assets/js/forja-backup.js" defer></script>
+<script src="../assets/js/forja-app.js" defer></script>
+</body>
+</html>

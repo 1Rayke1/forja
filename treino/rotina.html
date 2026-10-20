@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>Editor de rotina · FORJA</title>
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/treino.css">
+<link rel="stylesheet" href="../assets/css/execucao.css">
+<link rel="stylesheet" href="../assets/css/configuracoes.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+
+<body data-page="rotina" data-root="../">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="../index.html">FORJA</a>
+    <div class="tagline">DISCIPLINA DIÁRIA</div>
+  </div>
+  <nav class="app-nav" aria-label="Navegação principal">
+    <div class="container app-nav-inner">
+      <a class="nav-link" href="../index.html" data-nav="inicio">Início</a>
+      <a class="nav-link" href="../treino/index.html" data-nav="treino" aria-current="page" class="is-current">Treino</a>
+      <a class="nav-link" href="../progresso/index.html" data-nav="progresso">Progresso</a>
+      <a class="nav-link" href="../configuracoes/index.html" data-nav="configuracoes">Dados</a>
+    </div>
+  </nav>
+</header>
+
+<main class="container" id="conteudo">
+  <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
+    <div class="active-session-text">
+      <strong>Treino em andamento</strong>
+      <span id="active-session-summary"></span>
+    </div>
+    <div class="active-session-actions">
+      <a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a>
+      <a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a>
+    </div>
+  </section>
+
+    <div class="screen-toolbar">
+    <a class="back-link" href="index.html" id="back-to-modality">← Treino</a>
+    <span class="eyebrow">Treino · Editor de rotina</span>
+  </div>
+
+  <div class="editor-missing" id="editor-missing" hidden>
+    <h1 class="screen-title">Rotina não encontrada</h1>
+    <p class="screen-subtitle" id="editor-missing-text"></p>
+    <a class="primary-button full-width" href="index.html">Voltar ao treino</a>
+  </div>
+
+  <div id="editor-body" hidden>
+    <div class="page-head">
+      <span class="eyebrow" id="routine-modality"></span>
+      <h1 class="screen-title" id="editor-title"></h1>
+      <p class="screen-subtitle" id="editor-meta"></p>
+      <span class="dirty-pill saved" id="editor-dirty-pill">Salvo</span>
+    </div>
+
+    <div class="field-block">
+      <label class="field-label" for="routine-name-input">Nome da rotina</label>
+      <input type="text" class="routine-name-input" id="routine-name-input" maxlength="60" autocomplete="off">
+    </div>
+
+    <div class="editor-save-bar">
+      <p class="editor-save-note" id="editor-save-note"></p>
+      <button type="button" class="primary-button" id="save-routine-top">Salvar rotina</button>
+    </div>
+
+    <section class="editor-section" aria-labelledby="section-warmup-heading">
+      <div class="editor-section-head">
+        <div class="section-heading-group">
+          <h3 class="section-title" id="section-warmup-heading">Aquecimento</h3>
+          <span class="section-count" data-section-count="warmup"></span>
+        </div>
+        <button type="button" class="section-add-button" data-add-section="warmup">+ Adicionar</button>
+      </div>
+      <div class="section-exercise-list" data-section-list="warmup"></div>
+    </section>
+    <section class="editor-section" aria-labelledby="section-main-heading">
+      <div class="editor-section-head">
+        <div class="section-heading-group">
+          <h3 class="section-title" id="section-main-heading">Treino principal</h3>
+          <span class="section-count" data-section-count="main"></span>
+        </div>
+        <button type="button" class="section-add-button" data-add-section="main">+ Adicionar</button>
+      </div>
+      <div class="section-exercise-list" data-section-list="main"></div>
+    </section>
+    <section class="editor-section" aria-labelledby="section-abs-heading">
+      <div class="editor-section-head">
+        <div class="section-heading-group">
+          <h3 class="section-title" id="section-abs-heading">Abdômen</h3>
+          <span class="section-count" data-section-count="abs"></span>
+        </div>
+        <button type="button" class="section-add-button" data-add-section="abs">+ Adicionar</button>
+      </div>
+      <div class="section-exercise-list" data-section-list="abs"></div>
+    </section>
+    <section class="editor-section" aria-labelledby="section-finisher-heading">
+      <div class="editor-section-head">
+        <div class="section-heading-group">
+          <h3 class="section-title" id="section-finisher-heading">Finalizador</h3>
+          <span class="section-count" data-section-count="finisher"></span>
+        </div>
+        <button type="button" class="section-add-button" data-add-section="finisher">+ Adicionar</button>
+      </div>
+      <div class="section-exercise-list" data-section-list="finisher"></div>
+    </section>
+
+    <section class="library-block" aria-labelledby="library-heading">
+      <h2 class="section-title" id="library-heading">Biblioteca de exercícios</h2>
+      <button type="button" class="secondary-button full-width" id="library-toggle" aria-expanded="false" aria-controls="library-panel">Buscar na biblioteca</button>
+
+      <div class="library-panel" id="library-panel" hidden>
+        <label class="field-label" for="library-search">Buscar exercício</label>
+        <input type="search" id="library-search" class="library-search" placeholder="Ex.: flexão, prancha" autocomplete="off">
+
+        <div class="library-list" id="library-list"></div>
+
+        <button type="button" class="secondary-button full-width" id="custom-toggle" aria-expanded="false" aria-controls="custom-form">Criar exercício personalizado</button>
+
+        <form class="custom-form" id="custom-form" hidden>
+          <div class="field-block">
+            <label class="field-label" for="custom-name">Nome</label>
+            <input id="custom-name" type="text" maxlength="100" required autocomplete="off">
+          </div>
+          <div class="field-grid">
+            <div class="field-block">
+              <label class="field-label" for="custom-section">Seção</label>
+              <select id="custom-section">
+                <option value="warmup">Aquecimento</option>
+                <option value="main" selected>Treino principal</option>
+                <option value="abs">Abdômen</option>
+                <option value="finisher">Finalizador</option>
+              </select>
+            </div>
+            <fieldset class="type-switch">
+              <legend class="field-label">Tipo</legend>
+              <label><input type="radio" name="custom-type" id="custom-type-reps" value="reps" checked> Repetições</label>
+              <label><input type="radio" name="custom-type" id="custom-type-duration" value="duration"> Duração</label>
+            </fieldset>
+            <div class="field-block">
+              <label class="field-label" for="custom-sets">Séries</label>
+              <input id="custom-sets" type="number" min="1" max="30" value="3" required>
+            </div>
+            <div class="field-block" id="custom-reps-field">
+              <label class="field-label" for="custom-reps">Repetições</label>
+              <input id="custom-reps" type="text" maxlength="30" value="10">
+            </div>
+            <div class="field-block" id="custom-duration-field" hidden>
+              <label class="field-label" for="custom-duration">Duração (s)</label>
+              <input id="custom-duration" type="number" min="1" max="7200" value="45">
+            </div>
+            <div class="field-block">
+              <label class="field-label" for="custom-rest">Descanso (s)</label>
+              <input id="custom-rest" type="number" min="0" max="3600" value="60" required>
+            </div>
+          </div>
+          <button type="submit" class="primary-button full-width">Salvar na biblioteca</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="exercise-form-card" id="exercise-form-card" aria-labelledby="exercise-form-heading">
+      <h2 class="form-heading" id="exercise-form-heading">Adicionar exercício</h2>
+      <form class="workout-form" id="exercise-form">
+        <div class="field-grid">
+          <div class="field-block">
+            <label class="field-label" for="exercise-section">Seção</label>
+            <select id="exercise-section">
+              <option value="warmup">Aquecimento</option>
+              <option value="main">Treino principal</option>
+              <option value="abs">Abdômen</option>
+              <option value="finisher">Finalizador</option>
+            </select>
+          </div>
+          <div class="field-block">
+            <label class="field-label" for="exercise-name">Nome do exercício</label>
+            <input id="exercise-name" type="text" maxlength="100" required autocomplete="off">
+          </div>
+          <fieldset class="type-switch">
+            <legend class="field-label">Tipo</legend>
+            <label><input type="radio" name="exercise-type" id="exercise-type-reps" value="reps" checked> Repetições</label>
+            <label><input type="radio" name="exercise-type" id="exercise-type-duration" value="duration"> Duração</label>
+          </fieldset>
+          <div class="field-block">
+            <label class="field-label" for="exercise-sets">Séries</label>
+            <input id="exercise-sets" type="number" min="1" max="30" value="4" required>
+          </div>
+          <div class="field-block" id="exercise-reps-field">
+            <label class="field-label" for="exercise-reps">Repetições</label>
+            <input id="exercise-reps" type="text" maxlength="30" value="12">
+          </div>
+          <div class="field-block" id="exercise-duration-field" hidden>
+            <label class="field-label" for="exercise-duration">Duração por série (s)</label>
+            <input id="exercise-duration" type="number" min="1" max="7200" value="45">
+          </div>
+          <div class="field-block">
+            <label class="field-label" for="exercise-rest">Descanso (s)</label>
+            <input id="exercise-rest" type="number" min="0" max="3600" value="60" required>
+          </div>
+          <div class="field-block" id="exercise-load-field" hidden>
+            <label class="field-label" for="exercise-load">Carga (opcional)</label>
+            <input id="exercise-load" type="text" maxlength="50" placeholder="Ex.: 20 kg" autocomplete="off">
+          </div>
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="exercise-notes">Observações (opcional)</label>
+          <textarea id="exercise-notes" maxlength="300" rows="2"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="primary-button" id="exercise-submit">Adicionar exercício</button>
+          <button type="button" class="secondary-button" id="cancel-exercise-edit" hidden>Cancelar edição</button>
+        </div>
+      </form>
+    </section>
+
+    <div class="editor-save-bar editor-save-bottom">
+      <button type="button" class="primary-button full-width" id="save-routine">Salvar rotina</button>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../assets/js/forja-core.js" defer></script>
+<script src="../assets/js/forja-dados.js" defer></script>
+<script src="../assets/js/forja-biblioteca.js" defer></script>
+<script src="../assets/js/forja-sessao.js" defer></script>
+<script src="../assets/js/forja-treino.js" defer></script>
+<script src="../assets/js/forja-progresso.js" defer></script>
+<script src="../assets/js/forja-backup.js" defer></script>
+<script src="../assets/js/forja-app.js" defer></script>
+</body>
+</html>
