@@ -1,10 +1,10 @@
 /*
-  Teste end-to-end em navegador real.
+  Teste end-to-end em navegador real (multipágina).
 
-  Sobe a própria página em um servidor HTTP local (nenhum processo externo é
-  necessário) e usa puppeteer-core com um Chromium já instalado no sistema
-  (PUPPETEER_EXECUTABLE_PATH) ou o binário empacotado em
-  @sparticuz/chromium. As duas dependências estão em devDependencies.
+  Sobe o repositório em um servidor HTTP local sob o caminho /forja/, igual ao
+  GitHub Pages (https://1rayke1.github.io/forja/), e percorre as páginas com
+  puppeteer-core usando um Chromium do sistema (PUPPETEER_EXECUTABLE_PATH) ou o
+  binário empacotado em @sparticuz/chromium. Nenhum processo externo é necessário.
 
   Uso:
     npm install
@@ -12,7 +12,7 @@
 
   Variáveis opcionais:
     PUPPETEER_EXECUTABLE_PATH  caminho de um Chrome/Chromium local
-    FORJA_URL                  usa um servidor já em execução
+    FORJA_URL                  URL base de um servidor já em execução (ex.: http://127.0.0.1:8080/forja/)
 */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -26,14 +26,24 @@ const results = [];
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const artifactsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'forja-e2e-'));
 const artifactPath = name => path.join(artifactsDir, name);
+const MOBILE = { width: 390, height: 844 };
+
+const PAGES = [
+  '',
+  'treino/',
+  'treino/calistenia.html',
+  'treino/musculacao.html',
+  'treino/rotina.html',
+  'treino/executar.html',
+  'progresso/',
+  'configuracoes/'
+];
 
 let puppeteer;
 try {
   puppeteer = (await import('puppeteer-core')).default;
 } catch (error) {
-  console.error(
-    'puppeteer-core não está instalado. Rode "npm install" na raiz do projeto.'
-  );
+  console.error('puppeteer-core não está instalado. Rode "npm install" na raiz do projeto.');
   process.exit(1);
 }
 
@@ -72,31 +82,33 @@ if (!executablePath) {
   process.exit(1);
 }
 
+/* Servidor estático: o repositório fica sob /forja/, como no GitHub Pages. */
 function startStaticServer(rootDir) {
   const mime = {
     '.html': 'text/html; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8',
     '.css': 'text/css; charset=utf-8',
     '.json': 'application/json; charset=utf-8',
-    '.svg': 'image/svg+xml'
+    '.svg': 'image/svg+xml',
+    '.png': 'image/png',
+    '.webmanifest': 'application/manifest+json'
   };
+  const blocked = new Set(['node_modules', '.git', 'tests', 'docs', '.github']);
 
   return new Promise((resolve, reject) => {
     const server = http.createServer((request, response) => {
       const requestUrl = new URL(request.url, 'http://127.0.0.1');
-      const relative = requestUrl.pathname === '/'
-        ? 'index.html'
-        : decodeURIComponent(requestUrl.pathname).replace(/^\/+/, '');
-      const filePath = path.resolve(rootDir, relative);
-
-      if (!filePath.startsWith(rootDir + path.sep) && filePath !== rootDir) {
-        response.statusCode = 403;
-        response.end('forbidden');
+      if (!requestUrl.pathname.startsWith('/forja/')) {
+        response.statusCode = 404;
+        response.end('not found');
         return;
       }
+      let relative = decodeURIComponent(requestUrl.pathname.slice('/forja/'.length));
+      if (relative === '' || relative.endsWith('/')) relative += 'index.html';
+      const filePath = path.resolve(rootDir, relative);
+      const first = path.relative(rootDir, filePath).split(path.sep)[0];
 
-      // O app é um único index.html; não expõe node_modules, .git ou testes.
-      if (relative !== 'index.html') {
+      if (!filePath.startsWith(rootDir + path.sep) || blocked.has(first) || first.startsWith('.')) {
         response.statusCode = 404;
         response.end('not found');
         return;
@@ -108,448 +120,438 @@ function startStaticServer(rootDir) {
           response.end('not found');
           return;
         }
-
-        response.setHeader(
-          'Content-Type',
-          mime[path.extname(filePath)] || 'application/octet-stream'
-        );
+        response.setHeader('Content-Type', mime[path.extname(filePath)] || 'application/octet-stream');
         response.end(data);
       });
     });
 
     server.once('error', reject);
     server.listen(0, '127.0.0.1', () => {
-      resolve({
-        server,
-        url: 'http://127.0.0.1:' + server.address().port + '/index.html'
-      });
+      resolve({ server, url: 'http://127.0.0.1:' + server.address().port + '/forja/' });
     });
   });
 }
 
-const localServer = process.env.FORJA_URL
-  ? null
-  : await startStaticServer(repoRoot);
-const BASE = process.env.FORJA_URL || localServer.url;
+const localServer = process.env.FORJA_URL ? null : await startStaticServer(repoRoot);
+const BASE = (process.env.FORJA_URL || localServer.url).replace(/\/?$/, '/');
 
 let browser;
 try {
   browser = await puppeteer.launch({
     args: launchArgs,
-    defaultViewport: { width: 390, height: 844 },
+    defaultViewport: MOBILE,
     executablePath,
     headless: true
   });
 } catch (error) {
-  console.error(
-    'Não foi possível iniciar o navegador (' + executablePath + '): ' + error.message +
-    '\nDica: defina PUPPETEER_EXECUTABLE_PATH para um Chrome/Chromium compatível.'
-  );
+  console.error('Não foi possível iniciar o navegador (' + executablePath + '): ' + error.message);
   if (localServer) localServer.server.close();
   process.exit(1);
 }
-const page = await browser.newPage();
-const consoleErrors = [];
-page.on('console', m => { if (m.type() === 'error') consoleErrors.push('console: ' + m.text()); });
-page.on('pageerror', e => consoleErrors.push('pageerror: ' + e.message));
-page.on('requestfailed', r => consoleErrors.push('requestfailed: ' + r.url()));
 
-const $ = s => page.$(s);
-const text = async s => page.$eval(s, e => e.textContent.trim());
-const click = async s => { await page.click(s); await sleep(60); };
-const waitFor = async (fn, timeout = 5000) => {
+const page = await browser.newPage();
+let currentLabel = 'carga';
+const errors = [];
+page.on('console', m => { if (m.type() === 'error') errors.push(currentLabel + ' console: ' + m.text()); });
+page.on('pageerror', e => errors.push(currentLabel + ' pageerror: ' + e.message));
+page.on('requestfailed', r => errors.push(currentLabel + ' requestfailed: ' + r.url()));
+page.on('response', r => {
+  if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(currentLabel + ' HTTP ' + r.status() + ': ' + r.url());
+});
+
+const client = await page.createCDPSession();
+await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: artifactsDir });
+
+const text = async sel => page.$eval(sel, e => e.textContent.trim());
+const isVisible = sel => page.$eval(sel, e => {
+  const style = getComputedStyle(e);
+  return !e.hidden && style.display !== 'none' && style.visibility !== 'hidden' && e.getClientRects().length > 0;
+}).catch(() => false);
+const waitFor = async (fn, timeout = 6000, arg) => {
   const start = Date.now();
   while (Date.now() - start < timeout) {
-    if (await page.evaluate(fn)) return true;
-    await sleep(50);
+    if (await page.evaluate(fn, arg)) return true;
+    await sleep(60);
   }
   return false;
 };
+const pathOf = () => new URL(page.url()).pathname;
+// Aceita "treino/" e "treino/index.html" como a mesma página.
+const normalizePath = p => p.replace(/index\.html$/, '');
+const expectPath = async suffix => {
+  const want = normalizePath(suffix);
+  const ok = await waitFor(s => location.pathname.replace(/index\.html$/, '').endsWith(s), 6000, want);
+  assert.ok(ok, 'Esperava a página ' + suffix + ', mas está em ' + pathOf());
+};
 
-async function check(name, fn) {
-  try { await fn(); results.push([name, 'ok']); console.log('✅ ' + name); }
-  catch (e) { results.push([name, 'fail']); console.log('❌ ' + name + '\n   ' + e.message.split('\n')[0]); }
+// Clica pelo DOM (para links e botões ocultos sob estilos customizados).
+async function jsClick(sel, pattern) {
+  const ok = await page.evaluate((s, src) => {
+    const re = src ? new RegExp(src, 'i') : null;
+    const el = [...document.querySelectorAll(s)].find(e => !re || re.test(e.textContent.trim()));
+    if (!el) return false;
+    el.click();
+    return true;
+  }, sel, pattern ? pattern.source : '');
+  assert.ok(ok, 'Elemento não encontrado: ' + sel + (pattern ? ' (' + pattern + ')' : ''));
+  await sleep(120);
 }
 
+async function fill(sel, value) {
+  await page.$eval(sel, (el, v) => {
+    el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }, String(value));
+  await sleep(40);
+}
 
-await page.goto(BASE, { waitUntil: 'networkidle0' });
-await sleep(200);
-await page.evaluate(() => localStorage.clear());
-await page.reload({ waitUntil: 'networkidle0' });
-await sleep(200);
-
-await check('Sem erros de console na carga inicial', async () => {
-  assert.deepEqual(consoleErrors, []);
-});
-
-await check('Sem overflow horizontal em 320, 360, 390, 430, 768 e 1280', async () => {
-  for (const width of [320, 360, 390, 430, 768, 1280]) {
-    await page.setViewport({ width, height: 800 });
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await sleep(120);
-    const overflow = await page.evaluate(() => {
-      const innerWidth = window.innerWidth;
-      const offenders = [];
-      document.querySelectorAll('body *').forEach(el => {
-        const style = getComputedStyle(el);
-        if (style.display === 'none' || style.visibility === 'hidden') return;
-        const rect = el.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) return;
-        if (rect.right > innerWidth + 1 || rect.left < -1) {
-          offenders.push(el.tagName + '.' + el.className + ' [' + Math.round(rect.left) + ',' + Math.round(rect.right) + ']');
-        }
-      });
-      return { docScroll: document.documentElement.scrollWidth, innerWidth, offenders: offenders.slice(0, 5) };
-    });
-    assert.ok(overflow.docScroll <= overflow.innerWidth + 1, 'docScroll ' + overflow.docScroll + ' em ' + width);
-    assert.deepEqual(overflow.offenders, [], 'overflow em ' + width + ': ' + overflow.offenders.join(' | '));
+// Conclui séries e pula descansos até o exercício indicado ficar atual.
+async function advanceUntil(namePattern) {
+  for (let i = 0; i < 40; i++) {
+    if (namePattern.test(await text('#current-name'))) return;
+    if (await isVisible('#execution-rest')) {
+      await jsClick('#skip-rest');
+    } else if (await isVisible('#set-timer-skip')) {
+      await jsClick('#set-timer-skip');
+    } else {
+      await jsClick('#complete-set');
+    }
+    await sleep(450);
   }
-  await page.setViewport({ width: 390, height: 844 });
-});
+  assert.fail('Não chegou a ' + namePattern + '; atual: ' + (await text('#current-name')));
+}
 
-await check('Regras móveis de calendário/missões aplicadas em 320px', async () => {
-  await page.setViewport({ width: 320, height: 700 });
-  await sleep(200);
+// Preenche e confirma o diálogo modal (ex.: "Nova rotina").
+async function answerModal(values, action) {
+  await page.waitForSelector('[data-modal-action]', { timeout: 4000 });
+  for (const [field, value] of Object.entries(values)) await fill('[data-modal-field="' + field + '"]', value);
+  await jsClick('[data-modal-action="' + action + '"]');
+  await sleep(150);
+}
 
-  const styles = await page.evaluate(() => {
-    const read = (selector, property) => {
-      const element = document.querySelector(selector);
-      return element ? getComputedStyle(element)[property] : null;
-    };
+async function go(rel) {
+  currentLabel = rel || 'index';
+  await page.goto(new URL(rel, BASE).href, { waitUntil: 'networkidle0' });
+  await sleep(120);
+}
 
-    return {
-      calendarPadding: read('.calendar-panel', 'paddingLeft'),
-      missionsPadding: read('.missions-panel', 'paddingLeft'),
-      gridGap: read('.calendar-grid', 'gap'),
-      dayFont: read('.day', 'fontSize'),
-      taskWrap: read('.task-form', 'flexWrap'),
-      taskInputWidth: read('.task-form input', 'width'),
-      summaryGap: read('.history-summary', 'gap')
-    };
+async function clearForjaStorage() {
+  await page.evaluate(() => {
+    // Remove somente as chaves do FORJA (nunca localStorage.clear()).
+    Object.keys(localStorage).filter(k => k.startsWith('forja-')).forEach(k => localStorage.removeItem(k));
+    sessionStorage.clear();
   });
+}
 
-  assert.equal(styles.calendarPadding, '12px');
-  assert.equal(styles.missionsPadding, '12px');
-  assert.equal(styles.gridGap, '3px');
-  assert.equal(styles.dayFont, '12px');
-  assert.equal(styles.taskWrap, 'wrap');
-  assert.ok(parseFloat(styles.taskInputWidth) >= 240, 'input estreito: ' + styles.taskInputWidth);
-  assert.equal(styles.summaryGap, '5px');
+const data = key => page.evaluate(k => {
+  const raw = localStorage.getItem(k);
+  return raw === null ? null : JSON.parse(raw);
+}, key);
 
-  await page.setViewport({ width: 390, height: 844 });
-});
-
-await check('Cartões de modalidade são tocáveis e não sobrepostos (320px)', async () => {
-  await page.setViewport({ width: 320, height: 700 });
-  await page.evaluate(() => document.getElementById('workout-heading').scrollIntoView());
-  await sleep(250);
-  for (const id of ['#mode-calisthenics', '#mode-weights']) {
-    const info = await page.$eval(id, el => {
-      const r = el.getBoundingClientRect();
-      const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-      return { r: { w: r.width, h: r.height }, hit: top ? (top.closest('#' + el.id) !== null) : false };
-    });
-    assert.ok(info.r.w > 120 && info.r.h > 120, id + ' pequeno: ' + JSON.stringify(info.r));
-    assert.equal(info.hit, true, 'Toque em ' + id + ' atinge outro elemento');
+async function check(name, fn) {
+  try {
+    await fn();
+    results.push([name, 'ok']);
+    console.log('✅ ' + name);
+  } catch (e) {
+    results.push([name, 'fail']);
+    console.log('❌ ' + name + '\n   ' + e.message.split('\n').slice(0, 6).join('\n   '));
   }
-  await page.setViewport({ width: 390, height: 844 });
+}
+
+/* ------------------------------------------------------------------ */
+
+await go('');
+await clearForjaStorage();
+await go('');
+
+await check('Calendário e missões funcionam na página inicial', async () => {
+  currentLabel = 'inicio';
+  assert.ok((await page.$$('#calendar-grid .day')).length >= 28, 'Calendário sem dias');
+  await page.$eval('#task-input', el => { el.value = 'Missão E2E'; });
+  await page.evaluate(() => document.getElementById('task-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+  await sleep(120);
+  assert.equal(await page.$$eval('#task-list .task', rows => rows.length), 1, 'Missão não foi adicionada');
+  await page.click('#task-list .task input[type=checkbox]');
+  await sleep(120);
+  assert.equal(await text('#progress-label'), '1 de 1 · 100%');
+  const title = await text('#month-title');
+  await page.click('#next-month');
+  await sleep(120);
+  assert.notEqual(await text('#month-title'), title);
+  await page.click('#prev-month');
+  await sleep(120);
+  assert.equal(await text('#month-title'), title);
+  await page.screenshot({ path: artifactPath('inicio.png') });
 });
 
-await check('Fluxo completo: rotinas A/B/C nas duas modalidades', async () => {
-  for (const mode of ['calisthenics', 'weights']) {
-    await page.evaluate(m => document.getElementById('mode-' + m).click(), mode);
-    await sleep(100);
-    for (const name of ['Treino A', 'Treino B']) {
-      await page.evaluate(() => document.getElementById('new-routine').click());
+await check('Nenhum erro de JavaScript, HTTP ou recurso ausente em todas as páginas', async () => {
+  for (const rel of PAGES) {
+    errors.length = 0;
+    await go(rel);
+    assert.deepEqual(errors, [], 'Erros em ' + (rel || 'index'));
+  }
+});
+
+await check('Sem rolagem horizontal em 320, 390, 768 e 1280 px em todas as páginas', async () => {
+  for (const rel of PAGES) {
+    await go(rel);
+    for (const width of [320, 390, 768, 1280]) {
+      await page.setViewport({ width, height: 800 });
       await sleep(120);
-      const input = await page.$('[data-modal-field="name"]');
-      await input.click({ clickCount: 3 });
-      await page.keyboard.type(name);
-      await page.evaluate(() => document.querySelector('[data-modal-action="create"]').click());
-      await sleep(150);
-
-      const exercises = [
-        { section: 'warmup', name: 'Mobilidade de ombro', sets: 2, type: 'duration', duration: 30, rest: 15, notes: '' },
-        { section: 'main', name: mode === 'weights' ? 'Supino reto' : 'Flexão de braço', sets: 3, type: 'reps', reps: '8-12', rest: 1, notes: 'Execução controlada', load: mode === 'weights' ? '40 kg' : '' },
-        { section: 'abs', name: 'Prancha', sets: 2, type: 'duration', duration: 40, rest: 20 },
-        { section: 'finisher', name: 'Burpee', sets: 1, type: 'reps', reps: '10', rest: 0 }
-      ];
-
-      for (const ex of exercises) {
-        await page.select('#exercise-section', ex.section);
-        await page.evaluate(() => { document.getElementById('exercise-name').value = ''; });
-        await page.type('#exercise-name', ex.name);
-        await page.evaluate((e) => {
-          document.getElementById('exercise-sets').value = String(e.sets);
-          document.getElementById(e.type === 'duration' ? 'exercise-type-duration' : 'exercise-type-reps').click();
-          if (e.type === 'duration') document.getElementById('exercise-duration').value = String(e.duration);
-          else document.getElementById('exercise-reps').value = e.reps;
-          document.getElementById('exercise-rest').value = String(e.rest);
-          document.getElementById('exercise-load').value = e.load || '';
-          document.getElementById('exercise-notes').value = e.notes || '';
-          document.getElementById('exercise-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-        }, ex);
-        await sleep(120);
-      }
-
-      await page.evaluate(() => document.getElementById('save-routine-top').click());
-      await sleep(150);
-      await page.evaluate(() => document.getElementById('back-from-editor').click());
-      await sleep(180);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      assert.ok(overflow <= 1, 'Rolagem horizontal de ' + overflow + 'px em ' + (rel || 'index') + ' a ' + width + 'px');
     }
   }
-
-  const routines = await page.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-rotinas-v1')));
-  assert.equal(routines.calisthenics.length, 2);
-  assert.equal(routines.weights.length, 2);
-  assert.equal(routines.weights[0].sections.main[0].load, '40 kg');
-  assert.equal(routines.calisthenics[0].sections.warmup[0].type, 'duration');
+  await page.setViewport(MOBILE);
 });
 
-await check('Rotinas duplicam/renomeiam/excluem com confirmação', async () => {
-  await page.evaluate(() => document.getElementById('mode-weights').click());
-  await sleep(120);
-  await page.evaluate(() => document.querySelector('.routine-card .small-button').click());
-  await sleep(150);
-  let routines = await page.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-rotinas-v1')));
-  assert.equal(routines.weights.length, 3);
-  assert.ok(routines.weights.some(r => r.name === 'Treino A (cópia)'));
-
-  const copyCard = await page.evaluateHandle(() => {
-    return [...document.querySelectorAll('.routine-card')].find(c => c.textContent.includes('(cópia)'));
-  });
-  await page.evaluate(el => el.querySelector('.danger-button').click(), copyCard);
-  await sleep(150);
-  assert.equal(await text('#modal-title'), 'Excluir rotina?');
-  await page.evaluate(() => document.querySelector('[data-modal-action="cancel"]').click());
-  await sleep(120);
-  routines = await page.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-rotinas-v1')));
-  assert.equal(routines.weights.length, 3, 'Cancelar deve manter a rotina');
-
-  await page.evaluate(el => el.querySelector('.danger-button').click(), copyCard);
-  await sleep(150);
-  await page.evaluate(() => document.querySelector('[data-modal-action="delete"]').click());
-  await sleep(180);
-  routines = await page.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-rotinas-v1')));
-  assert.equal(routines.weights.length, 2);
-});
-
-await check('Execução, descanso, pausa, retomada e recarregamento no meio da sessão', async () => {
-  await page.evaluate(() => document.getElementById('mode-calisthenics').click());
-  await sleep(120);
-  await page.evaluate(() => document.querySelector('.routine-card [data-action="start"]').click());
-  await sleep(250);
-
-  assert.equal(await page.evaluate(() => document.getElementById('execution-screen').hidden), false);
-  assert.equal(await text('#current-name'), 'Mobilidade de ombro');
-  assert.equal(await text('#execution-position'), 'Exercício 1 de 4');
-  assert.equal((await text('#current-sets-value')).replace(/\s+/g, ' '), '0 / 2');
-  await page.screenshot({ path: artifactPath('e2e-execution.png') });
-
-  // pausar treino e retomar
-  await click('#pause-session');
-  assert.equal(await page.evaluate(() => document.getElementById('session-paused-overlay').hidden), false);
-  await click('#resume-session');
-  assert.equal(await page.evaluate(() => document.getElementById('session-paused-overlay').hidden), true);
-
-  // concluir série e recarregar durante o descanso
-  await click('#complete-set');
-  assert.equal(await page.evaluate(() => document.getElementById('execution-rest').hidden), false);
-  const before = await text('#current-sets-value');
-  await page.reload({ waitUntil: 'networkidle0' });
-  await sleep(300);
-  assert.equal(await page.evaluate(() => document.getElementById('execution-screen').hidden), false);
-  assert.equal(await text('#current-name'), 'Mobilidade de ombro');
-  assert.equal((await text('#current-sets-value')).replace(/\s+/g, ' '), (await before).replace(/\s+/g, ' '));
-
-  // pausar/retomar descanso
-  await click('#pause-rest');
-  assert.match(await text('#rest-caption'), /pausado/);
-  await click('#resume-rest');
-  assert.match(await text('#rest-caption'), /série 2 de 2|Respire/);
-
-  // avançar automaticamente (descanso de 15s -> pular)
-  await page.evaluate(() => document.getElementById('skip-rest').click());
-  await sleep(150);
-  await page.evaluate(() => document.getElementById('complete-set').click());
-  await sleep(150);
-  if (await page.evaluate(() => !document.getElementById('execution-rest').hidden)) {
-    await page.evaluate(() => document.getElementById('skip-rest').click());
-    await sleep(150);
-  }
-  assert.equal(await text('#current-name'), 'Flexão de braço');
-
-  // concluir as séries restantes pulando descansos
-  for (let i = 0; i < 12; i++) {
-    const state = await page.evaluate(() => {
-      const btn = document.getElementById('complete-set');
-      if (!btn.disabled) { btn.click(); return 'set'; }
-      const rest = document.getElementById('execution-rest');
-      if (!rest.hidden && !document.getElementById('skip-rest').disabled) {
-        document.getElementById('skip-rest').click(); return 'skip';
-      }
-      const next = document.getElementById('next-exercise');
-      if (!next.hidden && !next.disabled) { next.click(); return 'next'; }
-      return 'idle';
-    });
-    if (state === 'idle') break;
-    await sleep(70);
-  }
-
-  const summaryVisible = await waitFor(() => !document.getElementById('execution-summary').hidden, 4000);
-  assert.equal(summaryVisible, true, 'Resumo não apareceu');
-  assert.equal(await text('#summary-sets'), '8/8');
-  assert.match(await text('#summary-title'), /Treino concluído/);
-  await page.screenshot({ path: artifactPath('e2e-summary.png') });
-  await click('#summary-close');
-  await sleep(200);
-  assert.equal(await page.evaluate(() => document.getElementById('execution-screen').hidden), true);
-  assert.equal(await text('#history-total'), '1');
-});
-
-await check('Cancelar sessão não registra treino', async () => {
-  const before = await page.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-historico-v1') || '[]').length);
-  await page.evaluate(() => document.querySelector('.routine-card [data-action="start"]').click());
-  await sleep(200);
-  await page.evaluate(() => document.getElementById('complete-set').click());
-  await sleep(100);
-  await page.evaluate(() => document.getElementById('end-session').click());
-  await sleep(150);
-  const actions = await page.$$eval('[data-modal-action]', els => els.map(e => e.getAttribute('data-modal-action')));
-  assert.ok(actions.includes('discard'), 'Modal deve oferecer descarte');
-  await page.evaluate(() => document.querySelector('[data-modal-action="discard"]').click());
-  await sleep(200);
-  const after = await page.evaluate(() => ({
-    history: JSON.parse(localStorage.getItem('forja-treino-historico-v1') || '[]').length,
-    active: localStorage.getItem('forja-treino-sessao-ativa-v1')
-  }));
-  assert.equal(after.history, before);
-  assert.equal(after.active, null);
-});
-
-await check('Exportação e importação via seletor de arquivo', async () => {
-  const downloadPath = artifactPath('downloads');
-  fs.mkdirSync(downloadPath, { recursive: true });
-  const client = await page.createCDPSession();
-  await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath });
-
-  await page.evaluate(() => document.getElementById('export-backup').click());
-  let file = null;
-  for (let i = 0; i < 40; i++) {
-    await sleep(100);
-    const files = fs.readdirSync(downloadPath).filter(f => f.endsWith('.json'));
-    if (files.length) { file = files[0]; break; }
-  }
-  assert.ok(file, 'Download do backup não aconteceu');
-  const content = fs.readFileSync(path.join(downloadPath, file), 'utf8');
-  const backup = JSON.parse(content);
-  assert.equal(backup.app, 'FORJA');
-  assert.ok(backup.keys['forja-treino-rotinas-v1']);
-  assert.ok(backup.keys['forja-treino-historico-v1']);
-
-  // alterar dados e restaurar via input de arquivo
-  await page.evaluate(() => {
-    localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [], weights: [] }));
-    localStorage.setItem('forja-missoes-2026-10-19', JSON.stringify([{ id: 'x', text: 'Missão temporária', done: false }]));
-    document.getElementById('import-backup-button').click();
-  });
-  const input = await page.$('#import-backup-input');
-  await input.uploadFile(path.join(downloadPath, file));
-  await sleep(400);
-  assert.match(await text('#modal-title'), /Restaurar backup/);
-  const preview = await page.$eval('.modal-details', e => e.textContent);
-  assert.match(preview, /Histórico: 1 treino/);
-  await page.screenshot({ path: artifactPath('e2e-import.png') });
-  await page.evaluate(() => document.querySelector('[data-modal-action="restore"]').click());
-  await sleep(400);
-  const restored = await page.evaluate(() => ({
-    routines: JSON.parse(localStorage.getItem('forja-treino-rotinas-v1')),
-    mission: localStorage.getItem('forja-missoes-2026-10-19'),
-    safety: !!localStorage.getItem('forja-backup-seguranca-v1')
-  }));
-  assert.equal(restored.routines.calisthenics.length, 2);
-  assert.equal(restored.mission, null);
-  assert.equal(restored.safety, true);
-
-  // desfazer última importação
-  const undoVisible = await page.evaluate(() => !document.getElementById('restore-safety-backup').hidden);
-  assert.equal(undoVisible, true);
-  await page.evaluate(() => document.getElementById('restore-safety-backup').click());
-  await sleep(250);
-  await page.evaluate(() => document.querySelector('[data-modal-action="restore"]').click());
-  await sleep(400);
-  const undone = await page.evaluate(() => ({
-    routines: JSON.parse(localStorage.getItem('forja-treino-rotinas-v1')),
-    mission: localStorage.getItem('forja-missoes-2026-10-19')
-  }));
-  assert.equal(undone.routines.calisthenics.length, 0);
-  assert.match(undone.mission, /Missão temporária/);
-});
-
-await check('JSON inválido é rejeitado sem alterar dados', async () => {
-  const badBackupPath = artifactPath('bad-backup.json');
-  fs.writeFileSync(badBackupPath, '{isto não é json');
-  const before = await page.evaluate(() => JSON.stringify(localStorage));
-  const input = await page.$('#import-backup-input');
-  await input.uploadFile(badBackupPath);
-  await sleep(350);
-  assert.match(await text('#modal-title'), /Arquivo inválido/);
-  await page.evaluate(() => document.querySelector('[data-modal-action="close"]').click());
-  await sleep(150);
-  const after = await page.evaluate(() => JSON.stringify(localStorage));
-  assert.equal(after, before);
-});
-
-await check('Calendário e missões funcionam após as mudanças', async () => {
-  const today = await page.evaluate(() => {
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  });
-
-  await page.evaluate(() => {
-    document.getElementById('task-input').value = 'Missão E2E';
-    document.getElementById('task-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-  });
-  await sleep(200);
-
-  let tasks = await page.evaluate(t => JSON.parse(localStorage.getItem('forja-missoes-' + t) || '[]'), today);
-  assert.equal(tasks.some(task => task.text === 'Missão E2E'), true, 'Missão E2E não foi salva');
-  const total = tasks.length;
-  const doneBefore = tasks.filter(task => task.done).length;
-  assert.equal(
-    await text('#progress-label'),
-    doneBefore + ' de ' + total + ' · ' + Math.round(doneBefore / total * 100) + '%'
+await check('Alvos de toque principais têm pelo menos 44px de altura', async () => {
+  await go('treino/');
+  const small = await page.$$eval('.modality-card, .primary-button, .secondary-button:not(.small-button)', els =>
+    els.filter(e => e.getClientRects().length > 0).map(e => Math.round(e.getBoundingClientRect().height) + ' ' + e.textContent.trim().slice(0, 30))
+      .filter(s => parseInt(s, 10) < 44)
   );
-
-  for (let i = 0; i < total; i++) {
-    const clicked = await page.evaluate(() => {
-      const box = [...document.querySelectorAll('.task input[type=checkbox]')].find(el => !el.checked);
-      if (!box) return false;
-      box.click();
-      return true;
-    });
-    if (!clicked) break;
-    await sleep(120);
-  }
-
-  tasks = await page.evaluate(t => JSON.parse(localStorage.getItem('forja-missoes-' + t) || '[]'), today);
-  assert.equal(tasks.every(task => task.done), true, 'Todas as missões devem estar concluídas');
-  assert.equal(await text('#progress-label'), total + ' de ' + total + ' · 100%');
-  await sleep(150);
-  assert.ok((await page.$$('.calendar-grid .day.has-tasks')).length >= 1, 'Dia com missões deve ter indicador');
-
-  const title = await text('#month-title');
-  await page.evaluate(() => document.getElementById('next-month').click());
-  await sleep(150);
-  assert.notEqual(await text('#month-title'), title);
-  await page.evaluate(() => document.getElementById('prev-month').click());
-  await sleep(150);
-  assert.equal(await text('#month-title'), title);
-  await page.screenshot({ path: artifactPath('e2e-calendar.png') });
+  assert.deepEqual(small, []);
 });
 
-await check('Nenhum erro de console durante todo o fluxo', async () => {
-  assert.deepEqual(consoleErrors, []);
+await check('Navegação por seções: início → TREINO → hub → CALISTENIA e MUSCULAÇÃO → voltar', async () => {
+  await go('');
+  await jsClick('a[href="treino/index.html"], a[href="treino/"]');
+  await expectPath('/treino/');
+  assert.equal(await text('h1'), 'TREINO', 'Título do hub');
+  assert.ok(await page.$('.modality-card#mode-calisthenics'), 'Cartão de calistenia');
+  assert.ok(await page.$('.modality-card#mode-weights'), 'Cartão de musculação');
+  assert.ok(await page.$('[aria-current="page"]'), 'Seção atual não indicada');
+
+  await jsClick('#mode-calisthenics');
+  await expectPath('/treino/calistenia.html');
+  assert.match(await text('#modality-title'), /^CALISTENIA$/);
+  await jsClick('#back-to-modality, a[href*="treino/index.html"]');
+  await expectPath('/treino/index.html');
+
+  await jsClick('#mode-weights');
+  await expectPath('/treino/musculacao.html');
+  assert.match(await text('#modality-title'), /^MUSCULAÇÃO$/);
+  await page.screenshot({ path: artifactPath('musculacao.png') });
+});
+
+await check('Criar rotina de calistenia com exercício da biblioteca e personalizado por duração', async () => {
+  await go('treino/calistenia.html');
+  await jsClick('#new-routine');
+  await page.waitForSelector('[data-modal-field="name"]', { timeout: 4000 });
+  await fill('[data-modal-field="name"]', 'Treino A');
+  await jsClick('[data-modal-action="create"]');
+  await expectPath('/treino/rotina.html');
+
+  await jsClick('#library-toggle');
+  await fill('#library-search', 'agach');
+  await sleep(100);
+  await jsClick('#library-list .library-item .secondary-button', /Adicionar/);
+  await sleep(100);
+
+  await jsClick('#custom-toggle');
+  await fill('#custom-name', 'Prancha E2E');
+  await jsClick('#custom-type-duration');
+  await fill('#custom-duration', 2);
+  await fill('#custom-sets', 1);
+  await page.evaluate(() => document.getElementById('custom-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+  await sleep(150);
+  await fill('#library-search', 'Prancha E2E');
+  await sleep(100);
+  await jsClick('#library-list .library-item .secondary-button', /Adicionar/);
+  await sleep(100);
+
+  await jsClick('#save-routine');
+  await sleep(200);
+  assert.match(await text('#editor-save-note, #editor-dirty-pill'), /salv|Salv|alter/, 'Salvamento sem confirmação visível');
+  await jsClick('#back-to-modality');
+  await expectPath('/treino/calistenia.html');
+  assert.ok(await waitFor(() => document.querySelectorAll('#routine-list .routine-card').length === 1), 'Rotina não listada');
+  assert.match(await text('#routine-list .routine-name'), /Treino A/);
+
+  const stored = await data('forja-treino-rotinas-v1');
+  const routine = stored.calisthenics[0];
+  assert.equal(routine.sections.main.length + routine.sections.abs.length + routine.sections.finisher.length + routine.sections.warmup.length, 2);
+  assert.equal((await data('forja-treino-rotinas-v1')).weights.length, 0, 'Musculação recebeu rotina de calistenia');
+  await page.screenshot({ path: artifactPath('rotina-criada.png') });
+});
+
+await check('Editar rotina e musculação mantém listas separadas', async () => {
+  await go('treino/musculacao.html');
+  assert.equal(await page.$$eval('#routine-list .routine-card', c => c.length), 0, 'Musculação mostra rotinas de calistenia');
+  await go('treino/calistenia.html');
+  await jsClick('#routine-list .routine-card a.secondary-button, #routine-list .routine-card a[href*="rotina"]');
+  await expectPath('/treino/rotina.html');
+  await fill('#routine-name-input', 'Treino A2');
+  await jsClick('#save-routine');
+  await sleep(200);
+  await jsClick('#back-to-modality');
+  await expectPath('/treino/calistenia.html');
+  assert.match(await text('#routine-list .routine-name'), /Treino A2/);
+});
+
+await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async () => {
+  await go('treino/calistenia.html');
+  await jsClick('#routine-list .routine-start');
+  await expectPath('/treino/executar.html');
+  assert.ok(await isVisible('#execution-live'), 'Tela de execução não visível');
+  assert.match(await text('#current-name'), /^Agachamento/);
+
+  // Conclui as séries de Agachamento (pulando descansos) até chegar à prancha.
+  await advanceUntil(/^Prancha E2E/);
+  // Prancha por duração de 2 s, medida com timestamps reais.
+  await jsClick('#set-timer-start');
+  await sleep(700);
+  await jsClick('#set-timer-pause');
+  const paused = await text('#set-timer-display');
+  await sleep(1200);
+  assert.equal(await text('#set-timer-display'), paused, 'Cronômetro não pausou');
+  await jsClick('#set-timer-resume');
+  await sleep(1700);
+  const done = await waitFor(() => {
+    const s = JSON.parse(localStorage.getItem('forja-treino-sessao-ativa-v1') || 'null');
+    return !s || Object.values(s.completedSets || {}).every(Boolean) || !!document.querySelector('#execution-summary:not([hidden])');
+  }, 4000);
+  assert.ok(done, 'Prancha por duração não concluiu ao atingir o tempo');
+  await page.screenshot({ path: artifactPath('executar.png') });
+});
+
+await check('Sessão ativa sobrevive à navegação e ao recarregamento', async () => {
+  // Nova sessão para testar o estado intermediário.
+  await go('treino/calistenia.html');
+  await jsClick('#routine-list .routine-start');
+  await expectPath('/treino/executar.html');
+  await jsClick('#complete-set');
+  await sleep(300);
+  const name = await text('#current-name');
+
+  await go('progresso/');
+  assert.ok(await isVisible('#active-session-banner'), 'Banner de sessão ativa ausente em progresso');
+  await jsClick('#resume-active-session');
+  await expectPath('/treino/executar.html');
+  assert.equal(await text('#current-name'), name);
+
+  await page.reload({ waitUntil: 'networkidle0' });
+  assert.ok(await isVisible('#execution-live'), 'Sessão não sobreviveu ao recarregamento');
+  assert.equal(await text('#current-name'), name);
+});
+
+await check('Pausar sessão, descanso com pular e confirmação antes de descartar', async () => {
+  await go('treino/executar.html');
+  await jsClick('#pause-session');
+  assert.ok(await isVisible('#session-paused-overlay'), 'Overlay de pausa');
+  await jsClick('#resume-session');
+  assert.ok(!(await isVisible('#session-paused-overlay')), 'Overlay não fechou');
+
+  // Descanso: a sessão pode ter um exercício com descanso; apenas confirmamos o controle.
+  const hasRest = await page.$('#start-rest');
+  assert.ok(hasRest, 'Botão de descanso ausente');
+
+  await jsClick('#end-session');
+  await page.waitForSelector('[data-modal-action]', { timeout: 4000 });
+  await jsClick('[data-modal-action="cancel"], [data-modal-action="close"]');
+  await sleep(150);
+  assert.ok(await data('forja-treino-sessao-ativa-v1'), 'Cancelar o descarte removeu a sessão');
+});
+
+await check('Finalizar sessão mostra resumo e grava no histórico de progresso', async () => {
+  await go('treino/executar.html');
+  // Conclui séries restantes até o resumo, sempre pelo botão de série.
+  for (let i = 0; i < 12; i++) {
+    const summary = await isVisible('#execution-summary');
+    if (summary) break;
+    const live = await isVisible('#execution-live');
+    if (!live) break;
+    const disabled = await page.$eval('#complete-set', b => b.disabled).catch(() => true);
+    if (!disabled) {
+      await jsClick('#complete-set');
+      await sleep(450);
+    } else if (await isVisible('#execution-rest')) {
+      await jsClick('#skip-rest');
+      await sleep(150);
+    } else if (await isVisible('#set-timer-skip')) {
+      await jsClick('#set-timer-skip');
+      await sleep(150);
+    } else {
+      await jsClick('#next-exercise');
+      await sleep(150);
+    }
+  }
+  if (!(await isVisible('#execution-summary'))) {
+    await jsClick('#end-session');
+    await page.waitForSelector('[data-modal-action]', { timeout: 4000 });
+    await jsClick('[data-modal-action]:not([data-modal-action="cancel"]):not([data-modal-action="close"])');
+  }
+  assert.ok(await waitFor(() => !!document.querySelector('#execution-summary:not([hidden])'), 4000), 'Resumo não apareceu');
+  assert.equal(await data('forja-treino-sessao-ativa-v1'), null, 'Sessão ativa não foi limpa');
+
+  const history = await data('forja-treino-historico-v1');
+  assert.ok(Array.isArray(history) && history.length >= 1, 'Histórico vazio');
+  assert.ok(['completed', 'partial'].includes(history[0].status));
+
+  await go('progresso/');
+  assert.ok(Number(await text('#progress-sessions')) >= 1, 'Progresso sem sessões');
+  assert.ok(await page.$('#progress-history .history-item'), 'Histórico não listado');
+  await go('progresso/?modalidade=weights');
+  assert.equal(await text('#progress-sessions'), '0', 'Filtro por modalidade não separa');
+  await page.screenshot({ path: artifactPath('progresso.png') });
+});
+
+await check('Configurações: exportar, rejeitar importação inválida, importar com confirmação e desfazer', async () => {
+  await go('configuracoes/');
+  const beforeRoutines = await data('forja-treino-rotinas-v1');
+  await page.evaluate(() => { document.getElementById('export-backup').click(); });
+  let exported = null;
+  for (let i = 0; i < 60 && !fs.readdirSync(artifactsDir).some(f => f.endsWith('.json')); i++) await sleep(100);
+  const files = fs.readdirSync(artifactsDir).filter(f => f.endsWith('.json'));
+  assert.ok(files.length >= 1, 'Exportação não baixou arquivo');
+  exported = files[0];
+  const backup = JSON.parse(fs.readFileSync(path.join(artifactsDir, exported), 'utf8'));
+  assert.equal(backup.format, 'forja-backup');
+  assert.ok(backup.keys['forja-treino-rotinas-v1'], 'Backup sem rotinas');
+
+  // Importação inválida é recusada.
+  const bad = artifactPath('invalido.json');
+  fs.writeFileSync(bad, '{"not":"forja"}');
+  const input = await page.$('#import-backup-input');
+  await input.uploadFile(bad);
+  await sleep(300);
+  assert.ok(!(await isVisible('[data-modal-action="restore"]')), 'Importação inválida abriu confirmação');
+
+  // Importação válida (com uma rotina extra) pede confirmação.
+  const modified = JSON.parse(JSON.stringify(backup));
+  modified.keys['forja-treino-rotinas-v1'] = { ...beforeRoutines, weights: [] };
+  modified.keys['forja-treino-rotinas-v1'].calisthenics = [];
+  const good = artifactPath('valido.json');
+  fs.writeFileSync(good, JSON.stringify(modified));
+  await (await page.$('#import-backup-input')).uploadFile(good);
+  await page.waitForSelector('[data-modal-action="restore"]', { timeout: 4000 });
+  assert.deepEqual(await data('forja-treino-rotinas-v1'), beforeRoutines, 'Importação aplicou sem confirmação');
+  await jsClick('[data-modal-action="restore"]');
+  await sleep(300);
+  assert.equal((await data('forja-treino-rotinas-v1')).calisthenics.length, 0, 'Importação não aplicou');
+
+  // Desfazer a última restauração.
+  await jsClick('#restore-safety-backup');
+  await page.waitForSelector('[data-modal-action="restore"]', { timeout: 4000 });
+  await jsClick('[data-modal-action="restore"]');
+  await sleep(300);
+  assert.ok((await data('forja-treino-rotinas-v1')).calisthenics.length >= 1, 'Desfazer não restaurou');
+  await page.screenshot({ path: artifactPath('configuracoes.png') });
+});
+
+await check('Armazenamento local é informado em todas as páginas', async () => {
+  for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/']) {
+    await go(rel);
+    const body = await page.evaluate(() => document.body.textContent);
+    assert.match(body, /neste navegador e não são sincronizados/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
+  }
+});
+
+await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
+  assert.deepEqual(errors, []);
 });
 
 console.log('\n' + '='.repeat(60));

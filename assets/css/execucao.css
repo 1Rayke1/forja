@@ -1,0 +1,447 @@
+/* FORJA — execução do treino (sessão ativa e resumo). */
+/* Execução da sessão */
+
+/* Página própria de execução: fluxo normal, sem overlay nem bloqueio de rolagem. */
+.execution-screen {
+  position: relative;
+  min-height: 60vh;
+  margin: 0;
+  padding-top: 4px;
+}
+
+.execution-wrap {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 0 40px;
+}
+
+.execution-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.execution-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.execution-heading .eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+}
+
+.execution-title {
+  margin: 2px 0 0;
+  font-size: 17px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.execution-clock {
+  flex-shrink: 0;
+  color: var(--gold);
+  font-size: 15px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.session-back {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--gold);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.execution-progress { padding: 15px 0 4px; }
+
+.execution-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.execution-progress-meta strong { color: var(--gold); }
+
+.execution-progress .progress-track { margin-bottom: 0; }
+
+.progress-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 10px;
+  background: #2e2e2e;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--gold);
+  transition: width .2s;
+}
+
+.exercise-focus {
+  margin-top: 18px;
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid #333;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(231, 199, 121, .08), transparent 48%),
+    linear-gradient(155deg, #1d1d1d, #111);
+}
+
+.section-badge {
+  display: inline-block;
+  padding: 4px 9px;
+  border: 1px solid #5a4a28;
+  border-radius: 999px;
+  background: #211c12;
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+}
+
+.exercise-position {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+
+.focus-name {
+  margin: 5px 0 16px;
+  font-size: clamp(30px, 9vw, 46px);
+  line-height: 1.06;
+  letter-spacing: -1.5px;
+  overflow-wrap: anywhere;
+}
+
+.focus-plan {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 17px;
+}
+
+.plan-chip {
+  padding: 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #171717;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.focus-stat {
+  min-width: 0;
+  padding: 11px 9px;
+  border: 1px solid #2d2d2d;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, .22);
+}
+
+.focus-stat-label {
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.focus-stat-value {
+  margin-top: 3px;
+  color: var(--gold);
+  font-size: 17px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.focus-stat-value small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.session-notes {
+  margin: 0 0 16px;
+  padding: 11px 13px;
+  border-left: 2px solid var(--gold);
+  border-radius: 0 7px 7px 0;
+  background: #17140e;
+  color: #d8d0bf;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.session-notes strong {
+  display: block;
+  color: var(--gold);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.set-count-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.set-count-label strong { color: var(--text); }
+
+.set-pips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.set-pip {
+  flex: 1;
+  min-width: 14px;
+  height: 5px;
+  border-radius: 5px;
+  background: #333;
+}
+
+.set-pip.done { background: var(--green); }
+
+.big-set-button {
+  display: block;
+  width: 100%;
+  min-height: 54px;
+  padding: 13px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gold);
+  color: #17130b;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: .3px;
+  cursor: pointer;
+}
+
+.big-set-button:hover { background: #f0d797; }
+
+.big-set-button:disabled {
+  background: #333;
+  color: #8c8c8c;
+  cursor: not-allowed;
+}
+
+.session-subactions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 9px;
+}
+
+.session-subactions .secondary-button {
+  flex: 1;
+  min-height: 40px;
+}
+
+.exercise-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  padding-top: 13px;
+  border-top: 1px solid #2c2c2c;
+}
+
+.nav-text-button {
+  min-height: 34px;
+  padding: 8px 3px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.nav-text-button:hover:not(:disabled) { color: var(--gold); }
+
+.nav-text-button:disabled { opacity: .35; cursor: not-allowed; }
+
+.rest-panel {
+  margin-top: 13px;
+  padding: 15px;
+  border: 1px solid #5a4a28;
+  border-radius: 12px;
+  background: #211c12;
+}
+
+.rest-panel .status-label { margin-bottom: 2px; }
+
+.rest-timer {
+  color: var(--gold);
+  font-size: clamp(32px, 9vw, 44px);
+  font-weight: bold;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-caption {
+  color: #c9bda3;
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+
+.rest-actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.status-label {
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.session-paused-overlay {
+  margin-top: 13px;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #151515;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.execution-footer {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.execution-footer .secondary-button,
+.execution-footer .danger-button { flex: 1; min-height: 44px; }
+
+/* Resumo final */
+
+.session-summary {
+  margin-top: 22px;
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid #5a4a28;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(231, 199, 121, .15), transparent 55%),
+    #15130e;
+  text-align: center;
+}
+
+.summary-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 11px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  color: var(--gold);
+  font-size: 24px;
+}
+
+.session-summary h2 {
+  margin: 0 0 4px;
+  font-size: clamp(24px, 6vw, 32px);
+  letter-spacing: -1px;
+}
+
+.session-summary > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.summary-routine {
+  color: var(--gold) !important;
+  font-weight: bold;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  font-size: 10px !important;
+  margin-bottom: 6px !important;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0;
+  text-align: left;
+}
+
+.summary-stat {
+  padding: 11px;
+  border: 1px solid #3a3222;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, .22);
+}
+
+.summary-stat .summary-value { font-size: 23px; }
+
+.summary-exercises {
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.summary-exercises li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #2c2820;
+}
+
+.summary-exercises li:last-child { border-bottom: 0; }
+
+.summary-exercises span:first-child { color: var(--text); }
+
+.summary-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.summary-actions .primary-button { flex: 1; min-height: 44px; }
+

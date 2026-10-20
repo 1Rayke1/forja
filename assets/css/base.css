@@ -1,0 +1,473 @@
+/* FORJA — estilos compartilhados por todas as páginas (base, calendário e missões, modal e aviso). */
+:root {
+  --bg: #101010;
+  --panel: #191919;
+  --panel2: #222222;
+  --gold: #e7c779;
+  --text: #f5f5f5;
+  --muted: #a5a5a5;
+  --border: #303030;
+  --green: #8bc99a;
+  --red: #ff8585;
+}
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html { color-scheme: dark; }
+
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23e7c779' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+}
+
+select option {
+  background: #171717;
+  color: var(--text);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+}
+
+button, input, select { font: inherit; }
+
+button { -webkit-tap-highlight-color: transparent; }
+
+.container {
+  width: min(100% - 32px, 720px);
+  margin: auto;
+}
+
+header {
+  padding: 25px 0 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  color: var(--gold);
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: 4px;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 3px;
+  margin-top: 2px;
+}
+
+.hero { padding: 27px 0 23px; }
+
+.eyebrow {
+  color: var(--gold);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: clamp(29px, 7vw, 42px);
+  line-height: 1.15;
+  margin: 9px 0;
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0;
+  font-size: 14px;
+}
+
+.quote {
+  margin-top: 24px;
+  padding: 15px 17px;
+  border-left: 2px solid var(--gold);
+  background: var(--panel);
+  border-radius: 0 8px 8px 0;
+}
+
+.quote-author {
+  font-size: 12px;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.quote-text { font-size: 15px; }
+
+.quote-source {
+  color: #777;
+  font-size: 10px;
+  margin-top: 5px;
+}
+
+section { margin: 27px 0; }
+
+.section-title {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.calendar-panel, .missions-panel, .workout-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 17px;
+}
+
+.month-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 16px 0 18px;
+}
+
+.month-title {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.nav-button {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--gold);
+  background: var(--panel2);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 5px 0;
+}
+
+.day {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.day:disabled {
+  background: transparent;
+  cursor: default;
+}
+
+.day.today { border-color: var(--gold); }
+
+.day.selected {
+  background: var(--gold);
+  color: #17130b;
+  font-weight: bold;
+}
+
+.day.has-tasks::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.day.selected.has-tasks::after {
+  background: #17130b;
+}
+
+.calendar-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 13px 0 0;
+}
+
+.selected-date {
+  color: var(--gold);
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.missions-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 17px;
+}
+
+.progress-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 10px;
+  background: #333;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--gold);
+  transition: width .2s;
+}
+
+.task-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #111;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+
+input:focus { border-color: var(--gold); }
+
+.add-button, .primary-button {
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 16px;
+  background: var(--gold);
+  color: #17130b;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.task-form .add-button {
+  padding: 0 16px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  background: #141414;
+  border-radius: 8px;
+}
+
+.task input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold);
+  flex-shrink: 0;
+}
+
+.task-text {
+  flex: 1;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+.task.done .task-text {
+  color: #777;
+  text-decoration: line-through;
+}
+
+.delete-button {
+  border: 0;
+  background: transparent;
+  color: #999;
+  font-size: 19px;
+  cursor: pointer;
+  padding: 2px 5px;
+}
+
+.delete-button:hover { color: var(--red); }
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 17px 5px;
+  font-size: 13px;
+}
+
+
+/* Modal e aviso */
+
+body.modal-open { overflow: hidden; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, .76);
+  backdrop-filter: blur(3px);
+}
+
+.modal-card {
+  width: min(100%, 480px);
+  max-height: min(88vh, 680px);
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid #4a4a4a;
+  border-radius: 13px;
+  background: #171717;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+}
+
+.modal-card h2 {
+  margin: 0 0 8px;
+  font-size: 21px;
+  letter-spacing: -.4px;
+}
+
+.modal-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.modal-details {
+  margin: 14px 0 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #111;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.modal-details strong { color: var(--text); }
+
+.modal-details ul {
+  margin: 6px 0 0;
+  padding-left: 17px;
+}
+
+.modal-field { margin-top: 14px; }
+
+.modal-field input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0e0e0e;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+
+.modal-field input:focus { border-color: var(--gold); }
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 19px;
+}
+
+.modal-actions button {
+  flex: 1;
+  min-height: 43px;
+}
+
+.modal-actions button.primary-button { flex: 1.4; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  z-index: 300;
+  pointer-events: none;
+  width: min(calc(100% - 28px), 480px);
+  padding: 12px 15px;
+  border: 1px solid #5a4a28;
+  border-radius: 9px;
+  background: #1d1a12;
+  color: var(--text);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, .5);
+  font-size: 12px;
+  line-height: 1.5;
+  transform: translateX(-50%);
+}
+
+.toast.error {
+  border-color: #573333;
+  background: #211414;
+}
+
+
+footer {
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: #777;
+  padding: 22px 0 28px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 380px) {
+  .calendar-panel, .missions-panel, .workout-panel {
+    padding: 12px;
+  }
+
+  .calendar-grid { gap: 3px; }
+  .day { font-size: 12px; }
+  .task-form { flex-wrap: wrap; }
+  .task-form input { flex: 1 1 100%; }
+  .task-form .add-button { min-height: 42px; width: 100%; }
+  .field-grid.three { grid-template-columns: 1fr 1fr; }
+  .exercise-top { flex-direction: column; }
+  .history-summary { gap: 5px; }
