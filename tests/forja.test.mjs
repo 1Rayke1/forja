@@ -225,8 +225,10 @@ await runTest("05. Links relativos resolvem dentro do caminho /forja/ (GitHub Pa
 
 await runTest("06. TREINO abre o hub e o hub leva a CALISTENIA e MUSCULAÇÃO", async () => {
   const home = await boot({}, "index.html");
-  const treinoLink = home.$$("a").find(a => a.textContent.trim() === "TREINO");
+  // O botão agora tem ícone, título e subtítulo; o texto começa com TREINO.
+  const treinoLink = home.$("a.treino-square");
   assert.ok(treinoLink, "Botão TREINO ausente na página inicial");
+  assert.match(treinoLink.textContent.trim(), /^TREINO\b/);
   assert.equal(treinoLink.getAttribute("href"), "treino/index.html");
 
   home.click(treinoLink);

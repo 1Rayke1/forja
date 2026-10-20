@@ -471,3 +471,4 @@ footer {
   .field-grid.three { grid-template-columns: 1fr 1fr; }
   .exercise-top { flex-direction: column; }
   .history-summary { gap: 5px; }
+}

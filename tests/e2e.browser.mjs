@@ -307,6 +307,24 @@ await check('Sem rolagem horizontal em 320, 390, 768 e 1280 px em todas as pági
   await page.setViewport(MOBILE);
 });
 
+await check('Botão TREINO é quadrado, centralizado e cabe em 390 px', async () => {
+  await go('');
+  await page.setViewport(MOBILE);
+  await sleep(120);
+  const box = await page.$eval('.treino-square', el => {
+    const r = el.getBoundingClientRect();
+    return { width: r.width, height: r.height, centerX: r.left + r.width / 2, vw: window.innerWidth,
+      icon: !!el.querySelector('svg'), title: el.querySelector('.treino-square-title')?.textContent.trim() };
+  });
+  assert.ok(Math.abs(box.width - box.height) <= 1, 'Não é quadrado: ' + box.width + '×' + box.height);
+  assert.ok(box.width >= 200 && box.width <= 260, 'Tamanho fora da faixa: ' + box.width);
+  assert.ok(Math.abs(box.centerX - box.vw / 2) <= 2, 'Botão não está centralizado');
+  assert.ok(box.icon, 'Ícone ausente');
+  assert.equal(box.title, 'TREINO');
+  const botao = await page.$('.treino-square');
+  await botao.screenshot({ path: artifactPath('treino-quadrado-390.png') });
+});
+
 await check('Alvos de toque principais têm pelo menos 44px de altura', async () => {
   await go('treino/');
   const small = await page.$$eval('.modality-card, .primary-button, .secondary-button:not(.small-button)', els =>
