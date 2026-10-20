@@ -294,10 +294,10 @@ await check('Nenhum erro de JavaScript, HTTP ou recurso ausente em todas as pág
   }
 });
 
-await check('Sem rolagem horizontal em 320, 390, 768 e 1280 px em todas as páginas', async () => {
+await check('Sem rolagem horizontal em 320, 360, 390, 430, 768 e 1280 px em todas as páginas', async () => {
   for (const rel of PAGES) {
     await go(rel);
-    for (const width of [320, 390, 768, 1280]) {
+    for (const width of [320, 360, 390, 430, 768, 1280]) {
       await page.setViewport({ width, height: 800 });
       await sleep(120);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -415,6 +415,7 @@ await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async
   await expectPath('/treino/executar.html');
   assert.ok(await isVisible('#execution-live'), 'Tela de execução não visível');
   assert.match(await text('#current-name'), /^Agachamento/);
+  await page.screenshot({ path: artifactPath('executar-ativo-390.png') });
 
   // Conclui as séries de Agachamento (pulando descansos) até chegar à prancha.
   await advanceUntil(/^Prancha E2E/);
@@ -565,6 +566,34 @@ await check('Armazenamento local é informado em todas as páginas', async () =>
     const body = await page.evaluate(() => document.body.textContent);
     assert.match(body, /neste navegador e não são sincronizados/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
   }
+});
+
+await check('Capturas visuais das oito páginas em mobile e desktop', async () => {
+  const shots = await browser.newPage();
+  shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
+  shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
+  for (const [index, rel] of PAGES.entries()) {
+    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','progresso','configuracoes'][index];
+    for (const width of [390, 1280]) {
+      await shots.setViewport({ width, height: width === 390 ? 844 : 900 });
+      let screenshotUrl = new URL(rel, BASE);
+      if (rel === 'treino/rotina.html') {
+        const saved = await shots.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-rotinas-v1') || 'null'));
+        const routine = saved?.calisthenics?.[0] || saved?.weights?.[0];
+        if (routine) {
+          screenshotUrl.searchParams.set('modalidade', routine.modality || (saved.calisthenics?.includes(routine) ? 'calisthenics' : 'weights'));
+          screenshotUrl.searchParams.set('id', routine.id);
+        }
+      }
+      await shots.goto(screenshotUrl.href, { waitUntil: 'networkidle0' });
+      await shots.evaluate(() => window.scrollTo(0, 0));
+      await sleep(250);
+      const overflow = await shots.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      assert.ok(overflow <= 1, 'Overflow em captura ' + slug + ' @ ' + width + 'px: ' + overflow);
+      await shots.screenshot({ path: artifactPath(slug + '-' + width + '.png'), fullPage: true });
+    }
+  }
+  await shots.close();
 });
 
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
