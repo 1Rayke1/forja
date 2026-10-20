@@ -22,13 +22,19 @@
     treino: "treino/index.html",
     calistenia: "treino/calistenia.html",
     musculacao: "treino/musculacao.html",
+    biblioteca: "treino/biblioteca.html",
     rotina: "treino/rotina.html",
     executar: "treino/executar.html",
     progresso: "progresso/index.html",
     configuracoes: "configuracoes/index.html"
   });
 
-  /* Chaves de armazenamento. Os nomes das chaves antigas são preservados. */
+  /*
+    Chaves de armazenamento. Os nomes das chaves antigas são preservados:
+    nenhuma chave existente mudou de nome ou de formato, e as novas
+    (`goals`) são aditivas. A definição de como cada chave é lida, normalizada
+    e validada fica no registro de `forja-store.js`.
+  */
   F.KEYS = Object.freeze({
     legacyExercises: "forja-treino-exercicios-v1",
     history: "forja-treino-historico-v1",
@@ -39,7 +45,8 @@
     preserved: "forja-treino-dados-preservados-v1",
     safety: "forja-backup-seguranca-v1",
     library: "forja-treino-biblioteca-v1",
-    preferences: "forja-preferencias-v1"
+    preferences: "forja-preferencias-v1",
+    goals: "forja-treino-metas-v1"
   });
 
   F.BACKUP_FORMAT = "forja-backup";
@@ -71,7 +78,25 @@
     finisher: "Finalizador"
   });
 
-  /* Estado compartilhado entre módulos (dados carregados do armazenamento). */
+  /*
+    Como o exercício é medido. É orthogonal a `type` (que diz se a meta é por
+    repetição ou por tempo) e define quais campos de registro aparecem durante
+    a execução e o que entra no cálculo de volume.
+  */
+  F.MEASURE_NAMES = Object.freeze({
+    reps: "Repetições",
+    load: "Carga e repetições",
+    time: "Tempo",
+    distance: "Distância",
+    mixed: "Livre"
+  });
+
+  F.UNITS = Object.freeze({
+    distance: ["m", "km"],
+    load: ["kg", "lb"]
+  });
+
+  /* Estado compartilhado entre módulos (carregado do armazenamento). */
   F.state = {
     legacyExercises: { calisthenics: [], weights: [] },
     legacyExercisesCorrupt: false,
@@ -80,6 +105,9 @@
     activeWorkout: null,
     library: { calisthenics: [], weights: [] },
     preferences: { soundOnRest: true, vibrateOnRest: true },
+    goals: null,
+    /* Metadados por chave: existia, estava corrompido, perdeu itens. */
+    storageInfo: {},
     bootNotices: [],
     lastExportAt: null
   };
@@ -285,92 +313,13 @@
     }
   };
 
-  /* Armazenamento: leitura segura e escrita com aviso */
-
-  F.parseStorageValue = function parseStorageValue(key) {
-    let raw = null;
-
-    try {
-      raw = global.localStorage.getItem(key);
-    } catch (error) {
-      return { exists: false, raw: null, value: null, error };
-    }
-
-    if (raw === null) {
-      return { exists: false, raw: null, value: null, error: null };
-    }
-
-    try {
-      return { exists: true, raw, value: JSON.parse(raw), error: null };
-    } catch (error) {
-      return { exists: true, raw, value: null, error };
-    }
-  };
-
-  F.saveJSON = function saveJSON(key, value) {
-    try {
-      global.localStorage.setItem(key, JSON.stringify(value));
-      return true;
-    } catch (error) {
-      F.showToast(
-        "Não foi possível salvar. Verifique o espaço disponível no navegador.",
-        "error",
-        5000
-      );
-      return false;
-    }
-  };
-
-  F.removeStorageKey = function removeStorageKey(key) {
-    try {
-      global.localStorage.removeItem(key);
-      return true;
-    } catch (error) {
-      F.showToast("Não foi possível atualizar o armazenamento do navegador.", "error");
-      return false;
-    }
-  };
-
   /*
-    Guarda uma cópia de conteúdo ilegível ou não reconhecido. Itens idênticos
-    não são arquivados duas vezes, e a lista é limitada a 20 entradas.
+    Armazenamento: a leitura, a escrita e o arquivamento de conteúdo inválido
+    moram em `forja-store.js` (carregado logo depois deste arquivo). Os nomes
+    `F.parseStorageValue`, `F.saveJSON`, `F.removeStorageKey`,
+    `F.archivePreservedValue` e `F.recordMigration` continuam os mesmos, mas
+    são definidos ali — este núcleo não conhece mais o meio de persistência.
   */
-  F.archivePreservedValue = function archivePreservedValue(key, raw, reason) {
-    const stored = F.parseStorageValue(F.KEYS.preserved);
-    const list = stored.exists && Array.isArray(stored.value)
-      ? stored.value.slice()
-      : [];
-    const rawString = typeof raw === "string" ? raw : JSON.stringify(raw);
-
-    const existingIndex = list.findIndex(item => {
-      return F.isPlainObject(item) && item.key === key && item.raw === rawString;
-    });
-
-    if (existingIndex >= 0) list.splice(existingIndex, 1);
-
-    list.unshift({
-      archivedAt: new Date().toISOString(),
-      key,
-      reason,
-      raw: rawString
-    });
-
-    F.saveJSON(F.KEYS.preserved, list.slice(0, 20));
-  };
-
-  F.recordMigration = function recordMigration(details) {
-    const stored = F.parseStorageValue(F.KEYS.migration);
-    const current = stored.exists && F.isPlainObject(stored.value)
-      ? stored.value
-      : {};
-
-    F.saveJSON(F.KEYS.migration, {
-      ...current,
-      version: 2,
-      updatedAt: new Date().toISOString(),
-      ...details
-    });
-  };
 
   /* Avisos (toast) */
 

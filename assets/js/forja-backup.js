@@ -16,8 +16,6 @@
     BACKUP_VERSION,
     MAX_BACKUP_BYTES,
     MODE_NAMES,
-    SECTION_ORDER,
-    SECTION_NAMES,
     isPlainObject,
     byId,
     dateKey,
@@ -37,296 +35,30 @@
 
 let lastExportAt = null;
 
+/*
+  As chaves do FORJA são todas as com o prefixo `forja-`. A cópia de segurança
+  interna é excluída por padrão: ela não é dado do usuário, é um mecanismo de
+  reversão. A listagem vem do store, então um adaptador de sincronização futuro
+  só precisa trocar o driver.
+*/
 function getForjaStorageKeys(includeSafety = false) {
-  const keys = [];
-
-  try {
-    for (let index = 0; index < localStorage.length; index++) {
-      const key = localStorage.key(index);
-      if (!key || !key.startsWith("forja-")) continue;
-      if (!includeSafety && key === KEYS.safety) continue;
-      keys.push(key);
-    }
-  } catch (error) {
+  if (!F.store.available()) {
     throw new Error("Não foi possível ler o armazenamento do navegador.");
   }
 
-  return keys;
+  return F.store.keys().filter(key => includeSafety || key !== KEYS.safety);
 }
 
+/*
+  A validação de cada chave mora no registro do store (o mesmo usado na leitura
+  do boot): importação e boot aceitam exatamente o mesmo conjunto de dados.
+*/
 function validateBackupEntry(key, value) {
   if (key === KEYS.safety) {
     throw new Error("O backup contém uma chave interna de segurança que não deve ser importada.");
   }
 
-  if (/^forja-missoes-\d{4}-\d{2}-\d{2}$/.test(key)) {
-    if (!Array.isArray(value)) {
-      throw new Error("A lista de missões de " + key + " é inválida.");
-    }
-
-    value.forEach((task, index) => {
-      if (typeof task === "string") return;
-
-      if (!isPlainObject(task)) {
-        throw new Error("A missão " + (index + 1) + " de " + key + " é inválida.");
-      }
-
-      if (typeof task.text !== "string" && typeof task.title !== "string") {
-        throw new Error("Uma missão de " + key + " não tem texto.");
-      }
-
-      if (task.done !== undefined && typeof task.done !== "boolean") {
-        throw new Error("Uma missão de " + key + " tem estado inválido.");
-      }
-    });
-
-    return;
-  }
-
-  if (key === KEYS.routines) {
-    if (!isPlainObject(value)) {
-      throw new Error("As rotinas do backup estão em formato inválido.");
-    }
-
-    ["calisthenics", "weights"].forEach(mode => {
-      if (value[mode] === undefined) return;
-
-      if (!Array.isArray(value[mode])) {
-        throw new Error("A lista de rotinas de " + MODE_NAMES[mode] + " é inválida.");
-      }
-
-      value[mode].forEach((routine, index) => {
-        validateBackupRoutine(routine, index);
-      });
-    });
-
-    return;
-  }
-
-  if (key === KEYS.legacyExercises) {
-    if (!isPlainObject(value)) {
-      throw new Error("Os exercícios antigos do backup estão em formato inválido.");
-    }
-
-    ["calisthenics", "weights"].forEach(mode => {
-      if (value[mode] === undefined) return;
-
-      if (!Array.isArray(value[mode])) {
-        throw new Error("A lista de exercícios antigos de " + MODE_NAMES[mode] + " é inválida.");
-      }
-
-      value[mode].forEach((exercise, index) => {
-        if (!isPlainObject(exercise) ||
-          typeof exercise.name !== "string" ||
-          !exercise.name.trim()) {
-          throw new Error("O exercício antigo " + (index + 1) + " é inválido.");
-        }
-
-        if (exercise.sets !== undefined &&
-          (!Number.isInteger(Number(exercise.sets)) ||
-            Number(exercise.sets) < 1 ||
-            Number(exercise.sets) > 30)) {
-          throw new Error("Um exercício antigo tem número de séries inválido.");
-        }
-
-        if (exercise.rest !== undefined &&
-          (!Number.isFinite(Number(exercise.rest)) ||
-            Number(exercise.rest) < 0 ||
-            Number(exercise.rest) > 3600)) {
-          throw new Error("Um exercício antigo tem descanso inválido.");
-        }
-      });
-    });
-
-    return;
-  }
-
-  if (key === KEYS.history) {
-    if (!Array.isArray(value)) {
-      throw new Error("O histórico de treinos do backup é inválido.");
-    }
-
-    value.forEach((record, index) => {
-      if (!isPlainObject(record)) {
-        throw new Error("O registro " + (index + 1) + " do histórico é inválido.");
-      }
-
-      if (!MODE_NAMES[record.modality]) {
-        throw new Error("O registro " + (index + 1) + " do histórico tem modalidade inválida.");
-      }
-
-      if (record.completedSets !== undefined &&
-        (!Number.isFinite(Number(record.completedSets)) ||
-          Number(record.completedSets) < 0)) {
-        throw new Error("O registro " + (index + 1) + " tem séries concluídas inválidas.");
-      }
-
-      if (record.durationMs !== undefined &&
-        (!Number.isFinite(Number(record.durationMs)) ||
-          Number(record.durationMs) < 0)) {
-        throw new Error("O registro " + (index + 1) + " tem duração inválida.");
-      }
-
-      if (record.exercises !== undefined) {
-        if (!Array.isArray(record.exercises)) {
-          throw new Error("O registro " + (index + 1) + " tem exercícios inválidos.");
-        }
-
-        record.exercises.forEach(exercise => {
-          if (!isPlainObject(exercise) || typeof exercise.name !== "string") {
-            throw new Error("Um exercício do histórico é inválido.");
-          }
-        });
-      }
-    });
-
-    return;
-  }
-
-  if (key === KEYS.active) {
-    if (!isPlainObject(value)) {
-      throw new Error("A sessão ativa do backup é inválida.");
-    }
-
-    if (!MODE_NAMES[value.modality]) {
-      throw new Error("A sessão ativa do backup tem modalidade inválida.");
-    }
-
-    if (value.version === 2) {
-      if (!Array.isArray(value.queue) || value.queue.length === 0) {
-        throw new Error("A sessão ativa do backup não tem exercícios.");
-      }
-
-      value.queue.forEach(exercise => {
-        if (!isPlainObject(exercise) ||
-          typeof exercise.name !== "string" ||
-          !exercise.name.trim() ||
-          !Number.isInteger(Number(exercise.sets)) ||
-          Number(exercise.sets) < 1 ||
-          Number(exercise.sets) > 30) {
-          throw new Error("A sessão ativa do backup tem um exercício inválido.");
-        }
-      });
-
-      if (!Number.isInteger(Number(value.currentIndex)) ||
-        Number(value.currentIndex) < 0 ||
-        Number(value.currentIndex) >= value.queue.length) {
-        throw new Error("A posição atual da sessão ativa é inválida.");
-      }
-
-      if (!isPlainObject(value.completedSets)) {
-        throw new Error("O progresso da sessão ativa é inválido.");
-      }
-    } else if (!isPlainObject(value.completedSets)) {
-      throw new Error("O progresso da sessão antiga é inválido.");
-    }
-
-    return;
-  }
-
-  if (key === KEYS.legacyActiveArchive ||
-    key === KEYS.preserved ||
-    key === KEYS.migration) {
-    if (!isPlainObject(value) && !Array.isArray(value)) {
-      throw new Error("Os dados auxiliares do FORJA estão em formato inválido.");
-    }
-    return;
-  }
-
-  if (key === KEYS.library) {
-    if (!isPlainObject(value) || !Array.isArray(value.calisthenics) || !Array.isArray(value.weights)) {
-      throw new Error("A biblioteca de exercícios do FORJA está em formato inválido.");
-    }
-    return;
-  }
-
-  if (key === KEYS.preferences) {
-    if (!isPlainObject(value)) {
-      throw new Error("As preferências do FORJA estão em formato inválido.");
-    }
-    return;
-  }
-
-  // Chaves extras com prefixo forja- são preservadas depois que o JSON
-  // de origem foi validado. Elas não têm efeito visual no aplicativo atual.
-}
-
-function validateBackupExercise(exercise, path) {
-  if (!isPlainObject(exercise)) {
-    throw new Error("Exercício inválido em " + path + ".");
-  }
-
-  if (typeof exercise.name !== "string" || !exercise.name.trim()) {
-    throw new Error("Exercício sem nome em " + path + ".");
-  }
-
-  const sets = Number(exercise.sets);
-  if (!Number.isInteger(sets) || sets < 1 || sets > 30) {
-    throw new Error("Exercício com séries inválidas em " + path + ".");
-  }
-
-  if (exercise.type !== undefined &&
-    exercise.type !== "reps" &&
-    exercise.type !== "duration") {
-    throw new Error("Exercício com tipo inválido em " + path + ".");
-  }
-
-  if (exercise.rest !== undefined) {
-    const rest = Number(exercise.rest);
-    if (!Number.isFinite(rest) || rest < 0 || rest > 3600) {
-      throw new Error("Exercício com descanso inválido em " + path + ".");
-    }
-  }
-
-  if (exercise.type === "duration") {
-    const duration = Number(exercise.duration);
-    if (!Number.isFinite(duration) || duration < 1 || duration > 7200) {
-      throw new Error("Exercício com duração inválida em " + path + ".");
-    }
-  } else if (exercise.reps !== undefined &&
-    typeof exercise.reps !== "string" &&
-    typeof exercise.reps !== "number") {
-    throw new Error("Exercício com repetições inválidas em " + path + ".");
-  }
-
-  if (exercise.load !== undefined && typeof exercise.load !== "string") {
-    throw new Error("Exercício com carga inválida em " + path + ".");
-  }
-
-  if (exercise.notes !== undefined && typeof exercise.notes !== "string") {
-    throw new Error("Exercício com observações inválidas em " + path + ".");
-  }
-}
-
-function validateBackupRoutine(routine, index) {
-  if (!isPlainObject(routine)) {
-    throw new Error("A rotina " + (index + 1) + " do backup é inválida.");
-  }
-
-  if (typeof routine.name !== "string" || !routine.name.trim()) {
-    throw new Error("A rotina " + (index + 1) + " do backup não tem nome.");
-  }
-
-  if (routine.sections !== undefined) {
-    if (!isPlainObject(routine.sections)) {
-      throw new Error("As seções da rotina " + routine.name + " são inválidas.");
-    }
-
-    Object.keys(routine.sections).forEach(section => {
-      if (!SECTION_NAMES[section]) {
-        throw new Error("A rotina " + routine.name + " tem uma seção desconhecida.");
-      }
-
-      if (!Array.isArray(routine.sections[section])) {
-        throw new Error("A seção " + SECTION_NAMES[section] + " da rotina " +
-          routine.name + " é inválida.");
-      }
-
-      routine.sections[section].forEach(exercise => {
-        validateBackupExercise(exercise, routine.name + " / " + SECTION_NAMES[section]);
-      });
-    });
-  }
+  return F.registry.validateKey(key, value);
 }
 
 function validateBackupKeys(keys) {
@@ -341,7 +73,7 @@ function validateBackupKeys(keys) {
   }
 
   keyNames.forEach(key => {
-    if (!key.startsWith("forja-")) {
+    if (!key.startsWith(F.STORAGE_PREFIX)) {
       throw new Error("O backup contém uma chave desconhecida: " + key + ".");
     }
 
@@ -381,6 +113,11 @@ function validateBackupPayload(payload) {
   };
 }
 
+/*
+  Resumo do conteúdo, montado pelos descritores de chave. A estrutura é a
+  mesma que sempre existiu (missões, rotinas, histórico, sessão ativa, chaves
+  extras), acrescida dos itens que a versão atual conhece.
+*/
 function computeBackupSummary(keys) {
   const summary = {
     missionDays: 0,
@@ -391,83 +128,97 @@ function computeBackupSummary(keys) {
     history: 0,
     historyByMode: { calisthenics: 0, weights: 0 },
     activeSession: null,
-    extraKeys: []
+    libraryItems: 0,
+    goals: null,
+    extraKeys: [],
+    items: []
   };
 
   Object.keys(keys || {}).forEach(key => {
     const value = keys[key];
+    const problem = "O conteúdo de \"" + key + "\" não pôde ser resumido.";
 
-    if (/^forja-missoes-\d{4}-\d{2}-\d{2}$/.test(key)) {
+    if (F.MISSION_KEY_PATTERN.test(key)) {
       summary.missionDays += 1;
       if (Array.isArray(value)) summary.tasks += value.length;
       return;
     }
 
-    if (key === KEYS.routines && isPlainObject(value)) {
-      ["calisthenics", "weights"].forEach(mode => {
-        if (!Array.isArray(value[mode])) return;
-        summary.routines[mode] = value[mode].length;
-
-        value[mode].forEach(routine => {
-          SECTION_ORDER.forEach(section => {
-            const list = isPlainObject(routine.sections) &&
-              Array.isArray(routine.sections[section])
-              ? routine.sections[section]
-              : [];
-            summary.routineExercises += list.length;
-          });
-        });
-      });
+    if (key === KEYS.migration || key === KEYS.preserved || key === KEYS.legacyActiveArchive) {
       return;
     }
 
-    if (key === KEYS.legacyExercises && isPlainObject(value)) {
-      summary.legacyExercises.calisthenics =
-        Array.isArray(value.calisthenics) ? value.calisthenics.length : 0;
-      summary.legacyExercises.weights =
-        Array.isArray(value.weights) ? value.weights.length : 0;
-      return;
+    let item = null;
+
+    try {
+      item = F.registry.summarizeKey(key, value);
+    } catch (error) {
+      item = { label: "Dado do FORJA", detail: problem };
     }
 
-    if (key === KEYS.history && Array.isArray(value)) {
-      summary.history = value.length;
-      value.forEach(record => {
-        if (MODE_NAMES[record.modality]) {
-          summary.historyByMode[record.modality] += 1;
-        }
-      });
-      return;
-    }
+    if (item) summary.items.push(Object.assign({ key }, item));
+  });
 
-    if (key === KEYS.active && isPlainObject(value)) {
-      summary.activeSession = {
-        modality: value.modality,
-        routineName: value.routineName || "Treino",
-        running: value.running !== false,
-        legacy: value.version !== 2
-      };
-      return;
-    }
+  const routines = isPlainObject(keys[KEYS.routines]) ? keys[KEYS.routines] : null;
 
-    if (
-      key === KEYS.legacyActiveArchive ||
-      key === KEYS.preserved ||
-      key === KEYS.migration
-    ) {
-      return;
-    }
+  if (routines) {
+    ["calisthenics", "weights"].forEach(mode => {
+      if (!Array.isArray(routines[mode])) return;
+      summary.routines[mode] = routines[mode].length;
+      summary.routineExercises += F.countRoutineData({ [mode]: routines[mode] }).exercises;
+    });
+  }
 
-    if (key === KEYS.library) {
-      summary.libraryItems = ["calisthenics", "weights"].reduce((sum, mode) => {
-        return sum + (isPlainObject(value) && Array.isArray(value[mode]) ? value[mode].length : 0);
-      }, 0);
-      return;
-    }
+  const legacy = isPlainObject(keys[KEYS.legacyExercises]) ? keys[KEYS.legacyExercises] : null;
 
-    if (key === KEYS.preferences) {
-      return;
-    }
+  if (legacy) {
+    ["calisthenics", "weights"].forEach(mode => {
+      summary.legacyExercises[mode] = Array.isArray(legacy[mode]) ? legacy[mode].length : 0;
+    });
+  }
 
+  if (Array.isArray(keys[KEYS.history])) {
+    summary.history = keys[KEYS.history].length;
+    keys[KEYS.history].forEach(record => {
+      if (isPlainObject(record) && MODE_NAMES[record.modality]) {
+        summary.historyByMode[record.modality] += 1;
+      }
+    });
+  }
+
+  if (isPlainObject(keys[KEYS.active])) {
+    const session = keys[KEYS.active];
+    summary.activeSession = {
+      modality: session.modality,
+      routineName: session.routineName || "Treino",
+      running: session.running !== false,
+      legacy: session.version !== 2
+    };
+  }
+
+  const library = isPlainObject(keys[KEYS.library]) ? keys[KEYS.library] : null;
+
+  if (library) {
+    summary.libraryItems = ["calisthenics", "weights"].reduce((total, mode) => {
+      return total + (Array.isArray(library[mode]) ? library[mode].length : 0);
+    }, 0);
+  }
+
+  if (isPlainObject(keys[KEYS.goals])) {
+    const goals = F.normalizeGoals(keys[KEYS.goals]);
+    summary.goals = {
+      sessions: goals.weeklySessions,
+      sets: goals.weeklySets,
+      minutes: goals.weeklyMinutes,
+      modality: goals.modality
+    };
+  }
+
+  const known = F.registry.list().map(spec => spec.key);
+
+  Object.keys(keys || {}).forEach(key => {
+    if (F.MISSION_KEY_PATTERN.test(key)) return;
+    if (known.indexOf(key) !== -1) return;
     summary.extraKeys.push(key);
   });
 
@@ -699,6 +450,11 @@ function makeBackupPreview(validated, currentKeys) {
   return details;
 }
 
+/*
+  Instantâneo textual de todas as chaves do FORJA (exceto a cópia de
+  segurança). Serve de base tanto para a cópia automática antes de importar
+  quanto para a reversão de uma transação incompleta.
+*/
 function collectCurrentRawSnapshot() {
   const rawValues = {};
 
@@ -718,57 +474,28 @@ function collectCurrentRawSnapshot() {
   return rawValues;
 }
 
+/*
+  Transação de substituição: delegada ao store, que grava, confere o que voltou
+  parseável, remove apenas o que não faz parte do backup e reverte ao
+  instantâneo em caso de falha. A cópia de segurança nunca é tocada aqui.
+*/
 function writeKeysTransaction(keys) {
-  getForjaStorageKeys(true).forEach(key => {
-    if (key === KEYS.safety) return;
-    localStorage.removeItem(key);
-  });
+  const result = F.store.applySet(keys, { protect: [KEYS.safety] });
 
-  Object.keys(keys).forEach(key => {
-    try {
-      localStorage.setItem(key, JSON.stringify(keys[key]));
-    } catch (error) {
-      throw new Error("Falha ao gravar \"" + key + "\": " + error.message);
-    }
-  });
+  if (!result.ok) {
+    const error = new Error(result.error || "Falha ao aplicar o backup.");
+    error.rollback = result.rollback;
+    error.failedKeys = result.failed;
+    throw error;
+  }
 
-  Object.keys(keys).forEach(key => {
-    const raw = localStorage.getItem(key);
-
-    if (raw === null) {
-      throw new Error("Falha ao verificar \"" + key + "\" após a gravação.");
-    }
-
-    try {
-      JSON.parse(raw);
-    } catch (error) {
-      throw new Error("O dado \"" + key + "\" ficou inválido após a gravação.");
-    }
-  });
+  return result;
 }
 
 function rollbackToSafety(safetyRawValues) {
-  const failedKeys = [];
+  const result = F.store.restoreRaw(safetyRawValues, { protect: [KEYS.safety] });
 
-  getForjaStorageKeys(true).forEach(key => {
-    if (key === KEYS.safety) return;
-
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      failedKeys.push(key);
-    }
-  });
-
-  Object.keys(safetyRawValues).forEach(key => {
-    try {
-      localStorage.setItem(key, safetyRawValues[key]);
-    } catch (error) {
-      failedKeys.push(key);
-    }
-  });
-
-  return { ok: failedKeys.length === 0, failedKeys };
+  return { ok: result.ok, failedKeys: result.failedKeys };
 }
 
 /*
@@ -826,7 +553,13 @@ function applyRestore(keys, options = {}) {
   try {
     writeKeysTransaction(keys);
   } catch (error) {
-    const rollback = rollbackToSafety(currentRaw);
+    /*
+      A transação do store já reverteu para o instantâneo tirado antes de
+      escrever e devolveu o resultado dessa reversão. Quando a falha veio de
+      outro ponto (por exemplo, ao ler o estado atual), a reversão é feita
+      aqui, pela cópia de segurança.
+    */
+    const rollback = error.rollback || rollbackToSafety(currentRaw);
 
     showModal({
       title: "Falha ao restaurar",
