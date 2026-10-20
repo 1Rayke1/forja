@@ -1342,23 +1342,22 @@ const ESSENTIAL_BY_PAGE = {
   [PAGE.config]: ["export-backup", "import-backup-button", "restore-safety-backup", "pref-sound"]
 };
 
-await runTest("9b. Botão TREINO quadrado, destacado, com ícone e texto (mobile)", async () => {
+await runTest("9b. Ação TREINO compacta, destacada e acessível (mobile)", async () => {
   const html = fs.readFileSync(path.join(repoRoot, "index.html"), "utf8");
   const anchorTag = html.match(/<a class="treino-square"[^>]*>[\s\S]*?<\/a>/);
   assert.ok(anchorTag, "Botão TREINO ausente na página inicial");
   assert.match(anchorTag[0], /href="treino\/index\.html"/);
   assert.match(anchorTag[0], /aria-label="Abrir TREINO/);
   assert.match(anchorTag[0], /<svg[^>]*class="treino-square-icon"/, "Ícone ausente");
-  assert.match(anchorTag[0], /class="treino-square-title">TREINO</, "Texto TREINO ausente");
+  assert.match(anchorTag[0], /class="treino-square-title">Abrir área de treino</, "Ação compacta ausente");
 
-  const css = appCss();
+  const css = fs.readFileSync(path.join(repoRoot, "assets/css/performance.css"), "utf8");
   const rule = css.match(/\.treino-square\s*\{[^}]*\}/);
   assert.ok(rule, "Regra .treino-square ausente");
-  assert.match(rule[0], /aspect-ratio:\s*1\s*\/\s*1/, "Botão deve ser quadrado");
-  assert.match(rule[0], /width:\s*min\(240px,\s*72vw\)/, "Largura deve caber em telas pequenas");
-  assert.match(css, /\.treino-square:focus-visible\s*\{/, "Foco visível ausente");
+  assert.match(rule[0], /aspect-ratio:\s*auto/, "Ação não deve ser quadrada");
+  assert.match(rule[0], /min-height:\s*66px/, "Alvo compacto de toque ausente");
+  assert.match(css, /\.treino-square:focus-visible|:focus-visible/, "Foco visível ausente");
   assert.match(css, /\.treino-square-icon\s*\{/);
-  assert.match(css, /\.treino-square-title\s*\{[^}]*font-size:\s*2\d+px/, "Título em destaque ausente");
 
   const indexApp = await boot({}, PAGE.index);
   assert.ok(indexApp.$(".treino-square"), "Botão TREINO não renderizado");
