@@ -206,6 +206,65 @@
     return F.formatClock(totalSeconds);
   };
 
+  F.pluralize = function pluralize(count, singular, plural) {
+    const value = Number(count) || 0;
+    return value + " " + (value === 1 ? singular : plural);
+  };
+
+  /* Número com separador de milhar pt-BR, sem casas quando é inteiro. */
+  F.formatNumber = function formatNumber(value, digits) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "—";
+
+    return number.toLocaleString("pt-BR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: digits === undefined ? (Number.isInteger(number) ? 0 : 1) : digits
+    });
+  };
+
+  /* Quilogramas: só faz sentido quando o valor é numérico. */
+  F.formatKg = function formatKg(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "—";
+    return F.formatNumber(number, 2) + " kg";
+  };
+
+  F.formatDistance = function formatDistance(meters) {
+    const number = Number(meters);
+    if (!Number.isFinite(number) || number <= 0) return "—";
+
+    if (number < 1000) return F.formatNumber(Math.round(number)) + " m";
+    return F.formatNumber(number / 1000, 2) + " km";
+  };
+
+  /* Minutos inteiros a partir de milissegundos (usado em metas e resumos). */
+  F.minutesFromMs = function minutesFromMs(ms) {
+    const value = Number(ms) || 0;
+    return Math.round(value / 60000);
+  };
+
+  F.formatMinutes = function formatMinutes(minutes) {
+    const value = Math.round(Number(minutes) || 0);
+    if (value < 60) return value + (value === 1 ? " min" : " min");
+    const hours = Math.floor(value / 60);
+    const rest = value % 60;
+    return rest ? hours + " h " + rest + " min" : hours + " h";
+  };
+
+  /* "hoje", "ontem", "há 3 dias" — nunca uma data futura disfarçada. */
+  F.relativeDayText = function relativeDayText(date, today) {
+    const base = today || new Date();
+    const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const now = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+    const days = Math.round((now - target) / 86400000);
+
+    if (days === 0) return "hoje";
+    if (days === 1) return "ontem";
+    if (days > 1) return "há " + days + " dias";
+    if (days === -1) return "amanhã";
+    return "em " + Math.abs(days) + " dias";
+  };
+
   F.dateKey = function dateKey(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -377,9 +436,123 @@
     const values = {};
     fields.forEach(field => {
       const input = backdrop.querySelector('[data-modal-field="' + field.id + '"]');
-      values[field.id] = input ? input.value : "";
+
+      if (!input) {
+        values[field.id] = "";
+        return;
+      }
+
+      values[field.id] = field.type === "checkbox" ? input.checked : input.value;
     });
     return values;
+  }
+
+  function renderModalErrors(backdrop, fields, errors) {
+    fields.forEach(field => {
+      const holder = backdrop.querySelector('[data-modal-error="' + field.id + '"]');
+      const input = backdrop.querySelector('[data-modal-field="' + field.id + '"]');
+      const message = errors && errors[field.id] ? String(errors[field.id]) : "";
+
+      if (holder) {
+        holder.textContent = message;
+        holder.hidden = !message;
+      }
+
+      if (input) {
+        input.setAttribute("aria-invalid", message ? "true" : "false");
+      }
+    });
+  }
+
+  function buildModalField(field) {
+    const wrapper = doc.createElement("div");
+    const isCheck = field.type === "checkbox";
+
+    wrapper.className = "modal-field" + (isCheck ? " modal-field-check" : "");
+
+    const inputId = "modal-field-" + field.id;
+    let input;
+
+    if (field.type === "select") {
+      input = doc.createElement("select");
+      (field.options || []).forEach(option => {
+        const item = doc.createElement("option");
+        item.value = option.value;
+        item.textContent = option.label;
+        if (String(option.value) === String(field.value)) item.selected = true;
+        input.appendChild(item);
+      });
+    } else if (field.type === "textarea") {
+      input = doc.createElement("textarea");
+      input.rows = field.rows || 3;
+      input.maxLength = field.maxlength || 300;
+      input.value = field.value || "";
+      input.placeholder = field.placeholder || "";
+    } else if (isCheck) {
+      input = doc.createElement("input");
+      input.type = "checkbox";
+      input.checked = Boolean(field.value);
+    } else {
+      input = doc.createElement("input");
+      input.type = field.type || "text";
+      input.value = field.value || "";
+      input.maxLength = field.maxlength || (field.type === "number" ? undefined : 120);
+      input.placeholder = field.placeholder || "";
+
+      if (field.type === "number") {
+        if (field.min !== undefined) input.min = field.min;
+        if (field.max !== undefined) input.max = field.max;
+        if (field.step !== undefined) input.step = field.step;
+        input.inputMode = "decimal";
+      }
+    }
+
+    input.id = inputId;
+    input.setAttribute("data-modal-field", field.id);
+    if (field.autocomplete) input.autocomplete = field.autocomplete;
+    if (field.required) input.required = true;
+
+    const label = doc.createElement("label");
+    label.className = "field-label";
+    label.htmlFor = inputId;
+    label.textContent = field.label || "";
+
+    if (isCheck) {
+      const row = doc.createElement("label");
+      row.className = "check-row";
+      row.htmlFor = inputId;
+      const text = doc.createElement("span");
+      text.textContent = field.label || "";
+      row.append(input, text);
+      wrapper.appendChild(row);
+    } else {
+      if (field.label) wrapper.appendChild(label);
+      wrapper.appendChild(input);
+    }
+
+    const describedBy = [];
+
+    if (field.hint) {
+      const hint = doc.createElement("p");
+      hint.className = "field-hint";
+      hint.id = inputId + "-hint";
+      hint.textContent = field.hint;
+      wrapper.appendChild(hint);
+      describedBy.push(hint.id);
+    }
+
+    const error = doc.createElement("p");
+    error.className = "field-error";
+    error.id = inputId + "-error";
+    error.setAttribute("data-modal-error", field.id);
+    error.setAttribute("role", "status");
+    error.hidden = true;
+    wrapper.appendChild(error);
+    describedBy.push(error.id);
+
+    input.setAttribute("aria-describedby", describedBy.join(" "));
+
+    return { wrapper, input };
   }
 
   F.showModal = function showModal(options) {
@@ -395,6 +568,8 @@
       actions: [
         { id: "cancel", label: "Cancelar", className: "secondary-button" }
       ],
+      validate: null,
+      submitActions: null,
       dismissible: true,
       ...options
     };
@@ -427,31 +602,49 @@
 
       const fieldInputs = [];
       settings.fields.forEach(field => {
-        const wrapper = doc.createElement("div");
-        wrapper.className = "modal-field";
+        const built = buildModalField(field);
+        card.appendChild(built.wrapper);
+        fieldInputs.push(built.input);
 
-        if (field.label) {
-          const label = doc.createElement("label");
-          label.className = "field-label";
-          label.htmlFor = "modal-field-" + field.id;
-          label.textContent = field.label;
-          wrapper.appendChild(label);
+        if (typeof field.onChange === "function") {
+          built.input.addEventListener("input", () => {
+            field.onChange(collectModalValues(backdrop, settings.fields), built.input);
+          });
+          built.input.addEventListener("change", () => {
+            field.onChange(collectModalValues(backdrop, settings.fields), built.input);
+          });
         }
-
-        const input = doc.createElement("input");
-        input.type = field.type || "text";
-        input.id = "modal-field-" + field.id;
-        input.setAttribute("data-modal-field", field.id);
-        input.value = field.value || "";
-        input.maxLength = field.maxlength || 120;
-        input.autocomplete = "off";
-        wrapper.appendChild(input);
-        card.appendChild(wrapper);
-        fieldInputs.push(input);
       });
 
       const actions = doc.createElement("div");
       actions.className = "modal-actions";
+
+      /*
+        `validate` mantém o diálogo aberto quando algo está errado, mostrando o
+        motivo em cada campo — em vez de fechar e devolver o usuário para a
+        página com um aviso que já desapareceu.
+      */
+      function attempt(actionId, label) {
+        const values = collectModalValues(backdrop, settings.fields);
+        const mustValidate = typeof settings.validate === "function" &&
+          (!settings.submitActions || settings.submitActions.indexOf(actionId) !== -1);
+
+        if (mustValidate) {
+          const outcome = settings.validate(values) || {};
+          if (outcome.ok === false) {
+            renderModalErrors(backdrop, settings.fields, outcome.errors || {});
+            const firstBad = settings.fields.find(field => outcome.errors && outcome.errors[field.id]);
+            const focusTarget = firstBad
+              ? backdrop.querySelector('[data-modal-field="' + firstBad.id + '"]')
+              : null;
+            if (focusTarget) focusTarget.focus();
+            if (outcome.message) F.showToast(outcome.message, "error", 4200);
+            return;
+          }
+        }
+
+        closeOpenModal({ action: actionId, values });
+      }
 
       settings.actions.forEach(action => {
         const button = doc.createElement("button");
@@ -461,10 +654,7 @@
         button.setAttribute("data-modal-action", action.id);
 
         button.addEventListener("click", () => {
-          closeOpenModal({
-            action: action.id,
-            values: collectModalValues(backdrop, settings.fields)
-          });
+          attempt(action.id, action.label);
         });
 
         actions.appendChild(button);
