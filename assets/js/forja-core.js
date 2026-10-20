@@ -715,8 +715,10 @@
         : null;
 
       if (fieldInputs.length > 0) {
-        fieldInputs[0].focus();
-        fieldInputs[0].select();
+        const first = fieldInputs[0];
+        first.focus();
+        /* `select()` só existe em campo de texto: select e checkbox não têm. */
+        if (typeof first.select === "function") first.select();
       } else if (preferredButton) {
         preferredButton.focus();
       }

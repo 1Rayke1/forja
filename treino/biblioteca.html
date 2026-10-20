@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>Biblioteca · FORJA</title>
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/treino.css">
+<link rel="stylesheet" href="../assets/css/execucao.css">
+<link rel="stylesheet" href="../assets/css/configuracoes.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+<link rel="stylesheet" href="../assets/css/performance.css">
+<link rel="stylesheet" href="../assets/css/system.css">
+</head>
+
+<body data-page="biblioteca" data-root="../">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="../index.html">FORJA</a>
+    <div class="tagline">DISCIPLINA DIÁRIA</div>
+  </div>
+  <nav class="app-nav" aria-label="Navegação principal">
+    <div class="container app-nav-inner">
+      <a class="nav-link" href="../index.html" data-nav="inicio">Início</a>
+      <a class="nav-link" href="index.html" data-nav="treino" aria-current="page">Treino</a>
+      <a class="nav-link" href="../progresso/index.html" data-nav="progresso">Progresso</a>
+      <a class="nav-link" href="../configuracoes/index.html" data-nav="configuracoes">Configurações</a>
+    </div>
+  </nav>
+</header>
+
+<main class="container" id="conteudo">
+  <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
+    <div class="active-session-text">
+      <strong>Treino em andamento</strong>
+      <span id="active-session-summary"></span>
+    </div>
+    <div class="active-session-actions">
+      <a class="primary-button" id="resume-active-session" href="executar.html">Retomar</a>
+      <a class="secondary-button" id="end-active-session" href="executar.html?encerrar=1">Encerrar</a>
+    </div>
+  </section>
+
+  <div class="page-head">
+    <span class="eyebrow">Treino · Biblioteca</span>
+  </div>
+
+  <div id="catalog-root">
+    <p class="screen-subtitle">Carregando a biblioteca…</p>
+  </div>
+
+  <section class="catalog-help">
+    <h2 class="section-title">Como a biblioteca funciona</h2>
+    <p class="screen-subtitle">
+      Os itens <strong>sugeridos</strong> vêm com o app e servem de ponto de partida: você copia
+      um deles para a rotina e ajusta séries, repetições, duração e descanso como quiser.
+      Os itens <strong>seus</strong> são os exercícios personalizados, salvos somente neste
+      navegador — junto com tudo o mais do FORJA.
+    </p>
+    <p class="screen-subtitle">
+      Adicionar um exercício não inicia nem altera um treino em andamento. Ele entra no fim da
+      seção escolhida e aparece na rotina quando você abrir o editor.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../assets/js/forja-core.js" defer></script>
+<script src="../assets/js/forja-store.js" defer></script>
+<script src="../assets/js/forja-dados.js" defer></script>
+<script src="../assets/js/forja-biblioteca.js" defer></script>
+<script src="../assets/js/forja-sessao.js" defer></script>
+<script src="../assets/js/forja-treino.js" defer></script>
+<script src="../assets/js/forja-progresso.js" defer></script>
+<script src="../assets/js/forja-backup.js" defer></script>
+<script src="../assets/js/forja-ui.js" defer></script>
+<script src="../assets/js/forja-graficos.js" defer></script>
+<script src="../assets/js/forja-catalogo.js" defer></script>
+<script src="../assets/js/forja-app.js" defer></script>
+</body>
+</html>

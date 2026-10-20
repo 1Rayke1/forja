@@ -15,6 +15,7 @@ export const PAGE = {
   musculacao: "treino/musculacao.html",
   rotina: "treino/rotina.html",
   executar: "treino/executar.html",
+  biblioteca: "treino/biblioteca.html",
   progresso: "progresso/index.html",
   config: "configuracoes/index.html"
 };

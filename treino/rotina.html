@@ -117,6 +117,7 @@
     <section class="library-block" aria-labelledby="library-heading">
       <h2 class="section-title" id="library-heading">Biblioteca de exercícios</h2>
       <button type="button" class="secondary-button full-width" id="library-toggle" aria-expanded="false" aria-controls="library-panel">Buscar na biblioteca</button>
+      <a class="library-full-link" id="open-catalog" href="biblioteca.html">Abrir biblioteca completa (busca e filtros)</a>
 
       <div class="library-panel" id="library-panel" hidden>
         <label class="field-label" for="library-search">Buscar exercício</label>
@@ -163,6 +164,38 @@
               <input id="custom-rest" type="number" min="0" max="3600" value="60" required>
             </div>
           </div>
+          <details class="custom-meta" id="custom-meta">
+            <summary>Categoria, músculos e instruções (opcional)</summary>
+            <div class="field-grid">
+              <div class="field-block">
+                <label class="field-label" for="custom-category">Categoria</label>
+                <select id="custom-category">
+                  <option value="">Sem categoria</option>
+                  <option value="push">Empurrar</option>
+                  <option value="pull">Puxar</option>
+                  <option value="legs">Pernas</option>
+                  <option value="core">Core</option>
+                  <option value="cardio">Cardio</option>
+                  <option value="mobility">Mobilidade</option>
+                  <option value="carry">Carregamento</option>
+                </select>
+              </div>
+              <div class="field-block">
+                <label class="field-label" for="custom-muscles">Grupos musculares</label>
+                <input id="custom-muscles" type="text" maxlength="120" placeholder="Ex.: peito, tríceps" autocomplete="off">
+                <p class="field-hint">Separe por vírgula. São usados nos filtros da biblioteca.</p>
+              </div>
+              <div class="field-block">
+                <label class="field-label" for="custom-equipment">Equipamento</label>
+                <input id="custom-equipment" type="text" maxlength="120" placeholder="Ex.: barra fixa, halteres" autocomplete="off">
+              </div>
+            </div>
+            <div class="field-block">
+              <label class="field-label" for="custom-instructions">Instruções de execução</label>
+              <textarea id="custom-instructions" maxlength="600" rows="3" placeholder="Postura, respiração e como tornar o movimento mais fácil ou mais difícil."></textarea>
+            </div>
+            <p class="field-hint">Estes campos só organizam a biblioteca. Eles nunca alteram um treino já registrado.</p>
+          </details>
           <button type="submit" class="primary-button full-width">Salvar na biblioteca</button>
         </form>
       </div>
@@ -248,6 +281,7 @@
 <script src="../assets/js/forja-backup.js" defer></script>
 <script src="../assets/js/forja-ui.js" defer></script>
 <script src="../assets/js/forja-graficos.js" defer></script>
+<script src="../assets/js/forja-catalogo.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

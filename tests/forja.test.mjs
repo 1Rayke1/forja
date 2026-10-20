@@ -34,6 +34,7 @@ const PAGES = [
   "treino/musculacao.html",
   "treino/rotina.html",
   "treino/executar.html",
+  "treino/biblioteca.html",
   "progresso/index.html",
   "configuracoes/index.html"
 ];
@@ -776,6 +777,253 @@ await runTest("26. Cronômetro da série pausa, retoma e não avança com a paus
   app.advance(5_000);
   assert.equal(app.F.state.activeWorkout.completedSets.q1, 1, "Não concluiu ao chegar ao tempo");
   assertNoErrors(app, "pausa do cronômetro");
+  app.close();
+});
+
+await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", async () => {
+  const app = await boot({}, "treino/biblioteca.html");
+  await wait(20);
+
+  assert.equal(app.d.body.dataset.page, "biblioteca");
+  assert.ok(app.$("#catalog-root"), "Contêiner da biblioteca ausente");
+
+  const rows = () => app.$$("#catalog-list .ui-exercise-row");
+  const total = () => app.F.catalog.items().length;
+
+  assert.equal(total(), 37, "Catálogo sugerido não carregou inteiro");
+  assert.match(app.text("#catalog-status"), /37 exercícios no catálogo/);
+  assert.equal(rows().length, 12, "A lista não veio em blocos para caber na tela");
+  assert.match(app.text(".catalog-more"), /Mostrar mais 12 de 25/, "Contador de 'mostrar mais' errado");
+
+  app.click(".catalog-more button");
+  await wait(15);
+  assert.equal(rows().length, 24, "Mostrar mais não revelou o bloco seguinte");
+  assert.match(app.text(".catalog-more"), /Mostrar mais 12 de 13/);
+  app.click(".catalog-more button");
+  await wait(15);
+  assert.match(app.text(".catalog-more"), /Mostrar mais 1 de 1/, "Último bloco não avisou que era o resto");
+  app.click(".catalog-more button");
+  await wait(15);
+  assert.equal(rows().length, 37, "Último bloco não mostrou o restante");
+  assert.equal(app.$(".catalog-more"), null, "Botão 'Mostrar mais' ficou depois de tudo visível");
+
+  /* Busca ignora acentos e considera nome, músculo, categoria e equipamento. */
+  const search = app.$("#catalog-search");
+  search.value = "flexao";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(10);
+  const found = rows().map(row => row.querySelector(".ui-exercise-name").textContent);
+  assert.ok(found.includes("Flexão de braço"), "Busca sem acento não encontrou Flexão");
+  assert.ok(found.length < 37 && found.length > 0, "Busca não filtrou a lista");
+
+  search.value = "peito";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(10);
+  assert.ok(rows().length > 1, "Busca por grupo muscular não retornou itens");
+  assert.ok(rows().length <= 12, "Busca ignorou o bloco visível");
+
+  search.value = "";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(10);
+  assert.equal(rows().length, 12, "Limpar a busca não trouxe o catálogo de volta");
+  assert.match(app.text("#catalog-status"), /37 exercícios/);
+
+  /* Filtros: modalidade, medição e categoria funcionam e mostram contagem. */
+  const weightsSegment = app.$$("#catalog-controls .ui-segment").find(node => /Muscula/.test(node.textContent));
+  weightsSegment.click();
+  await wait(15);
+  assert.match(app.text("#catalog-status"), /19 exercícios/);
+  assert.equal(rows().length, 12, "Filtro de modalidade não reiniciou o bloco visível");
+  app.click(".catalog-more button");
+  await wait(15);
+  assert.equal(rows().length, 19, "Filtro de modalidade não reduziu a lista");
+  assert.ok(rows().every(row => /Muscula/.test(row.textContent)), "Filtro de modalidade vazou itens de calistenia");
+
+  app.$$("#catalog-controls .ui-segment")[0].click();
+  await wait(15);
+  assert.match(app.text("#catalog-status"), /37 exercícios no catálogo/);
+  assert.equal(rows().length, 12, "Voltar para Todas não restaurou a lista");
+
+  const measureRow = app.$('#catalog-controls [data-filter-group="measure"]');
+  assert.ok(measureRow, "Filtro de medição ausente");
+  measureRow.querySelector('[data-value="time"]').click();
+  await wait(15);
+  const timed = app.F.catalog.filter({ measure: "time" });
+  assert.ok(timed.length > 0 && timed.length < 37, "Filtro de medição não funcionou");
+  assert.equal(rows().length, Math.min(12, timed.length), "Filtro novo não reiniciou o bloco visível");
+  /*
+    `Array.from` no domínio do teste: os objetos vêm da janela jsdom e a
+    comparação estrita de arrays também compara protótipos.
+  */
+  assert.deepEqual(
+    rows().map(row => row.querySelector(".ui-exercise-name").textContent),
+    Array.from(timed.slice(0, 12), record => record.name),
+    "Filtro de medição listou itens diferentes dos que têm medição por tempo"
+  );
+
+  app.$('#catalog-controls [data-filter-group="measure"] [data-value="null"]').click();
+  await wait(15);
+  assert.equal(rows().length, 12, "Limpeza do filtro não voltou ao primeiro bloco");
+  assert.match(app.text("#catalog-status"), /37 exercícios/);
+
+  /* Detalhe traz instruções reais e a frase de histórico (sem inventar dado). */
+  app.click('#catalog-list .ui-exercise-row [aria-label^="Ver detalhes"]');
+  await wait(20);
+  assert.ok(app.$(".modal-backdrop"), "Detalhe não abriu");
+  assert.match(app.text(".modal-details"), /sem registros no seu histórico/i, "Detalhe inventou histórico");
+  app.modalAction("cancel");
+  await wait(20);
+
+  /* Consultar não escreve nada. */
+  assert.deepEqual(app.keys(), [], "A biblioteca gravou dados sem pedido do usuário");
+  assertNoErrors(app, "biblioteca");
+  app.close();
+});
+
+await runTest("27b. Biblioteca: detalhe usa o histórico real, não número inventado", async () => {
+  const record = (id, name, sets, load) => ({
+    id, date: "2026-10-01", modality: "calisthenics", routineName: "Treino X",
+    durationMs: 60000, completedSets: sets, totalPlannedSets: sets, status: "completed",
+    finishedAt: "2026-10-01T12:00:00.000Z",
+    exercises: [{
+      id: "e-" + id, name, section: "main", plannedSets: sets, completedSets: sets,
+      reps: "10", duration: 45, type: "reps", rest: 60, load: "", notes: "", timedSeconds: 0,
+      logs: Array.from({ length: sets }, (_, index) => ({ set: index + 1, reps: "12", load, seconds: undefined }))
+    }]
+  });
+
+  const app = await boot({
+    "forja-treino-historico-v1": [
+      record("h1", "Flexão de braço", 3, "20 kg"),
+      record("h2", "Flexão de braço", 2, "25 kg")
+    ]
+  }, "treino/biblioteca.html");
+  await wait(20);
+
+  const row = app.$$("#catalog-list .ui-exercise-row").find(node => /Flexão de braço/.test(node.textContent));
+  app.click(row.querySelector('[aria-label^="Ver detalhes"]'));
+  await wait(20);
+
+  const details = app.text(".modal-details");
+  assert.match(details, /2 treinos registrados/);
+  assert.match(details, /5 séries concluídas/);
+  assert.match(details, /maior carga 25 kg/);
+  assert.match(details, /máximo de 12 repetições/);
+  assert.match(details, /último em 01 de out/, "Data do último treino não formatada: " + details);
+  assertNoErrors(app, "detalhe com histórico");
+  app.close();
+});
+
+await runTest("28. Biblioteca: adicionar à rotina grava na seção escolhida", async () => {
+  const routine = makeRoutine("calisthenics", "Rotina B", [
+    { id: "m1", name: "Flexão existing", section: "main", sets: 2, reps: "10", rest: 10 }
+  ], "rb");
+
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) }, "treino/biblioteca.html");
+  await wait(20);
+
+  const before = app.raw("forja-treino-rotinas-v1");
+  assert.equal(routine.sections.warmup.length, 0);
+
+  /* Adicionar direto pelo botão: modal pede rotina e seção. */
+  const target = app.$$("#catalog-list .ui-exercise-row")
+    .find(row => /Agachamento livre/.test(row.textContent));
+  app.click(target.querySelector('[aria-label^="Adicionar"]'));
+  await wait(20);
+  assert.match(app.text("#modal-title"), /Adicionar Agachamento livre/);
+  assert.equal(app.modalField("routine").options.length, 1, "Seletor de rotina incorreto");
+  app.modalField("section").value = "main";
+  app.modalAction("add");
+  await wait(40);
+
+  const after = app.data("forja-treino-rotinas-v1").calisthenics[0];
+  assert.equal(after.sections.main.length, 2, "Exercício não entrou na rotina");
+  const added = after.sections.main[1];
+  assert.equal(added.name, "Agachamento livre");
+  assert.match(added.id, /^exercise-/, "O exercício copiado precisa de id novo");
+  assert.equal(added.libraryId, "cal-agachamento", "A origem no catálogo não foi registrada");
+  assert.equal(added.section, "main");
+  assert.ok(added.instructions.length > 0, "As instruções não viajaram com o exercício");
+  assert.match(app.text("#toast"), /entrou em Rotina B/);
+
+  /* Cancelar o modal não altera a rotina. */
+  const untouched = app.raw("forja-treino-rotinas-v1");
+  const second = app.$$("#catalog-list .ui-exercise-row")[0];
+  app.click(second.querySelector('[aria-label^="Adicionar"]'));
+  await wait(20);
+  app.modalAction("cancel");
+  await wait(20);
+  assert.equal(app.raw("forja-treino-rotinas-v1"), untouched, "Cancelar alterou a rotina");
+
+  /* Rotina atualizada no estado: nada de recarregar a página. */
+  assert.equal(app.F.state.routines.calisthenics[0].sections.main.length, 2);
+  assert.deepEqual(Object.keys(app.data("forja-treino-rotinas-v1")).sort(), ["calisthenics", "weights"]);
+  assert.notEqual(before, app.raw("forja-treino-rotinas-v1"));
+  assertNoErrors(app, "adicionar da biblioteca");
+  app.close();
+});
+
+await runTest("29. Biblioteca sem rotinas leva o usuário ao lugar certo", async () => {
+  const app = await boot({}, "treino/biblioteca.html");
+  await wait(20);
+
+  app.click('#catalog-list .ui-exercise-row [aria-label^="Adicionar"]');
+  await wait(20);
+  assert.match(app.text("#modal-title"), /Nenhuma rotina de Calistenia/);
+  assert.match(app.text(".modal-message"), /A biblioteca não guarda treinos sozinha/);
+
+  app.modalAction("open");
+  await pageIs(app, "calistenia");
+  assertNoErrors(app, "biblioteca sem rotinas");
+  app.close();
+});
+
+await runTest("30. Editor: metadados do exercício personalizado chegam à biblioteca", async () => {
+  const routine = makeRoutine("calisthenics", "Com metadados", [], "meta");
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) }, "treino/rotina.html?modalidade=calisthenics&id=meta");
+  await wait(20);
+
+  app.click("#library-toggle");
+  app.click("#custom-toggle");
+  await wait(10);
+
+  app.$("#custom-name").value = "Prancha Esequena";
+  app.$("#custom-sets").value = "2";
+  app.$("#custom-rest").value = "30";
+  app.$("#custom-category").value = "core";
+  app.$("#custom-muscles").value = "abdômen, lombar, abdômen";
+  app.$("#custom-equipment").value = "peso corporal";
+  app.$("#custom-instructions").value = "Subir o quadril só depois de estabilizar a respiração.";
+  app.$("#custom-form").dispatchEvent(new app.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(30);
+
+  const saved = app.data("forja-treino-biblioteca-v1").calisthenics[0];
+  assert.equal(saved.name, "Prancha Esequena");
+  assert.equal(saved.category, "core");
+  assert.deepEqual(saved.muscles, ["abdômen", "lombar"], "Lista de músculos não foi deduplicada/limitada");
+  assert.deepEqual(saved.equipment, ["peso corporal"]);
+  assert.equal(saved.instructions, "Subir o quadril só depois de estabilizar a respiração.");
+
+  assert.match(app.text("#library-list"), /Core/i, "Categoria não apareceu na lista do editor");
+
+  /* O bloco opcional volta fechado e limpo para o próximo cadastro. */
+  assert.equal(app.$("#custom-muscles").value, "");
+  assert.equal(app.$("#custom-meta").open, false);
+
+  /* O exercício personalizado aparece no catálogo com os metadados. */
+  app.click("#open-catalog");
+  await pageIs(app, "biblioteca");
+  await wait(20);
+
+  const sourceChip = app.$('#catalog-controls [data-filter-group="source"]');
+  sourceChip.querySelector('[data-value="personalizado"]').click();
+  await wait(20);
+  const rows = app.$$("#catalog-list .ui-exercise-row");
+  assert.equal(rows.length, 1, "Exercício personalizado não apareceu no catálogo");
+  assert.match(rows[0].textContent, /Prancha Esequena/);
+  assert.match(rows[0].textContent, /Core/);
+  assert.match(rows[0].textContent, /abdômen/);
+  assertNoErrors(app, "metadados do editor");
   app.close();
 });
 

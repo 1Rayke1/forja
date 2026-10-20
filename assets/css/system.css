@@ -154,10 +154,10 @@
 
 /* Segmentado e filtros ----------------------------------------------- */
 
+/* Em flex com largura natural: rótulos de modalidade não são cortados em 390 px. */
 .ui-segmented {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 4px;
   border: 1px solid var(--border);
@@ -166,6 +166,7 @@
 }
 .ui-segment {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
   gap: 6px;
@@ -299,6 +300,33 @@
 .ui-screen-head { display: grid; gap: var(--space-3); margin-bottom: var(--space-4); }
 .ui-screen-title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
 
+/* Lista da biblioteca (treino/biblioteca.html) ------------------------ */
+
+.catalog-search-wrap { margin: var(--space-2) 0; }
+.catalog-search { width: 100%; }
+.catalog-controls { display: grid; gap: var(--space-3); margin: var(--space-3) 0; }
+.catalog-filter { display: grid; gap: 6px; min-width: 0; }
+.catalog-filter-label { color: var(--muted); font-size: var(--font-xs); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 800; }
+.catalog-tools { display: flex; justify-content: flex-end; }
+.catalog-status { margin: 0 0 var(--space-2); color: var(--muted); font-size: var(--font-sm); }
+.catalog-list { display: grid; gap: var(--space-2); }
+.catalog-more { display: grid; }
+@media (min-width: 860px) {
+  .catalog-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .catalog-more { grid-column: 1 / -1; }
+}
+.catalog-session-note { margin-top: var(--space-3); }
+.catalog-help { margin-top: var(--space-5); }
+.ui-chip-muted { color: var(--muted); }
+.modal-detail-line { margin: 0 0 6px; font-size: var(--font-sm); line-height: 1.55; }
+.modal-detail-line:last-child { margin-bottom: 0; }
+
+@media (max-width: 560px) {
+  .catalog-controls { gap: var(--space-2); }
+  .ui-exercise-actions { width: 100%; }
+  .ui-exercise-actions .ui-button { flex: 1 1 auto; }
+}
+
 /* Listagem de exercícios (catálogo e editor) --------------------------- */
 
 .ui-exercise-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-sunken); }
@@ -333,3 +361,70 @@
   .ui-bar-row { grid-template-columns: 58px 1fr auto; gap: 6px; }
   .ui-column { height: 112px; }
 }
+
+/* Partes internas dos componentes (usadas por forja-ui.js) ------------- */
+
+.ui-empty-body { display: grid; gap: 5px; min-width: 0; }
+.ui-section-text { display: grid; gap: 4px; min-width: 0; }
+.ui-inline-note { margin: var(--space-3) 0 0; color: var(--muted); font-size: var(--font-sm); line-height: 1.5; }
+.ui-chip-muted { color: var(--muted); }
+.ui-chart-columns .ui-columns { padding-right: 2px; }
+
+.ui-search-field { position: relative; display: block; }
+.ui-search-field .ui-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+.ui-search-field input { width: 100%; padding-left: 38px; }
+
+/* Campos criados por F.showModal (textarea e checkbox não vêm do base.css) */
+
+.modal-card textarea {
+  width: 100%;
+  min-height: 78px;
+  padding: 11px;
+  font: inherit;
+  font-size: var(--font-sm);
+  resize: vertical;
+}
+.modal-card input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--lime); }
+.modal-field-check { display: flex; align-items: center; gap: 9px; margin-top: 10px; font-size: var(--font-sm); }
+.modal-field-check > span { display: inline-flex; }
+.modal-detail-line { margin: 0 0 6px; font-size: var(--font-sm); line-height: 1.55; }
+.modal-detail-line:last-child { margin-bottom: 0; }
+[aria-invalid="true"] { border-color: var(--danger) !important; box-shadow: 0 0 0 1px var(--danger); }
+.field-hint { margin: 4px 0 0; color: var(--muted); font-size: var(--font-xs); line-height: 1.5; }
+.field-error { margin: 4px 0 0; color: var(--danger); font-size: var(--font-xs); font-weight: 700; }
+
+/* Cabeçalho da tela da biblioteca e bloco de ajuda -------------------- */
+
+#catalog-root { display: grid; gap: var(--space-3); }
+.library-full-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  color: var(--lime);
+  font-size: var(--font-sm);
+  font-weight: 700;
+}
+.custom-meta { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+.custom-meta > summary { cursor: pointer; font-size: var(--font-sm); font-weight: 700; min-height: 32px; }
+.custom-meta[open] { display: grid; gap: var(--space-2); }
+.custom-meta .field-grid { margin-top: var(--space-2); }
+.catalog-help {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+}
+.catalog-help .screen-subtitle { margin: 0; }
+.screen-toolbar { flex-wrap: wrap; }
+.modality-catalog-link { margin-left: auto; }

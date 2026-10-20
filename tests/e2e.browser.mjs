@@ -35,6 +35,7 @@ const PAGES = [
   'treino/musculacao.html',
   'treino/rotina.html',
   'treino/executar.html',
+  'treino/biblioteca.html',
   'progresso/',
   'configuracoes/'
 ];
@@ -568,12 +569,12 @@ await check('Armazenamento local é informado em todas as páginas', async () =>
   }
 });
 
-await check('Capturas visuais das oito páginas em mobile e desktop', async () => {
+await check('Capturas visuais das nove páginas em mobile e desktop', async () => {
   const shots = await browser.newPage();
   shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
   shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
   for (const [index, rel] of PAGES.entries()) {
-    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','progresso','configuracoes'][index];
+    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes'][index];
     for (const width of [390, 1280]) {
       await shots.setViewport({ width, height: width === 390 ? 844 : 900 });
       let screenshotUrl = new URL(rel, BASE);

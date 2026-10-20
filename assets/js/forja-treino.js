@@ -817,6 +817,31 @@
 
   /* Biblioteca: busca, sugestões e exercícios personalizados */
 
+  /*
+    "peito, tríceps, peito" -> ["peito", "tríceps"]. A leitura já deduplica,
+    mas limpar na entrada evita gravar repetição que o usuário não pediu.
+  */
+  function splitList(value) {
+    const seen = new Set();
+    const out = [];
+
+    String(value || "").split(",").forEach(item => {
+      const text = item.trim().slice(0, 28);
+      const key = text.toLowerCase();
+      if (!text || seen.has(key)) return;
+      seen.add(key);
+      out.push(text);
+    });
+
+    return out.slice(0, 6);
+  }
+
+  function catalogMetaFor(item) {
+    if (!F.catalog) return null;
+    return F.catalog.metadataFor(item);
+  }
+
+
   function libraryItems() {
     const builtin = (F.EXERCISE_LIBRARY[draftModality] || []).map(item => {
       return Object.assign({}, item, { custom: false });
@@ -830,6 +855,17 @@
 
   function renderLibrary() {
     const list = byId("library-list");
+    const catalogLink = byId("open-catalog");
+
+    /*
+      O painel dentro do editor é a busca rápida; a tela completa tem filtros
+      por categoria, músculo, equipamento e medição. O link leva já filtrado
+      pela modalidade da rotina aberta.
+    */
+    if (catalogLink) {
+      const mode = draftModality || currentModality;
+      catalogLink.href = F.url("biblioteca", mode ? { modalidade: mode } : null);
+    }
     const query = normalizeSearch(librarySearchValue);
     const items = libraryItems().filter(item => {
       return !query || normalizeSearch(item.name).includes(query);
@@ -857,8 +893,14 @@
 
       const meta = document.createElement("span");
       meta.className = "library-item-meta";
-      meta.textContent = (item.custom ? "Personalizado" : "Sugerido") + " · " +
-        SECTION_NAMES[item.section] + " · " + formatExerciseMeta(item);
+      const metaParts = [(item.custom ? "Personalizado" : "Sugerido") + " · " +
+        SECTION_NAMES[item.section] + " · " + formatExerciseMeta(item)];
+      const meta2 = catalogMetaFor(item);
+
+      if (meta2 && meta2.label) metaParts.push(meta2.label);
+      if (meta2 && meta2.muscles.length) metaParts.push(meta2.muscles.join(", "));
+
+      meta.textContent = metaParts.join(" · ");
 
       main.append(name, meta);
 
@@ -933,7 +975,13 @@
       return;
     }
 
-    const libraryEntry = Object.assign({ id: createId("lib-" + draftModality) }, checked.value);
+    const libraryEntry = Object.assign({
+      id: createId("lib-" + draftModality),
+      category: byId("custom-category").value || "",
+      muscles: splitList(byId("custom-muscles").value),
+      equipment: splitList(byId("custom-equipment").value),
+      instructions: byId("custom-instructions").value.trim().slice(0, 600)
+    }, checked.value);
     const previous = cloneData(F.state.library);
 
     F.state.library[draftModality].push(libraryEntry);
@@ -945,6 +993,11 @@
     }
 
     byId("custom-form").reset();
+    byId("custom-category").value = "";
+    byId("custom-muscles").value = "";
+    byId("custom-equipment").value = "";
+    byId("custom-instructions").value = "";
+    byId("custom-meta").open = false;
     byId("custom-sets").value = 3;
     byId("custom-reps").value = "10";
     byId("custom-duration").value = 45;
