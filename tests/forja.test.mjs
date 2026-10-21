@@ -226,13 +226,23 @@ await runTest("05. Links relativos resolvem dentro do caminho /forja/ (GitHub Pa
 
 await runTest("06. TREINO abre o hub e o hub leva a CALISTENIA e MUSCULAÇÃO", async () => {
   const home = await boot({}, "index.html");
-  // O botão agora tem ícone, título e subtítulo; o texto começa com TREINO.
-  const treinoLink = home.$("a.treino-square");
-  assert.ok(treinoLink, "Botão TREINO ausente na página inicial");
-  assert.match(treinoLink.textContent.trim(), /^(TREINO|Abrir área de treino)\b/i);
-  assert.equal(treinoLink.getAttribute("href"), "treino/index.html");
-
-  home.click(treinoLink);
+  // Home simplificada: ação principal única (#home-primary-button + .treino-square para compatibilidade).
+  const primary = home.$("#home-primary-button") || home.$("#home-action .treino-square") || home.$("#home-action a") || home.$("a.treino-square");
+  assert.ok(primary, "Ação principal ausente na home");
+  const txt = primary.textContent.trim();
+  assert.match(txt, /(Montar meu treino|Iniciar)/i, "Texto da ação principal inesperado: " + txt);
+  if (primary.tagName.toLowerCase() === "a") {
+    assert.equal(primary.getAttribute("href"), "treino/index.html");
+  } else {
+    assert.equal(primary.getAttribute("aria-label")?.includes("Iniciar") || primary.textContent.includes("Iniciar"), true, "Botão Iniciar sem aria-label correto");
+  }
+  // Garantir que não há ação duplicada visível quando não há sessão ativa (uma única .home-action-button)
+  const actions = home.$$("#home-action .home-action-button");
+  assert.equal(actions.length, 1, "Deveria haver exatamente 1 ação principal na home");
+  // Para hub, usa o link Montar quando for âncora; se for botão (com rotina), navega direto ao hub via bottom-nav como fallback
+  const toClick = primary.tagName.toLowerCase() === "a" ? primary : home.$('a.bottom-nav-link[data-nav="treino"]') || home.$('a[href="treino/index.html"]');
+  assert.ok(toClick, "Link para Treinos não encontrado");
+  home.click(toClick);
   await pageIs(home, "treino");
   assert.match(home.text("h1"), /TREINO/);
   assert.ok(home.$('a[href="calistenia.html"]'), "Hub sem CALISTENIA");
@@ -719,9 +729,14 @@ await runTest("24. Regras móveis: sem rolagem horizontal, alvos grandes e empil
 
   assert.match(css, /@media \(max-width: 380px\)/, "Regra para telas de 380px ausente");
   assert.match(css, /\.task-form input \{[^}]*flex: 1 1 100%/);
-  assert.match(css, /\.app-nav-inner[\s\S]*repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.match(css, /\.bottom-nav-inner[\s\S]*repeat\(5, minmax\(0, 1fr\)\)/, "Barra inferior deve ter 5 colunas");
   assert.match(css, /\.hub-list \{[^}]*display: grid/);
   assert.match(css, /\.big-set-button/);
+  // Barra não pode cobrir conteúdo: padding inferior + safe-area
+  assert.match(css, /padding-bottom:\s*calc\(var\(--bottom-nav-height\)/);
+  // prefers-reduced-motion deve ser respeitado (pode estar em performance.css)
+  const allCss = css + fs.readFileSync(path.join(repoRoot, "assets/css/performance.css"), "utf8") + fs.readFileSync(path.join(repoRoot, "assets/css/app.css"), "utf8");
+  assert.match(allCss, /prefers-reduced-motion/);
 });
 
 await runTest("25. Execução: série por duração não é registrada duas vezes com cliques repetidos", async () => {
@@ -1768,6 +1783,122 @@ await runTest("39. Progresso: limite de 200 registros e dados antigos sem totals
 });
 
 /* ------------------------------------------------------------------ */
+
+
+await runTest("40. Home: uma única ação principal por estado", async () => {
+  // Estado vazio -> Montar meu treino (link)
+  const empty = await boot({}, "index.html");
+  const actionEmpty = empty.$("#home-action");
+  assert.ok(actionEmpty, "#home-action ausente");
+  assert.equal(actionEmpty.hidden, false, "Ação deveria estar visível quando não há sessão");
+  const btnEmpty = empty.$("#home-primary-button");
+  assert.ok(btnEmpty, "Botão primário ausente no estado vazio");
+  assert.match(btnEmpty.textContent, /Montar meu treino/);
+  assert.equal(btnEmpty.tagName.toLowerCase(), "a");
+  assert.equal(btnEmpty.getAttribute("href"), "treino/index.html");
+  // Garantir que há apenas um botão/link visível na home-action
+  assert.equal(empty.$$("#home-action .home-action-button").length, 1, "Deveria haver exatamente 1 ação principal no vazio");
+  assert.equal(empty.$$("#home-action [hidden]").length, 0, "Nada deve estar hidden quando não há sessão");
+  empty.close();
+
+  // Com rotina real -> Iniciar Treino (button)
+  const routine = makeRoutine("calisthenics", "Rotina Teste", [{ name: "Flexão", section: "main", sets: 2, reps: "10", id: "m1" }], "rt1");
+  const withRoutine = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) }, "index.html");
+  const btnRoutine = withRoutine.$("#home-primary-button");
+  assert.ok(btnRoutine, "Botão Iniciar ausente quando há rotina");
+  assert.match(btnRoutine.textContent, /Iniciar Rotina Teste/);
+  assert.equal(btnRoutine.tagName.toLowerCase(), "button");
+  assert.equal(withRoutine.$$("#home-action .home-action-button").length, 1, "Deveria haver exatamente 1 botão Iniciar");
+  withRoutine.close();
+});
+
+await runTest("41. Home: com sessão ativa a ação principal some e só o banner permite retomar", async () => {
+  const routine = makeRoutine("calisthenics", "Ativa", [{ name: "Flex", section: "main", sets: 1, reps: "10", id: "a1" }], "r2");
+  const sess = sessionSeed(routine, { id: "s-active" });
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []), "forja-treino-sessao-ativa-v1": sess }, "index.html");
+  const container = app.$("#home-action");
+  assert.ok(container, "#home-action ausente");
+  assert.equal(container.hidden, true, "#home-action deveria estar hidden com sessão ativa");
+  assert.equal(container.getAttribute("hidden"), "", "deveria ter atributo hidden");
+  assert.equal(app.$("#home-primary-button"), null, "Botão primário não deve existir quando sessão está ativa");
+  assert.equal(app.$("#active-session-banner").hidden, false, "Banner de sessão deveria estar visível");
+  assert.ok(app.$("#resume-active-session"), "Link Retomar ausente");
+  app.close();
+});
+
+await runTest("42. Home simplificada: hierarquia curta e dados reais", async () => {
+  const app = await boot({}, "index.html");
+  assert.ok(app.$("#home-greeting") || app.$(".home-greeting"), "Saudação ausente");
+  assert.ok(app.$("#home-action-heading"), "Heading da ação ausente");
+  assert.ok(app.$("#home-week") || app.$(".home-week"), "Resumo semanal ausente");
+  assert.ok(app.$("#home-recent") || app.$(".home-recent"), "Último treino compacto ausente");
+  assert.ok(app.$("#home-week-stats"), "Stats da semana ausentes");
+  assert.ok(app.$("#home-recent-list"), "Lista recente ausente");
+  // Calendário e missões devem existir mas não competir visualmente (são secundários)
+  assert.ok(app.$(".calendar-panel"), "Calendário ausente");
+  assert.ok(app.$(".missions-panel"), "Missões ausentes");
+  assert.equal(app.$(".home-secondary") !== null, true, "Secundários deveriam estar agrupados");
+  // Estado vazio honesto: sem treinos, mensagem não inventa métrica
+  assert.match(app.text("#home-week-note"), /Sem treinos nesta semana ainda/);
+  assert.match(app.text("#home-recent-note"), /Nenhum treino registrado ainda/);
+  assert.ok(!/streak|sequência|%/.test(app.text("#home-week")), "Métrica inventada na semana");
+  app.close();
+
+  // Com histórico real, a semana reflete o tempo real
+  const today = new Date();
+  const rec = { id: "h1", date: today.toISOString().slice(0,10), modality: "calisthenics", routineName: "Teste", durationMs: 60000, completedSets: 2, totalPlannedSets: 2, status: "completed", finishedAt: today.toISOString(), exercises: [] };
+  const app2 = await boot({ "forja-treino-historico-v1": [rec] }, "index.html");
+  assert.match(app2.text("#home-week-note"), /1 treino/);
+  assert.match(app2.text("#home-recent-list"), /Teste/);
+  app2.close();
+});
+
+await runTest("43. Barra inferior fixa: 5 itens, aria-current, safe-area e não cobre conteúdo", async () => {
+  for (const page of PAGES) {
+    const app = await boot({}, page);
+    const nav = app.$(".bottom-nav");
+    assert.ok(nav, "bottom-nav ausente em " + page);
+    const links = app.$$(".bottom-nav-link");
+    assert.equal(links.length, 5, "Deveria haver 5 itens na barra em " + page);
+    const labels = links.map(a => a.textContent.trim());
+    assert.ok(labels.some(t => /Início/.test(t)), "Início ausente em " + page);
+    assert.ok(labels.some(t => /Treinos/.test(t)), "Treinos ausente");
+    assert.ok(labels.some(t => /Explorar/.test(t)), "Explorar ausente");
+    assert.ok(labels.some(t => /Progresso/.test(t)), "Progresso ausente");
+    assert.ok(labels.some(t => /Perfil/.test(t)), "Perfil ausente");
+    assert.equal(app.$$(".bottom-nav-link[aria-current=page]").length, 1, "aria-current ausente ou duplicado em " + page);
+    // Ícones presentes
+    assert.equal(app.$$(".bottom-nav-icon svg").length, 5, "Ícones ausentes em " + page);
+    // Touch target e posição fixa
+    const css = fs.readFileSync(path.join(repoRoot, "assets/css/app.css"), "utf8");
+    assert.match(css, /\.bottom-nav\s*\{/);
+    assert.match(css, /position:\s*fixed/);
+    assert.match(css, /env\(safe-area-inset-bottom/);
+    app.close();
+  }
+  const appCss = fs.readFileSync(path.join(repoRoot, "assets/css/app.css"), "utf8");
+  assert.match(appCss, /padding-bottom:\s*calc\(var\(--bottom-nav-height\)/);
+  // Prefers reduced motion
+  assert.match(appCss, /prefers-reduced-motion/);
+});
+
+await runTest("44. Links da barra inferior resolvem e perfil/explorar existem", async () => {
+  const pagesToCheck = ["index.html", "treino/index.html", "explorar/index.html", "progresso/index.html", "perfil/index.html"];
+  for (const page of pagesToCheck) {
+    const app = await boot({}, page);
+    const broken = [];
+    app.$$(".bottom-nav-link").forEach(a => {
+      const href = a.getAttribute("href");
+      const url = new URL(href, app.w.location.href);
+      const file = path.join(repoRoot, url.pathname.replace("/forja/", "").replace(/\/$/, "/index.html"));
+      if (!fs.existsSync(file)) broken.push(href + " em " + page);
+    });
+    assert.deepEqual(broken, [], "Links quebrados na bottom-nav: " + broken.join(", "));
+    app.close();
+  }
+  assert.ok(fs.existsSync(path.join(repoRoot, "explorar/index.html")), "explorar/index.html ausente");
+  assert.ok(fs.existsSync(path.join(repoRoot, "perfil/index.html")), "perfil/index.html ausente");
+});
 
 const failed = results.filter(result => !result.ok);
 
