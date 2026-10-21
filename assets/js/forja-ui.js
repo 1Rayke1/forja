@@ -462,11 +462,13 @@
       treino: "treino",
       calistenia: "treino",
       musculacao: "treino",
-      biblioteca: "treino",
+      biblioteca: "explorar",
       rotina: "treino",
       executar: "treino",
       progresso: "progresso",
-      configuracoes: "configuracoes"
+      configuracoes: "perfil",
+      explorar: "explorar",
+      perfil: "perfil"
     };
 
     const current = map[pageName] || pageName;

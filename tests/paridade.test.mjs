@@ -1344,24 +1344,34 @@ const ESSENTIAL_BY_PAGE = {
 
 await runTest("9b. Ação TREINO compacta, destacada e acessível (mobile)", async () => {
   const html = fs.readFileSync(path.join(repoRoot, "index.html"), "utf8");
-  const anchorTag = html.match(/<a class="treino-square"[^>]*>[\s\S]*?<\/a>/);
-  assert.ok(anchorTag, "Botão TREINO ausente na página inicial");
-  assert.match(anchorTag[0], /href="treino\/index\.html"/);
-  assert.match(anchorTag[0], /aria-label="Abrir TREINO/);
-  assert.match(anchorTag[0], /<svg[^>]*class="treino-square-icon"/, "Ícone ausente");
-  assert.match(anchorTag[0], /class="treino-square-title">Abrir área de treino</, "Ação compacta ausente");
-
-  const css = fs.readFileSync(path.join(repoRoot, "assets/css/performance.css"), "utf8");
-  const rule = css.match(/\.treino-square\s*\{[^}]*\}/);
-  assert.ok(rule, "Regra .treino-square ausente");
-  assert.match(rule[0], /aspect-ratio:\s*auto/, "Ação não deve ser quadrada");
-  assert.match(rule[0], /min-height:\s*66px/, "Alvo compacto de toque ausente");
-  assert.match(css, /\.treino-square:focus-visible|:focus-visible/, "Foco visível ausente");
-  assert.match(css, /\.treino-square-icon\s*\{/);
+  // Home simplificada: #home-action contém a ação única (gerada via JS)
+  assert.match(html, /id="home-action"/, "Home sem #home-action");
+  const inicioJs = fs.readFileSync(path.join(repoRoot, "assets/js/forja-inicio.js"), "utf8");
+  assert.match(inicioJs, /home-action-button/, "JS da home não cria ação principal");
+  assert.match(inicioJs, /Montar meu treino/, "Texto Montar meu treino ausente no JS");
+  // Acessível: aria-label e toque confortável definidos no JS/CSS
+  const appCss = fs.readFileSync(path.join(repoRoot, "assets/css/app.css"), "utf8");
+  assert.match(appCss, /\.home-action-button\s*\{/, "Regra .home-action-button ausente");
+  assert.match(appCss, /min-height:\s*52px|56px/, "Alvo compacto de toque ausente");
+  assert.match(appCss, /:focus-visible/, "Foco visível ausente");
+  // Treino-square mantido para compatibilidade (quando há rotina ou vazio, tem a classe legado)
+  const perfCss = fs.readFileSync(path.join(repoRoot, "assets/css/performance.css"), "utf8");
+  const allCss = appCss + perfCss;
+  // Verifica barra inferior existente (5 itens)
+  assert.match(html, /class="bottom-nav"/, "bottom-nav ausente na home");
+  assert.match(allCss, /\.bottom-nav-inner[\s\S]*repeat\(5/, "Barra inferior deve ter 5 colunas");
 
   const indexApp = await boot({}, PAGE.index);
-  assert.ok(indexApp.$(".treino-square"), "Botão TREINO não renderizado");
-  assertNoErrors(indexApp, "botão TREINO");
+  // JS deve ter renderizado a ação única
+  const btn = indexApp.$("#home-primary-button") || indexApp.$(".home-action-button") || indexApp.$(".treino-square");
+  assert.ok(btn, "Ação principal não renderizada via JS");
+  assert.match(btn.textContent, /Montar meu treino|Iniciar/);
+  assert.ok(btn.getAttribute("aria-label"), "aria-label ausente na ação principal");
+  // Barra inferior acessível
+  assert.ok(indexApp.$(".bottom-nav"), "bottom-nav não renderizado");
+  assert.equal(indexApp.$$(".bottom-nav-link").length, 5, "Barra inferior deve ter 5 itens");
+  assert.equal(indexApp.$$(".bottom-nav-link[aria-current=page]").length, 1);
+  assertNoErrors(indexApp, "botão TREINO compacto");
   indexApp.close();
 });
 
