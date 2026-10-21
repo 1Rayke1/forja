@@ -720,6 +720,196 @@ await check('Capturas visuais das nove páginas em mobile e desktop', async () =
   await shots.close();
 });
 
+await check('Início útil: semana real, rotinas, histórico, retomada e orientação de primeiro uso', async () => {
+  const now = Date.now();
+  const DAY = 86400000;
+  const two = n => String(n).padStart(2, '0');
+  const keyFor = ms => {
+    const d = new Date(ms);
+    return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
+  };
+  const monday = (() => {
+    const d = new Date(now);
+    d.setHours(12, 0, 0, 0);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d;
+  })();
+
+  const record = (when, extra = {}) => {
+    const completedSets = extra.completedSets === undefined ? 3 : extra.completedSets;
+    const totalPlannedSets = extra.totalPlannedSets === undefined ? completedSets : extra.totalPlannedSets;
+    return Object.assign({
+      id: 'e2e-home-' + keyFor(when.getTime()) + '-' + Math.random().toString(36).slice(2, 6),
+      date: keyFor(when.getTime()),
+      finishedAt: when.toISOString(),
+      modality: 'weights',
+      routineName: 'Peito',
+      durationMs: 30 * 60000,
+      completedSets,
+      totalPlannedSets,
+      status: completedSets >= totalPlannedSets ? 'completed' : 'partial',
+      exercises: [],
+      totals: {
+        volumeKg: 300, reps: 30, seconds: 0, distanceMeters: 0,
+        setsLogged: completedSets, setsWithoutVolume: 0
+      }
+    }, extra);
+  };
+
+  const calRoutine = {
+    id: 'e2e-home-cal', name: 'Empurrar', modality: 'calisthenics',
+    createdAt: 1, updatedAt: 1,
+    sections: {
+      warmup: [],
+      main: [{ id: 'e2e-hc1', name: 'Flexão', section: 'main', sets: 3, type: 'reps', reps: '10', rest: 60, load: '', notes: '' }],
+      abs: [],
+      finisher: []
+    }
+  };
+  const weightsRoutine = {
+    id: 'e2e-home-weights', name: 'Puxar', modality: 'weights',
+    createdAt: 2, updatedAt: 2,
+    sections: {
+      warmup: [],
+      main: [{ id: 'e2e-hw1', name: 'Remada', section: 'main', sets: 4, type: 'reps', reps: '8', rest: 90, load: '30 kg', notes: '' }],
+      abs: [],
+      finisher: []
+    }
+  };
+
+  const session = {
+    version: 2,
+    id: 'e2e-home-session',
+    date: keyFor(now),
+    modality: 'calisthenics',
+    routineId: calRoutine.id,
+    routineName: 'Empurrar',
+    startedAt: now - 600000,
+    elapsedMs: 600000,
+    running: false,
+    currentIndex: 0,
+    completedSets: { 'e2e-hc1': 1 },
+    totalPlannedSets: 3,
+    queue: [{ id: 'e2e-hc1', name: 'Flexão', section: 'main', sets: 3, type: 'reps', reps: '10', rest: 60, load: '', notes: '' }],
+    status: 'active',
+    restEndAt: null,
+    restRemainingMs: 0,
+    restPaused: false,
+    pendingAdvance: false,
+    restPlannedSeconds: 0,
+    setTimer: null,
+    setLogs: { 'e2e-hc1': [{ set: 1, reps: '10', load: '', seconds: 0, distance: null, rpe: null, editedAt: null }] },
+    logDraft: {}
+  };
+
+  const seed = {
+    'forja-treino-rotinas-v1': { calisthenics: [calRoutine], weights: [weightsRoutine] },
+    'forja-treino-historico-v1': [
+      record(new Date(now), { routineId: 'e2e-home-weights' }),
+      record(monday, {
+        routineId: 'e2e-home-weights',
+        routineName: 'Pernas',
+        completedSets: 2,
+        totalPlannedSets: 4,
+        durationMs: 20 * 60000
+      }),
+      record(new Date(now - 9 * DAY), { routineName: 'Semana anterior', durationMs: 45 * 60000 })
+    ],
+    'forja-treino-metas-v1': {
+      version: 1, updatedAt: new Date(now).toISOString(), modality: 'all',
+      weeklySessions: 3, weeklySets: 6, weeklyMinutes: 60
+    }
+  };
+
+  await go('');
+  await page.evaluate(data => {
+    Object.entries(data).forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value)));
+  }, seed);
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(250);
+
+  /* Semana real: 2 treinos desta semana (30 + 20 min), 5 séries, fora o registro antigo. */
+  const statValues = await page.$$eval('#home-week-body .ui-stat-value', nodes => nodes.map(n => n.textContent.trim()));
+  const statLabels = await page.$$eval('#home-week-body .ui-stat-label', nodes => nodes.map(n => n.textContent.trim()));
+  assert.equal(statValues[statLabels.indexOf('treinos')], '2', 'Treinos da semana errados');
+  assert.equal(statValues[statLabels.indexOf('séries')], '5', 'Séries da semana erradas');
+  assert.equal(statValues[statLabels.indexOf('tempo')], '50 min', 'Tempo da semana errado');
+  assert.ok(await page.$('#home-week-body .home-goal'), 'Metas configuradas não apareceram');
+  assert.match(await text('#home-week-body .home-goals'), /2\/3/, 'Progresso da meta de treinos errado');
+  assert.match(await text('#home-week-body'), /1 parcial\(is\)/, 'Registro parcial não declarado');
+
+  /* Rotinas reais das duas modalidades, com iniciar e abrir. */
+  assert.equal(await page.$$eval('#home-next-body .home-routine', nodes => nodes.length), 2, 'Rotinas reais ausentes na home');
+  assert.match(await text('#home-next-body'), /Calistenia/);
+  assert.match(await text('#home-next-body'), /Musculação/);
+  assert.match(await text('#home-next-body'), /mais recentemente treinada primeiro/);
+  const openHref = await page.$eval('#home-next-body .home-routine a.secondary-button', a => a.getAttribute('href'));
+  assert.match(openHref, /^treino\/rotina\.html\?modalidade=(calisthenics|weights)&id=/, 'Link de abrir rotina errado');
+
+  /* Histórico recente: só os registros reais, mais novo primeiro. */
+  const recentNames = await page.$$eval('#home-recent-body .home-history-name', nodes => nodes.map(n => n.textContent.trim()));
+  assert.deepEqual(recentNames.slice(0, 2), ['Peito', 'Pernas'], 'Histórico recente fora de ordem: ' + recentNames.join(' | '));
+  assert.equal(await page.$eval('#home-guide', node => node.hidden), true, 'Orientação inicial deveria sair com histórico');
+
+  /* Painel novo respeita as seis larguras, sem rolagem horizontal. */
+  for (const width of [320, 360, 390, 430, 768, 1280]) {
+    await page.setViewport({ width, height: 900 });
+    await sleep(120);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    assert.ok(overflow <= 1, 'Rolagem horizontal na home a ' + width + 'px: ' + overflow);
+  }
+
+  await page.setViewport({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await sleep(200);
+  await page.screenshot({ path: artifactPath('inicio-etapa6-390.png'), fullPage: true });
+  await page.setViewport({ width: 1280, height: 900 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await sleep(200);
+  await page.screenshot({ path: artifactPath('inicio-etapa6-1280.png'), fullPage: true });
+  await page.setViewport(MOBILE);
+
+  /* Sessão ativa: painel oferece retomada e leva à execução real. */
+  await page.evaluate(value => {
+    localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify(value));
+  }, session);
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(250);
+
+  assert.ok(await page.$('#home-next-body [data-home-active]'), 'Painel não mostrou a sessão ativa');
+  assert.equal(await page.$eval('#active-session-banner', node => node.hidden), false, 'Banner de sessão ativa ausente');
+  const resumeHref = await page.$eval('#home-next-body [data-home-active] a.primary-button', a => a.getAttribute('href'));
+  assert.match(resumeHref, /treino\/executar\.html$/, 'Link de retomada errado');
+  assert.match(await text('#home-next-body [data-home-active]'), /Sessão em andamento/);
+
+  /* Sem dados: orientação de primeiro uso e estados vazios claros. */
+  await page.evaluate(() => {
+    Object.keys(localStorage).filter(key => key.startsWith('forja-')).forEach(key => localStorage.removeItem(key));
+  });
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(250);
+
+  assert.equal(await page.$$eval('.home-step', nodes => nodes.length), 3, 'Orientação inicial sem os três passos');
+  assert.match(await text('#home-guide'), /Por onde começar/);
+  assert.match(await text('#home-week-body'), /Nenhum treino registrado ainda/);
+  assert.match(await text('#home-next-body'), /Nenhuma rotina cadastrada/);
+  assert.match(await text('#home-recent-body'), /Nenhum treino registrado/);
+  assert.equal(await page.$$eval('#home-week-body .ui-stat', nodes => nodes.length), 0, 'Estado vazio mostrou número inventado');
+  assert.equal(await page.$$eval('#home-next-body .home-routine', nodes => nodes.length), 0);
+
+  for (const width of [320, 360, 390, 430, 768, 1280]) {
+    await page.setViewport({ width, height: 900 });
+    await sleep(120);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    assert.ok(overflow <= 1, 'Rolagem horizontal na home vazia a ' + width + 'px: ' + overflow);
+  }
+  await page.setViewport({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await sleep(200);
+  await page.screenshot({ path: artifactPath('inicio-novo-390.png'), fullPage: true });
+  await page.setViewport(MOBILE);
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });

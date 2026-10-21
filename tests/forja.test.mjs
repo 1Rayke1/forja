@@ -1768,6 +1768,490 @@ await runTest("39. Progresso: limite de 200 registros e dados antigos sem totals
 });
 
 /* ------------------------------------------------------------------ */
+/* Etapa 6 — início útil                                              */
+/* ------------------------------------------------------------------ */
+
+/*
+  Registro de histórico com `totals` explícitos. Os testes da home usam este
+  construtor para provar que o painel lê `F.metricas`, não números inventados.
+*/
+function homeRecord(date, extra = {}) {
+  const completedSets = extra.completedSets === undefined ? 3 : extra.completedSets;
+  const totalPlannedSets = extra.totalPlannedSets === undefined ? completedSets : extra.totalPlannedSets;
+
+  return Object.assign({
+    id: "home-" + Math.random().toString(36).slice(2, 9),
+    date: keyOf(date),
+    finishedAt: date.toISOString(),
+    modality: "weights",
+    routineName: "Treino registrado",
+    durationMs: 30 * 60000,
+    completedSets,
+    totalPlannedSets,
+    status: completedSets >= totalPlannedSets ? "completed" : "partial",
+    exercises: [],
+    totals: {
+      volumeKg: 0,
+      reps: 0,
+      seconds: 0,
+      distanceMeters: 0,
+      setsLogged: completedSets,
+      setsWithoutVolume: 0
+    }
+  }, extra);
+}
+
+/* Hoje e a segunda-feira da semana corrente: sempre dentro da semana atual. */
+function thisMonday() {
+  const monday = startOfWeek(dayOffset(0));
+  monday.setHours(12, 0, 0, 0);
+  return monday;
+}
+
+function previousMonday() {
+  const date = thisMonday();
+  date.setDate(date.getDate() - 7);
+  return date;
+}
+
+await runTest("42. Início sem dados de treino: orientação, estados vazios e nada inventado", async () => {
+  const app = await boot({}, "index.html");
+  await wait(20);
+
+  /* Orientação de primeiro uso visível, com os três passos reais do app. */
+  assert.equal(app.$("#home-guide").hidden, false, "Orientação inicial não apareceu");
+  assert.equal(app.$$(".home-step").length, 3, "Orientação sem os três passos");
+  assert.match(app.text("#home-guide"), /Por onde começar/);
+  assert.match(app.text("#home-guide"), /Nenhum perfil|sem perfil|Nada é obrigatório|navegador/i);
+
+  /* Semana: estado vazio explícito, zero estatística fabricada. */
+  assert.match(app.text("#home-week-body"), /Nenhum treino registrado ainda/);
+  assert.equal(app.$$("#home-week-body .ui-stat").length, 0, "Sem histórico não pode haver número na semana");
+  assert.match(app.text("#home-week-range"), /Semana de \d{2}\/\d{2} a \d{2}\/\d{2}/);
+
+  /* Próximo treino: explica como criar a primeira rotina. */
+  assert.match(app.text("#home-next-body"), /Nenhuma rotina cadastrada/);
+  assert.match(app.text("#home-next-body"), /\+ Nova rotina/);
+  assert.equal(app.$$("#home-next-body .home-routine").length, 0);
+  assert.ok(app.$('#home-next-body a[href="treino/calistenia.html"]'), "Falta caminho para criar rotina de calistenia");
+  assert.ok(app.$('#home-next-body a[href="treino/musculacao.html"]'), "Falta caminho para criar rotina de musculação");
+
+  /* Metas sem configuração: a home diz onde defini-las, sem criar meta padrão. */
+  assert.match(app.text("#home-week-body"), /Nenhuma meta configurada/);
+  assert.equal(app.$$("#home-week-body .home-goal").length, 0, "Meta padrão escondida apareceu");
+  assert.ok(app.$('#home-week-body a[href="progresso/index.html"]'), "Falta caminho para definir metas");
+
+  /* Histórico recente: estado vazio claro. */
+  assert.match(app.text("#home-recent-body"), /Nenhum treino registrado/);
+  assert.equal(app.$$("#home-recent-body .home-history-item").length, 0);
+
+  /* Nada foi gravado por abrir a home. */
+  assert.deepEqual(app.keys(), [], "Abrir a home sem dados gravou chaves: " + app.keys().join(", "));
+
+  assertNoErrors(app, "início vazio");
+  app.close();
+});
+
+await runTest("43. Início lista rotinas reais de calistenia e musculação e inicia uma delas", async () => {
+  const cal = makeRoutine("calisthenics", "Empurrar", [
+    { name: "Flexão", section: "main", sets: 3, reps: "10", id: "h-cal-1" },
+    { name: "Prancha", section: "abs", type: "duration", sets: 2, duration: 30, id: "h-cal-2" }
+  ], "home-cal");
+  const weights = makeRoutine("weights", "Puxar", [
+    { name: "Remada", section: "main", sets: 4, reps: "8", load: "30 kg", id: "h-weights-1" }
+  ], "home-weights");
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([cal], [weights])
+  }, "index.html");
+  await wait(20);
+
+  assert.equal(app.$$("#home-next-body .home-routine").length, 2, "Nem todas as rotinas reais apareceram");
+  assert.match(app.text("#home-next-body"), /Calistenia/);
+  assert.match(app.text("#home-next-body"), /Musculação/);
+  assert.match(app.text("#home-next-body"), /2 exercícios · 5 séries planejadas|2 exercícios/);
+
+  /* "Próximo treino" não afirma que existe rotina agendada para hoje. */
+  assert.match(app.text("#home-next-body"), /não agenda um treino por dia/);
+
+  const cards = app.$$("#home-next-body .home-routine");
+  assert.equal(cards.length, 2);
+  cards.forEach(card => {
+    assert.ok(card.querySelector(".primary-button"), "Rotina sem ação de iniciar");
+    const open = card.querySelector("a.secondary-button");
+    assert.ok(open, "Rotina sem link para abrir");
+    assert.match(open.getAttribute("href"), /^treino\/rotina\.html\?modalidade=(calisthenics|weights)&id=/);
+  });
+
+  /* Sem histórico, a orientação muda para "rotinas prontas" (não desaparece nem vira onboarding). */
+  assert.equal(app.$("#home-guide").hidden, false);
+  assert.match(app.text("#home-guide"), /Suas rotinas estão prontas/);
+  assert.equal(app.$$(".home-step").length, 0, "Quem já tem rotina não deve ver os três passos");
+
+  /* Iniciar pelo painel usa o fluxo existente de treino. */
+  const firstStart = cards[0].querySelector(".primary-button");
+  app.click(firstStart);
+  await pageIs(app, "executar");
+  const session = app.F.state.activeWorkout;
+  assert.ok(session, "Iniciar pela home não criou sessão ativa");
+  assert.equal(session.routineName, "Empurrar", "Iniciou a rotina errada");
+  assert.equal(session.modality, "calisthenics");
+
+  assertNoErrors(app, "rotinas na home");
+  app.close();
+});
+
+await runTest("43b. Nome de rotina é texto, nunca HTML injetado na home", async () => {
+  const hostile = makeRoutine("weights", "<img src=x onerror=alert(1)>Supino", [
+    { name: "Supino", section: "main", sets: 1, reps: "10", id: "x-1" }
+  ], "hostile");
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([], [hostile]),
+    "forja-treino-historico-v1": [homeRecord(dayOffset(0), {
+      routineName: hostile.name,
+      routineId: hostile.id,
+      modality: "weights"
+    })]
+  }, "index.html");
+  await wait(20);
+
+  assert.equal(app.$$("#home-next-body img").length, 0, "Nome de rotina virou marcação");
+  assert.equal(app.$$("#home-recent-body img").length, 0, "Nome de rotina virou marcação no histórico");
+  assert.match(app.text("#home-next-body .home-routine-name"), /<img src=x onerror=alert\(1\)>Supino/);
+  assert.match(app.text("#home-recent-body .home-history-name"), /<img src=x onerror=alert\(1\)>Supino/);
+
+  assertNoErrors(app, "escape na home");
+  app.close();
+});
+
+await runTest("44. Resumo semanal usa histórico real, inclui parciais e ignora a semana passada", async () => {
+  const today = dayOffset(0);
+  const monday = thisMonday();
+  const old = previousMonday();
+
+  const records = [
+    homeRecord(today, {
+      routineName: "Peito",
+      completedSets: 3,
+      totalPlannedSets: 3,
+      durationMs: 30 * 60000,
+      totals: { volumeKg: 300, reps: 30, seconds: 0, distanceMeters: 0, setsLogged: 3, setsWithoutVolume: 0 }
+    }),
+    homeRecord(monday, {
+      routineName: "Pernas",
+      completedSets: 2,
+      totalPlannedSets: 4,
+      durationMs: 20 * 60000,
+      totals: { volumeKg: 0, reps: 20, seconds: 0, distanceMeters: 0, setsLogged: 2, setsWithoutVolume: 2 }
+    }),
+    homeRecord(old, {
+      routineName: "Semana passada",
+      completedSets: 5,
+      totalPlannedSets: 5,
+      durationMs: 45 * 60000,
+      totals: { volumeKg: 999, reps: 50, seconds: 0, distanceMeters: 0, setsLogged: 5, setsWithoutVolume: 0 }
+    })
+  ];
+
+  const app = await boot({ "forja-treino-historico-v1": records }, "index.html");
+  await wait(20);
+
+  const values = app.$$("#home-week-body .ui-stat-value").map(node => node.textContent);
+  const labels = app.$$("#home-week-body .ui-stat-label").map(node => node.textContent);
+
+  assert.equal(values[labels.indexOf("treinos")], "2", "Treinos da semana errados (a semana passada não conta)");
+  assert.equal(values[labels.indexOf("séries")], "5", "Séries da semana erradas");
+  assert.equal(values[labels.indexOf("tempo")], "50 min", "Tempo da semana errado");
+  assert.equal(values[labels.indexOf("volume")], "300 kg", "Volume da semana errado");
+  assert.match(app.text("#home-week-body"), /1 parcial\(is\)/, "Registro parcial não foi declarado");
+  assert.doesNotMatch(app.text("#home-week-body"), /Nenhum treino nesta semana ainda/);
+
+  /* Registro sem duração não vira "0 min": o tempo fica indisponível. */
+  const noTime = await boot({ "forja-treino-historico-v1": [homeRecord(today, { durationMs: 0 })] }, "index.html");
+  await wait(20);
+  const noTimeValues = noTime.$$("#home-week-body .ui-stat-value").map(node => node.textContent);
+  const noTimeLabels = noTime.$$("#home-week-body .ui-stat-label").map(node => node.textContent);
+  assert.equal(noTimeValues[noTimeLabels.indexOf("tempo")], "—", "Tempo ausente virou zero");
+  assert.match(noTime.text("#home-week-body"), /sem tempo registrado/);
+  noTime.close();
+
+  /* Histórico existe, mas a semana está vazia: zero real, com explicação. */
+  const emptyWeek = await boot({ "forja-treino-historico-v1": [homeRecord(old)] }, "index.html");
+  await wait(20);
+  const emptyValues = emptyWeek.$$("#home-week-body .ui-stat-value").map(node => node.textContent);
+  const emptyLabels = emptyWeek.$$("#home-week-body .ui-stat-label").map(node => node.textContent);
+  assert.equal(emptyValues[emptyLabels.indexOf("treinos")], "0");
+  assert.match(emptyWeek.text("#home-week-body"), /Nenhum treino nesta semana ainda/);
+  emptyWeek.close();
+
+  assertNoErrors(app, "resumo semanal");
+  app.close();
+});
+
+await runTest("45. Metas configuradas aparecem com progresso real; sem metas, a home explica onde definir", async () => {
+  const today = dayOffset(0);
+  const monday = thisMonday();
+  const history = [
+    homeRecord(today, { completedSets: 2, totalPlannedSets: 2, durationMs: 30 * 60000 }),
+    homeRecord(monday, { completedSets: 3, totalPlannedSets: 3, durationMs: 20 * 60000 })
+  ];
+
+  const withGoals = await boot({
+    "forja-treino-historico-v1": history,
+    "forja-treino-metas-v1": {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      modality: "all",
+      weeklySessions: 3,
+      weeklySets: 6,
+      weeklyMinutes: 60
+    }
+  }, "index.html");
+  await wait(20);
+
+  const goals = withGoals.$$("#home-week-body .home-goal");
+  assert.equal(goals.length, 3, "Metas ativas não apareceram na home");
+  const goalText = withGoals.text("#home-week-body .home-goals");
+  assert.match(goalText, /2\/3/, "Meta de treinos com valor errado");
+  assert.match(goalText, /5\/6/, "Meta de séries com valor errado");
+  assert.match(goalText, /50\/60/, "Meta de minutos com valor errado");
+  assert.match(goalText, /Faltam 1 treino/);
+  assert.match(goalText, /Faltam 1 série/);
+  assert.match(goalText, /Faltam 10 minutos/);
+  assert.match(goalText, /0 de 3 meta\(s\) batida\(s\)/);
+  withGoals.close();
+
+  /* Meta batida tem texto próprio, não um "0%" enganoso. */
+  const met = await boot({
+    "forja-treino-historico-v1": history,
+    "forja-treino-metas-v1": { weeklySessions: 2, modality: "all" }
+  }, "index.html");
+  await wait(20);
+  assert.match(met.text("#home-week-body .home-goal"), /Meta batida nesta semana/);
+  met.close();
+
+  const withoutGoals = await boot({ "forja-treino-historico-v1": history }, "index.html");
+  await wait(20);
+  assert.equal(withoutGoals.$$("#home-week-body .home-goal").length, 0, "Metas apareceram sem configuração");
+  assert.match(withoutGoals.text("#home-week-body"), /Nenhuma meta configurada/);
+  const goalLink = withoutGoals.$('#home-week-body a[href="progresso/index.html"]');
+  assert.ok(goalLink, "Falta caminho para definir metas");
+  assert.match(goalLink.textContent, /Definir metas/);
+
+  assertNoErrors(withoutGoals, "metas na home");
+  withoutGoals.close();
+});
+
+await runTest("46. Histórico recente ordenado por data, com modalidade, rotina e status reais", async () => {
+  const days = [3, 1, 0, 1];
+  const names = ["Terça", "Ontem", "Hoje", "Outro ontem"];
+  const records = days.map((offset, index) => homeRecord(dayOffset(-offset), {
+    routineName: names[index],
+    modality: index % 2 === 0 ? "weights" : "calisthenics",
+    completedSets: index === 1 ? 1 : 2,
+    totalPlannedSets: 2
+  }));
+
+  /* Um registro sem data legível não pode ser inventado no topo da lista. */
+  records.push({
+    id: "sem-data",
+    date: "31/02/2025",
+    modality: "weights",
+    routineName: "Sem data",
+    durationMs: 0,
+    completedSets: 1,
+    totalPlannedSets: 1,
+    status: "completed",
+    exercises: []
+  });
+
+  const app = await boot({ "forja-treino-historico-v1": records }, "index.html");
+  await wait(20);
+
+  const shown = app.$$("#home-recent-body .home-history-item").map(node => {
+    return node.querySelector(".home-history-name").textContent;
+  });
+
+  assert.deepEqual(shown.slice(0, 4), ["Hoje", "Ontem", "Outro ontem", "Terça"],
+    "Ordem do histórico recente errada: " + shown.join(" | "));
+  assert.equal(shown[shown.length - 1], "Sem data", "Registro sem data deveria ficar no fim");
+  assert.equal(app.$$("#home-recent-body .home-history-item").length, 5, "Limite de 5 registros não foi respeitado");
+
+  const first = app.$("#home-recent-body .home-history-item");
+  assert.match(first.textContent, /Musculação/);
+  assert.match(first.textContent, /Concluído/);
+  assert.match(first.textContent, /\d{1,2} de .+ de \d{4}/);
+
+  /* A parcial preserva o nome do status real, não "concluído". */
+  const partialItem = app.$$("#home-recent-body .home-history-item")
+    .find(node => node.querySelector(".home-history-name").textContent === "Ontem");
+  assert.match(partialItem.textContent, /Parcial/);
+  assert.match(partialItem.textContent, /1\/2 séries/);
+
+  assertNoErrors(app, "histórico recente");
+  app.close();
+
+  /* Mais de cinco registros: a lista corta em 5 e diz quantos existem. */
+  const many = [];
+  for (let index = 0; index < 7; index++) {
+    many.push(homeRecord(dayOffset(-index), { routineName: "Treino " + index }));
+  }
+
+  const limited = await boot({ "forja-treino-historico-v1": many }, "index.html");
+  await wait(20);
+  assert.equal(limited.$$("#home-recent-body .home-history-item").length, 5, "Limite de 5 registros não foi respeitado");
+  assert.match(limited.text("#home-recent-body"), /Mostrando os 5 mais recentes de 7 treinos registrados/);
+  limited.close();
+});
+
+await runTest("47. Sessão ativa na home oferece retomada real e o banner continua funcionando", async () => {
+  const routine = sampleRoutine("calisthenics", "home-active");
+  const session = sessionSeed(routine, { id: "home-session", routineName: "Treino A" });
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([routine], []),
+    "forja-treino-sessao-ativa-v1": session
+  }, "index.html", { now: 5_000_000 });
+  await wait(20);
+
+  assert.equal(app.$("#active-session-banner").hidden, false, "Banner de sessão ativa não apareceu");
+  const card = app.$("#home-next-body [data-home-active]");
+  assert.ok(card, "Painel não ofereceu a sessão ativa");
+  assert.match(card.textContent, /Sessão em andamento/);
+  assert.match(card.textContent, /Calistenia/);
+
+  const resume = card.querySelector('a[href="treino/executar.html"]');
+  assert.ok(resume, "Falta o link de retomada");
+  assert.match(resume.textContent, /Retomar/);
+  const end = card.querySelector('a[href*="encerrar"]');
+  assert.ok(end, "Falta o caminho de encerrar");
+
+  /* A rotina atual também aparece, mas com a sessão já em andamento. */
+  assert.equal(app.$$("#home-next-body .home-routine").length, 1);
+
+  app.click(resume);
+  await pageIs(app, "executar");
+  assert.equal(app.F.state.activeWorkout.id, "home-session", "A retomada perdeu a sessão");
+  assertNoErrors(app, "sessão ativa na home");
+  app.close();
+});
+
+await runTest("48. Home se atualiza quando os dados mudam (sem recarregar a página)", async () => {
+  const routine = makeRoutine("weights", "Full body", [
+    { name: "Agachamento", section: "main", sets: 3, reps: "10", id: "upd-1" }
+  ], "upd-routine");
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([], [routine])
+  }, "index.html");
+  await wait(20);
+
+  assert.match(app.text("#home-week-body"), /Nenhum treino registrado ainda/);
+  assert.match(app.text("#home-guide"), /Suas rotinas estão prontas/);
+
+  /* 1. Metas salvas por qualquer tela do app atualizam o painel. */
+  assert.ok(app.F.saveGoals({ weeklySessions: 2 }), "Não foi possível gravar as metas");
+  await wait(20);
+  assert.equal(app.$$("#home-week-body .home-goal").length, 1, "Meta nova não redesenhou a home");
+  assert.match(app.text("#home-week-body .home-goal-value"), /0\/2/);
+
+  /* 2. Um treino registrado atualiza semana, histórico e orientação. */
+  const record = homeRecord(dayOffset(0), { routineName: "Full body", routineId: routine.id });
+  app.F.state.history.unshift(record);
+  assert.ok(app.F.saveJSON(app.F.KEYS.history, app.F.state.history), "Não foi possível gravar o histórico");
+  await wait(20);
+
+  assert.match(app.text("#home-week-body"), /1 treino nesta semana/);
+  assert.equal(app.$$("#home-recent-body .home-history-item").length, 1, "Histórico novo não apareceu");
+  assert.equal(app.$("#home-guide").hidden, true, "Orientação inicial deveria sair depois do primeiro treino");
+  assert.match(app.text("#home-week-body .home-goal-value"), /1\/2/);
+
+  /* 3. Atualizar o painel é sempre leitura: nada de gravação ociosa. */
+  const before = storageSnapshot(app);
+  app.F.home.refresh();
+  app.F.home.refresh();
+  await wait(20);
+  assert.deepEqual(storageSnapshot(app), before, "Redesenhar a home gravou no armazenamento");
+
+  assertNoErrors(app, "atualização da home");
+  app.close();
+});
+
+await runTest("49. Navegar pela home e redesenhar não grava nada", async () => {
+  const routine = makeRoutine("calisthenics", "Base", [
+    { name: "Flexão", section: "main", sets: 2, reps: "10", id: "nav-1" }
+  ], "nav-routine");
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([routine], []),
+    "forja-treino-historico-v1": [homeRecord(dayOffset(0))],
+    "forja-treino-metas-v1": { weeklySessions: 3, modality: "all" }
+  }, "index.html");
+  await wait(20);
+
+  const before = storageSnapshot(app);
+  app.click("#next-month");
+  await wait(15);
+  app.click("#prev-month");
+  await wait(15);
+  app.F.home.refresh();
+  await wait(15);
+  assert.deepEqual(storageSnapshot(app), before, "Abrir/navegar/atualizar a home gravou algo");
+
+  /* Navegação real para Progresso e volta: nenhuma chave muda. */
+  app.click('a[href="progresso/index.html"]');
+  await pageIs(app, "progresso");
+  await wait(30);
+  assert.deepEqual(storageSnapshot(app), before, "Ir ao Progresso a partir da home gravou algo");
+
+  await app.go(BASE + "index.html");
+  await pageIs(app, "inicio");
+  await wait(30);
+  assert.deepEqual(storageSnapshot(app), before, "Voltar para a home gravou algo");
+
+  assertNoErrors(app, "navegação sem gravação");
+  app.close();
+});
+
+await runTest("50. Home preserva calendário, missões e o acesso ao treino", async () => {
+  const today = todayKey();
+  const app = await boot({
+    "forja-treino-historico-v1": [homeRecord(dayOffset(0))],
+    ["forja-missoes-" + today]: [{ id: "m1", text: "Beber água", done: false }]
+  }, "index.html");
+  await wait(20);
+
+  /* Calendário e missões intactos, mesmo com o painel novo acima. */
+  assert.ok(app.$$(".calendar-grid .day").length >= 28, "Calendário não renderizou");
+  assert.equal(app.text("#progress-label"), "0 de 1 · 0%");
+  assert.match(app.text("#task-list"), /Beber água/);
+
+  app.$("#task-input").value = "Treinar cedo";
+  app.$("#task-form").dispatchEvent(new app.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+  assert.equal(app.data("forja-missoes-" + today).length, 2);
+  app.click("#task-list .task input[type=checkbox]");
+  await wait(20);
+  assert.equal(app.text("#progress-label"), "1 de 2 · 50%", "Concluir missão não atualizou o progresso");
+
+  const title = app.text("#month-title");
+  app.click("#next-month");
+  await wait(15);
+  assert.notEqual(app.text("#month-title"), title);
+  app.click("#prev-month");
+  await wait(15);
+  assert.equal(app.text("#month-title"), title);
+
+  /* Acesso à área de treino continua na home. */
+  assert.ok(app.$("a.treino-square"), "Ação TREINO sumiu da home");
+  assert.equal(app.$("#home-guide").hidden, true, "Com histórico a orientação deveria estar oculta");
+
+  assertNoErrors(app, "calendário preservado");
+  app.close();
+});
+
+/* ------------------------------------------------------------------ */
 
 const failed = results.filter(result => !result.ok);
 
