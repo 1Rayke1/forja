@@ -518,6 +518,124 @@ await check('Finalizar sessão mostra resumo e grava no histórico de progresso'
   await page.screenshot({ path: artifactPath('progresso.png') });
 });
 
+await check('Progresso: calendário, gráficos, recordes, metas e busca com histórico real', async () => {
+  /*
+    Histórico sintético com três semanas de Supino (carga crescente), uma
+    Remada e uma corrida por distância. Datas relativas a agora: o calendário
+    e as metas usam a semana corrente do navegador.
+  */
+  const now = Date.now();
+  const DAY = 86400000;
+  const keyFor = days => {
+    const d = new Date(now - days * DAY);
+    const two = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
+  };
+  const log = (set, reps, load, extra = {}) => Object.assign({
+    set, reps: String(reps), load: load === null ? '' : String(load), seconds: 0,
+    distance: null, rpe: null, editedAt: null
+  }, extra);
+  const exercise = (name, logs, extra = {}) => Object.assign({
+    id: 'e2e-' + name.toLowerCase().replace(/\s+/g, '-'),
+    name, section: 'main', plannedSets: logs.length, completedSets: logs.length,
+    reps: '10', duration: 45, type: 'reps', rest: 60, load: '', notes: '',
+    distance: null, distanceUnit: 'm', logs,
+    timedSeconds: logs.reduce((sum, entry) => sum + (Number(entry.seconds) || 0), 0)
+  }, extra);
+  const session = (days, loads, extra = {}) => {
+    const exercises = [exercise('Supino', loads.map((load, index) => log(index + 1, 10 - index, load)))];
+    if (extra.remada) exercises.push(exercise('Remada curvada', [log(1, 10, 30)]));
+    if (extra.corrida) exercises.push(exercise('Corrida', [log(1, '', null, { distance: 1.2 })], { distanceUnit: 'km', measure: 'distance' }));
+    const date = new Date(now - days * DAY);
+    const completedSets = exercises.reduce((sum, item) => sum + item.completedSets, 0);
+    return {
+      id: 'e2e-progresso-' + days,
+      date: keyFor(days),
+      finishedAt: date.toISOString(),
+      modality: 'weights',
+      routineName: extra.routineName || 'Peito e ombro',
+      durationMs: 35 * 60000,
+      completedSets,
+      totalPlannedSets: completedSets,
+      status: 'completed',
+      exercises,
+      feedback: extra.note ? { rpe: 8, note: extra.note } : { rpe: null, note: '' },
+      totals: {
+        volumeKg: exercises.reduce((sum, item) => sum + item.logs.reduce((acc, entry) => {
+          return acc + (Number(entry.reps) || 0) * (Number(entry.load) || 0);
+        }, 0), 0),
+        reps: exercises.reduce((sum, item) => sum + item.logs.reduce((acc, entry) => acc + (Number(entry.reps) || 0), 0), 0),
+        seconds: 0,
+        distanceMeters: extra.corrida ? 1200 : 0,
+        setsLogged: completedSets,
+        setsWithoutVolume: extra.corrida ? 1 : 0
+      }
+    };
+  };
+
+  const history = [
+    session(1, [40, 35], { remada: true, note: 'Ombro esquerdo sensível' }),
+    session(8, [35, 30]),
+    session(15, [30], { corrida: true })
+  ];
+
+  await go('progresso/');
+  await page.evaluate(list => localStorage.setItem('forja-treino-historico-v1', JSON.stringify(list)), history);
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(200);
+
+  assert.equal(await text('#progress-sessions'), '3', 'Resumo do progresso não usou o histórico');
+  assert.equal(await page.$$eval('#progress-frequency .ui-heatmap-cell', cells => cells.length), 84, 'Calendário de frequência incompleto');
+  assert.ok(await page.$('#progress-frequency .ui-heatmap-cell.level-1, #progress-frequency .ui-heatmap-cell.level-2, #progress-frequency .ui-heatmap-cell.level-3, #progress-frequency .ui-heatmap-cell.level-4'), 'Nenhum dia treinado marcado no calendário');
+  assert.equal(await page.$$eval('#progress-weekly .ui-column', columns => columns.length), 8, 'Gráfico semanal incompleto');
+  assert.ok(await page.$('#progress-weekly .ui-bars'), 'Gráfico de séries por semana ausente');
+
+  /* Evolução: Supino vem selecionado (mais treinos) com três pontos reais. */
+  assert.match(await page.$eval('#evolution-select', select => select.value), /supino/);
+  assert.ok(await page.$('#progress-evolution .ui-line-svg'), 'Linha de evolução ausente');
+  assert.equal(await page.$$eval('#progress-evolution .ui-line-dot', dots => dots.length), 3, 'Evolução com número errado de pontos');
+  assert.match(await text('#progress-evolution'), /Melhor registro: 40 kg/);
+
+  /* Recordes com critério visível. */
+  assert.equal(await text('[data-record="load"] .record-value'), '40 kg');
+  assert.match(await text('[data-record="load"]'), /Critério:.*kg/i);
+  assert.match(await text('#records-note'), /série mais longa/);
+
+  /* Metas: só grava ao salvar e persiste depois do recarregamento. */
+  assert.equal(await data('forja-treino-metas-v1'), null, 'Abrir progresso gravou metas');
+  await fill('#goal-sessions', 3);
+  await fill('#goal-sets', 6);
+  await fill('#goal-minutes', 75);
+  await jsClick('#goals-save');
+  await sleep(150);
+  const goals = await data('forja-treino-metas-v1');
+  assert.equal(goals.weeklySessions, 3, 'Meta de treinos não foi salva');
+  assert.equal(await page.$$eval('#goals-progress .ui-ring', rings => rings.length), 3, 'Metas salvas não viraram anéis');
+
+  /* Busca no histórico. */
+  await fill('#history-search', 'remada');
+  await sleep(150);
+  assert.equal(await page.$$eval('#progress-history .history-item', items => items.length), 1, 'Busca não filtrou o histórico');
+  await fill('#history-search', '');
+  await sleep(120);
+  assert.equal(await page.$$eval('#progress-history .history-item', items => items.length), 3, 'Limpar a busca não restaurou o histórico');
+
+  /* Capturas e overflow em 320/390/768/1280 px, com metas e dados na tela. */
+  for (const width of [320, 390, 768, 1280]) {
+    await page.setViewport({ width, height: 900 });
+    await sleep(150);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    assert.ok(overflow <= 1, 'Overflow em progresso a ' + width + 'px: ' + overflow);
+  }
+  await page.setViewport({ width: 390, height: 844 });
+  await sleep(120);
+  await page.screenshot({ path: artifactPath('progresso-etapa5-390.png'), fullPage: true });
+  await page.setViewport({ width: 1280, height: 900 });
+  await sleep(120);
+  await page.screenshot({ path: artifactPath('progresso-etapa5-1280.png'), fullPage: true });
+  await page.setViewport(MOBILE);
+});
+
 await check('Configurações: exportar, rejeitar importação inválida, importar com confirmação e desfazer', async () => {
   await go('configuracoes/');
   const beforeRoutines = await data('forja-treino-rotinas-v1');
@@ -578,6 +696,11 @@ await check('Capturas visuais das nove páginas em mobile e desktop', async () =
     for (const width of [390, 1280]) {
       await shots.setViewport({ width, height: width === 390 ? 844 : 900 });
       let screenshotUrl = new URL(rel, BASE);
+      if (rel === 'progresso/') {
+        // Vista filtrada: além da captura completa da etapa 5, registra o recorte por modalidade/semana.
+        screenshotUrl.searchParams.set('modalidade', 'weights');
+        screenshotUrl.searchParams.set('periodo', 'semana');
+      }
       if (rel === 'treino/rotina.html') {
         const saved = await shots.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-rotinas-v1') || 'null'));
         const routine = saved?.calisthenics?.[0] || saved?.weights?.[0];
