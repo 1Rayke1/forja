@@ -1,12 +1,15 @@
-# FORJA · relatório de entrega (plano 2.0 refresh + plano 3.0, etapas 1–4)
+# FORJA · relatório de entrega (plano 2.0 refresh + plano 3.0, etapas 1–5)
 
 Documento de estado real. O plano técnico e o rastreio etapa por etapa estão em
 [`forja-3.0-plano.md`](forja-3.0-plano.md). Nada aqui é promessa: cada linha de
 "verificado" aponta para um teste ou captura executada neste repositório.
 
-- Branch de trabalho: `arena/ca17900f-forja` (commits `3f9f897` → `46ac0d9` →
-  `2b89632` → etapa 4). PR aberto a partir dessa branch; **nenhum merge em
-  `main`, nenhuma publicação em produção e nenhum APK gerado**.
+- Etapas 1–4: branch `arena/ca17900f-forja` (commits `3f9f897` → `46ac0d9` →
+  `2b89632` → `ee935d7`), incorporadas em `main` pelo PR #4.
+- Etapa 5: branch `arena/47b678d3-forja`, criada a partir do merge do PR #4
+  (histórico contém `ee935d7`). PR novo aberto a partir dela; **nenhum merge em
+  `main`, nenhuma publicação em produção e nenhum APK gerado**. O PR #4 está
+  fechado e não foi tocado.
 - O PR #3 (base do refresh Dark Performance) já estava incorporado em `main`; o
   trabalho dele foi preservado e ampliado, não reescrito.
 - App continua multipágina estático, sem build, sem dependência de runtime, sem
@@ -50,9 +53,9 @@ Quatro estados, sempre explícitos:
 | Ilustração específica por exercício e demonstração visual | **não implementado** — hoje não há imagem por exercício; nenhuma imagem da internet foi usada para fingir anatomia | ver §5 |
 | Programas prontos por nível (iniciante casa/academia, retorno gradual, calistenia básica, hipertrofia, força, resistência, curto, dividido, corpo inteiro) com descrição, público, duração e critérios de progressão | **não implementado** — a estrutura de rotinas e o catálogo existem, mas não há biblioteca de programas empacotada | ver §5 |
 | Editor de rotinas: dias planejados, reordenação, duplicar, estimativa de duração, rascunho recuperável, músculos trabalhados pela rotina | parcialmente implementado — reordenação/duplicar/rascunho/estimativa e metadados do exercício personalizado existem; faltam dias por semana, estimativa explicada na tela do editor e leitura de músculos da rotina | FORJA 08/16/30 |
-| Progresso: calendário de frequência, gráficos, evolução por exercício, recordes, comparação de períodos, filtros por semana/mês, busca no histórico, metas | **parcialmente implementado** — hoje: totais, agrupamentos, filtro por modalidade e lista de sessões. Componente de gráfico (`forja-graficos.js`) e camada de metas existem e são carregados, mas **nenhuma tela os consome ainda** → não contados como funcionalidade concluída | etapa 5 do plano |
-| Componentes de gráfico acessíveis (barras, linha, anel) | implementado, **não verificado em tela** — sem consumo de UI neste momento | `forja-graficos.js`, carregado em todas as páginas |
-| Metas semanais (treinos/séries/minutos) | parcialmente implementado — dados, normalização, registro no store e resumo no backup; **sem tela** | `F.normalizeGoals`, chave `forja-treino-metas-v1`, paridade 7/13a |
+| Progresso: calendário de frequência, gráficos, evolução por exercício, recordes, comparação de períodos, filtros por semana/mês/personalizado, busca no histórico, metas | **implementado e verificado (etapa 5)** | cálculos puros em `assets/js/forja-metricas.js`; tela em `progresso/index.html` + `forja-progresso.js`; testes métricas 01–17, FORJA 34–39, E2E "Progresso: calendário, gráficos, recordes, metas e busca" |
+| Componentes de gráfico acessíveis (barras, colunas, linha, heatmap, anel) | **implementado e verificado em tela (etapa 5)** | consumidos pela página de Progresso com `aria-label`, tabela de dados equivalente e estado vazio quando não há dado |
+| Metas semanais (treinos/séries/minutos) | **implementado e verificado (etapa 5)** — formulário valida, grava em `forja-treino-metas-v1` pelo store e sobrevive ao recarregamento | FORJA 37; E2E da etapa 5; paridade 7/13a |
 | Perfil e medidas corporais (peso, altura, circunferências, histórico, comparação, IMC com contexto, fotos opcionais privadas) | **não implementado** | etapa 3 do plano mestre (Perfil e medidas); requer produto/UX, não há fachada falsa |
 | Onboarding sem barreira (nome opcional, objetivo, experiência, local, equipamentos, dias, tempo, restrições, acessibilidade) | **não implementado** | ver §5 |
 | Início inteligente (treino do dia com motivo, último treino, frequência semanal, sequência, aviso de sessão em andamento, atalhos) | **parcialmente implementado** — a home tem calendário, missões e o resumo de rotinas por modalidade; não mostra treino planejado nem resumo da semana | etapa 6 do plano |
@@ -66,7 +69,7 @@ Quatro estados, sempre explícitos:
 | PWA instalável (manifest, ícones, maskable, standalone, splash) | **não implementado** | ver §5 |
 | Funcionamento offline com cache versionado e atualização segura | **não implementado** — deliberação: sem service worker até haver estratégia de atualização e recuperação testada (requisito do plano mestre e restrição deste trabalho) | ver §5 |
 | APK Android (Capacitor ou TWA) | **não implementado / não compilado** — o ambiente não executa Android SDK nem assinatura | ver §5 |
-| Testes: unidade de funções puras + integração de fluxo + E2E em navegador real | implementado e verificado | §3 |
+| Testes: unidade de funções puras + integração de fluxo + E2E em navegador real | implementado e verificado (suíte unitária de métricas adicionada na etapa 5) | §3 |
 | Documentação refletindo a implementação real | implementado (este documento + `forja-3.0-plano.md`) | — |
 
 ## 2. O que as etapas 1–4 colocaram no produto
@@ -131,19 +134,67 @@ Quatro estados, sempre explícitos:
 - Nada de guarda `beforeunload` na execução: verificado que toda mutação já é
   gravada antes de mudar a tela (justificativa em `forja-3.0-plano.md`, §4.1).
 
+### Etapa 5 — análise de progresso (este commit)
+- **`assets/js/forja-metricas.js`** (novo, puro): não toca em DOM nem em
+  armazenamento. Entram registros do histórico e saem números, datas e critérios.
+  Cobre períodos (semana segunda→domingo, mês, tudo, personalizado com bloco
+  anterior de mesmo tamanho), totais por unidade, séries semanais, frequência de
+  12 semanas, lista/evolução de exercícios, recordes, comparação de períodos,
+  metas semanais e busca no histórico.
+- **Compatibilidade de dados**: registros antigos (sem `totals`) são derivados
+  das séries com os mesmos parsers do modelo (`F.parseLoadKg`,
+  `F.parseMaxReps`); `finishedAt` inválido cai para `date`; data inexistente
+  (31/02) é rejeitada em vez de "rolar" para o mês seguinte. Nenhuma chave nova
+  foi criada e nenhum formato mudou.
+- **Unidades separadas**: `volumeKg` (kg), `reps`, `seconds`, `distanceMeters`,
+  `sets` e `minutes` nunca são somados entre si. Métrica sem dado fica marcada
+  como indisponível (`hasVolume`, `hasDistance`, …) e a tela mostra só o que
+  existe; série sem carga numérica é contada em `setsWithoutVolume` e declarada.
+- **Calendário de frequência**: heatmap de 12 semanas (segunda→domingo), uma
+  célula por dia, intensidade = séries concluídas, dias futuros vazios e
+  marcados, legenda e resumo textual em `aria-label`.
+- **Gráficos reais**: colunas de treinos por semana (8 semanas, semanas zeradas
+  incluídas) e barras de séries por semana, ambos com tabela de dados
+  equivalente; linha de evolução por exercício com tabela e legenda de critério.
+- **Evolução por exercício**: seleção alimentada pelo histórico real (medida
+  inferida do que foi registrado), melhor carga/distância por treino, soma de
+  repetições/tempo por treino, `unmeasured` para treinos sem valor medido e
+  estado vazio explicando que 1 ponto não é evolução.
+- **Recordes**: sete categorias, cada uma com o critério visível na tela; só
+  aparecem quando há valor medido > 0; empate fica com o registro mais recente;
+  as categorias ausentes são listadas no rodapé do bloco.
+- **Comparação de períodos**: período atual × bloco anterior equivalente, com
+  diferença absoluta, percentual (ou "sem base anterior") e nota sobre o volume.
+- **Metas semanais persistentes**: formulário com validação (inteiro, faixa,
+  escopo), gravação só ao confirmar (`F.saveGoals` → store) e anéis de progresso
+  da semana corrente no escopo da meta. Alvo 0 desliga o item — não existe meta
+  padrão escondida. Abrir a página **não grava**.
+- **Busca e filtros no histórico**: texto (rotina, exercício, carga digitada e
+  nota da sessão, ignorando acento e caixa, exigindo todos os termos), status
+  (concluído/parcial) e período; contador "N de M no período" e botão de limpar.
+- **Período na URL** (`?periodo=semana|mes|tudo|personalizado&de=&ate=`), sem
+  parâmetro quando o padrão é "Tudo".
+- **Duplicação removida**: `recordDate`/`formatRecordDate` saíram de
+  `forja-treino.js` e `forja-progresso.js`; os dois usam
+  `F.metricas.formatRecordDate`, com o mesmo formato de antes.
+- **Correção pequena em `forja-graficos.js`**: o `title` das linhas do heatmap
+  começava em "Domingo" e terminava em "Sábado", enquanto os dados vão de
+  segunda a domingo. Passou a segunda→domingo.
+
 ## 3. Testes executados neste ambiente
 
 ```sh
 npm ci
-npm test            # FORJA + PARIDADE
+npm test            # MÉTRICAS + FORJA + PARIDADE
 npm run test:e2e    # navegador real (requer Chromium; ver §7)
 ```
 
 | Suíte | Resultado | O que cobre de verdade |
 |---|---|---|
-| `tests/forja.test.mjs` (jsdom, 9 páginas) | **35/35 aprovados** | navegação, migrações, rotinas, execução, timers, descanso (inclusive ±15 s), correção/remoção de série, distância, totais e feedback da sessão, biblioteca (busca, filtros, detalhe sem gravar, adicionar à rotina), backup, regras móveis |
+| `tests/metricas.test.mjs` (novo, funções puras) | **18/18 aprovados** | períodos e limites de data, derivação de totais em registro antigo, unidades separadas, ausência de gravação, séries semanais, frequência, lista/evolução de exercícios, recordes (critério, empate, categoria ausente), comparação, metas e busca. Verifica também que nenhuma função muta o registro recebido |
+| `tests/forja.test.mjs` (jsdom, 9 páginas) | **41/41 aprovados** | navegação, migrações, rotinas, execução, timers, descanso (inclusive ±15 s), correção/remoção de série, distância, totais e feedback da sessão, biblioteca (busca, filtros, detalhe sem gravar, adicionar à rotina), backup, regras móveis |
 | `tests/paridade.test.mjs` | **40/40 aprovados** | regressão de dados e de contrato: migrações idempotentes, nada sobrescreve dados ilegíveis, backup validado, ids referenciados existindo, um único boot/`setInterval`, hash de `forja-calendario.js`, regras CSS móveis travadas |
-| `tests/e2e.browser.mjs` (Chromium headless 138) | **16/16 aprovadas** | fluxos reais no navegador: navegação, criar/editar rotina, iniciar, cronômetro por duração, pausa, descanso, resumo, histórico, exportar/importar/desfazer, aviso de armazenamento local, ausência de erro de console/HTTP/recurso ausente, rolagem horizontal e alvos de toque, capturas das 9 páginas em 390 e 1280 px |
+| `tests/e2e.browser.mjs` (Chromium headless 138) | **17/17 aprovadas** | fluxos reais no navegador: navegação, criar/editar rotina, iniciar, cronômetro por duração, pausa, descanso, resumo, histórico, exportar/importar/desfazer, aviso de armazenamento local, ausência de erro de console/HTTP/recurso ausente, rolagem horizontal e alvos de toque, capturas das 9 páginas em 390 e 1280 px; verificação própria da etapa 5 (calendário de 84 células, gráficos semanais, linha de evolução com 3 pontos, recordes com critério, metas salvas só ao confirmar e persistentes, busca, overflow em 320/390/768/1280 px) |
 | checagem de overflow das telas novas (puppeteer, 320/360/390/430/768/1280 px) | **sem overflow** | sessão em andamento, modal de correção, painel de séries e resumo da sessão |
 | `git diff --check` | aprovado | — |
 
@@ -160,9 +211,12 @@ APK, teste de carga real de IndexedDB, e qualquer verificação no site publicad
    músculos, equipamento, série sugerida) foram escritas para este app e cada
    uma traz texto de técnica e de progressão; não são material de referência
    científica nem substituem avaliação profissional.
-3. **Metas e gráficos prontos, mas sem tela.** `forja-graficos.js` e
-   `forja-treino-metas-v1` estão carregados e validados; nenhuma tela os consome
-   ainda, então não há meta configurável nem gráfico de evolução.
+3. **Métricas só existem com dado medido.** Recorde de carga exige número na
+   carga; recorde de tempo exige série cronometrada; evolução exige 2+ treinos
+   com valor medido. Onde falta dado, a tela mostra estado vazio com o critério
+   — nada é estimado, interpolado ou preenchido com zero. Também não há edição
+   de registro já gravado, então um erro antigo continua contando até ser
+   substituído por um novo treino.
 4. **Volume depende de carga numérica.** Quem registra "pesado" ou "12+2" no
    campo de carga não entra no volume — o app diz quantas séries ficaram fora em
    vez de chutar um número.
@@ -184,10 +238,9 @@ APK, teste de carga real de IndexedDB, e qualquer verificação no site publicad
 
 | Pendência | Dependência para sair do papel |
 |---|---|
-| Etapa 5 — Progresso: calendário de frequência, volume semanal, evolução de carga/reps por exercício, recordes com critério explícito, comparação de períodos, filtros por semana/mês/personalizado, metas semanais na tela, busca no histórico | nenhuma externa; precisa de critério de recorde escrito antes de exibir número |
-| Etapa 6 — Início útil: treino planejado com motivo, resumo da semana, aviso de sessão em andamento, atalhos, estado vazio para usuário novo | depende da etapa 5 (métricas) |
+| Etapa 6 — Início útil: treino planejado com motivo, resumo da semana, aviso de sessão em andamento, atalhos, estado vazio para usuário novo | nenhuma externa — as métricas puras da etapa 5 (`F.metricas`) já estão disponíveis |
 | Etapa 7 — Configurações: auditoria de armazenamento e visualizador de dados preservados, mensagens de importação/corrupção, validação do modelo no backup | nenhuma externa |
-| Etapa 8 — suíte unitária de funções puras, paridade estendida às rotas novas, relatório com capturas ampliadas | nenhuma externa |
+| Etapa 8 — paridade estendida às rotas novas e capturas ampliadas (a suíte unitária de funções puras já existe: `tests/metricas.test.mjs`) | nenhuma externa |
 | Atlas anatômico + ilustração por exercício | **dependência de produto e de arte**: SVG próprio ou licença verificável; decisão sobre nível de detalhe (principal × secundário × estabilizador) e revisão por profissional de educação física |
 | Modelo de metadados completo (dificuldade, padrão de movimento, respiração, erros comuns, segurança, variações, substituições) | conteúdo: cada campo novo exige texto curado por exercício; sem isso, é campo vazio com aparência de recurso |
 | Programas prontos por nível e onboarding | conteúdo + decisão de produto (o app não deve prescrever sem critério); UI de perfil com campos opcionais |
@@ -245,6 +298,12 @@ LD_LIBRARY_PATH=/tmp/al2023/lib/lib npm run test:e2e
 `al2023.tar.br` desempacota em `lib/lib/` (é daí que `libnspr4.so` é loadada).
 Nenhum `package.json` do projeto foi alterado para isso.
 
+Essa extração foi repetida para a etapa 5 e os 17 testes E2E rodaram nesse
+Chromium (sem `apt`, sem biblioteca instalada no sistema). Sem
+`PUPPETEER_EXECUTABLE_PATH`/`LD_LIBRARY_PATH`, `npm run test:e2e` sai com
+"libnspr4.so: cannot open shared object file" neste ambiente — é limitação do
+contêiner, não do app.
+
 ## 8. Capturas reais do app executado
 
 Geradas pelo E2E (`tests/e2e.browser.mjs`) e por `tools/capturas.mjs`, que
@@ -273,7 +332,8 @@ node tools/capturas.mjs --out /tmp/x     # sem tocar no repositório
 | Execução — séries registradas com RPE (etapa 4) | [PNG](../artifacts/forja-visual/executar-log-390.png) | — |
 | Execução — resumo com volume real (etapa 4) | [PNG](../artifacts/forja-visual/executar-resumo-390.png) | [PNG](../artifacts/forja-visual/executar-resumo-1280.png) |
 | Execução — estado sem sessão | [PNG](../artifacts/forja-visual/execucao-390.png) | [PNG](../artifacts/forja-visual/execucao-1280.png) |
-| Progresso | [PNG](../artifacts/forja-visual/progresso-390.png) | [PNG](../artifacts/forja-visual/progresso-1280.png) |
+| Progresso — análise completa, etapa 5 (calendário, gráficos, metas, recordes, histórico) | [PNG](../artifacts/forja-visual/progresso-etapa5-390.png) | [PNG](../artifacts/forja-visual/progresso-etapa5-1280.png) |
+| Progresso — estado após filtro por modalidade | [PNG](../artifacts/forja-visual/progresso-390.png) | [PNG](../artifacts/forja-visual/progresso-1280.png) |
 | Configurações | [PNG](../artifacts/forja-visual/configuracoes-390.png) | [PNG](../artifacts/forja-visual/configuracoes-1280.png) |
 | Ação TREINO na home (390 px) | [PNG](../artifacts/forja-visual/treino-acao-390.png) | — |
 
@@ -281,7 +341,7 @@ node tools/capturas.mjs --out /tmp/x     # sem tocar no repositório
 
 ```sh
 npm ci
-npm test                                  # FORJA 35/35 + PARIDADE 40/40
+npm test                                  # MÉTRICAS 18/18 + FORJA 41/41 + PARIDADE 40/40
 npm run test:e2e                          # E2E em Chromium real (ver §7)
 node tools/capturas.mjs                   # capturas da execução + checagem de overflow
 npm run serve                             # http://127.0.0.1:8080/forja/ (sirva a pasta pai)

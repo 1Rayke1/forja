@@ -428,3 +428,113 @@ a.secondary-button {
 }
 .check-row input { width: 22px; height: 22px; margin-top: 2px; flex: 0 0 auto; accent-color: var(--gold); }
 .check-row span { overflow-wrap: anywhere; }
+
+/* Progresso — análise (etapa 5) */
+.progress-period { display: grid; gap: 6px; margin: 4px 0 4px; }
+.period-control { min-width: 0; }
+.period-control .ui-segmented { width: 100%; }
+
+.progress-custom-period {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+  margin: 10px 0 12px;
+}
+.progress-custom-period .field-block { margin: 0; }
+.progress-custom-period .secondary-button { grid-column: 1 / -1; min-height: 44px; }
+.progress-custom-period input[type="date"] {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: #111;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.progress-stats { margin-top: 10px; }
+
+.goals-form { display: grid; gap: 10px; margin-top: 12px; }
+.goals-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.goals-fields .field-block { margin: 0; }
+.goals-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.goals-actions .primary-button { min-height: 44px; }
+.goals-actions .limit-note { margin: 0; }
+#goals-progress { display: grid; gap: 10px; margin-top: 14px; }
+.goals-progress {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 10px;
+}
+.goals-progress .ui-ring {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 8px;
+}
+
+.compare-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.compare-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.compare-main { display: grid; gap: 2px; min-width: 0; flex: 1 1 170px; }
+.compare-main strong { font-size: 14px; overflow-wrap: anywhere; }
+.compare-main span { color: var(--muted); font-size: 13px; }
+.compare-delta { font-size: 13px; font-weight: 800; white-space: nowrap; }
+.compare-delta.is-up { color: var(--lime); }
+.compare-delta.is-down { color: var(--gold); }
+.compare-delta.is-flat { color: var(--muted); }
+
+.records-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.record-item {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  min-width: 0;
+}
+.record-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.record-title { font-size: 14px; overflow-wrap: anywhere; }
+.record-value { color: var(--lime); font-size: 20px; font-weight: 900; letter-spacing: -0.4px; }
+.record-detail { margin: 0; font-size: 13px; overflow-wrap: anywhere; }
+.record-criteria { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.records-empty { list-style: none; }
+
+.evolution-toolbar { display: grid; gap: 6px; margin-bottom: 10px; }
+.evolution-toolbar select { width: 100%; }
+
+.history-tools { display: grid; gap: 10px; margin: 4px 0 8px; }
+.history-tools .field-block { margin: 0; }
+.history-tools-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.history-tools-footer .scope-note { margin: 0; }
+
+@media (min-width: 640px) {
+  .goals-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .history-tools { grid-template-columns: 2fr 1fr; }
+}
+
+@media (max-width: 380px) {
+  .goals-fields { grid-template-columns: 1fr; }
+  .progress-custom-period { grid-template-columns: 1fr; }
+  .record-value { font-size: 18px; }
+}

@@ -51,7 +51,7 @@
 
   <div class="page-head">
     <h1 class="screen-title">Progresso</h1>
-    <p class="screen-subtitle">Totais e histórico calculados somente com os treinos registrados neste navegador.</p>
+    <p class="screen-subtitle">Tudo aqui é calculado somente com os treinos registrados neste navegador. Nenhum número é estimado.</p>
   </div>
 
   <div class="filter-group" role="group" aria-label="Filtrar por modalidade">
@@ -59,10 +59,29 @@
     <button type="button" class="filter-button" data-filter="calisthenics" aria-pressed="false">Calistenia</button>
     <button type="button" class="filter-button" data-filter="weights" aria-pressed="false">Musculação</button>
   </div>
+
+  <div class="progress-period" role="group" aria-labelledby="period-label">
+    <span class="field-label" id="period-label">Período</span>
+    <div id="period-control" class="period-control"></div>
+  </div>
+
+  <div class="progress-custom-period" id="period-custom" hidden>
+    <div class="field-block">
+      <label class="field-label" for="period-from">De</label>
+      <input id="period-from" type="date" autocomplete="off">
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="period-to">Até</label>
+      <input id="period-to" type="date" autocomplete="off">
+    </div>
+    <button type="button" id="period-apply" class="secondary-button">Aplicar período</button>
+  </div>
+  <p class="field-error" id="period-error" hidden></p>
+
   <p class="scope-note">Exibindo: <strong id="progress-scope">Todas as modalidades</strong></p>
 
   <section class="section-block" aria-labelledby="progress-summary-heading">
-    <h2 class="section-title" id="progress-summary-heading">Resumo</h2>
+    <h2 class="section-title" id="progress-summary-heading">Resumo do período</h2>
     <div class="history-summary progress-summary" aria-label="Totais">
       <div class="summary-item"><div class="summary-value" id="progress-sessions">0</div><div class="summary-label">treinos</div></div>
       <div class="summary-item"><div class="summary-value" id="progress-completed">0</div><div class="summary-label">concluídos</div></div>
@@ -70,7 +89,80 @@
       <div class="summary-item"><div class="summary-value" id="progress-sets">0/0</div><div class="summary-label">séries feitas</div></div>
       <div class="summary-item"><div class="summary-value" id="progress-time">0 min</div><div class="summary-label">tempo total</div></div>
     </div>
+    <div id="progress-totals"></div>
+    <p class="limit-note" id="progress-measure-note" hidden></p>
     <p class="limit-note" id="progress-limit-note" hidden></p>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-goals-heading">
+    <h2 class="section-title" id="progress-goals-heading">Metas da semana</h2>
+    <p class="section-note" id="goals-scope-note">Metas semanais contam apenas os treinos desta semana (segunda a domingo), no escopo escolhido abaixo.</p>
+    <form id="goals-form" class="goals-form" novalidate>
+      <div class="goals-fields">
+        <div class="field-block">
+          <label class="field-label" for="goal-sessions">Treinos por semana</label>
+          <input id="goal-sessions" type="number" min="0" max="50" step="1" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="goal-sets">Séries por semana</label>
+          <input id="goal-sets" type="number" min="0" max="1500" step="1" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="goal-minutes">Minutos por semana</label>
+          <input id="goal-minutes" type="number" min="0" max="10080" step="1" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="goal-modality">Escopo da meta</label>
+          <select id="goal-modality">
+            <option value="all">Todas as modalidades</option>
+            <option value="calisthenics">Calistenia</option>
+            <option value="weights">Musculação</option>
+          </select>
+        </div>
+      </div>
+      <p class="field-hint">Alvo 0 desliga o item. Salvar metas não altera nenhum treino do histórico.</p>
+      <p class="field-error" id="goals-error" hidden></p>
+      <div class="goals-actions">
+        <button type="submit" id="goals-save" class="primary-button">Salvar metas</button>
+        <span class="limit-note" id="goals-status" aria-live="polite"></span>
+      </div>
+    </form>
+    <div id="goals-progress"></div>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-compare-heading">
+    <h2 class="section-title" id="progress-compare-heading">Comparação de períodos</h2>
+    <p class="section-note" id="compare-scope-note"></p>
+    <div id="progress-compare"></div>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-frequency-heading">
+    <h2 class="section-title" id="progress-frequency-heading">Calendário de frequência</h2>
+    <p class="section-note">Últimas 12 semanas, de segunda a domingo. A intensidade da célula é o número de séries concluídas no dia.</p>
+    <div id="progress-frequency"></div>
+    <p class="limit-note" id="frequency-note"></p>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-weekly-heading">
+    <h2 class="section-title" id="progress-weekly-heading">Semana a semana</h2>
+    <p class="section-note">Últimas 8 semanas, contadas de segunda a domingo. Cada treino entra na semana da data em que foi encerrado.</p>
+    <div id="progress-weekly"></div>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-evolution-heading">
+    <h2 class="section-title" id="progress-evolution-heading">Evolução por exercício</h2>
+    <div class="evolution-toolbar">
+      <label class="field-label" for="evolution-select">Exercício</label>
+      <select id="evolution-select"></select>
+    </div>
+    <div id="progress-evolution"></div>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-records-heading">
+    <h2 class="section-title" id="progress-records-heading">Recordes</h2>
+    <p class="section-note">Cada recorde mostra o critério usado. Categorias sem dado medido simplesmente não aparecem.</p>
+    <ul class="records-list" id="progress-records"></ul>
+    <p class="limit-note" id="records-note"></p>
   </section>
 
   <section class="section-block" aria-labelledby="progress-routines-heading">
@@ -85,6 +177,25 @@
 
   <section class="section-block" aria-labelledby="progress-history-heading">
     <h2 class="section-title" id="progress-history-heading">Histórico</h2>
+    <div class="history-tools">
+      <div class="field-block">
+        <label class="field-label" for="history-search">Buscar no histórico</label>
+        <input id="history-search" class="catalog-search" type="search" autocomplete="off"
+               placeholder="Rotina, exercício, carga digitada ou nota">
+      </div>
+      <div class="field-block">
+        <label class="field-label" for="history-status">Status</label>
+        <select id="history-status">
+          <option value="all">Todos</option>
+          <option value="completed">Concluídos</option>
+          <option value="partial">Parciais</option>
+        </select>
+      </div>
+    </div>
+    <div class="history-tools-footer">
+      <p class="scope-note" id="history-filter-count"></p>
+      <button type="button" id="history-clear" class="secondary-button small-button" hidden>Limpar busca e status</button>
+    </div>
     <div class="history-list" id="progress-history"></div>
   </section>
 </main>
@@ -102,6 +213,7 @@
 <script src="../assets/js/forja-core.js" defer></script>
 <script src="../assets/js/forja-store.js" defer></script>
 <script src="../assets/js/forja-dados.js" defer></script>
+<script src="../assets/js/forja-metricas.js" defer></script>
 <script src="../assets/js/forja-biblioteca.js" defer></script>
 <script src="../assets/js/forja-sessao.js" defer></script>
 <script src="../assets/js/forja-treino.js" defer></script>

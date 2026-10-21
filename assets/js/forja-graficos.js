@@ -247,8 +247,8 @@
     dayLabels.forEach((label, index) => {
       const rowLabel = el("span", "ui-heatmap-row-label", label);
       rowLabel.setAttribute("aria-hidden", "true");
-      rowLabel.title = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira",
-        "Quinta-feira", "Sexta-feira", "Sábado"][index];
+      rowLabel.title = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira",
+        "Sexta-feira", "Sábado", "Domingo"][index];
       body.appendChild(rowLabel);
     });
 

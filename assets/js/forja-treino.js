@@ -27,8 +27,6 @@
     formatRest,
     formatExerciseMeta,
     formatDurationLong,
-    formatDate,
-    parseDateKey,
     showToast,
     showModal,
     saveJSON,
@@ -38,7 +36,9 @@
     findRoutine,
     getModeRoutines,
     getRoutineTotalSets,
-    normalizeExercise
+    normalizeExercise,
+    /* A resolução/formatação de data do histórico é compartilhada (etapa 5). */
+    metricas
   } = F;
 
   const MODALITIES = ["calisthenics", "weights"];
@@ -67,21 +67,6 @@
         ? routine.sections[section]
         : [];
       return { section, count: list.length };
-    });
-  }
-
-  function recordDate(record) {
-    const parsed = record.finishedAt ? new Date(record.finishedAt) : null;
-    if (parsed && !Number.isNaN(parsed.getTime())) return parsed;
-    return parseDateKey(record.date) || null;
-  }
-
-  function formatRecordDate(record) {
-    const date = recordDate(record);
-    if (!date) return "Data não registrada";
-    return formatDate(date, {
-      day: "2-digit", month: "short", year: "numeric",
-      hour: "2-digit", minute: "2-digit"
     });
   }
 
@@ -404,7 +389,7 @@
 
     const details = document.createElement("div");
     details.className = "history-details";
-    details.textContent = formatRecordDate(record) + " · " +
+    details.textContent = metricas.formatRecordDate(record) + " · " +
       (Number(record.completedSets) || 0) + "/" + (Number(record.totalPlannedSets) || 0) +
       " séries · " + formatDurationLong(Number(record.durationMs) || 0);
 

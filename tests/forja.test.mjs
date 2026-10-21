@@ -1353,6 +1353,421 @@ await runTest("33b. Resposta da sessão: RPE e nota são opcionais e vão para o
 });
 
 /* ------------------------------------------------------------------ */
+/* Etapa 5 — análise de progresso                                      */
+/* ------------------------------------------------------------------ */
+
+/* Datas relativas ao relógio real: a página usa a semana/mês correntes. */
+function dayOffset(days, hour = 12) {
+  const date = new Date();
+  date.setHours(hour, 0, 0, 0);
+  date.setDate(date.getDate() + days);
+  return date;
+}
+
+function keyOf(date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return date.getFullYear() + "-" + month + "-" + day;
+}
+
+function dayMonth(date) {
+  return String(date.getDate()).padStart(2, "0") + "/" + String(date.getMonth() + 1).padStart(2, "0");
+}
+
+function startOfWeek(date) {
+  const day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  day.setDate(day.getDate() - ((day.getDay() + 6) % 7));
+  return day;
+}
+
+function sameWeek(a, b) {
+  return startOfWeek(a).getTime() === startOfWeek(b).getTime();
+}
+
+function sameMonth(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+}
+
+function seedLog(extra = {}) {
+  return Object.assign({
+    set: 1, reps: "", load: "", seconds: 0, distance: null, rpe: null, editedAt: null
+  }, extra);
+}
+
+function seedExercise(name, logs, extra = {}) {
+  return Object.assign({
+    id: "ex-" + name.toLowerCase().replace(/\s+/g, "-"),
+    name,
+    section: "main",
+    plannedSets: logs.length,
+    completedSets: logs.length,
+    reps: "10",
+    duration: 45,
+    type: "reps",
+    rest: 60,
+    load: "",
+    notes: "",
+    distance: null,
+    distanceUnit: "m",
+    logs,
+    timedSeconds: logs.reduce((sum, entry) => sum + (Number(entry.seconds) || 0), 0)
+  }, extra);
+}
+
+function seedRecord(date, exercises, extra = {}) {
+  const completedSets = exercises.reduce((sum, exercise) => sum + exercise.completedSets, 0);
+  const totalPlannedSets = exercises.reduce((sum, exercise) => sum + exercise.plannedSets, 0);
+
+  return Object.assign({
+    id: "seed-" + keyOf(date) + "-" + Math.random().toString(36).slice(2, 8),
+    date: keyOf(date),
+    finishedAt: date.toISOString(),
+    modality: "weights",
+    routineName: "Treino de teste",
+    durationMs: 30 * 60000,
+    completedSets,
+    totalPlannedSets,
+    status: completedSets >= totalPlannedSets ? "completed" : "partial",
+    exercises,
+    feedback: { rpe: null, note: "" }
+  }, extra);
+}
+
+function storageSnapshot(app) {
+  const snapshot = {};
+  app.keys().forEach(key => { snapshot[key] = app.raw(key); });
+  return snapshot;
+}
+
+await runTest("34. Progresso: resumo, período e calendário de frequência com dados reais", async () => {
+  const today = dayOffset(0);
+  const yesterday = dayOffset(-1);
+  const weekAgo = dayOffset(-8);
+  const longAgo = dayOffset(-35);
+
+  const records = [
+    seedRecord(today, [seedExercise("Supino", [seedLog({ reps: "10", load: "40 kg" })])]),
+    seedRecord(yesterday, [seedExercise("Remada", [seedLog({ reps: "10", load: "30 kg" })])]),
+    seedRecord(weekAgo, [seedExercise("Supino", [seedLog({ reps: "8", load: "35 kg" })])]),
+    seedRecord(longAgo, [seedExercise("Agachamento", [seedLog({ reps: "12" })])], { modality: "calisthenics" })
+  ];
+
+  const app = await boot({ "forja-treino-historico-v1": records }, "progresso/index.html");
+  await wait(20);
+
+  assert.match(app.text("#progress-scope"), /Todas as modalidades · Todo o período/);
+  assert.equal(app.text("#progress-sessions"), "4");
+  assert.equal(app.text("#progress-completed"), "4");
+  assert.equal(app.text("#progress-partial"), "0");
+  assert.equal(app.text("#progress-sets"), "4/4");
+
+  const statValues = app.$$("#progress-totals .ui-stat-value").map(node => node.textContent);
+  const statLabels = app.$$("#progress-totals .ui-stat-label").map(node => node.textContent);
+  assert.ok(statLabels.includes("volume com carga"), "Volume não apareceu no resumo");
+  assert.ok(statValues.includes("980 kg"), "Volume real (10x40 + 10x30 + 8x35) não apareceu");
+  assert.ok(statValues.includes("40"), "Repetições reais não apareceram");
+  assert.equal(statValues[statLabels.indexOf("dias treinados")], "4", "Dias treinados errados");
+
+  /* Calendário: 12 semanas × 7 dias, com o dia de hoje marcado. */
+  assert.equal(app.$$("#progress-frequency .ui-heatmap-cell").length, 84);
+  const todayCell = app.$('#progress-frequency .ui-heatmap-cell[data-date="' + keyOf(today) + '"]');
+  assert.ok(todayCell, "Célula de hoje não existe no calendário");
+  assert.match(todayCell.className, /level-[1-4]/);
+  assert.match(app.text("#progress-frequency"), /4 dia\(s\) com treino e 4 treino\(s\) nas últimas 12 semanas/);
+
+  /* Semana: só os treinos da semana corrente. */
+  const expectedWeek = records.filter(record => sameWeek(record.finishedAt ? new Date(record.finishedAt) : new Date(record.date), today)).length;
+  app.$('#period-control [data-value="week"]').click();
+  await wait(20);
+  assert.equal(app.text("#progress-sessions"), String(expectedWeek), "Filtro de semana errado");
+  assert.match(app.w.location.search, /periodo=semana/);
+  assert.match(app.text("#progress-scope"), /\d{2}\/\d{2} – \d{2}\/\d{2} de \d{4}/);
+
+  /* Mês: só o mês corrente. */
+  const expectedMonth = records.filter(record => sameMonth(new Date(record.finishedAt), today)).length;
+  app.$('#period-control [data-value="month"]').click();
+  await wait(20);
+  assert.equal(app.text("#progress-sessions"), String(expectedMonth), "Filtro de mês errado");
+  assert.match(app.w.location.search, /periodo=mes/);
+
+  /* Personalizado: um dia específico, e erro não troca os dados. */
+  app.$('#period-control [data-value="custom"]').click();
+  await wait(20);
+  assert.equal(app.$("#period-custom").hidden, false, "Campos do período personalizado não apareceram");
+
+  app.$("#period-from").value = keyOf(weekAgo);
+  app.$("#period-to").value = keyOf(weekAgo);
+  app.click("#period-apply");
+  await wait(20);
+  assert.equal(app.text("#progress-sessions"), "1");
+  assert.match(app.w.location.search, /de=\d{4}-\d{2}-\d{2}/);
+  assert.ok(app.w.location.search.includes("ate=" + keyOf(weekAgo)));
+
+  app.$("#period-from").value = keyOf(today);
+  app.$("#period-to").value = keyOf(weekAgo);
+  app.click("#period-apply");
+  await wait(20);
+  assert.equal(app.$("#period-error").hidden, false, "Intervalo invertido não avisou nada");
+  assert.equal(app.text("#progress-sessions"), "1", "Intervalo inválido mudou o resumo");
+
+  assertNoErrors(app, "progresso com período");
+  app.close();
+});
+
+await runTest("35. Progresso: gráficos semana a semana e evolução real por exercício", async () => {
+  const records = [
+    seedRecord(dayOffset(-21), [seedExercise("Supino", [seedLog({ reps: "10", load: "30 kg" }), seedLog({ set: 2, reps: "10", load: "30 kg" })])]),
+    seedRecord(dayOffset(-14), [seedExercise("Supino", [seedLog({ reps: "8", load: "35 kg" })])]),
+    seedRecord(dayOffset(-7), [seedExercise("Supino", [seedLog({ reps: "6", load: "40 kg" })])]),
+    seedRecord(dayOffset(-1), [seedExercise("Supino", [seedLog({ reps: "5", load: "45 kg" })]),
+      seedExercise("Corrida", [seedLog({ distance: 800 })], { measure: "distance" })])
+  ];
+
+  const app = await boot({ "forja-treino-historico-v1": records }, "progresso/index.html");
+  await wait(20);
+
+  /* Semana a semana: 8 colunas, mesmo nas semanas zeradas, e barras de séries. */
+  assert.equal(app.$$("#progress-weekly .ui-column").length, 8);
+  assert.equal(app.$$("#progress-weekly .ui-bars .ui-bar-row").length, 8);
+  assert.ok(app.$("#progress-weekly .ui-columns"), "Gráfico de colunas ausente");
+  assert.match(app.$("#progress-weekly .ui-columns").getAttribute("aria-label"), /Treinos por semana/);
+
+  /* Evolução: Supino é o exercício com mais treinos e vem selecionado. */
+  const options = app.$$("#evolution-select option").map(option => option.textContent);
+  assert.ok(options.some(text => /Supino/.test(text)), "Supino não apareceu na evolução");
+  assert.match(app.$("#evolution-select").value, /supino/);
+  assert.ok(app.$("#progress-evolution .ui-line-svg"), "Linha de evolução não foi desenhada");
+  assert.equal(app.$$("#progress-evolution .ui-line-dot").length, 4);
+  assert.match(app.text("#progress-evolution"), /Melhor registro: 45 kg/);
+  assert.match(app.text("#progress-evolution"), /maior carga numérica/i);
+  assert.ok(app.$("#progress-evolution .ui-table"), "Tabela acessível do gráfico ausente");
+
+  /* Corrida só tem um treino medido: estado vazio explica o critério. */
+  const runOption = app.$$("#evolution-select option").find(option => /Corrida/.test(option.textContent));
+  assert.ok(runOption, "Corrida não apareceu na evolução");
+  app.$("#evolution-select").value = runOption.value;
+  app.$("#evolution-select").dispatchEvent(new app.w.Event("change", { bubbles: true }));
+  await wait(20);
+  assert.equal(app.$("#progress-evolution .ui-line-svg"), null, "Um ponto isolado virou linha");
+  assert.match(app.text("#progress-evolution"), /Ainda não há série de evolução/);
+  assert.match(app.text("#progress-evolution"), /1 treino/);
+
+  assertNoErrors(app, "gráficos e evolução");
+  app.close();
+});
+
+await runTest("36. Progresso: recordes com critério explícito e sem categoria inventada", async () => {
+  const records = [
+    seedRecord(dayOffset(-20), [seedExercise("Supino", [seedLog({ reps: "10", load: "40 kg" }), seedLog({ set: 2, reps: "12", load: "35 kg" })])]),
+    seedRecord(dayOffset(-6), [seedExercise("Supino", [seedLog({ reps: "8", load: "50 kg" })])]),
+    seedRecord(dayOffset(-2), [seedExercise("Corrida", [seedLog({ distance: 1.5 })], { measure: "distance", distanceUnit: "km" })])
+  ];
+
+  const app = await boot({ "forja-treino-historico-v1": records }, "progresso/index.html");
+  await wait(20);
+
+  const loadRecord = app.$('[data-record="load"]');
+  assert.ok(loadRecord, "Recorde de carga ausente");
+  assert.equal(app.text('[data-record="load"] .record-value'), "50 kg");
+  assert.match(loadRecord.textContent, /Critério:.*lb.*kg|Critério:.*convertidas/i);
+  assert.match(loadRecord.textContent, /Supino/);
+
+  assert.equal(app.text('[data-record="reps"] .record-value'), "12 reps");
+  assert.equal(app.text('[data-record="distance"] .record-value'), "1,5 km");
+  assert.equal(app.$('[data-record="time"]'), null, "Recorde de tempo sem série cronometrada");
+  assert.match(app.text("#records-note"), /série mais longa/);
+
+  assertNoErrors(app, "recordes");
+  app.close();
+
+  const empty = await boot({}, "progresso/index.html");
+  await wait(20);
+  assert.equal(empty.$$(".record-item").length, 0);
+  assert.match(empty.text("#progress-records"), /Nenhum recorde medido ainda/);
+  empty.close();
+});
+
+await runTest("37. Progresso: comparação de períodos e metas semanais persistentes", async () => {
+  const today = dayOffset(0);
+  const records = [
+    seedRecord(today, [seedExercise("Supino", [seedLog({ reps: "10", load: "40 kg" })])]),
+    seedRecord(dayOffset(-1), [seedExercise("Remada", [seedLog({ reps: "10", load: "20 kg" })])]),
+    seedRecord(dayOffset(-8), [seedExercise("Supino", [seedLog({ reps: "8", load: "30 kg" })])])
+  ];
+
+  const app = await boot({ "forja-treino-historico-v1": records }, "progresso/index.html");
+  await wait(20);
+
+  app.$('#period-control [data-value="week"]').click();
+  await wait(20);
+
+  const compare = app.text("#progress-compare");
+  assert.match(compare, /Treinos/);
+  assert.match(compare, /Séries concluídas/);
+  assert.match(compare, /agora · .* antes/);
+  assert.match(app.text("#compare-scope-note"), /comparado com semana anterior/);
+
+  /* Antes de qualquer confirmação, a chave de metas não pode ser criada. */
+  assert.equal(app.raw("forja-treino-metas-v1"), null, "Abrir a página gravou metas");
+  assert.match(app.text("#goals-progress"), /Nenhuma meta ativa/);
+
+  app.$("#goal-sessions").value = "2";
+  app.$("#goal-sets").value = "4";
+  app.$("#goal-minutes").value = "10";
+  app.$("#goal-modality").value = "all";
+  app.$("#goals-form").dispatchEvent(new app.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(30);
+
+  const saved = app.data("forja-treino-metas-v1");
+  assert.ok(saved, "Metas não foram gravadas");
+  assert.equal(saved.weeklySessions, 2);
+  assert.equal(saved.weeklySets, 4);
+  assert.equal(saved.weeklyMinutes, 10);
+  assert.equal(typeof saved.updatedAt, "string");
+  assert.equal(app.$$("#goals-progress .ui-ring").length, 3, "Metas ativas não viraram anéis");
+  assert.match(app.text("#goals-progress"), /2\/2/);
+
+  /* Recarregar mantém metas e mostra o progresso calculado da semana. */
+  await app.reload();
+  await wait(30);
+  assert.equal(app.$("#goal-sessions").value, "2");
+  assert.equal(app.$$("#goals-progress .ui-ring").length, 3);
+  assert.match(app.text("#goals-progress"), /Meta batida/);
+
+  /* Entrada inválida não grava e explica o motivo. */
+  const before = app.raw("forja-treino-metas-v1");
+  app.$("#goal-sessions").value = "2.5";
+  app.$("#goals-form").dispatchEvent(new app.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+  assert.equal(app.$("#goals-error").hidden, false, "Meta fracionada não avisou");
+  assert.equal(app.raw("forja-treino-metas-v1"), before, "Meta inválida alterou o armazenamento");
+
+  /* Alvo 0 desliga tudo, mas continua salvo (sem meta padrão escondida). */
+  app.$("#goal-sessions").value = "0";
+  app.$("#goal-sets").value = "0";
+  app.$("#goal-minutes").value = "0";
+  app.$("#goals-form").dispatchEvent(new app.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(30);
+  assert.equal(app.data("forja-treino-metas-v1").weeklySessions, 0);
+  assert.match(app.text("#goals-progress"), /Nenhuma meta ativa/);
+
+  assertNoErrors(app, "comparação e metas");
+  app.close();
+});
+
+await runTest("38. Progresso: busca, status e período no histórico; abrir a tela não grava nada", async () => {
+  const records = [
+    seedRecord(dayOffset(-1), [seedExercise("Supino inclinado", [seedLog({ reps: "8", load: "40 kg" })])], {
+      routineName: "Peito e ombro", status: "completed",
+      feedback: { rpe: 8, note: "Ombro esquerdo sensível" }
+    }),
+    seedRecord(dayOffset(-2), [seedExercise("Remada curvada", [seedLog({ reps: "10", load: "30 kg" })])], {
+      routineName: "Costas", status: "partial"
+    }),
+    seedRecord(dayOffset(-40), [seedExercise("Supino inclinado", [seedLog({ reps: "8", load: "35 kg" })])], {
+      routineName: "Peito antigo", status: "completed"
+    })
+  ];
+
+  const app = await boot({ "forja-treino-historico-v1": records }, "progresso/index.html");
+  await wait(20);
+
+  const before = storageSnapshot(app);
+  assert.equal(app.$$("#progress-history .history-item").length, 3);
+
+  const search = app.$("#history-search");
+  search.value = "SUPINO";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(20);
+  assert.equal(app.$$("#progress-history .history-item").length, 2, "Busca sem acento/caixa não filtrou");
+  assert.match(app.text("#history-filter-count"), /2 de 3 treino/);
+
+  search.value = "sensivel";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(20);
+  assert.equal(app.$$("#progress-history .history-item").length, 1, "Nota da sessão não entrou na busca");
+  assert.match(app.text("#progress-history"), /Ombro esquerdo sensível/);
+
+  search.value = "";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  app.$("#history-status").value = "partial";
+  app.$("#history-status").dispatchEvent(new app.w.Event("change", { bubbles: true }));
+  await wait(20);
+  assert.equal(app.$$("#progress-history .history-item").length, 1);
+  assert.match(app.text("#progress-history"), /Parcial/);
+
+  app.click("#history-clear");
+  await wait(20);
+  assert.equal(search.value, "");
+  assert.equal(app.$("#history-status").value, "all");
+  assert.equal(app.$$("#progress-history .history-item").length, 3);
+
+  /* Semana não contém o treino antigo: busca vazia explica o filtro. */
+  app.$('#period-control [data-value="week"]').click();
+  await wait(20);
+  search.value = "peito antigo";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(20);
+  assert.equal(app.$$("#progress-history .history-item").length, 0);
+  assert.match(app.text("#progress-history"), /Nenhum treino corresponde à busca/);
+
+  assert.deepEqual(storageSnapshot(app), before, "Navegar/filtrar a tela gravou dados");
+  assertNoErrors(app, "busca no histórico");
+  app.close();
+});
+
+await runTest("39. Progresso: limite de 200 registros e dados antigos sem totals", async () => {
+  /* 205 registros: a página só conta os 200 que o app mantém. */
+  const many = [];
+  for (let index = 0; index < 205; index += 1) {
+    many.push(seedRecord(dayOffset(-index), [seedExercise("Supino", [seedLog({ reps: "10", load: "10 kg" })])]));
+  }
+
+  const app = await boot({ "forja-treino-historico-v1": many }, "progresso/index.html");
+  await wait(30);
+  assert.equal(app.text("#progress-sessions"), "200", "A página ignorou o limite do histórico");
+  assert.equal(app.$("#progress-limit-note").hidden, false, "Limite cheio não foi avisado");
+  assert.match(app.text("#progress-limit-note"), /até 200 treinos/);
+  assert.match(app.text("#history-filter-count"), /200 treino/);
+  app.close();
+
+  /* Registro antigo, sem `totals`, com carga ilegível e distância em km. */
+  const legacy = {
+    id: "legado-etapa5",
+    date: keyOf(dayOffset(-10)),
+    modality: "weights",
+    routineName: "Treino antigo",
+    durationMs: 20 * 60000,
+    completedSets: 2,
+    totalPlannedSets: 3,
+    status: "partial",
+    exercises: [
+      seedExercise("Remada", [
+        seedLog({ reps: "10", load: "40 kg" }),
+        seedLog({ set: 2, reps: "10", load: "pesado" })
+      ]),
+      seedExercise("Caminhada", [seedLog({ distance: 1.2 })], { distanceUnit: "km", measure: "distance" })
+    ]
+  };
+
+  const old = await boot({ "forja-treino-historico-v1": [legacy] }, "progresso/index.html");
+  await wait(20);
+
+  const values = old.$$("#progress-totals .ui-stat-value").map(node => node.textContent);
+  const labels = old.$$("#progress-totals .ui-stat-label").map(node => node.textContent);
+  assert.equal(values[labels.indexOf("volume com carga")], "400 kg", "Volume derivado das séries antigas está errado");
+  assert.equal(values[labels.indexOf("distância")], "1,2 km", "Distância antiga não foi convertida");
+  assert.equal(values[labels.indexOf("repetições")], "20", "Repetições antigas não foram somadas");
+  assert.match(old.text("#progress-measure-note"), /1 série ficou fora do volume/);
+  assert.match(old.text('[data-record="load"]'), /40 kg/);
+  assert.equal(old.$$('[data-record="time"]').length, 0);
+  assert.match(old.text("#progress-history"), /Parcial/);
+
+  assertNoErrors(old, "histórico antigo sem totals");
+  old.close();
+});
+
+/* ------------------------------------------------------------------ */
 
 const failed = results.filter(result => !result.ok);
 
