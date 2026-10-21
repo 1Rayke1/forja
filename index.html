@@ -44,108 +44,76 @@
     </div>
   </section>
 
-  <div class="hero home-hero">
-    <div class="eyebrow" id="today-label"></div>
-    <h1>Um dia de cada vez.<br><span>Mais forte a cada treino.</span></h1>
-    <p class="subtitle">Seu espaço para planejar, treinar e acompanhar o que realmente fez.</p>
-    <a class="home-start-link" href="treino/index.html"><span class="home-start-icon" aria-hidden="true">↗</span><span><strong>Começar um treino</strong><small>Escolha sua rotina</small></span></a>
-  </div>
+  <header class="home-top">
+    <p class="eyebrow" id="today-label"></p>
+    <h1 class="home-title">Hora de treinar.</h1>
+    <p class="home-guide" id="home-guide" hidden></p>
+    <div class="home-action" id="home-action"></div>
+    <a class="treino-square" href="treino/index.html" aria-label="Abrir TREINO: calistenia e musculação">
+      <svg class="treino-square-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg>
+      <span class="treino-square-title">Abrir área de treino</span>
+      <span class="treino-square-sub">Rotinas <span aria-hidden="true">→</span></span>
+    </a>
+  </header>
 
-  <section class="home-section home-guide" id="home-guide" aria-labelledby="home-guide-heading" hidden>
-    <div class="home-panel">
-      <h2 class="section-title" id="home-guide-heading">Por onde começar</h2>
-      <div id="home-guide-body"></div>
-    </div>
-  </section>
-
-  <section class="home-section" aria-labelledby="home-week-heading">
-    <div class="home-panel">
-      <div class="home-panel-head">
-        <div>
-          <h2 class="section-title" id="home-week-heading">Sua semana</h2>
-          <p class="home-panel-range" id="home-week-range"></p>
-        </div>
-        <a class="secondary-button small-button" href="progresso/index.html">Ver progresso</a>
+  <section class="home-block" aria-labelledby="home-week-heading">
+    <div class="home-block-head">
+      <div class="home-block-titles">
+        <h2 class="home-block-title" id="home-week-heading">Sua semana</h2>
+        <p class="home-block-range" id="home-week-range"></p>
       </div>
-      <div id="home-week-body"></div>
+      <a class="home-link" href="progresso/index.html">Progresso <span aria-hidden="true">→</span></a>
     </div>
+    <div id="home-week-body" class="home-week"></div>
   </section>
 
-  <section class="home-section" aria-labelledby="home-next-heading">
-    <div class="home-panel">
-      <div class="home-panel-head">
-        <div>
-          <h2 class="section-title" id="home-next-heading">Próximo treino</h2>
-        </div>
-        <a class="secondary-button small-button" href="treino/index.html">Rotinas</a>
+  <section class="home-block" aria-labelledby="home-recent-heading">
+    <div class="home-block-head">
+      <div class="home-block-titles">
+        <h2 class="home-block-title" id="home-recent-heading">Continuar de onde parei</h2>
       </div>
-      <div id="home-next-body"></div>
+      <a class="home-link" href="progresso/index.html">Ver histórico <span aria-hidden="true">→</span></a>
     </div>
+    <div id="home-recent-body"></div>
   </section>
 
-  <section class="home-section" aria-labelledby="home-recent-heading">
-    <div class="home-panel">
-      <div class="home-panel-head">
-        <div>
-          <h2 class="section-title" id="home-recent-heading">Histórico recente</h2>
-        </div>
-        <a class="secondary-button small-button" href="progresso/index.html">Histórico completo</a>
-      </div>
-      <div id="home-recent-body"></div>
-    </div>
-  </section>
-
-  <section class="home-section" aria-labelledby="calendar-heading">
-    <div class="calendar-panel">
-      <h2 class="section-title" id="calendar-heading">Seu calendário</h2>
-
+  <section class="home-block home-block-quiet" aria-labelledby="calendar-heading">
+    <div class="home-block-head">
+      <h2 class="home-block-title" id="calendar-heading">Seu calendário</h2>
       <div class="month-navigation">
         <button class="nav-button" id="prev-month" type="button" aria-label="Mês anterior">‹</button>
         <div class="month-title" id="month-title"></div>
         <button class="nav-button" id="next-month" type="button" aria-label="Próximo mês">›</button>
       </div>
-
-      <div class="calendar-grid" id="calendar-grid"></div>
-      <p class="calendar-hint">
-        Selecione um dia para consultar ou organizar sua rotina.
-        Os pontos indicam dias com missões.
-      </p>
     </div>
+    <div class="calendar-grid" id="calendar-grid"></div>
+    <p class="calendar-hint">
+      Selecione um dia para consultar ou organizar sua rotina.
+      Os pontos indicam dias com missões.
+    </p>
   </section>
 
-  <section class="home-section" aria-labelledby="missions-heading">
-    <div class="missions-panel">
-      <div class="missions-heading">
-        <div>
-          <h2 class="section-title" id="missions-heading">Missões</h2>
-          <div class="selected-date" id="selected-date"></div>
-          <div class="progress-label" id="progress-label">0 de 0 · 0%</div>
-        </div>
+  <section class="home-block home-block-quiet" aria-labelledby="missions-heading">
+    <div class="home-block-head">
+      <div class="home-block-titles">
+        <h2 class="home-block-title" id="missions-heading">Missões</h2>
+        <p class="home-block-range" id="selected-date"></p>
       </div>
-
-      <div class="progress-track">
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
-
-      <form class="task-form" id="task-form">
-        <input id="task-input" type="text" maxlength="180"
-          placeholder="Qual é sua missão?" autocomplete="off"
-          aria-label="Nova missão" required>
-        <button class="add-button" type="submit">Adicionar</button>
-      </form>
-
-      <div class="task-list" id="task-list"></div>
+      <div class="progress-label" id="progress-label">0 de 0 · 0%</div>
     </div>
-  </section>
 
-  <section class="home-section treino-cta" aria-labelledby="treino-cta-heading">
-    <h2 class="section-title" id="treino-cta-heading">Treino</h2>
-    <p class="home-hint">Calistenia e musculação, com rotinas separadas e histórico próprio.</p>
-    <a class="treino-square" href="treino/index.html" aria-label="Abrir TREINO: calistenia e musculação">
-      <svg class="treino-square-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg>
-      <span class="treino-square-title">Abrir área de treino</span>
-      <span class="treino-square-sub">Calistenia e musculação <span aria-hidden="true">→</span></span>
-    </a>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <form class="task-form" id="task-form">
+      <input id="task-input" type="text" maxlength="180"
+        placeholder="Qual é sua missão?" autocomplete="off"
+        aria-label="Nova missão" required>
+      <button class="add-button" type="submit">Adicionar</button>
+    </form>
+
+    <div class="task-list" id="task-list"></div>
   </section>
 </main>
 
