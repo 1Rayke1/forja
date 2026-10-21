@@ -2,11 +2,21 @@
 
 A suíte de página única (39 testes, em `acbcbfb:tests/forja.test.mjs`) foi portada para o app multipágina em `tests/paridade.test.mjs`. Os nomes são os originais, para rastreio. Nenhum teste foi removido; cada um exercita o mesmo comportamento pelas páginas reais, com o mesmo armazenamento.
 
-Teste novo além dos 39:
+Testes novos além dos 39:
 
 | Novo | Nome | Arquivo | Descrição |
 |---|---|---|---|
 | + | 9b. Botão TREINO quadrado, destacado, com ícone e texto (mobile) | tests/paridade.test.mjs | Marcação, ícone, texto e regra CSS de quadrado. A medição real em 390 px está em `tests/e2e.browser.mjs`. |
+
+As telas e regras novas das etapas 3–5 são cobertas onde o comportamento vive,
+sem afrouxar nenhum dos 39 testes portados:
+
+- funções puras de análise → `tests/metricas.test.mjs` (18 testes, jsdom sem página);
+- fluxo real de catálogo, execução e progresso → `tests/forja.test.mjs` (27–39);
+- contrato preservado (hash de `forja-calendario.js`, um único `setInterval`,
+  ausência de gravação ociosa, ids e boot) → continua em `tests/paridade.test.mjs`
+  (12b, 15a–15d) e agora também em FORJA 38, que compara o armazenamento antes e
+  depois de navegar, filtrar e buscar na página de Progresso.
 
 | # | Teste antigo | Teste novo | Como foi portado |
 |---|---|---|---|
