@@ -538,3 +538,121 @@ a.secondary-button {
   .progress-custom-period { grid-template-columns: 1fr; }
   .record-value { font-size: 18px; }
 }
+
+/* Início — painel de treino (etapa 6)
+   Resumo da semana, rotinas reais, histórico recente e orientação inicial.
+   Só classes `.home-*`: nada aqui altera as telas existentes. */
+.home-panel {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.025), transparent 60%), var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.home-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.home-panel-head .section-title { margin: 0; }
+.home-panel-range { margin: 4px 0 0; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.home-panel .primary-button,
+.home-panel .secondary-button,
+.home-panel .small-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.home-note { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.home-subtitle {
+  margin: 6px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--lime);
+}
+.home-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.home-week-stats { margin: 2px 0; }
+.home-week-empty { color: var(--text); }
+
+.home-goals { display: grid; gap: 10px; border-top: 1px solid var(--line-soft); padding-top: 12px; }
+.home-goal { display: grid; gap: 6px; min-width: 0; }
+.home-goal-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 14px; }
+.home-goal-label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-size: 11px; font-weight: 700; }
+.home-goal-value { color: var(--lime); }
+.home-goal-note { margin: 0; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+
+.home-routine-list,
+.home-history-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.home-routine {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  min-width: 0;
+}
+.home-routine-main { display: grid; gap: 3px; min-width: 0; }
+.home-routine-name { font-size: 15px; overflow-wrap: anywhere; }
+.home-routine-meta,
+.home-routine-history { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.home-routine-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.home-routine-actions .primary-button,
+.home-routine-actions .secondary-button { font-size: 13px; padding: 8px 10px; }
+.home-routine-actions .primary-button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.home-active-session {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(183, 243, 74, 0.35);
+  border-radius: var(--radius-md);
+  background: rgba(183, 243, 74, 0.08);
+  min-width: 0;
+}
+.home-active-name { font-size: 17px; overflow-wrap: anywhere; }
+
+.home-history-item {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  min-width: 0;
+}
+.home-history-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; }
+.home-history-name { flex: 1 1 140px; font-size: 15px; overflow-wrap: anywhere; }
+.home-history-meta { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+
+.home-steps { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
+.home-step { display: grid; gap: 2px; min-width: 0; }
+.home-step-title { font-size: 14px; overflow-wrap: anywhere; }
+.home-step-text { color: var(--muted); font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.home-guide .home-panel {
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: none;
+}
+
+@media (min-width: 700px) {
+  .home-panel { padding: 22px; }
+}
+
+@media (max-width: 380px) {
+  .home-panel { padding: 14px; }
+  .home-routine-actions { grid-template-columns: 1fr; }
+  .home-actions .primary-button,
+  .home-actions .secondary-button { flex: 1 1 100%; }
+}
