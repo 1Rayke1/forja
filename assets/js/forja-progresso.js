@@ -229,6 +229,39 @@
 
     item.append(head, details);
 
+    /*
+      Só mostram números que a sessão realmente registrou: volume em kg aparece
+      quando houve carga numérica, distância quando houve série por distância.
+    */
+    const totals = F.isPlainObject(record.totals) ? record.totals : null;
+    const measured = [];
+
+    if (totals) {
+      if (totals.volumeKg > 0) measured.push(F.formatKg(totals.volumeKg));
+      if (totals.reps > 0) measured.push(F.formatNumber(totals.reps) + " repetições");
+      if (totals.seconds > 0) measured.push(formatClock(totals.seconds) + " por duração");
+      if (totals.distanceMeters > 0) measured.push(F.formatDistance(totals.distanceMeters));
+    }
+
+    if (measured.length > 0) {
+      const totalsLine = document.createElement("div");
+      totalsLine.className = "history-record-extra";
+      totalsLine.textContent = "Registrado: " + measured.join(" · ");
+      item.appendChild(totalsLine);
+    }
+
+    const feedback = F.isPlainObject(record.feedback) ? record.feedback : null;
+
+    if (feedback && (feedback.note || feedback.rpe)) {
+      const feedbackLine = document.createElement("div");
+      feedbackLine.className = "history-record-extra history-record-feedback";
+      feedbackLine.textContent = [
+        feedback.rpe ? "Esforço da sessão (RPE) " + feedback.rpe : "",
+        feedback.note ? "Nota: " + feedback.note : ""
+      ].filter(Boolean).join(" · ");
+      item.appendChild(feedbackLine);
+    }
+
     const exercises = Array.isArray(record.exercises) ? record.exercises : [];
     if (exercises.length > 0) {
       const toggle = document.createElement("details");
@@ -254,6 +287,8 @@
             if (entry.reps) parts.push(entry.reps + " reps");
             if (entry.load) parts.push(entry.load);
             if (typeof entry.seconds === "number") parts.push(formatClock(entry.seconds));
+            if (Number(entry.distance) > 0) parts.push(entry.distance + " " + (exercise.distanceUnit || "m"));
+            if (Number(entry.rpe) > 0) parts.push("RPE " + entry.rpe);
             return parts.join(" ");
           }).join(" · ");
           li.appendChild(logLine);

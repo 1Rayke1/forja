@@ -250,6 +250,8 @@ a.secondary-button {
 .history-status.completed { color: var(--green); border-color: #2f5a3a; }
 .history-status.partial { color: var(--gold); border-color: #6b5a22; }
 .history-details { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.history-record-extra { color: var(--muted); font-size: 13px; margin-top: 4px; overflow-wrap: anywhere; }
+.history-record-feedback { color: var(--text); border-left: 2px solid var(--gold); padding-left: 8px; }
 .history-exercises summary {
   cursor: pointer;
   min-height: 44px;

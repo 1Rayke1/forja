@@ -355,7 +355,7 @@
     filtros. Os chips mostram quanto cada valor tem, então o usuário nunca clica
     em um filtro que devolveria lista vazia sem aviso.
   */
-  function facets(options) {
+  function facets(options = {}) {
     const base = filter(Object.assign({}, options, {
       section: null,
       measure: null,

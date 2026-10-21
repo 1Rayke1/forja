@@ -22,16 +22,16 @@ integração, 40 de paridade e 16 de E2E.
 **Limitações reais encontradas:**
 
 1. Home é calendário + missões: não mostra treino planejado, resumo da semana,
-   metas nem histórico — não serve como tela inicial de um app de treino.
+   metas nem histórico — não serve como tela inicial de um app de treino. **(→ etapa 6)**
 2. Biblioteca é um painel dobrável dentro do editor: sem página própria, sem
    filtros por categoria/grupo muscular/equipamento, sem detalhe com instruções,
-   e a busca só cobre o nome.
+   e a busca só cobre o nome. **(→ etapa 3 — resolvida)**
 3. Modelo de exercício não tem distância, nem carga numérica, nem metadados
    (categoria, grupos musculares, equipamento, instruções). `load` é texto
-   livre, então volume de treino não pode ser calculado de forma confiável.
+   livre, então volume de treino não pode ser calculado de forma confiável. **(→ etapa 3 — resolvida: `measure`, `distance`, `load` lido como número)**
 4. Execução não permite corrigir uma série já registrada (só o rascunho da
    próxima), não permite ajustar o descanso em andamento e não avisa ao sair da
-   página com sessão em andamento (`beforeunload` só existe no editor).
+   página com sessão em andamento (`beforeunload` só existe no editor). **(→ etapa 4 — corrigir/editar série, ±15 s e resumo com volume resolvidos; ver nota em 4.1 sobre `beforeunload`)**
 5. Progresso é lista de números: sem calendário de frequência, sem gráficos,
    sem recordes, sem evolução por exercício, sem comparação de períodos, sem
    metas, sem busca no histórico. As funções `recordDate`/`formatRecordDate`
@@ -72,18 +72,38 @@ integração, 40 de paridade e 16 de E2E.
 
 ## 3. Etapas
 
-| # | Etapa | Entregável |
-|---|---|---|
-| 1 | Camada de persistência | `forja-store.js`, registry, `DATA_VERSION`, migrações, refactor de `forja-dados.js`; testes de paridade inalterados e verdes |
-| 2 | Sistema de UI | `forja-ui.js`, `forja-graficos.js`, `system.css`, componentes (cabeçalho de página, cartões, chips, segmented, estados vazios, tabela de dados, modal de formulário), foco e `aria` |
-| 3 | Catálogo | `treino/biblioteca.html` + `forja-catalogo.js`: busca com normalização, filtros (seção, categoria, grupo muscular, equipamento, tipo de medição), detalhe com instruções, adicionar à rotina; metadados no modelo e no editor |
-| 4 | Execução | edição/remoção de série registrada, ajuste de descanso ±15 s, registro de distância, RPE + nota da sessão, guarda de sessão não salva, resumo pós-treino com volume real |
-| 5 | Análise de progresso | calendário de frequência, volume semanal, evolução de carga/reps por exercício, recordes com critério, comparação de períodos, filtros por semana/mês/personalizado, metas semanais, histórico pesquisável |
-| 6 | Início útil | treino planejado com motivo, resumo da semana, metas, histórico recente, onboarding para usuário novo |
-| 7 | Dados e robustez | auditoria de armazenamento e visualizador de dados preservados em Configurações, erros de importação/corrupção, validação do modelo no backup |
-| 8 | Testes e docs | suíte unitária de funções puras, integração dos fluxos novos, paridade estendida às rotas novas, E2E com capturas, relatório atualizado |
+| # | Etapa | Status | Entregável |
+|---|---|---|---|
+| 1 | Camada de persistência | **concluída** | `forja-store.js`, registry, `DATA_VERSION`, migrações, refactor de `forja-dados.js`; testes de paridade inalterados e verdes |
+| 2 | Sistema de UI | **concluída** | `forja-ui.js`, `forja-graficos.js`, `system.css`, componentes (cabeçalho de página, cartões, chips, segmented, estados vazios, tabela de dados, modal de formulário), foco e `aria` |
+| 3 | Catálogo | **concluída** | `treino/biblioteca.html` + `forja-catalogo.js`: busca com normalização, filtros (seção, categoria, grupo muscular, equipamento, tipo de medição), detalhe com instruções, adicionar à rotina; metadados no modelo e no editor |
+| 4 | Execução | **concluída** | edição/remoção de série registrada, ajuste de descanso ±15 s, registro de distância, RPE + nota da sessão, guarda de sessão não salva, resumo pós-treino com volume real |
+| 5 | Análise de progresso | pendente | calendário de frequência, volume semanal, evolução de carga/reps por exercício, recordes com critério, comparação de períodos, filtros por semana/mês/personalizado, metas semanais, histórico pesquisável |
+| 6 | Início útil | pendente | treino planejado com motivo, resumo da semana, metas, histórico recente, onboarding para usuário novo |
+| 7 | Dados e robustez | pendente | auditoria de armazenamento e visualizador de dados preservados em Configurações, erros de importação/corrupção, validação do modelo no backup |
+| 8 | Testes e docs | em andamento | suíte unitária de funções puras, integração dos fluxos novos, paridade estendida às rotas novas, E2E com capturas, relatório atualizado |
 
 ## 4. Riscos controlados
+### 4.1 Saída da tela de execução (verificado, não é falha)
+
+A auditoria suspeitava de perda de rascunho ao fechar a aba durante o treino.
+Foi conferido no código: cada mutation da sessão (`registerSet`, rascunho do
+painel de registro, ajuste de descanso, pausa, correção/remoção de série) passa
+por `saveActiveWorkout()` → `forja-store.js`, com verificação pós-gravação e
+reversão em caso de recusa do navegador. Não há estado "só na tela" a perder,
+então **não foi adicionado `beforeunload`** na execução: ele bloquearia a
+navegação para proteger nada e puniria quem só quer voltar ao treino. O editor de
+rotinas mantém a guarda que já tinha (lá existe rascunho sem gravar).
+
+### 4.2 Componentes sem consumo de tela ainda não contam como prontos
+
+`forja-graficos.js` (barras, linha e anel acessíveis) e a camada de metas
+semanais (`forja-treino-metas-v1`, `F.normalizeGoals`, resumo no backup) estão
+carregados e validados, mas **ainda não são usados por nenhuma tela**: entram em
+prova na etapa 5 (Progresso) e na etapa 6 (Início). O relatório de entrega
+registra isso como pendência em vez de contar como funcionalidade concluída.
+
+
 
 - As suítes travam o hash de `forja-calendario.js`, a presença de regras CSS
   específicas e um único `setInterval`/boot — nada disso é tocado; novas
@@ -92,3 +112,12 @@ integração, 40 de paridade e 16 de E2E.
   ociosa é adicionada.
 - Edição de histórico (mudança de registros já gravados) não é feita: as
   correções acontecem durante a sessão, antes do registro final.
+
+## 5. Evidência por etapa
+
+| Etapa | O que ficou de pé | Como foi verificado |
+|---|---|---|
+| 1 | `forja-store.js` (driver, leitura/escrita segura, `applySet` com reversão), `F.registry` por chave, `F.DATA_VERSION = 3`, runner de migrações idempotente; `forja-dados.js`/`forja-backup.js` passando pelo store | `npm test` (na época 26/26 + 40/40) sem alterar nenhum hash travado; testes 15a–15d e 1b–1g de paridade cobrem "não grava chave ociosa", idempotência e preservação de conteúdo ilegível |
+| 2 | `forja-ui.js` (botões, chips, segmented com teclado, tabela, estado vazio, cabeçalho de seção, `announce`), `forja-graficos.js`, `system.css` com tokens e primitivos `.ui-*`; destaque da navegação marcado por `F.ui.markCurrentNav` a partir de `data-page` | E2E de foco/aria (teste 04 da suíte base: um `[aria-current=page]` por página), suíte de paridade 9/9b/12a, E2E 16/16 |
+| 3 | `treino/biblioteca.html` + `forja-catalogo.js`: 37 exercícios com metadados, busca com normalização NFD, filtros combináveis, revelação progressiva (12 por bloco), detalhe sem gravar nada, adicionar à rotina com rollback; metadados no editor de rotina e link da biblioteca nas páginas de modalidade | Testes FORJA 27, 27b, 28, 29, 30; paridade 10 (ids e ausência de erro de console); E2E cobre a rota nova em 6 larguras; capturas `biblioteca-390/1280.png` |
+| 4 | Correção e remoção da última série por série; ajuste do descanso em andamento em passos de 15 s (com pausar/retomar e persistência por timestamp); registro de distância por série com unidade do exercício; RPE por série e RPE/nota da sessão; totais reais (`volumeKg`, `reps`, `seconds`, `distanceMeters`, `setsLogged`, `setsWithoutVolume`) no registro e no resumo; nota e esforço aparecem no histórico | Testes FORJA 31, 32, 33, 33b (fluxo real na página, incluindo recarregar no meio do descanso ajustado); suíte completa 35/35 + 40/40; E2E 16/16; checagem de overflow das telas novas em 320–1280 px; capturas `executar-log/descanso/corrigir/resumo-390.png` e `executar-resumo-1280.png` |

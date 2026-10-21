@@ -25,7 +25,7 @@
   <nav class="app-nav" aria-label="Navegação principal">
     <div class="container app-nav-inner">
       <a class="nav-link" href="../index.html" data-nav="inicio">Início</a>
-      <a class="nav-link" href="../treino/index.html" data-nav="treino" aria-current="page" class="is-current">Treino</a>
+      <a class="nav-link is-current" href="../treino/index.html" data-nav="treino" aria-current="page">Treino</a>
       <a class="nav-link" href="../progresso/index.html" data-nav="progresso">Progresso</a>
       <a class="nav-link" href="../configuracoes/index.html" data-nav="configuracoes">Dados</a>
     </div>
@@ -139,7 +139,24 @@
                 <label class="field-label" for="log-load">Carga usada</label>
                 <input id="log-load" type="text" maxlength="50" autocomplete="off" placeholder="Ex.: 20 kg">
               </div>
+              <div class="field-block" id="log-distance-field" hidden>
+                <label class="field-label" for="log-distance">Distância da série (<span id="log-distance-unit">m</span>)</label>
+                <input id="log-distance" type="number" min="0" max="100000" step="1" inputmode="decimal" autocomplete="off" placeholder="Ex.: 400">
+                <p class="field-hint" id="log-distance-hint"></p>
+              </div>
+              <div class="field-block" id="log-rpe-field">
+                <label class="field-label" for="log-rpe">Esforço desta série (RPE)</label>
+                <select id="log-rpe">
+                  <option value="">Não registrar</option>
+                  <option value="6">6 · folgado</option>
+                  <option value="7">7 · difícil</option>
+                  <option value="8">8 · bem difícil</option>
+                  <option value="9">9 · quase falha</option>
+                  <option value="10">10 · falha</option>
+                </select>
+              </div>
             </div>
+            <p class="log-note" id="log-note-line" hidden></p>
             <ul class="log-list" id="log-list"></ul>
           </section>
 
@@ -157,6 +174,11 @@
           <div class="rest-label">Descanso</div>
           <div class="rest-timer" id="rest-timer">00:00</div>
           <div class="rest-caption" id="rest-caption"></div>
+          <div class="rest-adjust" role="group" aria-label="Ajustar a duração deste descanso">
+            <button type="button" class="secondary-button small-button" id="rest-minus" aria-label="Diminuir 15 segundos deste descanso">&minus;15 s</button>
+            <span class="rest-adjust-state" id="rest-adjust-state"></span>
+            <button type="button" class="secondary-button small-button" id="rest-plus" aria-label="Aumentar 15 segundos deste descanso">+15 s</button>
+          </div>
           <div class="rest-actions">
             <button type="button" class="secondary-button" id="pause-rest">Pausar descanso</button>
             <button type="button" class="secondary-button" id="resume-rest" hidden>Retomar descanso</button>
@@ -186,6 +208,14 @@
           <div class="summary-stat"><div class="summary-value" id="summary-exercises-stat">0/0</div><div class="summary-label">exercícios</div></div>
           <div class="summary-stat"><div class="summary-value" id="summary-status-stat">—</div><div class="summary-label">situação</div></div>
         </div>
+        <div class="summary-totals" id="summary-totals" hidden>
+          <div class="summary-stat"><div class="summary-value" id="summary-volume">&mdash;</div><div class="summary-label">volume</div></div>
+          <div class="summary-stat"><div class="summary-value" id="summary-reps">&mdash;</div><div class="summary-label">repetições</div></div>
+          <div class="summary-stat"><div class="summary-value" id="summary-time-under">&mdash;</div><div class="summary-label">tempo de série</div></div>
+          <div class="summary-stat"><div class="summary-value" id="summary-distance">&mdash;</div><div class="summary-label">distância</div></div>
+        </div>
+        <p class="summary-note" id="summary-note" hidden></p>
+        <p class="summary-feedback" id="summary-feedback" hidden></p>
         <ul class="summary-exercises" id="summary-exercises"></ul>
         <div class="summary-actions">
           <a class="secondary-button" id="summary-history-link" href="../progresso/index.html">Ver no progresso</a>

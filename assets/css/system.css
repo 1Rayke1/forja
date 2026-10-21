@@ -327,6 +327,51 @@
   .ui-exercise-actions .ui-button { flex: 1 1 auto; }
 }
 
+/* Registro de série na execução ----------------------------------------- */
+
+.log-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+.log-entry-main { font-size: var(--font-sm); overflow-wrap: anywhere; }
+.log-entry-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+.log-note { margin: 6px 0 0; color: var(--muted); font-size: var(--font-xs); }
+
+.rest-adjust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.rest-adjust-state { color: var(--muted); font-size: var(--font-xs); min-width: 8ch; text-align: center; }
+.rest-adjust .ui-button { min-height: 40px; padding: 6px 12px; }
+
+.summary-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 4px 0 0;
+  text-align: left;
+}
+.summary-totals .summary-value { font-size: 22px; white-space: nowrap; }
+.summary-note,
+.summary-feedback {
+  margin: var(--space-2) 0 0;
+  color: var(--muted);
+  font-size: var(--font-xs);
+  line-height: 1.5;
+  text-align: left;
+}
+.summary-feedback { color: var(--text); }
+
 /* Listagem de exercícios (catálogo e editor) --------------------------- */
 
 .ui-exercise-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-sunken); }
@@ -428,3 +473,7 @@
 .catalog-help .screen-subtitle { margin: 0; }
 .screen-toolbar { flex-wrap: wrap; }
 .modality-catalog-link { margin-left: auto; }
+
+@media (min-width: 600px) {
+  .summary-totals { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

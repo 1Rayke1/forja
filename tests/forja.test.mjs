@@ -1027,6 +1027,331 @@ await runTest("30. Editor: metadados do exercício personalizado chegam à bibli
   app.close();
 });
 
+/*
+  Execução (etapa 4): carga, distância, correção de série, ajuste do descanso
+  e resumo com volume real. A rotina abaixo cobre os três tipos de medição.
+*/
+function heavyRoutine() {
+  const base = (extra) => Object.assign({
+    sets: 3, reps: "10", rest: 60, type: "reps", duration: 0, load: "", notes: "", measure: "reps"
+  }, extra);
+
+  return {
+    id: "exec1",
+    name: "Empurrar pesado",
+    modality: "weights",
+    createdAt: 1,
+    updatedAt: 1,
+    sections: {
+      warmup: [],
+      main: [
+        base({ id: "bench", name: "Supino", load: "60 kg" }),
+        base({ id: "row", name: "Remada curvada", sets: 1, rest: 0, load: "30 kg" })
+      ],
+      abs: [],
+      finisher: [base({
+        id: "run",
+        name: "Esteira 400 m",
+        sets: 1,
+        reps: "",
+        rest: 0,
+        measure: "distance",
+        distance: 400,
+        distanceUnit: "m"
+      })]
+    }
+  };
+}
+
+function setLog(extra) {
+  return Object.assign({ set: 1, reps: "", load: "", seconds: null, distance: null, rpe: null, editedAt: null }, extra);
+}
+
+async function bootExecution(seedExtra = {}) {
+  const routine = heavyRoutine();
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([], [routine]),
+    "forja-treino-sessao-ativa-v1": sessionSeed(
+      routine,
+      Object.assign({ id: "s-exec", modality: "weights" }, seedExtra)
+    )
+  }, "treino/executar.html", { now: 20_000_000 });
+
+  await pageIs(app, "executar");
+  return app;
+}
+
+/* Escreve num campo como o usuário (input para texto, change para select). */
+function typeField(app, selector, value, eventName = "input") {
+  const field = app.$(selector);
+  assert.ok(field, "Campo ausente: " + selector);
+  field.value = value;
+  field.dispatchEvent(new app.w.Event(eventName, { bubbles: true }));
+}
+
+await runTest("31. Execução: corrigir e remover uma série já registrada", async () => {
+  const app = await bootExecution();
+
+  assert.equal(app.text("#current-name"), "Supino");
+
+  typeField(app, "#log-reps", "8");
+  typeField(app, "#log-load", "62 kg");
+  typeField(app, "#log-rpe", "8", "change");
+  app.click("#complete-set");
+  app.advance(600);
+
+  assert.equal(app.text("#set-progress-label"), "1 de 3");
+  assert.match(app.text("#log-list"), /Série 1 · 8 reps · 62 kg · RPE 8/);
+  assert.equal(app.$("#execution-rest").hidden, false, "descanso não começou depois da série");
+
+  /* No meio do descanso não se remove série: o tempo em andamento é dali. */
+  app.click("#log-list .log-entry button");
+  await wait(20);
+  app.modalAction("remove");
+  await wait(20);
+  assert.match(app.text("#toast"), /Termine ou pule o descanso/);
+  assert.equal(app.F.state.activeWorkout.completedSets.bench, 1, "Removeu série durante o descanso");
+  assert.equal(app.$$("#log-list .log-entry").length, 1);
+
+  app.click("#skip-rest");
+  await wait(20);
+
+  /* Corrigir mostra só os campos que fazem sentido para o exercício. */
+  app.click("#log-list .log-entry button");
+  await wait(20);
+  assert.match(app.text("#modal-title"), /Corrigir série 1/);
+  assert.deepEqual(
+    app.$$("[data-modal-field]").map(node => node.getAttribute("data-modal-field")),
+    ["reps", "load", "rpe"]
+  );
+
+  app.modalField("reps").value = "10";
+  app.modalField("load").value = "65 kg";
+  app.modalAction("save");
+  await wait(30);
+
+  assert.match(app.text("#log-list"), /Série 1 · 10 reps · 65 kg · RPE 8 · corrigida/);
+  assert.match(app.text("#toast"), /atualizada/);
+  assert.equal(app.F.state.activeWorkout.completedSets.bench, 1, "Corrigir mudou a contagem de séries");
+
+  const stored = app.data("forja-treino-sessao-ativa-v1").setLogs.bench[0];
+  assert.equal(stored.reps, "10");
+  assert.equal(stored.load, "65 kg");
+  assert.ok(stored.editedAt > 0, "edição sem marca de tempo");
+
+  /* Remover a última série devolve o direito de registrá-la de novo. */
+  app.click("#log-list .log-entry button");
+  await wait(20);
+  app.modalAction("remove");
+  await wait(20);
+
+  assert.equal(app.text("#set-progress-label"), "0 de 3");
+  assert.equal(app.$$("#log-list .log-entry").length, 0);
+  assert.match(app.text("#toast"), /removida/);
+
+  app.click("#complete-set");
+  app.advance(600);
+  assert.equal(app.text("#set-progress-label"), "1 de 3", "não deixou registrar a série removida");
+  assert.match(app.text("#log-list"), /Série 1 ·/);
+
+  assertNoErrors(app, "corrigir e remover série");
+  app.close();
+});
+
+await runTest("32. Execução: ajustar o descanso em andamento em passos de 15 s", async () => {
+  const app = await bootExecution();
+
+  app.click("#complete-set");
+  app.advance(600);
+  assert.equal(app.text("#rest-timer"), "01:00");
+  assert.match(app.text("#rest-adjust-state"), /1 min neste descanso/);
+
+  app.advance(10_000);
+  assert.equal(app.text("#rest-timer"), "00:50");
+
+  app.click("#rest-plus");
+  assert.equal(app.text("#rest-timer"), "01:05", "+15 s não entrou no tempo restante");
+  assert.equal(app.F.state.activeWorkout.restPlannedSeconds, 65);
+  assert.match(app.text("#rest-adjust-state"), /ajustado de 1 min/);
+  assert.equal(app.F.state.activeWorkout.queue[0].rest, 60, "o ajuste reescreveu o plano do exercício");
+
+  /* O tempo novo é real: continua contando a partir dele. */
+  app.advance(10_000);
+  assert.equal(app.text("#rest-timer"), "00:55");
+
+  app.click("#rest-minus");
+  assert.equal(app.text("#rest-timer"), "00:40");
+
+  /* Pausado, o ajuste soma no tempo que falta e nada continua contando. */
+  app.click("#pause-rest");
+  await wait(20);
+  assert.equal(app.F.state.activeWorkout.restEndAt, null, "pausa não guardou o tempo restante");
+
+  app.advance(30_000);
+  assert.equal(app.text("#rest-timer"), "00:40", "descanso contou durante a pausa");
+
+  app.click("#rest-plus");
+  assert.equal(app.text("#rest-timer"), "00:55", "ajuste com descanso pausado não somou 15 s");
+
+  app.click("#resume-rest");
+  await wait(20);
+  app.advance(15_000);
+  assert.equal(app.text("#rest-timer"), "00:40");
+
+  /* O piso é 1 s: não dá para travar a tela com descanso negativo. */
+  app.click("#rest-minus");
+  app.click("#rest-minus");
+  app.click("#rest-minus");
+  assert.equal(app.text("#rest-timer"), "00:01");
+  assert.equal(app.$("#execution-rest").hidden, false, "descanso sumiu antes da hora");
+
+  /* Sobrevive ao recarregamento: são timestamps, não contadores de aba. */
+  const persisted = app.data("forja-treino-sessao-ativa-v1");
+  assert.equal(persisted.restPlannedSeconds, 1);
+  await app.reload();
+  await wait(30);
+  assert.equal(app.F.state.activeWorkout.restPlannedSeconds, 1, "ajuste do descanso não persistiu");
+  assert.equal(app.text("#rest-timer"), "00:01");
+  assert.equal(app.$("#execution-rest").hidden, false);
+
+  assertNoErrors(app, "ajuste de descanso");
+  app.close();
+});
+
+await runTest("33. Execução: série por distância e resumo com volume real", async () => {
+  const app = await bootExecution({
+    currentIndex: 2,
+    completedSets: { bench: 3, row: 1, run: 0 },
+    setLogs: {
+      bench: [
+        setLog({ set: 1, reps: "10", load: "60 kg", rpe: 7 }),
+        setLog({ set: 2, reps: "8", load: "" }),
+        setLog({ set: 3, reps: "10", load: "30 kg" })
+      ],
+      row: [setLog({ set: 1, reps: "12", load: "30 kg" })]
+    }
+  });
+
+  assert.equal(app.text("#current-name"), "Esteira 400 m");
+  assert.match(app.text("#current-plan-value"), /400 m/);
+  assert.equal(app.$("#log-reps-field").hidden, true, "pediu repetições em exercício de distância");
+  assert.equal(app.$("#log-distance-field").hidden, false, "campo de distância não apareceu");
+  assert.equal(app.text("#log-distance-unit"), "m");
+  assert.match(app.text("#log-distance-hint"), /Alvo da série: 400 m/);
+
+  typeField(app, "#log-distance", "420");
+  app.click("#complete-set");
+  await wait(60);
+
+  const record = app.data("forja-treino-historico-v1")[0];
+  assert.ok(record, "sessão concluída não entrou no histórico");
+  assert.equal(record.status, "completed");
+  assert.equal(record.exercises[2].logs[0].distance, 420, "distância da série não foi salva");
+  assert.equal(record.totals.distanceMeters, 420);
+  assert.equal(record.totals.volumeKg, 1260, "volume somado errado");
+  assert.equal(record.totals.reps, 40);
+  assert.equal(record.totals.setsLogged, 5);
+  assert.equal(record.totals.setsWithoutVolume, 1, "série sem carga numérica não foi sinalizada");
+
+  assert.equal(app.$("#execution-summary").hidden, false, "resumo não apareceu ao concluir a sessão");
+  assert.equal(app.text("#summary-volume"), "1.260 kg");
+  assert.equal(app.text("#summary-reps"), "40");
+  assert.equal(app.text("#summary-distance"), "420 m");
+  assert.equal(app.text("#summary-time-under"), "—");
+  assert.match(app.text("#summary-note"), /1 série ficou fora do volume/);
+  assert.equal(app.$("#summary-feedback").hidden, true, "inventou esforço sem registro");
+
+  app.click("#summary-close");
+  await wait(20);
+  assert.equal(app.F.state.activeWorkout, null);
+
+  assertNoErrors(app, "distância e resumo");
+  app.close();
+});
+
+await runTest("33b. Resposta da sessão: RPE e nota são opcionais e vão para o histórico", async () => {
+  const app = await bootExecution();
+
+  /* Sem série concluída, não se pergunta o esforço de uma sessão que não aconteceu. */
+  app.click("#end-session");
+  await wait(20);
+  assert.equal(app.$$("[data-modal-field]").length, 0, "pediu RPE sem nenhuma série registrada");
+  assert.deepEqual(
+    app.$$("[data-modal-action]").map(node => node.getAttribute("data-modal-action")),
+    ["cancel", "discard"]
+  );
+  app.modalAction("cancel");
+  await wait(20);
+  assert.equal(app.F.state.activeWorkout.id, "s-exec", "cancelar encerrou a sessão");
+
+  /* Uma série registrada libera o resumo; preencher só a nota também basta. */
+  app.click("#complete-set");
+  app.advance(600);
+  app.click("#skip-rest");
+  await wait(20);
+
+  app.click("#end-session");
+  await wait(20);
+  assert.deepEqual(
+    app.$$("[data-modal-field]").map(node => node.getAttribute("data-modal-field")),
+    ["rpe", "note"]
+  );
+
+  app.modalField("note").value = "  ombro esquerdo incomodou na última série  ";
+  app.modalAction("save");
+  await wait(60);
+
+  const record = app.data("forja-treino-historico-v1")[0];
+  assert.ok(record, "sessão parcial não entrou no histórico");
+  assert.equal(record.status, "partial");
+  assert.equal(record.feedback.rpe, null, "criou RPE fantasma");
+  assert.equal(record.feedback.note, "ombro esquerdo incomodou na última série");
+  assert.ok(record.feedback.updatedAt > 0);
+
+  assert.equal(app.text("#summary-feedback"), "Nota: ombro esquerdo incomodou na última série");
+  /* A série herdou reps e carga planejados (10 × 60 kg): volume real, sem aviso. */
+  assert.equal(app.text("#summary-volume"), "600 kg");
+  assert.equal(app.$("#summary-note").hidden, true, "avisou de falta de dados que existem");
+
+  assert.equal(app.text("#summary-distance"), "—");
+
+  /* O histórico conta a mesma história: número registrado, RPE e nota. */
+  app.click("#summary-history-link");
+  await wait(60);
+
+  const historyText = app.text(".history-item");
+  assert.match(historyText, /600 kg/);
+  assert.match(historyText, /10 repetições/);
+  assert.match(historyText, /ombro esquerdo incomodou na última série/, "nota não chegou ao histórico");
+  assert.doesNotMatch(historyText, /Esforço da sessão/, "apareceu RPE que ninguém registrou");
+  assertNoErrors(app, "feedback da sessão");
+  app.close();
+
+  /* Com RPE preenchido, a linha de esforço aparece no resumo e no histórico. */
+  const second = await bootExecution({ id: "s-exec-2" });
+  second.click("#complete-set");
+  second.advance(600);
+  second.click("#skip-rest");
+  await wait(20);
+  second.click("#end-session");
+  await wait(20);
+
+  second.modalField("rpe").value = "9";
+  second.modalField("note").value = "última série quase falhou";
+  second.modalAction("save");
+  await wait(60);
+
+  assert.equal(second.text("#summary-feedback"), "Esforço registrado: RPE 9 · Nota: última série quase falhou");
+  assert.equal(second.data("forja-treino-historico-v1")[0].feedback.rpe, 9);
+
+  second.click("#summary-history-link");
+  await wait(60);
+  const secondHistory = second.text(".history-item");
+  assert.match(secondHistory, /Esforço da sessão \(RPE\) 9/);
+  assert.match(secondHistory, /última série quase falhou/);
+  assertNoErrors(second, "feedback com RPE");
+});
+
 /* ------------------------------------------------------------------ */
 
 const failed = results.filter(result => !result.ok);

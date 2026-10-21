@@ -748,13 +748,16 @@ function normalizeSessionFeedback(raw) {
   if (!isPlainObject(raw)) return null;
 
   const note = typeof raw.note === "string" ? raw.note.trim().slice(0, 300) : "";
-  const rpe = clampInteger(raw.rpe, 1, 10, 0);
+
+  /* RPE fora de 1–10 (inclusive "não registrar") vira ausente, nunca 0 ou 1. */
+  const rawRpe = Number(raw.rpe);
+  const rpe = Number.isFinite(rawRpe) && rawRpe >= 1 && rawRpe <= 10 ? Math.round(rawRpe) : null;
 
   if (!note && !rpe) return null;
 
   return {
     note,
-    rpe: rpe || null,
+    rpe,
     updatedAt: Number(raw.updatedAt) || Date.now()
   };
 }

@@ -480,6 +480,18 @@
     });
   }
 
+  /*
+    A navegação é marcada a partir da página declarada no <body>, então nenhuma
+    página precisa manter o destaque sincronizado à mão. O atributo estático no
+    HTML continua lá para o destaque existir antes do JavaScript rodar.
+  */
+  function initCurrentNav() {
+    markCurrentNav(doc.body && doc.body.dataset ? doc.body.dataset.page : "");
+  }
+
+  if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", initCurrentNav);
+  else initCurrentNav();
+
   /* Título relativo no cabeçalho de página: "Terça, 20 de outubro". */
   function todayEyebrow() {
     const now = new Date();
