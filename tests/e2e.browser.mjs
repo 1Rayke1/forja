@@ -198,6 +198,12 @@ async function jsClick(sel, pattern) {
   await sleep(120);
 }
 
+async function centerAndClick(sel) {
+  await page.$eval(sel, el => el.scrollIntoView({ block: 'center' }));
+  await sleep(80);
+  await page.click(sel);
+}
+
 async function fill(sel, value) {
   await page.$eval(sel, (el, v) => {
     el.value = v;
@@ -278,10 +284,11 @@ await check('Calendário e missões funcionam na página inicial', async () => {
   await sleep(120);
   assert.equal(await text('#progress-label'), '1 de 1 · 100%');
   const title = await text('#month-title');
-  await page.click('#next-month');
+  /* Centraliza antes de clicar: o header é sticky e pode cobrir o alvo. */
+  await centerAndClick('#next-month');
   await sleep(120);
   assert.notEqual(await text('#month-title'), title);
-  await page.click('#prev-month');
+  await centerAndClick('#prev-month');
   await sleep(120);
   assert.equal(await text('#month-title'), title);
   await page.screenshot({ path: artifactPath('inicio.png') });
@@ -718,6 +725,256 @@ await check('Capturas visuais das nove páginas em mobile e desktop', async () =
     }
   }
   await shots.close();
+});
+
+await check('Início: ação única, semana real, metas, histórico e retomada', async () => {
+  const now = Date.now();
+  const DAY = 86400000;
+  const two = n => String(n).padStart(2, '0');
+  const keyFor = ms => {
+    const d = new Date(ms);
+    return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
+  };
+  const monday = (() => {
+    const d = new Date(now);
+    d.setHours(12, 0, 0, 0);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d;
+  })();
+
+  /* O mesmo formato de registro que o app grava (totals explícitos). */
+  const record = (when, extra = {}) => {
+    const completedSets = extra.completedSets === undefined ? 3 : extra.completedSets;
+    const totalPlannedSets = extra.totalPlannedSets === undefined ? completedSets : extra.totalPlannedSets;
+    return Object.assign({
+      id: 'e2e-home-' + keyFor(when.getTime()) + '-' + Math.random().toString(36).slice(2, 6),
+      date: keyFor(when.getTime()),
+      finishedAt: when.toISOString(),
+      modality: 'weights',
+      routineName: 'Peito',
+      durationMs: 30 * 60000,
+      completedSets,
+      totalPlannedSets,
+      status: completedSets >= totalPlannedSets ? 'completed' : 'partial',
+      exercises: [],
+      totals: {
+        volumeKg: 300, reps: 30, seconds: 0, distanceMeters: 0,
+        setsLogged: completedSets, setsWithoutVolume: 0
+      }
+    }, extra);
+  };
+
+  const calRoutine = {
+    id: 'e2e-home-cal', name: 'Empurrar', modality: 'calisthenics',
+    createdAt: 1, updatedAt: 1,
+    sections: {
+      warmup: [],
+      main: [{ id: 'e2e-hc1', name: 'Flexão', section: 'main', sets: 3, type: 'reps', reps: '10', rest: 60, load: '', notes: '' }],
+      abs: [],
+      finisher: []
+    }
+  };
+  const weightsRoutine = {
+    id: 'e2e-home-weights', name: 'Puxar', modality: 'weights',
+    createdAt: 2, updatedAt: 2,
+    sections: {
+      warmup: [],
+      main: [{ id: 'e2e-hw1', name: 'Remada', section: 'main', sets: 4, type: 'reps', reps: '8', rest: 90, load: '30 kg', notes: '' }],
+      abs: [],
+      finisher: []
+    }
+  };
+
+  const session = {
+    version: 2,
+    id: 'e2e-home-session',
+    date: keyFor(now),
+    modality: 'calisthenics',
+    routineId: calRoutine.id,
+    routineName: 'Empurrar',
+    startedAt: now - 600000,
+    elapsedMs: 600000,
+    running: false,
+    currentIndex: 0,
+    completedSets: { 'e2e-hc1': 1 },
+    totalPlannedSets: 3,
+    queue: [{ id: 'e2e-hc1', name: 'Flexão', section: 'main', sets: 3, type: 'reps', reps: '10', rest: 60, load: '', notes: '' }],
+    status: 'active',
+    restEndAt: null,
+    restRemainingMs: 0,
+    restPaused: false,
+    pendingAdvance: false,
+    restPlannedSeconds: 0,
+    setTimer: null,
+    setLogs: { 'e2e-hc1': [{ set: 1, reps: '10', load: '', seconds: 0, distance: null, rpe: null, editedAt: null }] },
+    logDraft: {}
+  };
+
+  const seed = {
+    'forja-treino-rotinas-v1': { calisthenics: [calRoutine], weights: [weightsRoutine] },
+    'forja-treino-historico-v1': [
+      record(new Date(now), { routineId: 'e2e-home-weights', routineName: 'Peito' }),
+      record(monday, {
+        routineId: 'e2e-home-weights',
+        routineName: 'Pernas',
+        completedSets: 2,
+        totalPlannedSets: 4,
+        durationMs: 20 * 60000
+      }),
+      record(new Date(now - 9 * DAY), { routineName: 'Semana anterior', durationMs: 45 * 60000 })
+    ],
+    'forja-treino-metas-v1': {
+      version: 1, updatedAt: new Date(now).toISOString(), modality: 'all',
+      weeklySessions: 3, weeklySets: 6, weeklyMinutes: 60
+    }
+  };
+
+  await go('');
+  await page.evaluate(data => {
+    Object.entries(data).forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value)));
+  }, seed);
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(250);
+
+  /* Nível 1: uma única ação primária, apontando para a rotina real mais recente. */
+  const primaries = await page.$$eval('.home-action .primary-button', nodes => nodes.map(n => n.textContent.trim()));
+  assert.equal(primaries.length, 1, 'A home deve ter exatamente uma ação primária de treino');
+  assert.match(primaries[0], /Iniciar (Puxar|Peito)/, 'Ação principal não aponta para a rotina real: ' + primaries[0]);
+  assert.match(await text('.home-action-meta'), /Musculação|Calistenia/);
+  const squarePrimary = await page.$eval('a.treino-square', el => el.classList.contains('is-primary'));
+  assert.equal(squarePrimary, false, 'Dois CTAs disputando destaque');
+  assert.equal(await page.$eval('#home-guide', node => node.hidden), true, 'Orientação deveria sair com histórico');
+
+  /* Nível 2: três métricas compactas, com valor real e sem cartões grandes. */
+  const week = await page.$$eval('#home-week-body .home-metric', nodes =>
+    nodes.map(n => ({
+      value: n.querySelector('.home-metric-value').textContent.trim(),
+      label: n.querySelector('.home-metric-label').textContent.trim()
+    })));
+  assert.equal(week.length, 3, 'O resumo semanal deve ter três métricas');
+  const valueOf = label => (week.find(m => m.label === label) || {}).value;
+  assert.equal(valueOf('treinos'), '2', 'Treinos da semana errados');
+  assert.equal(valueOf('séries'), '5', 'Séries da semana erradas');
+  assert.equal(valueOf('tempo'), '50 min', 'Tempo da semana errado');
+  assert.match(await text('.home-week-note'), /1 treino parcial/, 'Parcial não declarada');
+  assert.match(await text('#home-week-body .home-goals'), /2\/3/, 'Progresso da meta de treinos errado');
+  assert.equal(await page.$$eval('#home-week-body .home-goal-bar', nodes => nodes.length), 3, 'Barras de meta ausentes');
+
+  /* Nível 3: no máximo três linhas, mais novo primeiro. */
+  const recentNames = await page.$$eval('#home-recent-body .home-history-name', nodes => nodes.map(n => n.textContent.trim()));
+  assert.deepEqual(recentNames, ['Peito', 'Pernas', 'Semana anterior'], 'Histórico recente fora de ordem: ' + recentNames.join(' | '));
+  assert.equal(await page.$$eval('a.treino-square', nodes => nodes.length), 1, 'Acesso ao treino duplicado');
+
+  /* Densidade: a primeira tela mostra a ação e a semana, não uma lista de painéis. */
+  const density = await page.evaluate(() => {
+    const top = document.querySelector('.home-top').getBoundingClientRect();
+    const week = document.querySelector('#home-week-heading').getBoundingClientRect();
+    return { topHeight: top.height, weekTop: week.top, viewport: window.innerHeight };
+  });
+  assert.ok(density.topHeight < 330, 'Bloco de treino alto demais: ' + density.topHeight + 'px');
+  assert.ok(density.weekTop < density.viewport, 'O resumo da semana não aparece na primeira tela');
+
+  /* Sobreposição real, corte de texto e largura útil do CTA em 390 px. */
+  await page.setViewport({ width: 390, height: 844 });
+  await sleep(120);
+  const layout = await page.evaluate(() => {
+    const container = document.querySelector('.home-top');
+    const children = Array.from(container.children).filter(el => !el.hidden && el.getClientRects().length);
+    const overlaps = [];
+    for (let index = 1; index < children.length; index++) {
+      const previous = children[index - 1].getBoundingClientRect();
+      const current = children[index].getBoundingClientRect();
+      if (current.top < previous.bottom - 1) overlaps.push(index);
+    }
+    const button = document.querySelector('.home-action .primary-button');
+    const rect = button.getBoundingClientRect();
+    const style = getComputedStyle(button);
+    return {
+      overlaps,
+      clipped: button.scrollHeight > button.clientHeight + 1,
+      buttonWidth: Math.round(rect.width),
+      viewport: window.innerWidth,
+      padding: parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
+    };
+  });
+  assert.deepEqual(layout.overlaps, [], 'Elementos do topo se sobrepõem em 390 px');
+  assert.equal(layout.clipped, false, 'O texto do CTA principal está cortado');
+  assert.ok(layout.buttonWidth <= layout.viewport - 24, 'O CTA ultrapassa a largura útil: ' + layout.buttonWidth);
+
+  /* Seis larguras, sem rolagem horizontal. */
+  for (const width of [320, 360, 390, 430, 768, 1280]) {
+    await page.setViewport({ width, height: 900 });
+    await sleep(120);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    assert.ok(overflow <= 1, 'Rolagem horizontal na home a ' + width + 'px: ' + overflow);
+  }
+
+  await page.setViewport({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await sleep(200);
+  await page.screenshot({ path: artifactPath('inicio-etapa6-390.png'), fullPage: true });
+  await page.screenshot({ path: artifactPath('inicio-refinado-390.png') });
+  await page.setViewport({ width: 1280, height: 900 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await sleep(200);
+  await page.screenshot({ path: artifactPath('inicio-etapa6-1280.png'), fullPage: true });
+  await page.setViewport(MOBILE);
+
+  /* Sessão ativa: uma única retomada, no banner; o bloco de treino se retira. */
+  await page.evaluate(value => {
+    localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify(value));
+  }, session);
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(250);
+
+  assert.equal(await page.$eval('#active-session-banner', node => node.hidden), false, 'Banner de sessão ativa ausente');
+  assert.match(await text('#active-session-summary'), /Calistenia · Empurrar/);
+  assert.equal(await page.$eval('#home-action', node => node.hidden), true, 'Ação de treino duplicada durante sessão ativa');
+  assert.equal(await page.$$eval('.home-action .primary-button', nodes => nodes.length), 0);
+  assert.match(await page.$eval('#resume-active-session', a => a.getAttribute('href')), /treino\/executar\.html$/);
+
+  /* O banner é a única ação e precisa estar inteiro, sem ficar sob o header fixo. */
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await sleep(150);
+  const bannerBox = await page.evaluate(() => {
+    const banner = document.querySelector('#active-session-banner').getBoundingClientRect();
+    const header = document.querySelector('.site-header').getBoundingClientRect();
+    const resume = document.querySelector('#resume-active-session').getBoundingClientRect();
+    return { bannerTop: banner.top, headerBottom: header.bottom, resumeTop: resume.top, resumeHeight: resume.height };
+  });
+  assert.ok(bannerBox.bannerTop >= bannerBox.headerBottom - 1,
+    'O banner de sessão ativa começa sob o header fixo (' + bannerBox.bannerTop + ' < ' + bannerBox.headerBottom + ')');
+  assert.ok(bannerBox.resumeHeight >= 44, 'Alvo de retomada pequeno demais');
+  await page.screenshot({ path: artifactPath('inicio-sessao-390.png'), fullPage: true });
+  await page.screenshot({ path: artifactPath('inicio-sessao-topo-390.png') });
+
+  /* Sem dados: uma frase de orientação + uma ação, sem pilha de vazios. */
+  await page.evaluate(() => {
+    Object.keys(localStorage).filter(key => key.startsWith('forja-')).forEach(key => localStorage.removeItem(key));
+  });
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(250);
+
+  assert.match(await text('#home-guide'), /Primeira vez aqui\?/, 'Orientação de primeiro uso ausente');
+  assert.equal(await page.$$eval('.home-step', nodes => nodes.length), 0, 'Painel de passos não deveria existir');
+  assert.equal(await page.$eval('a.treino-square', el => el.classList.contains('is-primary')), true, 'A única ação deveria estar destacada');
+  assert.equal(await page.$$eval('.home-action .primary-button', nodes => nodes.length), 0, 'CTA duplicado no estado vazio');
+  assert.match(await text('#home-week-body'), /Nenhum treino registrado ainda/);
+  assert.equal(await page.$$eval('#home-week-body .home-metric', nodes => nodes.length), 0, 'Estado vazio mostrou número inventado');
+  assert.match(await text('#home-recent-body'), /Seus treinos aparecem aqui/);
+
+  for (const width of [320, 360, 390, 430, 768, 1280]) {
+    await page.setViewport({ width, height: 900 });
+    await sleep(120);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    assert.ok(overflow <= 1, 'Rolagem horizontal na home vazia a ' + width + 'px: ' + overflow);
+  }
+  await page.setViewport({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await sleep(200);
+  await page.screenshot({ path: artifactPath('inicio-novo-390.png'), fullPage: true });
+  await page.screenshot({ path: artifactPath('inicio-vazio-390.png') });
+  await page.setViewport(MOBILE);
 });
 
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {

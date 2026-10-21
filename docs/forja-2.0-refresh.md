@@ -1,4 +1,4 @@
-# FORJA · relatório de entrega (plano 2.0 refresh + plano 3.0, etapas 1–5)
+# FORJA · relatório de entrega (plano 2.0 refresh + plano 3.0, etapas 1–6)
 
 Documento de estado real. O plano técnico e o rastreio etapa por etapa estão em
 [`forja-3.0-plano.md`](forja-3.0-plano.md). Nada aqui é promessa: cada linha de
@@ -6,10 +6,15 @@ Documento de estado real. O plano técnico e o rastreio etapa por etapa estão e
 
 - Etapas 1–4: branch `arena/ca17900f-forja` (commits `3f9f897` → `46ac0d9` →
   `2b89632` → `ee935d7`), incorporadas em `main` pelo PR #4.
-- Etapa 5: branch `arena/47b678d3-forja`, criada a partir do merge do PR #4
-  (histórico contém `ee935d7`). PR novo aberto a partir dela; **nenhum merge em
-  `main`, nenhuma publicação em produção e nenhum APK gerado**. O PR #4 está
-  fechado e não foi tocado.
+- Etapa 5: branch `arena/47b678d3-forja`. **O PR #5 foi mesclado em `main`**
+  (commit de merge `45e165e`, mesclado em 21/10/2026 às 12:58 UTC). A versão
+  anterior deste documento dizia "PR aberto, nenhum merge" — isso estava
+  correto quando foi escrito e ficou desatualizado depois da mesclagem; a
+  informação foi corrigida aqui após conferir o estado no GitHub
+  (`state: MERGED`, `mergeCommit: 45e165e`).
+- Etapa 6: branch `arena/etapa6-inicio-util`, criada a partir de `main` em
+  `45e165e`. **Nenhum merge em `main`, nenhuma publicação em produção e nenhum
+  APK gerado por esta etapa** — o PR desta etapa fica aberto para revisão.
 - O PR #3 (base do refresh Dark Performance) já estava incorporado em `main`; o
   trabalho dele foi preservado e ampliado, não reescrito.
 - App continua multipágina estático, sem build, sem dependência de runtime, sem
@@ -58,7 +63,9 @@ Quatro estados, sempre explícitos:
 | Metas semanais (treinos/séries/minutos) | **implementado e verificado (etapa 5)** — formulário valida, grava em `forja-treino-metas-v1` pelo store e sobrevive ao recarregamento | FORJA 37; E2E da etapa 5; paridade 7/13a |
 | Perfil e medidas corporais (peso, altura, circunferências, histórico, comparação, IMC com contexto, fotos opcionais privadas) | **não implementado** | etapa 3 do plano mestre (Perfil e medidas); requer produto/UX, não há fachada falsa |
 | Onboarding sem barreira (nome opcional, objetivo, experiência, local, equipamentos, dias, tempo, restrições, acessibilidade) | **não implementado** | ver §5 |
-| Início inteligente (treino do dia com motivo, último treino, frequência semanal, sequência, aviso de sessão em andamento, atalhos) | **parcialmente implementado** — a home tem calendário, missões e o resumo de rotinas por modalidade; não mostra treino planejado nem resumo da semana | etapa 6 do plano |
+| Início útil: ação única de treino com a rotina real mais recente, resumo real da semana (treinos, séries, tempo, metas), três registros recentes, retomada de sessão ativa, orientação de uma frase | **implementado e verificado (etapa 6, refinada)** | `assets/js/forja-inicio.js` + `#home-action`, `#home-week-body`, `#home-recent-body` e `#home-guide` em `index.html`; cálculos em `F.metricas`; FORJA 42–50 e verificação E2E "Início: ação única…" |
+| Home: uma única ação primária por tela (sem CTA duplicado), calendário e missões em segundo plano, sem hero promocional | **implementado e verificado (refinamento da etapa 6)** | testes FORJA 42/43/47 (contagem de `.home-action .primary-button`, `a.treino-square` único e `#home-action` oculto com sessão ativa) e E2E de densidade/sobreposição |
+| Início: "treino planejado do dia com motivo" e sequência de dias (*streak*) | **não implementado por decisão de modelo** — nenhuma rotina guarda dia da semana, então qualquer "treino de hoje" seria invenção. A home declara isso na própria seção ("o FORJA não agenda um treino por dia") e ordena as rotinas pela última vez treinada. *Streak* não existe porque exigiria regra de falta justificada que o app não tem | ver §4 (limitação 10) |
 | Progressão transparente (faixa de reps, carga gradual, variação mais difícil, sugestão de recuar, comparação de sessões equivalentes) | **não implementado** | precisa de critério documentado antes de existir |
 | Registro de sono/recuperação, lembretes, sessão curta para dia corrido | **não implementado** — não há notificação nem permissão pedida sem finalidade | ver §5 |
 | Armazenamento: camada única, registro de chaves, versão de esquema, migrações idempotentes, validação na leitura, recusa de gravação tratada, conteúdo ilegível arquivado | **implementado e verificado (etapa 1)** | `forja-store.js`; FORJA 02/03/15a–15d, paridade 1b–1g |
@@ -69,7 +76,7 @@ Quatro estados, sempre explícitos:
 | PWA instalável (manifest, ícones, maskable, standalone, splash) | **não implementado** | ver §5 |
 | Funcionamento offline com cache versionado e atualização segura | **não implementado** — deliberação: sem service worker até haver estratégia de atualização e recuperação testada (requisito do plano mestre e restrição deste trabalho) | ver §5 |
 | APK Android (Capacitor ou TWA) | **não implementado / não compilado** — o ambiente não executa Android SDK nem assinatura | ver §5 |
-| Testes: unidade de funções puras + integração de fluxo + E2E em navegador real | implementado e verificado (suíte unitária de métricas adicionada na etapa 5) | §3 |
+| Testes: unidade de funções puras + integração de fluxo + E2E em navegador real | implementado e verificado (unidade de métricas na etapa 5; integração da home e verificação E2E na etapa 6) | §3 |
 | Documentação refletindo a implementação real | implementado (este documento + `forja-3.0-plano.md`) | — |
 
 ## 2. O que as etapas 1–4 colocaram no produto
@@ -181,6 +188,84 @@ Quatro estados, sempre explícitos:
   começava em "Domingo" e terminava em "Sábado", enquanto os dados vão de
   segunda a domingo. Passou a segunda→domingo.
 
+### Etapa 6 — início útil (esta etapa)
+- **`assets/js/forja-inicio.js` reescrito** (era 22 linhas, só chamava calendário e
+  missões). Continua chamando `renderCalendar`/`renderMissions` do arquivo
+  travado por hash — o código de calendário/missões **não foi tocado** (SHA-256
+  `30a8253…` idêntico nas duas suítes). A home agora também desenha quatro
+  blocos de treino, todos derivados de `F.state` + `F.metricas`.
+- **Resumo da semana** (`#home-week`): `F.metricas.resolvePeriod("week")` +
+  `filterByPeriod` + `summarize`, a mesma conta da página de Progresso. Mostra
+  treinos, séries e tempo da semana corrente (segunda→domingo); volume só
+  aparece quando existe carga numérica (`hasVolume`). Parciais são declarados
+  ("1 parcial(is)"). Tempo sem registro aparece como `—` com o motivo
+  ("sem tempo registrado"), não como `0 min`. Histórico existente com semana
+  vazia mostra zero real **e** a explicação; sem histórico nenhum, mostra estado
+  vazio em vez de números.
+- **Metas** (`#home-week` → `.home-goals`): `F.metricas.goalProgress` com a
+  semana corrente e o escopo salvo na própria meta. Metas ativas viram barra de
+  progresso acessível (`role="progressbar"`) com `atual/alvo`, quanto falta e
+  quantas foram batidas. Sem metas, a home diz que nenhuma está configurada e
+  leva ao Progresso — **nenhuma meta padrão é criada** e abrir a home não grava.
+- **Próximo treino** (`#home-next`): lista as rotinas reais de calistenia e
+  musculação (até 3 por modalidade, com link para a lista completa), ordenadas
+  pela última vez treinada (cruzando `routineId` e, em registros antigos, o nome
+  exato da rotina). Cada card inicia pelo fluxo existente
+  (`F.startRoutine`) ou abre o editor (`treino/rotina.html?modalidade=…&id=…`).
+  A seção **não afirma** que existe treino agendado para hoje: diz, em texto,
+  que o app não guarda dia da semana e que a escolha é do usuário. Sessão ativa
+  aparece no topo do bloco com *Retomar* e *Encerrar*. Sem rotinas, o card
+  vazio explica o caminho `+ Nova rotina` nas duas modalidades.
+- **Histórico recente** (`#home-recent`): últimos 5 registros ordenados por
+  `F.metricas.recordDate` (mais novo primeiro; registro sem data legível vai
+  para o fim em vez de inventar posição), com data formatada, modalidade, nome
+  da rotina, séries concluídas/planejadas, duração e o status real
+  (`Concluído`/`Parcial`). Nada é duplicado, reescrito ou regravado; o rodapé
+  informa o total e a página de Progresso é o destino do link.
+- **Orientação de primeiro uso** (`#home-guide`): aparece só enquanto não há
+  histórico, com três passos (escolher modalidade → criar rotina → iniciar
+  treino) e a informação de que nada é obrigatório — sem perfil, sem cadastro,
+  sem pedir dado pessoal. Se o usuário já tem rotinas mas nenhum treino, o texto
+  muda para "suas rotinas estão prontas". Depois do primeiro registro a seção
+  se esconde (`hidden`). Não há onboarding bloqueante, modal ou etapa
+  obrigatória.
+- **Atualização sem recarregar**: `F.store.onChange` redesenha o painel quando
+  rotinas, histórico, sessão ativa, metas ou legado mudam (`F.saveGoals`,
+  `F.saveJSON`, importação/desfazer do backup). O ouvinte **só lê** — nenhuma
+  chamada de gravação dentro dele. `F.home.refresh()` é a mesma superfície usada
+  pelos testes.
+- **Acessibilidade e responsividade**: tudo em elementos nativos
+  (`a`/`button`/`ol`/`ul`), textos do usuário inseridos por `textContent`,
+  foco visível herdado de `:focus-visible`, alvos ≥ 44 px, nenhuma animação
+  própria (logo, `prefers-reduced-motion` já coberto por `performance.css`),
+  grid que colapsa em 1 coluna em ≤ 380 px. Medido sem rolagem horizontal em
+  320/360/390/430/768/1280 px na home com dados e na home vazia.
+- **Nada de gravação ociosa**: abrir, navegar, trocar de mês, redesenhar e ir ao
+  Progresso e voltar não alteram nenhuma chave (FORJA 48/49 comparam o
+  armazenamento inteiro antes/depois). Nenhuma chave de armazenamento nova foi
+  criada na etapa.
+
+
+#### Refinamento visual da home (mesma etapa)
+
+A primeira versão funcionava, mas empilhava oito blocos com a mesma moldura, dois
+caminhos para começar o treino e um painel de onboarding competindo com a ação.
+O refinamento mexeu só em hierarquia e CSS — nenhum dado, chave ou cálculo mudou.
+
+- **Removido**: hero de duas linhas com subtítulo promocional; painel "Por onde
+  começar" com três passos; seção final `TREINO`/"Abrir área de treino"
+  (duplicava o acesso do topo); bloco permanente de metas quando não há meta;
+  moldura de cartão (borda + sombra) repetida em todos os blocos.
+- **Condensado**: semana de 5 métricas (com volume e rótulos extras) para 3
+  (`treinos`, `séries`, `tempo`) + uma linha de contexto; histórico de 5 cartões
+  para 3 linhas; metas para barras de 4 px; estados vazios para uma frase cada;
+  calendário com células mais baixas e largura máxima de 520 px.
+- **Reorganizado**: topo = ação do treino (uma primária), depois semana, depois
+  continuidade, por fim calendário e missões com título discreto.
+- **Preservado**: calendário e missões (mesmo código travado por hash, mesmos
+  ids), banner de sessão ativa, navegação, acesso à área de treino, rotinas,
+  histórico, metas, backup e as chaves de armazenamento.
+
 ## 3. Testes executados neste ambiente
 
 ```sh
@@ -192,9 +277,9 @@ npm run test:e2e    # navegador real (requer Chromium; ver §7)
 | Suíte | Resultado | O que cobre de verdade |
 |---|---|---|
 | `tests/metricas.test.mjs` (novo, funções puras) | **18/18 aprovados** | períodos e limites de data, derivação de totais em registro antigo, unidades separadas, ausência de gravação, séries semanais, frequência, lista/evolução de exercícios, recordes (critério, empate, categoria ausente), comparação, metas e busca. Verifica também que nenhuma função muta o registro recebido |
-| `tests/forja.test.mjs` (jsdom, 9 páginas) | **41/41 aprovados** | navegação, migrações, rotinas, execução, timers, descanso (inclusive ±15 s), correção/remoção de série, distância, totais e feedback da sessão, biblioteca (busca, filtros, detalhe sem gravar, adicionar à rotina), backup, regras móveis |
+| `tests/forja.test.mjs` (jsdom, 9 páginas) | **51/51 aprovados** | navegação, migrações, rotinas, execução, timers, descanso (inclusive ±15 s), correção/remoção de série, distância, totais e feedback da sessão, biblioteca (busca, filtros, detalhe sem gravar, adicionar à rotina), backup, regras móveis e os 10 testes novos da home (42–50, incluindo 43b) |
 | `tests/paridade.test.mjs` | **40/40 aprovados** | regressão de dados e de contrato: migrações idempotentes, nada sobrescreve dados ilegíveis, backup validado, ids referenciados existindo, um único boot/`setInterval`, hash de `forja-calendario.js`, regras CSS móveis travadas |
-| `tests/e2e.browser.mjs` (Chromium headless 138) | **17/17 aprovadas** | fluxos reais no navegador: navegação, criar/editar rotina, iniciar, cronômetro por duração, pausa, descanso, resumo, histórico, exportar/importar/desfazer, aviso de armazenamento local, ausência de erro de console/HTTP/recurso ausente, rolagem horizontal e alvos de toque, capturas das 9 páginas em 390 e 1280 px; verificação própria da etapa 5 (calendário de 84 células, gráficos semanais, linha de evolução com 3 pontos, recordes com critério, metas salvas só ao confirmar e persistentes, busca, overflow em 320/390/768/1280 px) |
+| `tests/e2e.browser.mjs` (Chromium headless 138) | **18/18 aprovadas** | fluxos reais no navegador: navegação, criar/editar rotina, iniciar, cronômetro por duração, pausa, descanso, resumo, histórico, exportar/importar/desfazer, aviso de armazenamento local, ausência de erro de console/HTTP/recurso ausente, rolagem horizontal e alvos de toque, capturas das 9 páginas em 390 e 1280 px; verificação própria da etapa 5 (calendário de 84 células, gráficos semanais, linha de evolução com 3 pontos, recordes com critério, metas salvas só ao confirmar e persistentes, busca, overflow em 320/390/768/1280 px); verificação própria da etapa 6 refinada (ação primária única apontando a rotina real mais recente, três métricas da semana, metas com barra, três linhas de histórico, altura do topo < 330 px, sobreposição e corte de texto do CTA em 390 px, banner de retomada inteiro sob o header fixo, estados vazios sem número fabricado, overflow na home com dados e vazia em 320/360/390/430/768/1280 px e capturas `inicio-etapa6-390/1280.png`, `inicio-novo-390.png` e `inicio-sessao-390.png`) |
 | checagem de overflow das telas novas (puppeteer, 320/360/390/430/768/1280 px) | **sem overflow** | sessão em andamento, modal de correção, painel de séries e resumo da sessão |
 | `git diff --check` | aprovado | — |
 
@@ -233,12 +318,22 @@ APK, teste de carga real de IndexedDB, e qualquer verificação no site publicad
    aviso explícito em todas as páginas.
 9. **Cores e contraste medidos por inspeção, não por ferramenta de contraste
    automatizada em todas as combinações.**
+10. **A home não tem "treino do dia" nem sequência de dias.** O modelo de
+   rotina não guarda dia da semana nem frequência planejada, então qualquer
+   "hoje é dia de peito" seria inventado. A seção se chama *Próximo treino*,
+   lista as rotinas reais ordenadas pela última vez treinada e diz por escrito
+   que a escolha é do usuário. *Streak* também não existe: exigiria uma regra de
+   falta justificada que o app não tem, e um contador que zera por um dia sem
+   treino seria motivação falsa.
+11. **O painel da home depende do relógio do aparelho.** Semana, metas e
+   ordenação usam `new Date()` do navegador; um relógio adiantado muda o recorte
+   da semana. É a mesma premissa já usada pelo calendário e pelo Progresso.
 
 ## 5. Pendências (com a dependência real de cada uma)
 
 | Pendência | Dependência para sair do papel |
 |---|---|
-| Etapa 6 — Início útil: treino planejado com motivo, resumo da semana, aviso de sessão em andamento, atalhos, estado vazio para usuário novo | nenhuma externa — as métricas puras da etapa 5 (`F.metricas`) já estão disponíveis |
+| Treino planejado por dia (e sequência de dias) na home | **decisão de modelo**: hoje a rotina não tem dia da semana; implementar exige campo novo aditivo + UI de planejamento semanal. Enquanto isso não existe, a home não finge que existe (limitação 10) |
 | Etapa 7 — Configurações: auditoria de armazenamento e visualizador de dados preservados, mensagens de importação/corrupção, validação do modelo no backup | nenhuma externa |
 | Etapa 8 — paridade estendida às rotas novas e capturas ampliadas (a suíte unitária de funções puras já existe: `tests/metricas.test.mjs`) | nenhuma externa |
 | Atlas anatômico + ilustração por exercício | **dependência de produto e de arte**: SVG próprio ou licença verificável; decisão sobre nível de detalhe (principal × secundário × estabilizador) e revisão por profissional de educação física |
@@ -320,7 +415,11 @@ node tools/capturas.mjs --out /tmp/x     # sem tocar no repositório
 
 | Tela | Mobile 390 px | Desktop 1280 px |
 |---|---|---|
-| Início (calendário e missões) | [PNG](../artifacts/forja-visual/inicio-390.png) | [PNG](../artifacts/forja-visual/inicio-1280.png) |
+| Início — refinada (ação única, semana, metas, histórico) + calendário e missões | [PNG](../artifacts/forja-visual/inicio-etapa6-390.png) | [PNG](../artifacts/forja-visual/inicio-etapa6-1280.png) |
+| Início — primeiro uso, refinada (uma frase + uma ação) | [PNG](../artifacts/forja-visual/inicio-novo-390.png) | — |
+| Início — sessão ativa (única ação: Retomar) | [PNG](../artifacts/forja-visual/inicio-sessao-390.png) | — |
+| Início — primeira tela em 390 px (densidade) | [PNG](../artifacts/forja-visual/inicio-refinado-390.png) | — |
+| Início (calendário e missões, versão anterior) | [PNG](../artifacts/forja-visual/inicio-390.png) | [PNG](../artifacts/forja-visual/inicio-1280.png) |
 | Hub de treino | [PNG](../artifacts/forja-visual/treino-390.png) | [PNG](../artifacts/forja-visual/treino-1280.png) |
 | Calistenia | [PNG](../artifacts/forja-visual/calistenia-390.png) | [PNG](../artifacts/forja-visual/calistenia-1280.png) |
 | Musculação | [PNG](../artifacts/forja-visual/musculacao-390.png) | [PNG](../artifacts/forja-visual/musculacao-1280.png) |
@@ -341,7 +440,7 @@ node tools/capturas.mjs --out /tmp/x     # sem tocar no repositório
 
 ```sh
 npm ci
-npm test                                  # MÉTRICAS 18/18 + FORJA 41/41 + PARIDADE 40/40
+npm test                                  # MÉTRICAS 18/18 + FORJA 51/51 + PARIDADE 40/40
 npm run test:e2e                          # E2E em Chromium real (ver §7)
 node tools/capturas.mjs                   # capturas da execução + checagem de overflow
 npm run serve                             # http://127.0.0.1:8080/forja/ (sirva a pasta pai)
