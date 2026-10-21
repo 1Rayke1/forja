@@ -63,7 +63,8 @@ Quatro estados, sempre explícitos:
 | Metas semanais (treinos/séries/minutos) | **implementado e verificado (etapa 5)** — formulário valida, grava em `forja-treino-metas-v1` pelo store e sobrevive ao recarregamento | FORJA 37; E2E da etapa 5; paridade 7/13a |
 | Perfil e medidas corporais (peso, altura, circunferências, histórico, comparação, IMC com contexto, fotos opcionais privadas) | **não implementado** | etapa 3 do plano mestre (Perfil e medidas); requer produto/UX, não há fachada falsa |
 | Onboarding sem barreira (nome opcional, objetivo, experiência, local, equipamentos, dias, tempo, restrições, acessibilidade) | **não implementado** | ver §5 |
-| Início útil: resumo real da semana (treinos, séries, tempo, metas), rotinas de calistenia e musculação com início/abertura, histórico recente com data/modalidade/status, retomada de sessão ativa, orientação de primeiro uso | **implementado e verificado (etapa 6)** | `assets/js/forja-inicio.js` + seções `#home-week`, `#home-next`, `#home-recent` e `#home-guide` em `index.html`; cálculos em `F.metricas`; FORJA 42–50 e verificação E2E "Início útil" |
+| Início útil: ação única de treino com a rotina real mais recente, resumo real da semana (treinos, séries, tempo, metas), três registros recentes, retomada de sessão ativa, orientação de uma frase | **implementado e verificado (etapa 6, refinada)** | `assets/js/forja-inicio.js` + `#home-action`, `#home-week-body`, `#home-recent-body` e `#home-guide` em `index.html`; cálculos em `F.metricas`; FORJA 42–50 e verificação E2E "Início: ação única…" |
+| Home: uma única ação primária por tela (sem CTA duplicado), calendário e missões em segundo plano, sem hero promocional | **implementado e verificado (refinamento da etapa 6)** | testes FORJA 42/43/47 (contagem de `.home-action .primary-button`, `a.treino-square` único e `#home-action` oculto com sessão ativa) e E2E de densidade/sobreposição |
 | Início: "treino planejado do dia com motivo" e sequência de dias (*streak*) | **não implementado por decisão de modelo** — nenhuma rotina guarda dia da semana, então qualquer "treino de hoje" seria invenção. A home declara isso na própria seção ("o FORJA não agenda um treino por dia") e ordena as rotinas pela última vez treinada. *Streak* não existe porque exigiria regra de falta justificada que o app não tem | ver §4 (limitação 10) |
 | Progressão transparente (faixa de reps, carga gradual, variação mais difícil, sugestão de recuar, comparação de sessões equivalentes) | **não implementado** | precisa de critério documentado antes de existir |
 | Registro de sono/recuperação, lembretes, sessão curta para dia corrido | **não implementado** — não há notificação nem permissão pedida sem finalidade | ver §5 |
@@ -245,6 +246,26 @@ Quatro estados, sempre explícitos:
   criada na etapa.
 
 
+#### Refinamento visual da home (mesma etapa)
+
+A primeira versão funcionava, mas empilhava oito blocos com a mesma moldura, dois
+caminhos para começar o treino e um painel de onboarding competindo com a ação.
+O refinamento mexeu só em hierarquia e CSS — nenhum dado, chave ou cálculo mudou.
+
+- **Removido**: hero de duas linhas com subtítulo promocional; painel "Por onde
+  começar" com três passos; seção final `TREINO`/"Abrir área de treino"
+  (duplicava o acesso do topo); bloco permanente de metas quando não há meta;
+  moldura de cartão (borda + sombra) repetida em todos os blocos.
+- **Condensado**: semana de 5 métricas (com volume e rótulos extras) para 3
+  (`treinos`, `séries`, `tempo`) + uma linha de contexto; histórico de 5 cartões
+  para 3 linhas; metas para barras de 4 px; estados vazios para uma frase cada;
+  calendário com células mais baixas e largura máxima de 520 px.
+- **Reorganizado**: topo = ação do treino (uma primária), depois semana, depois
+  continuidade, por fim calendário e missões com título discreto.
+- **Preservado**: calendário e missões (mesmo código travado por hash, mesmos
+  ids), banner de sessão ativa, navegação, acesso à área de treino, rotinas,
+  histórico, metas, backup e as chaves de armazenamento.
+
 ## 3. Testes executados neste ambiente
 
 ```sh
@@ -258,7 +279,7 @@ npm run test:e2e    # navegador real (requer Chromium; ver §7)
 | `tests/metricas.test.mjs` (novo, funções puras) | **18/18 aprovados** | períodos e limites de data, derivação de totais em registro antigo, unidades separadas, ausência de gravação, séries semanais, frequência, lista/evolução de exercícios, recordes (critério, empate, categoria ausente), comparação, metas e busca. Verifica também que nenhuma função muta o registro recebido |
 | `tests/forja.test.mjs` (jsdom, 9 páginas) | **51/51 aprovados** | navegação, migrações, rotinas, execução, timers, descanso (inclusive ±15 s), correção/remoção de série, distância, totais e feedback da sessão, biblioteca (busca, filtros, detalhe sem gravar, adicionar à rotina), backup, regras móveis e os 10 testes novos da home (42–50, incluindo 43b) |
 | `tests/paridade.test.mjs` | **40/40 aprovados** | regressão de dados e de contrato: migrações idempotentes, nada sobrescreve dados ilegíveis, backup validado, ids referenciados existindo, um único boot/`setInterval`, hash de `forja-calendario.js`, regras CSS móveis travadas |
-| `tests/e2e.browser.mjs` (Chromium headless 138) | **18/18 aprovadas** | fluxos reais no navegador: navegação, criar/editar rotina, iniciar, cronômetro por duração, pausa, descanso, resumo, histórico, exportar/importar/desfazer, aviso de armazenamento local, ausência de erro de console/HTTP/recurso ausente, rolagem horizontal e alvos de toque, capturas das 9 páginas em 390 e 1280 px; verificação própria da etapa 5 (calendário de 84 células, gráficos semanais, linha de evolução com 3 pontos, recordes com critério, metas salvas só ao confirmar e persistentes, busca, overflow em 320/390/768/1280 px); verificação própria da etapa 6 (semana real com parcial, metas com progresso, rotinas das duas modalidades, histórico ordenado, sessão ativa com retomada, estados vazios sem número fabricado, overflow na home com dados e vazia em 320/360/390/430/768/1280 px e capturas `inicio-etapa6-390/1280.png` e `inicio-novo-390.png`) |
+| `tests/e2e.browser.mjs` (Chromium headless 138) | **18/18 aprovadas** | fluxos reais no navegador: navegação, criar/editar rotina, iniciar, cronômetro por duração, pausa, descanso, resumo, histórico, exportar/importar/desfazer, aviso de armazenamento local, ausência de erro de console/HTTP/recurso ausente, rolagem horizontal e alvos de toque, capturas das 9 páginas em 390 e 1280 px; verificação própria da etapa 5 (calendário de 84 células, gráficos semanais, linha de evolução com 3 pontos, recordes com critério, metas salvas só ao confirmar e persistentes, busca, overflow em 320/390/768/1280 px); verificação própria da etapa 6 refinada (ação primária única apontando a rotina real mais recente, três métricas da semana, metas com barra, três linhas de histórico, altura do topo < 330 px, sobreposição e corte de texto do CTA em 390 px, banner de retomada inteiro sob o header fixo, estados vazios sem número fabricado, overflow na home com dados e vazia em 320/360/390/430/768/1280 px e capturas `inicio-etapa6-390/1280.png`, `inicio-novo-390.png` e `inicio-sessao-390.png`) |
 | checagem de overflow das telas novas (puppeteer, 320/360/390/430/768/1280 px) | **sem overflow** | sessão em andamento, modal de correção, painel de séries e resumo da sessão |
 | `git diff --check` | aprovado | — |
 
@@ -394,8 +415,10 @@ node tools/capturas.mjs --out /tmp/x     # sem tocar no repositório
 
 | Tela | Mobile 390 px | Desktop 1280 px |
 |---|---|---|
-| Início — painel completo, etapa 6 (semana, rotinas, histórico) + calendário e missões | [PNG](../artifacts/forja-visual/inicio-etapa6-390.png) | [PNG](../artifacts/forja-visual/inicio-etapa6-1280.png) |
-| Início — primeiro uso, etapa 6 (orientação e estados vazios) | [PNG](../artifacts/forja-visual/inicio-novo-390.png) | — |
+| Início — refinada (ação única, semana, metas, histórico) + calendário e missões | [PNG](../artifacts/forja-visual/inicio-etapa6-390.png) | [PNG](../artifacts/forja-visual/inicio-etapa6-1280.png) |
+| Início — primeiro uso, refinada (uma frase + uma ação) | [PNG](../artifacts/forja-visual/inicio-novo-390.png) | — |
+| Início — sessão ativa (única ação: Retomar) | [PNG](../artifacts/forja-visual/inicio-sessao-390.png) | — |
+| Início — primeira tela em 390 px (densidade) | [PNG](../artifacts/forja-visual/inicio-refinado-390.png) | — |
 | Início (calendário e missões, versão anterior) | [PNG](../artifacts/forja-visual/inicio-390.png) | [PNG](../artifacts/forja-visual/inicio-1280.png) |
 | Hub de treino | [PNG](../artifacts/forja-visual/treino-390.png) | [PNG](../artifacts/forja-visual/treino-1280.png) |
 | Calistenia | [PNG](../artifacts/forja-visual/calistenia-390.png) | [PNG](../artifacts/forja-visual/calistenia-1280.png) |

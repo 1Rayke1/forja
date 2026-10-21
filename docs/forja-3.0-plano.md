@@ -83,7 +83,7 @@ integração, 40 de paridade e 16 de E2E.
 | 3 | Catálogo | **concluída** | `treino/biblioteca.html` + `forja-catalogo.js`: busca com normalização, filtros (seção, categoria, grupo muscular, equipamento, tipo de medição), detalhe com instruções, adicionar à rotina; metadados no modelo e no editor |
 | 4 | Execução | **concluída** | edição/remoção de série registrada, ajuste de descanso ±15 s, registro de distância, RPE + nota da sessão, guarda de sessão não salva, resumo pós-treino com volume real |
 | 5 | Análise de progresso | **concluída** | calendário de frequência, volume semanal, evolução de carga/reps por exercício, recordes com critério, comparação de períodos, filtros por semana/mês/personalizado, metas semanais, histórico pesquisável |
-| 6 | Início útil | **concluída** | resumo real da semana (treinos, séries, tempo, volume quando há carga), metas com progresso, rotinas de calistenia e musculação com iniciar/abrir, retomada de sessão ativa, histórico recente com data/modalidade/status e orientação de primeiro uso — sem treino do dia inventado |
+| 6 | Início útil | **concluída** (refinamento visual na sequência) | resumo real da semana (treinos, séries, tempo, volume quando há carga), metas com progresso, ação única de treino com a rotina real mais recente, retomada de sessão ativa pelo banner, histórico recente em 3 linhas e orientação de uma frase — sem treino do dia inventado |
 | 7 | Dados e robustez | pendente | auditoria de armazenamento e visualizador de dados preservados em Configurações, erros de importação/corrupção, validação do modelo no backup |
 | 8 | Testes e docs | em andamento | suíte unitária de funções puras, integração dos fluxos novos, paridade estendida às rotas novas, E2E com capturas, relatório atualizado |
 
@@ -136,7 +136,53 @@ Toda métrica da etapa 5 tem critério declarado e testado:
   concluídas no dia (mesma escala do heatmap). Dias futuros aparecem vazios e
   marcados (`future`).
 
-### 4.4 Início: o que a home pode afirmar (etapa 6)
+### 4.4 Início: hierarquia visual (refinamento da etapa 6)
+
+A primeira versão da etapa 6 respondia tudo, mas empilhava oito blocos com a
+mesma moldura (painel + borda + sombra), dois CTAs para a mesma ação e um painel
+de orientação concorrendo com o treino. O refinamento não mudou dado nem
+armazenamento; mudou prioridade:
+
+- **Uma ação por tela.** `Iniciar <rotina>` é o único botão preenchido quando há
+  rotina com exercícios; sem rotina, o destaque passa para o mesmo
+  `a.treino-square` de sempre (não há um segundo CTA criado). Com sessão ativa o
+  banner do topo é a única ação (*Retomar*) e o bloco de treino se retira
+  (`#home-action` oculto) — nunca existem dois caminhos para retomar.
+- **Rotina sugerida, com critério.** A rotina do botão é a treinada mais
+  recentemente (por `routineId`, ou nome exato em registros antigos) entre as que
+  têm exercícios; sem histórico, a primeira cadastrada. A linha `home-action-meta`
+  mostra modalidade, exercícios, séries e "última vez" — sem inventar agenda.
+- **Resumo em três números.** `treinos`, `séries`, `tempo` numa faixa sem cartão.
+  Notas curtas só quando existem (parciais, tempo não registrado, volume). O
+  total de 5 métricas com 5 rótulos virou 3 + uma linha de contexto.
+- **Metas discretas.** Quando configuradas, uma linha por meta com barra fina de
+  4 px (`role="progressbar"`, `aria-valuenow` real) e um resumo `N/M metas
+  batidas`; sem metas, o bloco simplesmente não existe (era um estado vazio
+  permanente ocupando espaço).
+- **Histórico em linhas.** No máximo **3** registros (era 5), sem cartões:
+  nome + status à direita, uma linha de metadados (data, modalidade, séries,
+  duração). O link "Ver histórico" leva ao Progresso.
+- **Orientação virou uma frase.** O painel de três passos foi removido. Sem
+  rotina, a frase fica sob o título e aponta a ação única ("Primeira vez aqui?
+  Escolha calistenia ou musculação e crie sua primeira rotina — sem cadastro").
+  Com rotina e sem histórico, ela explica o que vai aparecer. Com histórico
+  completo, desaparece.
+- **Título curto.** O hero de duas linhas e subtítulo promocional deu lugar a
+  "Hora de treinar." + a frase de estado (que só existe quando tem algo a dizer).
+- **Calendário e missões em segundo plano, não removidos.** Mesmos widgets e
+  mesmos ids (`#calendar-grid`, `#prev-month`, `#mission`, `#task-form`…), agora
+  abaixo do treino, com título em caixa alta pequena, células mais baixas,
+  largura limitada a 520 px e botão "Adicionar" neutro (o lime fica para a ação
+  principal). O `add-button` do app continua igual; só a home escopa a cor.
+- **Uma seção de treino.** O bloco `TREINO`/"Abrir área de treino" que fechava a
+  página foi removido: era o segundo caminho para a mesma coisa. O acesso
+  continua no topo, como linha secundária.
+
+Custo em CSS: nenhuma dependência nova, nenhuma animação; `home-start-link`,
+`home-hero` e `.treino-cta` deixaram de existir junto com o markup que os usava
+(as regras órfãs foram removidas de `performance.css` e `app.css`).
+
+### 4.5 Início: o que a home pode afirmar
 
 - **Semana** = semana corrente do calendário local, segunda→domingo, exatamente
   `F.metricas.resolvePeriod("week")` — a mesma janela das metas no Progresso.
@@ -149,11 +195,13 @@ Toda métrica da etapa 5 tem critério declarado e testado:
   vazia); sem histórico a tela usa estado vazio com explicação.
 - **Metas** só aparecem se estiverem configuradas (`goalProgress(...).active`);
   alvo 0 continua desligando o item e nenhuma meta padrão é criada.
-- **Próximo treino**: a ordem é "mais recentemente treinada primeiro", com a
-  data vinda do histórico (`routineId` e, para registros antigos, nome exato).
-  Rotina nunca treinada aparece depois, em ordem alfabética. A seção diz que o
-  app **não** guarda treino agendado por dia.
-- **Histórico recente**: limite de 5, ordenado por `F.metricas.recordDate`.
+- **Ação de treino**: a rotina sugerida é a treinada mais recentemente entre
+  as que têm exercícios (`routineId` e, para registros antigos, nome exato); sem
+  histórico vale a primeira cadastrada. A seção não afirma que existe treino
+  agendado para hoje — o app não guarda dia da semana (limitação 10 do
+  relatório).
+- **Histórico recente**: limite de 3 (o refinamento visual reduziu de 5 para 3
+  linhas), ordenado por `F.metricas.recordDate`.
   Registro sem data legível vai para o fim em vez de receber uma data qualquer.
   Nada é reescrito nem duplicado para exibir.
 - **Nenhuma gravação**: a home só lê. A única escrita possível a partir dela é
@@ -192,4 +240,4 @@ Toda métrica da etapa 5 tem critério declarado e testado:
 | 3 | `treino/biblioteca.html` + `forja-catalogo.js`: 37 exercícios com metadados, busca com normalização NFD, filtros combináveis, revelação progressiva (12 por bloco), detalhe sem gravar nada, adicionar à rotina com rollback; metadados no editor de rotina e link da biblioteca nas páginas de modalidade | Testes FORJA 27, 27b, 28, 29, 30; paridade 10 (ids e ausência de erro de console); E2E cobre a rota nova em 6 larguras; capturas `biblioteca-390/1280.png` |
 | 4 | Correção e remoção da última série por série; ajuste do descanso em andamento em passos de 15 s (com pausar/retomar e persistência por timestamp); registro de distância por série com unidade do exercício; RPE por série e RPE/nota da sessão; totais reais (`volumeKg`, `reps`, `seconds`, `distanceMeters`, `setsLogged`, `setsWithoutVolume`) no registro e no resumo; nota e esforço aparecem no histórico | Testes FORJA 31, 32, 33, 33b (fluxo real na página, incluindo recarregar no meio do descanso ajustado); suíte completa 35/35 + 40/40; E2E 16/16; checagem de overflow das telas novas em 320–1280 px; capturas `executar-log/descanso/corrigir/resumo-390.png` e `executar-resumo-1280.png` |
 | 5 | `forja-metricas.js`: períodos (semana/mês/tudo/personalizado com comparação do bloco anterior), totais por unidade, séries semanais, frequência de 12 semanas, evolução por exercício (4 medidas), recordes com critério, comparação de períodos, metas semanais e busca/filtro do histórico. Página de Progresso reescrita consumindo `forja-graficos.js` e a camada de metas; formulário de metas (`forja-treino-metas-v1`) com validação e persistência; busca no histórico (rotina, exercício, carga digitada, nota) + status; controles de período na URL. `recordDate`/`formatRecordDate` deixaram de ser duplicados (usados de `F.metricas` em progresso e treino) | `npm test`: métricas 18/18, FORJA 41/41 (34–39 novos, incluindo comparação de storage antes/depois para provar ausência de gravação ociosa e o teto de 200 registros), paridade 40/40 (hash do calendário e count de `setInterval` intactos); `npm run test:e2e` 17/17 com verificação nova da tela em Chromium real (calendário, gráficos, recordes, metas salvas e persistentes, busca, overflow em 320/390/768/1280 px); capturas `progresso-etapa5-390.png` e `progresso-etapa5-1280.png` |
-| 6 | Início útil: `forja-inicio.js` (resumo semanal, metas, rotinas reais com iniciar/abrir, retomada de sessão, histórico recente, orientação de primeiro uso) + seções em `index.html` + estilos `.home-*` em `app.css`; calendário/missões e banner de sessão preservados sem tocar no arquivo travado por hash | `npm test`: métricas 18/18, FORJA 51/51 (42–50 e 43b novos: home vazia, rotinas das duas modalidades, escape de nome hostil, semana com parcial, metas com e sem configuração, ordenação do histórico, sessão ativa, atualização sem recarregar, ausência de gravação ociosa, calendário/missões preservados), paridade 40/40 (hash do calendário intacto); `npm run test:e2e` 18/18 com verificação nova em Chromium real (semana, metas, rotinas, histórico, retomada, estados vazios, overflow em 320/360/390/430/768/1280 px); capturas `inicio-etapa6-390.png`, `inicio-etapa6-1280.png` e `inicio-novo-390.png` |
+| 6 | Início útil, já com o refinamento visual: `forja-inicio.js` (ação única de treino com a rotina real mais recente, resumo semanal em três números, metas em barras finas, três registros recentes em linhas, orientação de uma frase) + `index.html` sem hero promocional e sem CTA duplicado + estilos `.home-*` em `app.css`; calendário/missões e banner de sessão preservados sem tocar no arquivo travado por hash | `npm test`: métricas 18/18, FORJA 51/51 (42–50 e 43b: ação única na home vazia, rotina mais recente destacada, escape de nome hostil, semana com parcial, metas presentes/ausentes sem bloco vazio, três linhas ordenadas, sessão ativa sem CTA duplicado, atualização sem recarregar, ausência de gravação ociosa, calendário/missões preservados), paridade 40/40 (hash do calendário intacto); `npm run test:e2e` 18/18 com verificação nova em Chromium real (ação única, métricas, metas, três registros, densidade do topo < 330 px, sobreposição/corte do CTA em 390 px, banner de retomada visível sob o header fixo, estados vazios, overflow em 320/360/390/430/768/1280 px); capturas `inicio-etapa6-390/1280.png`, `inicio-novo-390.png`, `inicio-sessao-390.png` |
