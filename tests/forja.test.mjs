@@ -34,6 +34,7 @@ const PAGES = [
   "treino/musculacao.html",
   "treino/rotina.html",
   "treino/executar.html",
+  "treino/biblioteca.html",
   "progresso/index.html",
   "configuracoes/index.html"
 ];
@@ -777,6 +778,578 @@ await runTest("26. Cronômetro da série pausa, retoma e não avança com a paus
   assert.equal(app.F.state.activeWorkout.completedSets.q1, 1, "Não concluiu ao chegar ao tempo");
   assertNoErrors(app, "pausa do cronômetro");
   app.close();
+});
+
+await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", async () => {
+  const app = await boot({}, "treino/biblioteca.html");
+  await wait(20);
+
+  assert.equal(app.d.body.dataset.page, "biblioteca");
+  assert.ok(app.$("#catalog-root"), "Contêiner da biblioteca ausente");
+
+  const rows = () => app.$$("#catalog-list .ui-exercise-row");
+  const total = () => app.F.catalog.items().length;
+
+  assert.equal(total(), 37, "Catálogo sugerido não carregou inteiro");
+  assert.match(app.text("#catalog-status"), /37 exercícios no catálogo/);
+  assert.equal(rows().length, 12, "A lista não veio em blocos para caber na tela");
+  assert.match(app.text(".catalog-more"), /Mostrar mais 12 de 25/, "Contador de 'mostrar mais' errado");
+
+  app.click(".catalog-more button");
+  await wait(15);
+  assert.equal(rows().length, 24, "Mostrar mais não revelou o bloco seguinte");
+  assert.match(app.text(".catalog-more"), /Mostrar mais 12 de 13/);
+  app.click(".catalog-more button");
+  await wait(15);
+  assert.match(app.text(".catalog-more"), /Mostrar mais 1 de 1/, "Último bloco não avisou que era o resto");
+  app.click(".catalog-more button");
+  await wait(15);
+  assert.equal(rows().length, 37, "Último bloco não mostrou o restante");
+  assert.equal(app.$(".catalog-more"), null, "Botão 'Mostrar mais' ficou depois de tudo visível");
+
+  /* Busca ignora acentos e considera nome, músculo, categoria e equipamento. */
+  const search = app.$("#catalog-search");
+  search.value = "flexao";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(10);
+  const found = rows().map(row => row.querySelector(".ui-exercise-name").textContent);
+  assert.ok(found.includes("Flexão de braço"), "Busca sem acento não encontrou Flexão");
+  assert.ok(found.length < 37 && found.length > 0, "Busca não filtrou a lista");
+
+  search.value = "peito";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(10);
+  assert.ok(rows().length > 1, "Busca por grupo muscular não retornou itens");
+  assert.ok(rows().length <= 12, "Busca ignorou o bloco visível");
+
+  search.value = "";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(10);
+  assert.equal(rows().length, 12, "Limpar a busca não trouxe o catálogo de volta");
+  assert.match(app.text("#catalog-status"), /37 exercícios/);
+
+  /* Filtros: modalidade, medição e categoria funcionam e mostram contagem. */
+  const weightsSegment = app.$$("#catalog-controls .ui-segment").find(node => /Muscula/.test(node.textContent));
+  weightsSegment.click();
+  await wait(15);
+  assert.match(app.text("#catalog-status"), /19 exercícios/);
+  assert.equal(rows().length, 12, "Filtro de modalidade não reiniciou o bloco visível");
+  app.click(".catalog-more button");
+  await wait(15);
+  assert.equal(rows().length, 19, "Filtro de modalidade não reduziu a lista");
+  assert.ok(rows().every(row => /Muscula/.test(row.textContent)), "Filtro de modalidade vazou itens de calistenia");
+
+  app.$$("#catalog-controls .ui-segment")[0].click();
+  await wait(15);
+  assert.match(app.text("#catalog-status"), /37 exercícios no catálogo/);
+  assert.equal(rows().length, 12, "Voltar para Todas não restaurou a lista");
+
+  const measureRow = app.$('#catalog-controls [data-filter-group="measure"]');
+  assert.ok(measureRow, "Filtro de medição ausente");
+  measureRow.querySelector('[data-value="time"]').click();
+  await wait(15);
+  const timed = app.F.catalog.filter({ measure: "time" });
+  assert.ok(timed.length > 0 && timed.length < 37, "Filtro de medição não funcionou");
+  assert.equal(rows().length, Math.min(12, timed.length), "Filtro novo não reiniciou o bloco visível");
+  /*
+    `Array.from` no domínio do teste: os objetos vêm da janela jsdom e a
+    comparação estrita de arrays também compara protótipos.
+  */
+  assert.deepEqual(
+    rows().map(row => row.querySelector(".ui-exercise-name").textContent),
+    Array.from(timed.slice(0, 12), record => record.name),
+    "Filtro de medição listou itens diferentes dos que têm medição por tempo"
+  );
+
+  app.$('#catalog-controls [data-filter-group="measure"] [data-value="null"]').click();
+  await wait(15);
+  assert.equal(rows().length, 12, "Limpeza do filtro não voltou ao primeiro bloco");
+  assert.match(app.text("#catalog-status"), /37 exercícios/);
+
+  /* Detalhe traz instruções reais e a frase de histórico (sem inventar dado). */
+  app.click('#catalog-list .ui-exercise-row [aria-label^="Ver detalhes"]');
+  await wait(20);
+  assert.ok(app.$(".modal-backdrop"), "Detalhe não abriu");
+  assert.match(app.text(".modal-details"), /sem registros no seu histórico/i, "Detalhe inventou histórico");
+  app.modalAction("cancel");
+  await wait(20);
+
+  /* Consultar não escreve nada. */
+  assert.deepEqual(app.keys(), [], "A biblioteca gravou dados sem pedido do usuário");
+  assertNoErrors(app, "biblioteca");
+  app.close();
+});
+
+await runTest("27b. Biblioteca: detalhe usa o histórico real, não número inventado", async () => {
+  const record = (id, name, sets, load) => ({
+    id, date: "2026-10-01", modality: "calisthenics", routineName: "Treino X",
+    durationMs: 60000, completedSets: sets, totalPlannedSets: sets, status: "completed",
+    finishedAt: "2026-10-01T12:00:00.000Z",
+    exercises: [{
+      id: "e-" + id, name, section: "main", plannedSets: sets, completedSets: sets,
+      reps: "10", duration: 45, type: "reps", rest: 60, load: "", notes: "", timedSeconds: 0,
+      logs: Array.from({ length: sets }, (_, index) => ({ set: index + 1, reps: "12", load, seconds: undefined }))
+    }]
+  });
+
+  const app = await boot({
+    "forja-treino-historico-v1": [
+      record("h1", "Flexão de braço", 3, "20 kg"),
+      record("h2", "Flexão de braço", 2, "25 kg")
+    ]
+  }, "treino/biblioteca.html");
+  await wait(20);
+
+  const row = app.$$("#catalog-list .ui-exercise-row").find(node => /Flexão de braço/.test(node.textContent));
+  app.click(row.querySelector('[aria-label^="Ver detalhes"]'));
+  await wait(20);
+
+  const details = app.text(".modal-details");
+  assert.match(details, /2 treinos registrados/);
+  assert.match(details, /5 séries concluídas/);
+  assert.match(details, /maior carga 25 kg/);
+  assert.match(details, /máximo de 12 repetições/);
+  assert.match(details, /último em 01 de out/, "Data do último treino não formatada: " + details);
+  assertNoErrors(app, "detalhe com histórico");
+  app.close();
+});
+
+await runTest("28. Biblioteca: adicionar à rotina grava na seção escolhida", async () => {
+  const routine = makeRoutine("calisthenics", "Rotina B", [
+    { id: "m1", name: "Flexão existing", section: "main", sets: 2, reps: "10", rest: 10 }
+  ], "rb");
+
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) }, "treino/biblioteca.html");
+  await wait(20);
+
+  const before = app.raw("forja-treino-rotinas-v1");
+  assert.equal(routine.sections.warmup.length, 0);
+
+  /* Adicionar direto pelo botão: modal pede rotina e seção. */
+  const target = app.$$("#catalog-list .ui-exercise-row")
+    .find(row => /Agachamento livre/.test(row.textContent));
+  app.click(target.querySelector('[aria-label^="Adicionar"]'));
+  await wait(20);
+  assert.match(app.text("#modal-title"), /Adicionar Agachamento livre/);
+  assert.equal(app.modalField("routine").options.length, 1, "Seletor de rotina incorreto");
+  app.modalField("section").value = "main";
+  app.modalAction("add");
+  await wait(40);
+
+  const after = app.data("forja-treino-rotinas-v1").calisthenics[0];
+  assert.equal(after.sections.main.length, 2, "Exercício não entrou na rotina");
+  const added = after.sections.main[1];
+  assert.equal(added.name, "Agachamento livre");
+  assert.match(added.id, /^exercise-/, "O exercício copiado precisa de id novo");
+  assert.equal(added.libraryId, "cal-agachamento", "A origem no catálogo não foi registrada");
+  assert.equal(added.section, "main");
+  assert.ok(added.instructions.length > 0, "As instruções não viajaram com o exercício");
+  assert.match(app.text("#toast"), /entrou em Rotina B/);
+
+  /* Cancelar o modal não altera a rotina. */
+  const untouched = app.raw("forja-treino-rotinas-v1");
+  const second = app.$$("#catalog-list .ui-exercise-row")[0];
+  app.click(second.querySelector('[aria-label^="Adicionar"]'));
+  await wait(20);
+  app.modalAction("cancel");
+  await wait(20);
+  assert.equal(app.raw("forja-treino-rotinas-v1"), untouched, "Cancelar alterou a rotina");
+
+  /* Rotina atualizada no estado: nada de recarregar a página. */
+  assert.equal(app.F.state.routines.calisthenics[0].sections.main.length, 2);
+  assert.deepEqual(Object.keys(app.data("forja-treino-rotinas-v1")).sort(), ["calisthenics", "weights"]);
+  assert.notEqual(before, app.raw("forja-treino-rotinas-v1"));
+  assertNoErrors(app, "adicionar da biblioteca");
+  app.close();
+});
+
+await runTest("29. Biblioteca sem rotinas leva o usuário ao lugar certo", async () => {
+  const app = await boot({}, "treino/biblioteca.html");
+  await wait(20);
+
+  app.click('#catalog-list .ui-exercise-row [aria-label^="Adicionar"]');
+  await wait(20);
+  assert.match(app.text("#modal-title"), /Nenhuma rotina de Calistenia/);
+  assert.match(app.text(".modal-message"), /A biblioteca não guarda treinos sozinha/);
+
+  app.modalAction("open");
+  await pageIs(app, "calistenia");
+  assertNoErrors(app, "biblioteca sem rotinas");
+  app.close();
+});
+
+await runTest("30. Editor: metadados do exercício personalizado chegam à biblioteca", async () => {
+  const routine = makeRoutine("calisthenics", "Com metadados", [], "meta");
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) }, "treino/rotina.html?modalidade=calisthenics&id=meta");
+  await wait(20);
+
+  app.click("#library-toggle");
+  app.click("#custom-toggle");
+  await wait(10);
+
+  app.$("#custom-name").value = "Prancha Esequena";
+  app.$("#custom-sets").value = "2";
+  app.$("#custom-rest").value = "30";
+  app.$("#custom-category").value = "core";
+  app.$("#custom-muscles").value = "abdômen, lombar, abdômen";
+  app.$("#custom-equipment").value = "peso corporal";
+  app.$("#custom-instructions").value = "Subir o quadril só depois de estabilizar a respiração.";
+  app.$("#custom-form").dispatchEvent(new app.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(30);
+
+  const saved = app.data("forja-treino-biblioteca-v1").calisthenics[0];
+  assert.equal(saved.name, "Prancha Esequena");
+  assert.equal(saved.category, "core");
+  assert.deepEqual(saved.muscles, ["abdômen", "lombar"], "Lista de músculos não foi deduplicada/limitada");
+  assert.deepEqual(saved.equipment, ["peso corporal"]);
+  assert.equal(saved.instructions, "Subir o quadril só depois de estabilizar a respiração.");
+
+  assert.match(app.text("#library-list"), /Core/i, "Categoria não apareceu na lista do editor");
+
+  /* O bloco opcional volta fechado e limpo para o próximo cadastro. */
+  assert.equal(app.$("#custom-muscles").value, "");
+  assert.equal(app.$("#custom-meta").open, false);
+
+  /* O exercício personalizado aparece no catálogo com os metadados. */
+  app.click("#open-catalog");
+  await pageIs(app, "biblioteca");
+  await wait(20);
+
+  const sourceChip = app.$('#catalog-controls [data-filter-group="source"]');
+  sourceChip.querySelector('[data-value="personalizado"]').click();
+  await wait(20);
+  const rows = app.$$("#catalog-list .ui-exercise-row");
+  assert.equal(rows.length, 1, "Exercício personalizado não apareceu no catálogo");
+  assert.match(rows[0].textContent, /Prancha Esequena/);
+  assert.match(rows[0].textContent, /Core/);
+  assert.match(rows[0].textContent, /abdômen/);
+  assertNoErrors(app, "metadados do editor");
+  app.close();
+});
+
+/*
+  Execução (etapa 4): carga, distância, correção de série, ajuste do descanso
+  e resumo com volume real. A rotina abaixo cobre os três tipos de medição.
+*/
+function heavyRoutine() {
+  const base = (extra) => Object.assign({
+    sets: 3, reps: "10", rest: 60, type: "reps", duration: 0, load: "", notes: "", measure: "reps"
+  }, extra);
+
+  return {
+    id: "exec1",
+    name: "Empurrar pesado",
+    modality: "weights",
+    createdAt: 1,
+    updatedAt: 1,
+    sections: {
+      warmup: [],
+      main: [
+        base({ id: "bench", name: "Supino", load: "60 kg" }),
+        base({ id: "row", name: "Remada curvada", sets: 1, rest: 0, load: "30 kg" })
+      ],
+      abs: [],
+      finisher: [base({
+        id: "run",
+        name: "Esteira 400 m",
+        sets: 1,
+        reps: "",
+        rest: 0,
+        measure: "distance",
+        distance: 400,
+        distanceUnit: "m"
+      })]
+    }
+  };
+}
+
+function setLog(extra) {
+  return Object.assign({ set: 1, reps: "", load: "", seconds: null, distance: null, rpe: null, editedAt: null }, extra);
+}
+
+async function bootExecution(seedExtra = {}) {
+  const routine = heavyRoutine();
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([], [routine]),
+    "forja-treino-sessao-ativa-v1": sessionSeed(
+      routine,
+      Object.assign({ id: "s-exec", modality: "weights" }, seedExtra)
+    )
+  }, "treino/executar.html", { now: 20_000_000 });
+
+  await pageIs(app, "executar");
+  return app;
+}
+
+/* Escreve num campo como o usuário (input para texto, change para select). */
+function typeField(app, selector, value, eventName = "input") {
+  const field = app.$(selector);
+  assert.ok(field, "Campo ausente: " + selector);
+  field.value = value;
+  field.dispatchEvent(new app.w.Event(eventName, { bubbles: true }));
+}
+
+await runTest("31. Execução: corrigir e remover uma série já registrada", async () => {
+  const app = await bootExecution();
+
+  assert.equal(app.text("#current-name"), "Supino");
+
+  typeField(app, "#log-reps", "8");
+  typeField(app, "#log-load", "62 kg");
+  typeField(app, "#log-rpe", "8", "change");
+  app.click("#complete-set");
+  app.advance(600);
+
+  assert.equal(app.text("#set-progress-label"), "1 de 3");
+  assert.match(app.text("#log-list"), /Série 1 · 8 reps · 62 kg · RPE 8/);
+  assert.equal(app.$("#execution-rest").hidden, false, "descanso não começou depois da série");
+
+  /* No meio do descanso não se remove série: o tempo em andamento é dali. */
+  app.click("#log-list .log-entry button");
+  await wait(20);
+  app.modalAction("remove");
+  await wait(20);
+  assert.match(app.text("#toast"), /Termine ou pule o descanso/);
+  assert.equal(app.F.state.activeWorkout.completedSets.bench, 1, "Removeu série durante o descanso");
+  assert.equal(app.$$("#log-list .log-entry").length, 1);
+
+  app.click("#skip-rest");
+  await wait(20);
+
+  /* Corrigir mostra só os campos que fazem sentido para o exercício. */
+  app.click("#log-list .log-entry button");
+  await wait(20);
+  assert.match(app.text("#modal-title"), /Corrigir série 1/);
+  assert.deepEqual(
+    app.$$("[data-modal-field]").map(node => node.getAttribute("data-modal-field")),
+    ["reps", "load", "rpe"]
+  );
+
+  app.modalField("reps").value = "10";
+  app.modalField("load").value = "65 kg";
+  app.modalAction("save");
+  await wait(30);
+
+  assert.match(app.text("#log-list"), /Série 1 · 10 reps · 65 kg · RPE 8 · corrigida/);
+  assert.match(app.text("#toast"), /atualizada/);
+  assert.equal(app.F.state.activeWorkout.completedSets.bench, 1, "Corrigir mudou a contagem de séries");
+
+  const stored = app.data("forja-treino-sessao-ativa-v1").setLogs.bench[0];
+  assert.equal(stored.reps, "10");
+  assert.equal(stored.load, "65 kg");
+  assert.ok(stored.editedAt > 0, "edição sem marca de tempo");
+
+  /* Remover a última série devolve o direito de registrá-la de novo. */
+  app.click("#log-list .log-entry button");
+  await wait(20);
+  app.modalAction("remove");
+  await wait(20);
+
+  assert.equal(app.text("#set-progress-label"), "0 de 3");
+  assert.equal(app.$$("#log-list .log-entry").length, 0);
+  assert.match(app.text("#toast"), /removida/);
+
+  app.click("#complete-set");
+  app.advance(600);
+  assert.equal(app.text("#set-progress-label"), "1 de 3", "não deixou registrar a série removida");
+  assert.match(app.text("#log-list"), /Série 1 ·/);
+
+  assertNoErrors(app, "corrigir e remover série");
+  app.close();
+});
+
+await runTest("32. Execução: ajustar o descanso em andamento em passos de 15 s", async () => {
+  const app = await bootExecution();
+
+  app.click("#complete-set");
+  app.advance(600);
+  assert.equal(app.text("#rest-timer"), "01:00");
+  assert.match(app.text("#rest-adjust-state"), /1 min neste descanso/);
+
+  app.advance(10_000);
+  assert.equal(app.text("#rest-timer"), "00:50");
+
+  app.click("#rest-plus");
+  assert.equal(app.text("#rest-timer"), "01:05", "+15 s não entrou no tempo restante");
+  assert.equal(app.F.state.activeWorkout.restPlannedSeconds, 65);
+  assert.match(app.text("#rest-adjust-state"), /ajustado de 1 min/);
+  assert.equal(app.F.state.activeWorkout.queue[0].rest, 60, "o ajuste reescreveu o plano do exercício");
+
+  /* O tempo novo é real: continua contando a partir dele. */
+  app.advance(10_000);
+  assert.equal(app.text("#rest-timer"), "00:55");
+
+  app.click("#rest-minus");
+  assert.equal(app.text("#rest-timer"), "00:40");
+
+  /* Pausado, o ajuste soma no tempo que falta e nada continua contando. */
+  app.click("#pause-rest");
+  await wait(20);
+  assert.equal(app.F.state.activeWorkout.restEndAt, null, "pausa não guardou o tempo restante");
+
+  app.advance(30_000);
+  assert.equal(app.text("#rest-timer"), "00:40", "descanso contou durante a pausa");
+
+  app.click("#rest-plus");
+  assert.equal(app.text("#rest-timer"), "00:55", "ajuste com descanso pausado não somou 15 s");
+
+  app.click("#resume-rest");
+  await wait(20);
+  app.advance(15_000);
+  assert.equal(app.text("#rest-timer"), "00:40");
+
+  /* O piso é 1 s: não dá para travar a tela com descanso negativo. */
+  app.click("#rest-minus");
+  app.click("#rest-minus");
+  app.click("#rest-minus");
+  assert.equal(app.text("#rest-timer"), "00:01");
+  assert.equal(app.$("#execution-rest").hidden, false, "descanso sumiu antes da hora");
+
+  /* Sobrevive ao recarregamento: são timestamps, não contadores de aba. */
+  const persisted = app.data("forja-treino-sessao-ativa-v1");
+  assert.equal(persisted.restPlannedSeconds, 1);
+  await app.reload();
+  await wait(30);
+  assert.equal(app.F.state.activeWorkout.restPlannedSeconds, 1, "ajuste do descanso não persistiu");
+  assert.equal(app.text("#rest-timer"), "00:01");
+  assert.equal(app.$("#execution-rest").hidden, false);
+
+  assertNoErrors(app, "ajuste de descanso");
+  app.close();
+});
+
+await runTest("33. Execução: série por distância e resumo com volume real", async () => {
+  const app = await bootExecution({
+    currentIndex: 2,
+    completedSets: { bench: 3, row: 1, run: 0 },
+    setLogs: {
+      bench: [
+        setLog({ set: 1, reps: "10", load: "60 kg", rpe: 7 }),
+        setLog({ set: 2, reps: "8", load: "" }),
+        setLog({ set: 3, reps: "10", load: "30 kg" })
+      ],
+      row: [setLog({ set: 1, reps: "12", load: "30 kg" })]
+    }
+  });
+
+  assert.equal(app.text("#current-name"), "Esteira 400 m");
+  assert.match(app.text("#current-plan-value"), /400 m/);
+  assert.equal(app.$("#log-reps-field").hidden, true, "pediu repetições em exercício de distância");
+  assert.equal(app.$("#log-distance-field").hidden, false, "campo de distância não apareceu");
+  assert.equal(app.text("#log-distance-unit"), "m");
+  assert.match(app.text("#log-distance-hint"), /Alvo da série: 400 m/);
+
+  typeField(app, "#log-distance", "420");
+  app.click("#complete-set");
+  await wait(60);
+
+  const record = app.data("forja-treino-historico-v1")[0];
+  assert.ok(record, "sessão concluída não entrou no histórico");
+  assert.equal(record.status, "completed");
+  assert.equal(record.exercises[2].logs[0].distance, 420, "distância da série não foi salva");
+  assert.equal(record.totals.distanceMeters, 420);
+  assert.equal(record.totals.volumeKg, 1260, "volume somado errado");
+  assert.equal(record.totals.reps, 40);
+  assert.equal(record.totals.setsLogged, 5);
+  assert.equal(record.totals.setsWithoutVolume, 1, "série sem carga numérica não foi sinalizada");
+
+  assert.equal(app.$("#execution-summary").hidden, false, "resumo não apareceu ao concluir a sessão");
+  assert.equal(app.text("#summary-volume"), "1.260 kg");
+  assert.equal(app.text("#summary-reps"), "40");
+  assert.equal(app.text("#summary-distance"), "420 m");
+  assert.equal(app.text("#summary-time-under"), "—");
+  assert.match(app.text("#summary-note"), /1 série ficou fora do volume/);
+  assert.equal(app.$("#summary-feedback").hidden, true, "inventou esforço sem registro");
+
+  app.click("#summary-close");
+  await wait(20);
+  assert.equal(app.F.state.activeWorkout, null);
+
+  assertNoErrors(app, "distância e resumo");
+  app.close();
+});
+
+await runTest("33b. Resposta da sessão: RPE e nota são opcionais e vão para o histórico", async () => {
+  const app = await bootExecution();
+
+  /* Sem série concluída, não se pergunta o esforço de uma sessão que não aconteceu. */
+  app.click("#end-session");
+  await wait(20);
+  assert.equal(app.$$("[data-modal-field]").length, 0, "pediu RPE sem nenhuma série registrada");
+  assert.deepEqual(
+    app.$$("[data-modal-action]").map(node => node.getAttribute("data-modal-action")),
+    ["cancel", "discard"]
+  );
+  app.modalAction("cancel");
+  await wait(20);
+  assert.equal(app.F.state.activeWorkout.id, "s-exec", "cancelar encerrou a sessão");
+
+  /* Uma série registrada libera o resumo; preencher só a nota também basta. */
+  app.click("#complete-set");
+  app.advance(600);
+  app.click("#skip-rest");
+  await wait(20);
+
+  app.click("#end-session");
+  await wait(20);
+  assert.deepEqual(
+    app.$$("[data-modal-field]").map(node => node.getAttribute("data-modal-field")),
+    ["rpe", "note"]
+  );
+
+  app.modalField("note").value = "  ombro esquerdo incomodou na última série  ";
+  app.modalAction("save");
+  await wait(60);
+
+  const record = app.data("forja-treino-historico-v1")[0];
+  assert.ok(record, "sessão parcial não entrou no histórico");
+  assert.equal(record.status, "partial");
+  assert.equal(record.feedback.rpe, null, "criou RPE fantasma");
+  assert.equal(record.feedback.note, "ombro esquerdo incomodou na última série");
+  assert.ok(record.feedback.updatedAt > 0);
+
+  assert.equal(app.text("#summary-feedback"), "Nota: ombro esquerdo incomodou na última série");
+  /* A série herdou reps e carga planejados (10 × 60 kg): volume real, sem aviso. */
+  assert.equal(app.text("#summary-volume"), "600 kg");
+  assert.equal(app.$("#summary-note").hidden, true, "avisou de falta de dados que existem");
+
+  assert.equal(app.text("#summary-distance"), "—");
+
+  /* O histórico conta a mesma história: número registrado, RPE e nota. */
+  app.click("#summary-history-link");
+  await wait(60);
+
+  const historyText = app.text(".history-item");
+  assert.match(historyText, /600 kg/);
+  assert.match(historyText, /10 repetições/);
+  assert.match(historyText, /ombro esquerdo incomodou na última série/, "nota não chegou ao histórico");
+  assert.doesNotMatch(historyText, /Esforço da sessão/, "apareceu RPE que ninguém registrou");
+  assertNoErrors(app, "feedback da sessão");
+  app.close();
+
+  /* Com RPE preenchido, a linha de esforço aparece no resumo e no histórico. */
+  const second = await bootExecution({ id: "s-exec-2" });
+  second.click("#complete-set");
+  second.advance(600);
+  second.click("#skip-rest");
+  await wait(20);
+  second.click("#end-session");
+  await wait(20);
+
+  second.modalField("rpe").value = "9";
+  second.modalField("note").value = "última série quase falhou";
+  second.modalAction("save");
+  await wait(60);
+
+  assert.equal(second.text("#summary-feedback"), "Esforço registrado: RPE 9 · Nota: última série quase falhou");
+  assert.equal(second.data("forja-treino-historico-v1")[0].feedback.rpe, 9);
+
+  second.click("#summary-history-link");
+  await wait(60);
+  const secondHistory = second.text(".history-item");
+  assert.match(secondHistory, /Esforço da sessão \(RPE\) 9/);
+  assert.match(secondHistory, /última série quase falhou/);
+  assertNoErrors(second, "feedback com RPE");
 });
 
 /* ------------------------------------------------------------------ */

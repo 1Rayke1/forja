@@ -87,14 +87,40 @@
       reps: exercise.type === "reps" && /^\d+$/.test(String(exercise.reps || ""))
         ? String(exercise.reps)
         : "",
-      load: exercise.load || ""
+      load: exercise.load || "",
+      distance: "",
+      rpe: ""
     };
   }
 
   function getLogDraft(exercise) {
     const s = session();
     const stored = s && s.logDraft ? s.logDraft[exercise.id] : null;
-    return stored ? { reps: stored.reps || "", load: stored.load || "" } : defaultLogDraft(exercise);
+
+    if (!stored) return defaultLogDraft(exercise);
+
+    return {
+      reps: stored.reps || "",
+      load: stored.load || "",
+      distance: stored.distance === undefined || stored.distance === null ? "" : String(stored.distance),
+      rpe: stored.rpe === undefined || stored.rpe === null ? "" : String(stored.rpe)
+    };
+  }
+
+  /*
+    O que a série mede: repetições, tempo ou distância. Vem do exercício já
+    normalizado, então itens antigos (sem `measure`) continuam funcionando.
+  */
+  function logTarget(exercise) {
+    return F.exerciseTarget(exercise) || { kind: "reps", reps: null };
+  }
+
+  function measuresDistance(exercise) {
+    return logTarget(exercise).kind === "distance";
+  }
+
+  function distanceUnitLabel(exercise) {
+    return exercise && exercise.distanceUnit === "km" ? "km" : "m";
   }
 
   /* Início, rotinas e progresso */
@@ -390,13 +416,23 @@
       : defaultLogDraft(exercise);
 
     const setNumber = done + 1;
+    const distance = measuresDistance(exercise) && Number(draft.distance) > 0
+      ? Math.round(Number(draft.distance))
+      : null;
+    const rpe = clampRpe(draft.rpe);
+
     s.completedSets[exercise.id] = setNumber;
     s.setLogs = s.setLogs || {};
     s.setLogs[exercise.id] = (s.setLogs[exercise.id] || []).concat([{
       set: setNumber,
-      reps: exercise.type === "reps" ? String(draft.reps || "").trim().slice(0, 30) : "",
+      reps: exercise.type === "reps" && !measuresDistance(exercise)
+        ? String(draft.reps || "").trim().slice(0, 30)
+        : "",
       load: s.modality === "weights" ? String(draft.load || "").trim().slice(0, 50) : "",
-      seconds
+      seconds,
+      distance,
+      rpe,
+      editedAt: null
     }]);
     s.setTimer = null;
 
@@ -569,13 +605,242 @@
     const exercise = currentSessionExercise();
     if (!s || !exercise) return;
 
+    const distanceField = byId("log-distance");
+    const rpeField = byId("log-rpe");
+
     s.logDraft = s.logDraft || {};
     s.logDraft[exercise.id] = {
       reps: byId("log-reps").value.slice(0, 30),
-      load: byId("log-load").value.slice(0, 50)
+      load: byId("log-load").value.slice(0, 50),
+      distance: distanceField && !byId("log-distance-field").hidden ? distanceField.value.trim().slice(0, 8) : "",
+      rpe: rpeField ? rpeField.value : ""
     };
 
     saveActiveWorkout();
+  }
+
+  function clampRpe(value) {
+    const number = Math.round(Number(value));
+    if (!Number.isFinite(number) || number < 1 || number > 10) return null;
+    return number;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Corrigir uma série já registrada (o erro de digitação acontece)      */
+  /* ------------------------------------------------------------------ */
+
+  function setLogsOf(exerciseId) {
+    const s = session();
+    return s && Array.isArray(s.setLogs && s.setLogs[exerciseId]) ? s.setLogs[exerciseId] : [];
+  }
+
+  function setEditorFields(exercise, entry) {
+    const fields = [];
+
+    if (exercise.type !== "duration" && !measuresDistance(exercise)) {
+      fields.push({
+        id: "reps",
+        label: "Repetições feitas",
+        value: entry.reps || "",
+        maxlength: 30,
+        placeholder: String(exercise.reps || "10")
+      });
+    }
+
+    if (session().modality === "weights") {
+      fields.push({
+        id: "load",
+        label: "Carga usada",
+        value: entry.load || "",
+        maxlength: 50,
+        placeholder: exercise.load || "Ex.: 20 kg"
+      });
+    }
+
+    if (exercise.type === "duration") {
+      fields.push({
+        id: "seconds",
+        label: "Tempo da série (s)",
+        type: "number",
+        value: typeof entry.seconds === "number" ? String(entry.seconds) : "",
+        min: 0,
+        max: 36000,
+        hint: "O cronômetro registrou " + (typeof entry.seconds === "number" ? entry.seconds + " s" : "nada") +
+          ". Ajuste se você pausou o treino no meio."
+      });
+    }
+
+    if (measuresDistance(exercise)) {
+      fields.push({
+        id: "distance",
+        label: "Distância (em " + distanceUnitLabel(exercise) + ")",
+        type: "number",
+        value: entry.distance ? String(entry.distance) : "",
+        min: 0,
+        max: 100000
+      });
+    }
+
+    fields.push({
+      id: "rpe",
+      label: "Esforço (RPE de 1 a 10)",
+      type: "select",
+      value: entry.rpe ? String(entry.rpe) : "",
+      options: [{ value: "", label: "Não registrar" }].concat([6, 7, 8, 9, 10].map(value => ({
+        value: String(value),
+        label: String(value)
+      })))
+    });
+
+    return fields;
+  }
+
+  async function openSetEditor(exercise, index) {
+    const s = session();
+    const entry = setLogsOf(exercise.id)[index];
+    if (!s || !entry) return;
+
+    const result = await showModal({
+      title: "Corrigir série " + entry.set,
+      message: exercise.name,
+      fields: setEditorFields(exercise, entry),
+      validate(values) {
+        const errors = {};
+        const seconds = values.seconds === undefined || values.seconds === "" ? null : Number(values.seconds);
+        const distance = values.distance === undefined || values.distance === "" ? null : Number(values.distance);
+
+        if (seconds !== null && (!Number.isFinite(seconds) || seconds < 0 || seconds > 36000)) {
+          errors.seconds = "Use um tempo entre 0 e 36000 segundos.";
+        }
+        if (distance !== null && (!Number.isFinite(distance) || distance < 0 || distance > 100000)) {
+          errors.distance = "Use uma distância entre 0 e 100000.";
+        }
+
+        return { ok: Object.keys(errors).length === 0, errors };
+      },
+      actions: [
+        { id: "cancel", label: "Cancelar", className: "secondary-button" },
+        { id: "remove", label: "Remover esta série", className: "secondary-button danger-button" },
+        { id: "save", label: "Salvar correção", className: "primary-button" }
+      ]
+    });
+
+    if (result.action === "remove") {
+      removeSetAt(exercise, index);
+      return;
+    }
+
+    if (result.action !== "save") return;
+
+    const values = result.values;
+    const next = Object.assign({}, entry);
+
+    if (exercise.type !== "duration" && !measuresDistance(exercise)) {
+      next.reps = String(values.reps || "").trim().slice(0, 30);
+    }
+    if (s.modality === "weights") next.load = String(values.load || "").trim().slice(0, 50);
+    if (exercise.type === "duration") {
+      next.seconds = values.seconds === "" || values.seconds === undefined ? null : Math.round(Number(values.seconds));
+    }
+    if (measuresDistance(exercise)) {
+      next.distance = values.distance === "" || values.distance === undefined ? null : Math.round(Number(values.distance));
+    }
+    next.rpe = clampRpe(values.rpe);
+    next.editedAt = Date.now();
+
+    s.setLogs[exercise.id][index] = next;
+
+    if (!saveActiveWorkout()) {
+      s.setLogs[exercise.id][index] = entry;
+      showToast("O navegador recusou a gravação. A série continua como estava.", "error", 5200);
+      return;
+    }
+
+    renderExecution();
+    showToast("Série " + entry.set + " atualizada.");
+  }
+
+  function removeSetAt(exercise, index) {
+    const s = session();
+    if (!s) return;
+
+    const logs = s.setLogs[exercise.id] || [];
+    const removed = logs[index];
+
+    if (!removed) return;
+    if (index !== logs.length - 1) {
+      showToast("Só a última série pode ser removida; as anteriores podem ser corrigidas.", "error", 5200);
+      return;
+    }
+
+    if (hasRestState() || (s.setTimer && s.setTimer.startedAt)) {
+      showToast("Termine ou pule o descanso antes de remover uma série.", "error", 5000);
+      return;
+    }
+
+    const previousLogs = logs.slice();
+    const previousCount = Number(s.completedSets[exercise.id]) || 0;
+
+    s.setLogs[exercise.id] = logs.slice(0, -1);
+    s.completedSets[exercise.id] = Math.max(0, previousCount - 1);
+
+    if (!saveActiveWorkout()) {
+      s.setLogs[exercise.id] = previousLogs;
+      s.completedSets[exercise.id] = previousCount;
+      showToast("O navegador recusou a gravação. Nada foi removido.", "error", 5200);
+      return;
+    }
+
+    renderExecution();
+    updateActiveBanner();
+    showToast("Série " + removed.set + " removida. Você pode registrá-la de novo.");
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Ajuste rápido do descanso em andamento (±15 s)                       */
+  /* ------------------------------------------------------------------ */
+
+  const REST_ADJUST_STEP_MS = 15000;
+  const REST_MIN_MS = 1000;
+
+  /*
+    Ajuste do descanso em andamento, em passos de 15 s. Só o descanso atual é
+    tocado — o plano do exercício permanece o mesmo para as próximas séries, e
+    o painel avisa quando o valor foi mudado à mão.
+  */
+  function adjustRest(direction) {
+    const s = session();
+    if (!s || !hasRestState()) return;
+
+    const before = getRestRemainingMs();
+    const remaining = Math.max(REST_MIN_MS, before + direction * REST_ADJUST_STEP_MS);
+
+    if (s.restPaused || !s.running) {
+      s.restRemainingMs = remaining;
+      s.restEndAt = null;
+    } else {
+      s.restEndAt = Date.now() + remaining;
+      s.restRemainingMs = 0;
+    }
+
+    /* ceil: o plano coincide com os segundos que a tela mostrou no ajuste. */
+    s.restPlannedSeconds = Math.max(1, Math.ceil(remaining / 1000));
+
+    if (!saveActiveWorkout()) {
+      /* Recarrega o que estava gravado em vez de deixar tempo e tela divergindo. */
+      s.restPlannedSeconds = Math.max(1, Math.ceil(before / 1000));
+      if (s.restPaused || !s.running) s.restRemainingMs = before;
+      else s.restEndAt = Date.now() + before;
+      renderExecution();
+      showToast("O navegador recusou o ajuste. O descanso continua como estava.", "error", 5000);
+      return;
+    }
+
+    renderExecution();
+
+    if (F.ui) {
+      F.ui.announce("Descanso ajustado para " + formatRest(s.restPlannedSeconds) + ".");
+    }
   }
 
   /* Pausa e retomada da sessão inteira */
@@ -645,6 +910,57 @@
 
   /* Encerramento: registro no histórico */
 
+  /*
+    Volume, repetições, tempo e distância somados a partir do que foi
+    efetivamente registrado série a série. Carga e repetições precisam ser
+    numéricas para entrar no volume: uma série anotada como "puxada leve" não é
+    convertida em número por suposição — ela é contada em `semVolume`, e o
+    resumo diz isso.
+  */
+  function sessionTotals() {
+    const s = session();
+    const totals = {
+      volumeKg: 0,
+      reps: 0,
+      seconds: 0,
+      distanceMeters: 0,
+      setsLogged: 0,
+      setsWithoutVolume: 0
+    };
+
+    if (!s) return totals;
+
+    s.queue.forEach(exercise => {
+      const logs = Array.isArray(s.setLogs && s.setLogs[exercise.id]) ? s.setLogs[exercise.id] : [];
+      const inKilometers = exercise.distanceUnit === "km";
+
+      logs.forEach(entry => {
+        totals.setsLogged += 1;
+
+        const reps = F.parseMaxReps(entry.reps);
+        const loadKg = F.parseLoadKg(entry.load);
+        const seconds = Number(entry.seconds);
+        const distance = Number(entry.distance);
+
+        const measuredDistance = Number.isFinite(distance) && distance > 0;
+
+        if (Number.isFinite(seconds) && seconds > 0) totals.seconds += seconds;
+        if (measuredDistance) {
+          totals.distanceMeters += inKilometers ? Math.round(distance * 1000) : distance;
+        }
+
+        if (reps) totals.reps += reps;
+
+        if (reps && loadKg) totals.volumeKg += reps * loadKg;
+        else if (!measuredDistance) totals.setsWithoutVolume += 1;
+      });
+    });
+
+    totals.volumeKg = Math.round(totals.volumeKg * 10) / 10;
+
+    return totals;
+  }
+
   function buildSessionRecord() {
     const s = session();
     if (!s) return null;
@@ -663,6 +979,8 @@
       totalPlannedSets: s.totalPlannedSets,
       status,
       finishedAt: new Date().toISOString(),
+      totals: sessionTotals(),
+      feedback: F.normalizeSessionFeedback(s.feedback),
       exercises: s.queue.map(exercise => {
         const logs = Array.isArray(s.setLogs && s.setLogs[exercise.id])
           ? s.setLogs[exercise.id]
@@ -680,11 +998,16 @@
           rest: exercise.rest,
           load: exercise.load || "",
           notes: exercise.notes || "",
+          distance: Number(exercise.distance) || null,
+          distanceUnit: exercise.distanceUnit === "km" ? "km" : "m",
           logs: logs.map(entry => ({
             set: entry.set,
             reps: entry.reps || "",
             load: entry.load || "",
-            seconds: entry.seconds
+            seconds: entry.seconds,
+            distance: Number(entry.distance) || null,
+            rpe: Number(entry.rpe) || null,
+            editedAt: entry.editedAt || null
           })),
           timedSeconds: logs.reduce((sum, entry) => {
             return sum + (Number(entry.seconds) || 0);
@@ -783,11 +1106,39 @@
       { id: "cancel", label: "Continuar treinando", className: "secondary-button" }
     ];
 
+    const fields = [];
+    const feedback = F.isPlainObject(s.feedback) ? s.feedback : {};
+
     if (completed > 0) {
       actions.push({
         id: "save",
         label: completed >= planned ? "Concluir e salvar" : "Salvar e encerrar",
         className: "primary-button"
+      });
+
+      /*
+        RPE e nota são opcionais e ficam só neste treino. Perguntar aqui (e não
+        numa tela depois) é o momento em que a pessoa ainda lembra do que
+        sentiu — e quem pula não perde nada.
+      */
+      fields.push({
+        id: "rpe",
+        label: "Esforço geral do treino (RPE)",
+        type: "select",
+        value: feedback.rpe ? String(feedback.rpe) : "",
+        options: [{ value: "", label: "Não registrar" }].concat([6, 7, 8, 9, 10].map(value => ({
+          value: String(value),
+          label: value + (value === 6 ? " · folgado" : value === 7 ? " · difícil" : value === 8 ? " · bem difícil" : value === 9 ? " · quase falha" : " · falha")
+        })))
+      }, {
+        id: "note",
+        label: "Nota desta sessão (opcional)",
+        type: "textarea",
+        rows: 2,
+        maxlength: 300,
+        value: feedback.note || "",
+        placeholder: "Ex.: última série travou no agachamento; joelho ok.",
+        hint: "Aparece no resumo e no histórico deste treino."
       });
     }
 
@@ -801,10 +1152,16 @@
       title: "Encerrar sessão?",
       message: "Você pode registrar o progresso no histórico ou descartar esta sessão sem registrar um treino.",
       details,
+      fields,
       actions
     });
 
     if (result.action === "save") {
+      const values = result.values || {};
+      const rpe = clampRpe(values.rpe);
+      const note = String(values.note || "").trim().slice(0, 300);
+
+      s.feedback = rpe || note ? { rpe, note, updatedAt: Date.now() } : null;
       finalizeSession({ natural: false });
     } else if (result.action === "discard") {
       discardCurrentSession();
@@ -845,6 +1202,8 @@
       ? "Concluído"
       : "Parcial";
 
+    renderSummaryTotals(record);
+
     const list = byId("summary-exercises");
     list.innerHTML = "";
 
@@ -864,6 +1223,57 @@
 
     byId("summary-close").focus();
     scrollPageToTop();
+  }
+
+  function renderSummaryTotals(record) {
+    const totals = F.isPlainObject(record.totals) ? record.totals : null;
+    const block = byId("summary-totals");
+    const note = byId("summary-note");
+    const feedbackLine = byId("summary-feedback");
+
+    if (!totals) {
+      block.hidden = true;
+      note.hidden = true;
+      feedbackLine.hidden = true;
+      return;
+    }
+
+    block.hidden = false;
+    byId("summary-volume").textContent = totals.volumeKg > 0 ? F.formatKg(totals.volumeKg) : "—";
+    byId("summary-reps").textContent = totals.reps > 0 ? F.formatNumber(totals.reps) : "—";
+    byId("summary-time-under").textContent = totals.seconds > 0 ? formatClock(totals.seconds) : "—";
+    byId("summary-distance").textContent = totals.distanceMeters > 0
+      ? F.formatDistance(totals.distanceMeters)
+      : "—";
+
+    const notes = [];
+
+    if (totals.volumeKg === 0 && totals.reps > 0) {
+      notes.push("Volume em kg aparece quando a carga da série é numérica (ex.: 20 kg).");
+    }
+    if (totals.setsWithoutVolume > 0 && totals.volumeKg > 0) {
+      notes.push(
+        totals.setsWithoutVolume +
+        (totals.setsWithoutVolume === 1 ? " série ficou fora do volume" : " séries ficaram fora do volume") +
+        " por não ter carga e repetições numéricas."
+      );
+    }
+
+    note.textContent = notes.join(" ");
+    note.hidden = notes.length === 0;
+
+    const feedback = F.isPlainObject(record.feedback) ? record.feedback : null;
+
+    if (feedback && (feedback.rpe || feedback.note)) {
+      feedbackLine.hidden = false;
+      feedbackLine.textContent = [
+        feedback.rpe ? "Esforço registrado: RPE " + feedback.rpe : "",
+        feedback.note ? "Nota: " + feedback.note : ""
+      ].filter(Boolean).join(" · ");
+    } else {
+      feedbackLine.hidden = true;
+      feedbackLine.textContent = "";
+    }
   }
 
   /* Volta para a modalidade. A sessão continua salva e pode ser retomada. */
@@ -997,9 +1407,12 @@
 
     const targetChip = document.createElement("span");
     targetChip.className = "plan-chip";
+    const target = logTarget(exercise);
     targetChip.textContent = isTimed
       ? formatRestValue(exercise.duration) + " por série"
-      : exercise.reps + " repetições";
+      : target.kind === "distance"
+        ? exercise.distance + " " + distanceUnitLabel(exercise) + " por série"
+        : exercise.reps + " repetições";
     plan.appendChild(targetChip);
 
     if (exercise.load) {
@@ -1016,12 +1429,21 @@
     byId("current-sets-value").appendChild(totalSmall);
 
     const plannedValue = byId("current-plan-value");
+    const plannedKind = logTarget(exercise).kind;
     plannedValue.innerHTML = "";
     plannedValue.appendChild(document.createTextNode(
-      (isTimed ? String(exercise.duration) : exercise.reps) + " "
+      (plannedKind === "time"
+        ? String(exercise.duration)
+        : plannedKind === "distance"
+          ? String(exercise.distance)
+          : String(exercise.reps)) + " "
     ));
     const plannedUnit = document.createElement("small");
-    plannedUnit.textContent = isTimed ? "seg" : "reps";
+    plannedUnit.textContent = plannedKind === "time"
+      ? "seg"
+      : plannedKind === "distance"
+        ? distanceUnitLabel(exercise)
+        : "reps";
     plannedValue.appendChild(plannedUnit);
 
     byId("current-rest-value").textContent = exercise.rest > 0
@@ -1176,24 +1598,56 @@
     byId("set-timer-fill").style.width = Math.round(ratio * 100) + "%";
   }
 
+  function logEntryParts(exercise, entry) {
+    const parts = ["Série " + entry.set];
+
+    if (measuresDistance(exercise) && entry.distance) {
+      parts.push(entry.distance + " " + distanceUnitLabel(exercise));
+    } else if (entry.reps) {
+      parts.push(entry.reps + " reps");
+    }
+
+    if (entry.load) parts.push(entry.load);
+    if (typeof entry.seconds === "number") parts.push(formatClock(entry.seconds) + " de tempo");
+    if (entry.rpe) parts.push("RPE " + entry.rpe);
+    if (entry.editedAt) parts.push("corrigida");
+
+    return parts;
+  }
+
   function renderLogPanel(exercise, done) {
     const s = session();
     const panel = byId("log-panel");
     const draft = getLogDraft(exercise);
     const isTimed = exercise.type === "duration";
     const isWeights = s.modality === "weights";
+    const isDistance = measuresDistance(exercise);
 
-    byId("log-reps-field").hidden = isTimed;
+    byId("log-reps-field").hidden = isTimed || isDistance;
     byId("log-load-field").hidden = !isWeights;
+    byId("log-distance-field").hidden = !isDistance;
     panel.hidden = false;
 
     const repsInput = byId("log-reps");
     const loadInput = byId("log-load");
+    const distanceInput = byId("log-distance");
+    const rpeSelect = byId("log-rpe");
 
     if (document.activeElement !== repsInput) repsInput.value = draft.reps;
     if (document.activeElement !== loadInput) loadInput.value = draft.load;
+    if (document.activeElement !== distanceInput) distanceInput.value = draft.distance;
+    if (rpeSelect && document.activeElement !== rpeSelect) rpeSelect.value = draft.rpe;
+
     repsInput.placeholder = exercise.type === "reps" ? String(exercise.reps) : "";
     loadInput.placeholder = exercise.load || "Ex.: 20 kg";
+
+    if (isDistance) {
+      byId("log-distance-unit").textContent = distanceUnitLabel(exercise);
+      distanceInput.placeholder = exercise.distance ? String(exercise.distance) : "Ex.: 400";
+      byId("log-distance-hint").textContent = exercise.distance
+        ? "Alvo da série: " + exercise.distance + " " + distanceUnitLabel(exercise) + "."
+        : "Quanto você percorreu nesta série.";
+    }
 
     const list = byId("log-list");
     list.innerHTML = "";
@@ -1212,15 +1666,27 @@
       return;
     }
 
-    logs.forEach(entry => {
+    logs.forEach((entry, index) => {
       const item = document.createElement("li");
-      const parts = ["Série " + entry.set];
+      item.className = "log-entry";
 
-      if (entry.reps) parts.push(entry.reps + " reps");
-      if (entry.load) parts.push(entry.load);
-      if (typeof entry.seconds === "number") parts.push(formatClock(entry.seconds) + " de tempo");
+      const main = document.createElement("span");
+      main.className = "log-entry-main";
+      main.textContent = logEntryParts(exercise, entry).join(" · ");
+      item.appendChild(main);
 
-      item.textContent = parts.join(" · ");
+      const actions = document.createElement("div");
+      actions.className = "log-entry-actions";
+
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "secondary-button small-button";
+      edit.textContent = "Corrigir";
+      edit.setAttribute("aria-label", "Corrigir a série " + entry.set + " de " + exercise.name);
+      edit.addEventListener("click", () => openSetEditor(exercise, index));
+      actions.appendChild(edit);
+      item.appendChild(actions);
+
       list.appendChild(item);
     });
   }
@@ -1256,6 +1722,22 @@
     byId("pause-rest").hidden = paused || !s.restEndAt;
     byId("resume-rest").hidden = !s.restPaused || !s.running;
     byId("skip-rest").disabled = !s.running;
+
+    const minus = byId("rest-minus");
+    const plus = byId("rest-plus");
+    const adjustState = byId("rest-adjust-state");
+
+    if (minus && plus && adjustState) {
+      minus.disabled = !s.running;
+      plus.disabled = !s.running;
+
+      const planned = Number(exercise && exercise.rest) || 0;
+      const current = Number(s.restPlannedSeconds) || 0;
+
+      adjustState.textContent = planned && current && current !== planned
+        ? "ajustado de " + formatRest(planned)
+        : formatRest(current) + " neste descanso";
+    }
     byId("skip-rest").textContent = s.pendingAdvance
       ? "Pular e avançar"
       : "Pular descanso";
@@ -1339,6 +1821,8 @@
     bind("pause-rest", pauseRest);
     bind("resume-rest", resumeRest);
     bind("skip-rest", skipRest);
+    bind("rest-minus", () => adjustRest(-1));
+    bind("rest-plus", () => adjustRest(1));
     bind("pause-session", () => pauseSession());
     bind("resume-session", resumeSession);
     bind("end-session", openEndSessionDialog);
@@ -1356,10 +1840,15 @@
       registerSet({ endedAt: now });
     });
 
-    ["log-reps", "log-load"].forEach(id => {
+    ["log-reps", "log-load", "log-distance"].forEach(id => {
       const input = byId(id);
       if (input) input.addEventListener("input", updateLogDraft);
     });
+
+    const rpeSelect = byId("log-rpe");
+    if (rpeSelect) {
+      rpeSelect.addEventListener("change", updateLogDraft);
+    }
 
     const params = new URLSearchParams(global.location.search);
     const summaryId = params.get("resumo");
