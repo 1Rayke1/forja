@@ -48,8 +48,8 @@ Quatro estados, sempre explícitos:
 | Descanso como item da fila, ordem por seção (aquecimento/main/abs/finisher) | implementado e verificado | FORJA 10/15 |
 | Metadados de catálogo: categoria, grupos musculares, equipamento, instrução de técnica, séries/reps/descanso sugeridos | implementado e verificado (37 registros) | `F.catalog`, `SUGGESTED_META`; FORJA 27/30 |
 | Metadados por exercício: nome alternativo, nível de dificuldade, padrão de movimento, posição inicial, respiração, erros comuns, orientações de segurança, variações mais fáceis/difíceis, substituições casa↔academia | **não implementado** — o modelo guarda só parte disso; exige decisão de conteúdo (fonte e revisão técnica) | ver §5 |
-| Músculos principais × secundários/estabilizadores separados por exercício | **parcialmente implementado** — existe uma lista única de músculos; não há distinção principal/secundário nem por variação | ver §5 |
-| Atlas anatômico interativo (vistas anterior/posterior, seleção por região, legenda, relação músculo→exercícios) | **não implementado** | decisão de arte/licença pendente; ver §5 |
+| Músculos principais × secundários/estabilizadores separados por exercício | **implementado no pacote 3.1** — `roles` por exercício (principal ≤ 2, secundários, estabilizadores); a lista plana de músculos é derivada | `docs/atlas-anatomico.md` §3; teste ATLAS 5 |
+| Atlas anatômico interativo (vistas anterior/posterior, seleção por região, legenda, relação músculo→exercícios) | **implementado no pacote 3.1 como mapa esquemático** — vistas anterior/posterior, 16 regiões, legenda numerada, relação grupo→exercícios com filtro por modalidade | `explorar/atlas.html`, `assets/js/forja-atlas.js`; `docs/atlas-anatomico.md`; teste ATLAS 1–11 |
 | Ilustração específica por exercício e demonstração visual | **não implementado** — hoje não há imagem por exercício; nenhuma imagem da internet foi usada para fingir anatomia | ver §5 |
 | Programas prontos por nível (iniciante casa/academia, retorno gradual, calistenia básica, hipertrofia, força, resistência, curto, dividido, corpo inteiro) com descrição, público, duração e critérios de progressão | **não implementado** — a estrutura de rotinas e o catálogo existem, mas não há biblioteca de programas empacotada | ver §5 |
 | Editor de rotinas: dias planejados, reordenação, duplicar, estimativa de duração, rascunho recuperável, músculos trabalhados pela rotina | parcialmente implementado — reordenação/duplicar/rascunho/estimativa e metadados do exercício personalizado existem; faltam dias por semana, estimativa explicada na tela do editor e leitura de músculos da rotina | FORJA 08/16/30 |
@@ -204,9 +204,12 @@ APK, teste de carga real de IndexedDB, e qualquer verificação no site publicad
 
 ## 4. Limitações conhecidas
 
-1. **Sem anatomia visual.** O atlas interativo e a ilustração por exercício não
-   existem. A biblioteca lista grupos musculares como texto — é rótulo, não
-   modelo anatômico. Nada no app simula um desenho para parecer concluído.
+1. **Anatomia visual é esquemática.** O atlas (pacote 3.1) existe, mas é um
+   mapa esquemático de grupos musculares: manequim geométrico, sem músculos
+   individuais, inserções ou vistas laterais. Ele se identifica como tal na
+   própria tela. A ilustração por exercício continua não existindo, e nada no
+   app simula um desenho para parecer concluído. Ver
+   `docs/atlas-anatomico.md`.
 2. **Catálogo é curado, não revisado clinicamente.** As 37 fichas (instrução,
    músculos, equipamento, série sugerida) foram escritas para este app e cada
    uma traz texto de técnica e de progressão; não são material de referência
@@ -241,7 +244,7 @@ APK, teste de carga real de IndexedDB, e qualquer verificação no site publicad
 | Etapa 6 — Início útil: treino planejado com motivo, resumo da semana, aviso de sessão em andamento, atalhos, estado vazio para usuário novo | nenhuma externa — as métricas puras da etapa 5 (`F.metricas`) já estão disponíveis |
 | Etapa 7 — Configurações: auditoria de armazenamento e visualizador de dados preservados, mensagens de importação/corrupção, validação do modelo no backup | nenhuma externa |
 | Etapa 8 — paridade estendida às rotas novas e capturas ampliadas (a suíte unitária de funções puras já existe: `tests/metricas.test.mjs`) | nenhuma externa |
-| Atlas anatômico + ilustração por exercício | **dependência de produto e de arte**: SVG próprio ou licença verificável; decisão sobre nível de detalhe (principal × secundário × estabilizador) e revisão por profissional de educação física |
+| Atlas anatômico detalhado (músculos individuais, vistas laterais) + ilustração por exercício | **dependência de arte/revisão**: o esquema 3.1 é autoral e assumidamente simplificado; um desenho anatômico mais detalhado exige ilustrador ou licença verificável e revisão por profissional de educação física |
 | Modelo de metadados completo (dificuldade, padrão de movimento, respiração, erros comuns, segurança, variações, substituições) | conteúdo: cada campo novo exige texto curado por exercício; sem isso, é campo vazio com aparência de recurso |
 | Programas prontos por nível e onboarding | conteúdo + decisão de produto (o app não deve prescrever sem critério); UI de perfil com campos opcionais |
 | Medidas corporais, IMC com contexto, comparação de datas, fotos de progresso opcionais | produto + política de privacidade local; IMC só com fórmula e limitação explicadas |

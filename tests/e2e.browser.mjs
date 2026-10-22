@@ -37,7 +37,9 @@ const PAGES = [
   'treino/executar.html',
   'treino/biblioteca.html',
   'progresso/',
-  'configuracoes/'
+  'configuracoes/',
+  'explorar/',
+  'explorar/atlas.html'
 ];
 
 let puppeteer;
@@ -231,6 +233,14 @@ async function answerModal(values, action) {
   await sleep(150);
 }
 
+// Rola até o centro antes de clicar: a barra inferior fixa pode cobrir o alvo.
+async function clickCentered(selector) {
+  await page.$eval(selector, el => el.scrollIntoView({ block: 'center' }));
+  await sleep(90);
+  await page.click(selector);
+  await sleep(140);
+}
+
 async function go(rel) {
   currentLabel = rel || 'index';
   await page.goto(new URL(rel, BASE).href, { waitUntil: 'networkidle0' });
@@ -312,17 +322,68 @@ await check('Ação TREINO é compacta, acessível e cabe em 390 px', async () =
   await go('');
   await page.setViewport(MOBILE);
   await sleep(120);
-  const box = await page.$eval('.treino-square', el => {
+  const box = await page.$eval('.home-action-button', el => {
     const r = el.getBoundingClientRect();
     return { width: r.width, height: r.height, centerX: r.left + r.width / 2, vw: window.innerWidth,
-      icon: !!el.querySelector('svg'), title: el.querySelector('.treino-square-title')?.textContent.trim() };
+      tag: el.tagName, label: el.textContent.trim(), aria: el.getAttribute('aria-label'),
+      href: el.getAttribute('href') };
   });
   assert.ok(box.width <= box.vw - 24, 'Ação ultrapassa a viewport');
   assert.ok(box.height >= 44 && box.height < 100, 'Altura não é compacta/acessível: ' + box.height);
-  assert.ok(box.icon, 'Ícone ausente');
-  assert.equal(box.title, 'Abrir área de treino');
-  const botao = await page.$('.treino-square');
+  assert.equal(box.tag, 'A', 'Sem rotina, a ação principal precisa ser um link para Treinos');
+  assert.equal(box.label, 'Montar meu treino');
+  assert.equal(box.aria, 'Montar meu treino');
+  assert.match(box.href, /treino\/index\.html/);
+  assert.equal(await text('.home-action-title'), 'Monte sua primeira rotina');
+  const botao = await page.$('.home-action-button');
   await botao.screenshot({ path: artifactPath('treino-acao-390.png') });
+});
+
+await check('Atlas: mapa, seleção, filtro de modalidade e detalhe na biblioteca', async () => {
+  await go('explorar/atlas.html');
+
+  assert.equal((await page.$$('.atlas-region')).length, 9, 'Vista anterior sem 9 regiões');
+  assert.equal((await page.$$('.atlas-legend-button')).length, 9, 'Legenda sem 9 regiões');
+  assert.match(await text('.atlas-disclosure'), /não é uma representação anatômica clínica/i);
+  const navLabels = await page.$$eval('.bottom-nav-link', els => els.map(e => e.textContent.trim()));
+  assert.equal(navLabels.length, 5, 'Barra inferior precisa manter 5 destinos');
+
+  await clickCentered('.atlas-region[data-group="peito"]');
+  assert.equal(await text('#atlas-selection-title'), 'Peitoral', 'Seleção do mapa não atualizou o painel');
+  assert.equal(await page.$eval('.atlas-region[data-group="peito"]', el => el.getAttribute('aria-pressed')), 'true');
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 4, 'Peitoral deveria listar 4 exercícios');
+  const rowsText = await page.$eval('.atlas-exercise-list', el => el.textContent);
+  assert.match(rowsText, /Flexão de braço/);
+  assert.match(rowsText, /Principal/);
+  assert.match(rowsText, /Secundário/);
+
+  await clickCentered('#atlas-view [data-value="back"]');
+  assert.equal((await page.$$('.atlas-region')).length, 7, 'Vista posterior sem 7 regiões');
+  assert.equal(await page.$$eval('.atlas-region[aria-pressed="true"]', els => els.length), 0,
+    'Seleção da vista anterior vazou para a posterior');
+
+  await clickCentered('#atlas-view [data-value="front"]');
+  await clickCentered('.atlas-region[data-group="antebracos"]');
+  await clickCentered('#atlas-modes [data-value="calisthenics"]');
+  assert.match(await text('.atlas-exercises .ui-empty-title'), /Nenhum exercício desta modalidade/);
+  await clickCentered('.atlas-exercises .ui-empty-actions .primary-button');
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Limpar filtro não restaurou a lista');
+
+  await clickCentered('.atlas-inline-reset');
+  assert.equal(await text('#atlas-selection-title'), 'Nenhuma região selecionada');
+
+  await clickCentered('.atlas-region[data-group="peito"]');
+  await jsClick('.atlas-exercise-row .ui-button');
+  await expectPath('/treino/biblioteca.html');
+  await page.waitForSelector('.modal-backdrop', { timeout: 4000 });
+  assert.equal(await text('#modal-title'), 'Flexão de braço', 'Detalhe aberto não é o exercício do atlas');
+  assert.match(await text('.modal-details'), /Grupos musculares — principal: peito/);
+  await page.click('[data-modal-action="cancel"]');
+  await sleep(120);
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  assert.ok(overflow <= 1, 'Rolagem horizontal no atlas: ' + overflow);
+  await page.screenshot({ path: artifactPath('atlas-390.png'), fullPage: true });
 });
 
 await check('Alvos de toque principais têm pelo menos 44px de altura', async () => {
@@ -687,12 +748,12 @@ await check('Armazenamento local é informado em todas as páginas', async () =>
   }
 });
 
-await check('Capturas visuais das nove páginas em mobile e desktop', async () => {
+await check('Capturas visuais das páginas em mobile e desktop', async () => {
   const shots = await browser.newPage();
   shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
   shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
   for (const [index, rel] of PAGES.entries()) {
-    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes'][index];
+    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes','explorar','atlas'][index];
     for (const width of [390, 1280]) {
       await shots.setViewport({ width, height: width === 390 ? 844 : 900 });
       let screenshotUrl = new URL(rel, BASE);

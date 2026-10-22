@@ -39,153 +39,173 @@
     Metadados dos itens sugeridos, por id de `forja-biblioteca.js`.
     `muscles` são os grupos mais exigidos no movimento, não uma lista fechada.
   */
+  /*
+    Metadados dos itens sugeridos, por id de `forja-biblioteca.js`.
+
+    `roles` é a fonte única da classificação muscular: diz, para cada exercício,
+    quais grupos são principais, quais são secundários e quais estabilizam o
+    movimento. A lista plana `muscles` do catálogo é derivada dessa estrutura
+    (ver `metadataFor`), então a biblioteca, a busca e o atlas nunca divergem.
+
+    Regras seguidas ao revisar os dados (detalhadas em
+    docs/atlas-anatomico.md):
+
+    - `primary` é o grupo que produz a maior parte do movimento, não "todos os
+      músculos que se mexem". Nenhum item tem mais de dois grupos principais.
+    - `secondary` e `stabilizers` só aparecem quando a participação é clara no
+      movimento descrito; na dúvida, o campo é omitido.
+    - Exercícios de mobilidade e de condicionamento usam a região geral
+      ("ombros", "pernas") em vez de inventar um grupo específico.
+    - Um item personalizado não recebe `roles`: o usuário informa só os grupos
+      que quiser, e o atlas não inventa classificação para ele.
+  */
   const SUGGESTED_META = Object.freeze({
     "cal-rotacao-ombros": {
-      category: "mobility", muscles: ["ombros"], equipment: [BODY_WEIGHT],
+      category: "mobility", roles: { primary: ["ombros"] }, equipment: [BODY_WEIGHT],
       instructions: "Em pé, gire os ombros para trás e para frente em círculos amplos e lentos. Amplitude confortável, sem prender a respiração."
     },
     "cal-mobilidade-quadril": {
-      category: "mobility", muscles: ["quadril", "glúteos"], equipment: [BODY_WEIGHT],
+      category: "mobility", roles: { primary: ["quadril"], secondary: ["glúteos"] }, equipment: [BODY_WEIGHT],
       instructions: "Deitado ou em pé, leve o joelho ao peito e abra a perna para o lado, controlando o movimento. Troque de lado a cada série."
     },
     "cal-polichinelo": {
-      category: "cardio", muscles: ["pernas", "ombros"], equipment: [BODY_WEIGHT],
+      category: "cardio", roles: { primary: ["pernas"], secondary: ["ombros"] }, equipment: [BODY_WEIGHT],
       instructions: "Abra pernas e braços ao saltar, feche na volta. Mantenha o abdômen ativo para amortecer a chegada."
     },
     "cal-flexao": {
-      category: "push", muscles: ["peito", "tríceps", "ombros"], equipment: [BODY_WEIGHT],
+      category: "push", roles: { primary: ["peito"], secondary: ["tríceps", "ombros"], stabilizers: ["abdômen"] }, equipment: [BODY_WEIGHT],
       instructions: "Corpo em prancha, cotovelos a cerca de 45° do tronco, desça até o peito ficar perto do chão. Para reduzir dificuldade, apoie os joelhos."
     },
     "cal-agachamento": {
-      category: "legs", muscles: ["quadríceps", "glúteos"], equipment: [BODY_WEIGHT],
+      category: "legs", roles: { primary: ["quadríceps"], secondary: ["glúteos"], stabilizers: ["abdômen"] }, equipment: [BODY_WEIGHT],
       instructions: "Pés na largura dos ombros, desça o quadril para trás mantendo o peito aberto e os calcanhares no chão."
     },
     "cal-barra-fixa": {
-      category: "pull", muscles: ["dorsais", "bíceps"], equipment: ["barra fixa"],
-      instructions: "Pronada, puxe até o queixo passar da barra controlando a descida. Se não conseguir a amplitude completa, use elástico ou faça negativas."
+      category: "pull", roles: { primary: ["dorsais"], secondary: ["bíceps"], stabilizers: ["abdômen"] }, equipment: ["barra fixa"],
+      instructions: "Pegada pronada, puxe até o queixo passar da barra controlando a descida. Se não conseguir a amplitude completa, use elástico ou faça negativas."
     },
     "cal-remada-invertida": {
-      category: "pull", muscles: ["dorsais", "costas"], equipment: ["barra fixa", "argolas"],
+      category: "pull", roles: { primary: ["dorsais"], secondary: ["costas"], stabilizers: ["abdômen"] }, equipment: ["barra fixa", "argolas"],
       instructions: "Sob a barra ou argolas, corpo reto, puxe o peito em direção ao apoio e segure um instante em cima."
     },
     "cal-mergulho": {
-      category: "push", muscles: ["tríceps", "peito"], equipment: ["paralelas"],
+      category: "push", roles: { primary: ["tríceps"], secondary: ["peito", "ombros"], stabilizers: ["abdômen"] }, equipment: ["paralelas"],
       instructions: "Nos apoios, desça o quadril dobrando os cotovelos para trás e empurre de volta. Amplitude conforme o ombro permitir."
     },
     "cal-afundo": {
-      category: "legs", muscles: ["quadríceps", "glúteos"], equipment: [BODY_WEIGHT],
+      category: "legs", roles: { primary: ["quadríceps"], secondary: ["glúteos"], stabilizers: ["abdômen"] }, equipment: [BODY_WEIGHT],
       instructions: "Passe uma perna à frente e desça até o joelho de trás quase tocar o chão. Alterne as pernas a cada repetição."
     },
     "cal-ponte": {
-      category: "legs", muscles: ["glúteos", "posterior de coxa"], equipment: [BODY_WEIGHT],
+      category: "legs", roles: { primary: ["glúteos"], secondary: ["posterior de coxa"], stabilizers: ["abdômen"] }, equipment: [BODY_WEIGHT],
       instructions: "Deitado, pés no chão, eleve o quadril apertando os glúteos e segure dois segundos no topo."
     },
     "cal-prancha-frontal": {
-      category: "core", muscles: ["abdômen", "lombar"], equipment: [BODY_WEIGHT],
+      category: "core", roles: { primary: ["abdômen"], secondary: ["lombar"], stabilizers: ["ombros", "glúteos"] }, equipment: [BODY_WEIGHT],
       instructions: "Antebraços no chão, corpo em linha reta, glúteos contraídos. Não deixe o quadril cair nem subir."
     },
     "cal-prancha-lateral": {
-      category: "core", muscles: ["abdômen", "obligos"], equipment: [BODY_WEIGHT],
+      category: "core", roles: { primary: ["oblíquos"], secondary: ["abdômen"], stabilizers: ["ombros"] }, equipment: [BODY_WEIGHT],
       instructions: "Apoie um antebraço, eleve o quadril e alinhe o corpo. Faça o mesmo tempo dos dois lados."
     },
     "cal-abdominal-supra": {
-      category: "core", muscles: ["abdômen"], equipment: [BODY_WEIGHT],
+      category: "core", roles: { primary: ["abdômen"] }, equipment: [BODY_WEIGHT],
       instructions: "Joelhos dobrados, tire apenas as escápulas do chão contraindo o abdômen, sem puxar o pescoço."
     },
     "cal-elevacao-pernas": {
-      category: "core", muscles: ["abdômen", "quadril"], equipment: [BODY_WEIGHT],
+      category: "core", roles: { primary: ["abdômen"], secondary: ["quadril"], stabilizers: ["lombar"] }, equipment: [BODY_WEIGHT],
       instructions: "Deitado, pernas estendidas, suba até cerca de 90° e desça devagar sem deixar a lombar descolar do chão."
     },
     "cal-abdominal-infra": {
-      category: "core", muscles: ["abdômen"], equipment: [BODY_WEIGHT],
-      instructions: "Mãos ao lado do corpo, eleve e baixe as pernas mantendo a lombar apoiada; reduza a amplitude se doer as costas."
+      category: "core", roles: { primary: ["abdômen"], secondary: ["quadril"] }, equipment: [BODY_WEIGHT],
+      instructions: "Mãos ao lado do corpo, eleve e baixe as pernas mantendo a lombar apoiada; reduza a amplitude se sentir dor nas costas."
     },
     "cal-burpee": {
-      category: "cardio", muscles: ["pernas", "peito", "abdômen"], equipment: [BODY_WEIGHT],
+      category: "cardio", roles: { primary: ["pernas"], secondary: ["peito"], stabilizers: ["abdômen"] }, equipment: [BODY_WEIGHT],
       instructions: "Agache, jogue os pés para a prancha, volte e salte. Priorize ritmo constante em vez de amplitude máxima."
     },
     "cal-mountain-climber": {
-      category: "cardio", muscles: ["abdômen", "ombros"], equipment: [BODY_WEIGHT],
+      category: "cardio", roles: { primary: ["abdômen"], secondary: ["quadril"], stabilizers: ["ombros"] }, equipment: [BODY_WEIGHT],
       instructions: "Na prancha, traga os joelhos ao peito alternando as pernas sem deixar o quadril subir."
     },
     "cal-corrida-estacionaria": {
-      category: "cardio", muscles: ["pernas"], equipment: [BODY_WEIGHT],
-      instructions: "Corra no lugar com passada leve e joelhos à altura confortável. Sirve para elevar a frequência cardíaca entre blocos."
+      category: "cardio", roles: { primary: ["pernas"] }, equipment: [BODY_WEIGHT],
+      instructions: "Corra no lugar com passada leve e joelhos à altura confortável. Serve para elevar a frequência cardíaca entre blocos."
     },
     "mus-esteira": {
-      category: "cardio", muscles: ["pernas"], equipment: ["esteira"],
+      category: "cardio", roles: { primary: ["pernas"] }, equipment: ["esteira"],
       instructions: "Ritmo leve, respiração controlada, ainda conseguindo conversar. Ajuste a velocidade em vez de inclinar o tronco."
     },
     "mus-mobilidade-ombro": {
-      category: "mobility", muscles: ["ombros"], equipment: ["elástico"],
+      category: "mobility", roles: { primary: ["ombros"] }, equipment: ["elástico"],
       instructions: "Com o elástico à frente, abra os braços mantendo os ombros longe das orelhas. Movimento lento e simétrico."
     },
     "mus-supino-reto": {
-      category: "push", muscles: ["peito", "tríceps", "ombros"], equipment: ["barra", "banco"],
+      category: "push", roles: { primary: ["peito"], secondary: ["tríceps", "ombros"], stabilizers: ["abdômen"] }, equipment: ["barra", "banco"],
       instructions: "Escápulas retraídas, pés no chão, desça a barra até a linha do peito e empurre sem tirar o quadril do banco."
     },
     "mus-agachamento-barra": {
-      category: "legs", muscles: ["quadríceps", "glúteos"], equipment: ["barra", "rack"],
+      category: "legs", roles: { primary: ["quadríceps"], secondary: ["glúteos"], stabilizers: ["abdômen", "lombar"] }, equipment: ["barra", "rack"],
       instructions: "Barra sobre o trapézio, desça o quadril para trás mantendo o tronco firme e os pés inteiros no chão."
     },
     "mus-terra": {
-      category: "pull", muscles: ["posterior de coxa", "glúteos", "lombar"], equipment: ["barra"],
+      category: "pull", roles: { primary: ["glúteos"], secondary: ["posterior de coxa", "lombar"], stabilizers: ["abdômen", "dorsais"] }, equipment: ["barra"],
       instructions: "Barra sobre o meio do pé, coluna neutra, empurre o chão com as pernas e termine com ombros e quadril alinhados."
     },
     "mus-puxada-frontal": {
-      category: "pull", muscles: ["dorsais", "bíceps"], equipment: ["polia"],
+      category: "pull", roles: { primary: ["dorsais"], secondary: ["bíceps"], stabilizers: ["abdômen"] }, equipment: ["polia"],
       instructions: "Puxe a barra até a clavícula levando os cotovelos para baixo e para trás, sem jogar o tronco."
     },
     "mus-desenvolvimento": {
-      category: "push", muscles: ["ombros", "tríceps"], equipment: ["halteres"],
-      instructions: "Halteres na altura das orelhas, empurre para cima sem estocar o cotovelo. Abdômen contraído para não arquear a lombar."
+      category: "push", roles: { primary: ["ombros"], secondary: ["tríceps"], stabilizers: ["abdômen"] }, equipment: ["halteres"],
+      instructions: "Halteres na altura das orelhas, empurre para cima sem estender totalmente o cotovelo. Abdômen contraído para não arquear a lombar."
     },
     "mus-remada-curvada": {
-      category: "pull", muscles: ["costas", "dorsais"], equipment: ["barra"],
+      category: "pull", roles: { primary: ["dorsais"], secondary: ["costas", "bíceps"], stabilizers: ["lombar"] }, equipment: ["barra"],
       instructions: "Tronco inclinado e estável, puxe a barra em direção ao umbigo e desça controlando o peso."
     },
     "mus-leg-press": {
-      category: "legs", muscles: ["quadríceps", "glúteos"], equipment: ["máquina"],
-      instructions: "Pés no meio da plataforma, desça até cerca de 90° sem descolar o quadril do encosto. Não tranque os joelhos no fim."
+      category: "legs", roles: { primary: ["quadríceps"], secondary: ["glúteos"] }, equipment: ["máquina"],
+      instructions: "Pés no meio da plataforma, desça até cerca de 90° sem descolar o quadril do encosto. Não trave os joelhos no fim."
     },
     "mus-rosca-direta": {
-      category: "pull", muscles: ["bíceps"], equipment: ["barra", "halteres"],
+      category: "pull", roles: { primary: ["bíceps"], secondary: ["antebraços"] }, equipment: ["barra", "halteres"],
       instructions: "Cotovelos fixos na lateral do corpo, suba o peso sem balançar o tronco."
     },
     "mus-triceps-polia": {
-      category: "push", muscles: ["tríceps"], equipment: ["polia"],
+      category: "push", roles: { primary: ["tríceps"] }, equipment: ["polia"],
       instructions: "Cotovelos colados ao corpo, estenda os braços e volte devagar até a altura do peito."
     },
     "mus-extensora": {
-      category: "legs", muscles: ["quadríceps"], equipment: ["máquina"],
+      category: "legs", roles: { primary: ["quadríceps"] }, equipment: ["máquina"],
       instructions: "Estenda as pernas até alinhar com o assento, segure um instante e resista na volta."
     },
     "mus-flexora": {
-      category: "legs", muscles: ["posterior de coxa"], equipment: ["máquina"],
-      instructions: "Dobre os joelhos trazendo o peso aos glúteos e volte sem soltar o impulso."
+      category: "legs", roles: { primary: ["posterior de coxa"] }, equipment: ["máquina"],
+      instructions: "Dobre os joelhos trazendo o peso na direção dos glúteos e volte devagar, sem usar impulso."
     },
     "mus-elevacao-lateral": {
-      category: "push", muscles: ["ombros"], equipment: ["halteres"],
+      category: "push", roles: { primary: ["ombros"] }, equipment: ["halteres"],
       instructions: "Suba os halteres até a linha dos ombros com os cotovelos levemente dobrados; carga moderada vale mais que amplitude forçada."
     },
     "mus-abdominal-polia": {
-      category: "core", muscles: ["abdômen"], equipment: ["polia"],
+      category: "core", roles: { primary: ["abdômen"] }, equipment: ["polia"],
       instructions: "Ajoelhado, segure a corda junto à cabeça e flexione o tronco contraindo o abdômen, não os quadris."
     },
     "mus-prancha": {
-      category: "core", muscles: ["abdômen", "lombar"], equipment: [BODY_WEIGHT],
+      category: "core", roles: { primary: ["abdômen"], secondary: ["lombar"], stabilizers: ["ombros"] }, equipment: [BODY_WEIGHT],
       instructions: "Antebraços no chão e corpo em linha reta; respire normalmente durante todo o tempo."
     },
     "mus-elevacao-barra": {
-      category: "core", muscles: ["abdômen", "quadril"], equipment: ["barra fixa"],
+      category: "core", roles: { primary: ["abdômen"], secondary: ["quadril"], stabilizers: ["antebraços"] }, equipment: ["barra fixa"],
       instructions: "Pendurado na barra, suba as pernas até o quadril enrolar levemente. Desça sem balançar."
     },
     "mus-bicicleta": {
-      category: "cardio", muscles: ["pernas"], equipment: ["bike"],
+      category: "cardio", roles: { primary: ["pernas"] }, equipment: ["bike"],
       instructions: "Cadência confortável com resistência leve; serve para soltar as pernas depois do bloco principal."
     },
     "mus-farmer": {
-      category: "carry", muscles: ["antebraços", "abdômen", "ombros"], equipment: ["halteres", "kettlebell"],
+      category: "carry", roles: { primary: ["antebraços"], secondary: ["ombros"], stabilizers: ["abdômen"] }, equipment: ["halteres", "kettlebell"],
       instructions: "Segure cargas pesadas ao lado do corpo, ombros encaixados, e caminhe em linha reta pelo tempo indicado."
     }
   });
@@ -223,14 +243,49 @@
     Metadados de catálogo de qualquer item (sugerido ou personalizado). Para um
     item personalizado sem metadados, devolve listas vazias — nada é inventado.
   */
+  /*
+    Normaliza a classificação muscular. A ordem é sempre principal →
+    secundário → estabilizador, e um grupo aparece em um único nível. Valores
+    vazios ou repetidos são descartados; se nada sobrar, a classificação é
+    `null` (nada é inventado).
+  */
+  function normalizeRoles(raw) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+
+    const primary = uniqueList(raw.primary).filter(Boolean);
+    const secondary = uniqueList(raw.secondary)
+      .filter(muscle => muscle && primary.indexOf(muscle) === -1);
+    const stabilizers = uniqueList(raw.stabilizers)
+      .filter(muscle => muscle && primary.indexOf(muscle) === -1 && secondary.indexOf(muscle) === -1);
+
+    if (primary.length === 0 && secondary.length === 0 && stabilizers.length === 0) return null;
+
+    return { primary, secondary, stabilizers };
+  }
+
+  /* Lista plana de grupos: derivada dos níveis, na ordem principal → estabilizador. */
+  function musclesFromRoles(roles) {
+    if (!roles) return [];
+    return uniqueList([].concat(roles.primary, roles.secondary, roles.stabilizers));
+  }
+
+  /*
+    Metadados de catálogo de qualquer item (sugerido ou personalizado).
+
+    Para um item sugerido, `roles` vem do catálogo e a lista plana `muscles` é
+    derivada dela. Para um item personalizado sem metadados, `roles` é `null` e
+    as listas vazias — nada é inventado. Se o usuário digitou grupos no item
+    personalizado, eles continuam valendo como lista plana e o atlas os trata
+    como "informado por você", sem alegar papel principal/secundário.
+  */
   function metadataFor(item) {
     if (!item) return null;
 
     const meta = SUGGESTED_META[item.id];
     const category = item.category || (meta && meta.category) || "";
-    const muscles = Array.isArray(item.muscles) && item.muscles.length
-      ? item.muscles
-      : (meta && meta.muscles) || [];
+    const roles = normalizeRoles(item.roles) || normalizeRoles(meta && meta.roles);
+    const declaredMuscles = Array.isArray(item.muscles) && item.muscles.length ? item.muscles : [];
+    const muscles = roles ? musclesFromRoles(roles) : declaredMuscles;
     const equipment = Array.isArray(item.equipment) && item.equipment.length
       ? item.equipment
       : (meta && meta.equipment) || [];
@@ -238,6 +293,7 @@
     return {
       category,
       label: categoryLabel(category),
+      roles,
       muscles: muscles.slice(0, 6),
       equipment: equipment.slice(0, 6),
       instructions: item.instructions || (meta && meta.instructions) || ""
@@ -260,6 +316,7 @@
       source,
       libraryId: source === "sugerido" ? normalized.id : (normalized.libraryId || normalized.id),
       category: meta.category,
+      roles: meta.roles,
       muscles: meta.muscles,
       equipment: meta.equipment,
       instructions: meta.instructions,
@@ -415,6 +472,8 @@
     facets,
     summary,
     metadataFor,
+    normalizeRoles,
+    musclesFromRoles,
     toExercise,
     /* Categorias presentes no catálogo atual (para o formulário). */
     categories(mode) {
@@ -615,10 +674,23 @@
     return details;
   }
 
+  /* Leitura dos níveis musculares no detalhe da biblioteca (fonte: catálogo). */
+  function roleSummary(roles) {
+    if (!roles) return "";
+
+    const parts = [];
+    if (roles.primary.length) parts.push("principal: " + roles.primary.join(", "));
+    if (roles.secondary.length) parts.push("secundários: " + roles.secondary.join(", "));
+    if (roles.stabilizers.length) parts.push("estabilizadores: " + roles.stabilizers.join(", "));
+
+    return parts.join(" · ");
+  }
+
   async function showDetail(record) {
     const lines = [];
 
     if (record.instructions) lines.push(record.instructions);
+    if (record.roles) lines.push("Grupos musculares — " + roleSummary(record.roles) + ".");
     if (record.notes) lines.push("Observação salva: " + record.notes);
     if (record.mode === "weights" && record.load) lines.push("Carga de referência digitada: " + record.load);
     lines.push(historyLine(record));
@@ -968,6 +1040,28 @@
     }
   }
 
+  /*
+    Link direto para o detalhe de um exercício (usado pelo atlas). Procura pelo
+    id de catálogo e, se não achar, pelo id do próprio item. Se o link estiver
+    velho, avisa sem erro e deixa a biblioteca normal na tela — nada é criado.
+  */
+  function findRecord(id) {
+    if (!id) return null;
+
+    return F.catalog.items().find(record => record.libraryId === id || record.id === id) || null;
+  }
+
+  async function openRequestedExercise(id) {
+    const record = findRecord(id);
+
+    if (!record) {
+      F.showToast("O exercício do link não está mais no catálogo. A biblioteca foi aberta completa.", "info", 6000);
+      return;
+    }
+
+    await showDetail(record);
+  }
+
   F.pages.biblioteca = function initBiblioteca() {
     const params = new URLSearchParams(global.location.search);
     const mode = params.get("modalidade");
@@ -977,5 +1071,8 @@
     mount();
     update();
     F.onDataChanged(() => update());
+
+    /* `?exercicio=<id>` abre o detalhe depois que a lista está montada. */
+    openRequestedExercise(params.get("exercicio"));
   };
 })(window);

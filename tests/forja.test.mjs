@@ -36,7 +36,9 @@ const PAGES = [
   "treino/executar.html",
   "treino/biblioteca.html",
   "progresso/index.html",
-  "configuracoes/index.html"
+  "configuracoes/index.html",
+  "explorar/index.html",
+  "explorar/atlas.html"
 ];
 
 async function runTest(name, fn) {
@@ -1883,7 +1885,7 @@ await runTest("43. Barra inferior fixa: 5 itens, aria-current, safe-area e não 
 });
 
 await runTest("44. Links da barra inferior resolvem e perfil/explorar existem", async () => {
-  const pagesToCheck = ["index.html", "treino/index.html", "explorar/index.html", "progresso/index.html", "perfil/index.html"];
+  const pagesToCheck = ["index.html", "treino/index.html", "explorar/index.html", "explorar/atlas.html", "progresso/index.html", "perfil/index.html"];
   for (const page of pagesToCheck) {
     const app = await boot({}, page);
     const broken = [];
@@ -1897,6 +1899,7 @@ await runTest("44. Links da barra inferior resolvem e perfil/explorar existem", 
     app.close();
   }
   assert.ok(fs.existsSync(path.join(repoRoot, "explorar/index.html")), "explorar/index.html ausente");
+  assert.ok(fs.existsSync(path.join(repoRoot, "explorar/atlas.html")), "explorar/atlas.html ausente");
   assert.ok(fs.existsSync(path.join(repoRoot, "perfil/index.html")), "perfil/index.html ausente");
 });
 

@@ -23,6 +23,7 @@
     calistenia: "treino/calistenia.html",
     musculacao: "treino/musculacao.html",
     biblioteca: "treino/biblioteca.html",
+    atlas: "explorar/atlas.html",
     rotina: "treino/rotina.html",
     executar: "treino/executar.html",
     progresso: "progresso/index.html",
