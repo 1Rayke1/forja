@@ -87,7 +87,8 @@
 
   const DISCLOSURE = "Figura esquemática de regiões musculares — não é uma " +
     "representação anatômica clínica. As cores indicam o papel da região no " +
-    "movimento, a partir da classificação do catálogo.";
+    "movimento, a partir da classificação do catálogo. Desenho: Open Muscle Map " +
+    "(MIT), com origem declarada em ilustração gerada por IA.";
 
   function normalize(value) {
     return F.catalog.normalizeText(value);

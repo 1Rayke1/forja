@@ -76,9 +76,19 @@ function groupChip(app, groupId) {
   return app.$('[data-group-chip="' + groupId + '"]');
 }
 
+/* Um destaque por região: o modelo tem vários painéis por músculo, então
+   contamos regiões distintas (com o papel de cada uma), não painéis. */
+function distinctRegions(nodes) {
+  const seen = new Map();
+  nodes.forEach(node => {
+    const id = node.getAttribute("data-region");
+    if (!seen.has(id)) seen.set(id, node.getAttribute("data-role"));
+  });
+  return Array.from(seen, ([id, role]) => ({ id, role }));
+}
+
 function highlighted(app, view) {
-  return app.$$(".atlas-figura-cell[data-view=\"" + view + "\"] .figura-region")
-    .map(node => ({ id: node.getAttribute("data-region"), role: node.getAttribute("data-role") }));
+  return distinctRegions(app.$$(".atlas-figura-cell[data-view=\"" + view + "\"] .figura-region"));
 }
 
 function legendItems(app) {
@@ -257,22 +267,31 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
   const front = app.$(".atlas-figura-cell[data-view=\"front\"] .figura-svg");
   const back = app.$(".atlas-figura-cell[data-view=\"back\"] .figura-svg");
 
-  /* O corpo é desenhado em paths orgânicos: cabeça, pescoço, tronco, dois
-     braços, duas mãos, duas pernas e dois pés. */
-  const frontOutline = front.querySelectorAll(".figura-outline path").length;
-  assert.equal(frontOutline, 11, "Silhueta incompleta na vista anterior: " + frontOutline + " partes");
-  assert.equal(back.querySelectorAll(".figura-outline path").length, 11);
-  assert.equal(front.querySelectorAll(".figura-base path").length, 11);
+  /* A silhueta de referência é o contorno de corpo do Open Muscle Map (uma
+     peça por vista) e os painéis musculares são os caminhos do mesmo desenho. */
+  const frontBody = front.querySelectorAll(".figura-body .figura-part").length;
+  assert.equal(frontBody, 1, "Silhueta de referência ausente na vista anterior");
+  assert.equal(back.querySelectorAll(".figura-body .figura-part").length, 1);
+  const frontMuscles = front.querySelectorAll(".figura-muscle-shape").length;
+  assert.ok(frontMuscles >= 50, "Poucos painéis musculares na vista anterior: " + frontMuscles);
+  assert.ok(back.querySelectorAll(".figura-muscle-shape").length >= 40, "Poucos painéis na vista posterior");
 
-  const outlineSource = Array.from(front.querySelectorAll(".figura-outline path"))
+  /* Os caminhos vêm do desenho de origem: curvas (C), sem retângulos, linhas ou textos. */
+  const shapeSource = Array.from(front.querySelectorAll(".figura-muscle-shape, .figura-part"))
     .map(node => node.getAttribute("d")).join("");
-  assert.equal((outlineSource.match(/C/g) || []).length > 20, true,
-    "O contorno precisa usar curvas, não retângulos/linhas retas");
+  assert.ok((shapeSource.match(/C/g) || []).length > 200, "Caminhos sem curvas: a figura não parece orgânica");
   assert.equal(front.querySelectorAll("rect").length, 0, "Silhueta não deve ser feita de retângulos");
   assert.equal(front.querySelectorAll("line").length, 0, "Silhueta não deve ser feita de linhas retas");
 
-  /* A silhueta usa proporção vertical de corpo inteiro e largura própria. */
-  assert.equal(front.getAttribute("viewBox"), "0 0 240 520");
+  /* Cada vista usa a metade correspondente do SVG de origem (627 × 1254). */
+  /* O viewBox vem dos limites reais do corpo (com margem): cada vista cabe no próprio quadro. */
+  const fv = front.getAttribute("viewBox").split(" ").map(Number);
+  const bv = back.getAttribute("viewBox").split(" ").map(Number);
+  assert.equal(fv.length, 4, "viewBox anterior inválido");
+  assert.equal(bv.length, 4, "viewBox posterior inválido");
+  assert.ok(fv[0] >= 0 && fv[0] + fv[2] <= 627, "Vista anterior fora da metade do desenho de origem");
+  assert.ok(bv[0] >= 627 && bv[0] + bv[2] <= 1254, "Vista posterior fora da metade do desenho de origem");
+  assert.ok(fv[3] / fv[2] > 1.6, "Proporção de corpo inteiro ausente na vista anterior");
   assert.match(front.getAttribute("preserveAspectRatio") || "xMidYMid meet", /xMidYMid/);
 
   /* Texto alternativo lista só as regiões que existem naquela vista. */
@@ -286,14 +305,10 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
   assert.match(backLabel, /secundária: Tríceps, Ombros/);
   assert.doesNotMatch(backLabel, /Peitoral/, "A vista posterior não deve anunciar o peitoral");
 
-  /* A camada de regiões é recortada pela silhueta (clipPath), então o
-     destaque acompanha o corpo em vez de flutuar sobre ele. */
-  const regionLayer = front.querySelector(".figura-regions");
-  assert.match(regionLayer.getAttribute("clip-path") || "", /^url\(#figura-clip-\d+\)$/,
-    "Camada de regiões sem recorte pela silhueta");
-  const clip = front.querySelector("clipPath");
-  assert.ok(clip, "clipPath com a silhueta ausente");
-  assert.equal(clip.querySelectorAll("path").length, 11, "O recorte precisa usar a silhueta inteira");
+  /* Os destaques são os próprios painéis do desenho (não formas sobrepostas),
+     então acompanham o corpo sem recorte adicional. */
+  assert.equal(front.querySelectorAll("clipPath").length, 0, "Não deve haver recorte sobre os painéis");
+  assert.ok(front.querySelectorAll(".figura-muscles .figura-region").length > 0, "Destaques fora da camada muscular");
 
   /* Regiões interativas opcionais: foco, clique e teclado. */
   const host = app.d.createElement("div");
@@ -317,8 +332,11 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
   const backRegions = app.F.figura.regionsInView("back");
   assert.ok(backRegions.includes("gluteos") && backRegions.includes("triceps"));
   assert.equal(backRegions.includes("peito"), false);
+  /* "costas" (trapézio superior) e "panturrilha" (gastrocnêmio e sóleo, medial)
+     também aparecem na anterior, porque o desenho de origem os mostra de frente.
+     Lombar, glúteos, dorsais e tríceps são só posteriores. */
   assert.deepEqual([...app.F.figura.regionsInView("front")],
-    ["ombros", "peito", "biceps", "antebracos", "abdomem", "obliquos", "quadril", "quadriceps", "pernas"]);
+    ["ombros", "peito", "biceps", "antebracos", "abdomem", "obliquos", "quadril", "quadriceps", "pernas", "costas", "panturrilha"]);
 
   assertNoErrors(app, "figura do atlas");
   app.close();
@@ -334,7 +352,7 @@ await runTest("ATLAS 4. Explorar por grupo: filtro por modalidade e mensagem de 
 
   assert.equal(app.text("#atlas-group-status"), "Grupo em foco: Antebraços · anterior e posterior");
   assert.equal(groupChip(app, "antebracos").getAttribute("aria-pressed"), "true");
-  assert.equal(app.$$(".atlas-group-figure .figura-region").length, 1, "Figura de foco do grupo ausente");
+  assert.equal(distinctRegions(app.$$(".atlas-group-figure .figura-region")).length, 1, "Figura de foco do grupo ausente");
   assert.deepEqual(rows(app).map(row => row.name), ["Farmer walk", "Rosca direta", "Elevação de pernas na barra"]);
   assert.match(app.text("#atlas-modes"), /Todas3/);
   assert.match(app.text("#atlas-modes"), /Calistenia0/);
@@ -706,10 +724,10 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
   assert.match(css, /@media \(max-width: 360px\)/);
   assert.match(css, /@media \(min-width: 760px\)/, "Sem ajuste para telas largas");
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/, "Sem respeito a prefers-reduced-motion");
-  assert.match(css, /\.figura-region\[role="button"\]:focus-visible \.figura-region-hit/, "Foco visível na figura ausente");
-  assert.match(css, /\.figura-region\.is-primary \.figura-region-shape/, "Cor de principal ausente");
-  assert.match(css, /\.figura-region\.is-secondary \.figura-region-shape/, "Cor de secundária ausente");
-  assert.match(css, /\.figura-region\.is-stabilizer \.figura-region-shape/, "Cor de estabilizadora ausente");
+  assert.match(css, /\.figura-region\[role="button"\]:focus-visible \.figura-muscle-shape/, "Foco visível na figura ausente");
+  assert.match(css, /\.figura-region\.is-primary \.figura-muscle-shape/, "Cor de principal ausente");
+  assert.match(css, /\.figura-region\.is-secondary \.figura-muscle-shape/, "Cor de secundária ausente");
+  assert.match(css, /\.figura-region\.is-stabilizer \.figura-muscle-shape/, "Cor de estabilizadora ausente");
   assert.match(css, /min-width: 0/, "O layout precisa permitir que a figura encolha em 320 px");
   assert.match(css, /overflow-wrap: anywhere/, "Nomes longos podem estourar em 320 px");
   assert.match(css, /\.atlas-figuras \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/s,
