@@ -259,12 +259,11 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
 
   /* O corpo é desenhado em paths orgânicos: cabeça, pescoço, tronco, dois
      braços, duas mãos, duas pernas e dois pés. */
-  const frontOutline = front.querySelectorAll(".figura-outline path").length;
-  assert.equal(frontOutline, 11, "Silhueta incompleta na vista anterior: " + frontOutline + " partes");
-  assert.equal(back.querySelectorAll(".figura-outline path").length, 11);
-  assert.equal(front.querySelectorAll(".figura-base path").length, 11);
+  const frontBody = front.querySelectorAll(".figura-body path").length;
+  assert.equal(frontBody, 11, "Silhueta incompleta na vista anterior: " + frontBody + " partes");
+  assert.equal(back.querySelectorAll(".figura-body path").length, 11);
 
-  const outlineSource = Array.from(front.querySelectorAll(".figura-outline path"))
+  const outlineSource = Array.from(front.querySelectorAll(".figura-body path"))
     .map(node => node.getAttribute("d")).join("");
   assert.equal((outlineSource.match(/C/g) || []).length > 20, true,
     "O contorno precisa usar curvas, não retângulos/linhas retas");

@@ -40,16 +40,12 @@
   min-width: 0;
 }
 
-/* Contorno único: a união das partes não deixa costura entre tronco e membro. */
-.figura-outline path {
-  fill: var(--border);
-  stroke: var(--border);
-  stroke-width: 6;
+/* Corpo: cada parte tem contorno próprio (o braço se separa do tronco) e o
+   preenchimento vem do degradê definido em forja-figura.js. */
+.figura-part {
+  stroke: #5d695e;
+  stroke-width: 1.6;
   stroke-linejoin: round;
-}
-
-.figura-base path {
-  fill: #191d19;
 }
 
 .figura-details {
@@ -58,13 +54,13 @@
 
 .figura-details path {
   fill: none;
-  stroke: #414a41;
+  stroke: #5a655b;
   stroke-width: 1.1;
   stroke-linecap: round;
 }
 
 .figura-details .figura-line-strong {
-  stroke: #4d574d;
+  stroke: #667266;
   stroke-width: 1.5;
 }
 

@@ -6,17 +6,19 @@
   calculado e devolve um `<svg>`. Quem decide o papel é o catálogo
   (ver `forja-atlas.js`), então não há duas fontes de verdade.
 
-  Como o desenho é feito:
-  - cada membro é gerado a partir de uma linha média com meia-largura em cada
-    ponto (ombro → cotovelo → punho, quadril → joelho → tornozelo). O contorno
-    é a curva que passa pelos deslocamentos perpendiculares dessa linha, então
-    o volume é contínuo e as extremidades afinam de verdade (punho, tornozelo);
-  - o contorno geral é suavizado por Catmull-Rom convertido em curvas de Bézier;
-  - a silhueta é montada em duas camadas (traço grosso embaixo, preenchimento em
-    cima) para que os encontros entre tronco e membros não deixem costuras;
+  Como o desenho é feito (sem boneco palito):
+  - proporções de referência: cabeça ≈ 1/7,5 da altura, ombros largos, cintura
+    marcada, quadril ligeiramente mais largo que a cintura, coxa grossa que
+    afina até o joelho, panturrilha com volume e tornozelo fino;
+  - tronco, cabeça e pescoço são contornos fechados e suavizados (Catmull-Rom →
+    Bézier). Braços, mãos, pernas e pés são membros com linha média e meia-largura
+    em cada ponto, então o volume é contínuo e as extremidades afinam;
+  - cada parte é desenhada na sua ordem, com contorno próprio. Por isso o braço
+    aparece separado do tronco e a perna separada da outra, sem depender de cor;
+  - o preenchimento tem um degradê horizontal (mais claro nas bordas, mais
+    escuro no centro) que dá a leitura de volume cilíndrico;
   - as regiões musculares são formas fechadas suavizadas, recortadas pela
-    silhueta com `clipPath`. Assim o destaque acompanha o corpo em vez de virar
-    um círculo solto em cima dele.
+    silhueta com `clipPath`, então o destaque acompanha o corpo.
 
   O que continua valendo do documento `docs/atlas-anatomico.md`: isto é um
   esquema de regiões, não uma ilustração anatômica clínica. Não há músculos
@@ -40,7 +42,7 @@
   let clipCounter = 0;
 
   /* ------------------------------------------------------------------ */
-  /* Geometria: linha média com volume → contorno orgânico              */
+  /* Geometria: curvas suaves, membros com volume                        */
   /* ------------------------------------------------------------------ */
 
   const round = value => Math.round(value * 100) / 100;
@@ -69,7 +71,7 @@
     return d;
   }
 
-  /* Catmull-Rom fechado: usado nas formas de região (peitoral, abdômen…). */
+  /* Catmull-Rom fechado: usado nas formas de região e no tronco/cabeça. */
   function smoothClosed(points) {
     const total = points.length;
     if (total < 3) return smoothOpen(points) + "Z";
@@ -102,7 +104,7 @@
     });
   }
 
-  /* Contorno de um membro: desce por um lado, volta pelo outro. */
+  /* Membro: desce por um lado com a meia-largura de cada ponto, volta pelo outro. */
   function limb(points) {
     const n = normals(points);
     const left = points.map((point, index) => ({
@@ -122,9 +124,22 @@
   }
 
   /*
-    Recorta um trecho do membro entre duas alturas (as linhas médias são
-    verticais o bastante para isso) e devolve o contorno com uma margem
-    interna, para o destaque não encostar na borda do corpo.
+    Contorno simétrico: `right` vai do topo ao fundo pelo lado direito da
+    figura (x > 120). O lado esquerdo é o espelho, percorrido de volta.
+  */
+  function bilateral(right, top, bottom) {
+    const mirrored = right.map(point => ({ x: CENTER * 2 - point.x, y: point.y })).reverse();
+    return smoothClosed([
+      { x: CENTER, y: top },
+      ...right,
+      { x: CENTER, y: bottom },
+      ...mirrored
+    ]);
+  }
+
+  /*
+    Recorta um trecho do membro entre duas alturas e devolve o contorno com
+    uma margem interna, para o destaque não encostar na borda do corpo.
   */
   function segment(points, top, bottom, inset) {
     const margin = inset === undefined ? 2.5 : inset;
@@ -188,105 +203,109 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Corpo: linhas médias com volume                                    */
+  /* Corpo (coordenadas do lado direito da figura, x > 120)              */
+  /* Altura total ≈ 500 (cabeça no topo, pés em ~506).                   */
   /* ------------------------------------------------------------------ */
 
+  /* Cabeça: crânio, maçãs do rosto e queixo. Topo y=10, queixo y=74. */
+  const HEAD_RIGHT = [
+    { x: 126, y: 10.5 }, { x: 134, y: 13 }, { x: 138.5, y: 22 }, { x: 139, y: 36 },
+    { x: 136, y: 50 }, { x: 130, y: 61 }, { x: 125, y: 70 }
+  ];
+
+  /* Pescoço: sai sob a cabeça e entra nos trapézios. */
+  const NECK_RIGHT = [
+    { x: 127, y: 62 }, { x: 129.5, y: 72 }, { x: 131, y: 82 }, { x: 133, y: 90 }
+  ];
+
   /*
-    Tronco: trapézio descendo do pescoço para o ombro, tórax largo, cintura
-    marcada, pelve e virilha. A pelve é mais estreita que o tórax, como no
-    corpo humano — é isso que separa visualmente as pernas do tronco.
+    Tronco: trapézio saindo do pescoço, ombro, peito largo, cintura (≈ 28 de
+    meia-largura), quadril (≈ 36) e virilha. Topo y=86, fundo y=278.
   */
-  const TORSO = [
-    { x: 120, y: 78, w: 9 },
-    { x: 120, y: 84, w: 16 },
-    { x: 120, y: 90, w: 26 },
-    { x: 120, y: 96, w: 34 },
-    { x: 120, y: 104, w: 39 },
-    { x: 120, y: 114, w: 41.5 },
-    { x: 120, y: 126, w: 42 },
-    { x: 120, y: 140, w: 40 },
-    { x: 120, y: 156, w: 36 },
-    { x: 120, y: 172, w: 32.5 },
-    { x: 120, y: 188, w: 33 },
-    { x: 120, y: 206, w: 36 },
-    { x: 120, y: 220, w: 36.5 },
-    { x: 120, y: 232, w: 36 },
-    { x: 120, y: 243, w: 30 },
-    { x: 120, y: 251, w: 21 },
-    { x: 120, y: 257, w: 12 }
+  const TORSO_RIGHT = [
+    { x: 130, y: 88 }, { x: 140, y: 91 }, { x: 153, y: 97 }, { x: 163, y: 107 },
+    { x: 167, y: 120 }, { x: 164, y: 132 }, { x: 162, y: 144 }, { x: 158, y: 158 },
+    { x: 150, y: 172 }, { x: 148, y: 186 }, { x: 152, y: 200 }, { x: 157, y: 216 },
+    { x: 157, y: 230 }, { x: 153, y: 244 }, { x: 145, y: 259 }, { x: 134, y: 270 },
+    { x: 124, y: 277 }
   ];
 
-  /* Braço: deltoide → bíceps → cotovelo → antebraço → punho (afina de verdade). */
-  const ARM_LEFT = [
-    { x: 77, y: 92, w: 4 },
-    { x: 75, y: 98, w: 11 },
-    { x: 71, y: 106, w: 13.5 },
-    { x: 68, y: 118, w: 13.5 },
-    { x: 66, y: 132, w: 12.5 },
-    { x: 64, y: 146, w: 11.5 },
-    { x: 63, y: 164, w: 12 },
-    { x: 63, y: 188, w: 10.5 },
-    { x: 64, y: 212, w: 9 },
-    { x: 65, y: 232, w: 7 },
-    { x: 66, y: 243, w: 6 }
-  ];
-  /* Perna: quadril → coxa → joelho → panturrilha → tornozelo. */
-  const LEG_LEFT = [
-    { x: 100, y: 236, w: 13 },
-    { x: 100, y: 252, w: 17 },
-    { x: 99, y: 270, w: 18 },
-    { x: 99, y: 288, w: 17.5 },
-    { x: 100, y: 310, w: 16 },
-    { x: 101, y: 332, w: 13.5 },
-    { x: 103, y: 352, w: 12 },
-    { x: 103, y: 372, w: 13 },
-    { x: 103, y: 390, w: 15 },
-    { x: 104, y: 412, w: 13 },
-    { x: 105, y: 436, w: 9.5 },
-    { x: 105, y: 456, w: 7.5 },
-    { x: 106, y: 468, w: 7 }
+  /* Braço: deltoide → bíceps → cotovelo → antebraço → punho. */
+  const ARM = [
+    { x: 152, y: 106, w: 7 },
+    { x: 156, y: 116, w: 11 },
+    { x: 160, y: 128, w: 12.5 },
+    { x: 163, y: 142, w: 11.5 },
+    { x: 166, y: 158, w: 10 },
+    { x: 169, y: 176, w: 9 },
+    { x: 172, y: 192, w: 8 },
+    { x: 175, y: 206, w: 8.6 },
+    { x: 178, y: 222, w: 9.4 },
+    { x: 180, y: 238, w: 8.6 },
+    { x: 181, y: 252, w: 7 },
+    { x: 182, y: 264, w: 5.2 }
   ];
 
-  /* Cabeça: crânio arredondado, maçãs do rosto e mandíbula afunilando. */
-  const HEAD = "M120,12 C132.5,12 143,21.5 144.5,36 C145.5,46 143.5,54 140,60 " +
-    "C137,65 131.5,70.5 126,72.5 C123.6,73.3 121.6,73.5 120,73.5 " +
-    "C118.4,73.5 116.4,73.3 114,72.5 C108.5,70.5 103,65 100,60 " +
-    "C96.5,54 94.5,46 95.5,36 C97,21.5 107.5,12 120,12 Z";
+  /* Mão: punho, palma larga e dedos afinando até a ponta. */
+  const HAND = [
+    { x: 182, y: 262, w: 5.2 },
+    { x: 184, y: 274, w: 6.6 },
+    { x: 185, y: 288, w: 6.6 },
+    { x: 186, y: 300, w: 5.6 },
+    { x: 186.5, y: 311, w: 4.2 },
+    { x: 187, y: 318, w: 2.2 }
+  ];
 
-  /* Pescoço com trapézio subindo para os ombros (sem tubo reto). */
-  const NECK = "M108,57 C109.5,68 107.5,76 104.5,84 C110,90.5 130,90.5 135.5,84 " +
-    "C132.5,76 130.5,68 132,57 C127.5,64 112.5,64 108,57 Z";
+  /* Perna: quadril → coxa (mais grossa perto do quadril) → joelho → panturrilha → tornozelo. */
+  const LEG = [
+    { x: 144, y: 258, w: 17 },
+    { x: 143, y: 276, w: 18.5 },
+    { x: 141, y: 298, w: 17 },
+    { x: 138, y: 322, w: 13.5 },
+    { x: 135, y: 344, w: 10.5 },
+    { x: 134, y: 364, w: 9.5 },
+    { x: 134, y: 384, w: 10.5 },
+    { x: 134, y: 404, w: 13 },
+    { x: 135, y: 422, w: 12.5 },
+    { x: 136, y: 440, w: 9.5 },
+    { x: 137, y: 458, w: 6.8 },
+    { x: 138, y: 476, w: 5.8 }
+  ];
 
-  /* Mão: punho estreito, dorso, dedos fechados e polegar marcado do lado de dentro. */
-  const HAND_LEFT = "M66,241 C62,247 59.5,258 59,269 C58.5,279 60,289 63.5,293 " +
-    "C66,296 69.5,295 71,291 C73,286 72.5,277 72,269 " +
-    "C71.5,261 71,252 71,246 C71,242 69,240.5 66,241 Z";
+  /* Pé: calcanhar, dorso e ponta voltada para a frente. */
+  const FOOT = [
+    { x: 138, y: 477, w: 6 },
+    { x: 140, y: 488, w: 6.5 },
+    { x: 142.5, y: 496, w: 7.8 },
+    { x: 146, y: 503, w: 6 },
+    { x: 149, y: 506, w: 3 }
+  ];
 
-  /* Pé: calcanhar estreito e dorso abrindo para a caixa dos dedos, à frente. */
-  const FOOT_LEFT = "M106,466 C100,465.5 94,468 92,474 C90,480 92,490 96,496.5 " +
-    "C99,501 104,502.5 108.5,501.5 C112.5,500.5 115.5,496.5 116,491 " +
-    "C116.5,484 116,476 114,470.5 C112,466.5 109,466 106,466 Z";
+  /* Os desenhos de corpo são calculados uma vez e reutilizados em cada render. */
+  const BODY = Object.freeze({
+    legs: [limb(LEG), limb(mirror(LEG))],
+    feet: [limb(FOOT), limb(mirror(FOOT))],
+    torso: bilateral(TORSO_RIGHT, 86, 278),
+    neck: bilateral(NECK_RIGHT, 60, 94),
+    head: bilateral(HEAD_RIGHT, 10, 74),
+    arms: [limb(ARM), limb(mirror(ARM))],
+    hands: [limb(HAND), limb(mirror(HAND))]
+  });
 
-  /* Lado direito = espelho do esquerdo; o SVG faz isso com uma transformação. */
-  const MIRROR = "translate(240,0) scale(-1,1)";
-
-  function partPath(part) {
-    return part.transform ? { d: part.d, transform: part.transform } : { d: part.d };
-  }
-
+  /* Partes na ordem de desenho: de trás para a frente. */
   function bodyParts() {
     return [
-      { id: "head", d: HEAD },
-      { id: "neck", d: NECK },
-      { id: "torso", d: limb(TORSO) },
-      { id: "arm-left", d: limb(ARM_LEFT) },
-      { id: "arm-right", d: limb(mirror(ARM_LEFT)) },
-      { id: "hand-left", d: HAND_LEFT },
-      { id: "hand-right", d: HAND_LEFT, transform: MIRROR },
-      { id: "leg-left", d: limb(LEG_LEFT) },
-      { id: "leg-right", d: limb(mirror(LEG_LEFT)) },
-      { id: "foot-left", d: FOOT_LEFT },
-      { id: "foot-right", d: FOOT_LEFT, transform: MIRROR }
+      { id: "leg-right", d: BODY.legs[0] },
+      { id: "leg-left", d: BODY.legs[1] },
+      { id: "foot-right", d: BODY.feet[0] },
+      { id: "foot-left", d: BODY.feet[1] },
+      { id: "torso", d: BODY.torso },
+      { id: "neck", d: BODY.neck },
+      { id: "head", d: BODY.head },
+      { id: "arm-right", d: BODY.arms[0] },
+      { id: "arm-left", d: BODY.arms[1] },
+      { id: "hand-right", d: BODY.hands[0] },
+      { id: "hand-left", d: BODY.hands[1] }
     ];
   }
 
@@ -302,66 +321,66 @@
     return ring(points.map(point => ({ x: CENTER * 2 - point.x, y: point.y })));
   }
 
+  /* Faixa de músculo ao longo de um membro, deslocada `dx` e com largura `scale`. */
+  function armBand(points, top, bottom, dx, scale) {
+    const band = points.map(point => ({ x: point.x + dx, y: point.y, w: point.w * scale }));
+    return [segment(band, top, bottom, 1.5), segment(mirror(band), top, bottom, 1.5)];
+  }
+
   /* Deltoide: cobre a articulação do ombro, do acrômio até a inserção no braço. */
   const DELTOID = [
-    { x: 80, y: 96 }, { x: 71, y: 94 }, { x: 63, y: 98 }, { x: 58, y: 106 },
-    { x: 57, y: 117 }, { x: 60, y: 126 }, { x: 67, y: 131 }, { x: 76, y: 130 },
-    { x: 80, y: 124 }, { x: 74, y: 117 }, { x: 74, y: 105 }
+    { x: 146, y: 104 }, { x: 156, y: 100 }, { x: 166, y: 105 }, { x: 172, y: 118 },
+    { x: 171, y: 132 }, { x: 163, y: 139 }, { x: 155, y: 134 }, { x: 148, y: 122 }
   ];
 
-  /* Peitoral: placa larga sob a clavícula, borda inferior quase reta. */
+  /* Peitoral: placa larga sob a clavícula, borda inferior curva. */
   const PEC = [
-    { x: 118, y: 99 }, { x: 111, y: 95 }, { x: 102, y: 94.5 }, { x: 94, y: 97.5 },
-    { x: 88, y: 104 }, { x: 84, y: 114 }, { x: 84, y: 124 }, { x: 88, y: 132 },
-    { x: 95, y: 136.5 }, { x: 104, y: 137 }, { x: 112, y: 134 }, { x: 118, y: 126 }
+    { x: 124, y: 100 }, { x: 136, y: 95 }, { x: 150, y: 98 }, { x: 160, y: 108 },
+    { x: 163, y: 122 }, { x: 159, y: 134 }, { x: 146, y: 140 }, { x: 132, y: 139 },
+    { x: 124, y: 132 }
   ];
 
+  /* Reto abdominal: metade direita (a esquerda é o espelho, com a linha alba no meio). */
   const ABS = [
-    { x: 106, y: 146 }, { x: 113, y: 142 }, { x: 127, y: 142 }, { x: 134, y: 146 },
-    { x: 135, y: 160 }, { x: 133, y: 180 }, { x: 130, y: 198 }, { x: 125, y: 207 },
-    { x: 120, y: 209 }, { x: 115, y: 207 }, { x: 110, y: 198 }, { x: 107, y: 180 },
-    { x: 105, y: 160 }
+    { x: 120, y: 146 }, { x: 127, y: 144 }, { x: 131, y: 150 }, { x: 132, y: 166 },
+    { x: 131, y: 184 }, { x: 128, y: 200 }, { x: 120, y: 207 }
   ];
 
   const OBLIQUE = [
-    { x: 95, y: 150 }, { x: 102, y: 148 }, { x: 102, y: 170 }, { x: 100, y: 194 },
-    { x: 96, y: 210 }, { x: 88, y: 214 }, { x: 84, y: 198 }, { x: 85, y: 176 },
-    { x: 88, y: 160 }
+    { x: 134, y: 146 }, { x: 142, y: 150 }, { x: 144, y: 166 }, { x: 142, y: 186 },
+    { x: 136, y: 198 }, { x: 132, y: 186 }, { x: 132, y: 164 }
   ];
 
   const HIP = [
-    { x: 86, y: 214 }, { x: 100, y: 217 }, { x: 120, y: 220 }, { x: 140, y: 217 },
-    { x: 154, y: 214 }, { x: 157, y: 226 }, { x: 151, y: 236 }, { x: 136, y: 240 },
-    { x: 120, y: 241 }, { x: 104, y: 240 }, { x: 89, y: 236 }, { x: 83, y: 226 }
+    { x: 124, y: 216 }, { x: 138, y: 216 }, { x: 154, y: 220 }, { x: 158, y: 234 },
+    { x: 150, y: 246 }, { x: 134, y: 250 }, { x: 124, y: 246 }
   ];
 
   const UPPER_BACK = [
-    { x: 98, y: 92 }, { x: 108, y: 96 }, { x: 120, y: 98 }, { x: 132, y: 96 },
-    { x: 142, y: 92 }, { x: 148, y: 104 }, { x: 146, y: 120 }, { x: 138, y: 130 },
-    { x: 120, y: 134 }, { x: 102, y: 130 }, { x: 94, y: 120 }, { x: 92, y: 104 }
+    { x: 104, y: 96 }, { x: 120, y: 94 }, { x: 136, y: 96 }, { x: 146, y: 104 },
+    { x: 142, y: 122 }, { x: 128, y: 134 }, { x: 120, y: 136 }, { x: 112, y: 134 },
+    { x: 98, y: 122 }, { x: 94, y: 104 }
   ];
 
   const LAT = [
-    { x: 94, y: 116 }, { x: 104, y: 122 }, { x: 106, y: 146 }, { x: 104, y: 170 },
-    { x: 99, y: 184 }, { x: 91, y: 180 }, { x: 85, y: 160 }, { x: 84, y: 134 }
+    { x: 134, y: 126 }, { x: 146, y: 134 }, { x: 148, y: 150 }, { x: 140, y: 170 },
+    { x: 132, y: 186 }, { x: 126, y: 178 }, { x: 128, y: 156 }, { x: 130, y: 138 }
   ];
 
   const LOWER_BACK = [
-    { x: 106, y: 162 }, { x: 120, y: 159 }, { x: 134, y: 162 }, { x: 136, y: 178 },
-    { x: 135, y: 194 }, { x: 129, y: 202 }, { x: 120, y: 204 }, { x: 111, y: 202 },
-    { x: 105, y: 194 }, { x: 104, y: 178 }
+    { x: 110, y: 160 }, { x: 120, y: 156 }, { x: 130, y: 160 }, { x: 130, y: 184 },
+    { x: 120, y: 192 }, { x: 110, y: 184 }
   ];
 
   const GLUTE = [
-    { x: 97, y: 203 }, { x: 110, y: 200 }, { x: 117, y: 208 }, { x: 118, y: 222 },
-    { x: 113, y: 234 }, { x: 103, y: 238 }, { x: 95, y: 232 }, { x: 92, y: 218 }
+    { x: 124, y: 208 }, { x: 140, y: 212 }, { x: 152, y: 224 }, { x: 154, y: 240 },
+    { x: 144, y: 256 }, { x: 130, y: 254 }, { x: 122, y: 238 }
   ];
 
   /*
     Cada região declara os desenhos que a representam. `both` vale nas duas
     vistas (ombros e pernas aparecem de frente e de costas), `front`/`back` só
-    na sua vista. `segment` usa a linha média do membro para acompanhar o
-    volume real do braço/perna.
+    na sua vista.
   */
   const REGIONS = {
     ombros: {
@@ -374,15 +393,15 @@
     },
     biceps: {
       label: "Bíceps",
-      front: [segment(ARM_LEFT, 124, 184, 2.4), segment(mirror(ARM_LEFT), 124, 184, 2.4)]
+      front: armBand(ARM, 128, 190, -2.5, 0.55)
     },
     antebracos: {
       label: "Antebraços",
-      both: [segment(ARM_LEFT, 198, 256, 1.6), segment(mirror(ARM_LEFT), 198, 256, 1.6)]
+      both: [segment(ARM, 206, 262, 1.6), segment(mirror(ARM), 206, 262, 1.6)]
     },
     abdomem: {
       label: "Abdômen",
-      front: [ring(ABS)]
+      front: [ring(ABS), mirroredRing(ABS)]
     },
     obliquos: {
       label: "Oblíquos",
@@ -390,17 +409,15 @@
     },
     quadril: {
       label: "Quadril",
-      front: [ring(HIP)]
+      front: [ring(HIP), mirroredRing(HIP)]
     },
     quadriceps: {
       label: "Quadríceps",
-      front: [segment(LEG_LEFT, 258, 372, 4), segment(mirror(LEG_LEFT), 258, 372, 4)]
+      front: [segment(LEG, 262, 356, 4), segment(mirror(LEG), 262, 356, 4)]
     },
     pernas: {
       label: "Pernas",
-      both: [
-        segment(LEG_LEFT, 256, 460, 3.2), segment(mirror(LEG_LEFT), 256, 460, 3.2)
-      ]
+      both: [segment(LEG, 258, 470, 3), segment(mirror(LEG), 258, 470, 3)]
     },
     costas: {
       label: "Costas",
@@ -412,7 +429,7 @@
     },
     triceps: {
       label: "Tríceps",
-      back: [segment(ARM_LEFT, 122, 190, 2.4), segment(mirror(ARM_LEFT), 122, 190, 2.4)]
+      back: armBand(ARM, 128, 190, 2.5, 0.55)
     },
     lombar: {
       label: "Lombar",
@@ -424,35 +441,30 @@
     },
     "posterior-coxa": {
       label: "Posterior de coxa",
-      back: [segment(LEG_LEFT, 250, 366, 4), segment(mirror(LEG_LEFT), 250, 366, 4)]
+      back: [segment(LEG, 260, 362, 4), segment(mirror(LEG), 260, 362, 4)]
     },
     panturrilha: {
       label: "Panturrilha",
-      back: [segment(LEG_LEFT, 386, 452, 4), segment(mirror(LEG_LEFT), 386, 452, 4)]
+      back: [segment(LEG, 392, 458, 4), segment(mirror(LEG), 392, 458, 4)]
     }
   };
 
-  /* Detalhes discretos (linhas de referência), recortados pela silhueta. */
+  /*
+    Linhas de referência discretas (recortadas pela silhueta). Poucas e finas:
+    clavícula, linha alba, virilha e a fenda entre as escápulas e a coluna.
+  */
   const DETAIL_LINES = {
     front: [
-      { d: "M120,96 C119.5,124 120,158 120,214", className: "figura-line-strong" },
-      { d: "M107,100 C112,104 128,104 133,100", className: "figura-line" },
-      { d: "M104,168 C112,170 128,170 136,168", className: "figura-line" },
-      { d: "M104,186 C112,188 128,188 136,186", className: "figura-line" },
-      { d: "M86,150 C90,158 91,170 90,182", className: "figura-line" },
-      { d: "M154,150 C150,158 149,170 150,182", className: "figura-line" },
-      { d: "M58,146 C55,148 53,150 52,154", className: "figura-line" },
-      { d: "M182,146 C185,148 187,150 188,154", className: "figura-line" },
-      { d: "M98,368 C101,366 106,366 108,368", className: "figura-line" },
-      { d: "M132,368 C134,366 139,366 142,368", className: "figura-line" }
+      { d: "M120,150 C120,170 120,188 120,208", className: "figura-line-strong" },
+      { d: "M120,96 C112,100 104,100 96,104", className: "figura-line" },
+      { d: "M120,96 C128,100 136,100 144,104", className: "figura-line" },
+      { d: "M124,242 C128,252 127,262 122,274", className: "figura-line" },
+      { d: "M116,242 C112,252 113,262 118,274", className: "figura-line" }
     ],
     back: [
-      { d: "M120,92 C119,130 120,170 120,226", className: "figura-line-strong" },
-      { d: "M98,106 C107,118 112,130 114,142", className: "figura-line" },
-      { d: "M142,106 C133,118 128,130 126,142", className: "figura-line" },
-      { d: "M104,196 C110,200 130,200 136,196", className: "figura-line" },
-      { d: "M98,368 C101,366 106,366 108,368", className: "figura-line" },
-      { d: "M132,368 C134,366 139,366 142,368", className: "figura-line" }
+      { d: "M120,100 C119,130 120,170 120,240", className: "figura-line-strong" },
+      { d: "M104,112 C110,122 114,132 115,144", className: "figura-line" },
+      { d: "M136,112 C130,122 126,132 125,144", className: "figura-line" }
     ]
   };
 
@@ -526,20 +538,32 @@
       root.setAttribute("role", "img");
     }
 
+    /* Degradê horizontal: bordas mais claras, centro mais escuro (volume). */
     const defs = svg("defs", {});
+    const gradient = svg("linearGradient", {
+      id: clipId + "-volume", gradientUnits: "userSpaceOnUse", x1: 0, y1: 0, x2: VIEWBOX.width, y2: 0
+    });
+    [[0, "#3a443b"], [0.3, "#2a322b"], [0.5, "#222922"], [0.7, "#2a322b"], [1, "#3a443b"]].forEach(([offset, color]) => {
+      gradient.appendChild(svg("stop", { offset: offset, "stop-color": color }));
+    });
+    defs.appendChild(gradient);
+
     const clip = svg("clipPath", { id: clipId, clipPathUnits: "userSpaceOnUse" });
-    bodyParts().forEach(part => clip.appendChild(svg("path", partPath(part))));
+    bodyParts().forEach(part => clip.appendChild(svg("path", { d: part.d })));
     defs.appendChild(clip);
     root.appendChild(defs);
 
-    /* Traço por baixo: a união das partes vira um contorno só, sem costuras. */
-    const outline = svg("g", { class: "figura-outline" });
-    bodyParts().forEach(part => outline.appendChild(svg("path", partPath(part))));
-    root.appendChild(outline);
-
-    const base = svg("g", { class: "figura-base" });
-    bodyParts().forEach(part => base.appendChild(svg("path", partPath(part))));
-    root.appendChild(base);
+    /* Corpo: cada parte é desenhada com o próprio contorno, na ordem de trás
+       para a frente. O contorno do braço sobre o tronco é o que separa os dois. */
+    const body = svg("g", { class: "figura-body" });
+    bodyParts().forEach(part => {
+      body.appendChild(svg("path", {
+        class: "figura-part figura-part-" + part.id,
+        d: part.d,
+        fill: "url(#" + clipId + "-volume)"
+      }));
+    });
+    root.appendChild(body);
 
     const regionLayer = svg("g", { class: "figura-regions", "clip-path": "url(#" + clipId + ")" });
 

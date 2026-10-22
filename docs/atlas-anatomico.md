@@ -47,15 +47,18 @@ documento:
 
 ### 1.1 Como a silhueta é construída
 
-- Cada membro é gerado a partir de uma **linha média com meia-largura** em cada
-  ponto (ombro → cotovelo → punho; quadril → joelho → tornozelo). O contorno é a
-  curva que passa pelos deslocamentos perpendiculares dessa linha, convertida em
-  curvas de Bézier (Catmull-Rom). Por isso o volume é contínuo e as
-  extremidades afinam de verdade (punho, tornozelo);
-- cabeça, pescoço, mãos e pés são **caminhos fechados** próprios; o lado direito
-  é o espelho do esquerdo;
-- a silhueta é montada em duas camadas (traço grosso embaixo, preenchimento em
-  cima) para que os encontros entre tronco e membros não deixem costura;
+- Proporções de referência: cabeça ≈ 1/7,5 da altura, ombros largos, cintura
+  marcada, quadril um pouco mais largo que a cintura, coxa que afina até o
+  joelho, panturrilha com volume e tornozelo fino.
+- Tronco, cabeça e pescoço são **contornos fechados** suavizados (Catmull-Rom →
+  Bézier), com o lado direito espelhado.
+- Braços, mãos, pernas e pés são **membros** gerados a partir de uma linha média
+  com meia-largura em cada ponto (ombro → cotovelo → punho; quadril → joelho →
+  tornozelo). O volume é contínuo e as extremidades afinam.
+- Cada parte é desenhada com o próprio contorno, na ordem de trás para a frente:
+  o braço aparece separado do tronco e as pernas, separadas entre si.
+- O preenchimento usa um degradê horizontal (bordas mais claras, centro mais
+  escuro) para dar leitura de volume.
 - as regiões são formas fechadas suavizadas, **recortadas pela silhueta** com
   `clipPath`, então o destaque acompanha o corpo em vez de flutuar sobre ele.
 
@@ -83,7 +86,7 @@ cobrirem a principal.
 | Formas são agrupamentos, não contornos musculares exatos | A área pintada não corresponde ao tamanho real do músculo |
 | Vista anterior e posterior apenas; sem vistas laterais, mediais ou cortes | Alguns grupos (ex.: oblíquos, glúteo médio) aparecem de forma resumida |
 | Grupos são agrupamentos funcionais, não músculos isolados | "Dorsais" agrupa grande dorsal e adjacentes; "Peitoral" não separa porções clavicular/esternal |
-| Braços ficam levemente afastados do tronco | É uma pose de leitura (para o contorno ser visível), não uma postura de execução |
+| Braços ficam levemente afastados do tronco | É uma pose de leitura (para a separação ser visível), não uma postura de execução |
 | Nenhuma informação de função, amplitude ou biomecânica é exibida | O atlas não ensina execução — isso fica nas instruções do exercício |
 | Regiões amplas (`kind: "region"`) existem por causa do catálogo | "Pernas", "costas", "ombros" e "quadril" aparecem como região, não como músculo |
 
