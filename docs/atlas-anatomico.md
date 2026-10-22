@@ -45,50 +45,27 @@ documento:
 > clínica. As cores indicam o papel da região no movimento, a partir da
 > classificação do catálogo.
 
-### 1.1 Como a silhueta é construída
+### 1.1 Como a figura é construída (Open Muscle Map)
 
-- Proporções de referência: cabeça ≈ 1/7,5 da altura, ombros largos, cintura
-  marcada, quadril um pouco mais largo que a cintura, coxa que afina até o
-  joelho, panturrilha com volume e tornozelo fino.
-- Tronco, cabeça e pescoço são **contornos fechados** suavizados (Catmull-Rom →
-  Bézier), com o lado direito espelhado.
-- Braços, mãos, pernas e pés são **membros** gerados a partir de uma linha média
-  com meia-largura em cada ponto (ombro → cotovelo → punho; quadril → joelho →
-  tornozelo). O volume é contínuo e as extremidades afinam.
-- Cada parte é desenhada com o próprio contorno, na ordem de trás para a frente:
-  o braço aparece separado do tronco e as pernas, separadas entre si.
-- O preenchimento usa um degradê horizontal (bordas mais claras, centro mais
-  escuro) para dar leitura de volume.
-- as regiões são formas fechadas suavizadas, **recortadas pela silhueta** com
-  `clipPath`, então o destaque acompanha o corpo em vez de flutuar sobre ele.
-
-### 1.2 Cores e papéis
-
-| Papel | Cor | Significado |
-| --- | --- | --- |
-| Principal | verde-lima (`#B7F34A`) | produz a maior parte do movimento |
-| Secundária | âmbar (`#F2B84B`) | participa de forma relevante |
-| Estabilizadora | azul-acinzentado (`#7FB3D5`) | estabiliza ou transmite força |
-| Informada por você | contorno tracejado cinza | exercício personalizado sem papéis declarados |
-| Grupo em foco | contorno lima tracejado | exploração por grupo muscular |
-
-Cor **nunca é a única informação**: cada item da legenda traz o nome do papel
-escrito ("Principal", "Secundária", "Estabilizadora"), o texto alternativo do
-SVG lista as regiões por papel naquela vista, e o resumo em texto repete a
-classificação. As regiões de papel menor são desenhadas primeiro, para não
-cobrirem a principal.
-
-### Limitações conhecidas do desenho
-
-| Limitação | Consequência prática |
-| --- | --- |
-| Silhueta genérica, sem variação de biotipo, sexo, idade ou roupa | A figura não representa corpos reais; regiões são aproximadas |
-| Formas são agrupamentos, não contornos musculares exatos | A área pintada não corresponde ao tamanho real do músculo |
-| Vista anterior e posterior apenas; sem vistas laterais, mediais ou cortes | Alguns grupos (ex.: oblíquos, glúteo médio) aparecem de forma resumida |
-| Grupos são agrupamentos funcionais, não músculos isolados | "Dorsais" agrupa grande dorsal e adjacentes; "Peitoral" não separa porções clavicular/esternal |
-| Braços ficam levemente afastados do tronco | É uma pose de leitura (para a separação ser visível), não uma postura de execução |
-| Nenhuma informação de função, amplitude ou biomecânica é exibida | O atlas não ensina execução — isso fica nas instruções do exercício |
-| Regiões amplas (`kind: "region"`) existem por causa do catálogo | "Pernas", "costas", "ombros" e "quadril" aparecem como região, não como músculo |
+- **Base visual:** Open Muscle Map (MIT) — `assets/anatomia/male-muscle-map.svg`.
+  Vista anterior e posterior com a mesma escala e pose. Os caminhos não são
+  redesenhados pelo FORJA.
+- **Proveniência e limite:** o autor declara que o desenho partiu de uma imagem
+  **gerada por IA** e não garante que esteja livre de material de terceiros. A
+  escolha foi feita com essa ciência. Ver `assets/anatomia/NOTICE.md`. Antes de uma
+  versão de loja, confirmar a origem com o autor ou substituir o desenho.
+- **Extração:** `tools/gerar-figura-dados.mjs` lê o SVG e grava
+  `assets/js/forja-figura-dados.js` (silhuetas, painéis, transforms compostos e
+  limites de cada vista). Os transforms de grupo e de caminho são compostos; ignorar
+  o do caminho desloca o desenho.
+- **Enquadramento:** o `viewBox` de cada vista vem dos limites reais do corpo, com
+  margem, então nenhuma vista é cortada.
+- **Destaque:** cada região do FORJA corresponde a um conjunto de `muscleId` do
+  Open Muscle Map (ver `REGIONS` em `forja-figura.js`). O papel de um painel é o
+  maior papel entre as regiões destacadas que contêm esse músculo.
+- **Desenho neutro:** painéis não destacados ficam cinza-esverdeados; os destacados
+  usam lima (principal), âmbar (secundária) e azul (estabilizadora), com texto
+  alternativo que não depende só da cor.
 
 ---
 

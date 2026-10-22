@@ -353,11 +353,19 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
 
   await clickCentered('[data-atlas-focus="shortcut:cal-flexao"]');
   assert.equal(await text('#atlas-figure-title'), 'Flexão de braço');
-  assert.equal((await page.$$('.figura-region')).length, 5, 'Flexão deveria destacar 5 formas na silhueta');
+  /* Um destaque por região: o modelo tem vários painéis por músculo e "Ombros" aparece
+     nas duas vistas, então contamos regiões distintas. Flexão: Peitoral (principal),
+     Tríceps e Ombros (secundárias) e Abdômen (estabilizadora) = 4. */
+  assert.equal(await page.$$eval('.figura-region', els => new Set(els.map(e => e.getAttribute('data-region'))).size), 4,
+    'Flexão deveria destacar 4 regiões distintas na silhueta');
   assert.equal(await page.$$eval('.figura-svg text, .figura-svg circle', els => els.length), 0,
     'A figura não deve ter números nem círculos sobrepostos');
   assert.match(await text('#atlas-highlight-summary'), /Principal: Peitoral/);
-  const highlightRoles = await page.$$eval('.figura-region', els => els.map(e => e.getAttribute('data-role')));
+  const highlightRoles = await page.$$eval('.figura-region', els => {
+    const seen = new Map();
+    els.forEach(e => { if (!seen.has(e.getAttribute('data-region'))) seen.set(e.getAttribute('data-region'), e.getAttribute('data-role')); });
+    return Array.from(seen.values());
+  });
   assert.ok(highlightRoles.includes('primary') && highlightRoles.includes('secondary'), 'Papéis não chegaram à figura');
   assert.match(await text('.atlas-legenda'), /Tríceps/);
   assert.match(await text('.atlas-legenda'), /Secundária/);

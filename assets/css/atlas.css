@@ -40,63 +40,59 @@
   min-width: 0;
 }
 
-/* Corpo: cada parte tem contorno próprio (o braço se separa do tronco) e o
-   preenchimento vem do degradê definido em forja-figura.js. */
+/* Silhueta de referência (fundo do corpo, neutra). */
 .figura-part {
-  stroke: #5d695e;
-  stroke-width: 1.6;
+  fill: #232a24;
+  stroke: #3b443c;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
   stroke-linejoin: round;
 }
 
-.figura-details {
-  pointer-events: none;
+/* Painéis musculares do Open Muscle Map: neutros por padrão. O contorno é
+   não escalável, então fica fino em 320 px e em 1280 px. */
+.figura-muscle-shape {
+  fill: #5b655b;
+  stroke: #2c332d;
+  stroke-width: 0.6px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  transition: fill 0.18s ease, opacity 0.18s ease;
 }
 
-.figura-details path {
-  fill: none;
-  stroke: #5a655b;
-  stroke-width: 1.1;
-  stroke-linecap: round;
-}
-
-.figura-details .figura-line-strong {
-  stroke: #667266;
-  stroke-width: 1.5;
-}
+.figura-details { display: none; }
 
 /* Regiões destacadas -------------------------------------------------- */
 
-.figura-region-shape {
-  stroke-width: 1.2;
-  stroke-linejoin: round;
-  transition: opacity 0.18s ease;
+.figura-region .figura-muscle-shape {
+  stroke-width: 1px;
 }
 
-.figura-region.is-primary .figura-region-shape {
-  fill: rgba(183, 243, 74, 0.55);
-  stroke: var(--lime);
+.figura-region.is-primary .figura-muscle-shape {
+  fill: #b7f34a;
+  stroke: #1f2a10;
 }
 
-.figura-region.is-secondary .figura-region-shape {
-  fill: rgba(242, 184, 75, 0.5);
-  stroke: #f2b84b;
+.figura-region.is-secondary .figura-muscle-shape {
+  fill: #f2b84b;
+  stroke: #33250a;
 }
 
-.figura-region.is-stabilizer .figura-region-shape {
-  fill: rgba(127, 179, 213, 0.4);
-  stroke: #7fb3d5;
+.figura-region.is-stabilizer .figura-muscle-shape {
+  fill: #7fb3d5;
+  stroke: #15252f;
 }
 
-.figura-region.is-informed .figura-region-shape {
-  fill: rgba(160, 166, 159, 0.3);
-  stroke: #a0a69f;
-  stroke-dasharray: 3 3;
+.figura-region.is-informed .figura-muscle-shape {
+  fill: #a0a69f;
+  stroke: #2c332d;
+  stroke-dasharray: 3 2;
 }
 
-.figura-region.is-focus .figura-region-shape {
-  fill: rgba(183, 243, 74, 0.35);
-  stroke: var(--lime);
-  stroke-width: 1.8;
+.figura-region.is-focus .figura-muscle-shape {
+  fill: #b7f34a;
+  stroke: #1f2a10;
+  stroke-width: 1.6px;
   stroke-dasharray: 4 3;
 }
 
@@ -109,21 +105,15 @@
   outline: none;
 }
 
-.figura-region-hit {
-  fill: none;
-  stroke: transparent;
-  stroke-width: 16;
-  stroke-linejoin: round;
-}
-
-.figura-region[role="button"]:focus-visible .figura-region-hit {
+/* Foco por teclado: contorno tracejado claro no grupo inteiro. */
+.figura-region[role="button"]:focus-visible .figura-muscle-shape {
   stroke: #ffffff;
-  stroke-width: 2;
+  stroke-width: 2px;
   stroke-dasharray: 4 3;
 }
 
-.figura-region[role="button"]:hover .figura-region-shape,
-.figura-region[role="button"]:focus-visible .figura-region-shape {
+.figura-region[role="button"]:hover .figura-muscle-shape,
+.figura-region[role="button"]:focus-visible .figura-muscle-shape {
   opacity: 0.85;
 }
 
@@ -558,5 +548,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .figura-region-shape { transition: none; }
+  .figura-muscle-shape { transition: none; }
 }
