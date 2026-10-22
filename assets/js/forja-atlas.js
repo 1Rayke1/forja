@@ -1,29 +1,20 @@
 /*
-  FORJA — Atlas anatômico interativo (mapa esquemático de grupos musculares).
+  FORJA — Atlas muscular (explorar/atlas.html) e integração com exercícios.
 
-  O que este módulo NÃO é: não é uma representação anatômica clínica. O desenho
-  é um manequim vetorial simplificado, feito para localizar *grupos* de músculos
-  e ligar cada grupo aos exercícios que o catálogo classifica. Nenhum músculo,
-  inserção, função ou relação anatômica é inventada aqui: os nomes vêm dos
-  metadados revisados em `forja-catalogo.js`, e a classificação principal /
-  secundária / estabilizadora é declarada lá, com revisão documentada em
-  `docs/atlas-anatomico.md`.
+  Duas camadas:
 
-  Duas camadas, separadas:
+  1. `F.atlas`: consultas puras sobre o catálogo. Nada aqui escreve no
+     armazenamento. A classificação muscular vem de `record.roles`
+     (principal/secundário/estabilizador), definida em `forja-catalogo.js`;
+     o atlas não recalcula papel nenhum por conta própria.
 
-  1. `F.atlas`: modelo de dados + consultas puras (grupos, vistas, relação
-     grupo ↔ exercício). Não escreve nada no armazenamento e não depende da
-     página.
+  2. `F.pages.atlas` e os pontos de integração (detalhe na biblioteca e
+     execução do treino): mostram a figura humana de `forja-figura.js` com as
+     regiões destacadas pelas cores da classificação.
 
-  2. `F.pages.atlas`: a tela `explorar/atlas.html` — mapa anterior/posterior,
-     legenda numerada, seleção de região e lista de exercícios com filtro por
-     modalidade. Consultar o atlas nunca altera rotinas, sessões ou histórico.
-
-  Acessibilidade: as regiões do mapa são `role="button"` com `tabindex`, nome
-  acessível e número visível (a identificação não depende de cor); a legenda
-  repete cada região em botões nativos. O estado selecionado é anunciado em
-  região viva. Toda animação é opcional e desligada por
-  `prefers-reduced-motion` (ver `atlas.css`).
+  A pergunta que a tela responde é "quais regiões este exercício trabalha?" —
+  por isso a seleção principal é de exercício, não de grupo. A exploração por
+  grupo continua existindo, como seção secundária.
 */
 (function (global) {
   "use strict";
@@ -31,164 +22,72 @@
   const F = global.Forja;
   const doc = global.document;
 
-  const VIEWS = Object.freeze({
-    front: "Vista anterior",
-    back: "Vista posterior"
+  const VIEWS = Object.freeze({ front: "Anterior", back: "Posterior" });
+
+  const ROLE_ORDER = Object.freeze(["primary", "secondary", "stabilizer", "focus", "informed"]);
+
+  const ROLE_NAMES = Object.freeze({
+    primary: "Principal",
+    secondary: "Secundária",
+    stabilizer: "Estabilizadora",
+    focus: "Grupo em foco",
+    informed: "Informado por você"
   });
 
-  const VIEW_SLUGS = Object.freeze({ front: "anterior", back: "posterior" });
-
   /*
-    Grupos e regiões do mapa. `tags` são os nomes usados pelo catálogo (a mesma
-    string que aparece na biblioteca e nos filtros); `aliases` cobrem sinônimos
-    que o usuário pode ter digitado em um exercício personalizado. A comparação
-    é feita sem acentos e sem caixa.
-
-    `kind` distingue grupo muscular de região geral. "pernas", "costas",
-    "ombros" e "quadril" são regiões amplas: o catálogo as usa para
-    condicionamento e mobilidade, e o atlas não as apresenta como músculo
-    isolado.
+    Grupos do mapa, na ordem em que aparecem na exploração por grupo. `tags`
+    são os nomes usados pelo catálogo; `aliases` cobrem o que o usuário pode
+    digitar em um exercício personalizado.
   */
   const GROUP_DEFS = [
-    {
-      id: "ombros", number: 1, view: "front", kind: "region",
-      label: "Ombros (deltoides)", tags: ["ombros"],
-      aliases: ["ombro", "deltoide", "deltoides"],
-      x: 74, y: 80, r: 12,
-      where: "Região das articulações dos ombros e do deltoides."
-    },
-    {
-      id: "peito", number: 2, view: "front", kind: "group",
-      label: "Peitoral", tags: ["peito"],
-      aliases: ["peitoral", "peitoral maior", "peito"],
-      x: 110, y: 112, r: 15,
-      where: "Frente do tórax."
-    },
-    {
-      id: "biceps", number: 3, view: "front", kind: "group",
-      label: "Bíceps braquial", tags: ["bíceps"],
-      aliases: ["biceps", "bíceps braquial", "biceps braquial"],
-      x: 68, y: 142, r: 11,
-      where: "Parte da frente do braço, entre o ombro e o cotovelo."
-    },
-    {
-      id: "antebracos", number: 4, view: "front", kind: "group",
-      label: "Antebraços", tags: ["antebraços"],
-      aliases: ["antebraco", "antebraços", "antebracos"],
-      x: 64, y: 196, r: 10,
-      where: "Entre o cotovelo e o punho."
-    },
-    {
-      id: "abdomem", number: 5, view: "front", kind: "group",
-      label: "Abdômen (reto abdominal)", tags: ["abdômen"],
-      aliases: ["abdomen", "abdômen", "reto abdominal", "abdominal"],
-      x: 110, y: 150, r: 14,
-      where: "Frente do tronco, abaixo do peito."
-    },
-    {
-      id: "obliquos", number: 6, view: "front", kind: "group",
-      label: "Oblíquos", tags: ["oblíquos"],
-      aliases: ["obliquos", "oblíquo", "obliquo", "obligos"],
-      x: 88, y: 174, r: 10,
-      where: "Laterais do tronco, entre as costelas e o quadril."
-    },
-    {
-      id: "quadril", number: 7, view: "front", kind: "region",
-      label: "Flexores do quadril", tags: ["quadril"],
-      aliases: ["quadril", "flexores do quadril", "iliopsoas"],
-      x: 110, y: 198, r: 12,
-      where: "Dobra do quadril e frente da pelve. O catálogo usa \"quadril\" como região, não como músculo isolado."
-    },
-    {
-      id: "quadriceps", number: 8, view: "front", kind: "group",
-      label: "Quadríceps", tags: ["quadríceps"],
-      aliases: ["quadriceps", "quadríceps femoral"],
-      x: 98, y: 250, r: 15,
-      where: "Frente da coxa."
-    },
-    {
-      id: "pernas", number: 9, view: "front", kind: "region",
-      label: "Membros inferiores (região geral)", tags: ["pernas"],
-      aliases: ["perna", "pernas", "membros inferiores", "membro inferior"],
-      x: 124, y: 330, r: 13,
-      where: "Região geral das pernas, usada por exercícios de corpo inteiro e condicionamento."
-    },
-    {
-      id: "costas", number: 1, view: "back", kind: "region",
-      label: "Costas (região superior)", tags: ["costas"],
-      aliases: ["costas", "trapezio", "trapézio", "romboides"],
-      x: 110, y: 96, r: 14,
-      where: "Parte superior das costas, entre os ombros."
-    },
-    {
-      id: "dorsais", number: 2, view: "back", kind: "group",
-      label: "Dorsais (grande dorsal)", tags: ["dorsais"],
-      aliases: ["dorsal", "dorsais", "grande dorsal", "latissimo", "latíssimo"],
-      x: 84, y: 126, r: 12,
-      where: "Laterais das costas, abaixo das escápulas."
-    },
-    {
-      id: "triceps", number: 3, view: "back", kind: "group",
-      label: "Tríceps braquial", tags: ["tríceps"],
-      aliases: ["triceps", "tríceps braquial", "triceps braquial"],
-      x: 66, y: 158, r: 11,
-      where: "Parte de trás do braço, entre o ombro e o cotovelo."
-    },
-    {
-      id: "lombar", number: 4, view: "back", kind: "region",
-      label: "Lombar", tags: ["lombar"],
-      aliases: ["lombar", "lombares", "eretores da espinha"],
-      x: 110, y: 168, r: 11,
-      where: "Parte baixa das costas."
-    },
-    {
-      id: "gluteos", number: 5, view: "back", kind: "group",
-      label: "Glúteos", tags: ["glúteos"],
-      aliases: ["gluteo", "glúteo", "gluteos", "glúteos", "glúteo máximo"],
-      x: 110, y: 206, r: 14,
-      where: "Parte de trás do quadril."
-    },
-    {
-      id: "posterior-coxa", number: 6, view: "back", kind: "group",
-      label: "Posterior de coxa", tags: ["posterior de coxa"],
-      aliases: ["posterior de coxa", "isquiotibiais", "posterior da coxa"],
-      x: 98, y: 252, r: 15,
-      where: "Parte de trás da coxa."
-    },
-    {
-      id: "panturrilha", number: 7, view: "back", kind: "group",
-      label: "Panturrilha", tags: ["panturrilha"],
-      aliases: ["panturrilha", "gastrocnemio", "gastrocnêmio", "triceps sural", "tríceps sural"],
-      x: 124, y: 328, r: 13,
-      where: "Parte de trás da perna, abaixo do joelho."
-    }
+    { id: "peito", label: "Peitoral", kind: "group", tags: ["peito"], aliases: ["peitoral", "peitoral maior"] },
+    { id: "dorsais", label: "Dorsais", kind: "group", tags: ["dorsais"], aliases: ["dorsal", "grande dorsal", "latíssimo"] },
+    { id: "ombros", label: "Ombros", kind: "region", tags: ["ombros"], aliases: ["ombro", "deltoide", "deltoides"] },
+    { id: "biceps", label: "Bíceps", kind: "group", tags: ["bíceps"], aliases: ["biceps"] },
+    { id: "triceps", label: "Tríceps", kind: "group", tags: ["tríceps"], aliases: ["triceps"] },
+    { id: "antebracos", label: "Antebraços", kind: "group", tags: ["antebraços"], aliases: ["antebraco", "antebracos"] },
+    { id: "costas", label: "Costas", kind: "region", tags: ["costas"], aliases: ["trapezio", "trapézio", "romboides"] },
+    { id: "lombar", label: "Lombar", kind: "region", tags: ["lombar"], aliases: ["lombares", "eretores da espinha"] },
+    { id: "abdomem", label: "Abdômen", kind: "group", tags: ["abdômen"], aliases: ["abdomen", "reto abdominal", "abdominal"] },
+    { id: "obliquos", label: "Oblíquos", kind: "group", tags: ["oblíquos"], aliases: ["obliquos", "obliquo", "oblíquo"] },
+    { id: "gluteos", label: "Glúteos", kind: "group", tags: ["glúteos"], aliases: ["gluteo", "gluteos"] },
+    { id: "quadril", label: "Quadril", kind: "region", tags: ["quadril"], aliases: ["flexores do quadril", "iliopsoas"] },
+    { id: "quadriceps", label: "Quadríceps", kind: "group", tags: ["quadríceps"], aliases: ["quadriceps"] },
+    { id: "posterior-coxa", label: "Posterior de coxa", kind: "group", tags: ["posterior de coxa"], aliases: ["isquiotibiais", "posterior da coxa"] },
+    { id: "panturrilha", label: "Panturrilha", kind: "group", tags: ["panturrilha"], aliases: ["gastrocnêmio", "gastrocnemio", "tríceps sural"] },
+    { id: "pernas", label: "Pernas (região geral)", kind: "region", tags: ["pernas"], aliases: ["perna", "membros inferiores"] }
   ];
 
-  const GROUPS = Object.freeze(GROUP_DEFS.map(definition => Object.freeze(Object.assign({}, definition, {
-    tags: Object.freeze(definition.tags.slice()),
-    aliases: Object.freeze(definition.aliases.slice())
+  const GROUPS = Object.freeze(GROUP_DEFS.map(group => Object.freeze(Object.assign({}, group, {
+    tags: Object.freeze(group.tags.slice()),
+    aliases: Object.freeze(group.aliases.slice())
   }))));
 
   const GROUP_BY_ID = Object.create(null);
   GROUPS.forEach(group => { GROUP_BY_ID[group.id] = group; });
 
-  const VIEW_GROUPS = Object.freeze({
-    front: Object.freeze(GROUPS.filter(group => group.view === "front")),
-    back: Object.freeze(GROUPS.filter(group => group.view === "back"))
+  const VIEW_OF = Object.freeze({
+    peito: "front",
+    abdomem: "front",
+    obliquos: "front",
+    quadril: "front",
+    quadriceps: "front",
+    biceps: "front",
+    dorsais: "back",
+    costas: "back",
+    lombar: "back",
+    triceps: "back",
+    gluteos: "back",
+    "posterior-coxa": "back",
+    panturrilha: "back",
+    ombros: "both",
+    antebracos: "both",
+    pernas: "both"
   });
 
-  const ROLE_ORDER = Object.freeze(["primary", "secondary", "stabilizer", "informed"]);
-
-  const ROLE_NAMES = Object.freeze({
-    primary: "Principal",
-    secondary: "Secundário",
-    stabilizer: "Estabilizador",
-    informed: "Informado por você"
-  });
-
-  const MAP_DISCLOSURE = "Mapa esquemático de grupos musculares. Não é uma " +
-    "representação anatômica clínica: o desenho apenas localiza regiões para " +
-    "ligar cada grupo aos exercícios do catálogo.";
+  const DISCLOSURE = "Figura esquemática de regiões musculares — não é uma " +
+    "representação anatômica clínica. As cores indicam o papel da região no " +
+    "movimento, a partir da classificação do catálogo.";
 
   function normalize(value) {
     return F.catalog.normalizeText(value);
@@ -198,54 +97,70 @@
     return GROUP_BY_ID[id] || null;
   }
 
-  function groupsForView(view) {
-    return VIEW_GROUPS[view] || VIEW_GROUPS.front;
-  }
-
-  /* Nomes aceitos por um grupo (tags do catálogo + sinônimos), normalizados. */
-  function groupKeys(group) {
-    return group.tags.concat(group.aliases).map(normalize).filter(Boolean);
-  }
-
-  /* Converte um nome livre de músculo (ex.: "Peitoral") em um grupo do atlas. */
   function groupForMuscleName(name) {
     const key = normalize(name);
     if (!key) return null;
 
-    return GROUPS.find(group => groupKeys(group).indexOf(key) !== -1) || null;
+    return GROUPS.find(group => group.tags.concat(group.aliases).map(normalize).indexOf(key) !== -1) || null;
   }
 
-  /*
-    Nível de participação de um grupo em um exercício. Para itens sugeridos a
-    resposta vem de `record.roles` (declarado no catálogo). Para itens
-    personalizados COM grupos digitados pelo usuário, o vínculo é "informed":
-    aparece na lista, mas não recebe rótulo de principal/secundário. Sem grupos
-    informados, o exercício não entra no atlas — nada é suposto.
-  */
-  function roleFor(record, groupId) {
-    if (!record) return null;
+  /* Regiões (no vocabulário da figura) atingidas por um exercício, com o papel. */
+  function highlightsFor(record) {
+    const out = {};
+    if (!record) return out;
 
     const roles = record.roles;
+
     if (roles) {
-      if (roles.primary && roles.primary.some(name => (groupForMuscleName(name) || {}).id === groupId)) return "primary";
-      if (roles.secondary && roles.secondary.some(name => (groupForMuscleName(name) || {}).id === groupId)) return "secondary";
-      if (roles.stabilizers && roles.stabilizers.some(name => (groupForMuscleName(name) || {}).id === groupId)) return "stabilizer";
-      return null;
+      ["primary", "secondary", "stabilizers"].forEach(level => {
+        const role = level === "stabilizers" ? "stabilizer" : level;
+        (roles[level] || []).forEach(muscle => {
+          const group = groupForMuscleName(muscle);
+          if (!group) return;
+          if (!out[group.id] || ROLE_ORDER.indexOf(role) < ROLE_ORDER.indexOf(out[group.id])) out[group.id] = role;
+        });
+      });
+
+      return out;
     }
 
-    const muscles = Array.isArray(record.muscles) ? record.muscles : [];
-    return muscles.some(name => (groupForMuscleName(name) || {}).id === groupId) ? "informed" : null;
+    /*
+      Item personalizado: o usuário informou grupos, mas não papéis. Nada é
+      suposto — a região entra como "informado por você".
+    */
+    (record.muscles || []).forEach(muscle => {
+      const group = groupForMuscleName(muscle);
+      if (group && !out[group.id]) out[group.id] = "informed";
+    });
+
+    return out;
   }
 
-  function roleRank(role) {
-    const index = ROLE_ORDER.indexOf(role);
-    return index === -1 ? ROLE_ORDER.length : index;
+  function highlightList(highlights) {
+    return Object.keys(highlights)
+      .map(id => ({ id, group: groupById(id), role: highlights[id] }))
+      .filter(entry => entry.group)
+      .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role));
   }
 
-  /*
-    Exercícios ligados a um grupo. Não grava nada e não mexe em rotinas: lê o
-    catálogo em memória. `options.mode` limita a uma modalidade.
-  */
+  function countByRole(entries) {
+    const counts = { primary: 0, secondary: 0, stabilizer: 0, informed: 0 };
+    entries.forEach(entry => { counts[entry.role] = (counts[entry.role] || 0) + 1; });
+    return counts;
+  }
+
+  function roleLabel(role) {
+    return ROLE_NAMES[role] || "";
+  }
+
+  function whereLabel(groupId) {
+    const view = VIEW_OF[groupId];
+    if (view === "front") return "vista anterior";
+    if (view === "back") return "vista posterior";
+    return "anterior e posterior";
+  }
+
+  /* Exercícios ligados a um grupo (usado pela exploração por grupo). */
   function exercisesFor(groupId, options = {}) {
     const group = groupById(groupId);
     if (!group) return [];
@@ -254,51 +169,250 @@
     const items = F.catalog.items(mode || undefined);
 
     return items
-      .map(record => ({ record, role: roleFor(record, group.id) }))
+      .map(record => ({ record, role: highlightsFor(record)[group.id] || null }))
       .filter(entry => entry.role !== null)
       .sort((a, b) => {
-        const rank = roleRank(a.role) - roleRank(b.role);
+        const rank = ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role);
         if (rank !== 0) return rank;
         return a.record.name.localeCompare(b.record.name, "pt-BR");
       });
   }
 
-  function countByRole(entries) {
-    const counts = { primary: 0, secondary: 0, stabilizer: 0, informed: 0 };
-    entries.forEach(entry => { counts[entry.role] += 1; });
-    return counts;
+  /* Exercício do catálogo correspondente a um item de rotina/sessão. */
+  function findRecordFor(exercise) {
+    if (!exercise || !F.catalog) return null;
+
+    const items = F.catalog.items();
+
+    if (exercise.libraryId) {
+      const byLibraryId = items.find(record => record.libraryId === exercise.libraryId || record.id === exercise.libraryId);
+      if (byLibraryId) return byLibraryId;
+    }
+
+    const name = normalize(exercise.name);
+    return items.find(record => normalize(record.name) === name) || null;
   }
 
-  /* Rótulo curto de uma entrada, usando o papel que ela tem no grupo. */
-  function roleLabel(role) {
-    return ROLE_NAMES[role] || "";
+  /* Exercícios sugeridos que podem ser escolhidos no atlas. */
+  function choosableExercises(mode) {
+    return F.catalog.items(mode || undefined)
+      .filter(record => record.suggested || Object.keys(highlightsFor(record)).length > 0)
+      .sort((a, b) => {
+        if (a.mode !== b.mode) return a.mode === "calisthenics" ? -1 : 1;
+        const order = (F.SECTION_ORDER || []).indexOf(a.section) - (F.SECTION_ORDER || []).indexOf(b.section);
+        if (order !== 0) return order;
+        return a.name.localeCompare(b.name, "pt-BR");
+      });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Peças compartilhadas (atlas, biblioteca e execução)                 */
+  /* ------------------------------------------------------------------ */
+
+  function el(tag, className, text) {
+    return F.ui.el(tag, className, text);
+  }
+
+  function figurePair(highlights, options) {
+    const settings = Object.assign({ compact: false, label: "" }, options || {});
+    const wrap = el("div", "atlas-figuras");
+
+    ["front", "back"].forEach(view => {
+      const cell = el("div", "atlas-figura-cell");
+      cell.setAttribute("data-view", view);
+
+      cell.appendChild(F.figura.render({
+        view,
+        highlights,
+        compact: settings.compact,
+        label: F.figura.describe(highlights, view)
+      }));
+
+      const caption = el("p", "atlas-figura-caption");
+      caption.textContent = VIEWS[view];
+      cell.appendChild(caption);
+
+      wrap.appendChild(cell);
+    });
+
+    if (settings.label) {
+      const note = el("p", "atlas-figuras-note", settings.label);
+      wrap.appendChild(note);
+    }
+
+    return wrap;
+  }
+
+  function legendNode(highlights, options) {
+    const settings = Object.assign({ compact: false, record: null }, options || {});
+    const entries = highlightList(highlights);
+    const box = el("div", "atlas-legenda");
+
+    if (entries.length === 0) {
+      box.appendChild(F.ui.empty({
+        icon: "info",
+        title: "Sem classificação muscular",
+        text: "Este exercício não tem grupos musculares registrados. Nada é preenchido por suposição: a classificação vem do catálogo, e exercícios personalizados só entram no atlas quando você informa os grupos.",
+        actions: settings.compact ? [] : [{
+          label: "Abrir biblioteca",
+          href: F.url("biblioteca"),
+          variant: "secondary-button",
+          icon: "book"
+        }]
+      }));
+      return box;
+    }
+
+    const list = el("ul", "atlas-legenda-lista");
+
+    entries.forEach(entry => {
+      const item = el("li", "atlas-legenda-item");
+      item.setAttribute("data-region", entry.id);
+      item.setAttribute("data-role", entry.role);
+
+      const swatch = el("span", "atlas-swatch is-" + entry.role);
+      swatch.setAttribute("aria-hidden", "true");
+      item.appendChild(swatch);
+
+      const text = el("div", "atlas-legenda-texto");
+      text.appendChild(el("strong", "atlas-legenda-nome", entry.group.label));
+
+      const meta = el("span", "atlas-legenda-meta");
+      meta.textContent = roleLabel(entry.role) + " · " + whereLabel(entry.id);
+      text.appendChild(meta);
+      item.appendChild(text);
+
+      /* Alternativa aos filtros da biblioteca: abre a lista já filtrada. */
+      const link = el("a", "atlas-legenda-link");
+      link.href = F.url("biblioteca", { musculo: (entry.group.tags[0] || entry.id) });
+      link.setAttribute("aria-label", "Ver exercícios de " + entry.group.label + " na biblioteca");
+      link.appendChild(F.ui.icon("arrow-right"));
+      item.appendChild(link);
+
+      list.appendChild(item);
+    });
+
+    box.appendChild(list);
+    return box;
+  }
+
+  /* Chave de cores: mostra o vocabulário antes da primeira seleção. */
+  function colorKey() {
+    const box = el("div", "atlas-color-key");
+    box.setAttribute("aria-label", "Cores usadas na figura");
+
+    [
+      { role: "primary", text: "Principal" },
+      { role: "secondary", text: "Secundária" },
+      { role: "stabilizer", text: "Estabilizadora" }
+    ].forEach(entry => {
+      const item = el("span", "atlas-color-key-item");
+      const swatch = el("span", "atlas-swatch is-" + entry.role);
+      swatch.setAttribute("aria-hidden", "true");
+      item.appendChild(swatch);
+      item.appendChild(el("span", null, entry.text));
+      box.appendChild(item);
+    });
+
+    return box;
+  }
+
+  /* Texto curto da classificação, usado em resumos e anúncios. */
+  function describeRoles(record) {
+    const entries = highlightList(highlightsFor(record));
+    if (entries.length === 0) return "sem classificação muscular registrada";
+
+    return entries.map(entry => entry.group.label + " (" + ROLE_NAMES[entry.role].toLowerCase() + ")").join(", ");
+  }
+
+  /* Modal "músculos trabalhados" (biblioteca e execução). */
+  async function showMuscles(record) {
+    const highlights = highlightsFor(record);
+    const details = el("div", "modal-details atlas-modal");
+    details.appendChild(figurePair(highlights));
+    details.appendChild(legendNode(highlights, { compact: true }));
+    details.appendChild(el("p", "atlas-modal-note", DISCLOSURE));
+
+    await F.showModal({
+      title: "Músculos trabalhados",
+      message: record.name,
+      details,
+      actions: [{ id: "close", label: "Fechar", className: "secondary-button" }]
+    });
+  }
+
+  /* Figura compacta dentro da execução: só a vista do grupo principal. */
+  function attachToExecution(exercise, container) {
+    if (!container) return null;
+
+    const record = findRecordFor(exercise);
+    const highlights = highlightsFor(record);
+
+    while (container.firstChild) container.removeChild(container.firstChild);
+
+    if (Object.keys(highlights).length === 0) {
+      container.hidden = true;
+      return null;
+    }
+
+    container.hidden = false;
+
+    const entries = highlightList(highlights);
+    const primary = entries.find(entry => entry.role === "primary");
+    const view = primary && VIEW_OF[primary.id] === "back" ? "back" : "front";
+
+    const cell = el("div", "atlas-figura-cell is-compact");
+    cell.appendChild(F.figura.render({
+      view,
+      highlights,
+      compact: true,
+      label: F.figura.describe(highlights, view)
+    }));
+
+    /*
+      Legenda curta: só o que aparece nesta vista, com o papel de cada região.
+      Os detalhes completos ficam no botão "Ver músculos trabalhados".
+    */
+    const visible = entries.filter(entry => F.figura.regionsInView(view).includes(entry.id));
+    const caption = el("p", "atlas-figura-caption execution-figure-caption");
+    caption.textContent = VIEWS[view] + " · " + (visible.length
+      ? visible.map(entry => entry.group.label).join(", ")
+      : "sem regiões nesta vista");
+    cell.appendChild(caption);
+
+    container.appendChild(cell);
+
+    return record;
   }
 
   F.atlas = {
     VIEWS,
-    VIEW_SLUGS,
-    MAP_DISCLOSURE,
     GROUPS,
+    DISCLOSURE,
     ROLE_NAMES,
     groupById,
-    groupsForView,
     groupForMuscleName,
-    roleFor,
-    roleLabel,
+    highlightsFor,
+    highlightList,
     countByRole,
+    roleLabel,
+    whereLabel,
     exercisesFor,
-    normalize
+    findRecordFor,
+    choosableExercises,
+    describeRoles,
+    figurePair,
+    legendNode,
+    showMuscles,
+    attachToExecution
   };
 
   /* ------------------------------------------------------------------ */
   /* Página: explorar/atlas.html                                          */
   /* ------------------------------------------------------------------ */
 
-  const SVG_NS = "http://www.w3.org/2000/svg";
-  const FIGURE = Object.freeze({ width: 220, height: 420 });
-
   const page = {
-    view: "front",
+    exerciseId: null,
     groupId: null,
     mode: null
   };
@@ -313,28 +427,6 @@
     return node;
   }
 
-  function el(tag, className, text) {
-    return F.ui.el(tag, className, text);
-  }
-
-  function svgEl(tag, attrs) {
-    const node = doc.createElementNS(SVG_NS, tag);
-
-    Object.keys(attrs || {}).forEach(key => {
-      node.setAttribute(key, String(attrs[key]));
-    });
-
-    return node;
-  }
-
-  function svgText(attrs, text) {
-    const node = svgEl("text", attrs);
-    node.textContent = text;
-    return node;
-  }
-
-  /* ---------- leitura do endereço (link direto) ---------- */
-
   function readInitialState() {
     let params = null;
 
@@ -346,42 +438,28 @@
 
     if (!params) return;
 
-    const view = params.get("vista");
-    if (view === "anterior") page.view = "front";
-    if (view === "posterior") page.view = "back";
+    const exercise = findRecordFor({ libraryId: params.get("exercicio"), name: "" });
+    if (exercise) page.exerciseId = exercise.libraryId || exercise.id;
 
-    /* Grupo desconhecido no link: o mapa abre sem seleção, sem erro. */
     const group = groupById(params.get("grupo"));
-    if (group) {
-      page.view = group.view;
-      page.groupId = group.id;
-    }
+    if (group) page.groupId = group.id;
 
     const mode = params.get("modalidade");
     if (mode === "calisthenics" || mode === "weights") page.mode = mode;
   }
 
-  /* ---------- estado de foco ---------- */
+  function selectedExercise() {
+    if (!page.exerciseId) return null;
 
-  function focusKeyOf(node) {
-    if (!node || !node.getAttribute) return null;
-
-    const explicit = node.getAttribute("data-atlas-focus");
-    if (explicit) return explicit;
-
-    const viewSegment = node.closest ? node.closest("#atlas-view [data-value]") : null;
-    if (viewSegment) return "view:" + viewSegment.getAttribute("data-value");
-
-    const modeSegment = node.closest ? node.closest("#atlas-modes [data-value]") : null;
-    if (modeSegment) return "mode:" + modeSegment.getAttribute("data-value");
-
-    return null;
+    return F.catalog.items().find(record => (record.libraryId || record.id) === page.exerciseId) || null;
   }
 
   function snapshotFocus() {
     const active = doc.activeElement;
     if (!active || !host || !host.contains(active)) return null;
-    return focusKeyOf(active);
+
+    const key = active.getAttribute("data-atlas-focus");
+    return key || null;
   }
 
   function restoreFocus(key) {
@@ -389,12 +467,8 @@
 
     let node = null;
 
-    if (key === "first-region") {
-      node = host.querySelector(".atlas-region");
-    } else if (key.indexOf("view:") === 0) {
-      node = host.querySelector('#atlas-view [data-value="' + key.slice(5) + '"]');
-    } else if (key.indexOf("mode:") === 0) {
-      node = host.querySelector('#atlas-modes [data-value="' + key.slice(5) + '"]');
+    if (key === "first-group") {
+      node = host.querySelector("[data-group-chip]");
     } else {
       node = host.querySelector('[data-atlas-focus="' + key.replace(/"/g, '\\"') + '"]');
     }
@@ -402,305 +476,270 @@
     if (node && typeof node.focus === "function") node.focus();
   }
 
-  /* ---------- dados derivados ---------- */
+  /* ---------------- seleção de exercício ---------------- */
 
-  function selectedGroup() {
-    return groupById(page.groupId);
-  }
-
-  function entriesForSelection() {
-    const group = selectedGroup();
-    if (!group) return [];
-    return F.atlas.exercisesFor(group.id, { mode: page.mode });
-  }
-
-  function allEntriesForSelection() {
-    const group = selectedGroup();
-    if (!group) return [];
-    return F.atlas.exercisesFor(group.id);
-  }
-
-  function countForGroup(group, mode) {
-    return F.atlas.exercisesFor(group.id, { mode: mode || undefined }).length;
-  }
-
-  function roleCountLabel(entries) {
-    const counts = F.atlas.countByRole(entries);
-    const parts = [];
-
-    if (counts.primary) parts.push(counts.primary + (counts.primary === 1 ? " principal" : " principais"));
-    if (counts.secondary) parts.push(counts.secondary + (counts.secondary === 1 ? " secundário" : " secundários"));
-    if (counts.stabilizer) parts.push(counts.stabilizer + (counts.stabilizer === 1 ? " estabilizador" : " estabilizadores"));
-    if (counts.informed) parts.push(counts.informed + " informado" + (counts.informed === 1 ? "" : "s") + " por você");
-
-    return parts.join(" · ");
-  }
-
-  function modeLabel(mode) {
-    return mode ? F.MODE_NAMES[mode] : "todas as modalidades";
-  }
-
-  /* ---------- desenho do mapa ---------- */
-
-  function figureNode(view) {
-    const group = svgEl("g", { class: "atlas-figure", "aria-hidden": "true" });
-
-    /* Manequim geométrico: cabeça, pescoço, tronco, pelve, braços, mãos, pernas e pés. */
-    group.appendChild(svgEl("circle", { cx: 110, cy: 40, r: 20, class: "atlas-figure-shape" }));
-    group.appendChild(svgEl("rect", { x: 101, y: 57, width: 18, height: 14, rx: 6, class: "atlas-figure-shape" }));
-    group.appendChild(svgEl("path", {
-      d: "M84 76 Q110 68 136 76 L141 116 Q142 150 130 176 L127 194 Q110 200 93 194 L90 176 Q78 150 79 116 Z",
-      class: "atlas-figure-shape"
-    }));
-    group.appendChild(svgEl("rect", { x: 87, y: 190, width: 46, height: 26, rx: 12, class: "atlas-figure-shape" }));
-
-    /* Braços: um retângulo por braço, do ombro até o punho. */
-    group.appendChild(svgEl("rect", { x: 58, y: 78, width: 20, height: 130, rx: 10, class: "atlas-figure-shape" }));
-    group.appendChild(svgEl("rect", { x: 142, y: 78, width: 20, height: 130, rx: 10, class: "atlas-figure-shape" }));
-    group.appendChild(svgEl("circle", { cx: 68, cy: 216, r: 8, class: "atlas-figure-shape" }));
-    group.appendChild(svgEl("circle", { cx: 152, cy: 216, r: 8, class: "atlas-figure-shape" }));
-
-    /* Pernas e pés. */
-    group.appendChild(svgEl("rect", { x: 88, y: 206, width: 20, height: 166, rx: 10, class: "atlas-figure-shape" }));
-    group.appendChild(svgEl("rect", { x: 112, y: 206, width: 20, height: 166, rx: 10, class: "atlas-figure-shape" }));
-    group.appendChild(svgEl("rect", { x: 85, y: 366, width: 25, height: 14, rx: 6, class: "atlas-figure-shape" }));
-    group.appendChild(svgEl("rect", { x: 110, y: 366, width: 25, height: 14, rx: 6, class: "atlas-figure-shape" }));
-
-    if (view === "back") {
-      group.appendChild(svgEl("path", {
-        d: "M110 84 V184",
-        class: "atlas-figure-guide"
-      }));
-    }
-
-    return group;
-  }
-
-  function regionNode(group) {
-    const total = countForGroup(group);
-    const selected = page.groupId === group.id;
-
-    const node = svgEl("g", {
-      class: "atlas-region" + (selected ? " is-selected" : ""),
-      role: "button",
-      tabindex: "0",
-      "aria-pressed": selected ? "true" : "false",
-      "aria-label": group.number + ". " + group.label + " — " +
-        (total === 0 ? "sem exercícios no catálogo atual" : total + (total === 1 ? " exercício relacionado" : " exercícios relacionados")) +
-        " (" + VIEWS[group.view] + ")",
-      "data-group": group.id,
-      "data-atlas-focus": "group:" + group.id
-    });
-
-    node.appendChild(svgEl("circle", {
-      class: "atlas-region-hit",
-      cx: group.x, cy: group.y, r: group.r + 6
-    }));
-    node.appendChild(svgEl("circle", {
-      class: "atlas-region-shape",
-      cx: group.x, cy: group.y, r: group.r
-    }));
-    node.appendChild(svgEl("circle", {
-      class: "atlas-region-ring",
-      cx: group.x, cy: group.y, r: group.r + 5
-    }));
-    node.appendChild(svgText({
-      class: "atlas-region-number",
-      x: group.x,
-      y: group.y,
-      "text-anchor": "middle",
-      "dominant-baseline": "central"
-    }, String(group.number)));
-
-    node.addEventListener("click", () => selectGroup(group.id));
-    node.addEventListener("keydown", event => keyboardOnRegion(event, group, node));
-
-    return node;
-  }
-
-  function keyboardOnRegion(event, group, node) {
-    if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
-      event.preventDefault();
-      selectGroup(group.id);
-      return;
-    }
-
-    const siblings = groupsForView(page.view);
-    const index = siblings.indexOf(group);
-    let next = null;
-
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = siblings[(index + 1) % siblings.length];
-    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = siblings[(index - 1 + siblings.length) % siblings.length];
-    else if (event.key === "Home") next = siblings[0];
-    else if (event.key === "End") next = siblings[siblings.length - 1];
-
-    if (!next) return;
-
-    event.preventDefault();
-    const target = node.parentNode && node.parentNode.querySelector
-      ? node.parentNode.querySelector('.atlas-region[data-group="' + next.id + '"]')
-      : null;
-
-    if (target && typeof target.focus === "function") target.focus();
-  }
-
-  function mapNode() {
-    const list = groupsForView(page.view);
-    const numbers = list.map(group => group.number).join(", ");
-
-    const svg = svgEl("svg", {
-      class: "atlas-map-svg",
-      viewBox: "0 0 " + FIGURE.width + " " + FIGURE.height,
-      role: "group",
-      "aria-label": "Mapa esquemático do corpo humano, " + VIEWS[page.view].toLowerCase() +
-        ". Regiões numeradas: " + numbers + "."
-    });
-
-    svg.appendChild(figureNode(page.view));
-    list.forEach(group => svg.appendChild(regionNode(group)));
-
-    return svg;
-  }
-
-  /* ---------- blocos de interface ---------- */
-
-  function disclosureNode() {
-    const box = el("p", "atlas-disclosure");
-    box.appendChild(F.ui.icon("info"));
-    box.appendChild(el("span", null, MAP_DISCLOSURE));
-    return box;
-  }
-
-  function viewControl() {
-    const wrap = el("div", "atlas-view-control");
-    wrap.id = "atlas-view";
-    wrap.appendChild(F.ui.segmented({
-      label: "Vista do mapa",
-      value: page.view,
-      options: [
-        { value: "front", label: VIEWS.front },
-        { value: "back", label: VIEWS.back }
-      ],
-      onChange(value) {
-        if (page.view === value) return;
-        setView(value);
-      }
-    }));
-    return wrap;
-  }
-
-  function legendNode() {
-    const card = el("section", "atlas-card atlas-legend");
-    card.setAttribute("aria-labelledby", "atlas-legend-title");
+  function exercisePicker() {
+    const card = el("section", "atlas-card atlas-picker-card");
+    card.setAttribute("aria-labelledby", "atlas-exercise-title");
 
     const head = el("div", "atlas-card-head");
-    head.appendChild(el("h2", "atlas-card-title", "Legenda · " + VIEWS[page.view].toLowerCase()));
-    head.appendChild(el("p", "atlas-card-note", "Os números correspondem aos marcadores do mapa."));
+    const title = el("h2", "atlas-card-title", "Exercício");
+    title.id = "atlas-exercise-title";
+    head.appendChild(title);
     card.appendChild(head);
 
-    const list = el("ul", "atlas-legend-list");
+    const field = el("div", "atlas-picker");
+    const label = el("label", "field-label", "Escolha um exercício do catálogo");
+    label.setAttribute("for", "atlas-exercise-select");
+    field.appendChild(label);
 
-    groupsForView(page.view).forEach(group => {
-      const item = el("li", "atlas-legend-item");
-      const selected = page.groupId === group.id;
-      const total = countForGroup(group);
+    const select = doc.createElement("select");
+    select.id = "atlas-exercise-select";
+    select.className = "atlas-select";
+    select.setAttribute("data-atlas-focus", "select");
 
-      if (selected) item.className += " is-selected";
+    const placeholder = doc.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Selecione um exercício…";
+    select.appendChild(placeholder);
 
-      const button = el("button", "atlas-legend-button");
-      button.type = "button";
-      button.setAttribute("aria-pressed", selected ? "true" : "false");
-      button.setAttribute("data-group", group.id);
-      button.setAttribute("data-atlas-focus", "group:" + group.id);
-      button.setAttribute("aria-label",
-        "Região " + group.number + ": " + group.label + ". " +
-        (total === 0 ? "Sem exercícios no catálogo atual." : total + (total === 1 ? " exercício relacionado." : " exercícios relacionados.")));
+    ["calisthenics", "weights"].forEach(mode => {
+      const group = doc.createElement("optgroup");
+      group.label = F.MODE_NAMES[mode];
 
-      button.appendChild(el("span", "atlas-legend-number", group.number));
-      button.appendChild(el("span", "atlas-legend-name", group.label));
+      choosableExercises(mode).forEach(record => {
+        const option = doc.createElement("option");
+        option.value = record.libraryId || record.id;
+        option.textContent = record.name;
+        if (option.value === page.exerciseId) option.selected = true;
+        group.appendChild(option);
+      });
 
-      const meta = el("span", "atlas-legend-meta");
-      meta.appendChild(el("span", "atlas-legend-kind", group.kind === "region" ? "Região" : "Grupo"));
-      meta.appendChild(el("span", "atlas-legend-count", total === 0 ? "sem exercícios" : String(total)));
-      if (selected) meta.appendChild(el("span", "atlas-legend-check", "selecionado"));
-      button.appendChild(meta);
-
-      button.addEventListener("click", () => selectGroup(group.id));
-      item.appendChild(button);
-      list.appendChild(item);
+      if (group.children.length > 0) select.appendChild(group);
     });
+
+    select.addEventListener("change", () => {
+      selectExercise(select.value || null);
+    });
+
+    field.appendChild(select);
+    field.appendChild(el("p", "field-hint",
+      "Os exercícios sugeridos já vêm com a classificação muscular do catálogo. Exercícios personalizados só aparecem com as regiões que você informou."));
+    card.appendChild(field);
+
+    /* Atalhos: os movimentos mais reconhecíveis, para começar em um toque. */
+    const shortcuts = el("div", "atlas-shortcuts");
+    shortcuts.appendChild(el("span", "atlas-shortcuts-label", "Atalhos"));
+
+    const picks = ["cal-flexao", "cal-agachamento", "mus-supino-reto", "cal-barra-fixa", "cal-prancha-frontal", "mus-terra"];
+
+    picks.forEach(id => {
+      const record = F.catalog.items().find(item => item.libraryId === id);
+      if (!record) return;
+
+      const chip = el("button", "atlas-shortcut");
+      chip.type = "button";
+      chip.textContent = record.name;
+      chip.setAttribute("data-atlas-focus", "shortcut:" + id);
+      chip.setAttribute("aria-pressed", page.exerciseId === id ? "true" : "false");
+      chip.addEventListener("click", () => selectExercise(id));
+      shortcuts.appendChild(chip);
+    });
+
+    card.appendChild(shortcuts);
+    return card;
+  }
+
+  /* ---------------- figura e legenda ---------------- */
+
+  function exerciseCard() {
+    const card = el("section", "atlas-card atlas-exercise-card");
+    card.setAttribute("aria-labelledby", "atlas-figure-title");
+
+    const record = selectedExercise();
+
+    if (!record) {
+      const title = el("h2", "atlas-card-title", "Regiões trabalhadas");
+      title.id = "atlas-figure-title";
+      card.appendChild(title);
+
+      card.appendChild(figurePair({}, { label: "Nenhuma região destacada." }));
+      card.appendChild(el("p", "atlas-card-note",
+        "Escolha um exercício acima para destacar as regiões principais, secundárias e estabilizadoras. Nenhum grupo é destacado sem dado no catálogo."));
+      card.appendChild(colorKey());
+      card.appendChild(el("p", "atlas-disclosure", DISCLOSURE));
+      return card;
+    }
+
+    const highlights = highlightsFor(record);
+    const entries = highlightList(highlights);
+    const counts = countByRole(entries);
+    const primary = entries.filter(entry => entry.role === "primary").map(entry => entry.group.label);
+
+    const head = el("div", "atlas-card-head atlas-exercise-head");
+    const title = el("h2", "atlas-card-title", record.name);
+    title.id = "atlas-figure-title";
+    head.appendChild(title);
+
+    const actions = el("div", "atlas-exercise-actions");
+    actions.appendChild(F.ui.linkButton({
+      label: "Ver na biblioteca",
+      href: F.url("biblioteca", { exercicio: record.libraryId || record.id, modalidade: record.mode }),
+      variant: "secondary-button",
+      className: "small-button",
+      icon: "book",
+      ariaLabel: "Abrir " + record.name + " na biblioteca"
+    }));
+    head.appendChild(actions);
+    card.appendChild(head);
+
+    const chips = el("div", "ui-exercise-tags");
+    chips.appendChild(F.ui.chip(F.MODE_NAMES[record.mode] || record.mode, record.mode === "weights" ? "accent" : "muted"));
+    if (record.category) chips.appendChild(F.ui.chip(F.catalog.categoryLabel(record.category), "muted"));
+    chips.appendChild(F.ui.chip(F.SECTION_NAMES[record.section] || "", "muted"));
+    card.appendChild(chips);
+
+    card.appendChild(figurePair(highlights));
+
+    const summary = el("p", "atlas-resumo");
+    summary.id = "atlas-highlight-summary";
+    summary.setAttribute("aria-live", "polite");
+    summary.textContent = entries.length === 0
+      ? "Sem classificação muscular registrada para este exercício."
+      : (primary.length
+        ? "Principal: " + primary.join(" e ") + ". "
+        : "") +
+        (counts.secondary ? counts.secondary + (counts.secondary === 1 ? " região secundária" : " regiões secundárias") + ". " : "") +
+        (counts.stabilizer ? counts.stabilizer + (counts.stabilizer === 1 ? " região estabilizadora" : " regiões estabilizadoras") + "." : "") +
+        (counts.informed ? " " + counts.informed + (counts.informed === 1 ? " região informada por você." : " regiões informadas por você.") : "");
+    card.appendChild(summary);
+
+    card.appendChild(legendNode(highlights, { record }));
+
+    card.appendChild(el("p", "atlas-disclosure", DISCLOSURE));
+    return card;
+  }
+
+  /* ---------------- exploração por grupo ---------------- */
+
+  function groupExplorer() {
+    const card = el("section", "atlas-card atlas-group-card");
+    card.setAttribute("aria-labelledby", "atlas-group-title");
+
+    const head = el("div", "atlas-card-head");
+    const title = el("h2", "atlas-card-title", "Explorar por grupo muscular");
+    title.id = "atlas-group-title";
+    head.appendChild(title);
+
+    const clearButton = el("button", "atlas-inline-reset");
+    clearButton.type = "button";
+    clearButton.textContent = "Limpar seleção";
+    clearButton.disabled = !page.groupId;
+    if (page.groupId) clearButton.setAttribute("data-atlas-focus", "clear");
+    clearButton.addEventListener("click", clearGroup);
+    head.appendChild(clearButton);
+    card.appendChild(head);
+
+    card.appendChild(el("p", "atlas-card-note",
+      "Escolha um grupo para ver quais exercícios do catálogo o trabalham, com o papel de cada um."));
+
+    const chips = el("div", "atlas-group-chips");
+    chips.setAttribute("role", "group");
+    chips.setAttribute("aria-label", "Grupos musculares");
+
+    GROUPS.forEach(group => {
+      const total = F.atlas.exercisesFor(group.id, { mode: page.mode || undefined }).length;
+      const active = page.groupId === group.id;
+      const chip = el("button", "atlas-group-chip");
+      chip.type = "button";
+      chip.setAttribute("data-group-chip", group.id);
+      chip.setAttribute("data-atlas-focus", "group:" + group.id);
+      chip.setAttribute("aria-pressed", active ? "true" : "false");
+      chip.appendChild(el("span", "atlas-group-chip-name", group.label));
+      chip.appendChild(el("span", "atlas-group-chip-count", total === 0 ? "0" : String(total)));
+      chip.title = total === 0
+        ? "Nenhum exercício do catálogo para " + group.label
+        : total + (total === 1 ? " exercício" : " exercícios") + " para " + group.label;
+      chip.addEventListener("click", () => selectGroup(group.id, active));
+      chips.appendChild(chip);
+    });
+
+    card.appendChild(chips);
+
+    const group = groupById(page.groupId);
+
+    if (!group) {
+      card.appendChild(el("p", "atlas-group-empty",
+        "Nenhum grupo selecionado. A figura acima continua mostrando o exercício escolhido."));
+      return card;
+    }
+
+    const status = el("p", "atlas-group-status");
+    status.id = "atlas-group-status";
+    status.textContent = "Grupo em foco: " + group.label + " · " + whereLabel(group.id);
+    card.appendChild(status);
+
+    const figureWrap = el("div", "atlas-group-figure");
+    figureWrap.appendChild(F.figura.render({
+      view: VIEW_OF[group.id] === "back" ? "back" : "front",
+      highlights: (() => {
+        const focus = {};
+        focus[group.id] = "focus";
+        return focus;
+      })(),
+      label: group.label + " em foco, " + whereLabel(group.id)
+    }));
+    card.appendChild(figureWrap);
+
+    const entries = F.atlas.exercisesFor(group.id, { mode: page.mode });
+    const everyEntry = F.atlas.exercisesFor(group.id);
+
+    const modeWrap = el("div", "atlas-mode-control");
+    modeWrap.id = "atlas-modes";
+    modeWrap.appendChild(F.ui.segmented({
+      label: "Filtrar exercícios por modalidade",
+      value: page.mode,
+      options: [
+        { value: null, label: "Todas", count: everyEntry.length },
+        { value: "calisthenics", label: F.MODE_NAMES.calisthenics, count: everyEntry.filter(entry => entry.record.mode === "calisthenics").length },
+        { value: "weights", label: F.MODE_NAMES.weights, count: everyEntry.filter(entry => entry.record.mode === "weights").length }
+      ],
+      onChange(value) { selectMode(value); }
+    }));
+    card.appendChild(modeWrap);
+
+    const list = el("div", "atlas-exercise-list");
+    const status2 = el("p", "atlas-exercises-status");
+    status2.id = "atlas-exercises-status";
+    status2.setAttribute("aria-live", "polite");
+    status2.textContent = entries.length === 0
+      ? (page.mode
+        ? "Nenhum exercício de " + F.MODE_NAMES[page.mode].toLowerCase() + " para " + group.label
+        : "Nenhum exercício do catálogo para " + group.label)
+      : entries.length + (entries.length === 1 ? " exercício" : " exercícios") + " · " +
+        (page.mode ? F.MODE_NAMES[page.mode] : "todas as modalidades") + " · " + group.label;
+    card.appendChild(status2);
+
+    if (entries.length === 0) {
+      list.appendChild(F.ui.empty({
+        icon: "search",
+        title: everyEntry.length ? "Nenhum exercício desta modalidade" : "Nenhum exercício para este grupo",
+        text: everyEntry.length
+          ? "O catálogo tem exercícios para este grupo em outra modalidade. Limpe o filtro para vê-los."
+          : "O catálogo atual não tem exercícios classificados para este grupo — e o atlas não inventa vínculos.",
+        actions: everyEntry.length
+          ? [{ label: "Mostrar todas as modalidades", variant: "primary-button", icon: "filter", onClick: () => selectMode(null) }]
+          : []
+      }));
+    } else {
+      entries.forEach(entry => list.appendChild(groupExerciseRow(entry)));
+    }
 
     card.appendChild(list);
     return card;
   }
 
-  function selectionCard() {
-    const card = el("section", "atlas-card atlas-selection");
-    card.setAttribute("aria-labelledby", "atlas-selection-title");
-
-    const group = selectedGroup();
-
-    if (!group) {
-      const emptyTitle = el("h2", "atlas-card-title", "Nenhuma região selecionada");
-      emptyTitle.id = "atlas-selection-title";
-      card.appendChild(emptyTitle);
-
-      const empty = F.ui.empty({
-        icon: "target",
-        title: "Escolha um grupo para ver os exercícios",
-        text: "Use os números do mapa ou a legenda abaixo. Selecionar uma região não altera nenhuma rotina: o atlas é só consulta."
-      });
-      card.appendChild(empty);
-      return card;
-    }
-
-    const entries = allEntriesForSelection();
-    const total = entries.length;
-    const filtered = entriesForSelection();
-
-    const head = el("div", "atlas-selection-head");
-    head.appendChild(F.ui.chip("Região " + group.number, "accent"));
-    head.appendChild(F.ui.chip(group.kind === "region" ? "Região ampla" : "Grupo muscular", "muted"));
-    card.appendChild(head);
-
-    const title = el("h2", "atlas-card-title", group.label);
-    title.id = "atlas-selection-title";
-    card.appendChild(title);
-
-    card.appendChild(el("p", "atlas-selection-where", group.where));
-
-    const summary = el("p", "atlas-selection-summary");
-    summary.id = "atlas-selection-summary";
-    summary.textContent = total === 0
-      ? "Nenhum exercício do catálogo atual está classificado para esta região."
-      : total + (total === 1 ? " exercício relacionado" : " exercícios relacionados") +
-        (roleCountLabel(entries) ? " — " + roleCountLabel(entries) : "") + ".";
-    card.appendChild(summary);
-
-    if (page.mode) {
-      const note = el("p", "atlas-selection-filter-note",
-        "Filtro ativo: " + modeLabel(page.mode) + ". " +
-        (filtered.length === 0
-          ? "Nenhum exercício desta modalidade para a região."
-          : filtered.length + (filtered.length === 1 ? " exercício nesta modalidade." : " exercícios nesta modalidade.")));
-      card.appendChild(note);
-    }
-
-    return card;
-  }
-
-  function exerciseLink(record) {
-    return F.ui.linkButton({
-      label: "Detalhes na biblioteca",
-      href: F.url("biblioteca", { exercicio: record.libraryId, modalidade: record.mode }),
-      variant: "secondary-button",
-      className: "small-button",
-      icon: "book",
-      ariaLabel: "Abrir " + record.name + " na biblioteca"
-    });
-  }
-
-  function exerciseRow(entry) {
+  function groupExerciseRow(entry) {
     const record = entry.record;
     const row = el("div", "ui-exercise-row atlas-exercise-row");
     const main = el("div", "ui-exercise-main");
@@ -709,232 +748,98 @@
 
     const tags = el("div", "ui-exercise-tags");
     tags.appendChild(F.ui.chip(F.MODE_NAMES[record.mode] || record.mode, record.mode === "weights" ? "accent" : "muted"));
-    tags.appendChild(F.ui.chip(F.atlas.roleLabel(entry.role), entry.role === "primary" ? "accent" : "muted"));
-    if (record.category) tags.appendChild(F.ui.chip(F.catalog.categoryLabel(record.category), "muted"));
+    tags.appendChild(F.ui.chip(roleLabel(entry.role), entry.role === "primary" ? "accent" : "muted"));
     main.appendChild(tags);
 
     const meta = el("p", "ui-exercise-meta");
-    meta.textContent = [
-      F.SECTION_NAMES[record.section] || "",
-      F.catalog.summary(record)
-    ].filter(Boolean).join(" · ");
+    meta.textContent = [F.SECTION_NAMES[record.section] || "", F.catalog.summary(record)].filter(Boolean).join(" · ");
     main.appendChild(meta);
 
     row.appendChild(main);
-    row.appendChild(exerciseLink(record));
+    row.appendChild(F.ui.linkButton({
+      label: "Detalhes",
+      href: F.url("biblioteca", { exercicio: record.libraryId || record.id, modalidade: record.mode }),
+      variant: "secondary-button",
+      className: "small-button",
+      icon: "book",
+      ariaLabel: "Abrir " + record.name + " na biblioteca"
+    }));
+
     return row;
   }
 
-  function exercisesCard() {
-    const card = el("section", "atlas-card atlas-exercises");
-    card.setAttribute("aria-labelledby", "atlas-exercises-title");
+  /* ---------------- ações ---------------- */
 
-    const head = el("div", "atlas-card-head");
-    const title = el("h2", "atlas-card-title", "Exercícios relacionados");
-    title.id = "atlas-exercises-title";
-    head.appendChild(title);
-    card.appendChild(head);
+  function announce() {
+    const record = selectedExercise();
 
-    const group = selectedGroup();
-
-    if (!group) {
-      card.appendChild(el("p", "atlas-card-note",
-        "A lista aparece depois que você escolhe uma região. Nada aqui altera seus dados."));
-      return card;
-    }
-
-    const everyEntry = allEntriesForSelection();
-    const counts = {
-      all: everyEntry.length,
-      calisthenics: everyEntry.filter(entry => entry.record.mode === "calisthenics").length,
-      weights: everyEntry.filter(entry => entry.record.mode === "weights").length
-    };
-
-    const modeWrap = el("div", "atlas-mode-control");
-    modeWrap.id = "atlas-modes";
-    modeWrap.appendChild(F.ui.segmented({
-      label: "Filtrar exercícios por modalidade",
-      value: page.mode,
-      options: [
-        { value: null, label: "Todas", count: counts.all },
-        { value: "calisthenics", label: F.MODE_NAMES.calisthenics, count: counts.calisthenics },
-        { value: "weights", label: F.MODE_NAMES.weights, count: counts.weights }
-      ],
-      onChange(value) {
-        setMode(value);
-      }
-    }));
-    card.appendChild(modeWrap);
-
-    const entries = entriesForSelection();
-    const status = el("p", "atlas-exercises-status");
-    status.id = "atlas-exercises-status";
-    status.setAttribute("aria-live", "polite");
-    status.textContent = entries.length === 0
-      ? (page.mode
-        ? "Nenhum exercício de " + modeLabel(page.mode).toLowerCase() + " para esta região"
-        : "Nenhum exercício no catálogo atual para esta região")
-      : entries.length + (entries.length === 1 ? " exercício" : " exercícios") +
-        " · " + (page.mode ? modeLabel(page.mode) : "todas as modalidades") +
-        " · " + group.label;
-    card.appendChild(status);
-
-    const list = el("div", "atlas-exercise-list");
-
-    if (entries.length === 0) {
-      const hasAny = counts.all > 0;
-
-      list.appendChild(F.ui.empty({
-        icon: "search",
-        title: hasAny ? "Nenhum exercício desta modalidade" : "Nenhum exercício para esta região",
-        text: hasAny
-          ? "O catálogo tem exercícios para esta região em outra modalidade. Limpe o filtro para vê-los."
-          : "O catálogo atual não tem exercícios classificados para esta região — e o atlas não inventa vínculos. Exercícios personalizados só aparecem aqui se você tiver informado grupos musculares neles.",
-        actions: hasAny
-          ? [{ label: "Mostrar todas as modalidades", variant: "primary-button", icon: "filter", onClick: () => setMode(null) }]
-          : [{
-            label: "Abrir biblioteca",
-            href: F.url("biblioteca"),
-            variant: "secondary-button",
-            icon: "book"
-          }]
-      }));
-    } else {
-      entries.forEach(entry => list.appendChild(exerciseRow(entry)));
-    }
-
-    card.appendChild(list);
-
-    const note = el("p", "atlas-card-note atlas-exercises-note");
-    note.textContent = "Abrir um exercício na biblioteca não adiciona nada a uma rotina. " +
-      "O papel indicado (principal, secundário, estabilizador) descreve a participação do grupo no movimento.";
-    card.appendChild(note);
-
-    return card;
-  }
-
-  function mapCard() {
-    const card = el("section", "atlas-card atlas-map-card");
-    card.setAttribute("aria-labelledby", "atlas-map-title");
-
-    const head = el("div", "atlas-card-head atlas-map-head");
-    const heading = el("h2", "atlas-card-title", "Mapa muscular");
-    heading.id = "atlas-map-title";
-    head.appendChild(heading);
-
-    const reset = el("button", "atlas-inline-reset");
-    reset.type = "button";
-    reset.textContent = "Limpar seleção";
-    reset.setAttribute("data-atlas-focus", "clear");
-    reset.disabled = !page.groupId;
-    reset.addEventListener("click", clearSelection);
-    head.appendChild(reset);
-
-    card.appendChild(head);
-    card.appendChild(viewControl());
-
-    const caption = el("p", "atlas-map-caption");
-    caption.textContent = "Mapa esquemático · " + VIEWS[page.view] + " · " +
-      groupsForView(page.view).length + " regiões numeradas";
-    card.appendChild(caption);
-
-    const mapWrap = el("div", "atlas-map-wrap");
-    mapWrap.id = "atlas-map";
-    mapWrap.appendChild(mapNode());
-    card.appendChild(mapWrap);
-
-    card.appendChild(el("p", "atlas-map-hint",
-      "Toque em um número para selecionar a região. No teclado, use Tab e as setas entre as regiões."));
-
-    return card;
-  }
-
-  /* ---------- ações ---------- */
-
-  function announceSelection() {
-    const group = selectedGroup();
-    if (!group) {
-      F.ui.announce("Seleção limpa. Nenhuma região selecionada.");
+    if (page.groupId) {
+      const group = groupById(page.groupId);
+      const total = F.atlas.exercisesFor(group.id, { mode: page.mode || undefined }).length;
+      F.ui.announce(group.label + " em foco. " +
+        (total === 0 ? "Nenhum exercício do catálogo para este grupo." : total + (total === 1 ? " exercício relacionado." : " exercícios relacionados.")));
       return;
     }
 
-    const total = countForGroup(group);
-    F.ui.announce(group.label + " selecionado. " +
-      (total === 0 ? "Nenhum exercício do catálogo atual para esta região." : total + (total === 1 ? " exercício relacionado." : " exercícios relacionados.")));
+    if (!record) {
+      F.ui.announce("Nenhum exercício selecionado.");
+      return;
+    }
+
+    F.ui.announce(record.name + ". " + describeRoles(record) + ".");
   }
 
-  function selectGroup(id) {
-    const group = groupById(id);
-    if (!group) return;
+  function selectExercise(id) {
+    const record = id ? F.catalog.items().find(item => (item.libraryId || item.id) === id) : null;
 
-    page.groupId = group.id;
-    page.view = group.view;
-    pendingFocus = "group:" + group.id;
+    page.exerciseId = record ? (record.libraryId || record.id) : null;
+    page.groupId = null;
+    pendingFocus = "select";
     render();
-    announceSelection();
+    announce();
   }
 
-  function clearSelection() {
+  function selectGroup(id, alreadyActive) {
+    page.groupId = alreadyActive ? null : id;
+    pendingFocus = "group:" + id;
+    render();
+    announce();
+  }
+
+  function clearGroup() {
     if (!page.groupId) return;
     page.groupId = null;
-    pendingFocus = "first-region";
+    pendingFocus = "first-group";
     render();
-    announceSelection();
+    announce();
   }
 
-  function setView(view) {
-    const next = view === "back" ? "back" : "front";
-    if (page.view === next) return;
-
-    page.view = next;
-
-    const current = selectedGroup();
-    const keepsSelection = Boolean(current && current.view === next);
-    if (!keepsSelection) page.groupId = null;
-
-    pendingFocus = "view:" + next;
-    render();
-    F.ui.announce(VIEWS[next] + ". " +
-      groupsForView(next).length + " regiões numeradas." +
-      (keepsSelection ? " " + current.label + " continua selecionado." : ""));
-  }
-
-  function setMode(mode) {
-    const next = mode === "calisthenics" || mode === "weights" ? mode : null;
-    page.mode = next;
-    pendingFocus = "mode:" + (next || "null");
+  function selectMode(mode) {
+    page.mode = mode === "calisthenics" || mode === "weights" ? mode : null;
+    pendingFocus = "mode:" + (page.mode || "null");
     render();
 
-    const entries = entriesForSelection();
-    F.ui.announce((next ? "Filtro: " + F.MODE_NAMES[next] + ". " : "Todas as modalidades. ") +
-      (entries.length === 0 ? "Nenhum exercício." : entries.length + (entries.length === 1 ? " exercício." : " exercícios.")));
+    const total = page.groupId ? F.atlas.exercisesFor(page.groupId, { mode: page.mode || undefined }).length : 0;
+    F.ui.announce((page.mode ? "Filtro: " + F.MODE_NAMES[page.mode] + ". " : "Todas as modalidades. ") +
+      (total === 0 ? "Nenhum exercício." : total + (total === 1 ? " exercício." : " exercícios.")));
   }
 
-  /* ---------- montagem e estados ---------- */
+  /* ---------------- montagem ---------------- */
 
   function render() {
     if (!host) return;
 
     lastError = null;
-
     const focus = pendingFocus || snapshotFocus();
     pendingFocus = null;
+
     clear(host);
     host.removeAttribute("aria-busy");
 
     const layout = el("div", "atlas-layout");
-
-    const primary = el("div", "atlas-column atlas-column-map");
-    primary.appendChild(mapCard());
-    primary.appendChild(disclosureNode());
-
-    const secondary = el("div", "atlas-column atlas-column-info");
-    secondary.appendChild(selectionCard());
-    secondary.appendChild(legendNode());
-    secondary.appendChild(exercisesCard());
-
-    layout.appendChild(primary);
-    layout.appendChild(secondary);
+    layout.appendChild(exercisePicker());
+    layout.appendChild(exerciseCard());
+    layout.appendChild(groupExplorer());
     host.appendChild(layout);
 
     restoreFocus(focus);
@@ -942,7 +847,6 @@
 
   function renderError(error) {
     lastError = error;
-
     if (!host) return;
 
     clear(host);
@@ -964,7 +868,6 @@
       icon: "repeat",
       variant: "primary-button",
       onClick() {
-        pendingFocus = "first-region";
         try {
           render();
           F.ui.announce("Atlas montado.");
@@ -979,7 +882,6 @@
 
     box.appendChild(body);
     host.appendChild(box);
-
     restoreFocus("retry");
   }
 
@@ -1010,7 +912,6 @@
 
   F.pages.atlas = boot;
 
-  /* Reescreve a tela com o estado atual (usado por testes e por retentativa). */
   F.pages.atlas.refresh = function refresh() {
     try {
       render();
@@ -1019,10 +920,7 @@
     }
   };
 
-  F.pages.atlas.renderError = renderError;
-
-  /* Leitura do estado atual, sem efeito colateral. */
   F.pages.atlas.state = function state() {
-    return { view: page.view, groupId: page.groupId, mode: page.mode, error: lastError };
+    return { exerciseId: page.exerciseId, groupId: page.groupId, mode: page.mode, error: lastError };
   };
 })(window);

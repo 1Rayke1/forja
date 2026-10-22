@@ -49,7 +49,7 @@ Quatro estados, sempre explícitos:
 | Metadados de catálogo: categoria, grupos musculares, equipamento, instrução de técnica, séries/reps/descanso sugeridos | implementado e verificado (37 registros) | `F.catalog`, `SUGGESTED_META`; FORJA 27/30 |
 | Metadados por exercício: nome alternativo, nível de dificuldade, padrão de movimento, posição inicial, respiração, erros comuns, orientações de segurança, variações mais fáceis/difíceis, substituições casa↔academia | **não implementado** — o modelo guarda só parte disso; exige decisão de conteúdo (fonte e revisão técnica) | ver §5 |
 | Músculos principais × secundários/estabilizadores separados por exercício | **implementado no pacote 3.1** — `roles` por exercício (principal ≤ 2, secundários, estabilizadores); a lista plana de músculos é derivada | `docs/atlas-anatomico.md` §3; teste ATLAS 5 |
-| Atlas anatômico interativo (vistas anterior/posterior, seleção por região, legenda, relação músculo→exercícios) | **implementado no pacote 3.1 como mapa esquemático** — vistas anterior/posterior, 16 regiões, legenda numerada, relação grupo→exercícios com filtro por modalidade | `explorar/atlas.html`, `assets/js/forja-atlas.js`; `docs/atlas-anatomico.md`; teste ATLAS 1–11 |
+| Atlas anatômico interativo (vistas anterior/posterior, destaque de regiões, legenda, relação músculo→exercícios) | **implementado no pacote 3.1 como esquema sobre silhueta vetorial** — vistas anterior/posterior, 16 regiões destacadas por papel (principal/secundária/estabilizadora), legenda curta, relação grupo→exercícios com filtro por modalidade e reuso na biblioteca e na execução | `explorar/atlas.html`, `assets/js/forja-atlas.js`; `docs/atlas-anatomico.md`; teste ATLAS 1–11 |
 | Ilustração específica por exercício e demonstração visual | **não implementado** — hoje não há imagem por exercício; nenhuma imagem da internet foi usada para fingir anatomia | ver §5 |
 | Programas prontos por nível (iniciante casa/academia, retorno gradual, calistenia básica, hipertrofia, força, resistência, curto, dividido, corpo inteiro) com descrição, público, duração e critérios de progressão | **não implementado** — a estrutura de rotinas e o catálogo existem, mas não há biblioteca de programas empacotada | ver §5 |
 | Editor de rotinas: dias planejados, reordenação, duplicar, estimativa de duração, rascunho recuperável, músculos trabalhados pela rotina | parcialmente implementado — reordenação/duplicar/rascunho/estimativa e metadados do exercício personalizado existem; faltam dias por semana, estimativa explicada na tela do editor e leitura de músculos da rotina | FORJA 08/16/30 |
@@ -204,11 +204,12 @@ APK, teste de carga real de IndexedDB, e qualquer verificação no site publicad
 
 ## 4. Limitações conhecidas
 
-1. **Anatomia visual é esquemática.** O atlas (pacote 3.1) existe, mas é um
-   mapa esquemático de grupos musculares: manequim geométrico, sem músculos
-   individuais, inserções ou vistas laterais. Ele se identifica como tal na
-   própria tela. A ilustração por exercício continua não existindo, e nada no
-   app simula um desenho para parecer concluído. Ver
+1. **Anatomia visual é esquemática.** O atlas (pacote 3.1) existe e agora usa
+   uma silhueta humana vetorial proporcional, com regiões musculares pintadas
+   por papel — não um boneco de palito ou de blocos. Ainda assim é um esquema:
+   sem músculos individualizados, inserções ou vistas laterais. Ele se
+   identifica como tal na própria tela. A ilustração por exercício continua não
+   existindo, e nada no app simula um desenho para parecer concluído. Ver
    `docs/atlas-anatomico.md`.
 2. **Catálogo é curado, não revisado clinicamente.** As 37 fichas (instrução,
    músculos, equipamento, série sugerida) foram escritas para este app e cada

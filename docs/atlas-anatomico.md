@@ -1,8 +1,9 @@
 # FORJA 3.1 — Atlas anatômico e modelo de metadados musculares
 
 Documento de referência do recurso implementado em `explorar/atlas.html`
-(módulo `assets/js/forja-atlas.js`, estilo `assets/css/atlas.css`) e da revisão
-de metadados feita em `assets/js/forja-catalogo.js`.
+(módulos `assets/js/forja-atlas.js` e `assets/js/forja-figura.js`, estilo
+`assets/css/atlas.css`) e da revisão de metadados feita em
+`assets/js/forja-catalogo.js`.
 
 O objetivo é duplo: (1) explicar com precisão o que o desenho é e o que ele **não**
 é, e (2) descrever o modelo de dados que liga cada exercício do catálogo a
@@ -11,75 +12,110 @@ treinamento sem precisar ler o código.
 
 ---
 
-## 1. O que o mapa é — e o que ele não é
+## 1. O que a figura é — e o que ela não é
 
-O atlas é um **mapa esquemático de grupos musculares**, desenhado à mão em SVG
-com formas geométricas (círculo para a cabeça, retângulos arredondados para
-tronco, braços e pernas, marcadores numerados por região). Ele serve para
-*localizar* uma região do corpo e, a partir dela, listar os exercícios do
-catálogo que trabalham aquela região.
+O atlas é um **esquema de regiões musculares sobre uma silhueta humana
+vetorial**. A pergunta que ele responde é prática: *"quais regiões este
+exercício trabalha, e com que papel?"*. A figura é desenhada em SVG (sem imagem
+externa) com uma silhueta de corpo inteiro — cabeça, pescoço, tórax, cintura,
+pelve, braços separados do tronco, mãos, coxas, joelhos, panturrilhas e pés —
+nas vistas **anterior** e **posterior**. As regiões trabalhadas são pintadas
+sobre o corpo, com uma cor por papel, e explicadas por uma legenda curta.
 
 O que ele **não** é:
 
-- **não é uma representação anatômica clínica.** Não há músculos individuais
-  desenhados, nem fibras, nem inserções, nem origem/inserção, nem planos de
-  corte. O manequim é uma silhueta de blocos, de propósito;
+- **não é uma representação anatômica clínica.** Os músculos não são desenhados
+  individualmente, não há fibras, inserções, origem/inserção nem planos de
+  corte. As formas são agrupamentos funcionais pintados sobre a silhueta;
 - **não é um atlas médico nem material de estudo de anatomia.** Nada aqui deve
   ser usado para localizar dor, diagnosticar lesão ou estudar anatomia formal;
 - **não é uma ilustração licenciada de terceiros.** Todo o SVG é autoral, gerado
-  no próprio módulo (`figureNode`), sem imagem, fonte ou biblioteca externa.
-  Por isso não há atribuição de terceiros a fazer — e por isso também não há
-  precisão anatômica de ilustração profissional. A escolha foi explícita:
-  melhor um esquema honesto e assumido do que uma silhueta "realista" sem
-  fundamento.
+  no próprio módulo (`assets/js/forja-figura.js`), sem imagem, fonte, sprite ou
+  biblioteca externa. Por isso não há atribuição de terceiros a fazer — e por
+  isso também não há precisão de ilustração profissional;
+- **não usa marcadores numerados.** A versão anterior do atlas mostrava círculos
+  numerados sobre um manequim de blocos; ela foi substituída. Não há números
+  espalhados pelo corpo nem círculos sobrepostos: a informação é a própria
+  região colorida + a legenda.
 
 O aviso aparece **na própria tela** (`.atlas-disclosure`), não só neste
 documento:
 
-> Mapa esquemático de grupos musculares. Não é uma representação anatômica
-> clínica: o desenho apenas localiza regiões para ligar cada grupo aos
-> exercícios do catálogo.
+> Figura esquemática de regiões musculares — não é uma representação anatômica
+> clínica. As cores indicam o papel da região no movimento, a partir da
+> classificação do catálogo.
+
+### 1.1 Como a silhueta é construída
+
+- Cada membro é gerado a partir de uma **linha média com meia-largura** em cada
+  ponto (ombro → cotovelo → punho; quadril → joelho → tornozelo). O contorno é a
+  curva que passa pelos deslocamentos perpendiculares dessa linha, convertida em
+  curvas de Bézier (Catmull-Rom). Por isso o volume é contínuo e as
+  extremidades afinam de verdade (punho, tornozelo);
+- cabeça, pescoço, mãos e pés são **caminhos fechados** próprios; o lado direito
+  é o espelho do esquerdo;
+- a silhueta é montada em duas camadas (traço grosso embaixo, preenchimento em
+  cima) para que os encontros entre tronco e membros não deixem costura;
+- as regiões são formas fechadas suavizadas, **recortadas pela silhueta** com
+  `clipPath`, então o destaque acompanha o corpo em vez de flutuar sobre ele.
+
+### 1.2 Cores e papéis
+
+| Papel | Cor | Significado |
+| --- | --- | --- |
+| Principal | verde-lima (`#B7F34A`) | produz a maior parte do movimento |
+| Secundária | âmbar (`#F2B84B`) | participa de forma relevante |
+| Estabilizadora | azul-acinzentado (`#7FB3D5`) | estabiliza ou transmite força |
+| Informada por você | contorno tracejado cinza | exercício personalizado sem papéis declarados |
+| Grupo em foco | contorno lima tracejado | exploração por grupo muscular |
+
+Cor **nunca é a única informação**: cada item da legenda traz o nome do papel
+escrito ("Principal", "Secundária", "Estabilizadora"), o texto alternativo do
+SVG lista as regiões por papel naquela vista, e o resumo em texto repete a
+classificação. As regiões de papel menor são desenhadas primeiro, para não
+cobrirem a principal.
 
 ### Limitações conhecidas do desenho
 
 | Limitação | Consequência prática |
 | --- | --- |
-| Silhueta genérica, sem variação de biotipo, sexo ou idade | O mapa não representa corpos reais; regiões são aproximadas |
-| Marcadores são círculos com número, não contornos musculares | A área destacada não corresponde ao tamanho real do músculo |
+| Silhueta genérica, sem variação de biotipo, sexo, idade ou roupa | A figura não representa corpos reais; regiões são aproximadas |
+| Formas são agrupamentos, não contornos musculares exatos | A área pintada não corresponde ao tamanho real do músculo |
 | Vista anterior e posterior apenas; sem vistas laterais, mediais ou cortes | Alguns grupos (ex.: oblíquos, glúteo médio) aparecem de forma resumida |
 | Grupos são agrupamentos funcionais, não músculos isolados | "Dorsais" agrupa grande dorsal e adjacentes; "Peitoral" não separa porções clavicular/esternal |
+| Braços ficam levemente afastados do tronco | É uma pose de leitura (para o contorno ser visível), não uma postura de execução |
 | Nenhuma informação de função, amplitude ou biomecânica é exibida | O atlas não ensina execução — isso fica nas instruções do exercício |
 | Regiões amplas (`kind: "region"`) existem por causa do catálogo | "Pernas", "costas", "ombros" e "quadril" aparecem como região, não como músculo |
 
 ---
 
-## 2. Regiões do mapa
+## 2. Regiões e vistas
 
-Cada região tem: `id` (chave interna estável), `number` (o número exibido na
-vista), `view` (`front`/`back`), `kind` (`group` = grupo muscular;
-`region` = região ampla), `label` (nome em português), `tags` (nomes aceitos
-pelo catálogo), `aliases` (sinônimos aceitos em exercícios personalizados),
-`x`/`y`/`r` (posição e raio do marcador) e `where` (descrição curta exibida no
-painel de seleção).
+Cada região tem: `id` (chave interna estável), `label` (nome em português),
+`kind` (`group` = grupo muscular; `region` = região ampla), `tags` (nomes
+aceitos pelo catálogo), `aliases` (sinônimos aceitos em exercícios
+personalizados) e `where` (descrição curta, exibida na legenda e no painel do
+grupo). A vista de cada região é definida pelas formas desenhadas
+(`F.figura.regionsInView("front" | "back")`), não por um campo separado.
 
-| Nº | Região | Vista | Tipo | Exercícios ligados |
-| --- | --- | --- | --- | --- |
-| 1 | Ombros (deltoides) | Anterior | Região | 13 |
-| 2 | Peitoral | Anterior | Grupo | 4 |
-| 3 | Bíceps braquial | Anterior | Grupo | 4 |
-| 4 | Antebraços | Anterior | Grupo | 3 |
-| 5 | Abdômen (reto abdominal) | Anterior | Grupo | 23 |
-| 6 | Oblíquos | Anterior | Grupo | 1 |
-| 7 | Flexores do quadril | Anterior | Região | 5 |
-| 8 | Quadríceps | Anterior | Grupo | 5 |
-| 9 | Membros inferiores (região geral) | Anterior | Região | 5 |
-| 1 | Costas (região superior) | Posterior | Região | 2 |
-| 2 | Dorsais (grande dorsal) | Posterior | Grupo | 5 |
-| 3 | Tríceps braquial | Posterior | Grupo | 5 |
-| 4 | Lombar | Posterior | Região | 6 |
-| 5 | Glúteos | Posterior | Grupo | 8 |
-| 6 | Posterior de coxa | Posterior | Grupo | 3 |
-| 7 | Panturrilha | Posterior | Grupo | 0 |
+| Região | Vista | Tipo | Exercícios ligados |
+| --- | --- | --- | --- |
+| Ombros (deltoides) | Anterior e posterior | Região | 13 |
+| Peitoral | Anterior | Grupo | 4 |
+| Bíceps braquial | Anterior | Grupo | 4 |
+| Antebraços | Anterior e posterior | Grupo | 3 |
+| Abdômen (reto abdominal) | Anterior | Grupo | 23 |
+| Oblíquos | Anterior | Grupo | 1 |
+| Flexores do quadril | Anterior | Região | 5 |
+| Quadríceps | Anterior | Grupo | 5 |
+| Membros inferiores (região geral) | Anterior e posterior | Região | 5 |
+| Costas (região superior) | Posterior | Região | 2 |
+| Dorsais (grande dorsal) | Posterior | Grupo | 5 |
+| Tríceps braquial | Posterior | Grupo | 5 |
+| Lombar | Posterior | Região | 6 |
+| Glúteos | Posterior | Grupo | 8 |
+| Posterior de coxa | Posterior | Grupo | 3 |
+| Panturrilha | Posterior | Grupo | 0 |
 
 Contagens calculadas a partir do catálogo atual (`F.atlas.exercisesFor`), não
 digitadas à mão. **Panturrilha está no mapa com zero exercícios** porque o
@@ -89,6 +125,38 @@ panturrilha.
 
 Comparação é feita **sem acentos e sem caixa** (`forja-catalogo.js`
 `normalizeText`), então "Bíceps", "biceps" e "BICEPS" são o mesmo grupo.
+
+### 2.1 Fluxo da página
+
+A página é centrada no exercício, não em um mapa clicável:
+
+1. **Exercício** — um seletor com os 37 exercícios sugeridos (agrupados por
+   modalidade) e seis atalhos para os movimentos mais reconhecíveis. Também
+   aceita link direto `?exercicio=cal-flexao`.
+2. **Regiões trabalhadas** — a mesma silhueta em duas vistas (anterior e
+   posterior), o resumo em texto, a legenda por papel e o link para a
+   biblioteca. Sem exercício escolhido, a figura fica neutra e a página mostra a
+   chave de cores em vez de inventar um destaque.
+3. **Explorar por grupo muscular** — 16 grupos com a contagem de exercícios do
+   catálogo; ao escolher um, a figura mostra o grupo em foco e a lista traz os
+   exercícios daquele grupo com o papel de cada um, filtráveis por modalidade
+   (`?grupo=peito&modalidade=calisthenics` também funciona por link).
+
+Consultar não escreve nada: a página lê o catálogo e o armazenamento local,
+nunca grava (ver `ATLAS 10`).
+
+### 2.2 Onde a figura aparece
+
+| Lugar | O que mostra |
+| --- | --- |
+| `explorar/atlas.html` | duas vistas + legenda completa do exercício escolhido |
+| `treino/biblioteca.html` (detalhe do exercício) | duas vistas + legenda curta, dentro do modal que já existia |
+| `treino/executar.html` (sessão ativa) | **uma** vista, compacta, do exercício atual, com o botão "Ver músculos trabalhados" |
+
+A mesma função (`F.atlas.figurePair`, `F.atlas.legendNode`,
+`F.atlas.attachToExecution`) é usada nos três lugares: não há desenho duplicado.
+Na execução, exercício sem classificação muscular simplesmente **não** mostra a
+figura — nada é inferido pelo nome.
 
 ---
 
@@ -131,7 +199,8 @@ Regras aplicadas no código (`normalizeRoles`, em `forja-catalogo.js`):
 
    O teste `ATLAS 5` falha se alguém editar `muscles` e esquecer `roles`.
 5. **A fonte de verdade é o catálogo.** O atlas não tem metadata própria: ele
-   lê `F.catalog.items()` e chama `F.atlas.roleFor(record, groupId)`.
+   lê `F.catalog.items()` e chama `F.atlas.highlightsFor(record)`, que devolve
+   `{ regiãoId: "primary" | "secondary" | "stabilizer" | "informed" }`.
 
 ### 3.2 Exercícios personalizados
 
@@ -141,7 +210,7 @@ obrigado** a ter metadados. O comportamento é:
 | Situação do item personalizado | No atlas |
 | --- | --- |
 | Sem `muscles` e sem `roles` | Não aparece em nenhuma região; continua normal na biblioteca |
-| Com `muscles` digitados (ex.: "peito") | Aparece na região correspondente com o selo **"Informado por você"** — sem alegar principal/secundário/estabilizador |
+| Com `muscles` digitados (ex.: "peito") | Aparece na região correspondente com contorno tracejado e o selo **"Informado por você"** — sem alegar principal/secundário/estabilizador |
 | Fora do mapa (ex.: "pescoço") | Não aparece em nenhuma região; permanece na biblioteca e na busca |
 
 Nenhuma classificação é inferida por nome de exercício, categoria ou
@@ -253,29 +322,26 @@ Observações de revisão que valem registro:
 
 ## 5. Requisitos → testes
 
-| Requisito (FORJA 3.1) | Onde é verificado |
+| Requisito | Onde é verificado |
 | --- | --- |
-| Página própria acessível pelo destino Explorar | `ATLAS 1` (jsdom), `ATLAS 1` valida `href="atlas.html"` no hub; E2E "Atlas: …" |
-| Visual Dark Performance e mobile-first desde 320 px | `ATLAS 11` (CSS/media queries), capturas reais em 320/360/390/430/768/1280, E2E "Sem rolagem horizontal…" |
-| Vistas anterior e posterior com alternância clara | `ATLAS 3` (jsdom) e E2E "Atlas: …" (9 → 7 regiões) |
-| Regiões selecionáveis com nomes em português | `ATLAS 1` (rótulos) e `ATLAS 2` |
-| Destaque visual da região selecionada | `ATLAS 2` (`is-selected`, `aria-pressed`) e `ATLAS 11` (CSS) |
-| Identificação sem depender só de cor | `ATLAS 1` (número visível + rótulo acessível), `ATLAS 2` (texto "selecionado" na legenda) |
-| Botão para limpar a seleção | `ATLAS 2` |
-| Estados de carregamento, vazio e erro acessíveis | `ATLAS 6` (vazio), `ATLAS 9` (`role="alert"`, retentativa), `ATLAS 11` (região `role="status"` de carregamento) |
-| Navegação por teclado e foco visível | `ATLAS 3` (Enter e setas), `ATLAS 11` (`:focus-visible`) |
-| `prefers-reduced-motion` | `ATLAS 11` |
-| Nome + modalidade do exercício na lista | `ATLAS 4` |
-| Principal, secundários e estabilizadores quando houver dados | `ATLAS 4` e `ATLAS 5` |
-| Abrir o detalhe na biblioteca | `ATLAS 7` (jsdom, link real → modal) e E2E |
-| Filtrar por calistenia/musculação | `ATLAS 4` |
-| Mensagem honesta quando não há exercícios | `ATLAS 6` e `ATLAS 4` (vazio por filtro ≠ vazio por região) |
+| Silhueta humana proporcional, com volume (sem boneco palito) | `ATLAS 3` (11 partes do corpo, contorno em curvas, sem `rect`/`line`, sem `text`/`circle`), capturas em 320–1280 px |
+| Vistas anterior e posterior, ambas com a mesma figura | `ATLAS 1` (duas células `data-view`), `ATLAS 3` (mesma contagem de partes) |
+| Destaque por região com cores por papel + legenda curta | `ATLAS 2` (peitoral principal, tríceps/ombros secundários, abdômen estabilizador), `ATLAS 11` (CSS das três cores) |
+| Sem números no corpo nem círculos sobrepostos | `ATLAS 2` e E2E ("0 `text`/`circle` dentro do SVG") |
+| Exemplo exigido: flexão de braço | `ATLAS 2` e `ATLAS 5` (`highlightsFor`) |
+| Identificação sem depender só de cor | `ATLAS 2` (papel escrito na legenda + resumo com `aria-live`), `ATLAS 3` (`aria-label` por vista) |
+| Teclado, foco visível e `prefers-reduced-motion` | `ATLAS 3` (clique/Enter na figura interativa), `ATLAS 11` (`:focus-visible`, media query) |
+| Visualização vinculada ao exercício escolhido | `ATLAS 2` (seletor e atalhos) e `ATLAS 9` (**link direto `?exercicio=`**) |
+| Reuso na biblioteca | `ATLAS 7` (link da legenda + figura no modal do detalhe) e E2E |
+| Reuso na execução | `ATLAS 11` (bloco `#execution-figure` e botão de detalhes) e E2E "Iniciar rotina…" (figura aparece e some sem metadados) |
+| Explorar por grupo com papéis explícitos | `ATLAS 4` (filtro por modalidade) e `ATLAS 5` (contagens e papéis) |
+| Mensagem honesta quando não há exercícios | `ATLAS 6` (grupo sem exercícios) e `ATLAS 4` (vazio por filtro ≠ vazio por grupo) |
 | Modelo explícito de principais/secundários/estabilizadores | `ATLAS 5` (máx. 2 principais, sem repetição de nível, grupos existentes) |
 | Exercício personalizado sem metadados | `ATLAS 8` |
-| Nomes de grupo consistentes / sem promessa de resultado | `ATLAS 5` + revisão da seção 4 |
-| Preservação de chaves e fluxos de armazenamento | `ATLAS 10` (comparação byte a byte do storage antes/depois) |
-| Sem `localStorage.clear()`, sem telemetria, sem dependência nova | `ATLAS 10` + `forja.test.mjs` teste 23 |
-| Ausência de erros de JavaScript | `assertNoErrors` em todos os testes jsdom + E2E "Nenhum erro de JavaScript…" |
+| Estados de carregamento e erro acessíveis | `ATLAS 1` (`role="status"`), `ATLAS 9` (`role="alert"` + retentativa) |
+| Responsivo de 320 a 1280 px | `ATLAS 11` (media queries), E2E "Sem rolagem horizontal…", `tools/capturas-atlas.mjs` |
+| Preservação de chaves, rotinas e histórico | `ATLAS 10` (comparação byte a byte do storage antes/depois) |
+| Sem `localStorage.clear()`, sem telemetria, sem dependência nova | `ATLAS 10` + `forja.test.mjs` 23 |
 | Barra inferior com cinco destinos preservada | `ATLAS 1`, `forja.test.mjs` 43 e 44 |
 
 ---
@@ -293,8 +359,12 @@ node tools/capturas-atlas.mjs
 `tools/capturas-atlas.mjs` gera as imagens em `artifacts/forja-visual/`
 (`atlas-inicial-390.png`, `atlas-320.png`…`atlas-1280.png`,
 `atlas-posterior-390.png`, `atlas-vazio-390.png`, `atlas-filtro-vazio-390.png`,
-`atlas-erro-390.png`, `atlas-selecionado-1280.png`) e imprime a medição de
-rolagem horizontal por largura em cada estado.
+`atlas-erro-390.png`, `atlas-selecionado-1280.png`) e imprime, por largura, a
+quantidade de figuras, a largura da figura, o número de destaques e a rolagem
+horizontal de cada estado.
+
+As capturas do **modelo antigo** (marcadores numerados) foram preservadas em
+`artifacts/forja-visual/antigo/atlas-*-antigo.png` para comparação direta.
 
 Se o Chromium empacotado não iniciar por falta de bibliotecas do sistema
 (`libnss3`/`libnspr4`), extraia as bibliotecas de
@@ -304,38 +374,50 @@ Se o Chromium empacotado não iniciar por falta de bibliotecas do sistema
 ```bash
 node -e "const fs=require('fs'),z=require('zlib');fs.writeFileSync('/tmp/al2023.tar',z.brotliDecompressSync(fs.readFileSync('node_modules/@sparticuz/chromium/bin/al2023.tar.br')))"
 mkdir -p /tmp/libs && tar -xf /tmp/al2023.tar -C /tmp/libs
-LD_LIBRARY_PATH=/tmp/libs/lib npm run test:e2e
+LD_LIBRARY_PATH=/tmp/libs/lib PUPPETEER_EXECUTABLE_PATH=/tmp/chromium npm run test:e2e
 ```
 
 ### Roteiro manual (o mesmo que os testes automatizam)
 
 1. Abrir `explorar/` e tocar em **Atlas muscular**.
-2. Tocar no marcador 2 (Peitoral): painel mostra nome, região, contagem e lista.
-3. Alternar **Vista posterior**: a seleção é limpa e a legenda muda para 7 itens.
-4. Selecionar **Panturrilha**: mensagem de "nenhum exercício para esta região".
-5. Selecionar **Antebraços** e filtrar **Calistenia**: mensagem de vazio por
-   filtro, com botão para voltar a todas as modalidades.
-6. Em qualquer exercício, **Detalhes na biblioteca**: abre o detalhe daquele
-   exercício (o mesmo modal do botão "Detalhes" da biblioteca).
-7. Percorrer o mapa só com Tab e setas; conferir o anel de foco em cada região.
-8. Ativar redução de movimento no sistema e confirmar que nada anima.
+2. Escolher **Flexão de braço** no seletor (ou no atalho): o peitoral fica
+   verde, tríceps e ombros em âmbar, abdômen em azul; a legenda repete os papéis
+   por extenso.
+3. Trocar para **Barra fixa**: os destaques passam para dorsais (posterior) e
+   bíceps (anterior).
+4. Em **Explorar por grupo**, tocar em **Panturrilha**: mensagem de "nenhum
+   exercício para este grupo".
+5. Tocar em **Antebraços** e filtrar **Calistenia**: vazio por filtro, com botão
+   para voltar a todas as modalidades.
+6. Na legenda, tocar na seta de **Peitoral**: abre a biblioteca já filtrada.
+   Abrir o exercício: o detalhe mostra a mesma figura.
+7. Iniciar uma rotina com exercício do catálogo: a execução mostra a figura
+   compacta do exercício atual e o botão **Ver músculos trabalhados**.
+8. Percorrer a página só com Tab; conferir o anel de foco. Ativar redução de
+   movimento no sistema e confirmar que nada anima.
 
 ---
 
 ## 7. O que ficou de fora (limitações do pacote 3.1)
 
-- **Precisão anatômica ilustrada.** O mapa é esquemático por decisão; um desenho
-  anatômico detalhado exige ilustrador ou licença verificável, e continua como
-  próximo passo de produto (ver `docs/forja-2.0-refresh.md`, §5).
+- **Precisão anatômica ilustrada.** A silhueta tem volume e proporções
+  coerentes, mas é um esquema: não há músculos individualizados, sombreamento
+  nem vistas laterais. Um desenho anatômico detalhado exigiria ilustrador ou
+  licença verificável e continua como próximo passo de produto (ver
+  `docs/forja-2.0-refresh.md`, §5).
 - **Revisão por profissional de educação física.** A classificação
   principal/secundário/estabilizador foi feita com base no movimento descrito e
   segue as regras da seção 3, mas não passou por revisão formal de um
   profissional. A estrutura `roles` existe exatamente para permitir essa revisão
   sem tocar em código de tela.
-- **Regiões sem exercícios.** Panturrilha aparece no mapa sem nenhum exercício
+- **Regiões sem exercícios.** Panturrilha aparece na figura sem nenhum exercício
   associado; oblíquos tem apenas um. A correção disso é aumentar o catálogo, não
   reclassificar exercícios existentes.
 - **Vistas laterais e subdivisões musculares** (porções do peitoral e do
   deltoide, glúteo médio, adutores) não existem nesta versão.
-- **Busca por grupo no atlas** não foi adicionada: a biblioteca já tem filtro por
-  grupo muscular e busca textual; o atlas trabalha por seleção no mapa.
+- **Figura interativa na página do atlas.** O módulo suporta regiões clicáveis
+  (`F.figura.render({ interactive: true })`, coberto por `ATLAS 3`), mas o fluxo
+  atual prefere o seletor de exercícios e os chips de grupo — duplicar a seleção
+  na figura só aumentaria a superfície de erro.
+- **Execução com duas vistas.** Para não competir com o registro da série, a
+  sessão ativa mostra uma vista; a segunda fica no modal de detalhes.

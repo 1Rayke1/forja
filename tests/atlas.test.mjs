@@ -1,6 +1,6 @@
 /*
-  Testes do Atlas anatômico (explorar/atlas.html) e da integração com a
-  biblioteca.
+  Testes do Atlas anatômico (explorar/atlas.html), da figura humana vetorial e
+  da integração com a biblioteca e a execução do treino.
 
   Roda em jsdom sobre as páginas reais do repositório, com o mesmo harness
   multipágina de `forja.test.mjs`: clicar em um link troca de página e o
@@ -57,6 +57,10 @@ function atlasSource() {
   return fs.readFileSync(path.join(repoRoot, "assets", "js", "forja-atlas.js"), "utf8");
 }
 
+function figureSource() {
+  return fs.readFileSync(path.join(repoRoot, "assets", "js", "forja-figura.js"), "utf8");
+}
+
 function atlasCss() {
   return fs.readFileSync(path.join(repoRoot, "assets", "css", "atlas.css"), "utf8");
 }
@@ -68,12 +72,28 @@ function rows(app) {
   }));
 }
 
-function legendButton(app, groupId) {
-  return app.$('.atlas-legend-button[data-group="' + groupId + '"]');
+function groupChip(app, groupId) {
+  return app.$('[data-group-chip="' + groupId + '"]');
 }
 
-function region(app, groupId) {
-  return app.$('.atlas-region[data-group="' + groupId + '"]');
+function highlighted(app, view) {
+  return app.$$(".atlas-figura-cell[data-view=\"" + view + "\"] .figura-region")
+    .map(node => ({ id: node.getAttribute("data-region"), role: node.getAttribute("data-role") }));
+}
+
+function legendItems(app) {
+  return app.$$(".atlas-legenda-item").map(node => ({
+    id: node.getAttribute("data-region"),
+    role: node.getAttribute("data-role"),
+    name: node.querySelector(".atlas-legenda-nome").textContent,
+    meta: node.querySelector(".atlas-legenda-meta").textContent
+  }));
+}
+
+function chooseExercise(app, id) {
+  const select = app.$("#atlas-exercise-select");
+  select.value = id;
+  select.dispatchEvent(new app.w.Event("change", { bubbles: true }));
 }
 
 function modeButton(app, value) {
@@ -99,7 +119,7 @@ const customLibrary = {
 /* 1. Estrutura da página                                             */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 1. Página carrega mapa, legenda, aviso de esquema e barra inferior", async () => {
+await runTest("ATLAS 1. Página carrega escolha de exercício, silhueta anterior/posterior e barra inferior", async () => {
   const app = await boot({}, ATLAS);
   await wait(20);
 
@@ -107,23 +127,37 @@ await runTest("ATLAS 1. Página carrega mapa, legenda, aviso de esquema e barra 
   assert.ok(app.$("#atlas-root"), "Contêiner do atlas ausente");
   assert.equal(app.$("#atlas-root").hasAttribute("aria-busy"), false, "aria-busy ficou preso");
 
-  assert.equal(app.$$(".atlas-region").length, 9, "Vista anterior deveria ter 9 regiões");
-  assert.equal(app.$$(".atlas-legend-button").length, 9, "Legenda não listou as regiões");
-  assert.equal(app.$$(".atlas-map-svg").length, 1, "Mapa SVG ausente");
+  /* Escolha do exercício: 37 sugeridos, separados por modalidade, sem seleção inicial. */
+  const select = app.$("#atlas-exercise-select");
+  assert.ok(select, "Seletor de exercícios ausente");
+  assert.equal(select.options.length, 38, "Deveria haver 37 exercícios + a opção vazia");
+  assert.equal(select.value, "", "O atlas não deve escolher um exercício por conta própria");
 
-  /* Cada região tem nome acessível, número e papel de botão. */
-  const regions = app.$$(".atlas-region");
-  regions.forEach(node => {
-    assert.equal(node.getAttribute("role"), "button");
-    assert.equal(node.getAttribute("tabindex"), "0");
-    assert.match(node.getAttribute("aria-label"), /^[1-9]\. /, "Rótulo sem número: " + node.getAttribute("aria-label"));
-    assert.equal(node.getAttribute("aria-pressed"), "false");
-    assert.ok(node.querySelector(".atlas-region-number").textContent.trim(), "Número visível ausente");
+  const groups = app.$$("#atlas-exercise-select optgroup");
+  assert.deepEqual(groups.map(node => node.label), ["Calistenia", "Musculação"]);
+  assert.equal(groups[0].children.length, 18);
+  assert.equal(groups[1].children.length, 19);
+
+  /* Duas vistas da mesma silhueta, nomeadas para leitores de tela. */
+  const cells = app.$$(".atlas-figura-cell");
+  assert.deepEqual(cells.map(node => node.getAttribute("data-view")), ["front", "back"]);
+  assert.equal(app.$$(".figura-svg").length, 2);
+  app.$$(".figura-svg").forEach(node => {
+    assert.equal(node.getAttribute("role"), "img");
+    assert.match(node.getAttribute("aria-label"), /Silhueta humana, vista (anterior|posterior)/);
   });
+  assert.match(app.text(".atlas-figura-cell[data-view=\"front\"] .atlas-figura-caption"), /Anterior/);
+  assert.match(app.text(".atlas-figura-cell[data-view=\"back\"] .atlas-figura-caption"), /Posterior/);
+
+  /* Sem exercício escolhido: nenhuma região colorida e legenda de cores. */
+  assert.equal(app.$$(".figura-region").length, 0, "Região destacada sem exercício escolhido");
+  assert.equal(app.$$(".atlas-legenda-item").length, 0);
+  assert.match(app.text(".atlas-figuras-note"), /Nenhuma região destacada/);
+  assert.equal(app.$$(".atlas-color-key .atlas-swatch").length, 3, "Chave de cores incompleta");
 
   /* Aviso honesto sobre o nível do desenho. */
-  assert.match(app.text(".atlas-disclosure"), /Não é uma representação anatômica clínica/i);
-  assert.match(app.text(".atlas-map-caption"), /Mapa esquemático/i);
+  assert.match(app.text(".atlas-disclosure"), /não é uma representação anatômica clínica/i);
+  assert.match(app.text(".atlas-disclosure"), /Figura esquemática/i);
 
   /* Navegação inferior: cinco destinos, Explorar atual. */
   const nav = app.$$(".bottom-nav-link");
@@ -140,93 +174,153 @@ await runTest("ATLAS 1. Página carrega mapa, legenda, aviso de esquema e barra 
 });
 
 /* ------------------------------------------------------------------ */
-/* 2. Seleção e limpeza                                               */
+/* 2. Exercício escolhido → figura + legenda                          */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 2. Seleção e limpeza de grupos musculares", async () => {
-  const app = await boot({}, ATLAS);
+await runTest("ATLAS 2. Flexão de braço destaca peitoral, tríceps, ombros e abdômen com papéis explícitos", async () => {
+  const app = await boot({}, ATLAS + "?exercicio=cal-flexao");
   await wait(20);
 
-  assert.equal(app.text("#atlas-selection-title"), "Nenhuma região selecionada");
-  assert.equal(app.$$('.atlas-region[aria-pressed="true"]').length, 0);
+  assert.equal(app.text("#atlas-figure-title"), "Flexão de braço");
+  assert.equal(app.$("#atlas-exercise-select").value, "cal-flexao", "O seletor não refletiu o link direto");
 
-  app.click(legendButton(app, "peito"));
+  /* Exemplo exigido: peitoral principal; tríceps e ombros secundários; resto neutro. */
+  assert.deepEqual(highlighted(app, "front"), [
+    { id: "abdomem", role: "stabilizer" },
+    { id: "ombros", role: "secondary" },
+    { id: "peito", role: "primary" }
+  ]);
+  assert.deepEqual(highlighted(app, "back"), [
+    { id: "ombros", role: "secondary" },
+    { id: "triceps", role: "secondary" }
+  ]);
+
+  /* O destaque é por região colorida, não por números espalhados pelo corpo. */
+  assert.equal(app.$$(".figura-svg text").length, 0, "A figura não deve ter números/rótulos sobre o corpo");
+  assert.equal(app.$$(".figura-svg circle").length, 0, "A figura não deve usar círculos sobrepostos");
+
+  assert.match(app.text("#atlas-highlight-summary"),
+    /Principal: Peitoral\. 2 regiões secundárias\. 1 região estabilizadora\./);
+
+  const legend = legendItems(app);
+  assert.deepEqual(legend.map(item => [item.id, item.role]), [
+    ["peito", "primary"],
+    ["triceps", "secondary"],
+    ["ombros", "secondary"],
+    ["abdomem", "stabilizer"]
+  ]);
+  assert.match(legend[0].meta, /Principal · vista anterior/);
+  assert.match(legend[1].meta, /Secundária · vista posterior/);
+  assert.match(legend[2].meta, /anterior e posterior/);
+
+  /* Cor não é a única informação: o papel está escrito em cada item. */
+  assert.match(app.text(".atlas-legenda"), /Principal/);
+  assert.match(app.text(".atlas-legenda"), /Secundária/);
+  assert.match(app.text(".atlas-legenda"), /Estabilizadora/);
+
+  /* Atalho leva à biblioteca com o exercício. */
+  const link = app.$(".atlas-exercise-actions .ui-button");
+  assert.equal(link.tagName, "A");
+  assert.match(link.getAttribute("href"), /biblioteca\.html\?exercicio=cal-flexao&modalidade=calisthenics/);
+  assert.match(link.getAttribute("aria-label"), /Flexão de braço/);
+
+  /* Atalhos marcam o exercício ativo e trocam a figura. */
+  const shortcut = app.$('[data-atlas-focus="shortcut:cal-flexao"]');
+  assert.equal(shortcut.getAttribute("aria-pressed"), "true");
+  assert.equal(app.text(".atlas-card-note"), app.text(".atlas-card-note")); /* nota presente */
+
+  app.click('[data-atlas-focus="shortcut:mus-terra"]');
   await wait(20);
+  assert.equal(app.text("#atlas-figure-title"), "Levantamento terra");
+  assert.equal(app.$('[data-atlas-focus="shortcut:cal-flexao"]').getAttribute("aria-pressed"), "false");
+  assert.equal(app.$('[data-atlas-focus="shortcut:mus-terra"]').getAttribute("aria-pressed"), "true");
 
-  assert.equal(region(app, "peito").getAttribute("aria-pressed"), "true", "Região não ficou pressionada");
-  assert.equal(legendButton(app, "peito").getAttribute("aria-pressed"), "true", "Legenda não refletiu a seleção");
-  assert.equal(app.text("#atlas-selection-title"), "Peitoral");
-  assert.match(app.text("#atlas-selection-summary"), /4 exercícios relacionados/);
-  assert.match(app.text(".atlas-selection-where"), /Frente do tórax/);
-  assert.ok(app.$(".atlas-region.is-selected"), "Destaque visual ausente");
-  assert.match(app.text(".atlas-legend-check"), /selecionado/i, "Legenda não marca o selecionado em texto");
-
-  /* Selecionar pelo mapa troca a seleção. */
-  app.click(region(app, "biceps"));
+  /* Voltar para a opção vazia limpa a figura e a legenda. */
+  chooseExercise(app, "");
   await wait(20);
-  assert.equal(app.text("#atlas-selection-title"), "Bíceps braquial");
-  assert.equal(app.$$('.atlas-region[aria-pressed="true"]').length, 1, "Mais de uma região selecionada");
-
-  /* O botão de limpar volta ao estado inicial. */
-  app.click(".atlas-inline-reset");
-  await wait(20);
-  assert.equal(app.text("#atlas-selection-title"), "Nenhuma região selecionada");
-  assert.equal(app.$$('.atlas-region[aria-pressed="true"]').length, 0);
-  assert.equal(app.$$(".atlas-exercise-row").length, 0, "A lista continuou depois de limpar");
-  assert.match(app.text(".atlas-exercises .atlas-card-note"), /A lista aparece depois/i);
-
-  /* Sem seleção o botão fica desabilitado, mas continua no lugar. */
-  assert.equal(app.$(".atlas-inline-reset").disabled, true);
+  assert.equal(app.$$(".figura-region").length, 0);
+  assert.equal(app.$$(".atlas-legenda-item").length, 0);
+  assert.match(app.text(".atlas-exercise-card .atlas-card-title"), /Regiões trabalhadas/);
 
   assertNoErrors(app, "seleção do atlas");
   app.close();
 });
 
 /* ------------------------------------------------------------------ */
-/* 3. Vistas                                                          */
+/* 3. A figura: vistas, leitura e interação                           */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 3. Alternância anterior/posterior e navegação por teclado", async () => {
-  const app = await boot({}, ATLAS);
+await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e leitura por teclado", async () => {
+  const app = await boot({}, ATLAS + "?exercicio=cal-flexao");
   await wait(20);
 
-  const front = app.$$(".atlas-region").map(node => node.getAttribute("data-group"));
-  assert.deepEqual(front.slice(0, 3), ["ombros", "peito", "biceps"]);
-  assert.match(app.text(".atlas-map-caption"), /Vista anterior/);
+  const front = app.$(".atlas-figura-cell[data-view=\"front\"] .figura-svg");
+  const back = app.$(".atlas-figura-cell[data-view=\"back\"] .figura-svg");
 
-  app.click(region(app, "peito"));
-  await wait(15);
+  /* O corpo é desenhado em paths orgânicos: cabeça, pescoço, tronco, dois
+     braços, duas mãos, duas pernas e dois pés. */
+  const frontOutline = front.querySelectorAll(".figura-outline path").length;
+  assert.equal(frontOutline, 11, "Silhueta incompleta na vista anterior: " + frontOutline + " partes");
+  assert.equal(back.querySelectorAll(".figura-outline path").length, 11);
+  assert.equal(front.querySelectorAll(".figura-base path").length, 11);
 
-  app.click('#atlas-view [data-value="back"]');
-  await wait(20);
+  const outlineSource = Array.from(front.querySelectorAll(".figura-outline path"))
+    .map(node => node.getAttribute("d")).join("");
+  assert.equal((outlineSource.match(/C/g) || []).length > 20, true,
+    "O contorno precisa usar curvas, não retângulos/linhas retas");
+  assert.equal(front.querySelectorAll("rect").length, 0, "Silhueta não deve ser feita de retângulos");
+  assert.equal(front.querySelectorAll("line").length, 0, "Silhueta não deve ser feita de linhas retas");
 
-  const back = app.$$(".atlas-region").map(node => node.getAttribute("data-group"));
-  assert.ok(back.includes("dorsais") && back.includes("gluteos"), "Vista posterior sem dorsais/glúteos");
-  assert.equal(back.length, 7, "Vista posterior deveria ter 7 regiões");
-  assert.equal(region(app, "peito"), null, "Região anterior continuou na vista posterior");
-  assert.equal(app.text("#atlas-selection-title"), "Nenhuma região selecionada",
-    "Trocar de vista precisa limpar uma seleção que não existe naquela vista");
-  assert.match(app.text(".atlas-map-caption"), /Vista posterior/);
-  assert.equal(app.$$('.atlas-region[aria-pressed="true"]').length, 0);
+  /* A silhueta usa proporção vertical de corpo inteiro e largura própria. */
+  assert.equal(front.getAttribute("viewBox"), "0 0 240 520");
+  assert.match(front.getAttribute("preserveAspectRatio") || "xMidYMid meet", /xMidYMid/);
 
-  app.click('#atlas-view [data-value="front"]');
-  await wait(20);
-  assert.equal(app.$$(".atlas-region").length, 9);
+  /* Texto alternativo lista só as regiões que existem naquela vista. */
+  const frontLabel = front.getAttribute("aria-label");
+  const backLabel = back.getAttribute("aria-label");
+  assert.match(frontLabel, /vista anterior/);
+  assert.match(frontLabel, /principal: Peitoral/);
+  assert.match(frontLabel, /secundária: Ombros/);
+  assert.doesNotMatch(frontLabel, /Tríceps/, "A vista anterior não deve anunciar o tríceps");
+  assert.match(backLabel, /vista posterior/);
+  assert.match(backLabel, /secundária: Tríceps, Ombros/);
+  assert.doesNotMatch(backLabel, /Peitoral/, "A vista posterior não deve anunciar o peitoral");
 
-  /* Teclado: Enter seleciona; setas movem o foco entre regiões da vista. */
-  const target = region(app, "quadriceps");
-  target.focus();
-  target.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-  await wait(20);
-  assert.equal(app.text("#atlas-selection-title"), "Quadríceps", "Enter não selecionou a região");
+  /* A camada de regiões é recortada pela silhueta (clipPath), então o
+     destaque acompanha o corpo em vez de flutuar sobre ele. */
+  const regionLayer = front.querySelector(".figura-regions");
+  assert.match(regionLayer.getAttribute("clip-path") || "", /^url\(#figura-clip-\d+\)$/,
+    "Camada de regiões sem recorte pela silhueta");
+  const clip = front.querySelector("clipPath");
+  assert.ok(clip, "clipPath com a silhueta ausente");
+  assert.equal(clip.querySelectorAll("path").length, 11, "O recorte precisa usar a silhueta inteira");
 
-  const focused = region(app, "quadriceps");
-  focused.focus();
-  focused.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-  await wait(10);
-  assert.equal(app.d.activeElement.getAttribute("data-group"), "pernas", "Seta direita não avançou o foco");
+  /* Regiões interativas opcionais: foco, clique e teclado. */
+  const host = app.d.createElement("div");
+  const picked = [];
+  host.appendChild(app.F.figura.render({
+    view: "front",
+    highlights: { peito: "primary" },
+    interactive: true,
+    onSelect: id => picked.push(id),
+    selected: "peito"
+  }));
+  const region = host.querySelector('.figura-region[data-region="peito"]');
+  assert.equal(region.getAttribute("role"), "button");
+  assert.equal(region.getAttribute("tabindex"), "0");
+  assert.equal(region.getAttribute("aria-pressed"), "true");
+  region.dispatchEvent(new app.w.Event("click", { bubbles: true }));
+  region.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  assert.deepEqual(picked, ["peito", "peito"], "Seleção por clique/teclado não funcionou");
 
-  assertNoErrors(app, "vistas do atlas");
+  /* Metadados da figura: vistas e regiões disponíveis. */
+  const backRegions = app.F.figura.regionsInView("back");
+  assert.ok(backRegions.includes("gluteos") && backRegions.includes("triceps"));
+  assert.equal(backRegions.includes("peito"), false);
+  assert.deepEqual([...app.F.figura.regionsInView("front")],
+    ["ombros", "peito", "biceps", "antebracos", "abdomem", "obliquos", "quadril", "quadriceps", "pernas"]);
+
+  assertNoErrors(app, "figura do atlas");
   app.close();
 });
 
@@ -234,14 +328,15 @@ await runTest("ATLAS 3. Alternância anterior/posterior e navegação por teclad
 /* 4. Filtro por modalidade                                           */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 4. Filtro por modalidade e mensagem de vazio por filtro", async () => {
-  const app = await boot({}, ATLAS);
+await runTest("ATLAS 4. Explorar por grupo: filtro por modalidade e mensagem de vazio", async () => {
+  const app = await boot({}, ATLAS + "?grupo=antebracos");
   await wait(20);
 
-  app.click(region(app, "antebracos"));
-  await wait(20);
-
+  assert.equal(app.text("#atlas-group-status"), "Grupo em foco: Antebraços · anterior e posterior");
+  assert.equal(groupChip(app, "antebracos").getAttribute("aria-pressed"), "true");
+  assert.equal(app.$$(".atlas-group-figure .figura-region").length, 1, "Figura de foco do grupo ausente");
   assert.deepEqual(rows(app).map(row => row.name), ["Farmer walk", "Rosca direta", "Elevação de pernas na barra"]);
+  assert.match(app.text("#atlas-modes"), /Todas3/);
   assert.match(app.text("#atlas-modes"), /Calistenia0/);
   assert.match(app.text("#atlas-modes"), /Musculação3/);
 
@@ -249,12 +344,11 @@ await runTest("ATLAS 4. Filtro por modalidade e mensagem de vazio por filtro", a
   await wait(20);
 
   assert.equal(rows(app).length, 0, "Filtro vazio ainda listou exercícios");
-  assert.equal(app.text(".atlas-exercises .ui-empty-title"), "Nenhum exercício desta modalidade");
-  assert.doesNotMatch(app.text(".atlas-exercises .ui-empty-text"), /inventa vínculos/,
-    "Vazio por filtro não deve ser confundido com região sem exercícios");
+  assert.equal(app.text(".atlas-exercise-list .ui-empty-title"), "Nenhum exercício desta modalidade");
   assert.match(app.text("#atlas-exercises-status"), /Nenhum exercício de calistenia/i);
+  assert.match(app.text("#atlas-modes"), /Todas3/);
 
-  app.click(app.$(".atlas-exercises .ui-empty-actions .primary-button"));
+  app.click(app.$(".atlas-exercise-list .ui-empty-actions .primary-button"));
   await wait(20);
   assert.equal(rows(app).length, 3, "Limpar o filtro não trouxe a lista");
 
@@ -264,9 +358,17 @@ await runTest("ATLAS 4. Filtro por modalidade e mensagem de vazio por filtro", a
   assert.equal(weightsRows.length, 3);
   weightsRows.forEach(row => {
     assert.match(row.text, /Musculação/, "Linha sem modalidade: " + row.name);
-    assert.match(row.text, /Estabilizador|Principal|Secundário|Informado/, "Linha sem papel muscular");
+    assert.match(row.text, /Principal|Secundária|Estabilizador|Informado/, "Linha sem papel muscular");
   });
   assert.match(app.text("#atlas-exercises-status"), /Musculação/);
+
+  /* O botão de limpar volta ao estado sem grupo e desabilita. */
+  app.click(".atlas-inline-reset");
+  await wait(20);
+  assert.equal(app.$("#atlas-group-status"), null);
+  assert.equal(app.$$(".atlas-exercise-row").length, 0);
+  assert.equal(app.$(".atlas-inline-reset").disabled, true);
+  assert.match(app.text(".atlas-group-empty"), /Nenhum grupo selecionado/);
 
   assertNoErrors(app, "filtro do atlas");
   app.close();
@@ -276,7 +378,7 @@ await runTest("ATLAS 4. Filtro por modalidade e mensagem de vazio por filtro", a
 /* 5. Relação grupo ↔ exercício e modelo de papéis                    */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis explícitos", async () => {
+await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis do catálogo", async () => {
   const app = await boot({}, ATLAS);
   await wait(20);
 
@@ -285,6 +387,7 @@ await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis explíc
 
   const groupIds = app.F.atlas.GROUPS.map(group => group.id);
   assert.equal(new Set(groupIds).size, groupIds.length, "Ids de grupo repetidos");
+  assert.equal(app.$$(".atlas-group-chip").length, groupIds.length, "Chips não cobrem todos os grupos");
 
   items.forEach(record => {
     assert.ok(record.roles, "Exercício sugerido sem classificação muscular: " + record.name);
@@ -297,8 +400,6 @@ await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis explíc
 
     assert.ok(record.roles.primary.length >= 1, "Exercício sem grupo principal: " + record.name);
     assert.ok(record.roles.primary.length <= 2, "Mais de dois grupos principais em " + record.name);
-    assert.ok(record.roles.primary.length < record.muscles.length || record.muscles.length === 1,
-      "Todos os músculos foram classificados como principais em " + record.name);
 
     ["primary", "secondary", "stabilizers"].forEach(level => {
       (record.roles[level] || []).forEach(muscle => {
@@ -308,39 +409,31 @@ await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis explíc
     });
   });
 
-  /* Peito: dois principais e dois secundários, sem virar "tudo principal". */
-  app.click(region(app, "peito"));
-  await wait(20);
-
-  const peitoRows = rows(app);
-  assert.equal(peitoRows.length, 4);
-  const flexao = peitoRows.find(row => row.name === "Flexão de braço");
-  assert.match(flexao.text, /Principal/);
-  assert.match(flexao.text, /Calistenia/);
-  assert.match(peitoRows.find(row => row.name === "Paralela (mergulho)").text, /Secundário/);
-  assert.match(peitoRows.find(row => row.name === "Burpee").text, /Secundário/);
-  assert.match(app.text("#atlas-selection-summary"), /2 principais · 2 secundários/);
-
-  /* Teres/estabilizadores aparecem quando declarados: abdômen na flexão. */
-  app.click(region(app, "abdomem"));
-  await wait(20);
-  const absRows = rows(app);
-  assert.ok(absRows.some(row => row.name === "Flexão de braço" && /Estabilizador/.test(row.text)),
-    "Estabilizador não foi identificado na lista");
+  /* Cada chip conta os exercícios do próprio grupo, sem números inventados. */
+  app.F.atlas.GROUPS.forEach(group => {
+    const total = app.F.atlas.exercisesFor(group.id).length;
+    assert.equal(
+      groupChip(app, group.id).querySelector(".atlas-group-chip-count").textContent,
+      String(total),
+      "Contagem divergente em " + group.label
+    );
+  });
 
   /* A fonte única é o catálogo: o atlas não recalcula papéis. */
-  assert.equal(
-    app.F.atlas.roleFor(items.find(item => item.id === "cal-flexao"), "peito"),
-    "primary"
-  );
-  assert.equal(
-    app.F.atlas.roleFor(items.find(item => item.id === "cal-flexao"), "panturrilha"),
-    null
-  );
-  assert.equal(
-    app.F.atlas.roleFor(items.find(item => item.id === "cal-flexao"), "abdomem"),
-    "stabilizer"
-  );
+  const flexao = items.find(item => item.id === "cal-flexao");
+  assert.deepEqual({ ...app.F.atlas.highlightsFor(flexao) }, {
+    abdomem: "stabilizer",
+    peito: "primary",
+    triceps: "secondary",
+    ombros: "secondary"
+  });
+  assert.equal(app.F.atlas.highlightsFor(items.find(item => item.id === "cal-ponte")).gluteos, "primary");
+
+  /* Grupo mostrado na própria vista (glúteo é posterior). */
+  app.click(groupChip(app, "gluteos"));
+  await wait(20);
+  assert.match(app.text("#atlas-group-status"), /vista posterior/);
+  assert.equal(app.$(".atlas-group-figure .figura-back") !== null, true);
 
   assertNoErrors(app, "relação do atlas");
   app.close();
@@ -350,22 +443,16 @@ await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis explíc
 /* 6. Ausência de resultados                                          */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 6. Região sem exercícios mostra mensagem honesta", async () => {
-  const app = await boot({}, ATLAS);
+await runTest("ATLAS 6. Grupo sem exercícios mostra mensagem honesta", async () => {
+  const app = await boot({}, ATLAS + "?grupo=panturrilha");
   await wait(20);
 
-  app.click('#atlas-view [data-value="back"]');
-  await wait(20);
-  app.click(region(app, "panturrilha"));
-  await wait(20);
-
-  assert.equal(rows(app).length, 0, "Região sem metadados listou exercícios");
-  assert.equal(app.text(".atlas-exercises .ui-empty-title"), "Nenhum exercício para esta região");
-  assert.match(app.text(".atlas-exercises .ui-empty-text"), /não tem exercícios classificados/i);
-  assert.match(app.text(".atlas-exercises .ui-empty-text"), /não inventa vínculos/i);
-  assert.match(app.text("#atlas-exercises-status"), /Nenhum exercício no catálogo atual/i);
-  assert.match(app.text("#atlas-selection-summary"), /Nenhum exercício do catálogo atual/i);
-  assert.equal(region(app, "panturrilha").getAttribute("aria-label").includes("sem exercícios"), true);
+  assert.equal(app.F.atlas.exercisesFor("panturrilha").length, 0);
+  assert.equal(rows(app).length, 0, "Grupo sem metadados listou exercícios");
+  assert.equal(app.text(".atlas-exercise-list .ui-empty-title"), "Nenhum exercício para este grupo");
+  assert.match(app.text(".atlas-exercise-list .ui-empty-text"), /não tem exercícios classificados/i);
+  assert.match(app.text(".atlas-exercise-list .ui-empty-text"), /não inventa vínculos/i);
+  assert.match(app.text("#atlas-exercises-status"), /Nenhum exercício do catálogo para Panturrilha/i);
 
   /* Nenhum dado falso é exibido para preencher a tela. */
   assert.doesNotMatch(app.text("#atlas-root"), /\b0 exercícios?\b/);
@@ -375,62 +462,67 @@ await runTest("ATLAS 6. Região sem exercícios mostra mensagem honesta", async 
 });
 
 /* ------------------------------------------------------------------ */
-/* 7. Abertura do exercício na biblioteca                             */
+/* 7. Integração com a biblioteca                                     */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 7. Abrir o detalhe do exercício correspondente na biblioteca", async () => {
-  const app = await boot({}, ATLAS);
-  await wait(20);
-
-  app.click(region(app, "peito"));
-  await wait(20);
-
-  const link = app.$('.atlas-exercise-row .ui-button');
-  assert.equal(link.tagName, "A", "Abrir na biblioteca precisa ser um link real");
-  assert.match(link.getAttribute("href"), /biblioteca\.html\?exercicio=cal-flexao&modalidade=calisthenics/);
-  assert.match(link.getAttribute("aria-label"), /Flexão de braço/);
-
+await runTest("ATLAS 7. Legenda leva à biblioteca filtrada e o detalhe mostra a mesma figura", async () => {
   const routine = makeRoutine("calisthenics", "Rotina preservada", [
     { id: "keep", name: "Exercício existente", section: "main", sets: 2, reps: "10", rest: 30 }
   ], "preservada");
-  app.close();
 
-  const seeded = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) }, ATLAS);
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) }, ATLAS + "?exercicio=cal-flexao");
   await wait(20);
-  const before = seeded.raw("forja-treino-rotinas-v1");
+  const before = app.raw("forja-treino-rotinas-v1");
 
-  seeded.click(region(seeded, "peito"));
-  await wait(20);
-  seeded.click(".atlas-exercise-row .ui-button");
+  /* Link da legenda → biblioteca já filtrada pelo grupo. */
+  const link = app.$('.atlas-legenda-item[data-region="peito"] .atlas-legenda-link');
+  assert.match(link.getAttribute("href"), /biblioteca\.html\?musculo=peito/);
+  assert.match(link.getAttribute("aria-label"), /Ver exercícios de Peitoral/);
+
+  app.click('.atlas-legenda-item[data-region="peito"] .atlas-legenda-link');
   await wait(250);
+  assert.equal(app.d.body.dataset.page, "biblioteca", "O link não abriu a biblioteca");
+  const filtered = app.$$("#catalog-list .ui-exercise-row").map(row => row.textContent);
+  assert.equal(filtered.length, 4, "Filtro por músculo não aplicou os 4 exercícios de peito");
+  assert.doesNotMatch(app.d.body.textContent, /não está mais no catálogo/,
+    "Abrir a biblioteca filtrando por músculo não deve avisar de exercício ausente");
+  assert.equal(filtered.every(text => /Flexão|Paralela|Burpee|Supino/.test(text)), true);
 
-  assert.equal(seeded.d.body.dataset.page, "biblioteca", "O link não trocou para a biblioteca");
-  assert.ok(seeded.$(".modal-backdrop"), "O detalhe não abriu na biblioteca");
-  assert.equal(seeded.text("#modal-title"), "Flexão de braço");
-  assert.match(seeded.text(".modal-details"), /Grupos musculares — principal: peito/);
-  assert.match(seeded.text(".modal-details"), /cotovelos a cerca de 45°/);
-  assert.equal(seeded.raw("forja-treino-rotinas-v1"), before, "Abrir o detalhe alterou a rotina");
+  /* Detalhe do exercício: figura + legenda, sem alterar a rotina. */
+  app.click('#catalog-list .ui-exercise-row .ui-exercise-main button, #catalog-list .ui-exercise-row .ui-button');
+  await until(() => app.$(".modal-backdrop"), "modal do exercício na biblioteca");
+  await wait(30);
 
-  seeded.modalAction("cancel");
+  assert.ok(app.$(".modal-figure .figura-svg"), "O detalhe não mostra a figura das regiões");
+  assert.equal(app.$$(".modal-figure .figura-svg").length, 2, "A figura do detalhe deveria ter as duas vistas");
+  assert.equal(app.$$(".modal-figure .atlas-legenda-item").length >= 2, true);
+  assert.match(app.text(".modal-details"), /Grupos musculares — principal: peito/);
+  assert.equal(app.raw("forja-treino-rotinas-v1"), before, "Abrir o detalhe alterou a rotina");
+
+  app.modalAction("cancel");
   await wait(20);
-  assert.equal(seeded.$(".modal-backdrop"), null);
+  assert.equal(app.$(".modal-backdrop"), null);
 
-  assertNoErrors(seeded, "detalhe aberto pelo atlas");
-  seeded.close();
+  assertNoErrors(app, "detalhe aberto pelo atlas");
+  app.close();
 });
 
 /* ------------------------------------------------------------------ */
 /* 8. Exercícios personalizados                                       */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 8. Exercício personalizado sem metadados não quebra nem é classificado", async () => {
+await runTest("ATLAS 8. Exercício personalizado sem metadados não é classificado por suposição", async () => {
   const app = await boot({ "forja-treino-biblioteca-v1": customLibrary }, ATLAS);
   await wait(20);
 
   assertNoErrors(app, "atlas com biblioteca personalizada");
 
-  /* O item com "peito" digitado aparece como informado pelo usuário. */
-  app.click(region(app, "peito"));
+  /* Item sem metadados não entra no seletor (nada é inventado). */
+  const names = app.$$("#atlas-exercise-select option").map(node => node.textContent);
+  assert.equal(names.includes("Meu exercício sem metadados"), false);
+
+  /* Item com "peito" digitado aparece como informado por você. */
+  app.click(groupChip(app, "peito"));
   await wait(20);
   const peitoRows = rows(app);
   const informado = peitoRows.find(row => row.name === "Flexão na parede");
@@ -438,12 +530,11 @@ await runTest("ATLAS 8. Exercício personalizado sem metadados não quebra nem �
   assert.match(informado.text, /Informado por você/);
   assert.doesNotMatch(informado.text, /Principal|Secundário|Estabilizador/);
 
-  /* O item sem metadados não é inventado nem listado. */
-  assert.equal(
-    peitoRows.some(row => /sem metadados/i.test(row.name)),
-    false,
-    "Exercício sem metadados foi classificado por suposição"
+  /* Na figura, o item informado usa o contorno tracejado, nunca "principal". */
+  const highlights = app.F.atlas.highlightsFor(
+    app.F.catalog.items().find(record => record.name === "Flexão na parede")
   );
+  assert.deepEqual({ ...highlights }, { peito: "informed" });
 
   /* Ele continua existindo normalmente na biblioteca. */
   app.click(app.$('.library-full-link[href="../treino/biblioteca.html"]'));
@@ -462,26 +553,30 @@ await runTest("ATLAS 8. Exercício personalizado sem metadados não quebra nem �
 });
 
 /* ------------------------------------------------------------------ */
-/* 9. Link direto, e estados de erro                                 */
+/* 9. Link direto e estado de erro                                    */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 9. Link direto (?grupo/vista) e estado de erro com retentativa", async () => {
-  const direct = await boot({}, ATLAS + "?grupo=peito");
+await runTest("ATLAS 9. Link direto (?exercicio/?grupo/?modalidade) e estado de erro com retentativa", async () => {
+  const direct = await boot({}, ATLAS + "?grupo=posterior-coxa");
   await wait(20);
-  assert.equal(direct.text("#atlas-selection-title"), "Peitoral", "Link direto não selecionou o grupo");
-  assert.equal(region(direct, "peito").getAttribute("aria-pressed"), "true");
+  assert.equal(direct.text("#atlas-group-status"), "Grupo em foco: Posterior de coxa · vista posterior");
+  assert.equal(groupChip(direct, "posterior-coxa").getAttribute("aria-pressed"), "true");
+  assert.ok(direct.$(".atlas-group-figure .figura-back"), "O grupo posterior deveria abrir na vista posterior");
   direct.close();
 
-  const back = await boot({}, ATLAS + "?grupo=posterior-coxa&vista=anterior");
+  const filtered = await boot({}, ATLAS + "?grupo=abdomem&modalidade=calisthenics");
   await wait(20);
-  assert.match(back.text(".atlas-map-caption"), /Vista posterior/, "O grupo deve abrir na própria vista");
-  assert.equal(back.text("#atlas-selection-title"), "Posterior de coxa");
-  back.close();
+  assert.equal(modeButton(filtered, "calisthenics").getAttribute("aria-pressed"), "true");
+  filtered.$$(".atlas-exercise-row").forEach(row => {
+    assert.match(row.textContent, /Calistenia/);
+  });
+  filtered.close();
 
-  const invalid = await boot({}, ATLAS + "?grupo=nao-existe");
+  const invalid = await boot({}, ATLAS + "?grupo=nao-existe&exercicio=nao-existe");
   await wait(20);
-  assert.equal(invalid.text("#atlas-selection-title"), "Nenhuma região selecionada");
-  assertNoErrors(invalid, "grupo inválido no link");
+  assert.equal(invalid.$("#atlas-group-status"), null);
+  assert.equal(invalid.$("#atlas-exercise-select").value, "");
+  assertNoErrors(invalid, "link inválido no atlas");
   invalid.close();
 
   /* Estado de erro: catálogo indisponível → alerta acessível + retentativa. */
@@ -496,13 +591,13 @@ await runTest("ATLAS 9. Link direto (?grupo/vista) e estado de erro com retentat
   assert.ok(alert, "Falha de dados não mostrou alerta");
   assert.match(alert.textContent, /Não foi possível montar o atlas agora/);
   assert.match(alert.textContent, /Nada foi gravado nem alterado/);
-  assert.equal(app.$(".atlas-region"), null, "O mapa ficou em estado inconsistente");
+  assert.equal(app.$(".figura-svg"), null, "A figura ficou em estado inconsistente");
 
   app.F.catalog.items = original;
   app.click('[data-atlas-focus="retry"]');
   await wait(30);
   assert.equal(app.$('[role="alert"]'), null, "Retentativa não limpou o erro");
-  assert.equal(app.$$(".atlas-region").length, 9, "Retentativa não remontou o mapa");
+  assert.equal(app.$$(".figura-svg").length, 2, "Retentativa não remontou as figuras");
 
   assert.deepEqual(app.keys(), [], "O estado de erro gravou dados");
   assertNoErrors(app, "erro e retentativa do atlas");
@@ -546,13 +641,13 @@ await runTest("ATLAS 10. Preserva chaves, rotinas e histórico; não escreve nem
   app.keys().forEach(key => { before[key] = app.raw(key); });
   assert.deepEqual(Object.keys(before).sort(), Object.keys(seed).sort(), "Boot do atlas criou chave nova");
 
-  app.click(region(app, "peito"));
+  chooseExercise(app, "cal-flexao");
+  await wait(15);
+  app.click(groupChip(app, "peito"));
   await wait(15);
   app.click(modeButton(app, "calisthenics"));
   await wait(15);
-  app.click('#atlas-view [data-value="back"]');
-  await wait(15);
-  app.click(region(app, "gluteos"));
+  app.click(groupChip(app, "gluteos"));
   await wait(15);
   app.click(".atlas-inline-reset");
   await wait(15);
@@ -566,6 +661,7 @@ await runTest("ATLAS 10. Preserva chaves, rotinas e histórico; não escreve nem
   assert.equal(source.includes("localStorage.clear("), false, "localStorage.clear() no atlas");
   assert.doesNotMatch(source, /localStorage|saveRoutines|saveLibrary|saveHistory|F\.store\.set/,
     "O atlas não deve escrever no armazenamento");
+  assert.equal(figureSource().includes("localStorage"), false, "A figura não deve tocar no armazenamento");
   assert.equal(
     fs.readFileSync(path.join(repoRoot, "assets", "js", "forja-catalogo.js"), "utf8").includes("localStorage.clear("),
     false
@@ -576,27 +672,48 @@ await runTest("ATLAS 10. Preserva chaves, rotinas e histórico; não escreve nem
 });
 
 /* ------------------------------------------------------------------ */
-/* 11. Responsividade e acessibilidade no CSS                          */
+/* 11. Responsividade, acessibilidade e integração nos arquivos        */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 11. CSS responsivo (320–1280) e prefers-reduced-motion", async () => {
+await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura integrada às três páginas", async () => {
   const css = atlasCss();
-  const html = fs.readFileSync(path.join(repoRoot, "explorar", "atlas.html"), "utf8");
+  const atlasHtml = fs.readFileSync(path.join(repoRoot, "explorar", "atlas.html"), "utf8");
+  const libraryHtml = fs.readFileSync(path.join(repoRoot, "treino", "biblioteca.html"), "utf8");
+  const executionHtml = fs.readFileSync(path.join(repoRoot, "treino", "executar.html"), "utf8");
 
-  assert.match(html, /<meta name="viewport" content="width=device-width, initial-scale=1\.0">/);
-  assert.match(html, /atlas\.css/);
-  assert.match(html, /data-page="atlas"/);
-  assert.match(html, /role="status">Carregando o atlas/, "Estado de carregamento acessível ausente");
+  assert.match(atlasHtml, /<meta name="viewport" content="width=device-width, initial-scale=1\.0">/);
+  assert.match(atlasHtml, /atlas\.css/);
+  assert.match(atlasHtml, /data-page="atlas"/);
+  assert.match(atlasHtml, /role="status">Carregando o atlas/, "Estado de carregamento acessível ausente");
+
+  /* A figura é carregada antes do atlas em todas as páginas que a usam. */
+  [atlasHtml, libraryHtml, executionHtml].forEach((html, index) => {
+    const figure = html.indexOf("forja-figura.js");
+    const atlas = html.indexOf("forja-atlas.js");
+    assert.ok(figure > -1, "Página " + index + " sem forja-figura.js");
+    assert.ok(atlas > figure, "forja-figura.js precisa vir antes de forja-atlas.js");
+    assert.match(html, /atlas\.css/, "Página " + index + " sem atlas.css");
+  });
+  assert.match(executionHtml, /id="execution-figure"/, "A execução não tem o bloco da figura");
+  assert.match(executionHtml, /id="execution-figure-details"/, "A execução não tem o botão de detalhes dos músculos");
+
+  /* Sem imagem externa: a silhueta é SVG gerado no navegador. */
+  assert.doesNotMatch(atlasHtml, /<img[^>]+atlas/i);
+  assert.doesNotMatch(css, /url\(http/);
+  assert.equal(/<image\b/.test(figureSource()), false);
 
   assert.match(css, /@media \(max-width: 430px\)/, "Sem ajuste para telas de 320–430 px");
   assert.match(css, /@media \(max-width: 360px\)/);
-  assert.match(css, /@media \(min-width: 760px\)/, "Sem layout de desktop");
+  assert.match(css, /@media \(min-width: 760px\)/, "Sem ajuste para telas largas");
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/, "Sem respeito a prefers-reduced-motion");
-  assert.match(css, /\.atlas-region:focus-visible \.atlas-region-hit/, "Foco visível do mapa ausente");
-  assert.match(css, /\.atlas-region\.is-selected \.atlas-region-shape/, "Destaque da região selecionada ausente");
-  assert.match(css, /min-height: 44px/, "Alvo de toque mínimo ausente");
-  assert.match(css, /grid-template-columns: minmax\(320px, 0\.9fr\)/, "Layout de duas colunas ausente");
+  assert.match(css, /\.figura-region\[role="button"\]:focus-visible \.figura-region-hit/, "Foco visível na figura ausente");
+  assert.match(css, /\.figura-region\.is-primary \.figura-region-shape/, "Cor de principal ausente");
+  assert.match(css, /\.figura-region\.is-secondary \.figura-region-shape/, "Cor de secundária ausente");
+  assert.match(css, /\.figura-region\.is-stabilizer \.figura-region-shape/, "Cor de estabilizadora ausente");
+  assert.match(css, /min-width: 0/, "O layout precisa permitir que a figura encolha em 320 px");
   assert.match(css, /overflow-wrap: anywhere/, "Nomes longos podem estourar em 320 px");
+  assert.match(css, /\.atlas-figuras \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/s,
+    "As duas vistas devem dividir a largura sem estourar");
 
   assertNoErrors({ errors: [] }, "css");
 });

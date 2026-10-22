@@ -695,11 +695,30 @@
     if (record.mode === "weights" && record.load) lines.push("Carga de referência digitada: " + record.load);
     lines.push(historyLine(record));
 
+    const details = linesNode(lines,
+      "Nenhuma instrução salva para este exercício. Ao criar um item personalizado você pode escrever o passo a passo e ele aparece aqui.");
+
+    /*
+      Figura das regiões trabalhadas (mesma peça do atlas). Só entra quando o
+      módulo do atlas está carregado e o exercício tem classificação — nada é
+      desenhado por suposição.
+    */
+    if (F.atlas && F.atlas.figurePair) {
+      const highlights = F.atlas.highlightsFor(record);
+
+      if (Object.keys(highlights).length > 0) {
+        const figure = document.createElement("div");
+        figure.className = "modal-figure";
+        figure.appendChild(F.atlas.figurePair(highlights));
+        figure.appendChild(F.atlas.legendNode(highlights, { compact: true }));
+        details.insertBefore(figure, details.firstChild);
+      }
+    }
+
     const result = await F.showModal({
       title: record.name,
       message: F.catalog.summary(record),
-      details: linesNode(lines,
-        "Nenhuma instrução salva para este exercício. Ao criar um item personalizado você pode escrever o passo a passo e ele aparece aqui."),
+      details,
       fields: [{
         id: "section",
         label: "Adicionar na seção",
@@ -1052,6 +1071,8 @@
   }
 
   async function openRequestedExercise(id) {
+    if (!id) return;
+
     const record = findRecord(id);
 
     if (!record) {
@@ -1068,11 +1089,21 @@
 
     if (MODES.indexOf(mode) !== -1) state.mode = mode;
 
+    /* `?musculo=peito` chega dos links do atlas (legenda de regiões). */
+    const muscle = params.get("musculo");
+    if (muscle) {
+      const known = F.catalog.items().some(record =>
+        record.muscles.some(name => normalizeText(name) === normalizeText(muscle)));
+      if (known) state.muscle = muscle;
+    }
+
     mount();
     update();
     F.onDataChanged(() => update());
 
-    /* `?exercicio=<id>` abre o detalhe depois que a lista está montada. */
-    openRequestedExercise(params.get("exercicio"));
+    /* `?exercicio=<id>` abre o detalhe depois que a lista está montada.
+       Sem esse parâmetro (ex.: `?musculo=peito` vindo do atlas), nada abre. */
+    const requested = params.get("exercicio");
+    if (requested) openRequestedExercise(requested);
   };
 })(window);

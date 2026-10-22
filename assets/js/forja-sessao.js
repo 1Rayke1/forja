@@ -1343,6 +1343,40 @@
     banner.hidden = false;
   }
 
+  /*
+    Figura das regiões trabalhadas dentro da execução. Usa a mesma peça do
+    atlas (`F.atlas.attachToExecution`) e some sem drama quando o exercício não
+    tem classificação muscular — a sessão continua idêntica.
+  */
+  function renderExerciseFigure(exercise) {
+    const box = byId("execution-figure");
+    const body = byId("execution-figure-body");
+    if (!box || !body) return;
+
+    if (!F.atlas || !F.atlas.attachToExecution) {
+      box.hidden = true;
+      return;
+    }
+
+    F.atlas.attachToExecution(exercise, body);
+    box.hidden = body.hidden;
+  }
+
+  function openExerciseFigureDetails() {
+    if (!F.atlas || !F.atlas.showMuscles) return;
+
+    const exercise = currentSessionExercise();
+    if (!exercise) return;
+
+    const record = F.atlas.findRecordFor(exercise);
+    if (!record) {
+      F.ui.announce("Este exercício não tem classificação muscular salva. Nada foi alterado.");
+      return;
+    }
+
+    F.atlas.showMuscles(record);
+  }
+
   F.updateActiveBanner = updateActiveBanner;
 
   /* Renderização da página de execução */
@@ -1396,6 +1430,8 @@
     byId("current-position").textContent =
       "Exercício " + (s.currentIndex + 1) + " de " + queue.length;
     byId("current-name").textContent = exercise.name;
+
+    renderExerciseFigure(exercise);
 
     const plan = byId("current-plan");
     plan.innerHTML = "";
@@ -1814,6 +1850,7 @@
     };
 
     bind("complete-set", completeCurrentSet);
+    bind("execution-figure-details", openExerciseFigureDetails);
     bind("start-rest", startRestManually);
     bind("previous-exercise", goToPreviousExercise);
     bind("next-exercise", goToNextExercise);

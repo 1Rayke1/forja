@@ -3,12 +3,15 @@
 
   Sobe o repositório num servidor local sob /forja/ (igual ao GitHub Pages),
   abre o Chromium disponível e percorre os estados do atlas de verdade:
-  inicial, região selecionada com resultados, vista posterior, região sem
-  exercícios, filtro de modalidade sem resultados e estado de erro.
+  inicial, exercício selecionado (com a silhueta anterior/posterior), exercício
+  de costas, grupo sem exercícios, filtro de modalidade sem resultados e estado
+  de erro.
 
-  Para cada estado mede a rolagem horizontal e a largura do mapa/legenda em
-  320, 360, 390, 430, 768 e 1280 px. Grava as imagens em
-  artifacts/forja-visual (ou no diretório indicado em --out).
+  Para cada estado mede a rolagem horizontal e a largura das figuras/legenda em
+  320, 360, 390, 430, 768 e 1280 px. Grava as imagens em artifacts/forja-visual
+  (ou no diretório indicado em --out). As capturas do modelo antigo, feitas de
+  marcadores numerados, ficam em artifacts/forja-visual/antigo/atlas-*-antigo.png
+  para comparação.
 
   Nada toca em dados reais: o perfil do navegador é temporário e o atlas não
   escreve no localStorage.
@@ -155,7 +158,7 @@ async function clickCentered(selector) {
   await page.$eval(selector, node => node.scrollIntoView({ block: "center" }));
   await sleep(120);
   await page.click(selector);
-  await sleep(220);
+  await sleep(260);
 }
 
 async function measure(state) {
@@ -173,16 +176,17 @@ async function measure(state) {
           }
         });
       }
-      const map = document.querySelector(".atlas-map-svg");
-      const legend = document.querySelector(".atlas-legend");
+      const figures = Array.from(document.querySelectorAll(".figura-svg"));
+      const legend = document.querySelector(".atlas-legenda");
       return {
         extra,
         wide: wide.slice(0, 4),
-        mapWidth: map ? Math.round(map.getBoundingClientRect().width) : 0,
+        figures: figures.length,
+        figureWidth: figures.length ? Math.round(figures[0].getBoundingClientRect().width) : 0,
+        highlights: document.querySelectorAll(".figura-region").length,
         legendWidth: legend ? Math.round(legend.getBoundingClientRect().width) : 0,
-        regions: document.querySelectorAll(".atlas-region").length,
         rows: document.querySelectorAll(".atlas-exercise-row").length,
-        empty: Boolean(document.querySelector(".atlas-exercises .ui-empty-title"))
+        empty: Boolean(document.querySelector(".atlas-exercise-list .ui-empty-title"))
       };
     });
     measurements.push({ state, width, ...result });
@@ -192,20 +196,27 @@ async function measure(state) {
   }
 }
 
+async function shotAt(name, width, fullPage = false) {
+  await setViewport(width, 2);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: path.join(outDir, name), fullPage });
+}
+
 try {
   await page.goto(BASE + "explorar/atlas.html", { waitUntil: "networkidle0" });
+  /* As páginas usam rolagem suave; para o clique por coordenadas ser exato
+     nas capturas, desligamos apenas nesta sessão de navegador. */
+  await page.addStyleTag({ content: "html{scroll-behavior:auto !important}" });
   await page.evaluate(() => window.scrollTo(0, 0));
   await sleep(400);
 
-  /* 1. Estado inicial: mapa sem seleção. */
+  /* 1. Estado inicial: nenhum exercício escolhido, figura neutra. */
   await measure("inicial");
-  await setViewport(390, 2);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await shot("atlas-inicial-390.png");
+  await shotAt("atlas-inicial-390.png", 390);
 
-  /* 2. Região selecionada com resultados — captura em todas as larguras. */
-  await clickCentered('.atlas-region[data-group="peito"]');
-  await measure("selecionado-peitoral");
+  /* 2. Exercício selecionado (flexão de braço) em todas as larguras. */
+  await clickCentered('[data-atlas-focus="shortcut:cal-flexao"]');
+  await measure("flexao-selecionada");
 
   for (const width of WIDTHS) {
     await setViewport(width);
@@ -213,30 +224,22 @@ try {
     await page.screenshot({ path: path.join(outDir, "atlas-" + width + ".png"), fullPage: true });
   }
 
-  /* 3. Vista posterior com região selecionada. */
+  /* 3. Exercício de costas: barra fixa destaca dorsais na vista posterior. */
   await setViewport(390, 2);
-  await clickCentered('#atlas-view [data-value="back"]');
-  await clickCentered('.atlas-region[data-group="dorsais"]');
-  await measure("posterior-dorsais");
-  await setViewport(390, 2);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await shot("atlas-posterior-390.png");
+  await clickCentered('[data-atlas-focus="shortcut:cal-barra-fixa"]');
+  await measure("barra-fixa");
+  await shotAt("atlas-posterior-390.png", 390, true);
 
-  /* 4. Região sem exercícios no catálogo. */
-  await clickCentered('.atlas-region[data-group="panturrilha"]');
-  await measure("vazio-regiao");
-  await setViewport(390, 2);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await shot("atlas-vazio-390.png");
+  /* 4. Grupo sem exercícios no catálogo. */
+  await clickCentered('[data-group-chip="panturrilha"]');
+  await measure("grupo-vazio");
+  await shotAt("atlas-vazio-390.png", 390);
 
   /* 5. Filtro por modalidade sem resultados. */
-  await clickCentered('#atlas-view [data-value="front"]');
-  await clickCentered('.atlas-region[data-group="antebracos"]');
+  await clickCentered('[data-group-chip="antebracos"]');
   await clickCentered('#atlas-modes [data-value="calisthenics"]');
   await measure("vazio-filtro");
-  await setViewport(390, 2);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await shot("atlas-filtro-vazio-390.png");
+  await shotAt("atlas-filtro-vazio-390.png", 390);
 
   /* 6. Estado de erro com retentativa. */
   await page.evaluate(() => {
@@ -246,28 +249,28 @@ try {
   });
   await sleep(300);
   await measure("erro");
-  await setViewport(390, 2);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await shot("atlas-erro-390.png");
+  await shotAt("atlas-erro-390.png", 390);
   await page.evaluate(() => {
     window.Forja.catalog.items = window.__forjaAtlasItems;
     document.querySelector('[data-atlas-focus="retry"]').click();
   });
   await sleep(300);
 
-  /* 7. Desktop com seleção e resultados. */
-  await setViewport(1280);
-  await clickCentered('.atlas-region[data-group="peito"]');
+  /* 7. Desktop com link direto para o exercício (estado limpo). */
+  await page.goto(BASE + "explorar/atlas.html?exercicio=cal-flexao", { waitUntil: "networkidle0" });
+  await page.addStyleTag({ content: "html{scroll-behavior:auto !important}" });
+  await sleep(300);
+  await measure("link-direto");
   await page.evaluate(() => window.scrollTo(0, 0));
-  await shot("atlas-selecionado-1280.png");
+  await shotAt("atlas-selecionado-1280.png", 1280, true);
 
   console.log("atlas — medições por largura:");
   measurements.forEach(line => {
     console.log(
-      "  " + line.state.padEnd(22) + String(line.width).padStart(4) + "px  mapa " +
-      String(line.mapWidth).padStart(3) + "px  legenda " + String(line.legendWidth).padStart(3) +
-      "px  regiões " + line.regions + "  linhas " + line.rows +
-      (line.empty ? "  vazio" : "") + "  overflow +" + line.extra
+      "  " + line.state.padEnd(18) + String(line.width).padStart(4) + "px  figuras " +
+      line.figures + " (" + String(line.figureWidth).padStart(3) + "px)  destaques " +
+      String(line.highlights).padStart(2) + "  legenda " + String(line.legendWidth).padStart(3) +
+      "px  linhas " + line.rows + (line.empty ? "  vazio" : "") + "  overflow +" + line.extra
     );
   });
 

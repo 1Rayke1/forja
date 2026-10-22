@@ -318,6 +318,8 @@
 .catalog-session-note { margin-top: var(--space-3); }
 .catalog-help { margin-top: var(--space-5); }
 .ui-chip-muted { color: var(--muted); }
+.modal-figure { display: grid; gap: var(--space-2); margin-bottom: var(--space-3); padding-bottom: var(--space-3); border-bottom: 1px solid var(--line-soft); }
+.modal-figure .figura { max-width: 150px; margin: 0 auto; }
 .modal-detail-line { margin: 0 0 6px; font-size: var(--font-sm); line-height: 1.55; }
 .modal-detail-line:last-child { margin-bottom: 0; }
 
@@ -439,6 +441,8 @@
 .modal-card input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--lime); }
 .modal-field-check { display: flex; align-items: center; gap: 9px; margin-top: 10px; font-size: var(--font-sm); }
 .modal-field-check > span { display: inline-flex; }
+.modal-figure { display: grid; gap: var(--space-2); margin-bottom: var(--space-3); padding-bottom: var(--space-3); border-bottom: 1px solid var(--line-soft); }
+.modal-figure .figura { max-width: 150px; margin: 0 auto; }
 .modal-detail-line { margin: 0 0 6px; font-size: var(--font-sm); line-height: 1.55; }
 .modal-detail-line:last-child { margin-bottom: 0; }
 [aria-invalid="true"] { border-color: var(--danger) !important; box-shadow: 0 0 0 1px var(--danger); }
