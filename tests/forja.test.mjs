@@ -3157,6 +3157,113 @@ await runTest("68. Backup: exportação, importação e registry cobrem forja-pe
   app.close();
 });
 
+await runTest("69. Equipamento 'Sem equipamentos' é opção válida no perfil, onboarding, resumo e backup", async () => {
+  const app = await boot({}, "index.html");
+  assertNoErrors(app);
+
+  const values = app.F.PERFIL_OPTIONS.equipamento.map(option => option.value);
+  assert.ok(values.indexOf("nenhum") !== -1, "A opção 'nenhum' deve estar no perfil");
+  assert.ok(values.indexOf("") !== -1, "A opção vazia deve continuar presente");
+  assert.ok(app.F.PERFIL_EQUIPAMENTOS.indexOf("nenhum") !== -1, "O valor deve constar na lista de equipamentos");
+  assert.equal(app.F.PERFIL_LABELS.equipamento.nenhum, "Sem equipamentos", "O rótulo deve ser 'Sem equipamentos'");
+
+  /* Onboarding aceita a opção e grava. */
+  fillOnboarding(app, { equipamento: "nenhum" });
+  app.click(onboardingButton(app, "Salvar perfil"));
+  await wait(20);
+  const stored = app.data(PROFILE_KEY);
+  assert.equal(stored.equipamento, "nenhum", "O onboarding deve gravar 'Sem equipamentos'");
+
+  /* Normalização, validação e resumo consistentes. */
+  assert.equal(app.F.normalizeProfile(stored).equipamento, "nenhum", "Normalização preserva o valor");
+  assert.equal(app.F.validateProfileStore(stored), true, "Backup valida 'Sem equipamentos'");
+  assert.throws(() => app.F.validateProfileStore({ equipamento: "nao-existe" }), /equipamento/,
+    "Valor desconhecido deve ser rejeitado");
+  const summary = app.F.registry.summarizeKey(PROFILE_KEY, stored);
+  assert.match(summary.detail, /Sem equipamentos/, "O resumo do perfil deve descrever 'Sem equipamentos'");
+  app.close();
+
+  /* O formulário do Perfil exibe e regrava a opção. */
+  const perfil = await boot({ [PROFILE_KEY]: profileSeed({ equipamento: "nenhum" }) }, "perfil/index.html");
+  assert.equal(perfil.d.getElementById("prof-equipamento").value, "nenhum", "O formulário deve exibir a opção");
+  perfil.d.getElementById("prof-equipamento").value = "ambos";
+  perfil.click("#profile-save");
+  await wait(20);
+  assert.equal(perfil.data(PROFILE_KEY).equipamento, "ambos", "O formulário deve regrava a opção");
+  perfil.close();
+});
+
+await runTest("70. F.state.profile é inicializado em todas as páginas (ausente, inválido e válido)", async () => {
+  const pages = [
+    "index.html", "treino/index.html", "treino/executar.html", "treino/biblioteca.html",
+    "progresso/index.html", "perfil/index.html", "configuracoes/index.html", "explorar/index.html"
+  ];
+  const empty = {
+    version: 1, updatedAt: null, objetivo: "", nivel: "", equipamento: "",
+    diasPorSemana: 0, duracaoMinutos: 0
+  };
+
+  for (const page of pages) {
+    const app = await boot({}, page);
+    assertNoErrors(app, "perfil ausente em " + page);
+    assert.deepEqual(plain(app.F.state.profile), empty, "Perfil ausente não inicializou vazio em " + page);
+    app.close();
+  }
+
+  for (const page of pages) {
+    const app = await boot({ [PROFILE_KEY]: "{ quebrado" }, page);
+    assertNoErrors(app, "perfil ilegível em " + page);
+    assert.deepEqual(plain(app.F.state.profile), empty, "Perfil ilegível deve carregar vazio em " + page);
+    assert.ok(app.F.state.bootNotices.length > 0, "Deve avisar sobre o perfil ilegível em " + page);
+    assert.equal(app.raw("forja-treino-dados-preservados-v1"), null, "Boot não deve criar cópia de preservação em " + page);
+    app.close();
+  }
+
+  const validHome = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", equipamento: "nenhum", diasPorSemana: 3 }) }, "index.html");
+  assert.equal(validHome.F.state.profile.objetivo, "forca");
+  assert.equal(validHome.F.state.profile.equipamento, "nenhum");
+  assert.equal(validHome.F.state.profile.diasPorSemana, 3);
+  validHome.close();
+
+  const validPerfil = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", equipamento: "nenhum" }) }, "perfil/index.html");
+  assert.equal(validPerfil.F.state.profile.objetivo, "forca", "Perfil válido não inicializou em Perfil");
+  assert.equal(validPerfil.d.getElementById("prof-objetivo").value, "forca", "Formulário não reflete o perfil em Perfil");
+  validPerfil.close();
+});
+
+await runTest("71. Onboarding: Pular não reaparece na mesma visita e não grava nada", async () => {
+  const app = await boot({}, "index.html");
+  app.click(onboardingButton(app, "Pular"));
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Pular deve ocultar o onboarding");
+
+  /* Redesenhos e re-inicializações da home não trazem o painel de volta. */
+  app.F.pages.inicio();
+  await wait(20);
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "O onboarding não deve reaparecer na mesma visita");
+  assert.equal(app.$$("#onboarding-root button").length, 0, "Nenhum controle do onboarding deve voltar");
+  assert.equal(app.raw(PROFILE_KEY), null, "Nada deve ser gravado");
+  assert.deepEqual(app.storageWrites, [], "Nada deve ser gravado: " + JSON.stringify(app.storageWrites));
+  app.close();
+});
+
+await runTest("72. Importação de backup atualiza estado em memória e formulário do Perfil", async () => {
+  const app = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca" }) }, "perfil/index.html");
+  await app.importFile({
+    app: "FORJA", format: "forja-backup", version: 1, exportedAt: new Date().toISOString(),
+    keys: { [PROFILE_KEY]: profileSeed({ objetivo: "resistencia", equipamento: "nenhum", diasPorSemana: 2, duracaoMinutos: 30 }) }
+  }, "backup.json");
+  await app.modal("restore");
+  await wait(40);
+
+  assert.equal(app.data(PROFILE_KEY).objetivo, "resistencia", "O perfil do backup foi aplicado");
+  assert.equal(app.F.state.profile.objetivo, "resistencia", "O estado em memória foi atualizado");
+  assert.equal(app.d.getElementById("prof-objetivo").value, "resistencia", "O formulário reflete o perfil importado");
+  assert.equal(app.d.getElementById("prof-equipamento").value, "nenhum", "O equipamento importado aparece no formulário");
+  assert.equal(app.d.getElementById("prof-dias").value, "2", "Os dias importados aparecem no formulário");
+  assert.equal(app.d.getElementById("prof-duracao").value, "30", "A duração importada aparece no formulário");
+  app.close();
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));

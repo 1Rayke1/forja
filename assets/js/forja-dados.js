@@ -1231,7 +1231,7 @@ function goalsAreActive(goals) {
 */
 const PERFIL_OBJETIVOS = ["forca", "hipertrofia", "resistencia", "calistenia", "recuperacao"];
 const PERFIL_NIVEIS = ["iniciante", "intermediario", "avancado"];
-const PERFIL_EQUIPAMENTOS = ["casa", "academia", "ambos"];
+const PERFIL_EQUIPAMENTOS = ["nenhum", "casa", "academia", "ambos"];
 const PERFIL_MAX_DIAS = 7;
 const PERFIL_MAX_MINUTOS = 240;
 
@@ -1249,6 +1249,7 @@ const PERFIL_LABELS = {
     avancado: "Avançado"
   },
   equipamento: {
+    nenhum: "Sem equipamentos",
     casa: "Casa / peso corporal",
     academia: "Academia",
     ambos: "Ambos"
@@ -1273,6 +1274,7 @@ const PERFIL_OPTIONS = {
   ],
   equipamento: [
     { value: "", label: "Não definido" },
+    { value: "nenhum", label: "Sem equipamentos" },
     { value: "casa", label: "Casa / peso corporal" },
     { value: "academia", label: "Academia" },
     { value: "ambos", label: "Ambos" }

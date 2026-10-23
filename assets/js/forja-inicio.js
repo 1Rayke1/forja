@@ -511,6 +511,7 @@
 
     function hide() {
       container.hidden = true;
+      container.innerHTML = "";
     }
 
     function focusFirstInvalid(errors) {
