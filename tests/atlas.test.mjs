@@ -257,7 +257,7 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
   const front = app.$(".atlas-figura-cell[data-view=\"front\"] .figura-svg");
   const back = app.$(".atlas-figura-cell[data-view=\"back\"] .figura-svg");
 
-  /* Base anatômica de referência local (anterior e posterior na mesma escala 240 × 240)
+  /* Base anatômica de referência local (anterior e posterior na mesma escala 240 × 520)
      + silhueta orgânica extraída em curvas de Bézier. */
   const frontPlate = front.querySelector("image.figura-plate");
   const backPlate = back.querySelector("image.figura-plate");
@@ -265,9 +265,9 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
   assert.match(frontPlate.getAttribute("href"), /assets\/anatomia\/anterior\.png$/);
   assert.match(backPlate.getAttribute("href"), /assets\/anatomia\/posterior\.png$/);
   assert.equal(frontPlate.getAttribute("width"), "240");
-  assert.equal(frontPlate.getAttribute("height"), "240");
+  assert.equal(frontPlate.getAttribute("height"), "520");
   assert.equal(backPlate.getAttribute("width"), "240");
-  assert.equal(backPlate.getAttribute("height"), "240");
+  assert.equal(backPlate.getAttribute("height"), "520");
 
   const frontSilhouette = front.querySelector(".figura-silhouette path");
   const backSilhouette = back.querySelector(".figura-silhouette path");
@@ -279,7 +279,7 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
   assert.equal(front.querySelectorAll("line").length, 0, "Silhueta não deve ser feita de linhas retas");
 
   /* A silhueta preserva a proporção 1:1 original das pranchas de referência sem deformação. */
-  assert.equal(front.getAttribute("viewBox"), "0 0 240 240");
+  assert.equal(front.getAttribute("viewBox"), "0 0 240 520");
   assert.match(front.getAttribute("preserveAspectRatio") || "xMidYMid meet", /xMidYMid/);
 
   /* Texto alternativo lista só as regiões que existem naquela vista. */
@@ -450,15 +450,19 @@ await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis do cat�
 /* 6. Ausência de resultados                                          */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 6. Grupo sem exercícios mostra mensagem honesta e aviso de enquadramento da panturrilha", async () => {
+await runTest("ATLAS 6. Grupo sem exercícios mostra mensagem honesta e panturrilha com contorno completo", async () => {
   const app = await boot({}, ATLAS + "?grupo=panturrilha");
   await wait(20);
 
   assert.equal(app.F.atlas.exercisesFor("panturrilha").length, 0);
-  assert.equal(app.F.figura.REGIONS.panturrilha.outsideFrame, true, "Panturrilha deve indicar enquadramento externo ao recorte até meia-coxa");
-  assert.equal(app.$$(".atlas-group-figure .figura-region").length, 0, "Não deve pintar região falsa sobre a coxa quando panturrilha está fora do recorte");
-  assert.ok(app.$("[data-atlas-framing-note]"), "Aviso de enquadramento até meia-coxa ausente para panturrilha");
-  assert.match(app.text("[data-atlas-framing-note]"), /metade da coxa/i);
+  assert.ok(app.F.figura.REGIONS.panturrilha.back && app.F.figura.REGIONS.panturrilha.back.length > 0, "Panturrilha tem contorno completo na vista posterior");
+  assert.equal(app.F.figura.REGIONS.panturrilha.outsideFrame, undefined, "Panturrilha não está mais fora do recorte");
+  const grupoFigura = app.$(".atlas-group-figure");
+  assert.equal(grupoFigura.querySelectorAll(".figura-region").length, 1, "Figura do grupo destaca a panturrilha em foco");
+  const regiaoGrupo = grupoFigura.querySelector(".figura-region");
+  assert.equal(regiaoGrupo.getAttribute("data-region"), "panturrilha");
+  assert.equal(regiaoGrupo.getAttribute("data-role"), "focus");
+  assert.equal(app.$("[data-atlas-framing-note]"), null, "Sem aviso de enquadramento: a prancha cobre da cabeça aos pés");
   assert.equal(rows(app).length, 0, "Grupo sem metadados listou exercícios");
   assert.equal(app.text(".atlas-exercise-list .ui-empty-title"), "Nenhum exercício para este grupo");
   assert.match(app.text(".atlas-exercise-list .ui-empty-text"), /não tem exercícios classificados/i);

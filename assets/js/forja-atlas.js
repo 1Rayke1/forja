@@ -86,7 +86,7 @@
   });
 
   const DISCLOSURE = "Figura esquemática de regiões musculares sobre prancha " +
-    "anatômica de referência (enquadramento até meia-coxa; acervo 3D " +
+    "anatômica de referência (cabeça aos pés; acervo 3D " +
     "complementar BodyParts3D / Z-Anatomy, CC BY-SA 4.0) — não é uma " +
     "representação anatômica clínica. As cores indicam o papel da região no " +
     "movimento, a partir da classificação do catálogo.";

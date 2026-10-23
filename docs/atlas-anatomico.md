@@ -25,20 +25,15 @@ explicadas por uma legenda curta sem poluir o corpo com dezenas de rótulos.
 O que ele **é**:
 
 - **baseado nas pranchas anatômicas detalhadas de referência:** as pranchas
-  `assets/anatomia/anterior.png` (`77.309 bytes` / `75,5 KiB`) e
-  `assets/anatomia/posterior.png` (`68.084 bytes` / `66,5 KiB`), em
-  `480 × 480 px` (`2×` Retina sobre `viewBox="0 0 240 240"`), e os contornos
-  vetoriais em curvas de Bézier cúbicas fechadas dentro de
-  `assets/js/forja-figura.js` são gerados em `tools/gerar-anatomia-referencia.mjs`
-  a partir das duas imagens de referência anexadas pelo usuário (com acervo 3D
-  complementar **BodyParts3D / Anatomography** e **Z-Anatomy**, **CC BY-SA 4.0**,
-  preservado em `tools/gerar-anatomia-3d.mjs` e documentado em
-  `assets/anatomia/NOTICE.md`);
-- **transparente quanto ao enquadramento e licença:** as pranchas de referência
-  abrangem da cabeça até a metade da coxa; as 15 regiões visíveis no quadro
-  possuem contornos SVG exatos sobre as fibras musculares, enquanto a região
-  `panturrilha` (abaixo do joelho) é marcada com `outsideFrame: true` e exibe
-  aviso explícito sem pintar regiões aleatórias na coxa. A confirmação de
+  `assets/anatomia/anterior.png` e `assets/anatomia/posterior.png`, em
+  `480 × 1040 px` (`2×` Retina sobre `viewBox="0 0 240 520"`), cobrindo da
+  cabeça aos pés nas vistas anterior e posterior, e os contornos vetoriais em
+  curvas de Bézier cúbicas fechadas dentro de `assets/js/forja-figura.js`;
+- **transparente quanto ao enquadramento e licença:** as pranchas cobrem o
+  corpo completo; as 16 regiões funcionais possuem contornos SVG exatos —
+  incluindo coxas, joelhos, panturrilhas e pés nas duas vistas, com a
+  `panturrilha` desenhada em contorno posterior (gastrocnêmio, sóleo e
+  tendão de Aquiles) e sem marcação de `outsideFrame`. A confirmação de
   licença/origem antes de versão pública está registrada em
   `assets/anatomia/NOTICE.md`;
 - **leve e estático em tempo de execução:** o navegador transfere `142,0 KiB`
