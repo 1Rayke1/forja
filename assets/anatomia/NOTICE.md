@@ -1,113 +1,68 @@
-# Aviso de Atribuição, Origem e Licença — Recursos Anatômicos (`assets/anatomia/`)
+# Origem, atribuição e situação de licença — recursos anatômicos
 
-Os arquivos de imagem `assets/anatomia/anterior.png` e `assets/anatomia/posterior.png`, bem como os contornos vetoriais embutidos nas constantes `SILHOUETTES` e `REGIONS` de `assets/js/forja-figura.js`, compõem a base visual do Atlas Muscular do FORJA.
+## 1. Referências efetivamente fornecidas
 
----
+As referências desta revisão são os dois anexos enviados pelo usuário na conversa. Seus bytes originais foram preservados para auditoria:
 
-## 0. Pranchas anatômicas de referência na branch de trabalho (verificação de licença e enquadramento)
+| Arquivo recebido | Cópia preservada | Dimensões | SHA-256 | Uso atual |
+| --- | --- | --- | --- | --- |
+| `IMG_532e0a2d-6931-447a-a6eb-c90c9ae2d1e3.jpg` | `fontes/modelo-masculino-original.jpg` | 740 × 740 | `4163b0387a1657e5c121864e663e93dbe5bf1f476cce59304b7f197102a7c39b` | Origem das vistas anterior e posterior |
+| `IMG_c503be6c-c781-4b02-8fd9-fba224589ff5.webp` | `fontes/modelo-feminino-original.webp` | 644 × 644 | `ffe624b890d26420b9e3dfb42526a666325411a9fc62fd2164ed96619a30959a` | Referência preservada; não combinada com o modelo masculino |
 
-Nesta branch de trabalho (`arena/c0b01805-forja`), `assets/anatomia/anterior.png` (`77.309 bytes`, `480 × 480 px`) e `assets/anatomia/posterior.png` (`68.084 bytes`, `480 × 480 px`) foram gerados via `tools/gerar-anatomia-referencia.mjs` a partir das duas capturas de referência fornecidas pelo usuário:
-- **Imagem 1 (vista anterior):** `Screenshot_2026-10-22-09-47-24-088_com.openai.chatgpt.jpg` (`1080 × 2400 px`, quadro anatômico central `1080 × 1080 px` em `y = 660..1739`);
-- **Imagem 2 (vista posterior):** `Screenshot_2026-10-22-09-47-28-204_com.openai.chatgpt.jpg` (`1080 × 2400 px`, quadro anatômico central `1080 × 1080 px` em `y = 660..1739`).
+A primeira prancha contém as duas vistas do mesmo modelo e na mesma escala. Por isso ela é a única origem das imagens exibidas atualmente. Misturar o segundo modelo com o primeiro romperia a correspondência anatômica entre as vistas.
 
-### Verificação obrigatória de origem e licença antes de versão pública
-- **Origem identificada:** os arquivos anexados são capturas de tela de dispositivo Android (`com.openai.chatgpt`) sem metadados EXIF/IPTC de autoria ou licença explícita embutidos no cabeçalho JPEG. A estética visual corresponde a ilustrações anatômicas médicas comerciais/editoriais (estilo banco de imagens anatômicas 3D).
-- **Status para versão pública (`main` / release):** **não assumir domínio público ou licença livre apenas por terem sido anexadas como referência.** Antes de incorporar definitivamente estas pranchas em uma versão pública ou distribuir binários/APK, o responsável pelo repositório deve confirmar que detém direito de uso e redistribuição das imagens de origem. Caso prefira manter exclusivamente ativos abertos com licença explícita auditada (**CC BY-SA 4.0**), basta reexecutar `tools/gerar-anatomia-3d.mjs` documentado abaixo.
+## 2. Licença: pendência real, sem presunção
 
-### Enquadramento até meia-coxa e tratamento de limitações
-- As duas imagens de referência abrangem da cabeça até a porção média da coxa (`viewBox="0 0 240 240"`, proporção 1:1 original preservada sem cortes adicionais e sem deformação).
-- As **15 regiões visíveis no enquadramento** (`ombros`, `peito`, `biceps`, `antebracos`, `abdomem`, `obliquos`, `quadril`, `quadriceps`, `pernas`, `costas`, `dorsais`, `lombar`, `triceps`, `gluteos`, `posterior-coxa`) possuem contornos SVG em curvas de Bézier cúbicas fechadas alinhados às fibras e sulcos visíveis da imagem.
-- A região **`panturrilha`** situa-se anatomicamente abaixo do joelho (fora do recorte até meia-coxa das imagens de referência) e é declarada com `outsideFrame: true` e `back: []` em `assets/js/forja-figura.js`, exibindo aviso textual explícito na interface sem pintar regiões aleatórias na coxa.
+**Situação da licença de redistribuição: não verificada.**
 
----
+A inspeção dos arquivos e de seus metadados não encontrou autoria, URL de origem, licença ou autorização de redistribuição. O fato de o usuário ter fornecido os anexos não comprova, por si só, a licença de publicação. Nenhuma licença Creative Commons é atribuída a estes arquivos nesta revisão.
 
-## 1. Acervo anatômico 3D aberto preservado (CC BY-SA 4.0) e créditos exigidos
+Antes de merge em `main`, release ou outra publicação, o responsável precisa:
 
-1. **BodyParts3D / Anatomography**
-   - **Autoria e crédito:** *BodyParts3D, © The Database Center for Life Science (DBCLS), Research Organization of Information and Systems (ROIS), Japão.*
-   - **Referência científica:** Mitsuhashi N, Fujieda K, Tamura T, Kawamoto S, Takagi T, Okubo K. *BodyParts3D: 3D structure database for anatomical concepts.* Nucleic Acids Research. 2009;37(Database issue):D782–D785.
-   - **Licença original:** [Creative Commons Attribution-ShareAlike 2.1 Japan (CC BY-SA 2.1 JP)](https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en).
-   - **Material utilizado:** Geometria tridimensional derivada de ressonância magnética de corpo inteiro, incluindo o envelope craniofacial externo (`FMA7163.stl`, superfície externa isolada e alinhada à pose ortográfica).
+1. informar a origem e o titular das imagens;
+2. confirmar a licença ou autorização de uso e redistribuição, incluindo recortes e remoção do fundo;
+3. acrescentar aqui a atribuição exigida, se houver;
+4. autorizar explicitamente a publicação.
 
-2. **Z-Anatomy — Models of Human Anatomy**
-   - **Autoria e crédito:** *Z-Anatomy (Gauthier Kervyn e colaboradores), derivado do BodyParts3D e estruturado segundo a Terminologia Anatomica (TA2).*
-   - **Licença original:** [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/).
-   - **Material utilizado:** Malhas tridimensionais glTF dos sistemas muscular (`kas.glb`), esquelético (`iskelet.glb`) e articular (`eklem.glb`), a partir da exportação pública documentada em `Z-Anatomy/Models-of-human-anatomy` e `DrMuratAltun/anatomi-simulatoru`.
-   - **Exclusões verificadas:** Nenhum modelo visceral (`ic-organlar.glb`) e nenhuma marca ou logotipo de terceiros (`yzo-mark.png`) foram utilizados, copiados ou incluídos no FORJA.
+Esta branch é apenas trabalho de revisão. Não houve merge nem release nesta correção.
 
-3. **Referências anatômicas de validação**
-   - *Terminologia Anatomica* (FIPAT / IFAA, 2ª ed. — TA2).
-   - Standring S (ed.). *Gray's Anatomy: The Anatomical Basis of Clinical Practice*.
-   - Betts JG et al. *Anatomy and Physiology 2e*, Cap. 11 (*The Muscular System*), OpenStax / Rice University (usado apenas como referência bibliográfica de validação, sem incorporação de imagem).
+## 3. Como as pranchas atuais foram produzidas
 
----
+`tools/gerar-anatomia-referencia.mjs` faz somente operações de imagem:
 
-## 2. Arquivos derivados e licenças aplicáveis
+- recorte anterior: `x=40`, `y=16`, `350 × 690` na referência masculina;
+- recorte posterior: `x=360`, `y=16`, `350 × 690` na mesma referência;
+- remoção por flood-fill apenas do fundo branco conectado às bordas;
+- suavização de um pixel da borda externa, sem apagar fáscias ou tendões internos;
+- gravação em PNG RGBA, sem redesenho, vetorização, alteração de proporções ou substituição por formas geométricas.
 
-Em conformidade com a cláusula *ShareAlike* das licenças CC BY-SA 2.1 JP (seção 4b — compatibilidade com versões equivalentes posteriores/internacionais) e CC BY-SA 4.0:
+`manifest.json` registra origem, recortes, dimensões, limites do corpo e hashes dos arquivos gerados. O teste de navegador compara os RGB dos pixels opacos com o recorte original no mesmo pixel; a única tolerância é de 1 nível em 8 bits por canal para diferenças de decodificação entre SwiftShader e software.
 
-| Arquivo no repositório | Tamanho medido | Natureza e licença aplicável |
-| --- | --- | --- |
-| `assets/anatomia/anterior.png` | `102.962 bytes` (`100,5 KiB`, `480 × 1040 px`) | Adaptação derivada (prancha ortográfica anterior) — **CC BY-SA 4.0** |
-| `assets/anatomia/posterior.png` | `92.843 bytes` (`90,7 KiB`, `480 × 1040 px`) | Adaptação derivada (prancha ortográfica posterior) — **CC BY-SA 4.0** |
-| Dados geométricos `SILHOUETTES` e `REGIONS` em `assets/js/forja-figura.js` | `52.186 bytes` (`51,0 KiB` de caminhos SVG; arquivo completo `63.118 bytes` / `61,6 KiB`) | Contornos 2D projetados das malhas 3D — **CC BY-SA 4.0** |
+## 4. Destaques funcionais
 
-### Modificações realizadas sobre os modelos originais
+Os caminhos de `assets/js/forja-figura.js` não criam o corpo. Eles apenas indicam as regiões musculares do catálogo sobre a prancha raster:
 
-1. Renderização ortográfica simétrica nas vistas **anterior** e **posterior** na mesma escala (`480 × 1040 px`, equivalente a `2×` Retina sobre `viewBox="0 0 240 520"`), com iluminação neutra de estúdio em tom mineral-ardósia e codificação PNG indexada de 8 bits com transparência limpa.
-2. Substituição da exposição craniofacial profunda (ossos cranianos, dentes e músculos da mímica) pela casca craniofacial externa contínua do BodyParts3D (`FMA7163`), mantendo leitura calma e foco no sistema musculoesquelético de treino.
-3. Ocultação de bainhas fasciais superficiais difusas, bursas e músculos do assoalho pélvico/períneo, preservando tendões estruturais de referência (`Linea alba`, `Posterior layer of thoracolumbar fascia`, `Iliotibial tract`, `Calcaneal tendon`).
-4. Extração automática dos contornos 2D das 16 regiões musculares do catálogo com oclusão real de profundidade no buffer WebGL, *Marching Squares* orientado e simplificação em curvas de Bézier cúbicas fechadas, incluindo recorte geométrico de aponeuroses largas para separar `abdomem`/`obliquos` e `dorsais`/`lombar`.
+- principal: verde-limão `#b7f34a`;
+- secundária: âmbar `#f2b84b`;
+- estabilizadora: azul `#8cc0e0`.
 
----
+Os preenchimentos são translúcidos e usam `mix-blend-mode: color`, preservando luminância, fibras e divisões visíveis. Uma máscara referencia o canal alfa do **mesmo PNG** exibido, sem uma segunda silhueta vetorial que possa divergir.
 
-## 3. Distinção jurídica entre recursos anatômicos e código da aplicação
+Os contornos são projeções funcionais aproximadas de estruturas superficiais visíveis. Não constituem segmentação clínica nem afirmam mapear limites de músculos profundos. Em particular, “Quadril” e “Lombar” indicam projeções de região, não uma reconstrução de iliopsoas ou de cada estabilizador profundo.
 
-O projeto FORJA **não** passa a estar integralmente sob CC BY-SA por utilizar essas pranchas anatômicas:
+## 5. Relação com BodyParts3D e Z-Anatomy
 
-- **Recursos anatômicos derivados (`assets/anatomia/*.png` e coordenadas vetoriais projetadas):** regidos por **CC BY-SA 4.0**, devendo manter este aviso de crédito e a mesma licença caso sejam redistribuídos ou modificados.
-- **Código-fonte da aplicação FORJA (HTML, folhas de estilo CSS, lógica JavaScript de catálogo, rotinas, execução, progresso, persistência, testes e scripts em `tools/`):** constitui obra de software independente que apenas agrega e exibe estaticamente os recursos gráficos em tempo de execução, mantendo o licenciamento próprio do repositório sem contaminação documental (*mere aggregation* / separação entre obra artística e programa que a exibe).
+Nenhum arquivo BodyParts3D ou Z-Anatomy foi usado para gerar as pranchas desta correção. Esses projetos não devem ser apresentados como origem ou licença das imagens fornecidas pelo usuário.
 
----
+`tools/gerar-anatomia-3d.mjs` permanece no histórico como pipeline experimental anterior, mas não participa da renderização atual. As pranchas geométricas autorais do PR #12 foram retiradas do resultado final e continuam preservadas no histórico do Git.
 
-## 4. Procedimento para regenerar as imagens e os contornos
+## 6. Auditoria do PR #12
 
-O script autocontido `tools/gerar-anatomia-3d.mjs` reproduz integralmente as pranchas e os contornos sem exigir WebGL no cliente final:
+A revisão das imagens e do código do PR #12 identificou duas causas para o resultado fragmentado:
 
-1. Reúna em um diretório externo ao Git (ex.: `/tmp/anatomy_src`):
-   - `zanatomy/systems/kas.glb`, `zanatomy/systems/iskelet.glb`, `zanatomy/systems/eklem.glb` (pacote glTF Z-Anatomy);
-   - `zanatomy/vendor/three/` (Three.js ESM para renderização local em navegador headless);
-   - `bp3d/FMA7163.stl` (envelope externo BodyParts3D).
-2. Instale as dependências de desenvolvimento na raiz do repositório (`npm ci`).
-3. Execute:
-   ```bash
-   # Regenerar as pranchas assets/anatomia/anterior.png e posterior.png:
-   ANATOMY_SRC_DIR=/tmp/anatomy_src node tools/gerar-anatomia-3d.mjs
+1. as pranchas realistas foram substituídas por SVGs autorais compostos por polígonos e curvas genéricas;
+2. `SILHOUETTES` e os recortes aplicados às imagens não correspondiam a esses desenhos, removendo partes do corpo e criando vazios entre os membros.
 
-   # Regenerar também os contornos SVG em assets/js/forja-figura.js:
-   ANATOMY_SRC_DIR=/tmp/anatomy_src node tools/gerar-anatomia-3d.mjs --contornos
-   ```
-   *(Em ambientes Linux sem bibliotecas gráficas globais para o `@sparticuz/chromium`, adicione `AWS_LAMBDA_JS_RUNTIME=nodejs22.x` antes do comando `node`.)*
+Os testes do PR verificavam viewBox, quantidade de curvas e ausência de overflow, mas não comparavam a imagem com a referência nem os destaques com o corpo renderizado. Por isso passavam apesar da falha visual.
 
----
-
-## 5. Mapeamento anatômico validado (TA2 → 16 regiões do FORJA)
-
-| ID no FORJA | Vista | Estruturas TA2 projetadas da malha 3D |
-| --- | --- | --- |
-| `ombros` | Anterior / Posterior | *Deltoideus* — *pars clavicularis* e *pars acromialis* (anterior); *pars spinalis* e *pars acromialis* (posterior) |
-| `peito` | Anterior | *Pectoralis major* (*caput claviculare*, *caput sternocostale*, *pars abdominalis*) |
-| `biceps` | Anterior | *Biceps brachii* (*caput longum*, *caput breve*), *Brachialis*, *Coracobrachialis* |
-| `antebracos` | Anterior / Posterior | Anterior: *Brachioradialis*, *Pronator teres*, *Flexor carpi radialis/ulnaris*, *Palmaris longus*, *Flexor digitorum superficialis/profundus*, *Flexor pollicis longus* (acima do punho). Posterior: *Brachioradialis*, *Extensor carpi radialis longus/brevis*, *Extensor digitorum*, *Extensor digiti minimi*, *Extensor carpi ulnaris*, *Abductor/Extensor pollicis* |
-| `abdomem` | Anterior | *Rectus abdominis*, *Pyramidalis*, *Linea alba* |
-| `obliquos` | Anterior | *Obliquus externus abdominis* (ventre muscular lateral; excluída a aponeurose medial sobre a bainha do reto) |
-| `quadril` | Anterior | *Tensor fasciae latae*, *Iliopsoas* (*Iliacus*, *Psoas major*), *Pectineus*, *Adductor longus/brevis* proximais |
-| `quadriceps` | Anterior | *Quadriceps femoris*: *Rectus femoris*, *Vastus lateralis*, *Vastus medialis*, *Vastus intermedius* |
-| `pernas` | Anterior / Posterior | Região ampla de membros inferiores do catálogo: coxas (quadríceps/isquiotibiais, sartório, adutores, trato iliotibial) e pernas (*Tibialis anterior/posterior*, *Extensor digitorum longus*, *Fibularis longus/brevis*, *Triceps surae*), acima do tornozelo/pé |
-| `costas` | Posterior | *Trapezius* (*pars descendens, transversa, ascendens*), *Rhomboideus major/minor*, *Infraspinatus*, *Teres minor*, *Levator scapulae* |
-| `dorsais` | Posterior | *Latissimus dorsi* (ventre contrátil dorsolateral) e *Teres major* |
-| `lombar` | Posterior | *Erector spinae* lombar (*Iliocostalis lumborum*, *Longissimus thoracis* porção lombar), *Multifidus lumborum*, *Quadratus lumborum* e *Fascia thoracolumbalis* |
-| `triceps` | Posterior | *Triceps brachii* (*caput longum*, *caput laterale*, *caput mediale*) e *Anconeus* |
-| `gluteos` | Posterior | *Gluteus maximus*, *Gluteus medius*, *Gluteus minimus* |
-| `posterior-coxa` | Posterior | *Biceps femoris* (*caput longum*, *caput breve*), *Semitendinosus*, *Semimembranosus* |
-| `panturrilha` | Posterior | *Gastrocnemius* (*caput mediale*, *caput laterale*), *Soleus*, *Plantaris* e *Tendo calcaneus* |
+A correção preserva o commit do PR no histórico e substitui a abordagem em commit separado. Os testes agora cobrem hashes e cabeçalhos PNG, enquadramento, correspondência pixel a pixel com a referência e 24 amostras de borda em cada um dos 41 contornos funcionais.

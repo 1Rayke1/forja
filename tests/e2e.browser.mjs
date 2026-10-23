@@ -94,6 +94,9 @@ function startStaticServer(rootDir) {
     '.json': 'application/json; charset=utf-8',
     '.svg': 'image/svg+xml',
     '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp',
     '.webmanifest': 'application/manifest+json'
   };
   const blocked = new Set(['node_modules', '.git', 'tests', 'docs', '.github']);
@@ -347,7 +350,7 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   assert.equal((await page.$$('.figura-svg')).length, 2, 'O atlas precisa das duas vistas da silhueta');
   assert.equal((await page.$$('.figura-region')).length, 0, 'Região destacada sem exercício escolhido');
   assert.equal(await page.$$eval('#atlas-exercise-select option', els => els.length), 38, 'Seletor deveria ter 37 exercícios + vazio');
-  assert.match(await text('.atlas-disclosure'), /não é uma representação anatômica clínica/i);
+  assert.match(await text('.atlas-disclosure'), /não uma segmentação anatômica clínica/i);
   const navLabels = await page.$$eval('.bottom-nav-link', els => els.map(e => e.textContent.trim()));
   assert.equal(navLabels.length, 5, 'Barra inferior precisa manter 5 destinos');
 
@@ -402,6 +405,166 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   await go('explorar/atlas.html?exercicio=cal-flexao');
   await sleep(150);
   await page.screenshot({ path: artifactPath('atlas-390.png'), fullPage: true });
+});
+
+await check('Atlas: pixels fiéis à referência, corpo completo e destaques registrados na anatomia', async () => {
+  await go('explorar/atlas.html?exercicio=cal-flexao');
+  const audit = await page.evaluate(async base => {
+    const loadImage = async relative => {
+      const image = new Image();
+      image.src = base + relative;
+      await image.decode();
+      return image;
+    };
+    const manifest = await fetch(base + 'assets/anatomia/manifest.json').then(response => {
+      if (!response.ok) throw new Error('Manifesto anatômico HTTP ' + response.status);
+      return response.json();
+    });
+    const source = await loadImage('assets/anatomia/' + manifest.source);
+    const plates = {
+      front: await loadImage('assets/anatomia/anterior.png'),
+      back: await loadImage('assets/anatomia/posterior.png')
+    };
+    const pixelFailures = [];
+    const framingFailures = [];
+    const regionFailures = [];
+    const alphaByView = {};
+    const NS = 'http://www.w3.org/2000/svg';
+
+    for (const view of ['front', 'back']) {
+      const plate = plates[view];
+      const crop = manifest.plates[view].crop;
+      if (plate.naturalWidth !== 350 || plate.naturalHeight !== 690) {
+        pixelFailures.push(view + ': dimensões naturais ' + plate.naturalWidth + '×' + plate.naturalHeight);
+        continue;
+      }
+
+      const referenceCanvas = document.createElement('canvas');
+      referenceCanvas.width = crop.width;
+      referenceCanvas.height = crop.height;
+      const referenceContext = referenceCanvas.getContext('2d');
+      referenceContext.drawImage(source, crop.x, crop.y, crop.width, crop.height, 0, 0, crop.width, crop.height);
+      const reference = referenceContext.getImageData(0, 0, crop.width, crop.height).data;
+
+      const plateCanvas = document.createElement('canvas');
+      plateCanvas.width = crop.width;
+      plateCanvas.height = crop.height;
+      const plateContext = plateCanvas.getContext('2d');
+      plateContext.drawImage(plate, 0, 0);
+      const rendered = plateContext.getImageData(0, 0, crop.width, crop.height).data;
+      alphaByView[view] = { pixels: rendered, width: crop.width, height: crop.height };
+
+      let compared = 0;
+      let mismatched = 0;
+      let maxDelta = 0;
+      let top = crop.height;
+      let left = crop.width;
+      let right = -1;
+      let bottom = -1;
+      for (let index = 0; index < crop.width * crop.height; index += 1) {
+        const offset = index * 4;
+        const alpha = rendered[offset + 3];
+        if (alpha >= 128) {
+          const x = index % crop.width;
+          const y = Math.floor(index / crop.width);
+          top = Math.min(top, y);
+          bottom = Math.max(bottom, y);
+          left = Math.min(left, x);
+          right = Math.max(right, x);
+        }
+        if (alpha !== 255) continue;
+        compared += 1;
+        const delta = Math.max(
+          Math.abs(rendered[offset] - reference[offset]),
+          Math.abs(rendered[offset + 1] - reference[offset + 1]),
+          Math.abs(rendered[offset + 2] - reference[offset + 2])
+        );
+        maxDelta = Math.max(maxDelta, delta);
+        /* SwiftShader e o decodificador de software podem variar 1 nível de
+           8 bits. Não há tolerância para deslocamento ou alteração visível. */
+        if (delta > 1) mismatched += 1;
+      }
+      if (compared < 40000 || mismatched !== 0) {
+        pixelFailures.push(view + ': ' + mismatched + ' pixels com delta > 1 em ' + compared +
+          ' comparados; delta máximo=' + maxDelta);
+      }
+      if (top < 4 || bottom < 650 || bottom > 681 || left < 2 || right > 347) {
+        framingFailures.push(view + ': limites ' + JSON.stringify({ left, top, right, bottom }));
+      }
+    }
+
+    /* Cada caminho é percorrido de verdade. Amostras de sua borda precisam
+       encontrar corpo opaco num raio de 2 px na prancha correspondente. */
+    const geometry = document.createElementNS(NS, 'svg');
+    geometry.setAttribute('viewBox', '0 0 350 690');
+    geometry.setAttribute('width', '350');
+    geometry.setAttribute('height', '690');
+    geometry.style.position = 'fixed';
+    geometry.style.left = '-10000px';
+    geometry.style.top = '0';
+    document.body.appendChild(geometry);
+
+    const opaqueNear = (view, x, y) => {
+      const data = alphaByView[view];
+      if (!data) return false;
+      for (let dy = -2; dy <= 2; dy += 1) {
+        for (let dx = -2; dx <= 2; dx += 1) {
+          const px = Math.round(x) + dx;
+          const py = Math.round(y) + dy;
+          if (px < 0 || py < 0 || px >= data.width || py >= data.height) continue;
+          if (data.pixels[(py * data.width + px) * 4 + 3] >= 128) return true;
+        }
+      }
+      return false;
+    };
+
+    for (const view of ['front', 'back']) {
+      for (const [regionId, region] of Object.entries(window.Forja.figura.REGIONS)) {
+        const shapes = window.Forja.figura.shapesFor(regionId, view) || [];
+        for (const shape of shapes) {
+          const path = document.createElementNS(NS, 'path');
+          path.setAttribute('d', shape);
+          geometry.appendChild(path);
+          const box = path.getBBox();
+          const length = path.getTotalLength();
+          let outside = 0;
+          const samples = 24;
+          for (let index = 0; index < samples; index += 1) {
+            const point = path.getPointAtLength(length * index / samples);
+            if (!opaqueNear(view, point.x, point.y)) outside += 1;
+          }
+          if (box.x < 0 || box.y < 0 || box.x + box.width > 350 || box.y + box.height > 690 ||
+              !Number.isFinite(length) || length < 20 || outside > 2) {
+            regionFailures.push(view + '/' + regionId + ': ' + outside + '/' + samples +
+              ' amostras fora; bbox=' + JSON.stringify({ x: box.x, y: box.y, width: box.width, height: box.height }));
+          }
+          path.remove();
+        }
+      }
+    }
+    geometry.remove();
+
+    const roles = {};
+    for (const role of ['primary', 'secondary', 'stabilizer']) {
+      const shape = document.querySelector('.figura-region.is-' + role + ' .figura-region-shape');
+      if (!shape) {
+        roles[role] = null;
+        continue;
+      }
+      const style = getComputedStyle(shape);
+      roles[role] = { fill: style.fill, opacity: style.fillOpacity, blend: style.mixBlendMode };
+    }
+    return { pixelFailures, framingFailures, regionFailures, roles };
+  }, BASE);
+
+  assert.deepEqual(audit.pixelFailures, [], 'As pranchas devem preservar os RGB opacos da referência (delta máximo 1/255)');
+  assert.deepEqual(audit.framingFailures, [], 'Cabeça, mãos ou pés fora do enquadramento');
+  assert.deepEqual(audit.regionFailures, [], 'Destaques desalinhados da anatomia visível');
+  assert.deepEqual(audit.roles, {
+    primary: { fill: 'rgb(183, 243, 74)', opacity: '0.62', blend: 'color' },
+    secondary: { fill: 'rgb(242, 184, 75)', opacity: '0.56', blend: 'color' },
+    stabilizer: { fill: 'rgb(140, 192, 224)', opacity: '0.54', blend: 'color' }
+  });
 });
 
 await check('Alvos de toque principais têm pelo menos 44px de altura', async () => {
@@ -500,7 +663,7 @@ await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async
   assert.ok(await isVisible('#execution-figure'), 'Execução sem figura do exercício com metadados');
   assert.equal((await page.$$('#execution-figure .figura-svg, #execution-figure-body .figura-svg')).length, 1,
     'A figura da execução deveria ter uma vista');
-  assert.match(await page.$eval('#execution-figure .figura-svg', el => el.getAttribute('aria-label')), /Silhueta humana/);
+  assert.match(await page.$eval('#execution-figure .figura-svg', el => el.getAttribute('aria-label')), /Modelo anatômico muscular/);
   await page.$eval('#execution-figure-details', el => el.scrollIntoView({ block: 'center' }));
   await sleep(180);
   const detailsCovered = await page.$eval('#execution-figure-details', el => {
