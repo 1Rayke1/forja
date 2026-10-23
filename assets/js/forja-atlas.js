@@ -85,7 +85,8 @@
     pernas: "both"
   });
 
-  const DISCLOSURE = "Figura esquemática de regiões musculares — não é uma " +
+  const DISCLOSURE = "Figura esquemática de regiões musculares sobre base " +
+    "anatômica 3D (BodyParts3D / Z-Anatomy, CC BY-SA 4.0) — não é uma " +
     "representação anatômica clínica. As cores indicam o papel da região no " +
     "movimento, a partir da classificação do catálogo.";
 

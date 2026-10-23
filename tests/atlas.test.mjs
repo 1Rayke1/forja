@@ -257,17 +257,24 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
   const front = app.$(".atlas-figura-cell[data-view=\"front\"] .figura-svg");
   const back = app.$(".atlas-figura-cell[data-view=\"back\"] .figura-svg");
 
-  /* O corpo é desenhado em paths orgânicos: cabeça, pescoço, tronco, dois
-     braços, duas mãos, duas pernas e dois pés. */
-  const frontOutline = front.querySelectorAll(".figura-outline path").length;
-  assert.equal(frontOutline, 11, "Silhueta incompleta na vista anterior: " + frontOutline + " partes");
-  assert.equal(back.querySelectorAll(".figura-outline path").length, 11);
-  assert.equal(front.querySelectorAll(".figura-base path").length, 11);
+  /* Base anatômica 3D local (anterior e posterior na mesma escala 240 × 520)
+     + silhueta orgânica projetada da malha 3D em curvas de Bézier. */
+  const frontPlate = front.querySelector("image.figura-plate");
+  const backPlate = back.querySelector("image.figura-plate");
+  assert.ok(frontPlate && backPlate, "Pranchas anatômicas 3D ausentes nas vistas");
+  assert.match(frontPlate.getAttribute("href"), /assets\/anatomia\/anterior\.png$/);
+  assert.match(backPlate.getAttribute("href"), /assets\/anatomia\/posterior\.png$/);
+  assert.equal(frontPlate.getAttribute("width"), "240");
+  assert.equal(frontPlate.getAttribute("height"), "520");
+  assert.equal(backPlate.getAttribute("width"), "240");
+  assert.equal(backPlate.getAttribute("height"), "520");
 
-  const outlineSource = Array.from(front.querySelectorAll(".figura-outline path"))
-    .map(node => node.getAttribute("d")).join("");
-  assert.equal((outlineSource.match(/C/g) || []).length > 20, true,
-    "O contorno precisa usar curvas, não retângulos/linhas retas");
+  const frontSilhouette = front.querySelector(".figura-silhouette path");
+  const backSilhouette = back.querySelector(".figura-silhouette path");
+  assert.ok(frontSilhouette && backSilhouette, "Contorno de silhueta projetado ausente");
+  assert.equal((frontSilhouette.getAttribute("d").match(/C/g) || []).length > 80, true,
+    "O contorno precisa usar curvas de Bézier projetadas da malha 3D, não retângulos/linhas retas");
+  assert.equal((backSilhouette.getAttribute("d").match(/C/g) || []).length > 80, true);
   assert.equal(front.querySelectorAll("rect").length, 0, "Silhueta não deve ser feita de retângulos");
   assert.equal(front.querySelectorAll("line").length, 0, "Silhueta não deve ser feita de linhas retas");
 
@@ -293,7 +300,7 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
     "Camada de regiões sem recorte pela silhueta");
   const clip = front.querySelector("clipPath");
   assert.ok(clip, "clipPath com a silhueta ausente");
-  assert.equal(clip.querySelectorAll("path").length, 11, "O recorte precisa usar a silhueta inteira");
+  assert.equal(clip.querySelectorAll("path").length, 1, "O recorte deve usar o contorno integral da silhueta 3D");
 
   /* Regiões interativas opcionais: foco, clique e teclado. */
   const host = app.d.createElement("div");
@@ -697,10 +704,21 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
   assert.match(executionHtml, /id="execution-figure"/, "A execução não tem o bloco da figura");
   assert.match(executionHtml, /id="execution-figure-details"/, "A execução não tem o botão de detalhes dos músculos");
 
-  /* Sem imagem externa: a silhueta é SVG gerado no navegador. */
+  /* Sem URL remota externa: pranchas 3D são locais, leves e documentadas com licença. */
   assert.doesNotMatch(atlasHtml, /<img[^>]+atlas/i);
   assert.doesNotMatch(css, /url\(http/);
-  assert.equal(/<image\b/.test(figureSource()), false);
+  assert.doesNotMatch(figureSource(), /https?:\/\/(?!www\.w3\.org\/2000\/svg)/i,
+    "A figura não deve buscar imagens remotas na rede");
+  ["anterior.png", "posterior.png", "NOTICE.md"].forEach(file => {
+    const full = path.join(repoRoot, "assets", "anatomia", file);
+    assert.ok(fs.existsSync(full), "Arquivo anatômico ausente: " + file);
+  });
+  assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", "anterior.png")).size < 160 * 1024,
+    "Prancha anterior acima do orçamento de desempenho");
+  assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", "posterior.png")).size < 160 * 1024,
+    "Prancha posterior acima do orçamento de desempenho");
+  assert.match(fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "NOTICE.md"), "utf8"),
+    /CC BY-SA 4\.0/, "NOTICE.md sem registro claro da licença");
 
   assert.match(css, /@media \(max-width: 430px\)/, "Sem ajuste para telas de 320–430 px");
   assert.match(css, /@media \(max-width: 360px\)/);
@@ -715,7 +733,79 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
   assert.match(css, /\.atlas-figuras \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/s,
     "As duas vistas devem dividir a largura sem estourar");
 
+  assert.match(css, /mix-blend-mode:\s*screen/i, "Composição screen ausente sobre o relevo 3D");
+  assert.match(css, /#b7f34a/i, "Cor principal #B7F34A ausente");
+  assert.match(css, /#f2b84b/i, "Cor secundária #F2B84B ausente");
+  assert.match(css, /#8cc0e0/i, "Cor estabilizadora #8CC0E0 ausente");
+
   assertNoErrors({ errors: [] }, "css");
+});
+
+/* ------------------------------------------------------------------ */
+/* 12. Execução ativa: figura compacta, modal e sessão intacta        */
+/* ------------------------------------------------------------------ */
+
+await runTest("ATLAS 12. Execução de treino preserva sessão, séries e storage ao abrir 'Músculos trabalhados'", async () => {
+  const routine = makeRoutine("weights", "Força Base", [
+    { id: "ex-supino", name: "Supino reto com barra", section: "main", sets: 4, reps: "8", rest: 90, load: "70 kg" },
+    { id: "ex-remada", name: "Remada curvada com barra", section: "main", sets: 4, reps: "10", rest: 90, load: "60 kg" }
+  ], "rot-forca");
+
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([], [routine]) }, "treino/musculacao.html");
+  await wait(30);
+
+  app.click("#routine-list .routine-start");
+  await until(() => app.d.body.dataset.page === "executar", "abrir página de execução");
+  await wait(30);
+
+  /* Compatibilidade exata dos 16 IDs públicos entre catálogo/atlas e figura 3D. */
+  const expectedIds = [
+    "ombros", "peito", "biceps", "antebracos", "abdomem", "obliquos", "quadril", "quadriceps",
+    "pernas", "costas", "dorsais", "lombar", "triceps", "gluteos", "posterior-coxa", "panturrilha"
+  ];
+  assert.deepEqual(Array.from(Object.keys(app.F.figura.REGIONS)).sort(), expectedIds.slice().sort());
+  assert.deepEqual(Array.from(app.F.atlas.GROUPS, g => g.id).sort(), expectedIds.slice().sort());
+
+  /* Registra 1 série real antes de consultar o modal anatômico. */
+  app.click("#complete-set");
+  await wait(30);
+
+  const figSvg = app.$("#execution-figure .figura-svg");
+  assert.ok(figSvg, "Figura compacta não renderizou na execução");
+  assert.equal(figSvg.getAttribute("role"), "img");
+  assert.equal(figSvg.querySelectorAll("text, circle").length, 0);
+
+  const storageBeforeModal = {};
+  app.keys().forEach(k => { storageBeforeModal[k] = app.raw(k); });
+  const activeBefore = JSON.parse(storageBeforeModal["forja-treino-sessao-ativa-v1"]);
+  assert.equal(activeBefore.completedSets["ex-supino"], 1, "Série concluída não estava registrada");
+  const timerBefore = app.text("#session-timer");
+
+  /* Abre e fecha o modal "Músculos trabalhados" sem alterar sessão nem storage. */
+  app.click("#execution-figure-details");
+  await until(() => app.$(".modal-backdrop"), "modal Músculos trabalhados na execução");
+  await wait(25);
+
+  assert.match(app.text(".modal-card"), /Músculos trabalhados/);
+  assert.match(app.text(".modal-card"), /Supino reto com barra/);
+  assert.equal(app.$$(".modal-card .figura-svg").length, 2, "O modal deve exibir as vistas anterior e posterior");
+  assert.match(app.text(".modal-card .atlas-modal-note"), /CC BY-SA 4\.0/);
+
+  app.modalAction("close");
+  await wait(25);
+  assert.equal(app.$(".modal-backdrop"), null, "Modal não fechou");
+
+  const storageAfterModal = {};
+  app.keys().forEach(k => { storageAfterModal[k] = app.raw(k); });
+  assert.deepEqual(storageAfterModal, storageBeforeModal,
+    "Consultar 'Músculos trabalhados' gravou ou alterou chaves do localStorage");
+  assert.equal(app.F.state.activeWorkout.completedSets["ex-supino"], 1,
+    "Estado da série concluída foi alterado após fechar o modal");
+  assert.equal(app.text("#session-timer"), timerBefore,
+    "Cronômetro da sessão foi reiniciado ou alterado ao abrir/fechar o modal");
+
+  assertNoErrors(app, "execução com consulta anatômica");
+  app.close();
 });
 
 const failed = results.filter(result => !result.ok);

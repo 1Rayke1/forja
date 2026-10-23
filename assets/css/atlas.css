@@ -40,68 +40,62 @@
   min-width: 0;
 }
 
-/* Contorno único: a união das partes não deixa costura entre tronco e membro. */
-.figura-outline path {
-  fill: var(--border);
-  stroke: var(--border);
-  stroke-width: 6;
+/* Silhueta base sutil e prancha anatômica 3D pré-renderizada (2× Retina). */
+.figura-silhouette-bg {
+  fill: #151916;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 0.8;
   stroke-linejoin: round;
 }
 
-.figura-base path {
-  fill: #191d19;
-}
-
-.figura-details {
+.figura-plate {
   pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.36));
 }
 
-.figura-details path {
-  fill: none;
-  stroke: #414a41;
-  stroke-width: 1.1;
-  stroke-linecap: round;
-}
+/* Regiões destacadas sobre o relevo muscular 3D ------------------------ */
 
-.figura-details .figura-line-strong {
-  stroke: #4d574d;
-  stroke-width: 1.5;
+.figura-regions {
+  isolation: isolate;
 }
-
-/* Regiões destacadas -------------------------------------------------- */
 
 .figura-region-shape {
-  stroke-width: 1.2;
+  stroke-width: 1.05;
   stroke-linejoin: round;
+  mix-blend-mode: screen;
   transition: opacity 0.18s ease;
 }
 
 .figura-region.is-primary .figura-region-shape {
-  fill: rgba(183, 243, 74, 0.55);
-  stroke: var(--lime);
+  fill: rgba(183, 243, 74, 0.44);
+  stroke: #b7f34a;
+  stroke-width: 1.15;
 }
 
 .figura-region.is-secondary .figura-region-shape {
-  fill: rgba(242, 184, 75, 0.5);
+  fill: rgba(242, 184, 75, 0.36);
   stroke: #f2b84b;
+  stroke-width: 0.95;
 }
 
 .figura-region.is-stabilizer .figura-region-shape {
-  fill: rgba(127, 179, 213, 0.4);
-  stroke: #7fb3d5;
+  fill: rgba(140, 192, 224, 0.30);
+  stroke: #8cc0e0;
+  stroke-width: 0.9;
+  stroke-dasharray: 2.6 2;
 }
 
 .figura-region.is-informed .figura-region-shape {
-  fill: rgba(160, 166, 159, 0.3);
-  stroke: #a0a69f;
+  fill: rgba(168, 176, 168, 0.28);
+  stroke: #b2bab1;
   stroke-dasharray: 3 3;
 }
 
 .figura-region.is-focus .figura-region-shape {
-  fill: rgba(183, 243, 74, 0.35);
+  fill: rgba(183, 243, 74, 0.38);
   stroke: var(--lime);
-  stroke-width: 1.8;
-  stroke-dasharray: 4 3;
+  stroke-width: 1.45;
+  stroke-dasharray: 4 2.5;
 }
 
 /* Regiões interativas (opcional): foco visível mesmo no SVG. */
@@ -293,9 +287,9 @@
   border: 1px solid transparent;
 }
 
-.atlas-swatch.is-primary { background: rgba(183, 243, 74, 0.6); border-color: var(--lime); }
+.atlas-swatch.is-primary { background: rgba(183, 243, 74, 0.6); border-color: #b7f34a; }
 .atlas-swatch.is-secondary { background: rgba(242, 184, 75, 0.55); border-color: #f2b84b; }
-.atlas-swatch.is-stabilizer { background: rgba(127, 179, 213, 0.45); border-color: #7fb3d5; }
+.atlas-swatch.is-stabilizer { background: rgba(140, 192, 224, 0.42); border: 1px dashed #8cc0e0; }
 .atlas-swatch.is-informed { background: rgba(160, 166, 159, 0.35); border-color: #a0a69f; }
 .atlas-swatch.is-focus { background: rgba(183, 243, 74, 0.35); border-color: var(--lime); }
 
@@ -506,29 +500,50 @@
 
 .execution-figure {
   display: grid;
-  justify-items: center;
-  gap: var(--space-2);
-  margin: 4px 0 14px;
-  padding: var(--space-2);
+  grid-template-columns: 72px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: var(--space-3);
+  row-gap: 4px;
+  margin: 4px 0 10px;
+  padding: 8px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: rgba(0, 0, 0, 0.18);
 }
 
-.execution-figure .figura { max-width: 104px; }
+.execution-figure #execution-figure-body,
+.execution-figure .atlas-figura-cell.is-compact {
+  display: contents;
+}
+
+.execution-figure .figura {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 72px;
+  max-width: 72px;
+}
 
 .execution-figure-caption {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  margin: 0;
+  text-align: left;
   text-transform: none;
   letter-spacing: 0;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.4;
-  max-width: 220px;
+  max-width: none;
 }
 
 .execution-figure-actions {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space-2);
 }
 
@@ -543,7 +558,12 @@
   }
 
   .atlas-card { padding: var(--space-5); }
-  .atlas-figura-cell .figura { max-width: 250px; }
+  .atlas-figura-cell:not(.is-compact) .figura { max-width: 250px; }
+  .execution-figure {
+    grid-template-columns: 84px minmax(0, 1fr);
+    padding: 10px 16px;
+  }
+  .execution-figure .figura { width: 84px; max-width: 84px; }
   .atlas-legenda-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .atlas-figuras { gap: var(--space-4); }
 }

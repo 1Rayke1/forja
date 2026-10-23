@@ -264,6 +264,91 @@ try {
   await page.evaluate(() => window.scrollTo(0, 0));
   await shotAt("atlas-selecionado-1280.png", 1280, true);
 
+  for (const [fileName, width, height] of [
+    ["atlas-desktop-1280.png", 1280, 980],
+    ["atlas-mobile-390.png", 390, 844],
+    ["atlas-mobile-320.png", 320, 844]
+  ]) {
+    await page.setViewport({ width, height, deviceScaleFactor: 2 });
+    await sleep(220);
+    await page.evaluate(() => {
+      const card = document.querySelector(".atlas-exercise-card");
+      if (card) {
+        const top = Math.max(0, card.getBoundingClientRect().top + window.scrollY - 72);
+        window.scrollTo(0, top);
+      }
+    });
+    await sleep(120);
+    await page.screenshot({ path: path.join(outDir, fileName) });
+  }
+
+  /* 8. Biblioteca: modal de detalhe de exercício com figura anterior/posterior e legenda compacta. */
+  await setViewport(390, 2);
+  await page.goto(BASE + "treino/biblioteca.html?musculo=peito", { waitUntil: "networkidle0" });
+  await page.addStyleTag({ content: "html{scroll-behavior:auto !important}" });
+  await sleep(300);
+  await clickCentered("#catalog-list .ui-exercise-row .ui-button");
+  await sleep(250);
+  await page.screenshot({ path: path.join(outDir, "biblioteca-detalhe-390.png") });
+  const modalCard = await page.$(".modal-card");
+  if (modalCard) {
+    await modalCard.screenshot({ path: path.join(outDir, "biblioteca-figura-390.png") });
+  }
+  await page.keyboard.press("Escape");
+  await sleep(200);
+
+  /* 9. Execução de treino ativa (mobile 390 e desktop 1280) com figura compacta. */
+  await page.goto(BASE + "treino/musculacao.html", { waitUntil: "networkidle0" });
+  await page.evaluate(() => {
+    const routine = {
+      id: "rotina-visual-atlas",
+      name: "Força Superior A",
+      modality: "weights",
+      notes: "",
+      createdAt: "2026-10-22T10:00:00.000Z",
+      updatedAt: "2026-10-22T10:00:00.000Z",
+      sections: {
+        warmup: [],
+        main: [
+          {
+            id: "ex-supino-visual",
+            name: "Supino reto com barra",
+            catalogId: "mus-supino-barra",
+            primaryGroup: "peito",
+            secondaryGroups: ["triceps", "ombros"],
+            equipment: "barra",
+            measureType: "reps",
+            sets: 4,
+            reps: "8",
+            load: "60",
+            restSeconds: 90,
+            notes: ""
+          }
+        ],
+        cooldown: []
+      }
+    };
+    window.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify({
+      version: 2,
+      calisthenics: [],
+      weights: [routine]
+    }));
+  });
+  await page.reload({ waitUntil: "networkidle0" });
+  await sleep(250);
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: "networkidle0" }),
+    clickCentered(".routine-card .routine-start")
+  ]);
+  await sleep(350);
+  await measure("execucao-ativa");
+  await shotAt("execucao-treino-mobile-390.png", 390, false);
+  const execFig = await page.$("#execution-figure");
+  if (execFig) {
+    await execFig.screenshot({ path: path.join(outDir, "execucao-figura-390.png") });
+  }
+  await shotAt("execucao-treino-desktop-1280.png", 1280, false);
+
   console.log("atlas — medições por largura:");
   measurements.forEach(line => {
     console.log(

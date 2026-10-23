@@ -14,50 +14,68 @@ treinamento sem precisar ler o código.
 
 ## 1. O que a figura é — e o que ela não é
 
-O atlas é um **esquema de regiões musculares sobre uma silhueta humana
-vetorial**. A pergunta que ele responde é prática: *"quais regiões este
-exercício trabalha, e com que papel?"*. A figura é desenhada em SVG (sem imagem
-externa) com uma silhueta de corpo inteiro — cabeça, pescoço, tórax, cintura,
-pelve, braços separados do tronco, mãos, coxas, joelhos, panturrilhas e pés —
-nas vistas **anterior** e **posterior**. As regiões trabalhadas são pintadas
-sobre o corpo, com uma cor por papel, e explicadas por uma legenda curta.
+O atlas combina uma **base anatômica humana 3D pré-renderizada** (vistas
+**anterior** e **posterior** exatamente na mesma escala ortográfica) com
+**contornos vetoriais projetados das 16 regiões musculares** do catálogo. A
+pergunta que ele responde continua prática e direta: *"quais regiões este
+exercício trabalha, e com que papel?"*. As regiões ativas são destacadas de
+forma discreta sobre o relevo muscular real, com uma cor por papel, e
+explicadas por uma legenda curta sem poluir o corpo com dezenas de rótulos.
+
+O que ele **é**:
+
+- **baseado em anatomia real por ressonância magnética:** as pranchas
+  `assets/anatomia/anterior.png` (`102.962 bytes` / `100,5 KiB`) e
+  `assets/anatomia/posterior.png` (`92.843 bytes` / `90,7 KiB`), em
+  `480 × 1040 px` (`2×` Retina sobre `viewBox="0 0 240 520"`), e os contornos
+  vetoriais das 16 regiões (`52.186 bytes` / `51,0 KiB` de caminhos SVG dentro
+  do módulo `assets/js/forja-figura.js` de `63.118 bytes` / `61,6 KiB`) são
+  gerados em `tools/gerar-anatomia-3d.mjs` a partir do **BodyParts3D /
+  Anatomography** (DBCLS, **CC BY-SA 2.1 JP**) e do **Z-Anatomy**
+  (**CC BY-SA 4.0**, mapeado segundo a *Terminologia Anatomica* — TA2), com
+  créditos, separação jurídica entre mídia e código e procedimento de
+  regeneração documentados em `assets/anatomia/NOTICE.md`;
+- **leve e estático em tempo de execução:** em vez de carregar ~17 MB de malhas
+  glTF e manter contexto WebGL ativo no celular durante o treino, o navegador
+  transfere `191,2 KiB` de PNGs indexados locais + `61,6 KiB` do módulo
+  `forja-figura.js` (`252,9 KiB` brutos no total, sem compressão gzip), com
+  semântica SVG nativa (`role="img"`, texto alternativo por vista e navegação
+  por teclado quando interativo).
 
 O que ele **não** é:
 
-- **não é uma representação anatômica clínica.** Os músculos não são desenhados
-  individualmente, não há fibras, inserções, origem/inserção nem planos de
-  corte. As formas são agrupamentos funcionais pintados sobre a silhueta;
-- **não é um atlas médico nem material de estudo de anatomia.** Nada aqui deve
-  ser usado para localizar dor, diagnosticar lesão ou estudar anatomia formal;
-- **não é uma ilustração licenciada de terceiros.** Todo o SVG é autoral, gerado
-  no próprio módulo (`assets/js/forja-figura.js`), sem imagem, fonte, sprite ou
-  biblioteca externa. Por isso não há atribuição de terceiros a fazer — e por
-  isso também não há precisão de ilustração profissional;
-- **não usa marcadores numerados.** A versão anterior do atlas mostrava círculos
-  numerados sobre um manequim de blocos; ela foi substituída. Não há números
-  espalhados pelo corpo nem círculos sobrepostos: a informação é a própria
-  região colorida + a legenda.
+- **não é uma representação anatômica clínica para diagnóstico.** Apesar de a
+  geometria base vir de modelos anatômicos reais, os destaques agrupam músculos
+  em **16 regiões funcionais de treino**; nada aqui deve ser usado para
+  diagnosticar dor, lesão ou substituir avaliação profissional;
+- **não usa marcadores numerados nem linhas de chamada sobre o corpo.** Não há
+  círculos numerados nem dezenas de legendas encobrindo a figura: a leitura vem
+  da própria região destacada em `mix-blend-mode: screen` + legenda enxuta.
 
-O aviso aparece **na própria tela** (`.atlas-disclosure`), não só neste
-documento:
+O aviso e o crédito aparecem **na própria tela** (`.atlas-disclosure`), além de
+`assets/anatomia/NOTICE.md`:
 
-> Figura esquemática de regiões musculares — não é uma representação anatômica
+> Figura esquemática de regiões musculares sobre base anatômica 3D
+> (BodyParts3D / Z-Anatomy, CC BY-SA 4.0) — não é uma representação anatômica
 > clínica. As cores indicam o papel da região no movimento, a partir da
 > classificação do catálogo.
 
-### 1.1 Como a silhueta é construída
+### 1.1 Como a figura e os destaques são construídos
 
-- Cada membro é gerado a partir de uma **linha média com meia-largura** em cada
-  ponto (ombro → cotovelo → punho; quadril → joelho → tornozelo). O contorno é a
-  curva que passa pelos deslocamentos perpendiculares dessa linha, convertida em
-  curvas de Bézier (Catmull-Rom). Por isso o volume é contínuo e as
-  extremidades afinam de verdade (punho, tornozelo);
-- cabeça, pescoço, mãos e pés são **caminhos fechados** próprios; o lado direito
-  é o espelho do esquerdo;
-- a silhueta é montada em duas camadas (traço grosso embaixo, preenchimento em
-  cima) para que os encontros entre tronco e membros não deixem costura;
-- as regiões são formas fechadas suavizadas, **recortadas pela silhueta** com
-  `clipPath`, então o destaque acompanha o corpo em vez de flutuar sobre ele.
+- As malhas 3D dos sistemas muscular (`kas.glb`), esquelético (`iskelet.glb`),
+  articular (`eklem.glb`) e do envelope craniofacial externo (`FMA7163`) são
+  enquadradas por câmera ortográfica simétrica nas vistas **anterior** e
+  **posterior**, garantindo **mesma escala, mesma pose e proporções humanas
+  reais**;
+- para cada uma das 16 regiões do catálogo, o gerador offline renderiza uma
+  máscara binária com **oclusão real de profundidade** no buffer WebGL sobre os
+  músculos correspondentes da *Terminologia Anatomica* (TA2) e extrai curvas de
+  Bézier cúbicas fechadas (*Marching Squares* orientado + simplificação RDP +
+  Catmull-Rom fechado);
+- no navegador, `assets/js/forja-figura.js` compõe a silhueta base, a prancha
+  local `<image class="figura-plate">` e a camada `<g class="figura-regions">`
+  recortadas pelo mesmo `clipPath` da silhueta, preservando o relevo 3D sob o
+  destaque translúcido.
 
 ### 1.2 Cores e papéis
 
@@ -65,7 +83,7 @@ documento:
 | --- | --- | --- |
 | Principal | verde-lima (`#B7F34A`) | produz a maior parte do movimento |
 | Secundária | âmbar (`#F2B84B`) | participa de forma relevante |
-| Estabilizadora | azul-acinzentado (`#7FB3D5`) | estabiliza ou transmite força |
+| Estabilizadora | azul-acinzentado (`#8CC0E0`, tracejado) | estabiliza ou transmite força |
 | Informada por você | contorno tracejado cinza | exercício personalizado sem papéis declarados |
 | Grupo em foco | contorno lima tracejado | exploração por grupo muscular |
 
@@ -75,17 +93,16 @@ SVG lista as regiões por papel naquela vista, e o resumo em texto repete a
 classificação. As regiões de papel menor são desenhadas primeiro, para não
 cobrirem a principal.
 
-### Limitações conhecidas do desenho
+### Limitações conhecidas da figura e do mapeamento
 
 | Limitação | Consequência prática |
 | --- | --- |
-| Silhueta genérica, sem variação de biotipo, sexo, idade ou roupa | A figura não representa corpos reais; regiões são aproximadas |
-| Formas são agrupamentos, não contornos musculares exatos | A área pintada não corresponde ao tamanho real do músculo |
-| Vista anterior e posterior apenas; sem vistas laterais, mediais ou cortes | Alguns grupos (ex.: oblíquos, glúteo médio) aparecem de forma resumida |
-| Grupos são agrupamentos funcionais, não músculos isolados | "Dorsais" agrupa grande dorsal e adjacentes; "Peitoral" não separa porções clavicular/esternal |
-| Braços ficam levemente afastados do tronco | É uma pose de leitura (para o contorno ser visível), não uma postura de execução |
-| Nenhuma informação de função, amplitude ou biomecânica é exibida | O atlas não ensina execução — isso fica nas instruções do exercício |
-| Regiões amplas (`kind: "region"`) existem por causa do catálogo | "Pernas", "costas", "ombros" e "quadril" aparecem como região, não como músculo |
+| Biotipo único de referência (adulto masculino ~1,70 m do conjunto RM BodyParts3D) | Não reflete variações individuais de sexo, estatura, proporção óssea ou percentual de gordura |
+| 16 regiões funcionais de treino, não dissecação músculo a músculo na UI | "Peitoral" une as cabeças clavicular, esternocostal e abdominal do peitoral maior; "Costas" reúne trapézio, romboides, infraespinal, redondo menor e levantador da escápula |
+| Vista anterior e posterior ortográficas apenas (sem vistas laterais ou cortes profundos) | Músculos profundos (ex.: iliopsoas, quadrado lombar, glúteo mínimo, braquial) aparecem apenas na fração não ocluída ou integrados ao contorno regional |
+| Aponeuroses largas recortadas para priorizar o ventre contrátil | A aponeurose medial do oblíquo externo sobre o reto abdominal e o losango aponeurótico lombossacral do grande dorsal são recortados para não confundir `obliquos`/`abdomem` nem `dorsais`/`lombar` |
+| Pranchas derivadas sob licença CC BY-SA 4.0 | Qualquer redistribuição ou adaptação de `assets/anatomia/*.png` deve preservar os créditos e a licença indicados em `assets/anatomia/NOTICE.md` |
+| Nenhuma informação de amplitude articular ou execução na figura | A técnica do movimento permanece descrita nas instruções textuais de cada exercício |
 
 ---
 

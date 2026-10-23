@@ -717,12 +717,13 @@
 
       if (fieldInputs.length > 0) {
         const first = fieldInputs[0];
-        first.focus();
+        first.focus({ preventScroll: true });
         /* `select()` só existe em campo de texto: select e checkbox não têm. */
         if (typeof first.select === "function") first.select();
       } else if (preferredButton) {
-        preferredButton.focus();
+        preferredButton.focus({ preventScroll: true });
       }
+      card.scrollTop = 0;
     });
   };
 
