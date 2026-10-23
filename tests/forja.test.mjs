@@ -2455,6 +2455,482 @@ await runTest("53. Preferências: mudança feita em outra aba chega ao Perfil, �
   }
 });
 
+function buildRotationExercise(name, extra = {}) {
+  return Object.assign({
+    id: "ex-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    name,
+    sets: 3,
+    type: "reps",
+    reps: "10",
+    duration: 45,
+    rest: 60,
+    load: "",
+    notes: "",
+    section: "main"
+  }, extra);
+}
+
+function buildRotationRoutine({ id, name, modality = "calisthenics", exercises = [], createdAt = 1000, updatedAt = 1000 }) {
+  return {
+    id,
+    name,
+    modality,
+    createdAt,
+    updatedAt,
+    sections: {
+      warmup: [],
+      main: exercises,
+      abs: [],
+      finisher: []
+    }
+  };
+}
+
+await runTest("54. Home sem rotina e com rotina vazia nunca exibe botão Iniciar quebrado", async () => {
+  /* 1. Estado completamente vazio: zero escrita ao abrir, sem <button> Iniciar, CTA aponta para criação. */
+  const emptyApp = await boot({}, "index.html");
+  assert.deepEqual(emptyApp.storageWrites, [], "Abrir a Home vazia não pode gravar em localStorage");
+  const primaryEmpty = emptyApp.$("#home-primary-button");
+  assert.ok(primaryEmpty, "CTA principal ausente na Home vazia");
+  assert.equal(primaryEmpty.tagName, "A", "Na Home sem rotinas o CTA deve ser link de criação, não botão de iniciar");
+  assert.equal(emptyApp.text("#home-primary-button"), "Montar meu treino");
+  assert.doesNotMatch(emptyApp.text("#home-action"), /\bIniciar\b/, "Home vazia não deve mostrar Iniciar");
+  assert.equal(primaryEmpty.getAttribute("href"), "treino/index.html");
+  assertNoErrors(emptyApp, "home vazia");
+  emptyApp.close();
+
+  /* 2. Rotina salva, porém ainda sem exercícios (0 exercícios): nunca mostra Iniciar, leva direto ao editor da rotina. */
+  const incompleteSeed = {
+    "forja-treino-rotinas-v1": {
+      version: 2,
+      calisthenics: [buildRotationRoutine({ id: "routine-empty-1", name: "Treino Vazio", exercises: [] })],
+      weights: []
+    }
+  };
+  const incompleteApp = await boot(incompleteSeed, "index.html");
+  assert.deepEqual(incompleteApp.storageWrites, [], "Abrir a Home com rotina vazia não pode gravar em localStorage");
+  const primaryIncomplete = incompleteApp.$("#home-primary-button");
+  assert.equal(primaryIncomplete.tagName, "A", "Rotina sem exercícios não pode renderizar botão Iniciar");
+  assert.equal(incompleteApp.text("#home-primary-button"), "Adicionar exercícios");
+  assert.doesNotMatch(primaryIncomplete.textContent, /\bIniciar\b/);
+  assert.match(primaryIncomplete.getAttribute("href"), /^treino\/rotina\.html\?modalidade=calisthenics&id=routine-empty-1$/);
+  assertNoErrors(incompleteApp, "home com rotina sem exercicios");
+  incompleteApp.close();
+});
+
+function captureStorage(app) {
+  const out = {};
+  for (let i = 0; i < app.w.localStorage.length; i += 1) {
+    const key = app.w.localStorage.key(i);
+    out[key] = JSON.parse(app.w.localStorage.getItem(key));
+  }
+  return out;
+}
+
+await runTest("55. Biblioteca vazia, hub e editor direto abrem criação válida sem #editor-missing", async () => {
+  /* Hub sem rotinas oferece criação da primeira rotina apontando para rota válida. */
+  const hubApp = await boot({}, "treino/index.html");
+  assert.deepEqual(hubApp.storageWrites, []);
+  const hubCreate = hubApp.$("#hub-create-routine");
+  assert.ok(hubCreate, "CTA de criação ausente no hub de treino");
+  assert.equal(hubApp.text("#hub-create-routine"), "Criar primeira rotina");
+  assert.equal(new URL(hubCreate.getAttribute("href"), hubApp.w.location.href).pathname, "/forja/treino/rotina.html");
+  hubApp.close();
+
+  /* Modalidades vazias mostram botão de CTA direto no card vazio, sem gravar até confirmar. */
+  for (const page of ["treino/calistenia.html", "treino/musculacao.html"]) {
+    const modApp = await boot({}, page);
+    assert.deepEqual(modApp.storageWrites, []);
+    const emptyCta = modApp.$("#routine-list .empty-card-cta");
+    assert.ok(emptyCta, "CTA do estado vazio ausente em " + page);
+    assert.equal(emptyCta.textContent.trim(), "Criar primeira rotina");
+    modApp.close();
+  }
+
+  /* Todas as entradas sem ID no editor abrem modo de criação limpo, zero escrita e sem #editor-missing. */
+  for (const url of [
+    "treino/rotina.html",
+    "treino/rotina.html?nova=1",
+    "treino/rotina.html?modalidade=calisthenics",
+    "treino/rotina.html?modalidade=weights",
+    "treino/rotina.html?modalidade=calisthenics&exercicio=cal-flexao"
+  ]) {
+    const editorApp = await boot({}, url);
+    assert.deepEqual(editorApp.storageWrites, [], "Abrir " + url + " não pode gravar em localStorage");
+    assert.equal(editorApp.$("#editor-missing").hidden, true, "#editor-missing apareceu indevidamente em " + url);
+    assert.equal(editorApp.$("#editor-body").hidden, false, "#editor-body deveria estar visível em " + url);
+    assert.ok(editorApp.$("#routine-name-input").value.trim().length > 0, "Nome inicial ausente em " + url);
+    assertNoErrors(editorApp, "abertura direta " + url);
+    editorApp.close();
+  }
+
+  /* Biblioteca sem rotinas permite ir direto para criação já com o exercício pré-carregado. */
+  const catApp = await boot({}, "treino/biblioteca.html");
+  let destination = null;
+  catApp.F.navigate = href => { destination = href; };
+  catApp.$("#catalog-list .ui-exercise-row .primary-button").click();
+  await wait(20);
+  const createBtn = catApp.$('[data-modal-action="create"]');
+  assert.ok(createBtn, "Ação 'Criar rotina agora' ausente no modal da biblioteca");
+  createBtn.click();
+  await wait(20);
+  const resolvedDest = new URL(destination, catApp.w.location.href);
+  assert.equal(resolvedDest.pathname, "/forja/treino/rotina.html");
+  assert.equal(resolvedDest.searchParams.get("modalidade"), "calisthenics");
+  assert.ok(resolvedDest.searchParams.get("exercicio"));
+
+  const preloadedEditor = await boot({}, "treino/rotina.html" + resolvedDest.search);
+  assert.equal(preloadedEditor.$("#editor-missing").hidden, true);
+  assert.equal(preloadedEditor.$("#editor-body").hidden, false);
+  assert.equal(preloadedEditor.$$(".editor-exercise").length, 1, "Exercício da biblioteca não veio pré-carregado no rascunho");
+  assert.equal(preloadedEditor.data("forja-treino-rotinas-v1"), null, "Rascunho não deve gravar antes de salvar");
+  preloadedEditor.close();
+  catApp.close();
+});
+
+await runTest("56. Editor: criar, salvar sem duplicar, cancelar e voltar sem órfãos nem perda de dados", async () => {
+  const existing = buildRotationRoutine({
+    id: "routine-existing",
+    name: "Base Existente",
+    modality: "calisthenics",
+    exercises: [buildRotationExercise("Barra fixa")]
+  });
+  const seed = {
+    "forja-treino-rotinas-v1": {
+      version: 2,
+      calisthenics: [existing],
+      weights: []
+    }
+  };
+
+  /* 1. Cancelar imediatamente uma nova rotina sem alterações não grava nada nem cria rotina órfã. */
+  const cleanCancelApp = await boot(seed, "treino/rotina.html?nova=1");
+  let cancelDest = null;
+  cleanCancelApp.F.navigate = href => { cancelDest = href; };
+  const writesBeforeCancel = cleanCancelApp.storageWrites.length;
+  cleanCancelApp.$("#cancel-routine").click();
+  await wait(20);
+  assert.equal(new URL(cancelDest, cleanCancelApp.w.location.href).pathname, "/forja/treino/index.html");
+  assert.equal(cleanCancelApp.storageWrites.length, writesBeforeCancel, "Cancelar rascunho limpo não pode gravar nada");
+  assert.equal(cleanCancelApp.data("forja-treino-rotinas-v1").calisthenics.length, 1);
+  assert.equal(cleanCancelApp.data("forja-treino-rotinas-v1").weights.length, 0);
+  cleanCancelApp.close();
+
+  /* 2. Criar rotina em Musculação, adicionar exercício, salvar múltiplas vezes: 1 única rotina criada + existente preservada. */
+  const createApp = await boot(seed, "treino/rotina.html?nova=1");
+  createApp.$("#editor-modality-select").value = "weights";
+  createApp.$("#editor-modality-select").dispatchEvent(new createApp.w.Event("change", { bubbles: true }));
+  createApp.$("#routine-name-input").value = "Força Superior";
+  createApp.$("#routine-name-input").dispatchEvent(new createApp.w.Event("input", { bubbles: true }));
+  createApp.$("#exercise-name").value = "Supino reto";
+  createApp.$("#exercise-sets").value = "4";
+  createApp.$("#exercise-reps").value = "8";
+  createApp.$("#exercise-load").value = "60 kg";
+  createApp.$("#exercise-form").dispatchEvent(new createApp.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+
+  assert.equal(createApp.data("forja-treino-rotinas-v1").weights.length, 0, "Antes de salvar não deve persistir");
+  createApp.$("#save-routine-top").click();
+  await wait(20);
+
+  let savedStore = createApp.data("forja-treino-rotinas-v1");
+  assert.equal(savedStore.calisthenics.length, 1, "Rotina existente de calistenia foi alterada/perdida");
+  assert.equal(savedStore.calisthenics[0].name, "Base Existente");
+  assert.equal(savedStore.weights.length, 1, "Nova rotina de musculação deveria ter sido criada");
+  const createdId = savedStore.weights[0].id;
+  assert.match(createdId, /^routine-/, "ID gerado fora da convenção do projeto");
+  assert.equal(savedStore.weights[0].sections.main.length, 1);
+
+  /* Salvar de novo após editar atualiza a mesma rotina, nunca duplica. */
+  createApp.$("#routine-name-input").value = "Força Superior v2";
+  createApp.$("#routine-name-input").dispatchEvent(new createApp.w.Event("input", { bubbles: true }));
+  createApp.$("#save-routine").click();
+  await wait(20);
+
+  savedStore = createApp.data("forja-treino-rotinas-v1");
+  assert.equal(savedStore.weights.length, 1, "Salvar novamente duplicou a rotina");
+  assert.equal(savedStore.weights[0].id, createdId);
+  assert.equal(savedStore.weights[0].name, "Força Superior v2");
+
+  /* Alteração não salva pede confirmação ao cancelar/voltar; descartar preserva a versão salva. */
+  let navAfterDiscard = null;
+  createApp.F.navigate = href => { navAfterDiscard = href; };
+  createApp.$("#routine-name-input").value = "Rascunho Descartado";
+  createApp.$("#routine-name-input").dispatchEvent(new createApp.w.Event("input", { bubbles: true }));
+  createApp.$("#cancel-routine").click();
+  await wait(20);
+  assert.equal(createApp.$("#modal-title").textContent, "Descartar alterações?");
+  createApp.$('[data-modal-action="cancel"]').click();
+  await wait(20);
+  assert.equal(navAfterDiscard, null, "Continuar editando não deveria sair da página");
+  assert.equal(createApp.$("#routine-name-input").value, "Rascunho Descartado");
+
+  createApp.$("#cancel-routine").click();
+  await wait(20);
+  createApp.$('[data-modal-action="discard"]').click();
+  await wait(20);
+  assert.equal(new URL(navAfterDiscard, createApp.w.location.href).pathname, "/forja/treino/musculacao.html");
+  assert.equal(createApp.data("forja-treino-rotinas-v1").weights[0].name, "Força Superior v2");
+  createApp.close();
+});
+
+await runTest("57. Home: rotação previsível entre sessões/reloads, sem depender de updatedAt nem avançar ao abrir", async () => {
+  /* Treino C tem updatedAt mais recente de propósito para provar que updatedAt não sequestra a seleção. */
+  const rA = buildRotationRoutine({
+    id: "routine-a",
+    name: "Treino A Empurrar",
+    modality: "calisthenics",
+    exercises: [buildRotationExercise("Flexão", { sets: 1, rest: 0 })],
+    createdAt: 1000,
+    updatedAt: 1000
+  });
+  const rB = buildRotationRoutine({
+    id: "routine-b",
+    name: "Treino B Puxar",
+    modality: "calisthenics",
+    exercises: [buildRotationExercise("Barra fixa", { sets: 1, rest: 0 })],
+    createdAt: 2000,
+    updatedAt: 2000
+  });
+  const rC = buildRotationRoutine({
+    id: "routine-c",
+    name: "Treino C Pernas",
+    modality: "weights",
+    exercises: [buildRotationExercise("Agachamento livre", { sets: 1, rest: 0, load: "80 kg" })],
+    createdAt: 3000,
+    updatedAt: 999999
+  });
+
+  const baseStorage = {
+    "forja-treino-rotinas-v1": {
+      version: 2,
+      calisthenics: [rA, rB],
+      weights: [rC]
+    }
+  };
+
+  /* 1. Primeiro uso (histórico vazio): escolhe Treino A (1ª da sequência), não Treino C (mais recente). */
+  /* 2. Recarregar a Home múltiplas vezes não avança a rotação nem grava nada em localStorage. */
+  for (let reload = 0; reload < 3; reload += 1) {
+    const home = await boot(baseStorage, "index.html");
+    assert.deepEqual(home.storageWrites, [], "Abrir/recarregar a Home não pode gravar em localStorage");
+    assert.equal(home.text("#home-primary-button"), "Iniciar Treino A Empurrar");
+    home.close();
+  }
+
+  /* Helper para executar 1 treino completo da rotina atualmente selecionada na Home e retornar o snapshot salvo. */
+  async function startAndFinishFromHome(storageSnapshot) {
+    const home = await boot(storageSnapshot, "index.html");
+    let execDest = null;
+    home.F.navigate = href => { execDest = href; };
+    const chosenLabel = home.text("#home-primary-button");
+    home.$("#home-primary-button").click();
+    await wait(20);
+    assert.equal(execDest, "treino/executar.html");
+    const afterStart = captureStorage(home);
+    home.close();
+
+    const exec = await boot(afterStart, "treino/executar.html");
+    exec.$("#complete-set").click();
+    await wait(60);
+    assert.equal(exec.$("#execution-summary").hidden, false, "Resumo da sessão concluída deveria aparecer");
+    const afterFinish = captureStorage(exec);
+    exec.close();
+    return { chosenLabel, storage: afterFinish };
+  }
+
+  /* 3. Ciclo completo A -> B -> C -> A persistindo entre sessões e recarregamentos. */
+  const step1 = await startAndFinishFromHome(baseStorage);
+  assert.equal(step1.chosenLabel, "Iniciar Treino A Empurrar");
+
+  const homeAfterA = await boot(step1.storage, "index.html");
+  assert.deepEqual(homeAfterA.storageWrites, [], "Reload após Treino A não pode gravar");
+  assert.equal(homeAfterA.text("#home-primary-button"), "Iniciar Treino B Puxar");
+  homeAfterA.close();
+
+  /* Iniciar B por engano e descartar com 0 séries desfaz o avanço e mantém B selecionado. */
+  const accidentalStartHome = await boot(step1.storage, "index.html");
+  accidentalStartHome.F.navigate = () => {};
+  accidentalStartHome.$("#home-primary-button").click();
+  await wait(20);
+  const midDiscardSnap = captureStorage(accidentalStartHome);
+  accidentalStartHome.close();
+
+  const discardExec = await boot(midDiscardSnap, "treino/executar.html");
+  discardExec.F.navigate = () => {};
+  discardExec.$("#end-session").click();
+  await wait(20);
+  discardExec.$('[data-modal-action="discard"]').click();
+  await wait(20);
+  const postDiscardSnap = captureStorage(discardExec);
+  discardExec.close();
+
+  const homeAfterDiscard = await boot(postDiscardSnap, "index.html");
+  assert.equal(homeAfterDiscard.text("#home-primary-button"), "Iniciar Treino B Puxar",
+    "Descartar sessão sem séries deveria restaurar Treino B na fila");
+  homeAfterDiscard.close();
+
+  const step2 = await startAndFinishFromHome(postDiscardSnap);
+  assert.equal(step2.chosenLabel, "Iniciar Treino B Puxar");
+
+  const homeAfterB = await boot(step2.storage, "index.html");
+  assert.equal(homeAfterB.text("#home-primary-button"), "Iniciar Treino C Pernas");
+  homeAfterB.close();
+
+  const step3 = await startAndFinishFromHome(step2.storage);
+  assert.equal(step3.chosenLabel, "Iniciar Treino C Pernas");
+
+  const homeAfterC = await boot(step3.storage, "index.html");
+  assert.equal(homeAfterC.text("#home-primary-button"), "Iniciar Treino A Empurrar",
+    "Após a última rotina a rotação deve voltar circularmente para a primeira");
+  homeAfterC.close();
+});
+
+await runTest("58. Exclusão da rotina atualmente selecionada avança de forma consistente e limpa ao esvaziar", async () => {
+  const rA = buildRotationRoutine({ id: "routine-a", name: "Rotina A", exercises: [buildRotationExercise("Flexão")] });
+  const rB = buildRotationRoutine({ id: "routine-b", name: "Rotina B", exercises: [buildRotationExercise("Barra")] });
+  const rC = buildRotationRoutine({ id: "routine-c", name: "Rotina C", exercises: [buildRotationExercise("Paralelas")] });
+
+  const seed = {
+    "forja-treino-rotinas-v1": {
+      version: 2,
+      calisthenics: [rA, rB, rC],
+      weights: []
+    },
+    "forja-treino-rotacao-v1": {
+      version: 1,
+      overrideRoutineId: null,
+      nextRoutineId: "routine-b",
+      nextModality: "calisthenics",
+      lastRoutineId: "routine-a",
+      lastModality: "calisthenics",
+      previousState: null,
+      updatedAt: 5000
+    }
+  };
+
+  /* Confirma que Rotina B está selecionada antes da exclusão. */
+  const checkBefore = await boot(seed, "index.html");
+  assert.equal(checkBefore.text("#home-primary-button"), "Iniciar Rotina B");
+  checkBefore.close();
+
+  /* Exclui Rotina B em calistenia.html -> Home passa para Rotina C. */
+  const mod1 = await boot(seed, "treino/calistenia.html");
+  const deleteButtons1 = mod1.$$(".routine-card .danger-button");
+  deleteButtons1[1].click();
+  await wait(20);
+  mod1.$('[data-modal-action="delete"]').click();
+  await wait(20);
+  const snapAfterDeleteB = captureStorage(mod1);
+  mod1.close();
+
+  const checkAfterB = await boot(snapAfterDeleteB, "index.html");
+  assert.equal(checkAfterB.text("#home-primary-button"), "Iniciar Rotina C");
+  checkAfterB.close();
+
+  /* Exclui Rotina C (última da lista) -> Home volta circularmente para Rotina A. */
+  const mod2 = await boot(snapAfterDeleteB, "treino/calistenia.html");
+  mod2.$$(".routine-card .danger-button")[1].click();
+  await wait(20);
+  mod2.$('[data-modal-action="delete"]').click();
+  await wait(20);
+  const snapAfterDeleteC = captureStorage(mod2);
+  mod2.close();
+
+  const checkAfterC = await boot(snapAfterDeleteC, "index.html");
+  assert.equal(checkAfterC.text("#home-primary-button"), "Iniciar Rotina A");
+  checkAfterC.close();
+
+  /* Exclui Rotina A (não resta nenhuma rotina) -> Home volta ao estado vazio honesto. */
+  const mod3 = await boot(snapAfterDeleteC, "treino/calistenia.html");
+  mod3.$$(".routine-card .danger-button")[0].click();
+  await wait(20);
+  mod3.$('[data-modal-action="delete"]').click();
+  await wait(20);
+  const snapEmpty = captureStorage(mod3);
+  mod3.close();
+
+  const checkEmpty = await boot(snapEmpty, "index.html");
+  assert.equal(checkEmpty.text("#home-primary-button"), "Montar meu treino");
+  assert.doesNotMatch(checkEmpty.text("#home-action"), /\bIniciar\b/);
+  checkEmpty.close();
+});
+
+await runTest("59. Compatibilidade com dados legados (v1/v2) e backups v1/v2/v3 sem chave de rotação", async () => {
+  /* Histórico legado v2 (sem routineId, apenas modality + routineName) e sem forja-treino-rotacao-v1. */
+  const legacyV2Storage = {
+    "forja-treino-rotinas-v1": {
+      version: 2,
+      calisthenics: [
+        buildRotationRoutine({ id: "routine-leg-1", name: "Treino Base 1", exercises: [buildRotationExercise("Flexão")] }),
+        buildRotationRoutine({ id: "routine-leg-2", name: "Treino Base 2", exercises: [buildRotationExercise("Barra")] })
+      ],
+      weights: []
+    },
+    "forja-treino-historico-v1": [{
+      id: "hist-legacy-1",
+      date: "2026-10-20",
+      modality: "calisthenics",
+      routineName: "Treino Base 1",
+      status: "completed",
+      completedSets: 3,
+      totalPlannedSets: 3,
+      durationMs: 900000,
+      exercises: [{ name: "Flexão", completedSets: 3, plannedSets: 3 }]
+    }]
+  };
+
+  const legacyHome = await boot(legacyV2Storage, "index.html");
+  assert.deepEqual(legacyHome.storageWrites, [], "Dados legados não podem causar escrita na abertura da Home");
+  assert.equal(legacyHome.text("#home-primary-button"), "Iniciar Treino Base 2",
+    "Com histórico legado de Treino Base 1, a próxima rotina deve ser Treino Base 2");
+  legacyHome.close();
+
+  /* Backup completo v3 (com rotação) e restauração de backup antigo v2 (sem forja-treino-rotacao-v1). */
+  const withRotation = Object.assign({}, legacyV2Storage, {
+    "forja-treino-rotacao-v1": {
+      version: 1,
+      overrideRoutineId: "routine-leg-1",
+      nextRoutineId: "routine-leg-1",
+      nextModality: "calisthenics",
+      lastRoutineId: "routine-leg-2",
+      lastModality: "calisthenics",
+      previousState: null,
+      updatedAt: 12345
+    }
+  });
+
+  const perfil = await boot(withRotation, "perfil/index.html");
+  const exportedWithRotation = perfil.F.buildBackupObject();
+  assert.ok(exportedWithRotation.keys["forja-treino-rotacao-v1"], "Backup deve incluir forja-treino-rotacao-v1");
+
+  /* Importa backup antigo sem forja-treino-rotacao-v1 -> limpa rotação antiga e usa histórico legado. */
+  await perfil.importFile({
+    app: "FORJA",
+    format: "forja-backup",
+    version: 1,
+    exportedAt: "2026-10-20T12:00:00.000Z",
+    keys: legacyV2Storage
+  });
+  await perfil.modal("restore");
+  await wait(40);
+
+  const restoredHome = await boot(captureStorage(perfil), "index.html");
+  assert.equal(restoredHome.text("#home-primary-button"), "Iniciar Treino Base 2");
+  restoredHome.close();
+
+  /* Desfazer restauração restaura exatamente a rotação anterior. */
+  perfil.$("#restore-safety-backup").click();
+  await wait(20);
+  await perfil.modal("restore");
+  await wait(40);
+
+  const undoneHome = await boot(captureStorage(perfil), "index.html");
+  assert.equal(undoneHome.text("#home-primary-button"), "Iniciar Treino Base 1");
+  undoneHome.close();
+  perfil.close();
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));

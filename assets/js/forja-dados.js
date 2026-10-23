@@ -44,6 +44,7 @@
   const WORKOUT_LIBRARY_KEY = KEYS.library;
   const WORKOUT_PREFERENCES_KEY = KEYS.preferences;
   const WORKOUT_GOALS_KEY = KEYS.goals;
+  const WORKOUT_ROTATION_KEY = KEYS.rotation;
 
   const MODALITIES = ["calisthenics", "weights"];
 
@@ -1441,6 +1442,321 @@ function validateGoalsStore(value) {
   return true;
 }
 
+/* ------------------------------------------------------------------ */
+/* Sequência / rotação de rotinas na tela inicial                      */
+/* ------------------------------------------------------------------ */
+
+function emptyRotation() {
+  return {
+    version: 1,
+    overrideRoutineId: null,
+    nextRoutineId: null,
+    nextModality: null,
+    lastRoutineId: null,
+    lastModality: null,
+    previousState: null,
+    updatedAt: null
+  };
+}
+
+function normalizeRotationSnapshot(raw) {
+  if (!isPlainObject(raw)) return null;
+
+  const cleanId = value => (typeof value === "string" && value.trim()
+    ? value.trim().slice(0, 120)
+    : null);
+  const cleanMode = value => (typeof value === "string" && MODE_NAMES[value] ? value : null);
+
+  return {
+    overrideRoutineId: cleanId(raw.overrideRoutineId),
+    nextRoutineId: cleanId(raw.nextRoutineId),
+    nextModality: cleanMode(raw.nextModality),
+    lastRoutineId: cleanId(raw.lastRoutineId),
+    lastModality: cleanMode(raw.lastModality)
+  };
+}
+
+function normalizeRotation(raw) {
+  if (!isPlainObject(raw)) return emptyRotation();
+
+  const base = normalizeRotationSnapshot(raw);
+
+  return {
+    version: 1,
+    overrideRoutineId: base.overrideRoutineId,
+    nextRoutineId: base.nextRoutineId,
+    nextModality: base.nextModality,
+    lastRoutineId: base.lastRoutineId,
+    lastModality: base.lastModality,
+    previousState: normalizeRotationSnapshot(raw.previousState),
+    updatedAt: Number.isFinite(Number(raw.updatedAt)) && Number(raw.updatedAt) > 0
+      ? Math.round(Number(raw.updatedAt))
+      : null
+  };
+}
+
+function loadRotation() {
+  const stored = parseStorageValue(WORKOUT_ROTATION_KEY);
+
+  if (!stored.exists) return emptyRotation();
+
+  if (stored.error || !isPlainObject(stored.value)) {
+    archivePreservedValue(WORKOUT_ROTATION_KEY, stored.raw, "Sequência de rotinas inválida");
+    return emptyRotation();
+  }
+
+  return normalizeRotation(stored.value);
+}
+
+function validateRotationStore(value) {
+  if (!isPlainObject(value)) {
+    throw new Error("A sequência de rotinas do FORJA está em formato inválido.");
+  }
+
+  ["overrideRoutineId", "nextRoutineId", "lastRoutineId"].forEach(field => {
+    if (value[field] !== undefined && value[field] !== null && typeof value[field] !== "string") {
+      throw new Error("O campo \"" + field + "\" da sequência de rotinas é inválido.");
+    }
+  });
+
+  ["nextModality", "lastModality"].forEach(field => {
+    if (value[field] !== undefined && value[field] !== null && !MODE_NAMES[value[field]]) {
+      throw new Error("A modalidade salva na sequência de rotinas é desconhecida.");
+    }
+  });
+
+  if (value.previousState !== undefined &&
+    value.previousState !== null &&
+    !isPlainObject(value.previousState)) {
+    throw new Error("O estado anterior da sequência de rotinas é inválido.");
+  }
+
+  return true;
+}
+
+function saveRotation(next) {
+  const previous = cloneData(F.state.rotation || emptyRotation());
+  const normalized = normalizeRotation(next);
+  F.state.rotation = normalized;
+
+  const ok = saveJSON(WORKOUT_ROTATION_KEY, normalized);
+
+  if (!ok) {
+    F.state.rotation = previous;
+    return false;
+  }
+
+  F.store.notifyChanged(WORKOUT_ROTATION_KEY);
+  return true;
+}
+
+/*
+  Lista ordenada das rotinas aptas a iniciar (com pelo menos 1 exercício):
+  Calistenia na ordem definida pelo usuário, seguida de Musculação na ordem
+  definida pelo usuário. Rotinas vazias (0 exercícios) nunca entram na fila de
+  início rápido.
+*/
+function getStartableRoutines() {
+  const list = [];
+
+  MODALITIES.forEach(modality => {
+    getModeRoutines(modality).forEach(routine => {
+      if (countRoutineExercises(routine) > 0) list.push(routine);
+    });
+  });
+
+  return list;
+}
+
+/*
+  Regra pura (zero escrita em localStorage) para escolher a próxima rotina:
+  1. Se houver `overrideRoutineId` explícito (ex.: após exclusão da rotina
+     selecionada ou descarte de sessão) e ela continuar iniciável, usa ela.
+  2. Se `lastRoutineId` existir na lista iniciável atual, avança circularmente
+     para `list[(idx + 1) % len]` (incluindo novas rotinas criadas depois).
+  3. Se `nextRoutineId` explícito existir na lista, usa ela.
+  4. Senão, consulta `F.state.history` (do treino mais recente ao mais antigo,
+     casando por `routineId` ou por `modality + routineName` para dados v1/v2)
+     e retorna `list[(idx + 1) % len]`.
+  5. Primeiro uso / histórico vazio / nenhuma rotina anterior encontrada:
+     retorna `list[0]` (ou `null` quando não há rotina iniciável).
+*/
+function resolveNextRoutine() {
+  const list = getStartableRoutines();
+  if (list.length === 0) return null;
+
+  const rotation = F.state && isPlainObject(F.state.rotation)
+    ? F.state.rotation
+    : emptyRotation();
+
+  if (rotation.overrideRoutineId) {
+    const pinned = list.find(item => item.id === rotation.overrideRoutineId);
+    if (pinned) return pinned;
+  }
+
+  if (rotation.lastRoutineId) {
+    const lastIdx = list.findIndex(item => item.id === rotation.lastRoutineId);
+    if (lastIdx >= 0) return list[(lastIdx + 1) % list.length];
+  }
+
+  if (rotation.nextRoutineId) {
+    const explicit = list.find(item => item.id === rotation.nextRoutineId);
+    if (explicit) return explicit;
+  }
+
+  const history = F.state && Array.isArray(F.state.history) ? F.state.history : [];
+  for (let i = 0; i < history.length; i += 1) {
+    const record = history[i];
+    if (!isPlainObject(record)) continue;
+
+    let matchIdx = -1;
+    if (typeof record.routineId === "string" && record.routineId) {
+      matchIdx = list.findIndex(item => item.id === record.routineId);
+    }
+
+    if (matchIdx < 0 && typeof record.routineName === "string" && record.routineName.trim()) {
+      const targetName = record.routineName.trim().toLowerCase();
+      matchIdx = list.findIndex(item => {
+        const sameMode = !record.modality || item.modality === record.modality;
+        return sameMode && String(item.name || "").trim().toLowerCase() === targetName;
+      });
+    }
+
+    if (matchIdx >= 0) {
+      return list[(matchIdx + 1) % list.length];
+    }
+  }
+
+  return list[0];
+}
+
+/*
+  Avança a rotação quando um treino é efetivamente iniciado ou concluído.
+  Idempotente para a mesma rotina: iniciar A e depois concluir A apontam ambos
+  para a rotina imediatamente após A na lista iniciável.
+*/
+function advanceRotation(modality, routineId, options = {}) {
+  if (!routineId) return false;
+
+  const list = getStartableRoutines();
+  const currentRotation = F.state && isPlainObject(F.state.rotation)
+    ? F.state.rotation
+    : emptyRotation();
+
+  const idx = list.findIndex(item => item.id === routineId);
+  const next = idx >= 0
+    ? list[(idx + 1) % list.length]
+    : (list[0] || null);
+
+  const hasExplicitPrevious = Object.prototype.hasOwnProperty.call(options, "previousNextRoutineId");
+  const previousState = hasExplicitPrevious && options.previousNextRoutineId !== null
+    ? normalizeRotationSnapshot(currentRotation)
+    : (hasExplicitPrevious ? null : currentRotation.previousState);
+
+  return saveRotation({
+    version: 1,
+    overrideRoutineId: null,
+    nextRoutineId: next ? next.id : null,
+    nextModality: next ? next.modality : null,
+    lastRoutineId: routineId,
+    lastModality: MODE_NAMES[modality] ? modality : null,
+    previousState,
+    updatedAt: Date.now()
+  });
+}
+
+/*
+  Se uma sessão recém-iniciada (0 séries concluídas) for descartada, desfaz o
+  avanço antecipado restaurando exatamente o estado anterior da rotação.
+*/
+function rollbackDiscardedRotation(routineId) {
+  const currentRotation = F.state && isPlainObject(F.state.rotation)
+    ? F.state.rotation
+    : null;
+
+  if (!currentRotation || currentRotation.lastRoutineId !== routineId) return false;
+  if (!currentRotation.previousState) return false;
+
+  const prev = currentRotation.previousState;
+
+  return saveRotation({
+    version: 1,
+    overrideRoutineId: prev.overrideRoutineId,
+    nextRoutineId: prev.nextRoutineId,
+    nextModality: prev.nextModality,
+    lastRoutineId: prev.lastRoutineId,
+    lastModality: prev.lastModality,
+    previousState: null,
+    updatedAt: Date.now()
+  });
+}
+
+/*
+  Quando uma rotina é excluída:
+  - Se ela era a rotina selecionada na Home, avança circularmente para a
+    próxima rotina restante na sequência anterior (ou limpa se não sobrou
+    nenhuma rotina iniciável).
+  - Se outra rotina estava selecionada, preserva essa seleção.
+*/
+function reconcileRotationAfterDelete(oldStartableList, wasSelected, deletedRoutineId) {
+  const remaining = getStartableRoutines();
+  const currentRotation = F.state && isPlainObject(F.state.rotation)
+    ? F.state.rotation
+    : emptyRotation();
+
+  if (remaining.length === 0) {
+    return saveRotation({
+      version: 1,
+      overrideRoutineId: null,
+      nextRoutineId: null,
+      nextModality: null,
+      lastRoutineId: currentRotation.lastRoutineId === deletedRoutineId
+        ? null
+        : currentRotation.lastRoutineId,
+      lastModality: currentRotation.lastRoutineId === deletedRoutineId
+        ? null
+        : currentRotation.lastModality,
+      previousState: null,
+      updatedAt: Date.now()
+    });
+  }
+
+  let next = null;
+
+  if (wasSelected && wasSelected.id === deletedRoutineId && Array.isArray(oldStartableList)) {
+    const oldIdx = oldStartableList.findIndex(item => item.id === deletedRoutineId);
+    if (oldIdx >= 0) {
+      for (let step = 1; step < oldStartableList.length; step += 1) {
+        const candidate = oldStartableList[(oldIdx + step) % oldStartableList.length];
+        const alive = remaining.find(item => item.id === candidate.id);
+        if (alive) {
+          next = alive;
+          break;
+        }
+      }
+    }
+  } else if (wasSelected) {
+    next = remaining.find(item => item.id === wasSelected.id) || null;
+  }
+
+  if (!next) next = remaining[0];
+
+  return saveRotation({
+    version: 1,
+    overrideRoutineId: next.id,
+    nextRoutineId: next.id,
+    nextModality: next.modality,
+    lastRoutineId: currentRotation.lastRoutineId === deletedRoutineId
+      ? null
+      : currentRotation.lastRoutineId,
+    lastModality: currentRotation.lastRoutineId === deletedRoutineId
+      ? null
+      : currentRotation.lastModality,
+    previousState: null,
+    updatedAt: Date.now()
+  });
+}
+
 function validateLegacyExercises(value) {
   if (!isPlainObject(value)) throw new Error("Os exercícios antigos do backup estão em formato inválido.");
 
@@ -1636,6 +1952,25 @@ F.registry.register({
       detail: parts.length
         ? parts.join(" · ") + " (" + (MODE_NAMES[goals.modality] || "todas") + ")"
         : "nenhuma meta ativa"
+    };
+  }
+});
+
+F.registry.register({
+  id: "rotation",
+  key: WORKOUT_ROTATION_KEY,
+  label: "Sequência de rotinas",
+  empty: emptyRotation,
+  read: loadRotation,
+  validate: validateRotationStore,
+  persist: () => saveJSON(WORKOUT_ROTATION_KEY, F.state.rotation),
+  summarize(value) {
+    const rotation = normalizeRotation(value);
+    return {
+      label: "Sequência",
+      detail: rotation.nextRoutineId
+        ? "próxima rotina definida"
+        : "automática pelo histórico"
     };
   }
 });
@@ -1899,12 +2234,14 @@ F.saveLibrary = saveLibrary;
 F.savePreferences = savePreferences;
 F.saveActiveWorkout = saveActiveWorkout;
 F.saveGoals = saveGoals;
+F.saveRotation = saveRotation;
 
 Object.assign(F, {
   normalizeExercise,
   normalizeRoutine,
   normalizeLibraryItem,
   normalizeGoals,
+  normalizeRotation,
   normalizeMeasure,
   normalizeSetLogs,
   normalizeSessionFeedback,
@@ -1915,6 +2252,12 @@ Object.assign(F, {
   findRoutine,
   getRoutineById,
   getRoutineTotalSets,
+  getStartableRoutines,
+  resolveNextRoutine,
+  nextRoutine: resolveNextRoutine,
+  advanceRotation,
+  rollbackDiscardedRotation,
+  reconcileRotationAfterDelete,
   exerciseTarget,
   exercisePlannedLoadKg,
   parseLoadKg,
@@ -1926,20 +2269,24 @@ Object.assign(F, {
   totalCompletedSets,
   currentSessionExercise,
   completedExerciseCount,
+  emptyRotation,
   loadLibrary,
   loadPreferences,
   loadGoals,
+  loadRotation,
   goalsAreActive,
   validateRoutinesStore,
   validateHistoryList,
   validateActiveSession,
   validateLibraryStore,
   validateGoalsStore,
+  validateRotationStore,
   validateLegacyExercises,
   validateAuxiliaryValue,
   assertExerciseShape,
   removeStorageKey,
   WORKOUT_GOALS_KEY,
+  WORKOUT_ROTATION_KEY,
   MISSION_KEY_PATTERN,
   GOAL_TARGET_LIMIT
 });

@@ -420,6 +420,10 @@ a.secondary-button {
   margin-bottom: 16px;
 }
 .editor-save-bar .editor-save-note { margin: 0; flex: 1 1 200px; color: var(--muted); font-size: 14px; }
+.editor-save-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.editor-save-actions .secondary-button,
+.editor-save-actions .primary-button { min-height: 44px; }
+.empty-card .empty-card-cta { display: inline-flex; margin-top: 14px; min-height: 44px; }
 .editor-save-bottom { margin: 22px 0 0; flex-direction: column; align-items: stretch; }
 .editor-save-bottom .editor-save-note { text-align: center; }
 .routine-name-input { width: 100%; }

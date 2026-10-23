@@ -1358,6 +1358,98 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
   await shots.close();
 });
 
+await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #editor-missing, rotação e exclusão', async () => {
+  const saved = await forjaRaw();
+  try {
+    await page.setViewport({ width: 390, height: 844 });
+    await restoreForjaRaw({});
+
+    /* 1. Home sem rotina: zero escrita em localStorage, sem botão Iniciar, CTA leva ao hub de treino. */
+    await go('');
+    const initialKeys = await page.evaluate(() => Object.keys(localStorage));
+    assert.deepEqual(initialKeys, [], 'Home limpa gravou em localStorage ao abrir');
+    const homeBtn = await page.$eval('#home-primary-button', el => ({
+      tag: el.tagName,
+      text: el.textContent.trim(),
+      href: el.getAttribute('href')
+    }));
+    assert.equal(homeBtn.tag, 'A');
+    assert.equal(homeBtn.text, 'Montar meu treino');
+    assert.doesNotMatch(homeBtn.text, /\bIniciar\b/);
+
+    /* 2. Segue Home -> Montar meu treino -> Criar primeira rotina -> Editor direto sem #editor-missing. */
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle0' }),
+      page.click('#home-primary-button')
+    ]);
+    assert.equal(await page.$eval('#hub-create-routine', el => el.textContent.trim()), 'Criar primeira rotina');
+
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle0' }),
+      page.click('#hub-create-routine')
+    ]);
+    assert.equal(await page.$eval('#editor-missing', el => el.hidden), true, '#editor-missing exibido na criação');
+    assert.equal(await page.$eval('#editor-body', el => el.hidden), false, '#editor-body oculto na criação');
+
+    /* Cancelar sem salvar não cria rotina órfã. */
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle0' }),
+      page.click('#cancel-routine')
+    ]);
+    assert.equal(await page.evaluate(() => localStorage.getItem('forja-treino-rotinas-v1')), null);
+
+    /* 3. Cria duas rotinas reais (Rotina 1 e Rotina 2) pelo fluxo completo de UI. */
+    for (const [name, exName] of [['Rotina E2E 1', 'Flexão'], ['Rotina E2E 2', 'Barra fixa']]) {
+      await go('treino/rotina.html?modalidade=calisthenics');
+      assert.equal(await page.$eval('#editor-missing', el => el.hidden), true);
+      await page.$eval('#routine-name-input', (el, v) => {
+        el.value = v;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      }, name);
+      await page.$eval('#exercise-name', (el, v) => { el.value = v; }, exName);
+      await page.$eval('#exercise-sets', el => { el.value = '1'; });
+      await page.$eval('#exercise-rest', el => { el.value = '0'; });
+      await page.$eval('#exercise-submit', el => el.click());
+      await sleep(150);
+      await page.$eval('#save-routine-top', el => el.click());
+      await sleep(150);
+    }
+
+    /* 4. Home oferece a 1ª rotina (não a mais recentemente salva) e não avança ao recarregar. */
+    await go('');
+    assert.equal(await page.$eval('#home-primary-button', el => el.textContent.trim()), 'Iniciar Rotina E2E 1');
+    await page.reload({ waitUntil: 'networkidle0' });
+    assert.equal(await page.$eval('#home-primary-button', el => el.textContent.trim()), 'Iniciar Rotina E2E 1');
+
+    /* 5. Inicia e conclui Rotina E2E 1 -> Home avança para Rotina E2E 2 e persiste após reload. */
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle0' }),
+      page.click('#home-primary-button')
+    ]);
+    await page.$eval('#complete-set', el => el.click());
+    await page.waitForSelector('#execution-summary:not([hidden])', { timeout: 5000 });
+    await sleep(200);
+
+    await go('');
+    assert.equal(await page.$eval('#home-primary-button', el => el.textContent.trim()), 'Iniciar Rotina E2E 2');
+    await page.reload({ waitUntil: 'networkidle0' });
+    assert.equal(await page.$eval('#home-primary-button', el => el.textContent.trim()), 'Iniciar Rotina E2E 2');
+
+    /* 6. Exclui a rotina atualmente selecionada (Rotina E2E 2) -> Home volta para Rotina E2E 1. */
+    await go('treino/calistenia.html');
+    await page.$$eval('#routine-list .routine-card .danger-button', buttons => buttons[1].click());
+    await page.waitForSelector('[data-modal-action="delete"]', { timeout: 4000 });
+    await page.click('[data-modal-action="delete"]');
+    await sleep(200);
+
+    await go('');
+    assert.equal(await page.$eval('#home-primary-button', el => el.textContent.trim()), 'Iniciar Rotina E2E 1');
+  } finally {
+    await go('perfil/');
+    await restoreForjaRaw(saved);
+  }
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });

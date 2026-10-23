@@ -44,7 +44,8 @@
   <div class="editor-missing" id="editor-missing" hidden>
     <h1 class="screen-title">Rotina não encontrada</h1>
     <p class="screen-subtitle" id="editor-missing-text"></p>
-    <a class="primary-button full-width" href="index.html">Voltar ao treino</a>
+    <a class="primary-button full-width" id="editor-missing-create" href="rotina.html?nova=1">Criar nova rotina</a>
+    <a class="secondary-button full-width" href="index.html">Voltar ao treino</a>
   </div>
 
   <div id="editor-body" hidden>
@@ -55,6 +56,14 @@
       <span class="dirty-pill saved" id="editor-dirty-pill">Salvo</span>
     </div>
 
+    <div class="field-block" id="editor-modality-field" hidden>
+      <label class="field-label" for="editor-modality-select">Modalidade</label>
+      <select id="editor-modality-select">
+        <option value="calisthenics">Calistenia</option>
+        <option value="weights">Musculação</option>
+      </select>
+    </div>
+
     <div class="field-block">
       <label class="field-label" for="routine-name-input">Nome da rotina</label>
       <input type="text" class="routine-name-input" id="routine-name-input" maxlength="60" autocomplete="off">
@@ -62,7 +71,10 @@
 
     <div class="editor-save-bar">
       <p class="editor-save-note" id="editor-save-note"></p>
-      <button type="button" class="primary-button" id="save-routine-top">Salvar rotina</button>
+      <div class="editor-save-actions">
+        <button type="button" class="secondary-button" id="cancel-routine">Cancelar</button>
+        <button type="button" class="primary-button" id="save-routine-top">Salvar rotina</button>
+      </div>
     </div>
 
     <section class="editor-section" aria-labelledby="section-warmup-heading">

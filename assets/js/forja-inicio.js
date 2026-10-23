@@ -7,6 +7,9 @@
 
   Regras:
   - Uma única ação principal por vez (Iniciar treino real OU Montar meu treino).
+  - Nunca exibe "Iniciar" quando não há rotina válida com exercícios.
+  - A próxima rotina segue sequência previsível (rotação/histórico), sem avançar
+    apenas ao abrir ou recarregar a página.
   - Com sessão ativa, a única via é o banner "Retomar" — a ação da home some.
   - Nunca se esconde visualmente deixando foco/leitores: usa hidden.
   - Resumo semanal e último treino vêm do histórico real via F.metricas; sem dado, estado vazio honesto.
@@ -30,35 +33,40 @@
     return a.concat(b);
   }
 
-  function mostRecentRoutine() {
-    var list = allRoutines();
-    if (list.length === 0) return null;
-    var best = list[0];
-    for (var i = 1; i < list.length; i++) {
-      var cur = list[i];
-      var curTime = Number(cur.updatedAt || cur.createdAt || 0);
-      var bestTime = Number(best.updatedAt || best.createdAt || 0);
-      if (curTime > bestTime) best = cur;
+  function routineExerciseCount(routine) {
+    if (!routine || !routine.sections) return 0;
+    try {
+      return F.countRoutineExercises ? F.countRoutineExercises(routine) : 0;
+    } catch (e) {
+      return 0;
     }
-    return best;
   }
 
-  function routineHref(routine) {
-    if (!routine) return F.url("treino");
-    // Iniciar direto chama F.startRoutine, não precisa de href, mas deixamos link para o editor como fallback sem JS.
-    return F.url("rotina", { modalidade: routine.modality, id: routine.id });
+  function startableRoutines() {
+    if (typeof F.getStartableRoutines === "function") {
+      return F.getStartableRoutines();
+    }
+    return allRoutines().filter(function (routine) {
+      return routineExerciseCount(routine) > 0;
+    });
+  }
+
+  function nextRoutine() {
+    if (typeof F.resolveNextRoutine === "function") {
+      return F.resolveNextRoutine();
+    }
+    var list = startableRoutines();
+    return list.length > 0 ? list[0] : null;
   }
 
   function formatExerciseCount(routine) {
-    if (!routine || !routine.sections) return "";
-    var total = 0;
+    var total = routineExerciseCount(routine);
     var sets = 0;
     try {
-      total = F.countRoutineExercises ? F.countRoutineExercises(routine) : 0;
       sets = F.getRoutineTotalSets ? F.getRoutineTotalSets(routine) : 0;
-    } catch (e) { total = 0; }
+    } catch (e) { sets = 0; }
     if (total === 0) return "Sem exercícios ainda";
-    return total + " exercícios · " + sets + " séries";
+    return total + (total === 1 ? " exercício · " : " exercícios · ") + sets + (sets === 1 ? " série" : " séries");
   }
 
   function renderAction() {
@@ -78,7 +86,11 @@
       return;
     }
 
-    var routine = mostRecentRoutine();
+    var startable = startableRoutines();
+    var routine = nextRoutine();
+    var totalSavedRoutines = allRoutines();
+    var pendingEmpty = !routine && totalSavedRoutines.length > 0 ? totalSavedRoutines[0] : null;
+
     var card = document.createElement("div");
     card.className = "home-action-card" + (routine ? "" : " is-empty");
 
@@ -90,7 +102,13 @@
 
     var title = document.createElement("h2");
     title.className = "home-action-title";
-    title.textContent = routine ? routine.name : "Monte sua primeira rotina";
+    if (routine) {
+      title.textContent = routine.name;
+    } else if (pendingEmpty) {
+      title.textContent = pendingEmpty.name;
+    } else {
+      title.textContent = "Monte sua primeira rotina";
+    }
     card.appendChild(title);
 
     var meta = document.createElement("p");
@@ -98,6 +116,9 @@
     if (routine) {
       var modeName = (F.MODE_NAMES && F.MODE_NAMES[routine.modality]) || routine.modality;
       meta.textContent = modeName + " · " + formatExerciseCount(routine);
+    } else if (pendingEmpty) {
+      var pendingMode = (F.MODE_NAMES && F.MODE_NAMES[pendingEmpty.modality]) || pendingEmpty.modality;
+      meta.textContent = pendingMode + " · Sem exercícios ainda. Adicione ao menos um exercício para iniciar.";
     } else {
       meta.textContent = "Crie treinos de calistenia ou musculação e comece quando quiser.";
     }
@@ -115,6 +136,10 @@
       button.addEventListener("click", function () {
         if (F.startRoutine) F.startRoutine(routine.modality, routine.id);
       });
+    } else if (pendingEmpty) {
+      button.href = F.url("rotina", { modalidade: pendingEmpty.modality, id: pendingEmpty.id });
+      button.textContent = "Adicionar exercícios";
+      button.setAttribute("aria-label", "Adicionar exercícios em " + pendingEmpty.name);
     } else {
       button.href = F.url("treino");
       button.textContent = "Montar meu treino";
@@ -125,7 +150,10 @@
     if (routine) {
       var hint = document.createElement("p");
       hint.className = "home-action-hint";
-      hint.textContent = "Vai iniciar a rotina mais recente. Você pode escolher outra em Treinos.";
+      var idx = startable.findIndex(function (item) { return item.id === routine.id; });
+      hint.textContent = startable.length > 1
+        ? "Próxima da sequência (" + (idx + 1) + " de " + startable.length + "). Você pode escolher outra em Treinos."
+        : "Sua rotina está pronta. Você pode criar ou escolher outra em Treinos.";
       card.appendChild(hint);
     }
 
@@ -249,6 +277,7 @@
     var subtitle = byId("home-subtitle");
     if (!title || !subtitle) return;
     var routines = allRoutines();
+    var startable = startableRoutines();
     var history = (F.state && Array.isArray(F.state.history)) ? F.state.history : [];
     if (hasActiveSession()) {
       title.textContent = "Treino em andamento";
@@ -265,8 +294,13 @@
       subtitle.textContent = "Você já treinou antes, mas não há rotinas salvas agora.";
       return;
     }
+    if (startable.length === 0) {
+      title.textContent = "Hora de montar.";
+      subtitle.textContent = "Adicione exercícios à sua rotina para liberar o início do treino.";
+      return;
+    }
     title.textContent = "Hora de treinar.";
-    subtitle.textContent = "Sua rotina mais recente está pronta. Um toque para começar.";
+    subtitle.textContent = "Sua próxima rotina está pronta. Um toque para começar.";
   }
 
   function renderHome() {
@@ -277,6 +311,18 @@
     renderWeek();
     renderRecent();
   }
+
+  global.addEventListener("storage", function (event) {
+    if (!F.KEYS) return;
+    if (event.key !== null && event.key !== F.KEYS.rotation) return;
+    if (typeof F.loadRotation === "function") {
+      F.state.rotation = F.loadRotation();
+    }
+    if (byId("home-action")) {
+      renderGreeting();
+      renderAction();
+    }
+  });
 
   F.pages.inicio = function initInicio() {
     if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
@@ -291,6 +337,7 @@
     renderWeek: renderWeek,
     renderRecent: renderRecent,
     renderGreeting: renderGreeting,
-    mostRecentRoutine: mostRecentRoutine
+    nextRoutine: nextRoutine,
+    startableRoutines: startableRoutines
   };
 })(window);

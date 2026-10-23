@@ -79,15 +79,26 @@
   /* Hub */
 
   function renderHub() {
+    let totalRoutines = 0;
+
     MODALITIES.forEach(modality => {
       const meta = byId(modality === "calisthenics" ? "home-calisthenics-meta" : "home-weights-meta");
+      const routines = getModeRoutines(modality).length;
+      totalRoutines += routines;
       if (!meta) return;
 
-      const routines = getModeRoutines(modality).length;
       const records = modalityHistory(modality).length;
       meta.textContent = pluralize(routines, "rotina", "rotinas") + " · " +
         pluralize(records, "treino registrado", "treinos registrados");
     });
+
+    const createLink = byId("hub-create-routine");
+    if (createLink) {
+      createLink.href = F.url("rotina", { nova: "1" });
+      createLink.textContent = totalRoutines === 0
+        ? "Criar primeira rotina"
+        : "Criar nova rotina";
+    }
   }
 
   F.pages.treino = function initTreinoHub() {
@@ -255,11 +266,21 @@
 
     if (result.action !== "delete") return;
 
+    const oldStartable = typeof F.getStartableRoutines === "function"
+      ? F.getStartableRoutines()
+      : [];
+    const wasSelected = typeof F.resolveNextRoutine === "function"
+      ? F.resolveNextRoutine()
+      : null;
+
     const previous = cloneData(F.state.routines);
     F.state.routines[currentModality] = F.state.routines[currentModality]
       .filter(item => item.id !== routine.id);
 
     if (commitRoutines(previous)) {
+      if (typeof F.reconcileRotationAfterDelete === "function") {
+        F.reconcileRotationAfterDelete(oldStartable, wasSelected, routine.id);
+      }
       renderModality();
       showToast("Rotina excluída. Nenhum histórico foi apagado.");
     }
@@ -397,7 +418,7 @@
     return item;
   }
 
-  function makeEmpty(title, text) {
+  function makeEmpty(title, text, action) {
     const card = document.createElement("div");
     card.className = "empty-card";
 
@@ -408,6 +429,16 @@
     paragraph.textContent = text;
 
     card.append(heading, paragraph);
+
+    if (action && action.label && typeof action.onClick === "function") {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "primary-button empty-card-cta";
+      button.textContent = action.label;
+      button.addEventListener("click", action.onClick);
+      card.appendChild(button);
+    }
+
     return card;
   }
 
@@ -423,7 +454,8 @@
     if (routines.length === 0) {
       list.appendChild(makeEmpty(
         "Nenhuma rotina ainda",
-        "Crie uma rotina e organize aquecimento, treino principal, abdômen e finalizador."
+        "Crie uma rotina e organize aquecimento, treino principal, abdômen e finalizador.",
+        { label: "Criar primeira rotina", onClick: createRoutine }
       ));
     }
 
@@ -464,20 +496,39 @@
   let draft = null;
   let draftRoutineId = null;
   let draftModality = null;
+  let draftExplicitModality = false;
+  let isNewRoutine = false;
   let draftDirty = false;
   let editingRef = null;
   let librarySearchValue = "";
+
+  function editorBackHref() {
+    if (isNewRoutine && !draftExplicitModality) return F.url("treino");
+    return F.modalityUrl(isModality(draftModality) ? draftModality : "calisthenics");
+  }
 
   function renderDirtyState() {
     const pill = byId("editor-dirty-pill");
     const note = byId("editor-save-note");
     if (!pill || !note) return;
 
-    pill.textContent = draftDirty ? "Alterações não salvas" : "Salvo";
-    pill.classList.toggle("saved", !draftDirty);
-    note.textContent = draftDirty
-      ? "Você tem alterações não salvas. Salve antes de sair ou iniciar o treino."
-      : "Rotina salva. Você pode voltar e iniciar o treino.";
+    if (draftDirty) {
+      pill.textContent = "Alterações não salvas";
+      pill.classList.remove("saved");
+      note.textContent = "Você tem alterações não salvas. Salve antes de sair ou iniciar o treino.";
+      return;
+    }
+
+    if (isNewRoutine) {
+      pill.textContent = "Nova rotina";
+      pill.classList.add("saved");
+      note.textContent = "Adicione exercícios e toque em Salvar rotina para criar.";
+      return;
+    }
+
+    pill.textContent = "Salvo";
+    pill.classList.add("saved");
+    note.textContent = "Rotina salva. Você pode voltar e iniciar o treino.";
   }
 
   function markDirty() {
@@ -774,15 +825,21 @@
 
     const list = F.state.routines[draftModality];
     const index = list.findIndex(routine => routine.id === draftRoutineId);
-    if (index < 0) {
+    if (index < 0 && !isNewRoutine) {
       showToast("Esta rotina não existe mais.", "error");
       return false;
     }
 
     const previous = cloneData(F.state.routines);
     draft.name = name;
+    draft.modality = draftModality;
     draft.updatedAt = Date.now();
-    list[index] = cloneData(draft);
+
+    if (index >= 0) {
+      list[index] = cloneData(draft);
+    } else {
+      list.push(cloneData(draft));
+    }
 
     if (!commitRoutines(previous)) {
       draftDirty = true;
@@ -790,7 +847,25 @@
       return false;
     }
 
+    const wasNew = isNewRoutine;
+    isNewRoutine = false;
+    draftExplicitModality = true;
     draftDirty = false;
+
+    const modalityField = byId("editor-modality-field");
+    if (modalityField) modalityField.hidden = true;
+
+    const backLink = byId("back-to-modality");
+    if (backLink) backLink.href = F.modalityUrl(draftModality);
+
+    if (wasNew && global.history && typeof global.history.replaceState === "function") {
+      try {
+        global.history.replaceState(null, "", editorUrl(draftModality, draftRoutineId));
+      } catch (err) {
+        /* Em ambientes de teste com URL about:blank/opaca, ignora SecurityError. */
+      }
+    }
+
     renderEditor();
 
     const total = countRoutineExercises(draft);
@@ -1026,13 +1101,20 @@
 
   /* Abertura, navegação e alerta de alterações não salvas */
 
-  function showMissing(message) {
+  function showMissing(message, modalityHint) {
     byId("editor-missing").hidden = false;
     byId("editor-missing-text").textContent = message;
+    const createLink = byId("editor-missing-create");
+    if (createLink) {
+      createLink.href = isModality(modalityHint)
+        ? F.url("rotina", { modalidade: modalityHint })
+        : F.url("rotina", { nova: "1" });
+    }
     byId("editor-body").hidden = true;
   }
 
   function leaveEditorPage(href) {
+    const destination = href || editorBackHref();
     if (draftDirty) {
       return showModal({
         title: "Descartar alterações?",
@@ -1044,26 +1126,34 @@
       }).then(result => {
         if (result.action !== "discard") return;
         draftDirty = false;
-        F.navigate(href);
+        F.navigate(destination);
       });
     }
 
-    F.navigate(href);
+    F.navigate(destination);
     return Promise.resolve();
+  }
+
+  function resolveExistingRoutine(modalityParam, routineId) {
+    if (isModality(modalityParam)) {
+      const direct = findRoutine(modalityParam, routineId);
+      if (direct) return { modality: modalityParam, routine: direct };
+    }
+    for (let i = 0; i < MODALITIES.length; i += 1) {
+      const candidateMode = MODALITIES[i];
+      const found = findRoutine(candidateMode, routineId);
+      if (found) return { modality: candidateMode, routine: found };
+    }
+    return null;
   }
 
   F.pages.rotina = function initRoutineEditor() {
     const params = new URLSearchParams(global.location.search);
     const modality = params.get("modalidade");
     const routineId = params.get("id");
-    const backHref = F.modalityUrl(isModality(modality) ? modality : "calisthenics");
+    const preloadExercise = params.get("exercicio");
 
-    byId("back-to-modality").href = backHref;
-    byId("back-to-modality").addEventListener("click", event => {
-      if (!draftDirty) return;
-      event.preventDefault();
-      leaveEditorPage(backHref);
-    });
+    draftExplicitModality = isModality(modality);
 
     global.addEventListener("beforeunload", event => {
       if (!draftDirty) return;
@@ -1071,26 +1161,101 @@
       event.returnValue = "";
     });
 
-    if (!isModality(modality) || !routineId) {
-      showMissing("Escolha uma rotina na lista da modalidade para editá-la.");
-      return;
+    if (routineId) {
+      const resolved = resolveExistingRoutine(modality, routineId);
+      if (!resolved) {
+        const fallbackBack = isModality(modality) ? F.modalityUrl(modality) : F.url("treino");
+        byId("back-to-modality").href = fallbackBack;
+        showMissing("Esta rotina não existe mais. Ela pode ter sido excluída.", modality);
+        return;
+      }
+
+      isNewRoutine = false;
+      draftExplicitModality = true;
+      draftModality = resolved.modality;
+      draftRoutineId = resolved.routine.id;
+      draft = cloneData(resolved.routine);
+      draftDirty = false;
+      editingRef = null;
+    } else {
+      /*
+        Modo de criação direta (ex.: rotina.html, rotina.html?modalidade=...,
+        rotina.html?nova=1): gera um ID válido em memória seguindo o padrão do
+        projeto, sem gravar nada em localStorage até o usuário tocar em Salvar.
+      */
+      const now = Date.now();
+      isNewRoutine = true;
+      draftModality = isModality(modality) ? modality : "calisthenics";
+      draftRoutineId = createId("routine");
+      draft = {
+        id: draftRoutineId,
+        name: nextRoutineName(draftModality),
+        modality: draftModality,
+        createdAt: now,
+        updatedAt: now,
+        sections: { warmup: [], main: [], abs: [], finisher: [] }
+      };
+      draftDirty = false;
+      editingRef = null;
+
+      if (preloadExercise) {
+        const match = libraryItems().find(item => {
+          return item.id === preloadExercise ||
+            normalizeSearch(item.name) === normalizeSearch(preloadExercise);
+        });
+        if (match) {
+          const section = SECTION_NAMES[match.section] ? match.section : "main";
+          const copy = normalizeExercise(Object.assign({}, match, {
+            id: createId("exercise"),
+            load: draftModality === "weights" ? match.load || "" : ""
+          }), section);
+          if (copy) {
+            draft.sections[section].push(copy);
+            draftDirty = true;
+          }
+        }
+      }
     }
 
-    const routine = findRoutine(modality, routineId);
-    if (!routine) {
-      showMissing("Esta rotina não existe mais. Ela pode ter sido excluída.");
-      return;
-    }
+    byId("back-to-modality").href = editorBackHref();
+    byId("back-to-modality").addEventListener("click", event => {
+      if (!draftDirty) return;
+      event.preventDefault();
+      leaveEditorPage(editorBackHref());
+    });
 
-    draftModality = modality;
-    draftRoutineId = routineId;
-    draft = cloneData(routine);
-    draftDirty = false;
-    editingRef = null;
+    const modalityField = byId("editor-modality-field");
+    const modalitySelect = byId("editor-modality-select");
+    if (modalityField && modalitySelect) {
+      modalityField.hidden = !isNewRoutine;
+      modalitySelect.value = draftModality;
+      modalitySelect.addEventListener("change", () => {
+        const nextMode = modalitySelect.value;
+        if (!isModality(nextMode) || nextMode === draftModality) return;
+
+        const nameInput = byId("routine-name-input");
+        const previousAutoName = nextRoutineName(draftModality);
+        const currentInputName = nameInput ? nameInput.value.trim() : draft.name;
+
+        draftModality = nextMode;
+        draftExplicitModality = true;
+        draft.modality = nextMode;
+
+        if (!currentInputName || currentInputName === previousAutoName) {
+          draft.name = nextRoutineName(nextMode);
+          if (nameInput) nameInput.value = draft.name;
+        }
+
+        byId("routine-modality").textContent = MODE_NAMES[draftModality];
+        byId("back-to-modality").href = editorBackHref();
+        renderEditor();
+        renderLibrary();
+      });
+    }
 
     byId("editor-missing").hidden = true;
     byId("editor-body").hidden = false;
-    byId("routine-modality").textContent = MODE_NAMES[modality];
+    byId("routine-modality").textContent = MODE_NAMES[draftModality];
 
     byId("routine-name-input").addEventListener("input", event => {
       const value = event.target.value;
@@ -1099,6 +1264,10 @@
 
     byId("save-routine").addEventListener("click", saveRoutine);
     byId("save-routine-top").addEventListener("click", saveRoutine);
+    const cancelButton = byId("cancel-routine");
+    if (cancelButton) {
+      cancelButton.addEventListener("click", () => leaveEditorPage(editorBackHref()));
+    }
 
     byId("exercise-form").addEventListener("submit", handleExerciseSubmit);
     byId("cancel-exercise-edit").addEventListener("click", () => resetExerciseForm("main"));

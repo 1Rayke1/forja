@@ -827,14 +827,22 @@
     if (choices.length === 0) {
       const result = await F.showModal({
         title: "Nenhuma rotina de " + F.MODE_NAMES[record.mode],
-        message: "A biblioteca não guarda treinos sozinha: o exercício precisa entrar em uma rotina. Crie uma e volte aqui para adicionar.",
+        message: "A biblioteca não guarda treinos sozinha: o exercício precisa entrar em uma rotina. Crie uma rotina agora ou abra a modalidade.",
         actions: [
           { id: "cancel", label: "Fechar", className: "secondary-button" },
+          { id: "create", label: "Criar rotina agora", className: "secondary-button" },
           { id: "open", label: "Abrir " + F.MODE_NAMES[record.mode], className: "primary-button" }
         ]
       });
 
-      if (result.action === "open") F.navigate(F.url(F.MODE_PAGES[record.mode] || "treino"));
+      if (result.action === "create") {
+        F.navigate(F.url("rotina", {
+          modalidade: record.mode,
+          exercicio: record.libraryId || record.id
+        }));
+      } else if (result.action === "open") {
+        F.navigate(F.url(F.MODE_PAGES[record.mode] || "treino"));
+      }
       return;
     }
 
@@ -968,6 +976,12 @@
     const shown = found.slice(0, visible);
 
     if (found.length === 0) {
+      const targetMode = state.mode || "calisthenics";
+      const existingRoutines = F.state.routines[targetMode] || [];
+      const editorTarget = existingRoutines.length > 0
+        ? F.url("rotina", { modalidade: targetMode, id: existingRoutines[0].id })
+        : F.url("rotina", { modalidade: targetMode });
+
       list.appendChild(F.ui.empty({
         icon: "search",
         title: "Nenhum exercício com esses critérios",
@@ -976,7 +990,7 @@
           { label: "Limpar filtros", variant: "primary-button", icon: "close", onClick: resetFilters },
           {
             label: "Abrir editor de rotina",
-            href: F.url("rotina", { modalidade: state.mode || "calisthenics" }),
+            href: editorTarget,
             variant: "secondary-button",
             icon: "edit"
           }
