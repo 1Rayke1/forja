@@ -24,23 +24,27 @@ explicadas por uma legenda curta sem poluir o corpo com dezenas de rótulos.
 
 O que ele **é**:
 
-- **baseado em anatomia real por ressonância magnética:** as pranchas
-  `assets/anatomia/anterior.png` (`102.962 bytes` / `100,5 KiB`) e
-  `assets/anatomia/posterior.png` (`92.843 bytes` / `90,7 KiB`), em
-  `480 × 1040 px` (`2×` Retina sobre `viewBox="0 0 240 520"`), e os contornos
-  vetoriais das 16 regiões (`52.186 bytes` / `51,0 KiB` de caminhos SVG dentro
-  do módulo `assets/js/forja-figura.js` de `63.118 bytes` / `61,6 KiB`) são
-  gerados em `tools/gerar-anatomia-3d.mjs` a partir do **BodyParts3D /
-  Anatomography** (DBCLS, **CC BY-SA 2.1 JP**) e do **Z-Anatomy**
-  (**CC BY-SA 4.0**, mapeado segundo a *Terminologia Anatomica* — TA2), com
-  créditos, separação jurídica entre mídia e código e procedimento de
-  regeneração documentados em `assets/anatomia/NOTICE.md`;
-- **leve e estático em tempo de execução:** em vez de carregar ~17 MB de malhas
-  glTF e manter contexto WebGL ativo no celular durante o treino, o navegador
-  transfere `191,2 KiB` de PNGs indexados locais + `61,6 KiB` do módulo
-  `forja-figura.js` (`252,9 KiB` brutos no total, sem compressão gzip), com
-  semântica SVG nativa (`role="img"`, texto alternativo por vista e navegação
-  por teclado quando interativo).
+- **baseado nas pranchas anatômicas detalhadas de referência:** as pranchas
+  `assets/anatomia/anterior.png` (`77.309 bytes` / `75,5 KiB`) e
+  `assets/anatomia/posterior.png` (`68.084 bytes` / `66,5 KiB`), em
+  `480 × 480 px` (`2×` Retina sobre `viewBox="0 0 240 240"`), e os contornos
+  vetoriais em curvas de Bézier cúbicas fechadas dentro de
+  `assets/js/forja-figura.js` são gerados em `tools/gerar-anatomia-referencia.mjs`
+  a partir das duas imagens de referência anexadas pelo usuário (com acervo 3D
+  complementar **BodyParts3D / Anatomography** e **Z-Anatomy**, **CC BY-SA 4.0**,
+  preservado em `tools/gerar-anatomia-3d.mjs` e documentado em
+  `assets/anatomia/NOTICE.md`);
+- **transparente quanto ao enquadramento e licença:** as pranchas de referência
+  abrangem da cabeça até a metade da coxa; as 15 regiões visíveis no quadro
+  possuem contornos SVG exatos sobre as fibras musculares, enquanto a região
+  `panturrilha` (abaixo do joelho) é marcada com `outsideFrame: true` e exibe
+  aviso explícito sem pintar regiões aleatórias na coxa. A confirmação de
+  licença/origem antes de versão pública está registrada em
+  `assets/anatomia/NOTICE.md`;
+- **leve e estático em tempo de execução:** o navegador transfere `142,0 KiB`
+  de PNGs indexados locais (`anterior.png` + `posterior.png`) + o módulo
+  `forja-figura.js`, com semântica SVG nativa (`role="img"`, texto alternativo
+  por vista e navegação por teclado quando interativo).
 
 O que ele **não** é:
 
