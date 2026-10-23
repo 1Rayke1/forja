@@ -1,5 +1,5 @@
 /*
-  FORJA — backup, restauração e preferências (página configurações).
+  FORJA — backup, restauração e preferências (páginas Perfil e Configurações).
 
   Mantém o formato e as validações do backup original (forja-backup v1):
   exportação, importação validada com pré-visualização, cópia de segurança
@@ -756,9 +756,12 @@ function updateBackupStatus() {
   }
 
   function changePreference(name, value) {
-    F.state.preferences = Object.assign({}, F.state.preferences, { [name]: Boolean(value) });
+    /* Parte do que está gravado agora: outra aba pode ter mudado a outra opção. */
+    const next = Object.assign({}, F.loadPreferences(), { [name]: Boolean(value) });
 
-    if (!F.savePreferences(F.state.preferences)) {
+    if (!F.savePreferences(next)) {
+      /* Nada foi gravado: a tela e o aviso do descanso voltam ao valor armazenado. */
+      F.state.preferences = F.loadPreferences();
       renderPreferences();
       showToast("Não foi possível salvar a preferência neste navegador.", "error");
       return;
@@ -767,34 +770,59 @@ function updateBackupStatus() {
     showToast("Preferência salva.");
   }
 
-  /* Página configurações */
+  /*
+    Outra aba (Perfil ou Configurações) pode mudar as preferências enquanto esta
+    está aberta — inclusive durante um descanso na execução. O evento `storage`
+    só chega às demais abas; aqui a memória e os checkboxes são relidos do
+    armazenamento, sem gravar nada.
+  */
+  global.addEventListener("storage", event => {
+    if (event.key !== null && event.key !== KEYS.preferences) return;
+    F.state.preferences = F.loadPreferences();
+    renderPreferences();
+  });
 
-  F.pages.configuracoes = function initConfiguracoes() {
-    byId("export-backup").addEventListener("click", exportBackup);
+  /*
+    Controlador único de dados e preferências. Perfil (destino da barra
+    inferior) e Configurações (mantida para links antigos e favoritos) têm a
+    mesma marcação de backup e descanso, então as duas páginas usam esta mesma
+    inicialização. Abrir a página só lê o armazenamento: nada é gravado até o
+    usuário agir.
+  */
+  function listen(element, type, handler) {
+    if (element) element.addEventListener(type, handler);
+  }
 
-    byId("import-backup-button").addEventListener("click", () => {
-      byId("import-backup-input").click();
+  function initDadosEPreferencias() {
+    listen(byId("export-backup"), "click", exportBackup);
+
+    listen(byId("import-backup-button"), "click", () => {
+      const input = byId("import-backup-input");
+      if (input) input.click();
     });
 
-    byId("import-backup-input").addEventListener("change", async event => {
+    listen(byId("import-backup-input"), "change", async event => {
       const file = event.target.files && event.target.files[0];
       event.target.value = "";
       if (file) await handleBackupFile(file);
     });
 
-    byId("restore-safety-backup").addEventListener("click", restoreSafetyBackup);
+    listen(byId("restore-safety-backup"), "click", restoreSafetyBackup);
 
-    byId("pref-sound").addEventListener("change", event => {
+    listen(byId("pref-sound"), "change", event => {
       changePreference("soundOnRest", event.target.checked);
     });
 
-    byId("pref-vibrate").addEventListener("change", event => {
+    listen(byId("pref-vibrate"), "change", event => {
       changePreference("vibrateOnRest", event.target.checked);
     });
 
     renderPreferences();
     updateBackupStatus();
-  };
+  }
+
+  F.pages.perfil = initDadosEPreferencias;
+  F.pages.configuracoes = initDadosEPreferencias;
 
   F.onDataChanged(() => {
     if (byId("backup-status")) {

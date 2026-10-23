@@ -476,7 +476,7 @@
 
     doc.querySelectorAll("[data-nav]").forEach(node => {
       const active = node.getAttribute("data-nav") === current;
-      node.classList.toggle("is-current", active);
+      node.classList.toggle("is-active", active);
 
       if (active) node.setAttribute("aria-current", "page");
       else node.removeAttribute("aria-current");
@@ -485,8 +485,10 @@
 
   /*
     A navegação é marcada a partir da página declarada no <body>, então nenhuma
-    página precisa manter o destaque sincronizado à mão. O atributo estático no
-    HTML continua lá para o destaque existir antes do JavaScript rodar.
+    página precisa manter o destaque sincronizado à mão. O HTML traz o mesmo
+    estado estático (classe `is-active` + `aria-current="page"`, os dois
+    seletores que `app.css` estiliza) para o destaque existir antes do
+    JavaScript rodar; aqui ele é confirmado ou corrigido.
   */
   function initCurrentNav() {
     markCurrentNav(doc.body && doc.body.dataset ? doc.body.dataset.page : "");
