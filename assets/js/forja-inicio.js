@@ -324,9 +324,252 @@
     }
   });
 
+  /* ------------------------------------------------------------------ */
+  /* Onboarding opcional (usuário realmente novo)                        */
+  /* ------------------------------------------------------------------ */
+  /*
+    Regras:
+    - Só aparece para quem não tem rotinas, nem histórico e nem perfil salvo.
+    - "Pular" e "Configurar depois" não criam nem persistem nenhum dado.
+    - A gravação do perfil só acontece no confirm explícito ("Salvar perfil").
+    - O perfil orienta sugestões futuras; nunca bloqueia criar rotinas manualmente.
+  */
+  let onboardingShown = false;
+
+  function profileIsConfigured() {
+    return Boolean(F.state.profile && F.state.profile.updatedAt);
+  }
+
+  function isNewUser() {
+    const routines = allRoutines();
+    const history = (F.state && Array.isArray(F.state.history)) ? F.state.history : [];
+    return routines.length === 0 && history.length === 0 && !profileIsConfigured();
+  }
+
+  function buildSelectField(name, labelText, options, value) {
+    const block = document.createElement("div");
+    block.className = "field-block";
+
+    const label = document.createElement("label");
+    label.className = "field-label";
+    label.textContent = labelText;
+
+    const select = document.createElement("select");
+    select.id = "onb-" + name;
+    select.className = "field-input";
+    options.forEach(option => {
+      const item = document.createElement("option");
+      item.value = option.value;
+      item.textContent = option.label;
+      if (String(option.value) === String(value || "")) item.selected = true;
+      select.appendChild(item);
+    });
+
+    label.htmlFor = select.id;
+    block.append(label, select);
+    return { block, select };
+  }
+
+  function buildNumberField(name, labelText, value, min, max, step) {
+    const block = document.createElement("div");
+    block.className = "field-block";
+
+    const label = document.createElement("label");
+    label.className = "field-label";
+    label.textContent = labelText;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = "onb-" + name;
+    input.className = "field-input";
+    input.value = String(value || 0);
+    input.min = String(min);
+    input.max = String(max);
+    input.step = String(step);
+    input.inputMode = "numeric";
+    input.autocomplete = "off";
+
+    label.htmlFor = input.id;
+    block.append(label, input);
+    return { block, input };
+  }
+
+  function readOnboardingValues(fields) {
+    return {
+      objetivo: fields.objetivo.select.value,
+      nivel: fields.nivel.select.value,
+      equipamento: fields.equipamento.select.value,
+      diasPorSemana: fields.dias.input.value === ""
+        ? 0
+        : Number(fields.dias.input.value),
+      duracaoMinutos: fields.duracao.input.value === ""
+        ? 0
+        : Number(fields.duracao.input.value)
+    };
+  }
+
+  function validateOnboarding(fields) {
+    const errors = [];
+    const diasRaw = String(fields.dias.input.value || "").trim();
+    const duracaoRaw = String(fields.duracao.input.value || "").trim();
+
+    if (diasRaw !== "" && !/^\d+$/.test(diasRaw)) {
+      errors.push("Use um número inteiro de dias (0 a 7).");
+    } else if (diasRaw !== "" && Number(diasRaw) > F.PERFIL_MAX_DIAS) {
+      errors.push("Use até " + F.PERFIL_MAX_DIAS + " dias por semana.");
+    }
+
+    if (duracaoRaw !== "" && !/^\d+$/.test(duracaoRaw)) {
+      errors.push("Use um número inteiro de minutos.");
+    } else if (duracaoRaw !== "" && Number(duracaoRaw) > F.PERFIL_MAX_MINUTOS) {
+      errors.push("Use até " + F.PERFIL_MAX_MINUTOS + " minutos.");
+    }
+
+    return errors;
+  }
+
+  function renderOnboarding(container) {
+    container.innerHTML = "";
+    container.hidden = false;
+
+    const profile = F.state.profile || {};
+    const card = document.createElement("section");
+    card.className = "onboarding-panel";
+    card.setAttribute("aria-labelledby", "onboarding-heading");
+
+    const eyebrow = document.createElement("p");
+    eyebrow.className = "home-action-eyebrow";
+    eyebrow.textContent = "BOAS-VINDAS";
+    card.appendChild(eyebrow);
+
+    const title = document.createElement("h2");
+    title.className = "home-action-title";
+    title.id = "onboarding-heading";
+    title.textContent = "Seu perfil de treino";
+    card.appendChild(title);
+
+    const description = document.createElement("p");
+    description.className = "home-action-meta";
+    description.textContent =
+      "Tudo opcional. Você pode pular agora e configurar depois em Perfil. " +
+      "O perfil orienta sugestões futuras, mas nunca impede a criação manual de rotinas.";
+    card.appendChild(description);
+
+    const form = document.createElement("form");
+    form.className = "goals-form";
+    form.noValidate = true;
+    form.addEventListener("submit", event => event.preventDefault());
+
+    const fields = {
+      objetivo: buildSelectField("objetivo", "Objetivo principal", F.PERFIL_OPTIONS.objetivo, profile.objetivo),
+      nivel: buildSelectField("nivel", "Nível", F.PERFIL_OPTIONS.nivel, profile.nivel),
+      equipamento: buildSelectField("equipamento", "Equipamento disponível", F.PERFIL_OPTIONS.equipamento, profile.equipamento),
+      dias: buildNumberField("dias", "Dias por semana", profile.diasPorSemana, 0, F.PERFIL_MAX_DIAS, 1),
+      duracao: buildNumberField("duracao", "Duração desejada (min)", profile.duracaoMinutos, 0, F.PERFIL_MAX_MINUTOS, 5)
+    };
+
+    const fieldBox = document.createElement("div");
+    fieldBox.className = "goals-fields";
+    fieldBox.append(fields.objetivo.block, fields.nivel.block, fields.equipamento.block, fields.dias.block, fields.duracao.block);
+    form.appendChild(fieldBox);
+
+    const hint = document.createElement("p");
+    hint.className = "field-hint";
+    hint.textContent = "Campo 0 ou vazio desliga o item. Salvar o perfil não altera treinos nem histórico.";
+    form.appendChild(hint);
+
+    const error = document.createElement("p");
+    error.className = "field-error";
+    error.setAttribute("role", "status");
+    error.hidden = true;
+    form.appendChild(error);
+
+    card.appendChild(form);
+
+    const actions = document.createElement("div");
+    actions.className = "goals-actions";
+
+    const pular = document.createElement("button");
+    pular.type = "button";
+    pular.className = "secondary-button";
+    pular.textContent = "Pular";
+
+    const depois = document.createElement("button");
+    depois.type = "button";
+    depois.className = "secondary-button";
+    depois.textContent = "Configurar depois";
+
+    const salvar = document.createElement("button");
+    salvar.type = "button";
+    salvar.className = "primary-button";
+    salvar.textContent = "Salvar perfil";
+
+    actions.append(pular, depois, salvar);
+    card.appendChild(actions);
+
+    container.appendChild(card);
+
+    function hide() {
+      container.hidden = true;
+    }
+
+    function focusFirstInvalid(errors) {
+      if (errors.length === 0) return;
+      const message = errors[0];
+      if (message.indexOf("dias") !== -1) fields.dias.input.focus();
+      else fields.duracao.input.focus();
+    }
+
+    pular.addEventListener("click", () => {
+      hide();
+      F.showToast("Você pode configurar seu perfil depois, em Perfil.", "info", 4500);
+    });
+
+    depois.addEventListener("click", () => {
+      hide();
+      F.flash("Configure seu perfil a qualquer momento em Perfil.");
+      F.navigate(F.url("perfil"));
+    });
+
+    salvar.addEventListener("click", () => {
+      const values = readOnboardingValues(fields);
+      const errors = validateOnboarding(fields);
+
+      if (errors.length > 0) {
+        error.textContent = errors[0];
+        error.hidden = false;
+        focusFirstInvalid(errors);
+        return;
+      }
+
+      error.hidden = true;
+
+      if (!F.saveProfile(values)) {
+        error.textContent = "Não foi possível salvar o perfil. Os dados já salvos foram mantidos.";
+        error.hidden = false;
+        F.showToast("Não foi possível salvar o perfil neste navegador.", "error", 6000);
+        return;
+      }
+
+      hide();
+      F.showToast("Perfil de treino salvo.", "info", 4000);
+      renderHome();
+    });
+  }
+
+  function maybeShowOnboarding() {
+    if (onboardingShown) return;
+    const container = byId("onboarding-root");
+    if (!container) return;
+    if (!isNewUser()) return;
+    onboardingShown = true;
+    renderOnboarding(container);
+  }
+
   F.pages.inicio = function initInicio() {
     if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
     renderHome();
+    maybeShowOnboarding();
   };
 
   F.onDataChanged(renderHome);

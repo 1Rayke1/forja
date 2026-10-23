@@ -247,7 +247,7 @@ APK, teste de carga real de IndexedDB, e qualquer verificação no site publicad
 | Etapa 8 — paridade estendida às rotas novas e capturas ampliadas (a suíte unitária de funções puras já existe: `tests/metricas.test.mjs`) | nenhuma externa |
 | Atlas anatômico detalhado (músculos individuais, vistas laterais) + ilustração por exercício | **dependência de arte/revisão**: o esquema 3.1 é autoral e assumidamente simplificado; um desenho anatômico mais detalhado exige ilustrador ou licença verificável e revisão por profissional de educação física |
 | Modelo de metadados completo (dificuldade, padrão de movimento, respiração, erros comuns, segurança, variações, substituições) | conteúdo: cada campo novo exige texto curado por exercício; sem isso, é campo vazio com aparência de recurso |
-| Programas prontos por nível e onboarding | conteúdo + decisão de produto (o app não deve prescrever sem critério); UI de perfil com campos opcionais |
+| Programas prontos por nível | conteúdo + decisão de produto (o app não deve prescrever sem critério) — **não feito**; o onboarding opcional para usuário novo e a UI de perfil com campos opcionais foram **entregues na etapa 1** (`forja-perfil-v1` + onboarding não modal no Início) |
 | Medidas corporais, IMC com contexto, comparação de datas, fotos de progresso opcionais | produto + política de privacidade local; IMC só com fórmula e limitação explicadas |
 | Progressão inteligente | critério auditável (faixa de reps, ganho de carga, recuo de dificuldade) documentado antes da primeira sugestão |
 | PWA instalável (manifest, ícones, maskable, standalone) | nenhuma externa; é implementação local |

@@ -80,7 +80,8 @@ integração, 40 de paridade e 16 de E2E.
 | 3 | Catálogo | **concluída** | `treino/biblioteca.html` + `forja-catalogo.js`: busca com normalização, filtros (seção, categoria, grupo muscular, equipamento, tipo de medição), detalhe com instruções, adicionar à rotina; metadados no modelo e no editor |
 | 4 | Execução | **concluída** | edição/remoção de série registrada, ajuste de descanso ±15 s, registro de distância, RPE + nota da sessão, guarda de sessão não salva, resumo pós-treino com volume real |
 | 5 | Análise de progresso | **concluída** | calendário de frequência, volume semanal, evolução de carga/reps por exercício, recordes com critério, comparação de períodos, filtros por semana/mês/personalizado, metas semanais, histórico pesquisável |
-| 6 | Início útil | pendente | treino planejado com motivo, resumo da semana, metas, histórico recente, onboarding para usuário novo |
+| 6 | Início útil | em andamento | **ETAPA 1 entregue**: onboarding opcional e não modal para usuário novo + chave aditiva `forja-perfil-v1` (objetivo/nível/equipamento/dias/duração, registry, validação e backup) |
+| 6 (restante) | Início útil | pendente | treino planejado com motivo, resumo da semana, metas e anel na home, histórico recente |
 | 7 | Dados e robustez | pendente | auditoria de armazenamento e visualizador de dados preservados em Configurações, erros de importação/corrupção, validação do modelo no backup |
 | 8 | Testes e docs | em andamento | suíte unitária de funções puras, integração dos fluxos novos, paridade estendida às rotas novas, E2E com capturas, relatório atualizado |
 

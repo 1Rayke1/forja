@@ -45,6 +45,7 @@
   const WORKOUT_PREFERENCES_KEY = KEYS.preferences;
   const WORKOUT_GOALS_KEY = KEYS.goals;
   const WORKOUT_ROTATION_KEY = KEYS.rotation;
+  const WORKOUT_PROFILE_KEY = KEYS.profile;
 
   const MODALITIES = ["calisthenics", "weights"];
 
@@ -1219,6 +1220,189 @@ function goalsAreActive(goals) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Perfil de treino (chave nova, aditiva)                              */
+/* ------------------------------------------------------------------ */
+
+/*
+  Perfil opcional do usuário: objetivo, nível, equipamento disponível, dias
+  por semana e duração desejada. Todos os campos são opcionais (ausente = 0 ou
+  "") e editáveis depois. O perfil orienta sugestões futuras e nunca impede a
+  criação manual de rotinas. A chave é aditiva: nada que já existe muda.
+*/
+const PERFIL_OBJETIVOS = ["forca", "hipertrofia", "resistencia", "calistenia", "recuperacao"];
+const PERFIL_NIVEIS = ["iniciante", "intermediario", "avancado"];
+const PERFIL_EQUIPAMENTOS = ["casa", "academia", "ambos"];
+const PERFIL_MAX_DIAS = 7;
+const PERFIL_MAX_MINUTOS = 240;
+
+const PERFIL_LABELS = {
+  objetivo: {
+    forca: "Força",
+    hipertrofia: "Hipertrofia",
+    resistencia: "Resistência",
+    calistenia: "Calistenia",
+    recuperacao: "Recuperação"
+  },
+  nivel: {
+    iniciante: "Iniciante",
+    intermediario: "Intermediário",
+    avancado: "Avançado"
+  },
+  equipamento: {
+    casa: "Casa / peso corporal",
+    academia: "Academia",
+    ambos: "Ambos"
+  }
+};
+
+/* Opções exatas usadas pelas telas (onboarding e Perfil). */
+const PERFIL_OPTIONS = {
+  objetivo: [
+    { value: "", label: "Não definido" },
+    { value: "forca", label: "Força" },
+    { value: "hipertrofia", label: "Hipertrofia" },
+    { value: "resistencia", label: "Resistência" },
+    { value: "calistenia", label: "Calistenia" },
+    { value: "recuperacao", label: "Recuperação" }
+  ],
+  nivel: [
+    { value: "", label: "Não definido" },
+    { value: "iniciante", label: "Iniciante" },
+    { value: "intermediario", label: "Intermediário" },
+    { value: "avancado", label: "Avançado" }
+  ],
+  equipamento: [
+    { value: "", label: "Não definido" },
+    { value: "casa", label: "Casa / peso corporal" },
+    { value: "academia", label: "Academia" },
+    { value: "ambos", label: "Ambos" }
+  ]
+};
+
+function normalizeProfile(raw) {
+  const base = {
+    version: 1,
+    updatedAt: null,
+    objetivo: "",
+    nivel: "",
+    equipamento: "",
+    diasPorSemana: 0,
+    duracaoMinutos: 0
+  };
+
+  if (!isPlainObject(raw)) return base;
+
+  return {
+    version: 1,
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
+    objetivo: PERFIL_OBJETIVOS.indexOf(raw.objetivo) !== -1 ? raw.objetivo : "",
+    nivel: PERFIL_NIVEIS.indexOf(raw.nivel) !== -1 ? raw.nivel : "",
+    equipamento: PERFIL_EQUIPAMENTOS.indexOf(raw.equipamento) !== -1 ? raw.equipamento : "",
+    diasPorSemana: clampInteger(raw.diasPorSemana, 0, PERFIL_MAX_DIAS, 0),
+    duracaoMinutos: clampInteger(raw.duracaoMinutos, 0, PERFIL_MAX_MINUTOS, 0)
+  };
+}
+
+/*
+  Leitura: nunca grava. Conteúdo ilegível é ignorado (sem reescrita) e a tela
+  continua com perfil vazio — o app funciona sem perfil.
+*/
+function loadProfile() {
+  const stored = parseStorageValue(WORKOUT_PROFILE_KEY);
+
+  if (!stored.exists) return normalizeProfile(null);
+
+  if (stored.error || !isPlainObject(stored.value)) {
+    /*
+      A inicialização não grava chave nova: o conteúdo ilegível continua
+      exatamente onde estava e a tela carrega um perfil vazio.
+    */
+    F.state.bootNotices.push(
+      "O perfil salvo estava ilegível. Ele foi ignorado sem gravar nada; o conteúdo original continua no armazenamento."
+    );
+    return normalizeProfile(null);
+  }
+
+  return normalizeProfile(stored.value);
+}
+
+/*
+  Única gravação do perfil: só acontece quando o usuário confirma. Se o
+  navegador recusar, a memória volta exatamente ao que estava armazenado.
+*/
+function saveProfile(patch) {
+  const previous = cloneData(F.state.profile);
+  const next = normalizeProfile(Object.assign({}, F.state.profile, patch, {
+    updatedAt: new Date().toISOString()
+  }));
+
+  F.state.profile = next;
+
+  if (!saveJSON(WORKOUT_PROFILE_KEY, next)) {
+    F.state.profile = previous;
+    return false;
+  }
+
+  return true;
+}
+
+function validateProfileStore(value) {
+  if (!isPlainObject(value)) {
+    throw new Error("O perfil do FORJA está em formato inválido.");
+  }
+
+  if (value.objetivo !== undefined &&
+    value.objetivo !== "" &&
+    PERFIL_OBJETIVOS.indexOf(value.objetivo) === -1) {
+    throw new Error("O objetivo do perfil é inválido.");
+  }
+
+  if (value.nivel !== undefined &&
+    value.nivel !== "" &&
+    PERFIL_NIVEIS.indexOf(value.nivel) === -1) {
+    throw new Error("O nível do perfil é inválido.");
+  }
+
+  if (value.equipamento !== undefined &&
+    value.equipamento !== "" &&
+    PERFIL_EQUIPAMENTOS.indexOf(value.equipamento) === -1) {
+    throw new Error("O equipamento do perfil é inválido.");
+  }
+
+  if (value.diasPorSemana !== undefined) {
+    const dias = Number(value.diasPorSemana);
+    if (!Number.isInteger(dias) || dias < 0 || dias > PERFIL_MAX_DIAS) {
+      throw new Error("Os dias por semana do perfil estão fora do intervalo.");
+    }
+  }
+
+  if (value.duracaoMinutos !== undefined) {
+    const minutos = Number(value.duracaoMinutos);
+    if (!Number.isInteger(minutos) || minutos < 0 || minutos > PERFIL_MAX_MINUTOS) {
+      throw new Error("A duração desejada do perfil está fora do intervalo.");
+    }
+  }
+
+  return true;
+}
+
+function profileSummarize(value) {
+  const profile = normalizeProfile(value);
+  const parts = [];
+
+  if (profile.objetivo) parts.push(PERFIL_LABELS.objetivo[profile.objetivo]);
+  if (profile.nivel) parts.push(PERFIL_LABELS.nivel[profile.nivel]);
+  if (profile.equipamento) parts.push(PERFIL_LABELS.equipamento[profile.equipamento]);
+  if (profile.diasPorSemana > 0) parts.push(profile.diasPorSemana + " dia(s)/semana");
+  if (profile.duracaoMinutos > 0) parts.push(profile.duracaoMinutos + " min/sessão");
+
+  return {
+    label: "Perfil",
+    detail: parts.length ? parts.join(" · ") : "ausente"
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /* Validação compartilhada: boot, auditoria e backup usam as mesmas regras*/
 /* ------------------------------------------------------------------ */
 
@@ -1957,6 +2141,17 @@ F.registry.register({
 });
 
 F.registry.register({
+  id: "profile",
+  key: WORKOUT_PROFILE_KEY,
+  label: "Perfil de treino",
+  empty: () => normalizeProfile(null),
+  read: loadProfile,
+  validate: validateProfileStore,
+  persist: () => saveJSON(WORKOUT_PROFILE_KEY, F.state.profile),
+  summarize: profileSummarize
+});
+
+F.registry.register({
   id: "rotation",
   key: WORKOUT_ROTATION_KEY,
   label: "Sequência de rotinas",
@@ -2275,6 +2470,18 @@ Object.assign(F, {
   loadGoals,
   loadRotation,
   goalsAreActive,
+  normalizeProfile,
+  loadProfile,
+  saveProfile,
+  validateProfileStore,
+  profileSummarize,
+  PERFIL_OPTIONS,
+  PERFIL_LABELS,
+  PERFIL_OBJETIVOS,
+  PERFIL_NIVEIS,
+  PERFIL_EQUIPAMENTOS,
+  PERFIL_MAX_DIAS,
+  PERFIL_MAX_MINUTOS,
   validateRoutinesStore,
   validateHistoryList,
   validateActiveSession,
