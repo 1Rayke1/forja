@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FORJA — prancha anatômica de referência, vista posterior (cabeça aos pés).
+  Escala ortográfica 240 × 520 (renderizada em 480 × 1040 px, 2× Retina).
+  Tons neutros anatômicos: músculos em grafite-slate, tendões/fascias em cinza
+  mineral, aponeurose toracolombar e tendão de Aquiles em cinzas claros.
+  Sem numeração nem rótulos no corpo: os destaques funcionais são sobrepostos
+  pela aplicação (forja-figura.js).
+  Gerado neste repositório; derivada de acervo de referência anatômica aberta
+  (BodyParts3D / Z-Anatomy, CC BY-SA). Veja assets/anatomia/NOTICE.md.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 520" width="480" height="1040">
+  <defs>
+    <style>
+      .cabeca { fill: #78837c; }
+      .pescoço { fill: #78837c; }
+      .musculo { fill: #7a857e; }
+      .musculo-claro { fill: #8a948e; }
+      .musculo-escuro { fill: #6a726c; }
+      .ossos { fill: #626b65; }
+      .tendao { fill: #9aa39e; }
+      .tendao-escuro { fill: #626b65; }
+    </style>
+  </defs>
+
+  <!-- Cabeça e pescoço -->
+  <path class="cabeca" d="M120 16 C146 16 146 90 120 90 C94 90 94 16 120 16 Z"/>
+  <path class="musculo-escuro" d="M92 56 Q88 62 92 72 Q96 66 92 56 Z"/>
+  <path class="musculo-escuro" d="M148 56 Q152 62 148 72 Q144 66 148 56 Z"/>
+  <path class="pescoço" d="M108 88 L106 104 L134 104 L132 88 Z"/>
+
+  <!-- Trapézio e deltoides posteriores -->
+  <path class="musculo-claro" d="M84 114 Q96 136 104 162 L114 174 Q126 170 136 162 L144 136 Q152 114 156 100 Q150 90 138 94 Q120 94 114 104 Z"/>
+  <path class="musculo-escuro" d="M114 104 L116 200 Q118 206 122 206 L120 110 Z"/>
+  <path class="musculo-escuro" d="M124 104 L122 200 Q120 206 116 206 L118 110 Z"/>
+  <path class="musculo" d="M56 132 Q64 152 88 190 L92 168 Q80 144 64 136 Z"/>
+  <path class="musculo" d="M184 132 Q176 152 152 190 L148 168 Q160 144 176 136 Z"/>
+
+  <!-- Tríceps posteriores dos braços -->
+  <path class="musculo" d="M60 150 Q56 178 52 204 Q50 218 54 228 L58 226 Q62 214 60 200 Q62 184 60 164 Z"/>
+  <path class="musculo" d="M180 150 Q184 178 188 204 Q190 218 186 228 L182 226 Q178 214 180 200 Q178 184 180 164 Z"/>
+
+  <!-- Omoplatas -->
+  <path class="musculo-escuro" d="M94 156 Q100 180 106 208 Q108 222 102 226 L94 218 Q88 204 92 182 Z"/>
+  <path class="musculo-escuro" d="M146 156 Q140 180 134 208 Q132 222 138 226 L146 218 Q152 204 148 182 Z"/>
+
+  <!-- Costas superiores (rombosos / infraespinhal) -->
+  <path class="musculo-escuro" d="M104 156 Q110 172 116 194 Q118 212 112 216 L108 204 Q104 184 104 166 Z"/>
+  <path class="musculo-escuro" d="M136 156 Q130 172 124 194 Q122 212 128 216 L132 204 Q136 184 136 166 Z"/>
+
+  <!-- Dorsais (grande dorsal) -->
+  <path class="musculo-escuro" d="M82 174 Q74 216 72 252 L70 282 Q78 268 84 254 L90 236 Q86 204 84 186 Z"/>
+  <path class="musculo-escuro" d="M158 174 Q166 216 168 252 L170 282 Q162 268 156 254 L150 236 Q154 204 156 186 Z"/>
+
+  <!-- Lombar e aponeurose toracolombar -->
+  <path class="ossos" d="M104 250 Q108 274 112 296 L128 296 Q132 274 136 250 Z"/>
+  <path class="tendao" d="M119.5 250 L120.5 300 L120 302 L119 252 Z"/>
+
+  <!-- Braços posteriores: antebraços e mãos -->
+  <path class="musculo" d="M54 228 Q50 252 46 280 Q48 288 52 286 L58 294 Q60 290 56 282 Q54 260 56 242 Z"/>
+  <path class="musculo" d="M186 228 Q190 252 194 280 Q192 288 188 286 L182 294 Q180 290 184 282 Q186 260 184 242 Z"/>
+  <path class="cabeca" d="M50 288 Q44 292 40 300 L46 310 Q52 312 60 302 L58 296 Z"/>
+  <path class="cabeca" d="M190 288 Q196 292 200 300 L194 310 Q188 312 180 302 L182 296 Z"/>
+
+  <!-- Glúteos -->
+  <path class="musculo" d="M60 294 Q54 326 56 354 L64 376 Q76 362 88 348 Q84 322 72 302 Z"/>
+  <path class="musculo" d="M180 294 Q186 326 184 354 L176 376 Q164 362 152 348 Q156 322 168 302 Z"/>
+  <path class="musculo-escuro" d="M119 296 L121 332 L120 334 L117 298 Z"/>
+
+  <!-- Posterior de coxa (isquiotibiais) -->
+  <path class="musculo" d="M56 356 Q52 384 50 412 Q54 422 60 426 L70 430 Q78 422 82 414 Q80 388 70 362 Z"/>
+  <path class="musculo" d="M184 356 Q188 384 190 412 Q186 422 180 426 L170 430 Q162 422 158 414 Q160 388 170 362 Z"/>
+
+  <!-- Região poplítea (parte de trás do joelho) -->
+  <path class="musculo-escuro" d="M70 426 Q74 436 78 430 Q74 420 70 426 Z"/>
+  <path class="musculo-escuro" d="M170 426 Q166 436 162 430 Q166 420 170 426 Z"/>
+
+  <!-- Panturrilhas (gastrocnêmio e sóleo) -->
+  <path class="musculo" d="M74 426 Q70 452 68 480 Q66 500 64 510 L74 516 Q82 510 86 502 Q88 488 84 468 Z"/>
+  <path class="musculo-escuro" d="M70 438 Q74 462 76 486 L80 482 Q76 466 72 442 Z"/>
+  <path class="musculo" d="M166 426 Q170 452 172 480 Q174 500 176 510 L166 516 Q158 510 154 502 Q152 488 156 468 Z"/>
+  <path class="musculo-escuro" d="M170 438 Q166 462 164 486 L160 482 Q164 466 168 442 Z"/>
+
+  <!-- Tendões de Aquiles -->
+  <path class="tendao-escuro" d="M66 504 L70 518 L68 520 L64 512 Z"/>
+  <path class="tendao-escuro" d="M174 504 L172 518 L172 520 L176 512 Z"/>
+
+  <!-- Tornozelos e calcanhares (vista posterior) -->
+  <path class="musculo-escuro" d="M68 494 L72 504 L70 510 L66 500 Z"/>
+  <path class="musculo-escuro" d="M172 494 L168 504 L170 510 L174 500 Z"/>
+  <path class="cabeca" d="M58 504 Q60 518 72 518 Q80 512 74 506 L70 502 Q64 504 58 504 Z"/>
+  <path class="cabeca" d="M182 504 Q180 518 168 518 Q160 512 166 506 L170 502 Q176 504 182 504 Z"/>
+</svg>
