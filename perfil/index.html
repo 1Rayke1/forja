@@ -42,6 +42,41 @@
     <p class="screen-subtitle">Seu corpo, preferências e dados — tudo permanece neste navegador.</p>
   </div>
 
+  <section class="preferences-panel" aria-labelledby="perfil-treino-heading" style="margin-top:18px">
+    <h2 class="section-title" id="perfil-treino-heading">Seu perfil de treino</h2>
+    <p class="screen-subtitle" style="margin:0">Opcional e editável a qualquer momento. O perfil orienta sugestões futuras, mas nunca impede a criação manual de rotinas.</p>
+    <form id="profile-form" class="goals-form" novalidate style="margin-top:12px">
+      <div class="goals-fields">
+        <div class="field-block">
+          <label class="field-label" for="prof-objetivo">Objetivo principal</label>
+          <select id="prof-objetivo" class="field-input"></select>
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="prof-nivel">Nível</label>
+          <select id="prof-nivel" class="field-input"></select>
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="prof-equipamento">Equipamento disponível</label>
+          <select id="prof-equipamento" class="field-input"></select>
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="prof-dias">Dias por semana</label>
+          <input id="prof-dias" class="field-input" type="number" min="0" max="7" step="1" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="prof-duracao">Duração desejada (min)</label>
+          <input id="prof-duracao" class="field-input" type="number" min="0" max="240" step="5" inputmode="numeric" autocomplete="off">
+        </div>
+      </div>
+      <p class="field-hint">Campo 0 ou vazio desliga o item. Salvar o perfil não altera treinos nem histórico.</p>
+      <p class="field-error" id="profile-error" role="status" hidden></p>
+      <div class="goals-actions">
+        <button type="submit" id="profile-save" class="primary-button">Salvar perfil</button>
+        <span class="limit-note" id="profile-status" aria-live="polite"></span>
+      </div>
+    </form>
+  </section>
+
   <section class="preferences-panel" aria-labelledby="meu-corpo-heading" style="margin-top:18px">
     <h2 class="section-title" id="meu-corpo-heading">Meu corpo</h2>
     <p class="screen-subtitle" style="margin:0">Medidas corporais opcionais ficam salvas apenas neste navegador e não são enviadas a nenhum servidor.</p>

@@ -215,6 +215,25 @@ main.container { padding-top: 18px; padding-bottom: calc(var(--bottom-nav-height
 .home-action-button:active { transform: scale(0.98); }
 .home-action-button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .home-action-hint { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+
+/* Onboarding opcional (usuário realmente novo) */
+#onboarding-root { margin: 6px 0 14px; }
+.onboarding-panel {
+  background: linear-gradient(145deg, rgba(183,243,74,0.10), transparent 60%), var(--panel);
+  border: 1px solid rgba(183,243,74,0.30);
+  border-radius: 16px;
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.onboarding-panel .field-hint { color: var(--muted); font-size: 12px; }
+.onboarding-panel .field-error { margin: 0; }
+.onboarding-panel .goals-actions .secondary-button { min-height: 44px; }
+.field-input { min-height: 44px; }
+select.field-input { padding-left: 12px; }
+#profile-form .goals-actions { margin-top: 6px; }
+#profile-status { margin-left: 4px; }
 .home-action-card.is-empty { border-style: dashed; border-color: rgba(160,166,159,0.34); background: var(--panel); }
 
 .home-week, .home-recent { margin-top: 18px; }

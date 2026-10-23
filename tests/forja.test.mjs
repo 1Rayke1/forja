@@ -2931,6 +2931,339 @@ await runTest("59. Compatibilidade com dados legados (v1/v2) e backups v1/v2/v3 
   perfil.close();
 });
 
+/* ------------------------------------------------------------------ */
+/* Onboarding e perfil (ETAPA 1: perfil opcional, aditivo)              */
+/* ------------------------------------------------------------------ */
+const PROFILE_KEY = "forja-perfil-v1";
+const profileSeed = obj => Object.assign({
+  version: 1,
+  updatedAt: "2026-01-01T00:00:00.000Z"
+}, obj);
+
+function onboardingPanel(app) {
+  return app.$("#onboarding-root .onboarding-panel");
+}
+
+function onboardingButton(app, label) {
+  const button = app.$$("#onboarding-root button").find(item => item.textContent.trim() === label);
+  assert.ok(button, "Botão do onboarding não encontrado: " + label);
+  return button;
+}
+
+function fillOnboarding(app, values) {
+  if (values.objetivo !== undefined) app.d.getElementById("onb-objetivo").value = values.objetivo;
+  if (values.nivel !== undefined) app.d.getElementById("onb-nivel").value = values.nivel;
+  if (values.equipamento !== undefined) app.d.getElementById("onb-equipamento").value = values.equipamento;
+  if (values.dias !== undefined) app.d.getElementById("onb-dias").value = values.dias;
+  if (values.duracao !== undefined) app.d.getElementById("onb-duracao").value = values.duracao;
+}
+
+await runTest("60. Onboarding: aparece só para usuário novo, não bloqueia a home e não grava nada", async () => {
+  const app = await boot({}, "index.html");
+  assertNoErrors(app);
+
+  assert.ok(onboardingPanel(app), "O onboarding não apareceu para um usuário novo");
+
+  /* A home continua operacional: a ação primária não é bloqueada pelo painel. */
+  const primary = app.$("#home-primary-button");
+  assert.ok(primary, "Ação primária da home ausente");
+  assert.equal(primary.hidden, false, "Ação primária da home invisível");
+
+  assert.deepEqual(app.storageWrites, [], "A inicialização gravou chaves: " + JSON.stringify(app.storageWrites));
+  assert.equal(app.raw(PROFILE_KEY), null, "Nenhum perfil deveria ser gravado");
+  app.close();
+});
+
+await runTest("61. Onboarding: Pular não cria nem persiste nenhum dado", async () => {
+  const app = await boot({}, "index.html");
+  app.click(onboardingButton(app, "Pular"));
+  await wait(20);
+
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Pular deve ocultar o onboarding");
+  assert.equal(app.raw(PROFILE_KEY), null, "Pular não deve gravar o perfil");
+  assert.deepEqual(app.storageWrites, [], "Pular não deve gravar nada: " + JSON.stringify(app.storageWrites));
+  app.close();
+});
+
+await runTest("62. Onboarding: Configurar depois navega para Perfil e não grava nada", async () => {
+  const app = await boot({}, "index.html");
+  app.click(onboardingButton(app, "Configurar depois"));
+  await until(() => app.pageUrl && app.pageUrl.indexOf("perfil") !== -1, "navegação para Perfil");
+
+  assert.equal(app.raw(PROFILE_KEY), null, "Configurar depois não deve gravar o perfil");
+  assert.deepEqual(app.storageWrites, [], "Configurar depois não deve gravar nada: " + JSON.stringify(app.storageWrites));
+  app.close();
+});
+
+await runTest("63. Onboarding: Salvar grava somente no confirm explícito e não atrapalha criar rotina manualmente", async () => {
+  const app = await boot({}, "index.html");
+
+  /* Validação: dia acima do teto não salva, informa o problema e mantém o painel. */
+  fillOnboarding(app, { dias: "9" });
+  app.click(onboardingButton(app, "Salvar perfil"));
+  await wait(20);
+  assert.equal(app.raw(PROFILE_KEY), null, "Valor inválido não deve gravar o perfil");
+  assert.equal(app.d.getElementById("onboarding-root").hidden, false, "O onboarding deve continuar visível");
+  assert.ok(app.$("#onboarding-root .field-error").textContent.length > 0, "O erro deve ser informado");
+
+  fillOnboarding(app, { objetivo: "hipertrofia", nivel: "iniciante", equipamento: "academia", dias: "4", duracao: "45" });
+  app.click(onboardingButton(app, "Salvar perfil"));
+  await wait(20);
+
+  const stored = app.data(PROFILE_KEY);
+  assert.ok(stored, "Salvar deve gravar o perfil");
+  assert.equal(stored.objetivo, "hipertrofia");
+  assert.equal(stored.nivel, "iniciante");
+  assert.equal(stored.equipamento, "academia");
+  assert.equal(stored.diasPorSemana, 4);
+  assert.equal(stored.duracaoMinutos, 45);
+  assert.ok(stored.updatedAt, "O perfil gravado tem marcação de hora");
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "O onboarding deve sumir após salvar");
+
+  /* O perfil não substitui a capacidade de criar rotinas manualmente. */
+  const primary = app.$("#home-primary-button");
+  assert.ok(primary, "A home deve continuar oferecendo a ação primária de treino");
+
+  /* Ao voltar (reload), o onboarding não repete para quem já tem perfil. */
+  await app.reload();
+  assert.equal(onboardingPanel(app), null, "O onboarding não deve aparecer de novo");
+  assert.equal(app.raw(PROFILE_KEY) !== null, true, "O perfil persiste após o reload");
+  app.close();
+});
+
+await runTest("64. Onboarding: usuário com rotina ou histórico existente não é interrompido", async () => {
+  const routineSeed = {
+    "forja-treino-rotinas-v1": routinesStore([makeRoutine("calisthenics", "Treino A", [{ id: "o-1", name: "Flexão", sets: 3, reps: "10", section: "main" }])], [])
+  };
+  const historySeed = {
+    "forja-treino-historico-v1": [{
+      id: "o-h1", date: "2026-01-02", modality: "calisthenics", routineId: "o-r1", routineName: "Treino A",
+      durationMs: 600000, completedSets: 3, totalPlannedSets: 3, status: "finished",
+      finishedAt: "2026-01-02T10:00:00.000Z", exercises: []
+    }]
+  };
+
+  const withRoutine = await boot(routineSeed, "index.html");
+  assert.equal(onboardingPanel(withRoutine), null, "Usuário com rotina não deve ver o onboarding");
+  withRoutine.close();
+
+  const withHistory = await boot(historySeed, "index.html");
+  assert.equal(onboardingPanel(withHistory), null, "Usuário com histórico não deve ver o onboarding");
+  withHistory.close();
+
+  const withProfile = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca" }) }, "index.html");
+  assert.equal(onboardingPanel(withProfile), null, "Usuário com perfil não deve ver o onboarding");
+  withProfile.close();
+});
+
+await runTest("65. Perfil: formulário reflete o armazenado, salva e não altera treinos nem histórico", async () => {
+  const seed = {
+    "forja-treino-rotinas-v1": routinesStore([makeRoutine("calisthenics", "Treino A", [{ id: "p-1", name: "Flexão", sets: 3, reps: "10", section: "main" }])], []),
+    "forja-treino-historico-v1": [{
+      id: "p-h1", date: "2026-01-03", modality: "calisthenics", routineId: "p-r1", routineName: "Treino A",
+      durationMs: 600000, completedSets: 3, totalPlannedSets: 3, status: "finished",
+      finishedAt: "2026-01-03T10:00:00.000Z", exercises: []
+    }],
+    [PROFILE_KEY]: profileSeed({
+      objetivo: "forca", nivel: "iniciante", equipamento: "ambos", diasPorSemana: 5, duracaoMinutos: 40
+    })
+  };
+
+  const app = await boot(seed, "perfil/index.html");
+  assertNoErrors(app);
+
+  assert.equal(app.d.getElementById("prof-objetivo").value, "forca", "Objetivo não reflete o armazenado");
+  assert.equal(app.d.getElementById("prof-nivel").value, "iniciante", "Nível não reflete o armazenado");
+  assert.equal(app.d.getElementById("prof-equipamento").value, "ambos", "Equipamento não reflete o armazenado");
+  assert.equal(app.d.getElementById("prof-dias").value, "5", "Dias não refletem o armazenado");
+  assert.equal(app.d.getElementById("prof-duracao").value, "40", "Duração não reflete o armazenado");
+
+  const before = storageSnapshot(app);
+  app.d.getElementById("prof-dias").value = "6";
+  app.click("#profile-save");
+  await wait(20);
+
+  const after = app.data(PROFILE_KEY);
+  assert.equal(after.diasPorSemana, 6, "O perfil deve aceitar a edição");
+  assert.equal(after.objetivo, "forca", "Campos não editados permanecem");
+
+  assert.equal(app.raw("forja-treino-rotinas-v1"), before["forja-treino-rotinas-v1"], "Rotinas alteradas pelo perfil");
+  assert.equal(app.raw("forja-treino-historico-v1"), before["forja-treino-historico-v1"], "Histórico alterado pelo perfil");
+  app.close();
+});
+
+await runTest("66. Perfil: falha de gravação informa o problema e preserva o estado anterior", async () => {
+  const app = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", diasPorSemana: 3 }) }, "perfil/index.html");
+  assertNoErrors(app);
+
+  const failing = installFailingStorage(app, { failOn: PROFILE_KEY, times: 1 });
+  app.d.getElementById("prof-dias").value = "6";
+  app.click("#profile-save");
+  await wait(20);
+  failing.restore();
+
+  const stored = app.data(PROFILE_KEY);
+  assert.equal(stored.objetivo, "forca", "O objetivo anterior deve ser preservado");
+  assert.equal(stored.diasPorSemana, 3, "Os dias anteriores devem ser preservados");
+
+  const error = app.$("#profile-error");
+  assert.equal(error.hidden, false, "O erro deve ser informado");
+  assert.ok(error.textContent.length > 0, "O erro deve ter mensagem");
+
+  assert.equal(app.d.getElementById("prof-dias").value, "3", "A tela volta ao valor armazenado");
+  app.close();
+});
+
+await runTest("67. Perfil: conteúdo ilegível no armazenamento não grava chave nova e carrega vazio", async () => {
+  const app = await boot({ [PROFILE_KEY]: "{ quebrado" }, "perfil/index.html");
+  assertNoErrors(app);
+
+  assert.equal(app.d.getElementById("prof-objetivo").value, "", "Perfil ilegível deve carregar vazio");
+  assert.equal(app.d.getElementById("prof-dias").value, "0", "Dias ilegíveis devem carregar 0");
+
+  const writes = app.storageWrites.filter(item => item.method === "setItem");
+  assert.deepEqual(writes, [], "A inicialização não deve gravar chave nova: " + JSON.stringify(writes));
+  assert.equal(app.raw("forja-treino-dados-preservados-v1"), null, "Não deve criar cópia de preservação no boot");
+  app.close();
+});
+
+await runTest("68. Backup: exportação, importação e registry cobrem forja-perfil-v1", async () => {
+  const seed = {
+    "forja-treino-rotinas-v1": routinesStore([makeRoutine("calisthenics", "Treino A", [{ id: "b-1", name: "Flexão", sets: 3, reps: "10", section: "main" }])], []),
+    [PROFILE_KEY]: profileSeed({ objetivo: "resistencia", diasPorSemana: 3, duracaoMinutos: 30 })
+  };
+  const app = await boot(seed, "perfil/index.html");
+  assertNoErrors(app);
+
+  assert.ok(app.F.registry.get("profile"), "O perfil deve estar registrado no registry");
+  assert.equal(app.F.registry.get("profile").key, PROFILE_KEY, "Registro com chave incorreta");
+
+  const backup = app.F.buildBackupObject();
+  assert.ok(Object.prototype.hasOwnProperty.call(backup.keys, PROFILE_KEY), "A exportação deve incluir o perfil");
+
+  const summary = app.F.registry.summarizeKey(PROFILE_KEY, app.data(PROFILE_KEY));
+  assert.ok(summary && summary.label, "O perfil deve ter resumo no backup");
+  assert.match(summary.detail, /Resistência/, "O resumo do perfil deve descrever o conteúdo");
+  assert.match(summary.detail, /3 dia\(s\)\/semana/, "O resumo do perfil deve incluir os dias");
+
+  /* Restauração: o perfil volta à memória e o formulário do Perfil acompanha. */
+  const restored = app.F.applyRestore({
+    [PROFILE_KEY]: profileSeed({ objetivo: "calistenia", diasPorSemana: 2, duracaoMinutos: 0 })
+  });
+  assert.equal(restored, true, "A restauração deve funcionar");
+  assert.equal(app.F.state.profile.objetivo, "calistenia", "O perfil restaurado deve voltar à memória");
+  assert.equal(app.d.getElementById("prof-objetivo").value, "calistenia", "O formulário deve refletir o perfil restaurado");
+  assert.equal(app.d.getElementById("prof-dias").value, "2", "Os dias restaurados devem aparecer no formulário");
+  app.close();
+});
+
+await runTest("69. Equipamento 'Sem equipamentos' é opção válida no perfil, onboarding, resumo e backup", async () => {
+  const app = await boot({}, "index.html");
+  assertNoErrors(app);
+
+  const values = app.F.PERFIL_OPTIONS.equipamento.map(option => option.value);
+  assert.ok(values.indexOf("nenhum") !== -1, "A opção 'nenhum' deve estar no perfil");
+  assert.ok(values.indexOf("") !== -1, "A opção vazia deve continuar presente");
+  assert.ok(app.F.PERFIL_EQUIPAMENTOS.indexOf("nenhum") !== -1, "O valor deve constar na lista de equipamentos");
+  assert.equal(app.F.PERFIL_LABELS.equipamento.nenhum, "Sem equipamentos", "O rótulo deve ser 'Sem equipamentos'");
+
+  /* Onboarding aceita a opção e grava. */
+  fillOnboarding(app, { equipamento: "nenhum" });
+  app.click(onboardingButton(app, "Salvar perfil"));
+  await wait(20);
+  const stored = app.data(PROFILE_KEY);
+  assert.equal(stored.equipamento, "nenhum", "O onboarding deve gravar 'Sem equipamentos'");
+
+  /* Normalização, validação e resumo consistentes. */
+  assert.equal(app.F.normalizeProfile(stored).equipamento, "nenhum", "Normalização preserva o valor");
+  assert.equal(app.F.validateProfileStore(stored), true, "Backup valida 'Sem equipamentos'");
+  assert.throws(() => app.F.validateProfileStore({ equipamento: "nao-existe" }), /equipamento/,
+    "Valor desconhecido deve ser rejeitado");
+  const summary = app.F.registry.summarizeKey(PROFILE_KEY, stored);
+  assert.match(summary.detail, /Sem equipamentos/, "O resumo do perfil deve descrever 'Sem equipamentos'");
+  app.close();
+
+  /* O formulário do Perfil exibe e regrava a opção. */
+  const perfil = await boot({ [PROFILE_KEY]: profileSeed({ equipamento: "nenhum" }) }, "perfil/index.html");
+  assert.equal(perfil.d.getElementById("prof-equipamento").value, "nenhum", "O formulário deve exibir a opção");
+  perfil.d.getElementById("prof-equipamento").value = "ambos";
+  perfil.click("#profile-save");
+  await wait(20);
+  assert.equal(perfil.data(PROFILE_KEY).equipamento, "ambos", "O formulário deve regrava a opção");
+  perfil.close();
+});
+
+await runTest("70. F.state.profile é inicializado em todas as páginas (ausente, inválido e válido)", async () => {
+  const pages = [
+    "index.html", "treino/index.html", "treino/executar.html", "treino/biblioteca.html",
+    "progresso/index.html", "perfil/index.html", "configuracoes/index.html", "explorar/index.html"
+  ];
+  const empty = {
+    version: 1, updatedAt: null, objetivo: "", nivel: "", equipamento: "",
+    diasPorSemana: 0, duracaoMinutos: 0
+  };
+
+  for (const page of pages) {
+    const app = await boot({}, page);
+    assertNoErrors(app, "perfil ausente em " + page);
+    assert.deepEqual(plain(app.F.state.profile), empty, "Perfil ausente não inicializou vazio em " + page);
+    app.close();
+  }
+
+  for (const page of pages) {
+    const app = await boot({ [PROFILE_KEY]: "{ quebrado" }, page);
+    assertNoErrors(app, "perfil ilegível em " + page);
+    assert.deepEqual(plain(app.F.state.profile), empty, "Perfil ilegível deve carregar vazio em " + page);
+    assert.ok(app.F.state.bootNotices.length > 0, "Deve avisar sobre o perfil ilegível em " + page);
+    assert.equal(app.raw("forja-treino-dados-preservados-v1"), null, "Boot não deve criar cópia de preservação em " + page);
+    app.close();
+  }
+
+  const validHome = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", equipamento: "nenhum", diasPorSemana: 3 }) }, "index.html");
+  assert.equal(validHome.F.state.profile.objetivo, "forca");
+  assert.equal(validHome.F.state.profile.equipamento, "nenhum");
+  assert.equal(validHome.F.state.profile.diasPorSemana, 3);
+  validHome.close();
+
+  const validPerfil = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", equipamento: "nenhum" }) }, "perfil/index.html");
+  assert.equal(validPerfil.F.state.profile.objetivo, "forca", "Perfil válido não inicializou em Perfil");
+  assert.equal(validPerfil.d.getElementById("prof-objetivo").value, "forca", "Formulário não reflete o perfil em Perfil");
+  validPerfil.close();
+});
+
+await runTest("71. Onboarding: Pular não reaparece na mesma visita e não grava nada", async () => {
+  const app = await boot({}, "index.html");
+  app.click(onboardingButton(app, "Pular"));
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Pular deve ocultar o onboarding");
+
+  /* Redesenhos e re-inicializações da home não trazem o painel de volta. */
+  app.F.pages.inicio();
+  await wait(20);
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "O onboarding não deve reaparecer na mesma visita");
+  assert.equal(app.$$("#onboarding-root button").length, 0, "Nenhum controle do onboarding deve voltar");
+  assert.equal(app.raw(PROFILE_KEY), null, "Nada deve ser gravado");
+  assert.deepEqual(app.storageWrites, [], "Nada deve ser gravado: " + JSON.stringify(app.storageWrites));
+  app.close();
+});
+
+await runTest("72. Importação de backup atualiza estado em memória e formulário do Perfil", async () => {
+  const app = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca" }) }, "perfil/index.html");
+  await app.importFile({
+    app: "FORJA", format: "forja-backup", version: 1, exportedAt: new Date().toISOString(),
+    keys: { [PROFILE_KEY]: profileSeed({ objetivo: "resistencia", equipamento: "nenhum", diasPorSemana: 2, duracaoMinutos: 30 }) }
+  }, "backup.json");
+  await app.modal("restore");
+  await wait(40);
+
+  assert.equal(app.data(PROFILE_KEY).objetivo, "resistencia", "O perfil do backup foi aplicado");
+  assert.equal(app.F.state.profile.objetivo, "resistencia", "O estado em memória foi atualizado");
+  assert.equal(app.d.getElementById("prof-objetivo").value, "resistencia", "O formulário reflete o perfil importado");
+  assert.equal(app.d.getElementById("prof-equipamento").value, "nenhum", "O equipamento importado aparece no formulário");
+  assert.equal(app.d.getElementById("prof-dias").value, "2", "Os dias importados aparecem no formulário");
+  assert.equal(app.d.getElementById("prof-duracao").value, "30", "A duração importada aparece no formulário");
+  app.close();
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));

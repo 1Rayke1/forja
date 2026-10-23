@@ -755,6 +755,113 @@ function updateBackupStatus() {
     vibrate.checked = prefs.vibrateOnRest !== false;
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Perfil de treino (página Perfil; configurações mantêm a rota antiga)*/
+  /* ------------------------------------------------------------------ */
+  /*
+    O formulário existe só na página Perfil. Nas Configurações os elementos
+    não estão no documento, então estas funções simplesmente não acham nada
+    e não fazem nada — a rota antiga continua funcionando igual.
+  */
+  function fillProfileSelect(select, options, value) {
+    if (!select) return;
+    select.innerHTML = "";
+    options.forEach(option => {
+      const item = document.createElement("option");
+      item.value = option.value;
+      item.textContent = option.label;
+      if (String(option.value) === String(value || "")) item.selected = true;
+      select.appendChild(item);
+    });
+  }
+
+  function renderProfileForm() {
+    const profile = F.state.profile || {};
+
+    fillProfileSelect(byId("prof-objetivo"), F.PERFIL_OPTIONS.objetivo, profile.objetivo);
+    fillProfileSelect(byId("prof-nivel"), F.PERFIL_OPTIONS.nivel, profile.nivel);
+    fillProfileSelect(byId("prof-equipamento"), F.PERFIL_OPTIONS.equipamento, profile.equipamento);
+
+    const dias = byId("prof-dias");
+    if (dias) dias.value = String(profile.diasPorSemana || 0);
+
+    const duracao = byId("prof-duracao");
+    if (duracao) duracao.value = String(profile.duracaoMinutos || 0);
+
+    const status = byId("profile-status");
+    if (status) {
+      status.textContent = profile.updatedAt
+        ? "Perfil salvo em " + F.formatDate(new Date(profile.updatedAt), {
+            day: "2-digit", month: "long", year: "numeric"
+          }) + "."
+        : "Nenhum perfil salvo ainda.";
+    }
+  }
+
+  function readProfileForm() {
+    const values = {
+      objetivo: (byId("prof-objetivo") || {}).value || "",
+      nivel: (byId("prof-nivel") || {}).value || "",
+      equipamento: (byId("prof-equipamento") || {}).value || ""
+    };
+    const errors = [];
+
+    const diasRaw = String((byId("prof-dias") || {}).value || "").trim();
+    if (diasRaw !== "" && !/^\d+$/.test(diasRaw)) {
+      errors.push("Use um número inteiro de dias (0 a 7).");
+    } else if (diasRaw !== "" && Number(diasRaw) > F.PERFIL_MAX_DIAS) {
+      errors.push("Use até " + F.PERFIL_MAX_DIAS + " dias por semana.");
+    }
+
+    const duracaoRaw = String((byId("prof-duracao") || {}).value || "").trim();
+    if (duracaoRaw !== "" && !/^\d+$/.test(duracaoRaw)) {
+      errors.push("Use um número inteiro de minutos.");
+    } else if (duracaoRaw !== "" && Number(duracaoRaw) > F.PERFIL_MAX_MINUTOS) {
+      errors.push("Use até " + F.PERFIL_MAX_MINUTOS + " minutos.");
+    }
+
+    if (errors.length > 0) return { error: errors[0], values };
+
+    values.diasPorSemana = diasRaw === "" ? 0 : Number(diasRaw);
+    values.duracaoMinutos = duracaoRaw === "" ? 0 : Number(duracaoRaw);
+    return { values };
+  }
+
+  function submitProfile(event) {
+    event.preventDefault();
+
+    const error = byId("profile-error");
+    const outcome = readProfileForm();
+
+    if (outcome.error) {
+      if (error) {
+        error.textContent = outcome.error;
+        error.hidden = false;
+      }
+      return;
+    }
+
+    if (error) {
+      error.textContent = "";
+      error.hidden = true;
+    }
+
+    if (!F.saveProfile(outcome.values)) {
+      if (error) {
+        error.textContent = "Não foi possível salvar o perfil. Os dados já salvos foram mantidos.";
+        error.hidden = false;
+      }
+      renderProfileForm();
+      showToast("Não foi possível salvar o perfil neste navegador.", "error", 6000);
+      return;
+    }
+
+    renderProfileForm();
+
+    if (typeof F.ui.announce === "function") F.ui.announce("Perfil de treino salvo.");
+    showToast("Perfil de treino salvo.", "info", 4000);
+  }
+
   function changePreference(name, value) {
     /* Parte do que está gravado agora: outra aba pode ter mudado a outra opção. */
     const next = Object.assign({}, F.loadPreferences(), { [name]: Boolean(value) });
@@ -780,6 +887,13 @@ function updateBackupStatus() {
     if (event.key !== null && event.key !== KEYS.preferences) return;
     F.state.preferences = F.loadPreferences();
     renderPreferences();
+  });
+
+  /* Outra aba pode editar o perfil; recarregar os campos sem gravar nada. */
+  global.addEventListener("storage", event => {
+    if (event.key !== null && event.key !== KEYS.profile) return;
+    F.state.profile = F.loadProfile();
+    renderProfileForm();
   });
 
   /*
@@ -817,7 +931,10 @@ function updateBackupStatus() {
       changePreference("vibrateOnRest", event.target.checked);
     });
 
+    listen(byId("profile-form"), "submit", submitProfile);
+
     renderPreferences();
+    renderProfileForm();
     updateBackupStatus();
   }
 
@@ -827,6 +944,7 @@ function updateBackupStatus() {
   F.onDataChanged(() => {
     if (byId("backup-status")) {
       renderPreferences();
+      renderProfileForm();
       updateBackupStatus();
     }
   });

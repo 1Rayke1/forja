@@ -50,7 +50,8 @@
     library: "forja-treino-biblioteca-v1",
     preferences: "forja-preferencias-v1",
     goals: "forja-treino-metas-v1",
-    rotation: "forja-treino-rotacao-v1"
+    rotation: "forja-treino-rotacao-v1",
+    profile: "forja-perfil-v1"
   });
 
   F.BACKUP_FORMAT = "forja-backup";
@@ -111,6 +112,7 @@
     preferences: { soundOnRest: true, vibrateOnRest: true },
     goals: null,
     rotation: null,
+    profile: null,
     /* Metadados por chave: existia, estava corrompido, perdeu itens. */
     storageInfo: {},
     bootNotices: [],
