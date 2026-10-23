@@ -37,7 +37,9 @@ const PAGES = [
   'treino/executar.html',
   'treino/biblioteca.html',
   'progresso/',
-  'configuracoes/'
+  'configuracoes/',
+  'explorar/',
+  'explorar/atlas.html'
 ];
 
 let puppeteer;
@@ -231,9 +233,19 @@ async function answerModal(values, action) {
   await sleep(150);
 }
 
+// Rola até o centro antes de clicar: a barra inferior fixa pode cobrir o alvo.
+async function clickCentered(selector) {
+  await page.$eval(selector, el => el.scrollIntoView({ block: 'center' }));
+  await sleep(90);
+  await page.click(selector);
+  await sleep(140);
+}
+
 async function go(rel) {
   currentLabel = rel || 'index';
   await page.goto(new URL(rel, BASE).href, { waitUntil: 'networkidle0' });
+  // Rolagem suave faz o clique por coordenadas errar o alvo durante a animação.
+  await page.addStyleTag({ content: 'html{scroll-behavior:auto !important}' });
   await sleep(120);
 }
 
@@ -312,17 +324,84 @@ await check('Ação TREINO é compacta, acessível e cabe em 390 px', async () =
   await go('');
   await page.setViewport(MOBILE);
   await sleep(120);
-  const box = await page.$eval('.treino-square', el => {
+  const box = await page.$eval('.home-action-button', el => {
     const r = el.getBoundingClientRect();
     return { width: r.width, height: r.height, centerX: r.left + r.width / 2, vw: window.innerWidth,
-      icon: !!el.querySelector('svg'), title: el.querySelector('.treino-square-title')?.textContent.trim() };
+      tag: el.tagName, label: el.textContent.trim(), aria: el.getAttribute('aria-label'),
+      href: el.getAttribute('href') };
   });
   assert.ok(box.width <= box.vw - 24, 'Ação ultrapassa a viewport');
   assert.ok(box.height >= 44 && box.height < 100, 'Altura não é compacta/acessível: ' + box.height);
-  assert.ok(box.icon, 'Ícone ausente');
-  assert.equal(box.title, 'Abrir área de treino');
-  const botao = await page.$('.treino-square');
+  assert.equal(box.tag, 'A', 'Sem rotina, a ação principal precisa ser um link para Treinos');
+  assert.equal(box.label, 'Montar meu treino');
+  assert.equal(box.aria, 'Montar meu treino');
+  assert.match(box.href, /treino\/index\.html/);
+  assert.equal(await text('.home-action-title'), 'Monte sua primeira rotina');
+  const botao = await page.$('.home-action-button');
   await botao.screenshot({ path: artifactPath('treino-acao-390.png') });
+});
+
+await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e detalhe na biblioteca', async () => {
+  await go('explorar/atlas.html');
+
+  assert.equal((await page.$$('.figura-svg')).length, 2, 'O atlas precisa das duas vistas da silhueta');
+  assert.equal((await page.$$('.figura-region')).length, 0, 'Região destacada sem exercício escolhido');
+  assert.equal(await page.$$eval('#atlas-exercise-select option', els => els.length), 38, 'Seletor deveria ter 37 exercícios + vazio');
+  assert.match(await text('.atlas-disclosure'), /não é uma representação anatômica clínica/i);
+  const navLabels = await page.$$eval('.bottom-nav-link', els => els.map(e => e.textContent.trim()));
+  assert.equal(navLabels.length, 5, 'Barra inferior precisa manter 5 destinos');
+
+  await clickCentered('[data-atlas-focus="shortcut:cal-flexao"]');
+  assert.equal(await text('#atlas-figure-title'), 'Flexão de braço');
+  assert.equal((await page.$$('.figura-region')).length, 5, 'Flexão deveria destacar 5 formas na silhueta');
+  assert.equal(await page.$$eval('.figura-svg text, .figura-svg circle', els => els.length), 0,
+    'A figura não deve ter números nem círculos sobrepostos');
+  assert.match(await text('#atlas-highlight-summary'), /Principal: Peitoral/);
+  const highlightRoles = await page.$$eval('.figura-region', els => els.map(e => e.getAttribute('data-role')));
+  assert.ok(highlightRoles.includes('primary') && highlightRoles.includes('secondary'), 'Papéis não chegaram à figura');
+  assert.match(await text('.atlas-legenda'), /Tríceps/);
+  assert.match(await text('.atlas-legenda'), /Secundária/);
+
+  await clickCentered('[data-group-chip="antebracos"]');
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Antebraços deveria listar 3 exercícios');
+  assert.match(await page.$eval('.atlas-exercise-list', el => el.textContent), /Principal/);
+
+  await clickCentered('#atlas-modes [data-value="calisthenics"]');
+  assert.match(await text('.atlas-exercise-list .ui-empty-title'), /Nenhum exercício desta modalidade/);
+  await clickCentered('.atlas-exercise-list .ui-empty-actions .primary-button');
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Limpar filtro não restaurou a lista');
+
+  await clickCentered('[data-group-chip="panturrilha"]');
+  assert.match(await text('.atlas-exercise-list .ui-empty-title'), /Nenhum exercício para este grupo/);
+
+  await clickCentered('.atlas-inline-reset');
+  assert.equal(await page.$$('.atlas-exercise-row').then(rows => rows.length), 0, 'Limpar o grupo não esvaziou a lista');
+
+  /* A legenda leva à biblioteca filtrada. */
+  await clickCentered('[data-atlas-focus="shortcut:cal-flexao"]');
+  const legendHref = await page.$eval('.atlas-legenda-item .atlas-legenda-link', el => el.getAttribute('href'));
+  assert.match(legendHref, /biblioteca\.html\?musculo=/);
+  await jsClick('.atlas-legenda-item .atlas-legenda-link');
+  await expectPath('/treino/biblioteca.html');
+  assert.equal(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length), 4,
+    'O filtro por peitoral deveria listar 4 exercícios');
+
+  /* Detalhe do exercício mostra a mesma figura. */
+  await jsClick('#catalog-list .ui-exercise-row .ui-exercise-main button, #catalog-list .ui-exercise-row .ui-button');
+  await page.waitForSelector('.modal-backdrop', { timeout: 4000 });
+  assert.equal((await page.$$('.modal-figure .figura-svg')).length, 2, 'O detalhe não mostra as duas vistas');
+  assert.match(await text('.modal-details'), /Grupos musculares — principal: peito/);
+  await page.evaluate(() => document.querySelector('.modal-card').scrollTo(0, 0));
+  await sleep(120);
+  await page.screenshot({ path: artifactPath('biblioteca-figura-390.png') });
+  await page.click('[data-modal-action="cancel"]');
+  await sleep(120);
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  assert.ok(overflow <= 1, 'Rolagem horizontal no atlas: ' + overflow);
+  await go('explorar/atlas.html?exercicio=cal-flexao');
+  await sleep(150);
+  await page.screenshot({ path: artifactPath('atlas-390.png'), fullPage: true });
 });
 
 await check('Alvos de toque principais têm pelo menos 44px de altura', async () => {
@@ -416,10 +495,35 @@ await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async
   await expectPath('/treino/executar.html');
   assert.ok(await isVisible('#execution-live'), 'Tela de execução não visível');
   assert.match(await text('#current-name'), /^Agachamento/);
+
+  /* A execução reaproveita a figura do atlas para o exercício atual. */
+  assert.ok(await isVisible('#execution-figure'), 'Execução sem figura do exercício com metadados');
+  assert.equal((await page.$$('#execution-figure .figura-svg, #execution-figure-body .figura-svg')).length, 1,
+    'A figura da execução deveria ter uma vista');
+  assert.match(await page.$eval('#execution-figure .figura-svg', el => el.getAttribute('aria-label')), /Silhueta humana/);
+  await page.$eval('#execution-figure-details', el => el.scrollIntoView({ block: 'center' }));
+  await sleep(180);
+  const detailsCovered = await page.$eval('#execution-figure-details', el => {
+    const box = el.getBoundingClientRect();
+    const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+    return JSON.stringify({ ok: top === el || el.contains(top), top: top ? top.tagName + '.' + String(top.className) : null, box: { top: Math.round(box.top), height: Math.round(box.height) }, vh: innerHeight });
+  });
+  if (JSON.parse(detailsCovered).ok !== true) assert.fail('Botão de detalhes coberto por outro elemento: ' + detailsCovered);
+  await jsClick('#execution-figure-details');
+  await page.waitForSelector('.modal-backdrop', { timeout: 4000 });
+  assert.equal(await text('#modal-title'), 'Músculos trabalhados');
+  assert.equal((await page.$$('.modal-details .figura-svg')).length, 2, 'O detalhe na execução não tem as duas vistas');
+  await page.click('[data-modal-action="close"]');
+  await sleep(150);
+
   await page.screenshot({ path: artifactPath('executar-ativo-390.png') });
 
   // Conclui as séries de Agachamento (pulando descansos) até chegar à prancha.
   await advanceUntil(/^Prancha E2E/);
+
+  /* Exercício sem classificação muscular: a figura some em vez de inventar. */
+  assert.equal(await isVisible('#execution-figure'), false,
+    'A execução mostrou figura para exercício sem metadados');
   // Prancha por duração de 2 s, medida com timestamps reais.
   await jsClick('#set-timer-start');
   await sleep(700);
@@ -687,12 +791,12 @@ await check('Armazenamento local é informado em todas as páginas', async () =>
   }
 });
 
-await check('Capturas visuais das nove páginas em mobile e desktop', async () => {
+await check('Capturas visuais das páginas em mobile e desktop', async () => {
   const shots = await browser.newPage();
   shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
   shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
   for (const [index, rel] of PAGES.entries()) {
-    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes'][index];
+    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes','explorar','atlas'][index];
     for (const width of [390, 1280]) {
       await shots.setViewport({ width, height: width === 390 ? 844 : 900 });
       let screenshotUrl = new URL(rel, BASE);

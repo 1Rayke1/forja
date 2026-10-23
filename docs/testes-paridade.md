@@ -16,7 +16,14 @@ sem afrouxar nenhum dos 39 testes portados:
 - contrato preservado (hash de `forja-calendario.js`, um único `setInterval`,
   ausência de gravação ociosa, ids e boot) → continua em `tests/paridade.test.mjs`
   (12b, 15a–15d) e agora também em FORJA 38, que compara o armazenamento antes e
-  depois de navegar, filtrar e buscar na página de Progresso.
+  depois de navegar, filtrar e buscar na página de Progresso;
+- atlas anatômico (pacote 3.1) → `tests/atlas.test.mjs` (11 testes em jsdom,
+  chamados por `npm test`), mais a verificação de fluxo e as capturas no
+  navegador real em `tests/e2e.browser.mjs`. A relação requisito → teste está em
+  `docs/atlas-anatomico.md` §5.
+- a verificação de integridade do paridade (teste 10) passou a considerar
+  `explorar/index.html` e `explorar/atlas.html` na lista de páginas com IDs
+  referenciados pelos módulos.
 
 | # | Teste antigo | Teste novo | Como foi portado |
 |---|---|---|---|

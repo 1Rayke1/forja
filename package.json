@@ -4,7 +4,7 @@
   "private": true,
   "description": "FORJA — disciplina diária: calendário, missões e treinos com rotinas A/B/C.",
   "scripts": {
-    "test": "node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/paridade.test.mjs",
+    "test": "node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs",
     "test:e2e": "node tests/e2e.browser.mjs",
     "serve": "python3 -m http.server 8080 --bind 127.0.0.1"
   },
