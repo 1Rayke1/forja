@@ -2,8 +2,9 @@
   Suíte de testes do FORJA (jsdom, multipágina).
 
   Executa as páginas reais do repositório (index.html, treino/, progresso/,
-  configuracoes/) com o mesmo JavaScript que roda no navegador. Cada teste
-  corresponde a um critério de aceite ou a um requisito de execução.
+  perfil/, configuracoes/, explorar/) com o mesmo JavaScript que roda no
+  navegador. Cada teste corresponde a um critério de aceite ou a um requisito
+  de execução.
 
   Uso: npm install && npm test
 */
@@ -12,6 +13,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import jsdomPkg from "jsdom";
 import {
   BASE,
   App,
@@ -24,6 +26,9 @@ import {
   todayKey,
   wait
 } from "./helpers/harness.mjs";
+import { installFailingStorage } from "./helpers/legacy-flows.mjs";
+
+const { JSDOM } = jsdomPkg;
 
 const results = [];
 
@@ -36,6 +41,7 @@ const PAGES = [
   "treino/executar.html",
   "treino/biblioteca.html",
   "progresso/index.html",
+  "perfil/index.html",
   "configuracoes/index.html",
   "explorar/index.html",
   "explorar/atlas.html"
@@ -1901,6 +1907,552 @@ await runTest("44. Links da barra inferior resolvem e perfil/explorar existem", 
   assert.ok(fs.existsSync(path.join(repoRoot, "explorar/index.html")), "explorar/index.html ausente");
   assert.ok(fs.existsSync(path.join(repoRoot, "explorar/atlas.html")), "explorar/atlas.html ausente");
   assert.ok(fs.existsSync(path.join(repoRoot, "perfil/index.html")), "perfil/index.html ausente");
+});
+
+/* ------------------------------------------------------------------ */
+/* Perfil: dados, backup e preferências do descanso                     */
+/* ------------------------------------------------------------------ */
+
+const PREFS_KEY = "forja-preferencias-v1";
+const SAFETY_KEY = "forja-backup-seguranca-v1";
+const DATA_PAGES = ["perfil/index.html", "configuracoes/index.html"];
+
+/* Cópia no realm do Node: objetos criados no jsdom têm outro protótipo. */
+const plain = value => JSON.parse(JSON.stringify(value));
+
+/* Destino esperado da barra inferior em cada página. */
+const EXPECTED_NAV = {
+  "index.html": "inicio",
+  "treino/index.html": "treino",
+  "treino/calistenia.html": "treino",
+  "treino/musculacao.html": "treino",
+  "treino/rotina.html": "treino",
+  "treino/executar.html": "treino",
+  "treino/biblioteca.html": "explorar",
+  "progresso/index.html": "progresso",
+  "perfil/index.html": "perfil",
+  "configuracoes/index.html": "perfil",
+  "explorar/index.html": "explorar",
+  "explorar/atlas.html": "explorar"
+};
+
+function seedAsStored(seed) {
+  return Object.fromEntries(Object.entries(seed).map(([key, value]) => [
+    key, typeof value === "string" ? value : JSON.stringify(value)
+  ]));
+}
+
+/* Dados no formato atual (versão 3), como um usuário que já usa o app teria. */
+function currentFormatSeed() {
+  const routine = makeRoutine("weights", "Peito", [
+    { id: "cf-1", name: "Supino", sets: 3, reps: "10", rest: 90, load: "40 kg" },
+    { id: "cf-2", name: "Bicicleta", sets: 1, type: "duration", duration: 600, rest: 0, section: "finisher" }
+  ], "cf-routine");
+  routine.sections.main[0].measure = "load";
+  routine.sections.finisher[0].measure = "time";
+
+  return {
+    "forja-treino-rotinas-v1": routinesStore([], [routine]),
+    "forja-treino-historico-v1": [{
+      id: "cf-h1", date: "2025-03-01", modality: "weights", routineId: routine.id, routineName: "Peito",
+      durationMs: 1800000, completedSets: 3, totalPlannedSets: 4, status: "partial",
+      finishedAt: "2025-03-01T10:00:00.000Z",
+      exercises: [{
+        id: "cf-1", name: "Supino", section: "main", plannedSets: 3, completedSets: 3, reps: "10",
+        duration: 45, type: "reps", rest: 90, load: "40 kg", notes: "",
+        logs: [{ set: 1, reps: "10", load: "40", seconds: 0, distance: null, rpe: null, editedAt: null }]
+      }],
+      feedback: { rpe: 7, note: "" },
+      totals: { volumeKg: 400, reps: 10, seconds: 0, distanceMeters: 0, setsLogged: 1, setsWithoutVolume: 0 }
+    }],
+    "forja-missoes-2025-03-01": [{ id: "cf-m", text: "Treinar", done: true }],
+    "forja-treino-biblioteca-v1": {
+      calisthenics: [],
+      weights: [{
+        id: "lib-cf", name: "Remada unilateral", type: "reps", sets: 3, reps: "12", duration: 45, rest: 60,
+        section: "main", load: "", notes: "", measure: "load", distance: null, distanceUnit: "m",
+        category: "Costas", muscles: ["dorsais"], equipment: ["halter"], instructions: "",
+        createdAt: 1, updatedAt: 1
+      }]
+    },
+    [PREFS_KEY]: { soundOnRest: false, vibrateOnRest: true },
+    "forja-treino-metas-v1": {
+      version: 1, updatedAt: "2025-03-01T09:00:00.000Z", modality: "all",
+      weeklySessions: 3, weeklySets: 20, weeklyMinutes: 90
+    },
+    "forja-treino-migracao-v1": { version: 3, dataVersion: 3, updatedAt: "2025-02-01T00:00:00.000Z" },
+    [SAFETY_KEY]: {
+      app: "FORJA", format: "forja-backup-seguranca", version: 1,
+      exportedAt: "2025-03-02T12:00:00.000Z", reason: "before-restore",
+      keys: { "forja-missoes-2025-03-01": [{ id: "cf-m", text: "Treinar", done: false }] }
+    }
+  };
+}
+
+/* Observa os avisos do fim do descanso: vibração e som (AudioContext). */
+function installRestSignals(app) {
+  const signals = { vibrate: [], sound: 0 };
+
+  Object.defineProperty(app.w.navigator, "vibrate", {
+    configurable: true,
+    value: pattern => {
+      signals.vibrate.push(Array.from(pattern));
+      return true;
+    }
+  });
+
+  app.w.AudioContext = class FakeAudioContext {
+    constructor() {
+      signals.sound += 1;
+      this.currentTime = 0;
+      this.destination = {};
+    }
+    createOscillator() {
+      return { type: "", frequency: { value: 0 }, connect() {}, start() {}, stop() {}, onended: null };
+    }
+    createGain() {
+      return { gain: { value: 0 }, connect() {} };
+    }
+    close() {
+      return Promise.resolve();
+    }
+  };
+
+  return signals;
+}
+
+/* Abre a execução com uma sessão nova, conclui uma série e deixa o descanso acabar pelo cronômetro. */
+async function restEndSignals(app, routine) {
+  app.set("forja-treino-sessao-ativa-v1", sessionSeed(routine, { id: "s-prefs-" + app.fakeNow }));
+  await app.go(BASE + "treino/executar.html");
+  await pageIs(app, "executar");
+
+  const signals = installRestSignals(app);
+  app.click("#complete-set");
+  app.advance(500);
+  assert.equal(app.$("#execution-rest").hidden, false, "O descanso não começou");
+
+  app.advance(10_500);
+  assert.equal(app.$("#execution-rest").hidden, true, "O descanso não terminou pelo cronômetro");
+  return signals;
+}
+
+await runTest("45. Perfil: usa o controlador de Configurações e os checkboxes refletem o armazenado", async () => {
+  const cases = [
+    { label: "sem preferência gravada", seed: undefined, sound: true, vibrate: true },
+    { label: "som desligado", seed: { soundOnRest: false, vibrateOnRest: true }, sound: false, vibrate: true },
+    { label: "vibração desligada", seed: { soundOnRest: true, vibrateOnRest: false }, sound: true, vibrate: false },
+    { label: "ambos desligados", seed: { soundOnRest: false, vibrateOnRest: false }, sound: false, vibrate: false },
+    { label: "conteúdo ilegível", seed: "{ quebrado", sound: true, vibrate: true }
+  ];
+
+  for (const page of DATA_PAGES) {
+    for (const item of cases) {
+      const where = page + " (" + item.label + ")";
+      const app = await boot(item.seed === undefined ? {} : { [PREFS_KEY]: item.seed }, page);
+
+      assert.equal(typeof app.F.pages.perfil, "function", "F.pages.perfil não registrado");
+      assert.equal(app.F.pages.perfil, app.F.pages.configuracoes,
+        "Perfil deveria reutilizar o mesmo controlador de Configurações");
+      assert.equal(app.$("#pref-sound").checked, item.sound, "Som não reflete o armazenado em " + where);
+      assert.equal(app.$("#pref-vibrate").checked, item.vibrate, "Vibração não reflete o armazenado em " + where);
+      assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: item.sound, vibrateOnRest: item.vibrate },
+        "Memória do descanso diverge da tela em " + where);
+
+      /* Painel de backup inicializado: sem cópia de segurança, nada para desfazer. */
+      assert.equal(app.$("#restore-safety-backup").hidden, true, "Desfazer visível sem cópia em " + where);
+      assert.match(app.text("#backup-status"), /permanecem apenas neste navegador/);
+      assert.deepEqual(app.storageWrites, [], "Abrir " + where + " gravou no armazenamento");
+      assertNoErrors(app, where);
+      app.close();
+    }
+  }
+
+  /* Com uma cópia de segurança válida, o Perfil já abre oferecendo o desfazer. */
+  const withSafety = await boot({ [SAFETY_KEY]: currentFormatSeed()[SAFETY_KEY] }, "perfil/index.html");
+  assert.equal(withSafety.$("#restore-safety-backup").hidden, false, "Desfazer ausente com cópia de segurança");
+  assert.match(withSafety.text("#backup-status"), /Cópia de segurança de .+ disponível/);
+  assertNoErrors(withSafety, "perfil com cópia de segurança");
+  withSafety.close();
+});
+
+await runTest("46. Perfil e Configurações: abrir a página não grava nada no localStorage", async () => {
+  const scenarios = [
+    { label: "armazenamento vazio", seed: {} },
+    { label: "dados no formato atual", seed: currentFormatSeed() }
+  ];
+
+  for (const scenario of scenarios) {
+    const expected = seedAsStored(scenario.seed);
+
+    for (const page of DATA_PAGES) {
+      const where = page + " (" + scenario.label + ")";
+      const app = await boot(scenario.seed, page);
+      /* Espera alguns ciclos do intervalo único (250 ms) além do carregamento. */
+      await wait(650);
+      assert.deepEqual(app.storageWrites, [], "Gravação ao abrir " + where);
+      assert.deepEqual(storageSnapshot(app), expected, "Conteúdo mudou ao abrir " + where);
+
+      await app.reload();
+      await wait(300);
+      assert.deepEqual(app.storageWrites, [], "Gravação ao recarregar " + where);
+      assert.deepEqual(storageSnapshot(app), expected, "Conteúdo mudou ao recarregar " + where);
+      assertNoErrors(app, where);
+      app.close();
+    }
+  }
+});
+
+await runTest("47. Som e vibração: a mesma escolha vale em Perfil, Configurações e no fim do descanso", async () => {
+  const routine = makeRoutine("calisthenics", "Descanso", [
+    { id: "pr-1", name: "Flexão", sets: 3, reps: "10", rest: 10 }
+  ], "prefs-rest");
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) },
+    "perfil/index.html", { now: 2_000_000 });
+
+  /* Perfil: sem nada gravado, os dois ligados; a primeira gravação é a do usuário. */
+  assert.equal(app.$("#pref-sound").checked, true);
+  assert.equal(app.$("#pref-vibrate").checked, true);
+  assert.equal(app.raw(PREFS_KEY), null);
+  app.$("#pref-sound").click();
+  await wait(20);
+  assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
+  assert.match(app.text("#toast"), /Preferência salva/);
+
+  /* Configurações lê a mesma escolha e grava a outra opção sem desfazer a primeira. */
+  await app.go(BASE + "configuracoes/index.html");
+  await pageIs(app, "configuracoes");
+  assert.equal(app.$("#pref-sound").checked, false, "Configurações não viu o som desligado no Perfil");
+  assert.equal(app.$("#pref-vibrate").checked, true);
+  app.$("#pref-vibrate").click();
+  await wait(20);
+  assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: false });
+
+  /* De volta ao Perfil: os dois desmarcados, como gravado. */
+  await app.go(BASE + "perfil/index.html");
+  await pageIs(app, "perfil");
+  assert.equal(app.$("#pref-sound").checked, false);
+  assert.equal(app.$("#pref-vibrate").checked, false);
+
+  /* Execução: o fim do descanso respeita "sem som e sem vibração". */
+  let signals = await restEndSignals(app, routine);
+  assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: false });
+  assert.deepEqual(signals, { vibrate: [], sound: 0 }, "O descanso avisou com som e vibração desligados");
+
+  /* Só vibração, ligada pelo Perfil: vibra e não toca. */
+  await app.go(BASE + "perfil/index.html");
+  await pageIs(app, "perfil");
+  app.$("#pref-vibrate").click();
+  await wait(20);
+  assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
+  signals = await restEndSignals(app, routine);
+  assert.deepEqual(signals.vibrate, [[200, 100, 200]], "O descanso não vibrou com a vibração ligada");
+  assert.equal(signals.sound, 0, "O descanso tocou com o som desligado");
+
+  /* Os dois ligados, pelas Configurações: vibra e toca. */
+  await app.go(BASE + "configuracoes/index.html");
+  await pageIs(app, "configuracoes");
+  assert.equal(app.$("#pref-sound").checked, false);
+  assert.equal(app.$("#pref-vibrate").checked, true);
+  app.$("#pref-sound").click();
+  await wait(20);
+  assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: true, vibrateOnRest: true });
+  signals = await restEndSignals(app, routine);
+  assert.equal(signals.vibrate.length, 1, "O descanso não vibrou");
+  assert.equal(signals.sound, 1, "O descanso não tocou o aviso sonoro");
+
+  assertNoErrors(app, "preferências entre Perfil, Configurações e execução");
+});
+
+await runTest("48. Perfil: exportar, rejeitar backup inválido, importar e desfazer direto na página", async () => {
+  const routine = sampleRoutine("calisthenics", "perfil-bk");
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([routine], []),
+    "forja-missoes-2025-02-02": [{ id: "t", text: "Original", done: false }],
+    [PREFS_KEY]: { soundOnRest: false, vibrateOnRest: true }
+  }, "perfil/index.html");
+  await pageIs(app, "perfil");
+
+  /* Exportar */
+  app.click("#export-backup");
+  await wait(20);
+  assert.equal(app.downloads.length, 1, "Exportar não gerou arquivo no Perfil");
+  assert.match(app.downloads[0].download, /^forja-backup-\d{4}-\d{2}-\d{2}\.json$/);
+  assert.match(app.text("#toast"), /Backup exportado com 3 chaves/);
+  assert.match(app.text("#backup-status"), /Último backup exportado em/);
+  const exported = plain(app.F.buildBackupObject());
+  assert.equal(exported.app, "FORJA");
+  assert.equal(exported.format, "forja-backup");
+  assert.deepEqual(Object.keys(exported.keys).sort(),
+    ["forja-missoes-2025-02-02", PREFS_KEY, "forja-treino-rotinas-v1"].sort());
+  assert.deepEqual(exported.keys[PREFS_KEY], { soundOnRest: false, vibrateOnRest: true });
+  assert.deepEqual(app.storageWrites, [], "Exportar gravou no armazenamento");
+  const before = storageSnapshot(app);
+
+  /* Inválidos são recusados com explicação e sem tocar em nada. */
+  const invalid = [
+    ["{ isto não é json", /Arquivo inválido/],
+    [{ app: "OUTRO", format: "x", version: 1, keys: {} }, /Backup inválido/],
+    [{ app: "FORJA", format: "forja-backup", version: 1, keys: { "outra-chave": [] } }, /Backup inválido/],
+    [{ app: "FORJA", format: "forja-backup", version: 99, keys: { "forja-missoes-2025-02-02": [] } }, /Backup inválido/]
+  ];
+  for (const [content, title] of invalid) {
+    await app.importFile(content);
+    assert.match(app.text("#modal-title"), title);
+    assert.match(app.text(".modal-message"), /Nenhum dado foi alterado/);
+    assert.equal(app.$('[data-modal-action="restore"]'), null, "Backup inválido abriu a confirmação");
+    app.modalAction("close");
+    await wait(20);
+    assert.deepEqual(storageSnapshot(app), before, "Backup inválido alterou dados");
+  }
+  assert.equal(app.raw(SAFETY_KEY), null, "Cópia de segurança criada para backup inválido");
+
+  /* Válido: pede confirmação; cancelar não muda nada. */
+  const replacement = {
+    app: "FORJA", format: "forja-backup", version: 1, exportedAt: new Date().toISOString(),
+    keys: {
+      "forja-missoes-2025-02-02": [{ id: "n", text: "Importada", done: false }],
+      [PREFS_KEY]: { soundOnRest: true, vibrateOnRest: false }
+    }
+  };
+  await app.importFile(replacement);
+  assert.match(app.text("#modal-title"), /Restaurar backup/);
+  app.modalAction("cancel");
+  await wait(20);
+  assert.deepEqual(storageSnapshot(app), before, "Cancelar a importação alterou dados");
+
+  await app.importFile(replacement);
+  await app.modal("restore");
+  await wait(40);
+  assert.equal(app.data("forja-missoes-2025-02-02")[0].text, "Importada", "Importação não aplicou no Perfil");
+  assert.equal(app.raw("forja-treino-rotinas-v1"), null, "Chave ausente do backup deveria ter sido removida");
+  assert.equal(app.$("#pref-sound").checked, true, "Checkbox de som não acompanhou a restauração");
+  assert.equal(app.$("#pref-vibrate").checked, false, "Checkbox de vibração não acompanhou a restauração");
+  assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: false });
+  assert.equal(app.$("#restore-safety-backup").hidden, false, "Desfazer não apareceu no Perfil");
+  assert.match(app.text("#backup-status"), /Cópia de segurança de .+ disponível/);
+  const safety = app.data(SAFETY_KEY);
+  assert.equal(safety.format, "forja-backup-seguranca");
+  assert.deepEqual(Object.keys(safety.keys).sort(), Object.keys(before).sort(), "Cópia de segurança incompleta");
+
+  /* Desfazer a última restauração volta exatamente ao estado anterior. */
+  app.click("#restore-safety-backup");
+  await wait(15);
+  assert.match(app.text("#modal-title"), /Desfazer última importação/);
+  await app.modal("restore");
+  await wait(40);
+  const after = storageSnapshot(app);
+  delete after[SAFETY_KEY];
+  assert.deepEqual(after, before, "Desfazer não restaurou o estado anterior no Perfil");
+  assert.equal(app.$("#pref-sound").checked, false);
+  assert.equal(app.$("#pref-vibrate").checked, true);
+  assertNoErrors(app, "backup no Perfil");
+});
+
+await runTest("49. Perfil: backups com dados das versões 1, 2 e 3 continuam aceitos", async () => {
+  const v2Routine = makeRoutine("weights", "Treino B", [
+    { id: "v2-ex", name: "Agachamento livre", sets: 4, reps: "8", rest: 120, load: "60 kg" }
+  ], "v2-routine");
+  const v3Routine = makeRoutine("calisthenics", "Treino C", [
+    { id: "v3-ex", name: "Corrida leve", sets: 1, type: "reps", reps: "1", rest: 0, section: "finisher" }
+  ], "v3-routine");
+  Object.assign(v3Routine.sections.finisher[0], { measure: "distance", distance: 400, distanceUnit: "m" });
+
+  const backups = [
+    {
+      label: "versão 1 (exercícios soltos)",
+      keys: {
+        "forja-treino-exercicios-v1": {
+          calisthenics: [{ id: "c1", name: "Flexão", sets: 3, reps: "12", rest: 45 }],
+          weights: []
+        },
+        "forja-missoes-2024-05-01": [{ id: "a", text: "Antiga", done: true }]
+      },
+      verify(app) {
+        assert.match(app.text("#backup-status"), /Cópia de segurança/);
+        const routines = app.data("forja-treino-rotinas-v1");
+        assert.equal(routines.calisthenics.length, 1, "Backup v1 não virou rotina");
+        assert.equal(routines.calisthenics[0].name, "Rotina padrão");
+        assert.ok(app.raw("forja-treino-exercicios-v1").includes("Flexão"), "Chave antiga não foi preservada");
+      }
+    },
+    {
+      label: "versão 2 (rotinas e histórico sem totais)",
+      keys: {
+        "forja-treino-rotinas-v1": routinesStore([], [v2Routine]),
+        "forja-treino-historico-v1": [{
+          id: "h-v2", date: "2025-01-02", modality: "weights", routineName: "Treino B",
+          durationMs: 600000, completedSets: 4, totalPlannedSets: 4, status: "completed",
+          finishedAt: "2025-01-02T10:00:00.000Z", exercises: []
+        }]
+      },
+      verify(app, keys) {
+        assert.deepEqual(app.data("forja-treino-rotinas-v1"), keys["forja-treino-rotinas-v1"]);
+        assert.deepEqual(app.data("forja-treino-historico-v1"), keys["forja-treino-historico-v1"]);
+      }
+    },
+    {
+      label: "versão 3 (medição, metas e preferências)",
+      keys: {
+        "forja-treino-rotinas-v1": routinesStore([v3Routine], []),
+        "forja-treino-metas-v1": {
+          version: 1, updatedAt: "2025-04-01T08:00:00.000Z", modality: "calisthenics",
+          weeklySessions: 4, weeklySets: 0, weeklyMinutes: 120
+        },
+        [PREFS_KEY]: { soundOnRest: false, vibrateOnRest: false }
+      },
+      verify(app, keys) {
+        assert.deepEqual(app.data("forja-treino-rotinas-v1"), keys["forja-treino-rotinas-v1"]);
+        assert.deepEqual(app.data("forja-treino-metas-v1"), keys["forja-treino-metas-v1"]);
+        assert.equal(app.$("#pref-sound").checked, false);
+        assert.equal(app.$("#pref-vibrate").checked, false);
+      }
+    }
+  ];
+
+  for (const backup of backups) {
+    const app = await boot({ "forja-missoes-2025-02-02": [{ id: "t", text: "Atual", done: false }] }, "perfil/index.html");
+    await app.importFile({
+      app: "FORJA", format: "forja-backup", version: 1,
+      exportedAt: "2025-05-01T12:00:00.000Z", keys: backup.keys
+    });
+    assert.match(app.text("#modal-title"), /Restaurar backup/, "Backup " + backup.label + " foi recusado");
+    await app.modal("restore");
+    await wait(60);
+    assert.equal(app.raw("forja-missoes-2025-02-02"), null, "Restauração de " + backup.label + " não substituiu os dados");
+    backup.verify(app, backup.keys);
+    assert.equal(app.$("#restore-safety-backup").hidden, false);
+    assertNoErrors(app, "backup " + backup.label);
+    app.close();
+  }
+});
+
+await runTest("50. F.url(\"perfil\") e F.url(\"explorar\") resolvem sob /forja/ em todas as páginas", async () => {
+  for (const page of PAGES) {
+    const app = await boot({}, page);
+    assert.equal(app.F.ROUTES.perfil, "perfil/index.html");
+    assert.equal(app.F.ROUTES.explorar, "explorar/index.html");
+
+    for (const [name, file] of [
+      ["perfil", "perfil/index.html"],
+      ["explorar", "explorar/index.html"],
+      ["configuracoes", "configuracoes/index.html"]
+    ]) {
+      const href = app.F.url(name);
+      assert.ok(!href.startsWith("/"), "F.url(" + name + ") absoluto em " + page + ": " + href);
+      const url = new URL(href, app.w.location.href);
+      assert.equal(url.pathname, "/forja/" + file, "F.url(" + name + ") em " + page + " resolveu para " + href);
+
+      /* O destino coincide com o link da barra inferior, quando existe. */
+      const navLink = app.$('.bottom-nav-link[data-nav="' + name + '"]');
+      if (navLink) {
+        assert.equal(new URL(navLink.getAttribute("href"), app.w.location.href).pathname, url.pathname,
+          "Barra inferior e F.url(" + name + ") divergem em " + page);
+      }
+    }
+
+    assert.equal(new URL(app.F.url("perfil", { origem: "teste" }), app.w.location.href).search, "?origem=teste");
+
+    /* Toda rota registrada aponta para um arquivo que existe. */
+    Object.entries(app.F.ROUTES).forEach(([name, file]) => {
+      assert.ok(fs.existsSync(path.join(repoRoot, file)), "Rota " + name + " aponta para arquivo inexistente: " + file);
+    });
+    app.close();
+  }
+});
+
+await runTest("51. Navegação ativa: HTML, JavaScript e CSS marcam o mesmo item em todas as páginas", async () => {
+  const css = fs.readFileSync(path.join(repoRoot, "assets/css/app.css"), "utf8");
+  assert.match(css, /\.bottom-nav-link\.is-active,\s*\.bottom-nav-link\[aria-current="page"\]\s*\{[^}]*color:\s*var\(--lime\)/,
+    "app.css deve estilizar is-active e aria-current juntos");
+
+  for (const page of PAGES) {
+    const expected = EXPECTED_NAV[page];
+    assert.ok(expected, "Página sem destino esperado na barra: " + page);
+
+    /* HTML estático, antes do JavaScript. */
+    const staticDoc = new JSDOM(fs.readFileSync(path.join(repoRoot, page), "utf8")).window.document;
+    const pick = (root, selector) => Array.from(root.querySelectorAll(selector)).map(node => node.getAttribute("data-nav"));
+    assert.deepEqual(pick(staticDoc, ".bottom-nav-link.is-active"), [expected], "HTML: is-active em " + page);
+    assert.deepEqual(pick(staticDoc, '.bottom-nav-link[aria-current="page"]'), [expected], "HTML: aria-current em " + page);
+
+    /* Depois do JavaScript: o mesmo e único item, com a classe que o CSS estiliza. */
+    const app = await boot({}, page);
+    assert.deepEqual(pick(app.d, ".bottom-nav-link.is-active"), [expected], "JS: is-active em " + page);
+    assert.deepEqual(pick(app.d, '.bottom-nav-link[aria-current="page"]'), [expected], "JS: aria-current em " + page);
+    assert.equal(app.$$(".bottom-nav-link.is-current").length, 0, "Classe sem estilo na barra em " + page);
+    app.close();
+  }
+
+  /* Um HTML desalinhado é corrigido pelo JavaScript. */
+  const app = await boot({}, "perfil/index.html");
+  const wrong = app.$('.bottom-nav-link[data-nav="treino"]');
+  wrong.classList.add("is-active");
+  wrong.setAttribute("aria-current", "page");
+  app.F.ui.markCurrentNav("perfil");
+  assert.deepEqual(app.$$(".bottom-nav-link.is-active").map(node => node.getAttribute("data-nav")), ["perfil"]);
+  assert.deepEqual(app.$$('.bottom-nav-link[aria-current="page"]').map(node => node.getAttribute("data-nav")), ["perfil"]);
+  app.close();
+});
+
+await runTest("52. Preferências: falha ao gravar no Perfil mantém tela e descanso no valor armazenado", async () => {
+  const app = await boot({ [PREFS_KEY]: { soundOnRest: true, vibrateOnRest: true } }, "perfil/index.html");
+  const failing = installFailingStorage(app, { failOn: PREFS_KEY, times: 1 });
+
+  app.$("#pref-sound").click();
+  await wait(20);
+  failing.restore();
+
+  assert.equal(failing.state.hits, 1, "A gravação não chegou a ser tentada");
+  assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: true, vibrateOnRest: true }, "O valor armazenado mudou");
+  assert.equal(app.$("#pref-sound").checked, true, "O checkbox não voltou ao valor armazenado");
+  assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: true },
+    "O descanso usaria um valor que não foi gravado");
+  assert.match(app.text("#toast"), /Não foi possível salvar a preferência/);
+  assert.ok(app.$("#toast").classList.contains("error"));
+
+  /* Com o armazenamento normal, a mesma ação grava. */
+  app.$("#pref-sound").click();
+  await wait(20);
+  assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
+  assertNoErrors(app, "falha ao gravar preferência");
+});
+
+await runTest("53. Preferências: mudança feita em outra aba chega ao Perfil, às Configurações e à execução", async () => {
+  for (const page of [...DATA_PAGES, "treino/executar.html"]) {
+    const app = await boot({ [PREFS_KEY]: { soundOnRest: true, vibrateOnRest: true } }, page);
+    const own = app.storageWrites.length;
+
+    /* Outra aba grava; o evento `storage` só é entregue às demais abas. */
+    const next = JSON.stringify({ soundOnRest: false, vibrateOnRest: true });
+    app.w.localStorage.setItem(PREFS_KEY, next);
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: PREFS_KEY, newValue: next }));
+    await wait(10);
+    assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: true }, "Memória desatualizada em " + page);
+    if (app.$("#pref-sound")) {
+      assert.equal(app.$("#pref-sound").checked, false, "Checkbox de som desatualizado em " + page);
+      assert.equal(app.$("#pref-vibrate").checked, true);
+    }
+
+    /* Outras chaves não mexem nas preferências. */
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: "forja-treino-historico-v1", newValue: "[]" }));
+    await wait(10);
+    assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: true });
+
+    /* Outra aba apagou a chave: volta ao padrão (ligado), sem gravar nada aqui. */
+    app.w.localStorage.removeItem(PREFS_KEY);
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: PREFS_KEY, newValue: null }));
+    await wait(10);
+    assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: true });
+    if (app.$("#pref-sound")) assert.equal(app.$("#pref-sound").checked, true);
+
+    assert.deepEqual(app.storageWrites.slice(own), [
+      { method: "setItem", key: PREFS_KEY },
+      { method: "removeItem", key: PREFS_KEY }
+    ], "A página gravou algo ao receber o evento em " + page);
+    assertNoErrors(app, "evento de outra aba em " + page);
+    app.close();
+  }
 });
 
 const failed = results.filter(result => !result.ok);

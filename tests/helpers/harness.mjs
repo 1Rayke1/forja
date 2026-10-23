@@ -7,6 +7,9 @@
     sessionStorage são copiados para a janela seguinte, como um navegador faria.
   - Cliques em links (inclusive F.navigate, que chama anchor.click()) trocam de
     página. Links de download são capturados em app.downloads.
+  - Toda escrita no localStorage feita pela página (setItem, removeItem, clear)
+    fica registrada em app.storageWrites, zerado a cada carga. A semeadura do
+    teste não entra no registro: ele mostra só o que a própria página gravou.
 */
 import jsdomPkg from "jsdom";
 import assert from "node:assert/strict";
@@ -50,6 +53,7 @@ export class App {
   constructor() {
     this.errors = [];
     this.downloads = [];
+    this.storageWrites = [];
     this.dom = null;
     this.fakeNow = null;
     this.pageUrl = null;
@@ -157,6 +161,7 @@ export class App {
     virtualConsole.on("warn", (...args) => this.errors.push("console.warn: " + args.join(" ")));
 
     const app = this;
+    this.storageWrites = [];
 
     this.dom = new JSDOM(html, {
       url,
@@ -195,6 +200,18 @@ export class App {
         if (carry.session) {
           Object.entries(carry.session).forEach(([key, value]) => window.sessionStorage.setItem(key, value));
         }
+
+        /* Só observa: registra e repassa ao método original desta janela. */
+        const local = window.localStorage;
+        ["setItem", "removeItem", "clear"].forEach(method => {
+          const original = window.Storage.prototype[method];
+          window.Storage.prototype[method] = function recordStorageWrite(...args) {
+            if (this === local) {
+              app.storageWrites.push({ method, key: args.length > 0 ? String(args[0]) : null });
+            }
+            return original.apply(this, args);
+          };
+        });
       }
     });
 

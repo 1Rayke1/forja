@@ -38,9 +38,26 @@ const PAGES = [
   'treino/biblioteca.html',
   'progresso/',
   'configuracoes/',
+  'perfil/',
   'explorar/',
   'explorar/atlas.html'
 ];
+
+/* Destino que a barra inferior deve destacar em cada página. */
+const EXPECTED_NAV = {
+  '': 'inicio',
+  'treino/': 'treino',
+  'treino/calistenia.html': 'treino',
+  'treino/musculacao.html': 'treino',
+  'treino/rotina.html': 'treino',
+  'treino/executar.html': 'treino',
+  'treino/biblioteca.html': 'explorar',
+  'progresso/': 'progresso',
+  'configuracoes/': 'perfil',
+  'perfil/': 'perfil',
+  'explorar/': 'explorar',
+  'explorar/atlas.html': 'explorar'
+};
 
 let puppeteer;
 try {
@@ -264,6 +281,126 @@ const data = key => page.evaluate(k => {
   const raw = localStorage.getItem(k);
   return raw === null ? null : JSON.parse(raw);
 }, key);
+
+const PREFS_KEY = 'forja-preferencias-v1';
+const SAFETY_KEY = 'forja-backup-seguranca-v1';
+
+/* Chaves do FORJA em texto puro, para guardar e repor o estado de um teste. */
+const forjaRaw = () => page.evaluate(() => Object.fromEntries(
+  Object.keys(localStorage).filter(k => k.startsWith('forja-')).sort().map(k => [k, localStorage.getItem(k)])
+));
+
+/* Chaves do FORJA já interpretadas (o mesmo conjunto que o backup exporta). */
+const forjaData = (skip = []) => page.evaluate(skipKeys => Object.fromEntries(
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('forja-') && !skipKeys.includes(k))
+    .sort()
+    .map(k => [k, JSON.parse(localStorage.getItem(k))])
+), skip);
+
+async function restoreForjaRaw(saved) {
+  await page.evaluate(entries => {
+    Object.keys(localStorage).filter(k => k.startsWith('forja-')).forEach(k => localStorage.removeItem(k));
+    Object.entries(entries).forEach(([k, v]) => localStorage.setItem(k, v));
+  }, saved);
+}
+
+const prefBoxes = (target = page) => target.evaluate(() => [
+  document.getElementById('pref-sound').checked,
+  document.getElementById('pref-vibrate').checked
+]);
+
+/* Roda antes dos scripts da página: registra toda escrita no localStorage. */
+function installWriteSpy() {
+  const writes = [];
+  Object.defineProperty(window, '__forjaWrites', { value: writes });
+  for (const method of ['setItem', 'removeItem', 'clear']) {
+    const original = Storage.prototype[method];
+    Storage.prototype[method] = function (...args) {
+      if (this === window.localStorage) writes.push(method + (args.length ? ':' + args[0] : ''));
+      return original.apply(this, args);
+    };
+  }
+}
+
+/* Roda antes dos scripts da página: conta vibrações e sons do fim do descanso. */
+function installRestSignals() {
+  const signals = { vibrate: 0, sound: 0 };
+  Object.defineProperty(window, '__restSignals', { value: signals });
+  Object.defineProperty(Navigator.prototype, 'vibrate', {
+    configurable: true,
+    value() {
+      signals.vibrate += 1;
+      return true;
+    }
+  });
+  class FakeAudioContext {
+    constructor() {
+      signals.sound += 1;
+      this.currentTime = 0;
+      this.destination = {};
+    }
+    createOscillator() {
+      return { type: '', frequency: { value: 0 }, connect() {}, start() {}, stop() {}, onended: null };
+    }
+    createGain() {
+      return { gain: { value: 0 }, connect() {} };
+    }
+    close() {
+      return Promise.resolve();
+    }
+  }
+  window.AudioContext = FakeAudioContext;
+  window.webkitAudioContext = FakeAudioContext;
+}
+
+/* Rotina e sessão próprias, para o descanso começar do zero a cada rodada. */
+async function seedRestSession() {
+  await page.evaluate(() => {
+    const exercise = {
+      id: 'e2e-prefs-ex', name: 'Flexão E2E', sets: 3, type: 'reps', reps: '10',
+      duration: 45, rest: 30, load: '', notes: '', section: 'main'
+    };
+    const routine = {
+      id: 'e2e-prefs-rest', name: 'Descanso E2E', modality: 'calisthenics',
+      sections: { warmup: [], main: [exercise], abs: [], finisher: [] },
+      createdAt: Date.now(), updatedAt: Date.now()
+    };
+    const store = JSON.parse(localStorage.getItem('forja-treino-rotinas-v1') || '{"calisthenics":[],"weights":[]}');
+    store.calisthenics = (store.calisthenics || []).filter(r => r.id !== routine.id).concat([routine]);
+    localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify(store));
+
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+      version: 2, id: 'e2e-prefs-' + now.getTime(),
+      date: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()),
+      modality: 'calisthenics', routineId: routine.id, routineName: routine.name,
+      startedAt: now.getTime() - 60000, elapsedMs: 0, running: true, currentIndex: 0,
+      completedSets: { [exercise.id]: 0 }, totalPlannedSets: exercise.sets,
+      queue: [Object.assign({}, exercise)], status: 'active',
+      restEndAt: null, restRemainingMs: 0, restPaused: false, pendingAdvance: false,
+      restPlannedSeconds: 0, setTimer: null, setLogs: {}, logDraft: {}
+    }));
+  });
+}
+
+/* Conclui uma série, encurta o descanso até 1 s e deixa o cronômetro terminá-lo. */
+async function restEndRound() {
+  await seedRestSession();
+  await go('treino/executar.html');
+  await jsClick('#complete-set');
+  assert.ok(await waitFor(() => !document.getElementById('execution-rest').hidden, 4000), 'O descanso não começou');
+  await jsClick('#rest-minus');
+  await jsClick('#rest-minus');
+  assert.ok(await waitFor(() => document.getElementById('execution-rest').hidden, 6000), 'O descanso não terminou pelo cronômetro');
+  await sleep(200);
+  return page.evaluate(() => ({
+    vibrate: window.__restSignals.vibrate,
+    sound: window.__restSignals.sound,
+    prefs: window.Forja.state.preferences
+  }));
+}
 
 async function check(name, fn) {
   try {
@@ -946,8 +1083,242 @@ await check('Configurações: exportar, rejeitar importação inválida, importa
   await page.screenshot({ path: artifactPath('configuracoes.png') });
 });
 
+await check('Perfil: inicializa, checkboxes refletem o armazenado e abrir a página não grava nada', async () => {
+  const saved = await forjaRaw();
+  const spy = await page.evaluateOnNewDocument(installWriteSpy);
+  try {
+    const cases = [
+      [null, [true, true]],
+      [{ soundOnRest: false, vibrateOnRest: true }, [false, true]],
+      [{ soundOnRest: true, vibrateOnRest: false }, [true, false]],
+      [{ soundOnRest: false, vibrateOnRest: false }, [false, false]]
+    ];
+    for (const [stored, expected] of cases) {
+      await page.evaluate((key, value) => {
+        if (value === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, JSON.stringify(value));
+      }, PREFS_KEY, stored);
+
+      for (const rel of ['perfil/', 'configuracoes/']) {
+        const where = rel + ' com ' + JSON.stringify(stored);
+        const before = await forjaRaw();
+        await go(rel);
+        await sleep(600); // alguns ciclos do intervalo único de 250 ms
+        const state = await page.evaluate(() => ({
+          shared: typeof window.Forja.pages.perfil === 'function' &&
+            window.Forja.pages.perfil === window.Forja.pages.configuracoes,
+          boxes: [document.getElementById('pref-sound').checked, document.getElementById('pref-vibrate').checked],
+          memory: window.Forja.state.preferences,
+          undoHidden: document.getElementById('restore-safety-backup').hidden,
+          safety: localStorage.getItem('forja-backup-seguranca-v1') !== null,
+          writes: window.__forjaWrites.slice()
+        }));
+        assert.ok(state.shared, 'Perfil sem o controlador compartilhado (' + where + ')');
+        assert.deepEqual(state.boxes, expected, 'Checkboxes não refletem o armazenado em ' + where);
+        assert.deepEqual(state.memory, { soundOnRest: expected[0], vibrateOnRest: expected[1] }, 'Memória do descanso diverge em ' + where);
+        assert.equal(state.undoHidden, !state.safety, 'Botão de desfazer não reflete a cópia de segurança em ' + where);
+        assert.deepEqual(state.writes, [], 'Abrir ' + where + ' gravou: ' + state.writes.join(', '));
+        assert.deepEqual(await forjaRaw(), before, 'Conteúdo mudou ao abrir ' + where);
+      }
+    }
+    await page.screenshot({ path: artifactPath('perfil.png') });
+  } finally {
+    await page.removeScriptToEvaluateOnNewDocument(spy.identifier);
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Perfil: exportar, rejeitar importação inválida, importar com confirmação e desfazer', async () => {
+  const downloadDir = fs.mkdtempSync(path.join(artifactsDir, 'perfil-downloads-'));
+  await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: downloadDir });
+  try {
+    await go('perfil/');
+    assert.equal(await page.evaluate(() => document.body.dataset.page), 'perfil');
+    const before = await forjaData([SAFETY_KEY]);
+    assert.ok(before['forja-treino-rotinas-v1'], 'O fluxo anterior deveria ter deixado rotinas');
+
+    /* Exportar pelo botão do próprio Perfil. */
+    await clickCentered('#export-backup');
+    let files = [];
+    for (let i = 0; i < 60; i++) {
+      files = fs.readdirSync(downloadDir).filter(f => /^forja-backup-\d{4}-\d{2}-\d{2}\.json$/.test(f));
+      if (files.length) break;
+      await sleep(100);
+    }
+    assert.equal(files.length, 1, 'Exportar no Perfil não baixou o arquivo: ' + fs.readdirSync(downloadDir).join(', '));
+    const backup = JSON.parse(fs.readFileSync(path.join(downloadDir, files[0]), 'utf8'));
+    assert.equal(backup.app, 'FORJA');
+    assert.equal(backup.format, 'forja-backup');
+    assert.deepEqual(backup.keys, before, 'O backup exportado no Perfil difere do armazenamento');
+    assert.match(await text('#backup-status'), /Último backup exportado em/);
+
+    /* Inválido: recusado com explicação, nada muda (nem a cópia de segurança). */
+    const safetyBefore = await page.evaluate(key => localStorage.getItem(key), SAFETY_KEY);
+    const bad = artifactPath('perfil-invalido.json');
+    fs.writeFileSync(bad, JSON.stringify({ app: 'OUTRO', format: 'forja-backup', version: 1, keys: {} }));
+    await (await page.$('#import-backup-input')).uploadFile(bad);
+    await page.waitForSelector('[data-modal-action="close"]', { timeout: 4000 });
+    assert.match(await text('#modal-title'), /Backup inválido/);
+    assert.equal(await page.$('[data-modal-action="restore"]'), null, 'Importação inválida abriu a confirmação');
+    await jsClick('[data-modal-action="close"]');
+    assert.deepEqual(await forjaData([SAFETY_KEY]), before, 'Importação inválida alterou dados');
+    assert.equal(await page.evaluate(key => localStorage.getItem(key), SAFETY_KEY), safetyBefore,
+      'Importação inválida mexeu na cópia de segurança');
+
+    /* Válido: só aplica depois de confirmar; os checkboxes acompanham. */
+    const modified = JSON.parse(JSON.stringify(backup));
+    modified.keys['forja-missoes-2030-01-01'] = [{ id: 'e2e-perfil', text: 'Importada pelo Perfil', done: false }];
+    modified.keys[PREFS_KEY] = { soundOnRest: false, vibrateOnRest: false };
+    const good = artifactPath('perfil-valido.json');
+    fs.writeFileSync(good, JSON.stringify(modified));
+    await (await page.$('#import-backup-input')).uploadFile(good);
+    await page.waitForSelector('[data-modal-action="restore"]', { timeout: 4000 });
+    assert.match(await text('#modal-title'), /Restaurar backup/);
+    assert.deepEqual(await forjaData([SAFETY_KEY]), before, 'Importação aplicou sem confirmação');
+    await jsClick('[data-modal-action="restore"]');
+    await sleep(300);
+    assert.deepEqual(await data('forja-missoes-2030-01-01'), modified.keys['forja-missoes-2030-01-01'], 'Importação não aplicou no Perfil');
+    assert.deepEqual(await prefBoxes(), [false, false], 'Checkboxes não acompanharam a importação');
+    assert.ok(await isVisible('#restore-safety-backup'), 'Desfazer não apareceu no Perfil');
+
+    /* Desfazer a última restauração: volta exatamente ao estado anterior. */
+    await clickCentered('#restore-safety-backup');
+    await page.waitForSelector('[data-modal-action="restore"]', { timeout: 4000 });
+    assert.match(await text('#modal-title'), /Desfazer última importação/);
+    await jsClick('[data-modal-action="restore"]');
+    await sleep(300);
+    assert.deepEqual(await forjaData([SAFETY_KEY]), before, 'Desfazer não restaurou o estado anterior');
+    const prefs = before[PREFS_KEY] || {};
+    assert.deepEqual(await prefBoxes(), [prefs.soundOnRest !== false, prefs.vibrateOnRest !== false]);
+    await page.screenshot({ path: artifactPath('perfil-backup.png') });
+  } finally {
+    await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: artifactsDir });
+  }
+});
+
+await check('Som e vibração: a mesma escolha vale em Perfil, Configurações, outra aba e no fim do descanso', async () => {
+  const saved = await forjaRaw();
+  let signals = null;
+  let other = null;
+  try {
+    await page.evaluate(key => localStorage.removeItem(key), PREFS_KEY);
+
+    /* Perfil → Configurações → Perfil, com cliques reais. */
+    await go('perfil/');
+    assert.deepEqual(await prefBoxes(), [true, true], 'Sem nada gravado, os dois deveriam estar ligados');
+    await clickCentered('#pref-sound');
+    assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
+    assert.match(await text('#toast'), /Preferência salva/);
+
+    await go('configuracoes/');
+    assert.deepEqual(await prefBoxes(), [false, true], 'Configurações não viu a escolha feita no Perfil');
+    await clickCentered('#pref-vibrate');
+    assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: false });
+
+    await go('perfil/');
+    assert.deepEqual(await prefBoxes(), [false, false], 'Perfil não viu a escolha feita nas Configurações');
+
+    /* Outra aba aberta no Perfil acompanha a mudança sem recarregar. */
+    other = await browser.newPage();
+    other.on('console', m => { if (m.type() === 'error') errors.push('outra aba console: ' + m.text()); });
+    other.on('pageerror', e => errors.push('outra aba pageerror: ' + e.message));
+    other.on('requestfailed', r => errors.push('outra aba requestfailed: ' + r.url()));
+    await other.goto(new URL('perfil/', BASE).href, { waitUntil: 'networkidle0' });
+    assert.deepEqual(await prefBoxes(other), [false, false]);
+    await page.bringToFront();
+    await clickCentered('#pref-sound');
+    assert.deepEqual(await data(PREFS_KEY), { soundOnRest: true, vibrateOnRest: false });
+    let synced = false;
+    for (let i = 0; i < 40 && !synced; i++) {
+      synced = JSON.stringify(await prefBoxes(other)) === JSON.stringify([true, false]);
+      if (!synced) await sleep(50);
+    }
+    assert.ok(synced, 'A outra aba não recebeu a mudança: ' + JSON.stringify(await prefBoxes(other)));
+    assert.deepEqual(await other.evaluate(() => window.Forja.state.preferences), { soundOnRest: true, vibrateOnRest: false });
+    await other.close();
+    other = null;
+
+    /* Fim do descanso na execução, com som e vibração observados. */
+    signals = await page.evaluateOnNewDocument(installRestSignals);
+
+    let round = await restEndRound();
+    assert.deepEqual(round, { vibrate: 0, sound: 1, prefs: { soundOnRest: true, vibrateOnRest: false } },
+      'Som ligado e vibração desligada: aviso errado no fim do descanso');
+
+    await go('perfil/');
+    await clickCentered('#pref-sound');
+    await clickCentered('#pref-vibrate');
+    assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
+    round = await restEndRound();
+    assert.deepEqual(round, { vibrate: 1, sound: 0, prefs: { soundOnRest: false, vibrateOnRest: true } },
+      'Som desligado e vibração ligada: aviso errado no fim do descanso');
+
+    await go('configuracoes/');
+    assert.deepEqual(await prefBoxes(), [false, true]);
+    await clickCentered('#pref-vibrate');
+    assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: false });
+    round = await restEndRound();
+    assert.deepEqual(round, { vibrate: 0, sound: 0, prefs: { soundOnRest: false, vibrateOnRest: false } },
+      'Som e vibração desligados: o descanso ainda avisou');
+  } finally {
+    if (other) await other.close();
+    if (signals) await page.removeScriptToEvaluateOnNewDocument(signals.identifier);
+    /* Sai da execução antes de repor o estado salvo (sessão e rotina de teste somem). */
+    await go('perfil/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explorar sob /forja/ em todas as páginas', async () => {
+  const basePath = new URL(BASE).pathname;
+  await page.setViewport(MOBILE);
+  await page.mouse.move(0, 0);
+  for (const rel of PAGES) {
+    const where = rel || 'index';
+    const want = EXPECTED_NAV[rel];
+    assert.ok(want, 'Página sem destino esperado: ' + where);
+    await go(rel);
+    const state = await page.evaluate(async () => {
+      const pick = (root, selector) => [...root.querySelectorAll(selector)].map(node => node.getAttribute('data-nav'));
+      const html = await fetch(location.href, { cache: 'no-store' }).then(response => response.text());
+      const original = new DOMParser().parseFromString(html, 'text/html');
+      const target = name => new URL(window.Forja.url(name), location.href);
+      /* Lê o corpo inteiro: resposta pendente seria abortada na próxima navegação. */
+      const status = async url => {
+        const response = await fetch(url, { cache: 'no-store' });
+        await response.text();
+        return response.status;
+      };
+      return {
+        htmlActive: pick(original, '.bottom-nav-link.is-active'),
+        htmlCurrent: pick(original, '.bottom-nav-link[aria-current="page"]'),
+        jsActive: pick(document, '.bottom-nav-link.is-active'),
+        jsCurrent: pick(document, '.bottom-nav-link[aria-current="page"]'),
+        colors: Object.fromEntries([...document.querySelectorAll('.bottom-nav-link')]
+          .map(node => [node.getAttribute('data-nav'), getComputedStyle(node).color])),
+        perfil: target('perfil').pathname,
+        explorar: target('explorar').pathname,
+        perfilStatus: await status(target('perfil').href),
+        explorarStatus: await status(target('explorar').href)
+      };
+    });
+    assert.deepEqual(state.htmlActive, [want], 'HTML: is-active em ' + where);
+    assert.deepEqual(state.htmlCurrent, [want], 'HTML: aria-current em ' + where);
+    assert.deepEqual(state.jsActive, [want], 'JS: is-active em ' + where);
+    assert.deepEqual(state.jsCurrent, [want], 'JS: aria-current em ' + where);
+    assert.equal(state.colors[want], 'rgb(183, 243, 74)', 'CSS: item ativo sem destaque em ' + where);
+    for (const [nav, color] of Object.entries(state.colors)) {
+      if (nav !== want) assert.notEqual(color, state.colors[want], 'CSS: ' + nav + ' também destacado em ' + where);
+    }
+    assert.equal(state.perfil, basePath + 'perfil/index.html', 'F.url("perfil") em ' + where);
+    assert.equal(state.explorar, basePath + 'explorar/index.html', 'F.url("explorar") em ' + where);
+    assert.equal(state.perfilStatus, 200, 'Destino de F.url("perfil") não carrega a partir de ' + where);
+    assert.equal(state.explorarStatus, 200, 'Destino de F.url("explorar") não carrega a partir de ' + where);
+  }
+});
+
 await check('Armazenamento local é informado em todas as páginas', async () => {
-  for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/']) {
+  for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/', 'perfil/']) {
     await go(rel);
     const body = await page.evaluate(() => document.body.textContent);
     assert.match(body, /neste navegador e não são sincronizados/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
@@ -959,7 +1330,7 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
   shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
   shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
   for (const [index, rel] of PAGES.entries()) {
-    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes','explorar','atlas'][index];
+    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes','perfil','explorar','atlas'][index];
     for (const width of [390, 1280]) {
       await shots.setViewport({ width, height: width === 390 ? 844 : 900 });
       let screenshotUrl = new URL(rel, BASE);
