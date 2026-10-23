@@ -49,7 +49,8 @@
     safety: "forja-backup-seguranca-v1",
     library: "forja-treino-biblioteca-v1",
     preferences: "forja-preferencias-v1",
-    goals: "forja-treino-metas-v1"
+    goals: "forja-treino-metas-v1",
+    rotation: "forja-treino-rotacao-v1"
   });
 
   F.BACKUP_FORMAT = "forja-backup";
@@ -109,6 +110,7 @@
     library: { calisthenics: [], weights: [] },
     preferences: { soundOnRest: true, vibrateOnRest: true },
     goals: null,
+    rotation: null,
     /* Metadados por chave: existia, estava corrompido, perdeu itens. */
     storageInfo: {},
     bootNotices: [],

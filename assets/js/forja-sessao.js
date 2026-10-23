@@ -142,6 +142,10 @@
       return;
     }
 
+    const previousSelected = typeof F.resolveNextRoutine === "function"
+      ? F.resolveNextRoutine()
+      : null;
+
     const completedSets = {};
     const logs = {};
     queue.forEach(exercise => {
@@ -178,6 +182,12 @@
       F.state.activeWorkout = null;
       updateActiveBanner();
       return;
+    }
+
+    if (typeof F.advanceRotation === "function") {
+      F.advanceRotation(modality, routine.id, {
+        previousNextRoutineId: previousSelected ? previousSelected.id : null
+      });
     }
 
     F.flash("Treino iniciado. Foco no exercício atual.");
@@ -1058,6 +1068,12 @@
       return false;
     }
 
+    if (typeof F.advanceRotation === "function") {
+      F.advanceRotation(record.modality, record.routineId, {
+        previousNextRoutineId: null
+      });
+    }
+
     F.state.activeWorkout = null;
     saveActiveWorkout();
     updateActiveBanner();
@@ -1080,9 +1096,14 @@
   function discardCurrentSession() {
     const s = session();
     const modality = s ? s.modality : "calisthenics";
+    const discardedRoutineId = s ? s.routineId : null;
 
     F.state.activeWorkout = null;
     saveActiveWorkout();
+
+    if (discardedRoutineId && typeof F.rollbackDiscardedRotation === "function") {
+      F.rollbackDiscardedRotation(discardedRoutineId);
+    }
 
     F.flash("Sessão descartada. Nenhum treino foi registrado no histórico.");
     F.navigate(F.modalityUrl(modality));

@@ -31,6 +31,7 @@ Ela é apenas lida para a migração e incluída no backup.
 | `forja-treino-sessao-ativa-legada-v1` | `{archivedAt, session}` | Cópia integral da sessão antiga migrada |
 | `forja-treino-dados-preservados-v1` | `Array<{archivedAt, key, reason, raw}>` | Conteúdo ilegível/não reconhecido, preservado |
 | `forja-backup-seguranca-v1` | `{app, format, version, exportedAt, reason, keys}` | Cópia automática antes de cada restauração |
+| `forja-treino-rotacao-v1` | `{version: 1, overrideRoutineId, nextRoutineId, nextModality, lastRoutineId, lastModality, previousState, updatedAt}` | Sequência/rotação previsível da próxima rotina na Home (aditiva; nunca gravada apenas ao abrir páginas) |
 
 ### 1.3 Formato de `Rotina`
 
