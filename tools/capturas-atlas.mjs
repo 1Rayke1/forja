@@ -212,7 +212,7 @@ try {
 
   /* 1. Estado inicial: nenhum exercício escolhido, figura neutra. */
   await measure("inicial");
-  await shotAt("atlas-inicial-390.png", 390);
+  await shotAt("atlas-inicial-390.png", 390, true);
 
   /* 2. Exercício selecionado (flexão de braço) em todas as larguras. */
   await clickCentered('[data-atlas-focus="shortcut:cal-flexao"]');
@@ -233,13 +233,13 @@ try {
   /* 4. Grupo sem exercícios no catálogo. */
   await clickCentered('[data-group-chip="panturrilha"]');
   await measure("grupo-vazio");
-  await shotAt("atlas-vazio-390.png", 390);
+  await shotAt("atlas-vazio-390.png", 390, true);
 
   /* 5. Filtro por modalidade sem resultados. */
   await clickCentered('[data-group-chip="antebracos"]');
   await clickCentered('#atlas-modes [data-value="calisthenics"]');
   await measure("vazio-filtro");
-  await shotAt("atlas-filtro-vazio-390.png", 390);
+  await shotAt("atlas-filtro-vazio-390.png", 390, true);
 
   /* 6. Estado de erro com retentativa. */
   await page.evaluate(() => {

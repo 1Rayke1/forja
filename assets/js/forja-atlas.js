@@ -85,8 +85,9 @@
     pernas: "both"
   });
 
-  const DISCLOSURE = "Figura esquemática de regiões musculares sobre base " +
-    "anatômica 3D (BodyParts3D / Z-Anatomy, CC BY-SA 4.0) — não é uma " +
+  const DISCLOSURE = "Figura esquemática de regiões musculares sobre prancha " +
+    "anatômica de referência (enquadramento até meia-coxa; acervo 3D " +
+    "complementar BodyParts3D / Z-Anatomy, CC BY-SA 4.0) — não é uma " +
     "representação anatômica clínica. As cores indicam o papel da região no " +
     "movimento, a partir da classificação do catálogo.";
 
@@ -239,6 +240,16 @@
     if (settings.label) {
       const note = el("p", "atlas-figuras-note", settings.label);
       wrap.appendChild(note);
+    }
+
+    const outsideNotes = Object.keys(highlights || {})
+      .filter(id => highlights[id] && F.figura.REGIONS && F.figura.REGIONS[id] && F.figura.REGIONS[id].outsideFrame)
+      .map(id => F.figura.REGIONS[id].limitationNote)
+      .filter(Boolean);
+    if (outsideNotes.length > 0) {
+      const framingNote = el("p", "atlas-figuras-note atlas-framing-note", outsideNotes[0]);
+      framingNote.setAttribute("data-atlas-framing-note", "true");
+      wrap.appendChild(framingNote);
     }
 
     return wrap;
@@ -690,6 +701,12 @@
       })(),
       label: group.label + " em foco, " + whereLabel(group.id)
     }));
+    const regInfo = F.figura.REGIONS && F.figura.REGIONS[group.id];
+    if (regInfo && regInfo.outsideFrame && regInfo.limitationNote) {
+      const framingNote = el("p", "atlas-figuras-note atlas-framing-note", regInfo.limitationNote);
+      framingNote.setAttribute("data-atlas-framing-note", "true");
+      figureWrap.appendChild(framingNote);
+    }
     card.appendChild(figureWrap);
 
     const entries = F.atlas.exercisesFor(group.id, { mode: page.mode });

@@ -1,10 +1,27 @@
-# Aviso de Atribuição e Licença — Recursos Anatômicos (`assets/anatomia/`)
+# Aviso de Atribuição, Origem e Licença — Recursos Anatômicos (`assets/anatomia/`)
 
-Os arquivos de imagem `assets/anatomia/anterior.png` e `assets/anatomia/posterior.png`, bem como os contornos vetoriais projetados das 16 regiões musculares embutidos nas constantes `SILHOUETTES` e `REGIONS` de `assets/js/forja-figura.js`, são adaptações pré-renderizadas a partir de modelos anatômicos tridimensionais abertos licenciados sob Creative Commons Attribution-ShareAlike.
+Os arquivos de imagem `assets/anatomia/anterior.png` e `assets/anatomia/posterior.png`, bem como os contornos vetoriais embutidos nas constantes `SILHOUETTES` e `REGIONS` de `assets/js/forja-figura.js`, compõem a base visual do Atlas Muscular do FORJA.
 
 ---
 
-## 1. Origem dos modelos e créditos exigidos
+## 0. Pranchas anatômicas de referência na branch de trabalho (verificação de licença e enquadramento)
+
+Nesta branch de trabalho (`arena/c0b01805-forja`), `assets/anatomia/anterior.png` (`77.309 bytes`, `480 × 480 px`) e `assets/anatomia/posterior.png` (`68.084 bytes`, `480 × 480 px`) foram gerados via `tools/gerar-anatomia-referencia.mjs` a partir das duas capturas de referência fornecidas pelo usuário:
+- **Imagem 1 (vista anterior):** `Screenshot_2026-10-22-09-47-24-088_com.openai.chatgpt.jpg` (`1080 × 2400 px`, quadro anatômico central `1080 × 1080 px` em `y = 660..1739`);
+- **Imagem 2 (vista posterior):** `Screenshot_2026-10-22-09-47-28-204_com.openai.chatgpt.jpg` (`1080 × 2400 px`, quadro anatômico central `1080 × 1080 px` em `y = 660..1739`).
+
+### Verificação obrigatória de origem e licença antes de versão pública
+- **Origem identificada:** os arquivos anexados são capturas de tela de dispositivo Android (`com.openai.chatgpt`) sem metadados EXIF/IPTC de autoria ou licença explícita embutidos no cabeçalho JPEG. A estética visual corresponde a ilustrações anatômicas médicas comerciais/editoriais (estilo banco de imagens anatômicas 3D).
+- **Status para versão pública (`main` / release):** **não assumir domínio público ou licença livre apenas por terem sido anexadas como referência.** Antes de incorporar definitivamente estas pranchas em uma versão pública ou distribuir binários/APK, o responsável pelo repositório deve confirmar que detém direito de uso e redistribuição das imagens de origem. Caso prefira manter exclusivamente ativos abertos com licença explícita auditada (**CC BY-SA 4.0**), basta reexecutar `tools/gerar-anatomia-3d.mjs` documentado abaixo.
+
+### Enquadramento até meia-coxa e tratamento de limitações
+- As duas imagens de referência abrangem da cabeça até a porção média da coxa (`viewBox="0 0 240 240"`, proporção 1:1 original preservada sem cortes adicionais e sem deformação).
+- As **15 regiões visíveis no enquadramento** (`ombros`, `peito`, `biceps`, `antebracos`, `abdomem`, `obliquos`, `quadril`, `quadriceps`, `pernas`, `costas`, `dorsais`, `lombar`, `triceps`, `gluteos`, `posterior-coxa`) possuem contornos SVG em curvas de Bézier cúbicas fechadas alinhados às fibras e sulcos visíveis da imagem.
+- A região **`panturrilha`** situa-se anatomicamente abaixo do joelho (fora do recorte até meia-coxa das imagens de referência) e é declarada com `outsideFrame: true` e `back: []` em `assets/js/forja-figura.js`, exibindo aviso textual explícito na interface sem pintar regiões aleatórias na coxa.
+
+---
+
+## 1. Acervo anatômico 3D aberto preservado (CC BY-SA 4.0) e créditos exigidos
 
 1. **BodyParts3D / Anatomography**
    - **Autoria e crédito:** *BodyParts3D, © The Database Center for Life Science (DBCLS), Research Organization of Information and Systems (ROIS), Japão.*
