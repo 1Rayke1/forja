@@ -1,6 +1,6 @@
 /*
-  Testes do Atlas anatômico (explorar/atlas.html), da figura humana vetorial e
-  da integração com a biblioteca e a execução do treino.
+  Testes do Atlas anatômico (explorar/atlas.html), das pranchas raster de
+  referência e da integração com a biblioteca e a execução do treino.
 
   Roda em jsdom sobre as páginas reais do repositório, com o mesmo harness
   multipágina de `forja.test.mjs`: clicar em um link troca de página e o
@@ -12,6 +12,7 @@
   Uso: npm test (a suíte entra na cadeia) ou node tests/atlas.test.mjs
 */
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -119,7 +120,7 @@ const customLibrary = {
 /* 1. Estrutura da página                                             */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 1. Página carrega escolha de exercício, silhueta anterior/posterior e barra inferior", async () => {
+await runTest("ATLAS 1. Página carrega escolha de exercício, modelo anterior/posterior e barra inferior", async () => {
   const app = await boot({}, ATLAS);
   await wait(20);
 
@@ -138,13 +139,13 @@ await runTest("ATLAS 1. Página carrega escolha de exercício, silhueta anterior
   assert.equal(groups[0].children.length, 18);
   assert.equal(groups[1].children.length, 19);
 
-  /* Duas vistas da mesma silhueta, nomeadas para leitores de tela. */
+  /* Duas vistas do mesmo modelo anatômico, nomeadas para leitores de tela. */
   const cells = app.$$(".atlas-figura-cell");
   assert.deepEqual(cells.map(node => node.getAttribute("data-view")), ["front", "back"]);
   assert.equal(app.$$(".figura-svg").length, 2);
   app.$$(".figura-svg").forEach(node => {
     assert.equal(node.getAttribute("role"), "img");
-    assert.match(node.getAttribute("aria-label"), /Silhueta humana, vista (anterior|posterior)/);
+    assert.match(node.getAttribute("aria-label"), /Modelo anatômico muscular, vista (anterior|posterior)/);
   });
   assert.match(app.text(".atlas-figura-cell[data-view=\"front\"] .atlas-figura-caption"), /Anterior/);
   assert.match(app.text(".atlas-figura-cell[data-view=\"back\"] .atlas-figura-caption"), /Posterior/);
@@ -155,9 +156,10 @@ await runTest("ATLAS 1. Página carrega escolha de exercício, silhueta anterior
   assert.match(app.text(".atlas-figuras-note"), /Nenhuma região destacada/);
   assert.equal(app.$$(".atlas-color-key .atlas-swatch").length, 3, "Chave de cores incompleta");
 
-  /* Aviso honesto sobre o nível do desenho. */
-  assert.match(app.text(".atlas-disclosure"), /não é uma representação anatômica clínica/i);
-  assert.match(app.text(".atlas-disclosure"), /Figura esquemática/i);
+  /* Aviso honesto sobre projeção superficial e limites do mapa. */
+  assert.match(app.text(".atlas-disclosure"), /não uma segmentação anatômica clínica/i);
+  assert.match(app.text(".atlas-disclosure"), /projeções funcionais aproximadas/i);
+  assert.match(app.text(".atlas-disclosure"), /músculos profundos/i);
 
   /* Navegação inferior: cinco destinos, Explorar atual. */
   const nav = app.$$(".bottom-nav-link");
@@ -250,37 +252,56 @@ await runTest("ATLAS 2. Flexão de braço destaca peitoral, tríceps, ombros e a
 /* 3. A figura: vistas, leitura e interação                           */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e leitura por teclado", async () => {
+await runTest("ATLAS 3. Pranchas originais íntegras, máscaras registradas e leitura por teclado", async () => {
   const app = await boot({}, ATLAS + "?exercicio=cal-flexao");
   await wait(20);
 
   const front = app.$(".atlas-figura-cell[data-view=\"front\"] .figura-svg");
   const back = app.$(".atlas-figura-cell[data-view=\"back\"] .figura-svg");
 
-  /* Base anatômica de referência local (anterior e posterior na mesma escala 240 × 240)
-     + silhueta orgânica extraída em curvas de Bézier. */
+  /* As duas vistas usam recortes raster 350 × 690 da mesma referência. Não
+     existe mais uma silhueta geométrica concorrendo com a imagem. */
   const frontPlate = front.querySelector("image.figura-plate");
   const backPlate = back.querySelector("image.figura-plate");
   assert.ok(frontPlate && backPlate, "Pranchas anatômicas ausentes nas vistas");
   assert.match(frontPlate.getAttribute("href"), /assets\/anatomia\/anterior\.png$/);
   assert.match(backPlate.getAttribute("href"), /assets\/anatomia\/posterior\.png$/);
-  assert.equal(frontPlate.getAttribute("width"), "240");
-  assert.equal(frontPlate.getAttribute("height"), "240");
-  assert.equal(backPlate.getAttribute("width"), "240");
-  assert.equal(backPlate.getAttribute("height"), "240");
+  [frontPlate, backPlate].forEach(plate => {
+    assert.equal(plate.getAttribute("width"), "350");
+    assert.equal(plate.getAttribute("height"), "690");
+    assert.equal(plate.getAttribute("preserveAspectRatio"), "xMidYMid meet");
+  });
+  assert.equal(front.querySelectorAll(".figura-silhouette, clipPath, rect, line").length, 0,
+    "O corpo não pode ser substituído ou recortado por geometria inventada");
+  assert.equal(back.querySelectorAll(".figura-silhouette, clipPath, rect, line").length, 0);
 
-  const frontSilhouette = front.querySelector(".figura-silhouette path");
-  const backSilhouette = back.querySelector(".figura-silhouette path");
-  assert.ok(frontSilhouette && backSilhouette, "Contorno de silhueta projetado ausente");
-  assert.equal((frontSilhouette.getAttribute("d").match(/C/g) || []).length > 60, true,
-    "O contorno precisa usar curvas de Bézier extraídas da prancha, não retângulos/linhas retas");
-  assert.equal((backSilhouette.getAttribute("d").match(/C/g) || []).length > 60, true);
-  assert.equal(front.querySelectorAll("rect").length, 0, "Silhueta não deve ser feita de retângulos");
-  assert.equal(front.querySelectorAll("line").length, 0, "Silhueta não deve ser feita de linhas retas");
-
-  /* A silhueta preserva a proporção 1:1 original das pranchas de referência sem deformação. */
-  assert.equal(front.getAttribute("viewBox"), "0 0 240 240");
+  assert.equal(front.getAttribute("viewBox"), "0 0 350 690");
+  assert.equal(back.getAttribute("viewBox"), "0 0 350 690");
   assert.match(front.getAttribute("preserveAspectRatio") || "xMidYMid meet", /xMidYMid/);
+
+  /* Integridade real dos PNG e do manifesto de procedência. O teste E2E
+     complementa isto comparando pixel a pixel os opacos com a referência. */
+  const anatomyDir = path.join(repoRoot, "assets", "anatomia");
+  const manifest = JSON.parse(fs.readFileSync(path.join(anatomyDir, "manifest.json"), "utf8"));
+  const sha256 = bytes => crypto.createHash("sha256").update(bytes).digest("hex");
+  assert.deepEqual(manifest.canvas, { width: 350, height: 690 });
+  assert.equal(manifest.sourceSha256, "4163b0387a1657e5c121864e663e93dbe5bf1f476cce59304b7f197102a7c39b");
+  assert.equal(sha256(fs.readFileSync(path.join(anatomyDir, manifest.source))), manifest.sourceSha256,
+    "A referência original foi alterada");
+  for (const view of ["front", "back"]) {
+    const item = manifest.plates[view];
+    const png = fs.readFileSync(path.join(anatomyDir, item.file));
+    assert.equal(png.subarray(1, 4).toString("ascii"), "PNG");
+    assert.equal(png.readUInt32BE(16), 350, "Largura PNG divergente em " + view);
+    assert.equal(png.readUInt32BE(20), 690, "Altura PNG divergente em " + view);
+    assert.equal(png[25], 6, "A prancha precisa de canal alfa RGBA");
+    assert.equal(sha256(png), item.sha256, "Hash da prancha diverge do manifesto");
+    assert.ok(item.bounds.top >= 4 && item.bounds.bottom <= 681, "Cabeça/pés cortados em " + view);
+    assert.ok(item.bounds.left >= 2 && item.bounds.right <= 347, "Mãos cortadas em " + view);
+    assert.ok(item.bounds.bottom >= 650, "Enquadramento não chega aos pés em " + view);
+  }
+  assert.equal(fs.existsSync(path.join(anatomyDir, "anterior.svg")), false,
+    "A prancha geométrica rejeitada não pode voltar como fonte visual");
 
   /* Texto alternativo lista só as regiões que existem naquela vista. */
   const frontLabel = front.getAttribute("aria-label");
@@ -293,14 +314,18 @@ await runTest("ATLAS 3. Silhueta com contorno de corpo (sem palito), vistas e le
   assert.match(backLabel, /secundária: Tríceps, Ombros/);
   assert.doesNotMatch(backLabel, /Peitoral/, "A vista posterior não deve anunciar o peitoral");
 
-  /* A camada de regiões é recortada pela silhueta (clipPath), então o
-     destaque acompanha o corpo em vez de flutuar sobre ele. */
-  const regionLayer = front.querySelector(".figura-regions");
-  assert.match(regionLayer.getAttribute("clip-path") || "", /^url\(#figura-clip-\d+\)$/,
-    "Camada de regiões sem recorte pela silhueta");
-  const clip = front.querySelector("clipPath");
-  assert.ok(clip, "clipPath com a silhueta ausente");
-  assert.equal(clip.querySelectorAll("path").length, 1, "O recorte deve usar o contorno integral da silhueta 3D");
+  /* A máscara referencia exatamente o mesmo PNG exibido, sem contorno paralelo.
+     Assim, corpo e destaques não podem divergir por viewBoxes distintos. */
+  [front, back].forEach(figure => {
+    const plate = figure.querySelector("image.figura-plate");
+    const maskImage = figure.querySelector("mask.figura-alpha-mask image.figura-mask-plate");
+    assert.ok(maskImage, "Máscara alfa da prancha ausente");
+    assert.equal(maskImage.getAttribute("href"), plate.getAttribute("href"));
+    assert.equal(maskImage.getAttribute("width"), plate.getAttribute("width"));
+    assert.equal(maskImage.getAttribute("height"), plate.getAttribute("height"));
+    const maskId = figure.querySelector("mask.figura-alpha-mask").getAttribute("id");
+    assert.equal(figure.querySelector(".figura-regions").getAttribute("mask"), "url(#" + maskId + ")");
+  });
 
   /* Regiões interativas opcionais: foco, clique e teclado. */
   const host = app.d.createElement("div");
@@ -450,15 +475,19 @@ await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis do cat�
 /* 6. Ausência de resultados                                          */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 6. Grupo sem exercícios mostra mensagem honesta e aviso de enquadramento da panturrilha", async () => {
+await runTest("ATLAS 6. Grupo sem exercícios mostra mensagem honesta e panturrilha com contorno completo", async () => {
   const app = await boot({}, ATLAS + "?grupo=panturrilha");
   await wait(20);
 
   assert.equal(app.F.atlas.exercisesFor("panturrilha").length, 0);
-  assert.equal(app.F.figura.REGIONS.panturrilha.outsideFrame, true, "Panturrilha deve indicar enquadramento externo ao recorte até meia-coxa");
-  assert.equal(app.$$(".atlas-group-figure .figura-region").length, 0, "Não deve pintar região falsa sobre a coxa quando panturrilha está fora do recorte");
-  assert.ok(app.$("[data-atlas-framing-note]"), "Aviso de enquadramento até meia-coxa ausente para panturrilha");
-  assert.match(app.text("[data-atlas-framing-note]"), /metade da coxa/i);
+  assert.ok(app.F.figura.REGIONS.panturrilha.back && app.F.figura.REGIONS.panturrilha.back.length > 0, "Panturrilha tem contorno completo na vista posterior");
+  assert.equal(app.F.figura.REGIONS.panturrilha.outsideFrame, undefined, "Panturrilha não está mais fora do recorte");
+  const grupoFigura = app.$(".atlas-group-figure");
+  assert.equal(grupoFigura.querySelectorAll(".figura-region").length, 1, "Figura do grupo destaca a panturrilha em foco");
+  const regiaoGrupo = grupoFigura.querySelector(".figura-region");
+  assert.equal(regiaoGrupo.getAttribute("data-region"), "panturrilha");
+  assert.equal(regiaoGrupo.getAttribute("data-role"), "focus");
+  assert.equal(app.$("[data-atlas-framing-note]"), null, "Sem aviso de enquadramento: a prancha cobre da cabeça aos pés");
   assert.equal(rows(app).length, 0, "Grupo sem metadados listou exercícios");
   assert.equal(app.text(".atlas-exercise-list .ui-empty-title"), "Nenhum exercício para este grupo");
   assert.match(app.text(".atlas-exercise-list .ui-empty-text"), /não tem exercícios classificados/i);
@@ -708,7 +737,7 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
   assert.match(executionHtml, /id="execution-figure"/, "A execução não tem o bloco da figura");
   assert.match(executionHtml, /id="execution-figure-details"/, "A execução não tem o botão de detalhes dos músculos");
 
-  /* Sem URL remota externa: pranchas 3D são locais, leves e documentadas com licença. */
+  /* Sem URL remota externa: pranchas locais, origem e pendência de licença documentadas. */
   assert.doesNotMatch(atlasHtml, /<img[^>]+atlas/i);
   assert.doesNotMatch(css, /url\(http/);
   assert.doesNotMatch(figureSource(), /https?:\/\/(?!www\.w3\.org\/2000\/svg)/i,
@@ -717,12 +746,12 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
     const full = path.join(repoRoot, "assets", "anatomia", file);
     assert.ok(fs.existsSync(full), "Arquivo anatômico ausente: " + file);
   });
-  assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", "anterior.png")).size < 160 * 1024,
-    "Prancha anterior acima do orçamento de desempenho");
-  assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", "posterior.png")).size < 160 * 1024,
-    "Prancha posterior acima do orçamento de desempenho");
+  assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", "anterior.png")).size < 256 * 1024,
+    "Prancha anterior RGBA de corpo inteiro acima do orçamento de desempenho");
+  assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", "posterior.png")).size < 256 * 1024,
+    "Prancha posterior RGBA de corpo inteiro acima do orçamento de desempenho");
   assert.match(fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "NOTICE.md"), "utf8"),
-    /CC BY-SA 4\.0/, "NOTICE.md sem registro claro da licença");
+    /não verificada/i, "NOTICE.md deve registrar a pendência real de licença, sem presumir CC BY-SA");
 
   assert.match(css, /@media \(max-width: 430px\)/, "Sem ajuste para telas de 320–430 px");
   assert.match(css, /@media \(max-width: 360px\)/);
@@ -737,7 +766,7 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
   assert.match(css, /\.atlas-figuras \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/s,
     "As duas vistas devem dividir a largura sem estourar");
 
-  assert.match(css, /mix-blend-mode:\s*screen/i, "Composição screen ausente sobre o relevo 3D");
+  assert.match(css, /mix-blend-mode:\s*color/i, "Blend color ausente: as fibras precisam permanecer visíveis");
   assert.match(css, /#b7f34a/i, "Cor principal #B7F34A ausente");
   assert.match(css, /#f2b84b/i, "Cor secundária #F2B84B ausente");
   assert.match(css, /#8cc0e0/i, "Cor estabilizadora #8CC0E0 ausente");
@@ -762,7 +791,7 @@ await runTest("ATLAS 12. Execução de treino preserva sessão, séries e storag
   await until(() => app.d.body.dataset.page === "executar", "abrir página de execução");
   await wait(30);
 
-  /* Compatibilidade exata dos 16 IDs públicos entre catálogo/atlas e figura 3D. */
+  /* Compatibilidade exata dos 16 IDs públicos entre catálogo/atlas e figura. */
   const expectedIds = [
     "ombros", "peito", "biceps", "antebracos", "abdomem", "obliquos", "quadril", "quadriceps",
     "pernas", "costas", "dorsais", "lombar", "triceps", "gluteos", "posterior-coxa", "panturrilha"
@@ -793,7 +822,7 @@ await runTest("ATLAS 12. Execução de treino preserva sessão, séries e storag
   assert.match(app.text(".modal-card"), /Músculos trabalhados/);
   assert.match(app.text(".modal-card"), /Supino reto com barra/);
   assert.equal(app.$$(".modal-card .figura-svg").length, 2, "O modal deve exibir as vistas anterior e posterior");
-  assert.match(app.text(".modal-card .atlas-modal-note"), /CC BY-SA 4\.0/);
+  assert.match(app.text(".modal-card .atlas-modal-note"), /projeções funcionais aproximadas/);
 
   app.modalAction("close");
   await wait(25);

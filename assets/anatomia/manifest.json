@@ -1,0 +1,45 @@
+{
+  "source": "fontes/modelo-masculino-original.jpg",
+  "sourceSha256": "4163b0387a1657e5c121864e663e93dbe5bf1f476cce59304b7f197102a7c39b",
+  "canvas": {
+    "width": 350,
+    "height": 690
+  },
+  "method": "Recorte raster direto; flood-fill apenas do fundo externo; sem vetorização ou redesenho.",
+  "plates": {
+    "front": {
+      "file": "anterior.png",
+      "crop": {
+        "x": 40,
+        "y": 16,
+        "width": 350,
+        "height": 690
+      },
+      "sha256": "ea3543dc13cad1e82c0a738cb67ef02b84b36d615d89caa770e26d1f5693f03c",
+      "bytes": 240532,
+      "bounds": {
+        "left": 11,
+        "top": 12,
+        "right": 303,
+        "bottom": 673
+      }
+    },
+    "back": {
+      "file": "posterior.png",
+      "crop": {
+        "x": 360,
+        "y": 16,
+        "width": 350,
+        "height": 690
+      },
+      "sha256": "d00d81443f54f1c3d350e41825dbf8599ccb5a0f4780de36bee9f60cd2d934e4",
+      "bytes": 223407,
+      "bounds": {
+        "left": 42,
+        "top": 12,
+        "right": 333,
+        "bottom": 665
+      }
+    }
+  }
+}

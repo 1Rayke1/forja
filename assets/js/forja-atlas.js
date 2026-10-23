@@ -85,10 +85,10 @@
     pernas: "both"
   });
 
-  const DISCLOSURE = "Figura esquemática de regiões musculares sobre prancha " +
-    "anatômica de referência (enquadramento até meia-coxa; acervo 3D " +
-    "complementar BodyParts3D / Z-Anatomy, CC BY-SA 4.0) — não é uma " +
-    "representação anatômica clínica. As cores indicam o papel da região no " +
+  const DISCLOSURE = "Modelo anatômico muscular das referências fornecidas, " +
+    "de corpo inteiro. Os destaques são projeções funcionais aproximadas das " +
+    "regiões superficiais visíveis — não uma segmentação anatômica clínica nem " +
+    "o limite de músculos profundos. As cores indicam o papel da região no " +
     "movimento, a partir da classificação do catálogo.";
 
   function normalize(value) {

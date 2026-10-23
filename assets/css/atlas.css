@@ -40,12 +40,10 @@
   min-width: 0;
 }
 
-/* Silhueta base sutil e prancha anatômica 3D pré-renderizada (2× Retina). */
-.figura-silhouette-bg {
-  fill: #151916;
-  stroke: rgba(255, 255, 255, 0.06);
-  stroke-width: 0.8;
-  stroke-linejoin: round;
+/* Prancha raster fiel à referência. O corpo não possui uma segunda silhueta
+   vetorial: a máscara SVG reutiliza o canal alfa desta mesma imagem. */
+.figura-svg {
+  isolation: isolate;
 }
 
 .figura-plate {
@@ -53,49 +51,53 @@
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.36));
 }
 
-/* Regiões destacadas sobre o relevo muscular 3D ------------------------ */
-
-.figura-regions {
-  isolation: isolate;
-}
-
+/* O blend "color" mantém a luminância e as fibras da fotografia/ilustração.
+   O preenchimento translúcido evita blocos opacos sobre a anatomia. */
 .figura-region-shape {
-  stroke-width: 1.05;
   stroke-linejoin: round;
-  mix-blend-mode: screen;
+  mix-blend-mode: color;
   transition: opacity 0.18s ease;
 }
 
 .figura-region.is-primary .figura-region-shape {
-  fill: rgba(183, 243, 74, 0.44);
+  fill: #b7f34a;
+  fill-opacity: 0.62;
   stroke: #b7f34a;
-  stroke-width: 1.15;
+  stroke-opacity: 0.95;
+  stroke-width: 1.6;
 }
 
 .figura-region.is-secondary .figura-region-shape {
-  fill: rgba(242, 184, 75, 0.36);
+  fill: #f2b84b;
+  fill-opacity: 0.56;
   stroke: #f2b84b;
-  stroke-width: 0.95;
+  stroke-opacity: 0.92;
+  stroke-width: 1.4;
 }
 
 .figura-region.is-stabilizer .figura-region-shape {
-  fill: rgba(140, 192, 224, 0.30);
+  fill: #8cc0e0;
+  fill-opacity: 0.54;
   stroke: #8cc0e0;
-  stroke-width: 0.9;
-  stroke-dasharray: 2.6 2;
+  stroke-opacity: 0.95;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 3;
 }
 
 .figura-region.is-informed .figura-region-shape {
-  fill: rgba(168, 176, 168, 0.28);
+  fill: #b2bab1;
+  fill-opacity: 0.45;
   stroke: #b2bab1;
-  stroke-dasharray: 3 3;
+  stroke-width: 1.3;
+  stroke-dasharray: 4 3;
 }
 
 .figura-region.is-focus .figura-region-shape {
-  fill: rgba(183, 243, 74, 0.38);
+  fill: #b7f34a;
+  fill-opacity: 0.58;
   stroke: var(--lime);
-  stroke-width: 1.45;
-  stroke-dasharray: 4 2.5;
+  stroke-width: 1.8;
+  stroke-dasharray: 6 4;
 }
 
 /* Regiões interativas (opcional): foco visível mesmo no SVG. */
