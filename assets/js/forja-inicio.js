@@ -96,12 +96,12 @@
 
     var eyebrow = document.createElement("div");
     eyebrow.className = "home-action-eyebrow";
-    eyebrow.id = "home-action-heading";
     eyebrow.textContent = routine ? "Próximo treino" : "Comece por aqui";
     card.appendChild(eyebrow);
 
     var title = document.createElement("h2");
     title.className = "home-action-title";
+    title.id = "home-action-heading";
     if (routine) {
       title.textContent = routine.name;
     } else if (pendingEmpty) {
@@ -227,6 +227,29 @@
     }
   }
 
+  function formatGoalRemaining(item) {
+    var remaining = Math.max(0, Math.round(Number(item && item.remaining) || 0));
+    var verb = remaining === 1 ? "Falta " : "Faltam ";
+
+    if (item && item.unit === "sessions") {
+      return verb + (F.pluralize ? F.pluralize(remaining, "treino", "treinos") : remaining + (remaining === 1 ? " treino" : " treinos"));
+    }
+    if (item && item.unit === "sets") {
+      return verb + (F.pluralize ? F.pluralize(remaining, "série", "séries") : remaining + (remaining === 1 ? " série" : " séries"));
+    }
+    if (item && item.unit === "minutes") {
+      return verb + remaining + " min";
+    }
+    return verb + remaining;
+  }
+
+  function formatGoalNote(item) {
+    if (item && item.met) return "Meta atingida";
+    var current = Number(item && item.current) || 0;
+    if (current === 0) return "Ainda sem progresso";
+    return formatGoalRemaining(item);
+  }
+
   function renderGoals() {
     var host = byId("home-goals-content");
     var periodNote = byId("home-goals-period");
@@ -258,9 +281,19 @@
       return;
     }
 
+    var periodParts = [];
     if (progress && progress.week && progress.week.from && progress.week.to && metricas.formatDayMonth) {
-      periodNote.textContent = "Semana de " + metricas.formatDayMonth(progress.week.from) +
-        " a " + metricas.formatDayMonth(progress.week.to) + ".";
+      periodParts.push(
+        "Semana de " + metricas.formatDayMonth(progress.week.from) +
+        " a " + metricas.formatDayMonth(progress.week.to)
+      );
+    }
+    if (progress && progress.modality && progress.modality !== "all") {
+      var modeLabel = (F.MODE_NAMES && F.MODE_NAMES[progress.modality]) || progress.modality;
+      periodParts.push(modeLabel);
+    }
+    if (periodParts.length > 0) {
+      periodNote.textContent = periodParts.join(" · ") + ".";
     }
 
     var items = progress && Array.isArray(progress.items) ? progress.items.filter(function (item) {
@@ -288,12 +321,11 @@
     items.forEach(function (item) {
       var current = Number(item.current) || 0;
       var target = Number(item.target) || 0;
-      var note = item.met ? "Meta atingida" : current === 0 ? "Ainda sem progresso" : "Faltam " + item.remaining;
       var ring = F.charts.ring({
         percent: Math.max(0, Math.min(100, Number(item.percent) || 0)),
         label: item.label,
         valueText: current + "/" + target,
-        note: note
+        note: formatGoalNote(item)
       });
       ring.setAttribute("role", "listitem");
       ring.classList.add("home-goals-ring");
@@ -319,7 +351,9 @@
     list.innerHTML = "";
     note.textContent = "";
 
-    var history = (F.state && Array.isArray(F.state.history)) ? F.state.history : [];
+    var history = (F.state && Array.isArray(F.state.history))
+      ? F.state.history.filter(function (item) { return F.isPlainObject ? F.isPlainObject(item) : Boolean(item && typeof item === "object"); })
+      : [];
     if (history.length === 0) {
       note.textContent = "Nenhum treino registrado ainda. Conclua um treino e ele aparecerá aqui.";
       return;
@@ -388,29 +422,17 @@
     renderRecent();
   }
 
-  global.addEventListener("storage", function (event) {
-    if (!F.KEYS) return;
-    if (event.key !== null && event.key !== F.KEYS.rotation) return;
-    if (typeof F.loadRotation === "function") {
-      F.state.rotation = F.loadRotation();
-    }
-    if (byId("home-action")) {
-      renderGreeting();
-      renderAction();
-    }
-  });
-
   /* ------------------------------------------------------------------ */
   /* Onboarding opcional (usuário realmente novo)                        */
   /* ------------------------------------------------------------------ */
   /*
     Regras:
     - Só aparece para quem não tem rotinas, nem histórico e nem perfil salvo.
-    - "Pular" e "Configurar depois" não criam nem persistem nenhum dado.
+    - "Pular" dispensa o cartão nesta visita sem criar nem persistir nenhum dado.
     - A gravação do perfil só acontece no confirm explícito ("Salvar perfil").
-    - O perfil orienta sugestões futuras; nunca bloqueia criar rotinas manualmente.
+    - O perfil continua configurável a qualquer momento em Perfil.
   */
-  let onboardingShown = false;
+  let onboardingDismissed = false;
 
   function profileIsConfigured() {
     return Boolean(F.state.profile && F.state.profile.updatedAt);
@@ -422,9 +444,9 @@
     return routines.length === 0 && history.length === 0 && !profileIsConfigured();
   }
 
-  function buildSelectField(name, labelText, options, value) {
+  function buildSelectField(name, labelText, options, value, extraClass) {
     const block = document.createElement("div");
-    block.className = "field-block";
+    block.className = "field-block" + (extraClass ? " " + extraClass : "");
 
     const label = document.createElement("label");
     label.className = "field-label";
@@ -511,47 +533,63 @@
     const profile = F.state.profile || {};
     const card = document.createElement("section");
     card.className = "onboarding-panel";
-    card.setAttribute("aria-labelledby", "onboarding-heading");
+    card.setAttribute("aria-labelledby", "home-onboarding-heading");
 
-    const eyebrow = document.createElement("p");
-    eyebrow.className = "home-action-eyebrow";
-    eyebrow.textContent = "BOAS-VINDAS";
-    card.appendChild(eyebrow);
+    const head = document.createElement("div");
+    head.className = "onboarding-head";
+
+    const headRow = document.createElement("div");
+    headRow.className = "onboarding-head-row";
 
     const title = document.createElement("h2");
-    title.className = "home-action-title";
-    title.id = "onboarding-heading";
+    title.className = "onboarding-title";
+    title.id = "home-onboarding-heading";
     title.textContent = "Seu perfil de treino";
-    card.appendChild(title);
+    headRow.appendChild(title);
+
+    const eyebrow = document.createElement("span");
+    eyebrow.className = "onboarding-eyebrow";
+    eyebrow.textContent = "Opcional";
+    headRow.appendChild(eyebrow);
+
+    head.appendChild(headRow);
 
     const description = document.createElement("p");
-    description.className = "home-action-meta";
-    description.textContent =
-      "Tudo opcional. Você pode pular agora e configurar depois em Perfil. " +
-      "O perfil orienta sugestões futuras, mas nunca impede a criação manual de rotinas.";
-    card.appendChild(description);
+    description.className = "onboarding-meta";
+    description.appendChild(document.createTextNode("Pule agora ou configure depois em "));
+    const profileLink = document.createElement("a");
+    profileLink.className = "onboarding-profile-link";
+    profileLink.href = F.url ? F.url("perfil") : "perfil/index.html";
+    profileLink.textContent = "Perfil";
+    description.appendChild(profileLink);
+    description.appendChild(document.createTextNode(". Não bloqueia rotinas manuais."));
+    head.appendChild(description);
+
+    card.appendChild(head);
 
     const form = document.createElement("form");
-    form.className = "goals-form";
+    form.className = "onboarding-form";
     form.noValidate = true;
     form.addEventListener("submit", event => event.preventDefault());
 
     const fields = {
-      objetivo: buildSelectField("objetivo", "Objetivo principal", F.PERFIL_OPTIONS.objetivo, profile.objetivo),
-      nivel: buildSelectField("nivel", "Nível", F.PERFIL_OPTIONS.nivel, profile.nivel),
-      equipamento: buildSelectField("equipamento", "Equipamento disponível", F.PERFIL_OPTIONS.equipamento, profile.equipamento),
-      dias: buildNumberField("dias", "Dias por semana", profile.diasPorSemana, 0, F.PERFIL_MAX_DIAS, 1),
-      duracao: buildNumberField("duracao", "Duração desejada (min)", profile.duracaoMinutos, 0, F.PERFIL_MAX_MINUTOS, 5)
+      objetivo: buildSelectField("objetivo", "Objetivo", F.PERFIL_OPTIONS.objetivo, profile.objetivo, "onboarding-col-half"),
+      nivel: buildSelectField("nivel", "Nível", F.PERFIL_OPTIONS.nivel, profile.nivel, "onboarding-col-half"),
+      equipamento: buildSelectField("equipamento", "Equipamento", F.PERFIL_OPTIONS.equipamento, profile.equipamento, "onboarding-col-equip"),
+      dias: buildNumberField("dias", "Dias/sem.", profile.diasPorSemana, 0, F.PERFIL_MAX_DIAS, 1),
+      duracao: buildNumberField("duracao", "Duração (min)", profile.duracaoMinutos, 0, F.PERFIL_MAX_MINUTOS, 5)
     };
+    fields.dias.block.classList.add("onboarding-col-days");
+    fields.duracao.block.classList.add("onboarding-col-duration");
 
     const fieldBox = document.createElement("div");
-    fieldBox.className = "goals-fields";
+    fieldBox.className = "onboarding-fields";
     fieldBox.append(fields.objetivo.block, fields.nivel.block, fields.equipamento.block, fields.dias.block, fields.duracao.block);
     form.appendChild(fieldBox);
 
     const hint = document.createElement("p");
     hint.className = "field-hint";
-    hint.textContent = "Campo 0 ou vazio desliga o item. Salvar o perfil não altera treinos nem histórico.";
+    hint.textContent = "Zero ou vazio desliga o item. Não altera treinos nem histórico.";
     form.appendChild(hint);
 
     const error = document.createElement("p");
@@ -563,24 +601,21 @@
     card.appendChild(form);
 
     const actions = document.createElement("div");
-    actions.className = "goals-actions";
+    actions.className = "onboarding-actions";
 
     const pular = document.createElement("button");
     pular.type = "button";
     pular.className = "secondary-button";
+    pular.id = "onboarding-skip";
     pular.textContent = "Pular";
-
-    const depois = document.createElement("button");
-    depois.type = "button";
-    depois.className = "secondary-button";
-    depois.textContent = "Configurar depois";
 
     const salvar = document.createElement("button");
     salvar.type = "button";
     salvar.className = "primary-button";
+    salvar.id = "onboarding-save";
     salvar.textContent = "Salvar perfil";
 
-    actions.append(pular, depois, salvar);
+    actions.append(pular, salvar);
     card.appendChild(actions);
 
     container.appendChild(card);
@@ -598,14 +633,9 @@
     }
 
     pular.addEventListener("click", () => {
+      onboardingDismissed = true;
       hide();
       F.showToast("Você pode configurar seu perfil depois, em Perfil.", "info", 4500);
-    });
-
-    depois.addEventListener("click", () => {
-      hide();
-      F.flash("Configure seu perfil a qualquer momento em Perfil.");
-      F.navigate(F.url("perfil"));
     });
 
     salvar.addEventListener("click", () => {
@@ -634,32 +664,206 @@
     });
   }
 
-  function maybeShowOnboarding() {
-    if (onboardingShown) return;
+  function syncOnboardingVisibility() {
     const container = byId("onboarding-root");
     if (!container) return;
-    if (!isNewUser()) return;
-    onboardingShown = true;
-    renderOnboarding(container);
+
+    if (!isNewUser() || onboardingDismissed) {
+      container.hidden = true;
+      container.innerHTML = "";
+      return;
+    }
+
+    if (!container.querySelector(".onboarding-panel")) {
+      renderOnboarding(container);
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Sincronização externa (outras abas e restauração via BFCache)       */
+  /* ------------------------------------------------------------------ */
+
+  var lastHomeSignature = "";
+  var lastHomeDayKey = "";
+
+  function isHomeActive() {
+    return Boolean(byId("home-action") || byId("home-goals-content"));
+  }
+
+  function homeStorageSignature() {
+    if (!F.store || typeof F.store.readRaw !== "function") return "";
+    var keys = F.KEYS
+      ? [
+          F.KEYS.legacyExercises,
+          F.KEYS.routines,
+          F.KEYS.history,
+          F.KEYS.goals,
+          F.KEYS.rotation,
+          F.KEYS.profile,
+          F.KEYS.active
+        ]
+      : [];
+    var parts = keys.map(function (key) {
+      var raw = F.store.readRaw(key);
+      return key + "=" + (raw === null ? "" : raw);
+    });
+    if (typeof F.store.keys === "function" && F.MISSION_KEY_PATTERN) {
+      F.store.keys().forEach(function (key) {
+        if (F.MISSION_KEY_PATTERN.test(key)) {
+          var raw = F.store.readRaw(key);
+          parts.push(key + "=" + (raw === null ? "" : raw));
+        }
+      });
+    }
+    return parts.join("\n");
+  }
+
+  function refreshHomeSnapshotMeta() {
+    lastHomeSignature = homeStorageSignature();
+    lastHomeDayKey = F.dateKey ? F.dateKey(new Date()) : "";
+  }
+
+  function applyKeyUpdateToHome(key, options) {
+    if (!isHomeActive()) return;
+    var syncMemory = Boolean(options && options.syncMemory);
+
+    if (key === null || key === undefined) {
+      if (syncMemory && typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(null);
+      }
+      if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
+      if (typeof F.updateActiveBanner === "function") F.updateActiveBanner();
+      renderHome();
+      syncOnboardingVisibility();
+      refreshHomeSnapshotMeta();
+      return;
+    }
+
+    if (F.MISSION_KEY_PATTERN && F.MISSION_KEY_PATTERN.test(key)) {
+      if (typeof global.renderCalendar === "function") global.renderCalendar();
+      if (typeof global.renderMissions === "function") global.renderMissions();
+      refreshHomeSnapshotMeta();
+      return;
+    }
+
+    if (!F.KEYS) return;
+
+    if (key === F.KEYS.goals) {
+      if (syncMemory && typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(key);
+      }
+      renderGoals();
+      refreshHomeSnapshotMeta();
+      return;
+    }
+
+    if (key === F.KEYS.rotation) {
+      if (syncMemory && typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(key);
+      }
+      renderGreeting();
+      renderAction();
+      refreshHomeSnapshotMeta();
+      return;
+    }
+
+    if (key === F.KEYS.routines || key === F.KEYS.legacyExercises) {
+      if (syncMemory && typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(key);
+      }
+      if (typeof F.updateActiveBanner === "function") F.updateActiveBanner();
+      renderGreeting();
+      renderAction();
+      syncOnboardingVisibility();
+      refreshHomeSnapshotMeta();
+      return;
+    }
+
+    if (key === F.KEYS.history) {
+      if (syncMemory && typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(key);
+      }
+      renderGreeting();
+      renderAction();
+      renderWeek();
+      renderGoals();
+      renderRecent();
+      syncOnboardingVisibility();
+      refreshHomeSnapshotMeta();
+      return;
+    }
+
+    if (key === F.KEYS.active) {
+      if (syncMemory && typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(key);
+      }
+      if (typeof F.updateActiveBanner === "function") F.updateActiveBanner();
+      renderGreeting();
+      renderAction();
+      refreshHomeSnapshotMeta();
+      return;
+    }
+
+    if (key === F.KEYS.profile) {
+      if (syncMemory && typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(key);
+      }
+      syncOnboardingVisibility();
+      refreshHomeSnapshotMeta();
+    }
   }
 
   F.pages.inicio = function initInicio() {
     if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
     renderHome();
-    maybeShowOnboarding();
+    syncOnboardingVisibility();
+    refreshHomeSnapshotMeta();
   };
 
-  F.onDataChanged(renderHome);
+  F.onDataChanged(function () {
+    if (!isHomeActive()) return;
+    renderHome();
+    syncOnboardingVisibility();
+    refreshHomeSnapshotMeta();
+  });
+
   if (F.store && typeof F.store.onChange === "function") {
     F.store.onChange(function (key) {
-      if (F.KEYS && key === F.KEYS.goals && byId("home-goals-content")) renderGoals();
+      if (!key || !isHomeActive()) return;
+      applyKeyUpdateToHome(key, { syncMemory: true });
     });
   }
+
+  global.addEventListener("storage", function (event) {
+    if (!event || !isHomeActive()) return;
+    applyKeyUpdateToHome(event.key, { syncMemory: true });
+  });
+
+  global.addEventListener("pageshow", function (event) {
+    if (!isHomeActive()) return;
+    var currentSig = homeStorageSignature();
+    var currentDay = F.dateKey ? F.dateKey(new Date()) : "";
+    var persisted = Boolean(event && event.persisted);
+    var changed = currentSig !== lastHomeSignature || currentDay !== lastHomeDayKey;
+
+    if (!persisted && !changed) return;
+
+    if (changed && typeof F.syncStateFromStorage === "function") {
+      F.syncStateFromStorage(null);
+    }
+    if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
+    if (typeof F.updateActiveBanner === "function") F.updateActiveBanner();
+    renderHome();
+    syncOnboardingVisibility();
+    lastHomeSignature = currentSig;
+    lastHomeDayKey = currentDay;
+  });
 
   // Exposto para testes
   F.home = {
     renderAction: renderAction,
     renderWeek: renderWeek,
+    renderGoals: renderGoals,
     renderRecent: renderRecent,
     renderGreeting: renderGreeting,
     nextRoutine: nextRoutine,

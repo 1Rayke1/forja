@@ -1450,6 +1450,98 @@ await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #
   }
 });
 
+await check('Home estabilizada: onboarding compacto em 5 larguras, metas com unidades/modalidade, outra aba e pageshow', async () => {
+  const saved = await forjaRaw();
+  let otherTab = null;
+  try {
+    await restoreForjaRaw({});
+    await go('');
+
+    /* 1. Onboarding sem duplicação de botões, todos os 5 campos presentes e sem overflow em 320/360/390/768/1280 px. */
+    const onboardingButtons = await page.$$eval('#onboarding-root button', els => els.map(e => e.textContent.trim()));
+    assert.deepEqual(onboardingButtons, ['Pular', 'Salvar perfil'], 'Onboarding não deve duplicar Pular e Configurar depois');
+    assert.equal(await text('#home-onboarding-heading'), 'Seu perfil de treino');
+    assert.equal(await text('#home-action-heading'), 'Monte sua primeira rotina');
+    assert.equal(await page.$$eval('.home-action-title', els => els.length), 1, '.home-action-title deve ser único');
+
+    for (const width of [320, 360, 390, 768, 1280]) {
+      await page.setViewport({ width, height: 844 });
+      await sleep(100);
+      const metrics = await page.evaluate(() => {
+        const panel = document.querySelector('#onboarding-root .onboarding-panel');
+        const buttons = [...document.querySelectorAll('#onboarding-root button')];
+        return {
+          overflow: document.documentElement.scrollWidth - window.innerWidth,
+          panelHeight: panel ? Math.round(panel.getBoundingClientRect().height) : 0,
+          minButtonHeight: buttons.reduce((min, b) => Math.min(min, Math.round(b.getBoundingClientRect().height)), 999)
+        };
+      });
+      assert.ok(metrics.overflow <= 1, 'Overflow horizontal na Home a ' + width + 'px: ' + metrics.overflow);
+      assert.ok(metrics.panelHeight > 0 && metrics.panelHeight <= 440, 'Onboarding alto demais a ' + width + 'px: ' + metrics.panelHeight + 'px');
+      assert.ok(metrics.minButtonHeight >= 44, 'Botão do onboarding menor que 44px a ' + width + 'px');
+    }
+    await page.setViewport(MOBILE);
+
+    /* 2. Sincronização real entre duas abas do navegador (metas, histórico e rotinas). */
+    otherTab = await browser.newPage();
+    otherTab.on('pageerror', e => errors.push('otherTab pageerror: ' + e.message));
+    await otherTab.goto(new URL('progresso/', BASE).href, { waitUntil: 'networkidle0' });
+
+    await otherTab.evaluate(() => {
+      const now = new Date();
+      const date = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0')
+      ].join('-');
+      localStorage.setItem('forja-treino-metas-v1', JSON.stringify({
+        version: 1, updatedAt: now.toISOString(), modality: 'weights',
+        weeklySessions: 3, weeklySets: 12, weeklyMinutes: 60
+      }));
+      localStorage.setItem('forja-treino-historico-v1', JSON.stringify([{
+        id: 'tab2-h1', date, finishedAt: now.toISOString(), modality: 'weights',
+        routineName: 'Força A', durationMs: 15 * 60000, completedSets: 2, totalPlannedSets: 4,
+        status: 'completed', exercises: []
+      }]));
+      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({
+        calisthenics: [],
+        weights: [{
+          id: 'tab2-r1', name: 'Força A', modality: 'weights', createdAt: 1000, updatedAt: 1000,
+          sections: { warmup: [], main: [{ id: 'ex-1', name: 'Supino reto', sets: 3, type: 'reps', reps: '8', duration: 45, rest: 90, load: '40 kg', notes: '' }], abs: [], finisher: [] }
+        }]
+      }));
+    });
+
+    assert.ok(await waitFor(() => {
+      const goalsText = document.getElementById('home-goals-content')?.textContent || '';
+      return /Faltam 2 treinos/.test(goalsText) && /Faltam 10 séries/.test(goalsText) && /Faltam 45 min/.test(goalsText);
+    }), 'Home não refletiu metas/histórico gravados em outra aba');
+    assert.match(await text('#home-goals-period'), /Semana de .* · Musculação\.$/);
+    assert.equal(await text('#home-primary-button'), 'Iniciar Força A');
+    assert.equal(await page.$eval('#onboarding-root', el => el.hidden), true, 'Onboarding deveria fechar ao receber rotina/histórico');
+
+    /* 3. Simula restauração via BFCache (pageshow persisted: true) após mudança silenciosa no armazenamento. */
+    await page.evaluate(() => {
+      /* Altera o storage sem disparar StorageEvent e confirma que pageshow persisted sincroniza F.state e UI. */
+      const rawGoals = JSON.parse(localStorage.getItem('forja-treino-metas-v1'));
+      rawGoals.modality = 'calisthenics';
+      rawGoals.weeklySessions = 2;
+      rawGoals.weeklySets = 0;
+      rawGoals.weeklyMinutes = 0;
+      localStorage.setItem('forja-treino-metas-v1', JSON.stringify(rawGoals));
+      window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+    });
+    await sleep(80);
+    assert.equal(await page.evaluate(() => window.Forja.state.goals.modality), 'calisthenics');
+    assert.match(await text('#home-goals-period'), /Semana de .* · Calistenia\.$/);
+    assert.match(await text('#home-goals-content'), /Ainda sem progresso/);
+  } finally {
+    if (otherTab) await otherTab.close();
+    await go('perfil/');
+    await restoreForjaRaw(saved);
+  }
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });

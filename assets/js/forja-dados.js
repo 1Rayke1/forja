@@ -2421,6 +2421,222 @@ F.bootData = function bootData() {
   return F.state;
 };
 
+/*
+  Sincroniza `F.state` em memória a partir do armazenamento sem nunca gravar,
+  arquivar ou migrar chaves no disco. Usada por ouvintes de `storage`,
+  `pageshow` (BFCache) e mudanças externas: se um valor estiver ilegível, a
+  fatia correspondente volta ao vazio seguro em memória e o conteúdo original
+  no armazenamento permanece intocado.
+*/
+function readLegacyExercisesStateReadOnly() {
+  const stored = parseStorageValue(WORKOUT_EXERCISES_KEY);
+  if (!stored.exists) {
+    return {
+      corrupt: false,
+      data: { calisthenics: [], weights: [] }
+    };
+  }
+  if (stored.error || !isPlainObject(stored.value)) {
+    return {
+      corrupt: true,
+      data: { calisthenics: [], weights: [] }
+    };
+  }
+  return {
+    corrupt: false,
+    data: normalizeLegacyExercises(stored.value)
+  };
+}
+
+function readRoutinesReadOnly() {
+  const stored = parseStorageValue(WORKOUT_ROUTINES_KEY);
+
+  if (stored.exists) {
+    if (stored.error || !isPlainObject(stored.value)) {
+      return { calisthenics: [], weights: [] };
+    }
+    return normalizeRoutinesData(stored.value);
+  }
+
+  if (F.state.legacyExercisesCorrupt) {
+    return { calisthenics: [], weights: [] };
+  }
+
+  const hasLegacy = MODALITIES.some(mode => (F.state.legacyExercises[mode] || []).length > 0);
+  if (hasLegacy) {
+    return migrateLegacyExercisesToRoutines().routines;
+  }
+
+  return { calisthenics: [], weights: [] };
+}
+
+function readHistoryReadOnly() {
+  const stored = parseStorageValue(WORKOUT_HISTORY_KEY);
+  if (!stored.exists || stored.error || !Array.isArray(stored.value)) return [];
+  return stored.value.filter(isPlainObject);
+}
+
+function readLibraryReadOnly() {
+  const empty = { calisthenics: [], weights: [] };
+  const stored = parseStorageValue(WORKOUT_LIBRARY_KEY);
+  if (!stored.exists || stored.error || !isPlainObject(stored.value)) return empty;
+
+  const result = { calisthenics: [], weights: [] };
+  MODALITIES.forEach(mode => {
+    if (!Array.isArray(stored.value[mode])) return;
+    stored.value[mode].forEach(item => {
+      const normalized = normalizeLibraryItem(item, mode);
+      if (normalized) result[mode].push(normalized);
+    });
+  });
+  return result;
+}
+
+function readGoalsReadOnly() {
+  const stored = parseStorageValue(WORKOUT_GOALS_KEY);
+  if (!stored.exists || stored.error || !isPlainObject(stored.value)) {
+    return normalizeGoals(null);
+  }
+  return normalizeGoals(stored.value);
+}
+
+function readRotationReadOnly() {
+  const stored = parseStorageValue(WORKOUT_ROTATION_KEY);
+  if (!stored.exists || stored.error || !isPlainObject(stored.value)) {
+    return emptyRotation();
+  }
+  return normalizeRotation(stored.value);
+}
+
+function readProfileReadOnly() {
+  const stored = parseStorageValue(WORKOUT_PROFILE_KEY);
+  if (!stored.exists || stored.error || !isPlainObject(stored.value)) {
+    return normalizeProfile(null);
+  }
+  return normalizeProfile(stored.value);
+}
+
+function readActiveWorkoutReadOnly() {
+  const stored = parseStorageValue(WORKOUT_ACTIVE_KEY);
+  if (!stored.exists || stored.error || !isPlainObject(stored.value)) return null;
+
+  if (stored.value.version === 2) {
+    return normalizeSessionV2(stored.value);
+  }
+
+  return migrateLegacySession(stored.value);
+}
+
+function refreshStorageInfoReadOnly(targetKey) {
+  if (!isPlainObject(F.state.storageInfo)) {
+    F.state.storageInfo = {};
+  }
+
+  F.registry.list().forEach(spec => {
+    if (targetKey && spec.key !== targetKey) return;
+    const stored = parseStorageValue(spec.key);
+    F.state.storageInfo[spec.id] = {
+      key: spec.key,
+      label: spec.label,
+      exists: stored.exists,
+      corrupt: Boolean(stored.error)
+    };
+  });
+}
+
+function syncStateFromStorage(changedKey) {
+  const syncAll = changedKey === undefined || changedKey === null;
+
+  if (!syncAll) {
+    if (typeof changedKey !== "string") return false;
+    if (MISSION_KEY_PATTERN.test(changedKey) || changedKey === KEYS.safety) return true;
+  }
+
+  let handled = syncAll;
+  const activeLegacyNeedsContext = changedKey === WORKOUT_ACTIVE_KEY && (() => {
+    const activeStored = parseStorageValue(WORKOUT_ACTIVE_KEY);
+    return activeStored.exists &&
+      !activeStored.error &&
+      isPlainObject(activeStored.value) &&
+      activeStored.value.version !== 2;
+  })();
+
+  if (
+    syncAll ||
+    changedKey === WORKOUT_EXERCISES_KEY ||
+    changedKey === WORKOUT_ROUTINES_KEY ||
+    activeLegacyNeedsContext
+  ) {
+    const legacyState = readLegacyExercisesStateReadOnly();
+    F.state.legacyExercises = legacyState.data;
+    F.state.legacyExercisesCorrupt = legacyState.corrupt;
+    if (syncAll || changedKey === WORKOUT_EXERCISES_KEY) handled = true;
+  }
+
+  if (
+    syncAll ||
+    changedKey === WORKOUT_ROUTINES_KEY ||
+    changedKey === WORKOUT_EXERCISES_KEY ||
+    activeLegacyNeedsContext
+  ) {
+    F.state.routines = readRoutinesReadOnly();
+    if (syncAll || changedKey === WORKOUT_ROUTINES_KEY || changedKey === WORKOUT_EXERCISES_KEY) {
+      handled = true;
+    }
+  }
+
+  if (syncAll || changedKey === WORKOUT_HISTORY_KEY) {
+    F.state.history = readHistoryReadOnly();
+    handled = true;
+  }
+
+  if (syncAll || changedKey === WORKOUT_LIBRARY_KEY) {
+    F.state.library = readLibraryReadOnly();
+    handled = true;
+  }
+
+  if (syncAll || changedKey === WORKOUT_PREFERENCES_KEY) {
+    F.state.preferences = loadPreferences();
+    handled = true;
+  }
+
+  if (syncAll || changedKey === WORKOUT_GOALS_KEY) {
+    F.state.goals = readGoalsReadOnly();
+    handled = true;
+  }
+
+  if (syncAll || changedKey === WORKOUT_ROTATION_KEY) {
+    F.state.rotation = readRotationReadOnly();
+    handled = true;
+  }
+
+  if (syncAll || changedKey === WORKOUT_PROFILE_KEY) {
+    F.state.profile = readProfileReadOnly();
+    handled = true;
+  }
+
+  if (
+    syncAll ||
+    changedKey === WORKOUT_ACTIVE_KEY ||
+    changedKey === WORKOUT_ROUTINES_KEY ||
+    changedKey === WORKOUT_EXERCISES_KEY
+  ) {
+    F.state.activeWorkout = readActiveWorkoutReadOnly();
+    handled = true;
+  }
+
+  if (syncAll) {
+    refreshStorageInfoReadOnly(null);
+  } else if (F.registry.byKey(changedKey)) {
+    refreshStorageInfoReadOnly(changedKey);
+    handled = true;
+  }
+
+  return handled;
+}
+
+F.syncStateFromStorage = syncStateFromStorage;
+
 F.saveRoutines = function saveRoutines() {
   const ok = saveJSON(WORKOUT_ROUTINES_KEY, F.state.routines);
   if (ok) F.store.notifyChanged(WORKOUT_ROUTINES_KEY);
