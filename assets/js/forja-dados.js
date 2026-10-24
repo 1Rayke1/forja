@@ -1601,6 +1601,67 @@ function validateLibraryStore(value) {
       if (typeof item.name !== "string" || !item.name.trim()) {
         throw new Error("Um exercício personalizado de " + MODE_NAMES[mode] + " está sem nome.");
       }
+
+      const where = "biblioteca personalizada de " + MODE_NAMES[mode] +
+        " (exercício \"" + item.name.trim().slice(0, 40) + "\")";
+
+      /*
+        Mesmas regras estruturais dos exercícios de rotina e de sessão
+        (séries, tipo, descanso, duração, medição, distância e listas):
+        biblioteca personalizada guarda o mesmo formato de exercício, então
+        reutiliza `assertExerciseShape` em vez de duplicar limites.
+      */
+      assertExerciseShape(item, where);
+
+      /*
+        Campos próprios da biblioteca que `assertExerciseShape` não conhece e
+        que `normalizeLibraryItem` corrigiria em silêncio na leitura: seção e
+        unidade desconhecidas, identificador quebrado e textos/listas acima
+        do limite que a normalização truncaria. Backup inválido é rejeitado
+        aqui, antes da importação — nunca aceito para ser alterado depois.
+      */
+      if (item.section !== undefined && !SECTION_NAMES[item.section]) {
+        throw new Error("Exercício com seção desconhecida em " + where + ".");
+      }
+
+      if (item.distanceUnit !== undefined &&
+        item.distanceUnit !== "m" && item.distanceUnit !== "km") {
+        throw new Error("Exercício com unidade de distância inválida em " + where + ".");
+      }
+
+      if (item.id !== undefined && (typeof item.id !== "string" || !item.id)) {
+        throw new Error("Exercício com identificador inválido em " + where + ".");
+      }
+
+      const textLimits = [
+        ["name", 100, "nome"],
+        ["reps", 30, "repetições"],
+        ["load", 50, "carga"],
+        ["notes", 300, "observações"],
+        ["category", 40, "categoria"],
+        ["instructions", 600, "instruções"]
+      ];
+
+      textLimits.forEach(([field, limit, label]) => {
+        if (typeof item[field] === "string" && item[field].length > limit) {
+          throw new Error("Exercício com " + label + " acima de " + limit +
+            " caracteres em " + where + ".");
+        }
+      });
+
+      ["muscles", "equipment"].forEach(field => {
+        if (!Array.isArray(item[field])) return;
+
+        if (item[field].length > 6) {
+          throw new Error("Exercício com lista de " + field + " acima de 6 itens em " +
+            where + ".");
+        }
+
+        if (item[field].some(entry => typeof entry === "string" && entry.trim().length > 28)) {
+          throw new Error("Exercício com item de " + field + " acima de 28 caracteres em " +
+            where + ".");
+        }
+      });
     });
   });
 
@@ -1939,6 +2000,60 @@ function reconcileRotationAfterDelete(oldStartableList, wasSelected, deletedRout
       ? null
       : currentRotation.lastModality,
     previousState: null,
+    updatedAt: Date.now()
+  });
+}
+
+/*
+  Quando rotinas mudam sem exclusão (editar, esvaziar, voltar a ter
+  exercícios, duplicar, adicionar exercício pela biblioteca), a próxima
+  rotina exibida continua saindo de `resolveNextRoutine()` — mas os
+  ponteiros gravados podem ficar apontando para uma rotina que não é mais
+  iniciável, ou deixar de refletir a exibida. Esta reconciliação reescreve
+  somente os ponteiros que divergirem da resolução atual:
+
+  - `nextRoutineId`/`nextModality` passam a ser exatamente a rotina que
+    `resolveNextRoutine()` apresenta (ou `null` quando nada é iniciável);
+  - `overrideRoutineId` só é mantido enquanto a rotina fixada continuar
+    iniciável (ao esvaziá-la, a fixação cai junto);
+  - `lastRoutineId`/`lastModality` e `previousState` são preservados: o que
+    foi treinado por último não muda porque uma rotina esvaziou, e o estado
+    anterior continua disponível para desfazer o avanço ao descartar uma
+    sessão recém-iniciada.
+
+  Sem divergência, nada é gravado. Abrir ou recarregar telas nunca chama
+  esta função — só mutações explícitas de rotinas.
+*/
+function reconcileRotationAfterRoutineChange() {
+  const startable = getStartableRoutines();
+  const displayed = resolveNextRoutine();
+  const current = F.state && isPlainObject(F.state.rotation)
+    ? F.state.rotation
+    : emptyRotation();
+
+  const overrideId = current.overrideRoutineId &&
+    startable.some(item => item.id === current.overrideRoutineId)
+    ? current.overrideRoutineId
+    : null;
+  const nextId = displayed ? displayed.id : null;
+  const nextModality = displayed ? displayed.modality : null;
+
+  if (
+    current.overrideRoutineId === overrideId &&
+    current.nextRoutineId === nextId &&
+    current.nextModality === nextModality
+  ) {
+    return false;
+  }
+
+  return saveRotation({
+    version: 1,
+    overrideRoutineId: overrideId,
+    nextRoutineId: nextId,
+    nextModality,
+    lastRoutineId: current.lastRoutineId,
+    lastModality: current.lastModality,
+    previousState: current.previousState,
     updatedAt: Date.now()
   });
 }
@@ -2671,6 +2786,7 @@ Object.assign(F, {
   advanceRotation,
   rollbackDiscardedRotation,
   reconcileRotationAfterDelete,
+  reconcileRotationAfterRoutineChange,
   exerciseTarget,
   exercisePlannedLoadKg,
   parseLoadKg,

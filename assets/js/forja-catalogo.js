@@ -876,6 +876,15 @@
 
     if (result.action !== "add") return;
 
+    /*
+      Relê as rotinas gravadas antes de mutar (somente leitura): se outra aba
+      mexeu nelas enquanto o modal estava aberto, a adição vale sobre o estado
+      fresco — nunca sobre o snapshot que esta aba carregou.
+    */
+    if (typeof F.syncStateFromStorage === "function" && F.KEYS) {
+      F.syncStateFromStorage(F.KEYS.routines);
+    }
+
     const routine = (F.state.routines[record.mode] || []).find(item => item.id === result.values.routine);
 
     if (!routine) {
@@ -901,6 +910,11 @@
       F.state.routines = previous;
       F.showToast("O navegador recusou a gravação. Nenhuma rotina foi alterada.", "error", 6000);
       return;
+    }
+
+    /* Adicionar a uma rotina vazia a torna iniciável: a rotação acompanha. */
+    if (typeof F.reconcileRotationAfterRoutineChange === "function") {
+      F.reconcileRotationAfterRoutineChange();
     }
 
     F.ui.announce(record.name + " adicionado em " + routine.name + ", seção " + F.SECTION_NAMES[targetSection] + ".");
@@ -1114,6 +1128,29 @@
     mount();
     update();
     F.onDataChanged(() => update());
+
+    /*
+      Outra aba pode mudar rotinas, biblioteca ou histórico: sincroniza só a
+      memória (sem gravar nada) e redesenha a lista com os dados frescos.
+    */
+    const watchedKeys = F.KEYS
+      ? [F.KEYS.routines, F.KEYS.library, F.KEYS.legacyExercises, F.KEYS.history, F.KEYS.active]
+      : [];
+    global.addEventListener("storage", event => {
+      if (!event) return;
+      if (event.key !== null && watchedKeys.indexOf(event.key) === -1) return;
+      if (typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(event.key);
+      }
+      update();
+    });
+    global.addEventListener("pageshow", event => {
+      if (!event || !event.persisted) return;
+      if (typeof F.syncStateFromStorage === "function") {
+        F.syncStateFromStorage(null);
+      }
+      update();
+    });
 
     /* `?exercicio=<id>` abre o detalhe depois que a lista está montada.
        Sem esse parâmetro (ex.: `?musculo=peito` vindo do atlas), nada abre. */

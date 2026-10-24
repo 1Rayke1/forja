@@ -1051,6 +1051,233 @@ await runTest("30. Editor: metadados do exercício personalizado chegam à bibli
 });
 
 /*
+  Stage 2A (C1/C2): editar um exercício não pode apagar os metadados que o
+  formulário não edita, e adicionar pela busca rápida do editor precisa
+  produzir a mesma estrutura da adição pela página completa da biblioteca.
+*/
+await runTest("30b. Editor: editar exercício preserva measure, distance, libraryId e instructions após salvar e recarregar", async () => {
+  /* Exercício de distância (formato 3) com origem na biblioteca. */
+  const distanceRoutine = {
+    id: "rot-dist",
+    name: "Condicionamento",
+    modality: "weights",
+    createdAt: 1,
+    updatedAt: 1,
+    sections: {
+      warmup: [],
+      main: [],
+      abs: [],
+      finisher: [{
+        id: "ex-run",
+        name: "Corrida 400 m",
+        sets: 1,
+        type: "reps",
+        reps: "400 m",
+        duration: 45,
+        rest: 0,
+        load: "",
+        notes: "",
+        section: "finisher",
+        measure: "distance",
+        distance: 400,
+        distanceUnit: "m",
+        libraryId: "lib-corrida-400",
+        instructions: "Manter o ritmo constante até o fim."
+      }]
+    }
+  };
+
+  const app = await boot(
+    { "forja-treino-rotinas-v1": routinesStore([], [distanceRoutine]) },
+    "treino/rotina.html?modalidade=weights&id=rot-dist"
+  );
+  await wait(20);
+
+  /* Edita só campos do formulário (nome e séries); o resto não é editável. */
+  const row = app.$$('[data-section-list="finisher"] .editor-exercise')[0];
+  assert.ok(row, "Exercício de distância não apareceu no editor");
+  app.click(row.querySelectorAll(".exercise-tools .icon-button")[2]);
+  await wait(15);
+  app.$("#exercise-name").value = "Corrida 400 m editada";
+  app.$("#exercise-sets").value = "3";
+  app.$("#exercise-form").dispatchEvent(new app.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+  app.click("#save-routine-top");
+  await wait(20);
+
+  let saved = app.data("forja-treino-rotinas-v1").weights[0].sections.finisher[0];
+  assert.equal(saved.name, "Corrida 400 m editada", "Campo editável (nome) não foi alterado");
+  assert.equal(saved.sets, 3, "Campo editável (séries) não foi alterado");
+  assert.equal(saved.measure, "distance", "Editar apagou a medição de distância");
+  assert.equal(saved.distance, 400, "Editar apagou a distância");
+  assert.equal(saved.distanceUnit, "m", "Editar apagou a unidade de distância");
+  assert.equal(saved.libraryId, "lib-corrida-400", "Editar apagou a origem na biblioteca");
+  assert.equal(saved.instructions, "Manter o ritmo constante até o fim.", "Editar apagou as instruções");
+
+  /* Recarregar (boot + normalização) não pode corromper nem reescrever o exercício. */
+  const rawBeforeReload = app.raw("forja-treino-rotinas-v1");
+  await app.reload();
+  await wait(20);
+  assert.equal(app.raw("forja-treino-rotinas-v1"), rawBeforeReload, "Recarregar reescreveu as rotinas");
+  saved = app.F.state.routines.weights[0].sections.finisher[0];
+  assert.equal(saved.measure, "distance", "Normalização perdeu a medição após recarregar");
+  assert.equal(saved.distance, 400, "Normalização perdeu a distância após recarregar");
+  assert.equal(saved.libraryId, "lib-corrida-400", "Normalização perdeu o libraryId após recarregar");
+  assert.equal(saved.instructions, "Manter o ritmo constante até o fim.");
+  assertNoErrors(app, "editar exercício de distância");
+  app.close();
+
+  /* Exercício vindo do catálogo sugerido: editar repetições mantém origem e instruções. */
+  const suggestedRoutine = {
+    id: "rot-sug",
+    name: "Base sugerida",
+    modality: "calisthenics",
+    createdAt: 1,
+    updatedAt: 1,
+    sections: {
+      warmup: [],
+      main: [{
+        id: "ex-agach",
+        name: "Agachamento livre",
+        sets: 4,
+        type: "reps",
+        reps: "15",
+        duration: 45,
+        rest: 60,
+        load: "",
+        notes: "",
+        section: "main",
+        measure: "reps",
+        distance: null,
+        distanceUnit: "m",
+        libraryId: "cal-agachamento",
+        instructions: "Pés na largura dos ombros, desça o quadril para trás."
+      }],
+      abs: [],
+      finisher: []
+    }
+  };
+
+  const app2 = await boot(
+    { "forja-treino-rotinas-v1": routinesStore([suggestedRoutine], []) },
+    "treino/rotina.html?modalidade=calisthenics&id=rot-sug"
+  );
+  await wait(20);
+
+  const row2 = app2.$$('[data-section-list="main"] .editor-exercise')[0];
+  app2.click(row2.querySelectorAll(".exercise-tools .icon-button")[2]);
+  await wait(15);
+  app2.$("#exercise-reps").value = "18";
+  app2.$("#exercise-form").dispatchEvent(new app2.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+  app2.click("#save-routine-top");
+  await wait(20);
+
+  const saved2 = app2.data("forja-treino-rotinas-v1").calisthenics[0].sections.main[0];
+  assert.equal(saved2.reps, "18", "Campo editável (repetições) não foi alterado");
+  assert.equal(saved2.libraryId, "cal-agachamento", "Editar apagou o libraryId do exercício sugerido");
+  assert.equal(saved2.instructions, "Pés na largura dos ombros, desça o quadril para trás.", "Editar apagou as instruções do exercício sugerido");
+  assertNoErrors(app2, "editar exercício sugerido");
+  app2.close();
+});
+
+await runTest("30c. Biblioteca no editor: busca rápida e ?exercicio= preservam libraryId e instructions (sugerido e personalizado)", async () => {
+  const customLibrary = {
+    calisthenics: [{
+      id: "lib-remada-mesa",
+      name: "Remada na mesa",
+      type: "reps",
+      sets: 3,
+      reps: "10",
+      duration: 45,
+      rest: 60,
+      section: "main",
+      load: "",
+      notes: "",
+      measure: "reps",
+      distance: null,
+      distanceUnit: "m",
+      category: "pull",
+      muscles: ["dorsais"],
+      equipment: ["mesa"],
+      instructions: "Puxe o peito até a borda da mesa.",
+      createdAt: 1,
+      updatedAt: 1
+    }],
+    weights: []
+  };
+  const routine = makeRoutine("calisthenics", "Busca rápida", [], "busca-rapida");
+  const seed = {
+    "forja-treino-rotinas-v1": routinesStore([routine], []),
+    "forja-treino-biblioteca-v1": customLibrary
+  };
+
+  const app = await boot(seed, "treino/rotina.html?modalidade=calisthenics&id=busca-rapida");
+  await wait(20);
+
+  const expectedSuggested = app.F.catalog.items("calisthenics")
+    .find(record => record.libraryId === "cal-agachamento");
+  assert.ok(expectedSuggested, "Catálogo não tem o exercício sugerido de referência");
+  assert.ok(expectedSuggested.instructions.length > 0, "Sugerido de referência deveria ter instruções no catálogo");
+
+  app.click("#library-toggle");
+  await wait(10);
+
+  function addByName(name) {
+    const itemRow = app.$$(".library-item")
+      .find(entry => entry.textContent.includes(name));
+    assert.ok(itemRow, "Item não encontrado na busca rápida: " + name);
+    const addButton = Array.from(itemRow.querySelectorAll("button"))
+      .find(button => button.textContent.trim() === "Adicionar");
+    assert.ok(addButton, "Botão Adicionar não encontrado para: " + name);
+    addButton.click();
+  }
+
+  addByName("Agachamento livre");
+  await wait(15);
+  addByName("Remada na mesa");
+  await wait(15);
+  assert.equal(app.data("forja-treino-rotinas-v1").calisthenics[0].sections.main.length, 0,
+    "Adicionar pela biblioteca não pode gravar antes de salvar a rotina");
+
+  app.click("#save-routine-top");
+  await wait(20);
+
+  const storedMain = app.data("forja-treino-rotinas-v1").calisthenics[0].sections.main;
+  const suggestedCopy = storedMain.find(exercise => exercise.name === "Agachamento livre");
+  assert.ok(suggestedCopy, "Exercício sugerido não entrou na rotina pela busca rápida");
+  assert.match(suggestedCopy.id, /^exercise-/, "A cópia da busca rápida precisa de id novo");
+  assert.equal(suggestedCopy.libraryId, "cal-agachamento", "Busca rápida não registrou o libraryId do sugerido");
+  assert.equal(suggestedCopy.instructions, expectedSuggested.instructions, "Busca rápida não trouxe as instruções do sugerido");
+
+  const customCopy = storedMain.find(exercise => exercise.name === "Remada na mesa");
+  assert.ok(customCopy, "Exercício personalizado não entrou na rotina pela busca rápida");
+  assert.match(customCopy.id, /^exercise-/, "A cópia do personalizado precisa de id novo");
+  assert.notEqual(customCopy.id, "lib-remada-mesa", "A cópia não pode reusar o id da biblioteca");
+  assert.equal(customCopy.libraryId, "lib-remada-mesa", "Busca rápida não registrou o libraryId do personalizado");
+  assert.equal(customCopy.instructions, "Puxe o peito até a borda da mesa.", "Busca rápida perdeu as instruções do personalizado");
+  assertNoErrors(app, "busca rápida da biblioteca");
+  app.close();
+
+  /* ?exercicio= (fluxo "Criar rotina agora" da biblioteca) monta o mesmo exercício. */
+  const preloaded = await boot(seed, "treino/rotina.html?modalidade=calisthenics&exercicio=cal-agachamento");
+  await wait(20);
+  assert.equal(preloaded.$$(".editor-exercise").length, 1, "Pré-carregamento não montou o exercício no rascunho");
+  assert.equal(preloaded.data("forja-treino-rotinas-v1").calisthenics.length, 1, "Rascunho pré-carregado gravou antes de salvar");
+  preloaded.click("#save-routine-top");
+  await wait(20);
+
+  const preloadedStored = preloaded.data("forja-treino-rotinas-v1").calisthenics
+    .map(entry => entry.sections.main).flat()
+    .find(exercise => exercise.name === "Agachamento livre");
+  assert.ok(preloadedStored, "Exercício pré-carregado não foi salvo");
+  assert.equal(preloadedStored.libraryId, "cal-agachamento", "?exercicio= não registrou o libraryId");
+  assert.ok(preloadedStored.instructions.length > 0, "?exercicio= não trouxe as instruções");
+  assertNoErrors(preloaded, "pré-carregamento ?exercicio=");
+  preloaded.close();
+});
+
+/*
   Execução (etapa 4): carga, distância, correção de série, ajuste do descanso
   e resumo com volume real. A rotina abaixo cobre os três tipos de medição.
 */
@@ -2996,6 +3223,501 @@ await runTest("59. Compatibilidade com dados legados (v1/v2) e backups v1/v2/v3 
   assert.equal(undoneHome.text("#home-primary-button"), "Iniciar Treino Base 1");
   undoneHome.close();
   perfil.close();
+});
+
+/* ------------------------------------------------------------------ */
+/* Stage 2B — C3 (sincronização entre abas), C4 (nomes duplicados) e   */
+/* C5 (rotação coerente ao esvaziar/reabastecer/duplicar)              */
+/* ------------------------------------------------------------------ */
+
+await runTest("59b. C3: telas de treino e biblioteca sincronizam com outra aba/BFCache sem gravar nada", async () => {
+  const rA = buildRotationRoutine({ id: "sync-a", name: "Rotina Sync A", exercises: [buildRotationExercise("Flexão")] });
+  const seed = { "forja-treino-rotinas-v1": routinesStore([rA], []) };
+
+  const app = await boot(seed, "treino/calistenia.html");
+  await wait(20);
+  assert.equal(app.$$(".routine-card").length, 1);
+  let expectedWrites = 0;
+
+  function externalWrite(key, value) {
+    app.w.localStorage.setItem(key, JSON.stringify(value));
+    expectedWrites += 1;
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: JSON.stringify(value) }));
+  }
+
+  /* Outra aba cria uma rotina: a lista aberta atualiza sem recarregar. */
+  const rB = buildRotationRoutine({ id: "sync-b", name: "Rotina Sync B", exercises: [buildRotationExercise("Barra fixa")] });
+  externalWrite("forja-treino-rotinas-v1", routinesStore([rA, rB], []));
+  await wait(20);
+  assert.equal(app.F.state.routines.calisthenics.length, 2, "F.state não sincronizou com o evento storage");
+  assert.equal(app.$$(".routine-card").length, 2, "A lista não redesenhou após o evento storage");
+  assert.match(app.text("#routine-list"), /Rotina Sync B/);
+
+  /* Retorno via BFCache (pageshow persisted) sem evento storage: relê e redesenha. */
+  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA], [])));
+  expectedWrites += 1;
+  const bfShow = new app.w.Event("pageshow");
+  bfShow.persisted = true;
+  app.w.dispatchEvent(bfShow);
+  await wait(20);
+  assert.equal(app.$$(".routine-card").length, 1, "O retorno BFCache não redesenhou a lista");
+
+  /* pageshow comum (persisted: false) não dispara sincronização nem gravação. */
+  const normalShow = new app.w.Event("pageshow");
+  normalShow.persisted = false;
+  app.w.dispatchEvent(normalShow);
+  await wait(10);
+
+  assert.equal(app.storageWrites.length, expectedWrites,
+    "Sincronizar não pode gravar: " + JSON.stringify(app.storageWrites));
+  assertNoErrors(app, "sincronização em calistenia");
+  app.close();
+
+  /* A biblioteca também acompanha: rotina criada fora vira destino válido. */
+  const cat = await boot(seed, "treino/biblioteca.html");
+  await wait(20);
+  cat.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA, rB], [])));
+  cat.w.dispatchEvent(new cat.w.StorageEvent("storage", {
+    key: "forja-treino-rotinas-v1",
+    newValue: JSON.stringify(routinesStore([rA, rB], []))
+  }));
+  await wait(20);
+  assert.equal(cat.F.state.routines.calisthenics.length, 2, "A biblioteca não sincronizou as rotinas");
+  assertNoErrors(cat, "sincronização na biblioteca");
+  cat.close();
+});
+
+await runTest("59c. C3: editor não sobrescreve mudança externa na mesma rotina e preserva mudanças em outras", async () => {
+  const rX = buildRotationRoutine({ id: "conf-x", name: "Rotina X", exercises: [buildRotationExercise("Flexão", { sets: 3 })] });
+  const rY = buildRotationRoutine({ id: "conf-y", name: "Rotina Y", exercises: [buildRotationExercise("Prancha", { sets: 2 })] });
+  const seed = { "forja-treino-rotinas-v1": routinesStore([rX, rY], []) };
+
+  /* 1. A mesma rotina muda em outra aba: salvar é abortado e nada é sobrescrito. */
+  const app = await boot(seed, "treino/rotina.html?modalidade=calisthenics&id=conf-x");
+  await wait(20);
+
+  const externalX = buildRotationRoutine({ id: "conf-x", name: "Versão da outra aba", exercises: [buildRotationExercise("Flexão", { sets: 9 })] });
+  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([externalX, rY], [])));
+  app.w.dispatchEvent(new app.w.StorageEvent("storage", {
+    key: "forja-treino-rotinas-v1",
+    newValue: JSON.stringify(routinesStore([externalX, rY], []))
+  }));
+  await wait(20);
+
+  app.$("#routine-name-input").value = "Edição local";
+  app.$("#routine-name-input").dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  app.click("#save-routine-top");
+  await wait(25);
+
+  assert.match(app.text("#toast"), /outra aba/, "O conflito deveria ser avisado");
+  const afterConflict = app.data("forja-treino-rotinas-v1");
+  assert.equal(afterConflict.calisthenics[0].name, "Versão da outra aba", "O salvamento sobrescreveu a versão externa");
+  assert.equal(afterConflict.calisthenics[0].sections.main[0].sets, 9, "O exercício externo foi sobrescrito");
+  assert.equal(app.$("#routine-name-input").value, "Edição local", "O rascunho local deve continuar aberto para o usuário decidir");
+  assertNoErrors(app, "conflito no editor");
+  app.close();
+
+  /* 2. Só outra rotina muda lá fora: salvar vale sobre o estado fresco e preserva a mudança. */
+  const app2 = await boot(seed, "treino/rotina.html?modalidade=calisthenics&id=conf-x");
+  await wait(20);
+
+  const externalY = buildRotationRoutine({ id: "conf-y", name: "Rotina Y externa", exercises: [buildRotationExercise("Prancha", { sets: 7 })] });
+  app2.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rX, externalY], [])));
+  app2.w.dispatchEvent(new app2.w.StorageEvent("storage", {
+    key: "forja-treino-rotinas-v1",
+    newValue: JSON.stringify(routinesStore([rX, externalY], []))
+  }));
+  await wait(20);
+
+  app2.$("#routine-name-input").value = "Rotina X editada";
+  app2.$("#routine-name-input").dispatchEvent(new app2.w.Event("input", { bubbles: true }));
+  app2.click("#save-routine-top");
+  await wait(25);
+
+  const merged = app2.data("forja-treino-rotinas-v1");
+  assert.equal(merged.calisthenics.find(item => item.id === "conf-x").name, "Rotina X editada", "A edição local não foi salva");
+  assert.equal(merged.calisthenics.find(item => item.id === "conf-y").name, "Rotina Y externa", "A mudança externa em outra rotina foi perdida");
+  assert.equal(merged.calisthenics.find(item => item.id === "conf-y").sections.main[0].sets, 7);
+  assertNoErrors(app2, "salvamento sobre estado fresco");
+  app2.close();
+});
+
+await runTest("59d. C4: nomes duplicados de rotina e de exercício personalizado são bloqueados sem corrigir dados antigos", async () => {
+  const rA = buildRotationRoutine({ id: "dup-a", name: "Treino A", exercises: [buildRotationExercise("Flexão")] });
+  const rB = buildRotationRoutine({ id: "dup-b", name: "Treino B", exercises: [buildRotationExercise("Barra fixa")] });
+  const seed = { "forja-treino-rotinas-v1": routinesStore([rA, rB], []) };
+
+  /* Criar com mesmo nome (espaços + caixa diferentes) na mesma modalidade: bloqueado. */
+  const createApp = await boot(seed, "treino/calistenia.html");
+  createApp.click("#new-routine");
+  await wait(15);
+  await createApp.modal("create", { name: "  treino a  " });
+  await wait(20);
+  assert.equal(createApp.d.body.dataset.page, "calistenia", "Criação duplicada não deveria navegar ao editor");
+  assert.equal(createApp.data("forja-treino-rotinas-v1").calisthenics.length, 2, "Criação duplicada gravou uma rotina");
+  /* C7: o erro aparece inline no campo, com o modal ainda aberto (sem toast). */
+  assert.match(createApp.text('[data-modal-error="name"]'), /Já existe uma rotina chamada/);
+  assert.ok(createApp.$(".modal-backdrop"), "Modal fechou diante de nome duplicado");
+  createApp.modalAction("cancel");
+  await wait(15);
+  createApp.close();
+
+  /* O mesmo nome em outra modalidade continua permitido. */
+  const otherMode = await boot(seed, "treino/musculacao.html");
+  otherMode.click("#new-routine");
+  await wait(15);
+  await otherMode.modal("create", { name: "Treino A" });
+  await pageIs(otherMode, "rotina");
+  assert.equal(otherMode.data("forja-treino-rotinas-v1").weights.length, 1, "Mesmo nome em outra modalidade deveria ser aceito");
+  otherMode.close();
+
+  /* Renomear para nome duplicado: bloqueado e o nome gravado não muda. */
+  const renameApp = await boot(seed, "treino/calistenia.html");
+  const cardB = renameApp.$$(".routine-card")[1];
+  Array.from(cardB.querySelectorAll("button")).find(button => button.textContent.trim() === "Renomear").click();
+  await wait(20);
+  await renameApp.modal("rename", { name: "TREINO A" });
+  await wait(20);
+  assert.equal(renameApp.data("forja-treino-rotinas-v1").calisthenics[1].name, "Treino B", "Renomear duplicado alterou o nome gravado");
+  /* C7: o erro aparece inline no campo, com o modal ainda aberto (sem toast). */
+  assert.match(renameApp.text('[data-modal-error="name"]'), /Já existe uma rotina chamada/);
+  assert.ok(renameApp.$(".modal-backdrop"), "Modal fechou diante de nome duplicado");
+  renameApp.modalAction("cancel");
+  await wait(15);
+  renameApp.close();
+
+  /* Salvar pelo editor com nome duplicado: bloqueado; nome de outra modalidade: aceito. */
+  const weightsNamed = buildRotationRoutine({ id: "dup-w", name: "Força Total", modality: "weights", exercises: [buildRotationExercise("Supino")] });
+  const editorSeed = { "forja-treino-rotinas-v1": routinesStore([rA, rB], [weightsNamed]) };
+  const editorApp = await boot(editorSeed, "treino/rotina.html?modalidade=calisthenics&id=dup-b");
+  await wait(20);
+  editorApp.$("#routine-name-input").value = " treino a ";
+  editorApp.$("#routine-name-input").dispatchEvent(new editorApp.w.Event("input", { bubbles: true }));
+  editorApp.click("#save-routine-top");
+  await wait(20);
+  assert.match(editorApp.text("#toast"), /Já existe uma rotina chamada/);
+  assert.equal(editorApp.data("forja-treino-rotinas-v1").calisthenics[1].name, "Treino B", "Salvar duplicado alterou o nome gravado");
+
+  editorApp.$("#routine-name-input").value = "Força Total";
+  editorApp.$("#routine-name-input").dispatchEvent(new editorApp.w.Event("input", { bubbles: true }));
+  editorApp.click("#save-routine-top");
+  await wait(20);
+  assert.equal(editorApp.data("forja-treino-rotinas-v1").calisthenics[1].name, "Força Total", "Nome igual só em outra modalidade deveria salvar");
+  editorApp.close();
+
+  /* Exercício personalizado duplicado na mesma modalidade: avisado antes de cadastrar. */
+  const libApp = await boot(seed, "treino/rotina.html?modalidade=calisthenics&id=dup-a");
+  await wait(20);
+  libApp.click("#custom-toggle");
+  await wait(10);
+  libApp.$("#custom-name").value = "Escalada no muro";
+  libApp.$("#custom-sets").value = "3";
+  libApp.$("#custom-rest").value = "45";
+  libApp.$("#custom-form").dispatchEvent(new libApp.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+  assert.equal(libApp.data("forja-treino-biblioteca-v1").calisthenics.length, 1);
+
+  libApp.click("#custom-toggle");
+  await wait(10);
+  libApp.$("#custom-name").value = "  ESCALADA NO MURO ";
+  libApp.$("#custom-sets").value = "3";
+  libApp.$("#custom-rest").value = "45";
+  libApp.$("#custom-form").dispatchEvent(new libApp.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+  assert.equal(libApp.data("forja-treino-biblioteca-v1").calisthenics.length, 1, "Personalizado duplicado foi cadastrado");
+  assert.match(libApp.text("#toast"), /Você já tem um exercício chamado/);
+  libApp.close();
+
+  /* Dados antigos já duplicados: nada é renomeado sozinho e a rotina continua salvável mantendo o nome. */
+  const legacyDup1 = buildRotationRoutine({ id: "leg-dup-1", name: "Treino A", exercises: [buildRotationExercise("Flexão")] });
+  const legacyDup2 = buildRotationRoutine({ id: "leg-dup-2", name: "Treino A", exercises: [buildRotationExercise("Barra fixa")] });
+  const legacyApp = await boot(
+    { "forja-treino-rotinas-v1": routinesStore([legacyDup1, legacyDup2], []) },
+    "treino/rotina.html?modalidade=calisthenics&id=leg-dup-2"
+  );
+  await wait(20);
+  legacyApp.click("#save-routine-top");
+  await wait(20);
+  const legacyStored = legacyApp.data("forja-treino-rotinas-v1");
+  assert.equal(legacyStored.calisthenics.length, 2, "Rotinas antigas duplicadas devem ser preservadas");
+  assert.deepEqual(legacyStored.calisthenics.map(item => item.name), ["Treino A", "Treino A"], "Nomes antigos não podem ser corrigidos automaticamente");
+  assertNoErrors(legacyApp, "duplicidade legada");
+  legacyApp.close();
+});
+
+await runTest("59e. C5: esvaziar, reabastecer e duplicar mantêm rotação persistida igual à próxima exibida", async () => {
+  const rA = buildRotationRoutine({ id: "rot-a", name: "Treino A", exercises: [buildRotationExercise("Flexão", { sets: 1, rest: 0 })] });
+  const rB = buildRotationRoutine({ id: "rot-b", name: "Treino B", exercises: [buildRotationExercise("Barra fixa", { sets: 1, rest: 0 })] });
+  const rC = buildRotationRoutine({ id: "rot-c", name: "Treino C", exercises: [buildRotationExercise("Paralelas", { sets: 1, rest: 0 })] });
+  const seed = {
+    "forja-treino-rotinas-v1": routinesStore([rA, rB, rC], []),
+    "forja-treino-rotacao-v1": {
+      version: 1, overrideRoutineId: null, nextRoutineId: "rot-b", nextModality: "calisthenics",
+      lastRoutineId: "rot-a", lastModality: "calisthenics", previousState: null, updatedAt: 5000
+    }
+  };
+
+  async function homeButtonText(snapshot) {
+    const home = await boot(snapshot, "index.html");
+    const text = home.text("#home-primary-button");
+    home.close();
+    return text;
+  }
+
+  /* Esvaziar Treino B pelo editor: some da fila e a rotação aponta para Treino C. */
+  const emptyEditor = await boot(seed, "treino/rotina.html?modalidade=calisthenics&id=rot-b");
+  await wait(20);
+  emptyEditor.click('[data-section-list="main"] .editor-exercise .icon-button.remove');
+  await wait(20);
+  emptyEditor.$('[data-modal-action="remove"]').click();
+  await wait(20);
+  emptyEditor.click("#save-routine-top");
+  await wait(20);
+
+  let snapshot = captureStorage(emptyEditor);
+  assert.equal(snapshot["forja-treino-rotacao-v1"].nextRoutineId, "rot-c", "Esvaziar não reconciliou o próximo da rotação");
+  assert.equal(snapshot["forja-treino-rotacao-v1"].lastRoutineId, "rot-a", "Esvaziar não pode reescrever o último treino");
+  assert.equal(await homeButtonText(snapshot), "Iniciar Treino C", "A Home diverge da rotação persistida após esvaziar");
+  emptyEditor.close();
+
+  /* Reabastecer Treino B: volta à fila e a ser o próximo após Treino A. */
+  const refillEditor = await boot(snapshot, "treino/rotina.html?modalidade=calisthenics&id=rot-b");
+  await wait(20);
+  refillEditor.$("#exercise-name").value = "Barra fixa";
+  refillEditor.$("#exercise-sets").value = "1";
+  refillEditor.$("#exercise-reps").value = "6";
+  refillEditor.$("#exercise-rest").value = "0";
+  refillEditor.$("#exercise-form").dispatchEvent(new refillEditor.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+  refillEditor.click("#save-routine-top");
+  await wait(20);
+
+  snapshot = captureStorage(refillEditor);
+  assert.equal(snapshot["forja-treino-rotacao-v1"].nextRoutineId, "rot-b", "Reabastecer não reconciliou o próximo da rotação");
+  assert.equal(await homeButtonText(snapshot), "Iniciar Treino B", "A Home diverge da rotação persistida após reabastecer");
+  refillEditor.close();
+
+  /* Salvar sem mudar nada de iniciável não reescreve a chave de rotação. */
+  const rotationRawBefore = JSON.stringify(snapshot["forja-treino-rotacao-v1"]);
+  const noopEditor = await boot(snapshot, "treino/rotina.html?modalidade=calisthenics&id=rot-b");
+  await wait(20);
+  noopEditor.click("#save-routine-top");
+  await wait(20);
+  assert.equal(JSON.stringify(noopEditor.data("forja-treino-rotacao-v1")), rotationRawBefore,
+    "Salvar sem divergência não deveria reescrever a rotação (updatedAt muda a cada escrita)");
+  noopEditor.close();
+
+  /* Duplicar Treino A: a cópia entra logo depois dele e vira a próxima. */
+  const modalityApp = await boot(snapshot, "treino/calistenia.html");
+  await wait(20);
+  const firstCard = modalityApp.$$(".routine-card")[0];
+  Array.from(firstCard.querySelectorAll("button")).find(button => button.textContent.trim() === "Duplicar").click();
+  await wait(25);
+
+  snapshot = captureStorage(modalityApp);
+  const copyId = snapshot["forja-treino-rotinas-v1"].calisthenics[1].id;
+  assert.notEqual(copyId, "rot-a");
+  assert.equal(snapshot["forja-treino-rotacao-v1"].nextRoutineId, copyId, "Duplicar não reconciliou o próximo da rotação");
+  assert.equal(await homeButtonText(snapshot), "Iniciar Treino A (cópia)", "A Home diverge da rotação persistida após duplicar");
+  modalityApp.close();
+
+  /* Excluir uma rotina que não é a selecionada preserva a seleção atual. */
+  const deleteApp = await boot(snapshot, "treino/calistenia.html");
+  await wait(20);
+  const cards = deleteApp.$$(".routine-card");
+  const cardC = cards[cards.length - 1];
+  Array.from(cardC.querySelectorAll("button")).find(button => button.textContent.trim() === "Excluir").click();
+  await wait(20);
+  deleteApp.$('[data-modal-action="delete"]').click();
+  await wait(20);
+
+  snapshot = captureStorage(deleteApp);
+  assert.equal(snapshot["forja-treino-rotacao-v1"].nextRoutineId, copyId, "Excluir outra rotina mudou a selecionada");
+  assert.equal(await homeButtonText(snapshot), "Iniciar Treino A (cópia)", "A Home diverge após excluir outra rotina");
+  deleteApp.close();
+});
+
+await runTest("59f. C6: backup com exercício personalizado inválido é rejeitado antes de importar; válido e antigo são aceitos", async () => {
+  const validItem = {
+    id: "lib-ok", name: "Remada unilateral", type: "reps", sets: 3, reps: "12", duration: 45, rest: 60,
+    section: "main", load: "", notes: "", measure: "load", distance: null, distanceUnit: "m",
+    category: "Costas", muscles: ["dorsais"], equipment: ["halter"], instructions: "",
+    createdAt: 1, updatedAt: 1
+  };
+  /* Formato antigo de exercício personalizado: sem metadados do catálogo. */
+  const legacyItem = { id: "lib-old", name: "Flexão diamante", sets: 3, reps: "10", rest: 60 };
+
+  const app = await boot(
+    { "forja-treino-biblioteca-v1": { calisthenics: [], weights: [validItem] } },
+    "configuracoes/index.html"
+  );
+  const validate = value => app.F.validateLibraryStore(value);
+
+  /* Válidos: formato atual completo e formato antigo sem metadados. */
+  assert.equal(validate({ calisthenics: [legacyItem], weights: [validItem] }), true,
+    "Exercícios personalizados válidos (novo e antigo) foram rejeitados");
+
+  /* Valores fora dos limites aceitos (mesmas regras dos exercícios de rotina). */
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { sets: 99 })], weights: [] }), /séries inválidas/);
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { rest: -5 })], weights: [] }), /descanso inválido/);
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { type: "duration", duration: 99999 })], weights: [] }), /duração inválida/);
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { measure: "peso" })], weights: [] }), /medição desconhecida/);
+
+  /* Estrutura malformada. */
+  assert.throws(() => validate({ calisthenics: ["texto"], weights: [] }), /personalizado 1 de Calistenia é inválido/);
+  assert.throws(() => validate({ calisthenics: [{ sets: 3 }], weights: [] }), /está sem nome/);
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { muscles: "costas" })], weights: [] }), /lista de muscles inválida/);
+  assert.throws(() => validate({ calisthenics: [], weights: "x" }), /formato inválido/);
+
+  /* Valores que a normalização corrigiria em silêncio ao ler. */
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { section: "meio" })], weights: [] }), /seção desconhecida/);
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { distanceUnit: "km/h" })], weights: [] }), /unidade de distância inválida/);
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { name: "X".repeat(120) })], weights: [] }), /acima de 100 caracteres/);
+  assert.throws(() => validate({ calisthenics: [Object.assign({}, legacyItem, { instructions: "i".repeat(700) })], weights: [] }), /acima de 600 caracteres/);
+
+  /* Importação: rejeitada no modal de erro, antes da prévia, sem tocar nos dados. */
+  const before = app.raw("forja-treino-biblioteca-v1");
+  await app.importFile({
+    app: "FORJA", format: "forja-backup", version: 1, exportedAt: new Date().toISOString(),
+    keys: { "forja-treino-biblioteca-v1": { calisthenics: [], weights: [Object.assign({}, validItem, { sets: 99 })] } }
+  });
+  await wait(30);
+  assert.equal(app.$("#modal-title").textContent, "Backup inválido");
+  assert.match(app.text(".modal-card"), /biblioteca personalizada/);
+  assert.match(app.text(".modal-card"), /Nenhum dado foi alterado/);
+  assert.equal(app.raw("forja-treino-biblioteca-v1"), before, "Importação inválida alterou a biblioteca");
+  assert.equal(app.raw("forja-backup-seguranca-v1"), null, "Cópia de segurança criada para importação inválida");
+  app.modalAction("close");
+  await wait(15);
+
+  /* Backup válido com personalizados (atual + antigo) importa e persiste igual. */
+  await app.importFile({
+    app: "FORJA", format: "forja-backup", version: 1, exportedAt: new Date().toISOString(),
+    keys: { "forja-treino-biblioteca-v1": { calisthenics: [legacyItem], weights: [validItem] } }
+  });
+  await app.modal("restore");
+  await wait(40);
+  const stored = app.data("forja-treino-biblioteca-v1");
+  assert.equal(stored.calisthenics[0].name, "Flexão diamante", "Item antigo válido não importou");
+  assert.equal(stored.weights[0].name, "Remada unilateral", "Item atual válido não importou");
+  assertNoErrors(app, "C6");
+  app.close();
+});
+
+await runTest("59g. C7: modais de rotina validam inline, foco cai no campo certo e alvos de toque têm 44px", async () => {
+  const rA = buildRotationRoutine({ id: "dup-a", name: "Treino A", exercises: [buildRotationExercise("Flexão")] });
+  const rB = buildRotationRoutine({ id: "dup-b", name: "Treino B", exercises: [buildRotationExercise("Barra fixa")] });
+  const seed = { "forja-treino-rotinas-v1": routinesStore([rA, rB], []) };
+
+  /* Criar: nome vazio mantém o modal aberto, com erro associado e foco no campo. */
+  const app = await boot(seed, "treino/calistenia.html");
+  app.click("#new-routine");
+  await wait(15);
+  await app.modal("create", { name: "   " });
+  await wait(20);
+  assert.ok(app.$(".modal-backdrop"), "Modal de criação fechou com nome vazio");
+  assert.match(app.text('[data-modal-error="name"]'), /Informe um nome/);
+  assert.equal(app.modalField("name").getAttribute("aria-invalid"), "true");
+  assert.equal(app.d.activeElement, app.modalField("name"), "Foco não foi para o campo de nome");
+  assert.equal(app.data("forja-treino-rotinas-v1").calisthenics.length, 2, "Nome vazio criou rotina");
+
+  /* Nome duplicado: continua aberto, agora com o erro de duplicidade no campo. */
+  await app.modal("create", { name: "treino a" });
+  await wait(20);
+  assert.ok(app.$(".modal-backdrop"), "Modal de criação fechou com nome duplicado");
+  assert.match(app.text('[data-modal-error="name"]'), /Já existe uma rotina chamada/);
+  assert.equal(app.d.activeElement, app.modalField("name"), "Foco não voltou ao campo duplicado");
+  assert.equal(app.data("forja-treino-rotinas-v1").calisthenics.length, 2, "Nome duplicado criou rotina");
+
+  /* Nome válido: o modal fecha e a rotina é criada. */
+  await app.modal("create", { name: "Treino C" });
+  await pageIs(app, "rotina");
+  assert.equal(app.data("forja-treino-rotinas-v1").calisthenics.length, 3, "Nome válido não criou a rotina");
+  app.close();
+
+  /* Renomear: vazio e duplicado inline; manter o próprio nome salva e fecha. */
+  const renameApp = await boot(seed, "treino/calistenia.html");
+  const renameCard = renameApp.$$(".routine-card")[1];
+  Array.from(renameCard.querySelectorAll("button"))
+    .find(button => button.textContent.trim() === "Renomear").click();
+  await wait(20);
+
+  await renameApp.modal("rename", { name: " " });
+  await wait(20);
+  assert.ok(renameApp.$(".modal-backdrop"), "Modal de renomear fechou com nome vazio");
+  assert.match(renameApp.text('[data-modal-error="name"]'), /não pode ficar vazio/);
+  assert.equal(renameApp.d.activeElement, renameApp.modalField("name"), "Foco não foi para o nome vazio");
+
+  await renameApp.modal("rename", { name: "Treino A" });
+  await wait(20);
+  assert.ok(renameApp.$(".modal-backdrop"), "Modal de renomear fechou com nome duplicado");
+  assert.match(renameApp.text('[data-modal-error="name"]'), /Já existe uma rotina chamada/);
+  assert.equal(renameApp.data("forja-treino-rotinas-v1").calisthenics[1].name, "Treino B", "Renomear inválido alterou o nome");
+
+  await renameApp.modal("rename", { name: "Treino B" });
+  await wait(20);
+  assert.equal(renameApp.$(".modal-backdrop"), null, "Manter o próprio nome deveria fechar e salvar");
+  renameApp.close();
+
+  /* Formulário personalizado: o foco vai para o campo inválido equivalente. */
+  const editorApp = await boot(seed, "treino/rotina.html?modalidade=calisthenics&id=dup-a");
+  await wait(20);
+  editorApp.click("#library-toggle");
+  await wait(10);
+  editorApp.click("#custom-toggle");
+  await wait(10);
+
+  editorApp.$("#custom-name").value = "";
+  editorApp.$("#custom-sets").value = "3";
+  editorApp.$("#custom-rest").value = "45";
+  editorApp.$("#custom-form").dispatchEvent(new editorApp.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(15);
+  assert.equal(editorApp.d.activeElement, editorApp.$("#custom-name"), "Nome vazio não focou custom-name");
+
+  editorApp.$("#custom-name").value = "Prancha lateral";
+  editorApp.$("#custom-sets").value = "99";
+  editorApp.$("#custom-form").dispatchEvent(new editorApp.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(15);
+  assert.equal(editorApp.d.activeElement, editorApp.$("#custom-sets"), "Séries inválidas não focaram custom-sets");
+
+  editorApp.$("#custom-sets").value = "3";
+  editorApp.$("#custom-reps").value = "";
+  editorApp.$("#custom-form").dispatchEvent(new editorApp.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(15);
+  assert.equal(editorApp.d.activeElement, editorApp.$("#custom-reps"), "Repetições vazias não focaram custom-reps");
+
+  editorApp.$("#custom-reps").value = "12";
+  editorApp.$("#custom-form").dispatchEvent(new editorApp.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(20);
+  assert.equal(editorApp.data("forja-treino-biblioteca-v1").calisthenics.length, 1, "Cadastro válido não salvou");
+
+  /* Duplicado no cadastro personalizado também foca o campo de nome. */
+  editorApp.click("#custom-toggle");
+  await wait(10);
+  editorApp.$("#custom-name").value = "prancha lateral";
+  editorApp.$("#custom-sets").value = "3";
+  editorApp.$("#custom-rest").value = "45";
+  editorApp.$("#custom-form").dispatchEvent(new editorApp.w.Event("submit", { bubbles: true, cancelable: true }));
+  await wait(15);
+  assert.equal(editorApp.d.activeElement, editorApp.$("#custom-name"), "Duplicado não focou custom-name");
+  assert.equal(editorApp.data("forja-treino-biblioteca-v1").calisthenics.length, 1, "Duplicado foi cadastrado");
+
+  /* Alvos de toque: 44px declarados e layout do editor sem largura fixa que estoure. */
+  const treinoCss = fs.readFileSync(path.join(repoRoot, "assets/css/treino.css"), "utf8");
+  const iconBlock = treinoCss.match(/\.icon-button\s*\{[^}]*\}/)[0];
+  assert.match(iconBlock, /width:\s*44px/, ".icon-button sem largura de 44px");
+  assert.match(iconBlock, /height:\s*44px/, ".icon-button sem altura de 44px");
+  const addBlock = treinoCss.match(/\.section-add-button\s*\{[^}]*\}/)[0];
+  assert.match(addBlock, /min-width:\s*44px/, ".section-add-button sem largura mínima de 44px");
+  assert.match(addBlock, /min-height:\s*44px/, ".section-add-button sem altura mínima de 44px");
+  assert.match(treinoCss, /\.icon-button:focus-visible/, "Foco visível ausente em .icon-button");
+  assert.match(treinoCss, /\.editor-exercise-main\s*\{[^}]*min-width:\s*0/, "Nome do exercício não pode encolher: risco de overflow");
+
+  const tools = editorApp.$$(".editor-exercise .icon-button");
+  assert.ok(tools.length >= 4, "Botões de ação do editor não renderizaram");
+  tools.forEach(button => assert.ok(button.getAttribute("aria-label"), "Botão de ícone sem aria-label"));
+  assertNoErrors(editorApp, "C7");
+  editorApp.close();
 });
 
 /* ------------------------------------------------------------------ */
