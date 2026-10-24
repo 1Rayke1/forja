@@ -227,6 +227,81 @@
     }
   }
 
+  function renderGoals() {
+    var host = byId("home-goals-content");
+    var periodNote = byId("home-goals-period");
+    if (!host || !periodNote) return;
+    host.innerHTML = "";
+    periodNote.textContent = "";
+
+    var metricas = F.metricas;
+    if (!metricas || typeof metricas.goalProgress !== "function") {
+      var unavailable = document.createElement("p");
+      unavailable.className = "home-goals-note";
+      unavailable.textContent = "Não foi possível consultar suas metas agora.";
+      host.appendChild(unavailable);
+      return;
+    }
+
+    var progress;
+    try {
+      progress = metricas.goalProgress(
+        F.state && Array.isArray(F.state.history) ? F.state.history : [],
+        F.state ? F.state.goals : null,
+        { now: new Date() }
+      );
+    } catch (error) {
+      var failed = document.createElement("p");
+      failed.className = "home-goals-note";
+      failed.textContent = "Não foi possível consultar suas metas agora.";
+      host.appendChild(failed);
+      return;
+    }
+
+    if (progress && progress.week && progress.week.from && progress.week.to && metricas.formatDayMonth) {
+      periodNote.textContent = "Semana de " + metricas.formatDayMonth(progress.week.from) +
+        " a " + metricas.formatDayMonth(progress.week.to) + ".";
+    }
+
+    var items = progress && Array.isArray(progress.items) ? progress.items.filter(function (item) {
+      return item && item.active;
+    }) : [];
+    if (!progress || !progress.active || items.length === 0) {
+      var empty = document.createElement("p");
+      empty.className = "home-goals-note";
+      empty.textContent = "Você ainda não configurou metas semanais. Defina seus objetivos em Progresso.";
+      host.appendChild(empty);
+      return;
+    }
+
+    if (!F.charts || typeof F.charts.ring !== "function") {
+      var noChart = document.createElement("p");
+      noChart.className = "home-goals-note";
+      noChart.textContent = "Suas metas estão configuradas. Consulte o progresso para ver os detalhes.";
+      host.appendChild(noChart);
+      return;
+    }
+
+    var grid = document.createElement("div");
+    grid.className = "home-goals-grid";
+    grid.setAttribute("role", "list");
+    items.forEach(function (item) {
+      var current = Number(item.current) || 0;
+      var target = Number(item.target) || 0;
+      var note = item.met ? "Meta atingida" : current === 0 ? "Ainda sem progresso" : "Faltam " + item.remaining;
+      var ring = F.charts.ring({
+        percent: Math.max(0, Math.min(100, Number(item.percent) || 0)),
+        label: item.label,
+        valueText: current + "/" + target,
+        note: note
+      });
+      ring.setAttribute("role", "listitem");
+      ring.classList.add("home-goals-ring");
+      grid.appendChild(ring);
+    });
+    host.appendChild(grid);
+  }
+
   function formatRecordDate(record) {
     if (F.metricas && F.metricas.formatRecordDate) {
       try { return F.metricas.formatRecordDate(record); } catch(e) {}
@@ -309,6 +384,7 @@
     renderGreeting();
     renderAction();
     renderWeek();
+    renderGoals();
     renderRecent();
   }
 
@@ -574,6 +650,11 @@
   };
 
   F.onDataChanged(renderHome);
+  if (F.store && typeof F.store.onChange === "function") {
+    F.store.onChange(function (key) {
+      if (F.KEYS && key === F.KEYS.goals && byId("home-goals-content")) renderGoals();
+    });
+  }
 
   // Exposto para testes
   F.home = {

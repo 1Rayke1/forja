@@ -1861,6 +1861,51 @@ await runTest("42. Home simplificada: hierarquia curta e dados reais", async () 
   app2.close();
 });
 
+await runTest("42a. Home: metas semanais reutilizam métricas, estados e não gravam ao carregar", async () => {
+  const empty = await boot({}, "index.html");
+  assert.ok(empty.$("#home-goals"));
+  assert.ok(empty.$('#home-goals a[href="progresso/index.html"]'));
+  assert.match(empty.text("#home-goals-content"), /ainda não configurou/);
+  assert.equal(empty.$$("#home-goals-content .ui-ring").length, 0);
+  assert.deepEqual(empty.storageWrites, [], "Home vazia gravou no armazenamento");
+  empty.close();
+
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10);
+  const record = {
+    id: "home-goal-record", date, finishedAt: now.toISOString(), modality: "weights",
+    routineName: "Teste", durationMs: 60000, completedSets: 2, totalPlannedSets: 2,
+    status: "completed", exercises: []
+  };
+  const goals = { version: 1, updatedAt: null, modality: "weights", weeklySessions: 1, weeklySets: 4, weeklyMinutes: 1 };
+  const app = await boot({
+    "forja-treino-historico-v1": [record],
+    "forja-treino-metas-v1": goals
+  }, "index.html");
+  assert.equal(app.$$("#home-goals-content .ui-ring").length, 3, "Três alvos ativos devem renderizar três anéis");
+  assert.match(app.text("#home-goals-content"), /1\/1/);
+  assert.match(app.text("#home-goals-content"), /2\/4/);
+  assert.match(app.text("#home-goals-content"), /Meta atingida/);
+  assert.match(app.text("#home-goals-period"), /Semana de/);
+  assert.deepEqual(app.storageWrites, [], "Exibir metas na home gravou no armazenamento");
+  assert.match(app.text("#home-week-note"), /1 treino/);
+
+  app.F.saveGoals({ modality: "weights", weeklySessions: 2, weeklySets: 0, weeklyMinutes: 0 });
+  assert.equal(app.$$("#home-goals-content .ui-ring").length, 1, "Atualização de metas não redesenhou a seção");
+  assert.match(app.text("#home-goals-content"), /1\/2/);
+  app.close();
+
+  const invalid = await boot({
+    "forja-treino-historico-v1": [{ id: "bad", date: "invalida", modality: "weights" }],
+    "forja-treino-metas-v1": goals
+  }, "index.html");
+  assert.equal(invalid.$$("#home-goals-content .ui-ring").length, 3);
+  assert.match(invalid.text("#home-goals-content"), /0\/1/);
+  assert.deepEqual(invalid.storageWrites, [], "Dados inválidos causaram gravação ao carregar");
+  assertNoErrors(invalid, "metas semanais na home com histórico inválido");
+  invalid.close();
+});
+
 await runTest("43. Barra inferior fixa: 5 itens, aria-current, safe-area e não cobre conteúdo", async () => {
   for (const page of PAGES) {
     const app = await boot({}, page);
