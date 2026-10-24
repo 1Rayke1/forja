@@ -322,7 +322,9 @@ test("08. weeklySeries agrupa por semana e cobre a janela pedida", () => {
 });
 
 test("09. frequency monta 7 dias por semana, começando na segunda", () => {
-  const now = at(2026, 10, 21);
+  // O módulo roda dentro de jsdom: construa o relógio no mesmo realm para
+  // satisfazer a validação `settings.now instanceof Date` da API.
+  const now = new dom.window.Date(2026, 9, 21, 10, 0, 0, 0);
   const records = [
     record(at(2026, 10, 20), [exercise("A", [log({ reps: "10" }), log({ set: 2, reps: "10" })])]),
     record(at(2026, 10, 20), [exercise("B", [log({ reps: "8" })])]),
