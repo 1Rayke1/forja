@@ -236,7 +236,10 @@ select.field-input { padding-left: 12px; }
 #profile-status { margin-left: 4px; }
 .home-action-card.is-empty { border-style: dashed; border-color: rgba(160,166,159,0.34); background: var(--panel); }
 
-.home-week, .home-recent { margin-top: 18px; }
+.home-week, .home-goals, .home-recent { margin-top: 18px; }
+.home-goals-period, .home-goals-note { margin: 0 0 10px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.home-goals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr)); gap: 8px; }
+.home-goals-ring { min-width: 0; padding: 10px 6px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); }
 .home-week-head, .home-recent-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .home-week-title, .home-recent-title { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
 .home-week-link, .home-recent-link { font-size: 13px; color: var(--lime); text-decoration: none; font-weight: 700; }
