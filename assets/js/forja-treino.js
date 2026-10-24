@@ -104,6 +104,10 @@
   F.pages.treino = function initTreinoHub() {
     renderHub();
     F.onDataChanged(renderHub);
+    watchExternalChanges(
+      [KEYS.routines, KEYS.legacyExercises, KEYS.history, KEYS.active, KEYS.rotation],
+      renderHub
+    );
   };
 
   /* Lista de rotinas e histórico da modalidade */
@@ -114,6 +118,56 @@
     if (F.saveRoutines()) return true;
     F.state.routines = previous;
     return false;
+  }
+
+  /*
+    Sincronização somente-leitura com o que outra aba/janela gravou (mesmo
+    padrão da Home): `F.syncStateFromStorage` nunca grava, arquiva ou migra —
+    só atualiza a memória. Usada antes de mutações para nunca sobrescrever o
+    conjunto inteiro de rotinas/biblioteca com um snapshot desatualizado, e
+    pelos vigias de `storage`/`pageshow` para redesenhar a tela atual.
+  */
+  function syncKeyFromStorage(key) {
+    if (typeof F.syncStateFromStorage === "function") {
+      F.syncStateFromStorage(key === undefined ? null : key);
+    }
+  }
+
+  function watchExternalChanges(keys, refresh) {
+    global.addEventListener("storage", event => {
+      if (!event) return;
+      if (event.key !== null && keys.indexOf(event.key) === -1) return;
+      syncKeyFromStorage(event.key);
+      refresh();
+    });
+
+    /* Retorno via BFCache: o boot não roda de novo, então relê e redesenha. */
+    global.addEventListener("pageshow", event => {
+      if (!event || !event.persisted) return;
+      syncKeyFromStorage(null);
+      refresh();
+    });
+  }
+
+  function reconcileRotation() {
+    if (typeof F.reconcileRotationAfterRoutineChange === "function") {
+      F.reconcileRotationAfterRoutineChange();
+    }
+  }
+
+  /* Nome comparável: espaços externos fora, sem diferenciar caixa. */
+  function comparableName(name) {
+    return String(name || "").trim().toLowerCase();
+  }
+
+  function routineNameTaken(name, modality, excludeRoutineId) {
+    const target = comparableName(name);
+    if (!target) return false;
+
+    return getModeRoutines(modality).some(routine => {
+      return routine.id !== excludeRoutineId &&
+        comparableName(routine.name) === target;
+    });
   }
 
   function nextRoutineName(modality) {
@@ -145,6 +199,27 @@
       title: "Nova rotina",
       message: "Dê um nome para a rotina. Você poderá adicionar exercícios em seguida.",
       fields: [{ id: "name", label: "Nome da rotina", value: nextRoutineName(currentModality), maxlength: 60 }],
+      submitActions: ["create"],
+      validate(values) {
+        const name = (values.name || "").trim().slice(0, 60);
+        if (!name) {
+          return { ok: false, errors: { name: "Informe um nome para a rotina." } };
+        }
+
+        /* Confere contra o estado fresco, sem fechar o modal em caso de erro. */
+        syncKeyFromStorage(KEYS.routines);
+        if (routineNameTaken(name, currentModality, null)) {
+          return {
+            ok: false,
+            errors: {
+              name: "Já existe uma rotina chamada \"" + name + "\" em " +
+                MODE_NAMES[currentModality] + ". Escolha outro nome."
+            }
+          };
+        }
+
+        return { ok: true };
+      },
       actions: [
         { id: "cancel", label: "Cancelar", className: "secondary-button" },
         { id: "create", label: "Criar rotina", className: "primary-button" }
@@ -156,6 +231,15 @@
     const name = (result.values.name || "").trim().slice(0, 60);
     if (!name) {
       showToast("Informe um nome para a rotina.", "error");
+      return;
+    }
+
+    /* Outra aba pode ter mexido nas rotinas enquanto o modal estava aberto. */
+    syncKeyFromStorage(KEYS.routines);
+
+    if (routineNameTaken(name, currentModality, null)) {
+      showToast("Já existe uma rotina chamada \"" + name + "\" em " +
+        MODE_NAMES[currentModality] + ". Escolha outro nome.", "error");
       return;
     }
 
@@ -186,6 +270,36 @@
       title: "Renomear rotina",
       message: "O novo nome será usado no treino e no histórico.",
       fields: [{ id: "name", label: "Nome da rotina", value: routine.name, maxlength: 60 }],
+      submitActions: ["rename"],
+      validate(values) {
+        const name = (values.name || "").trim().slice(0, 60);
+        if (!name) {
+          return { ok: false, errors: { name: "O nome da rotina não pode ficar vazio." } };
+        }
+
+        /* Confere contra o estado fresco, sem fechar o modal em caso de erro. */
+        syncKeyFromStorage(KEYS.routines);
+        const freshRoutine = findRoutine(currentModality, routineId);
+        if (!freshRoutine) {
+          return {
+            ok: false,
+            errors: { name: "Esta rotina não existe mais. Feche o diálogo e recarregue a lista." }
+          };
+        }
+
+        if (comparableName(name) !== comparableName(freshRoutine.name) &&
+          routineNameTaken(name, currentModality, routineId)) {
+          return {
+            ok: false,
+            errors: {
+              name: "Já existe uma rotina chamada \"" + name + "\" em " +
+                MODE_NAMES[currentModality] + ". Escolha outro nome."
+            }
+          };
+        }
+
+        return { ok: true };
+      },
       actions: [
         { id: "cancel", label: "Cancelar", className: "secondary-button" },
         { id: "rename", label: "Salvar nome", className: "primary-button" }
@@ -200,9 +314,26 @@
       return;
     }
 
+    /* Relê o estado fresco: o objeto de antes do modal pode ter ficado obsoleto. */
+    syncKeyFromStorage(KEYS.routines);
+
+    const freshRoutine = findRoutine(currentModality, routineId);
+    if (!freshRoutine) {
+      renderModality();
+      showToast("Esta rotina não existe mais.", "error");
+      return;
+    }
+
+    if (comparableName(name) !== comparableName(freshRoutine.name) &&
+      routineNameTaken(name, currentModality, routineId)) {
+      showToast("Já existe uma rotina chamada \"" + name + "\" em " +
+        MODE_NAMES[currentModality] + ". Escolha outro nome.", "error");
+      return;
+    }
+
     const previous = cloneData(F.state.routines);
-    routine.name = name;
-    routine.updatedAt = Date.now();
+    freshRoutine.name = name;
+    freshRoutine.updatedAt = Date.now();
 
     if (commitRoutines(previous)) {
       renderModality();
@@ -211,8 +342,13 @@
   }
 
   function duplicateRoutine(routineId) {
+    syncKeyFromStorage(KEYS.routines);
+
     const routine = findRoutine(currentModality, routineId);
-    if (!routine) return;
+    if (!routine) {
+      renderModality();
+      return;
+    }
 
     const copy = cloneData(routine);
     copy.id = createId("routine");
@@ -232,6 +368,8 @@
     F.state.routines[currentModality].splice(index + 1, 0, copy);
 
     if (commitRoutines(previous)) {
+      /* A cópia entra na fila iniciável e pode virar a próxima da rotação. */
+      reconcileRotation();
       renderModality();
       showToast("Rotina duplicada: " + copy.name + ".");
     }
@@ -265,6 +403,19 @@
     });
 
     if (result.action !== "delete") return;
+
+    /*
+      Relê o estado fresco antes de mutar: a seleção da rotação e a lista de
+      iniciáveis precisam refletir o que está gravado agora, não o que esta
+      aba carregou — senão a exclusão sobrescreveria mudanças de outra aba.
+    */
+    syncKeyFromStorage(KEYS.routines);
+
+    if (!findRoutine(currentModality, routine.id)) {
+      renderModality();
+      showToast("Rotina excluída. Nenhum histórico foi apagado.");
+      return;
+    }
 
     const oldStartable = typeof F.getStartableRoutines === "function"
       ? F.getStartableRoutines()
@@ -486,6 +637,10 @@
 
     renderModality();
     F.onDataChanged(renderModality);
+    watchExternalChanges(
+      [KEYS.routines, KEYS.legacyExercises, KEYS.history, KEYS.active, KEYS.rotation],
+      renderModality
+    );
   }
 
   F.pages.calistenia = () => initModality("calisthenics");
@@ -501,6 +656,10 @@
   let draftDirty = false;
   let editingRef = null;
   let librarySearchValue = "";
+  /* Base da abertura do editor, para detectar mudanças externas (C3). */
+  let editorRoutinesRawAtOpen = null;
+  let editorRoutineFingerprintAtOpen = null;
+  let editorOpenedName = "";
 
   function editorBackHref() {
     if (isNewRoutine && !draftExplicitModality) return F.url("treino");
@@ -767,6 +926,22 @@
     }, checked.value);
 
     if (editingRef) {
+      /*
+        Campos que o formulário não edita são herdados do exercício original,
+        sem inventar valores: sem esta herança, editar séries ou repetições
+        apagaria a medição (ex.: distância), a origem na biblioteca
+        (`libraryId`) e as instruções — e a perda só apareceria depois de
+        salvar, recarregar e normalizar os dados.
+      */
+      const original = draft.sections[editingRef.section]
+        .find(item => item.id === editingRef.id);
+      if (original) {
+        ["measure", "distance", "distanceUnit", "libraryId", "instructions"]
+          .forEach(field => {
+            if (original[field] !== undefined) exercise[field] = original[field];
+          });
+      }
+
       const origin = draft.sections[editingRef.section];
       const index = origin.findIndex(item => item.id === editingRef.id);
       if (index >= 0) origin.splice(index, 1);
@@ -813,12 +988,89 @@
     renderEditorMeta();
   }
 
+  /*
+    Impressão digital de uma rotina para comparar versões sem depender dos
+    carimbos de tempo: `createdAt`/`updatedAt` podem ser re-derivados na
+    normalização de dados antigos, então ficam fora da comparação — qualquer
+    mudança real de nome, modalidade ou exercícios continua detectável.
+  */
+  function routineFingerprint(routine) {
+    if (!routine) return null;
+
+    const copy = cloneData(routine);
+    delete copy.createdAt;
+    delete copy.updatedAt;
+    return JSON.stringify(copy);
+  }
+
+  function rememberEditorSaveBase() {
+    editorRoutinesRawAtOpen = F.store && typeof F.store.readRaw === "function"
+      ? F.store.readRaw(KEYS.routines)
+      : null;
+    editorRoutineFingerprintAtOpen = isNewRoutine
+      ? null
+      : routineFingerprint(findRoutine(draftModality, draftRoutineId) || draft);
+    editorOpenedName = draft ? draft.name : "";
+  }
+
+  /*
+    Antes de salvar, confere se as rotinas mudaram fora deste editor desde a
+    abertura. Mudanças em outras rotinas são preservadas (o salvamento passa
+    a valer sobre o estado fresco); se a própria rotina aberta foi alterada
+    ou excluída lá fora, o salvamento é abortado com aviso — nunca sobrescreve
+    silenciosamente a versão mais recente.
+  */
+  function refreshEditorSaveBase() {
+    if (!F.store || typeof F.store.readRaw !== "function" ||
+      typeof F.syncStateFromStorage !== "function") {
+      return true;
+    }
+
+    const currentRaw = F.store.readRaw(KEYS.routines);
+    if (editorRoutinesRawAtOpen === null || currentRaw === editorRoutinesRawAtOpen) {
+      return true;
+    }
+
+    F.syncStateFromStorage(KEYS.routines);
+
+    if (isNewRoutine) return true;
+
+    const current = findRoutine(draftModality, draftRoutineId);
+    if (current && routineFingerprint(current) === editorRoutineFingerprintAtOpen) {
+      return true;
+    }
+
+    showToast(
+      "Esta rotina foi alterada ou excluída em outra aba/janela depois que o editor foi aberto. " +
+      "Para não sobrescrever a versão mais recente, nada foi salvo. Recarregue a página e tente novamente.",
+      "error",
+      7000
+    );
+    return false;
+  }
+
   function saveRoutine() {
     if (!draft) return false;
 
     const name = byId("routine-name-input").value.trim().slice(0, 60);
     if (!name) {
       showToast("O nome da rotina não pode ficar vazio.", "error");
+      byId("routine-name-input").focus();
+      return false;
+    }
+
+    if (!refreshEditorSaveBase()) return false;
+
+    /*
+      Nome duplicado na mesma modalidade é bloqueado. Rotina já existente que
+      mantém o nome com que foi aberta não é bloqueada: dados antigos com
+      duplicidade continuam editáveis, sem correção automática.
+    */
+    const keepsOpenedName = !isNewRoutine &&
+      comparableName(name) === comparableName(editorOpenedName);
+    if (!keepsOpenedName && routineNameTaken(name, draftModality, draftRoutineId)) {
+      showToast("Já existe uma rotina chamada \"" + name + "\" em " +
+        MODE_NAMES[draftModality] + ". Escolha outro nome.", "error");
       byId("routine-name-input").focus();
       return false;
     }
@@ -851,6 +1103,12 @@
     isNewRoutine = false;
     draftExplicitModality = true;
     draftDirty = false;
+
+    /* A versão salva vira a nova base: salvar de novo não é conflito. */
+    rememberEditorSaveBase();
+
+    /* Esvaziar ou reabastecer a rotina muda a fila iniciável da rotação. */
+    reconcileRotation();
 
     const modalityField = byId("editor-modality-field");
     if (modalityField) modalityField.hidden = true;
@@ -990,22 +1248,60 @@
     });
   }
 
-  function addFromLibrary(item) {
-    if (!draft) return;
+  /*
+    Converte um item da biblioteca (sugerido ou personalizado) no exercício
+    que entra na rotina, com a mesma estrutura produzida pela página completa
+    da biblioteca: a conversão canônica é `F.catalog.toExercise`, que registra
+    `libraryId` e traz as instruções do item. O catálogo só é consultado na
+    hora do uso — nunca na carga deste módulo —, portanto não há dependência
+    circular entre os scripts; sem ele, a cópia local aplica as mesmas regras
+    a partir do item cru (origem explícita e instruções do catálogo).
+  */
+  function exerciseFromLibraryItem(item) {
+    if (!item) return null;
 
     const section = SECTION_NAMES[item.section] ? item.section : "main";
+
+    if (F.catalog && typeof F.catalog.items === "function" &&
+      typeof F.catalog.toExercise === "function") {
+      const wantedId = item.libraryId || item.id;
+      const record = F.catalog.items(draftModality).find(candidate => {
+        return candidate.id === item.id ||
+          candidate.libraryId === wantedId ||
+          candidate.id === wantedId;
+      });
+      if (record) {
+        const fromCatalog = F.catalog.toExercise(record, section);
+        if (fromCatalog) return fromCatalog;
+      }
+    }
+
     const copy = normalizeExercise(Object.assign({}, item, {
       id: createId("exercise"),
+      libraryId: item.libraryId || item.id || null,
       load: draftModality === "weights" ? item.load || "" : ""
     }), section);
 
+    if (copy && !copy.instructions) {
+      const meta = catalogMetaFor(item);
+      if (meta && meta.instructions) copy.instructions = meta.instructions;
+    }
+
+    return copy;
+  }
+
+  function addFromLibrary(item) {
+    if (!draft) return;
+
+    const copy = exerciseFromLibraryItem(item);
+
     if (!copy) return;
 
-    draft.sections[section].push(copy);
+    draft.sections[copy.section].push(copy);
     markDirty();
     renderEditorSections();
     renderEditorMeta();
-    showToast(item.name + " adicionado em " + SECTION_NAMES[section] + ". Salve a rotina para confirmar.");
+    showToast(item.name + " adicionado em " + SECTION_NAMES[copy.section] + ". Salve a rotina para confirmar.");
   }
 
   function toggleCustomForm(show) {
@@ -1032,6 +1328,35 @@
     const checked = validateExercise(input);
     if (checked.error) {
       showToast(checked.error, "error");
+      /*
+        `validateExercise` devolve o foco com os IDs do formulário de
+        exercício da rotina; aqui o formulário é o de exercício personalizado,
+        então o campo equivalente (`custom-*`) recebe o foco.
+      */
+      const customFocus = {
+        "exercise-name": "custom-name",
+        "exercise-sets": "custom-sets",
+        "exercise-reps": "custom-reps",
+        "exercise-duration": "custom-duration",
+        "exercise-rest": "custom-rest"
+      }[checked.focus] || "custom-section";
+      const focusTarget = byId(customFocus);
+      if (focusTarget) focusTarget.focus();
+      return;
+    }
+
+    /* Outra aba pode ter mexido na biblioteca enquanto o formulário estava aberto. */
+    syncKeyFromStorage(KEYS.library);
+
+    const libraryTarget = comparableName(checked.value.name);
+    const alreadyInLibrary = (F.state.library[draftModality] || [])
+      .some(item => comparableName(item.name) === libraryTarget);
+    if (alreadyInLibrary) {
+      showToast("Você já tem um exercício chamado \"" + checked.value.name +
+        "\" na biblioteca de " + MODE_NAMES[draftModality] +
+        ". Exclua o atual ou escolha outro nome.", "error");
+      const nameField = byId("custom-name");
+      if (nameField) nameField.focus();
       return;
     }
 
@@ -1085,6 +1410,8 @@
     });
 
     if (result.action !== "delete") return;
+
+    syncKeyFromStorage(KEYS.library);
 
     const previous = cloneData(F.state.library);
     F.state.library[draftModality] = F.state.library[draftModality]
@@ -1204,18 +1531,29 @@
             normalizeSearch(item.name) === normalizeSearch(preloadExercise);
         });
         if (match) {
-          const section = SECTION_NAMES[match.section] ? match.section : "main";
-          const copy = normalizeExercise(Object.assign({}, match, {
-            id: createId("exercise"),
-            load: draftModality === "weights" ? match.load || "" : ""
-          }), section);
+          const copy = exerciseFromLibraryItem(match);
           if (copy) {
-            draft.sections[section].push(copy);
+            draft.sections[copy.section].push(copy);
             draftDirty = true;
           }
         }
       }
     }
+
+    rememberEditorSaveBase();
+
+    /*
+      Mudanças de outra aba entram só na memória e na biblioteca exibida: o
+      rascunho em edição nunca é redesenhado por sincronização — um conflito
+      com a rotina aberta é detectado no salvamento (refreshEditorSaveBase).
+    */
+    watchExternalChanges(
+      [KEYS.routines, KEYS.legacyExercises, KEYS.library, KEYS.active, KEYS.rotation],
+      () => {
+        renderLibrary();
+        if (typeof F.updateActiveBanner === "function") F.updateActiveBanner();
+      }
+    );
 
     byId("back-to-modality").href = editorBackHref();
     byId("back-to-modality").addEventListener("click", event => {
