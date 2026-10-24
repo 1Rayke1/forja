@@ -1867,32 +1867,53 @@ await runTest("42a. Home: metas semanais reutilizam métricas, estados e não gr
   assert.ok(empty.$('#home-goals a[href="progresso/index.html"]'));
   assert.match(empty.text("#home-goals-content"), /ainda não configurou/);
   assert.equal(empty.$$("#home-goals-content .ui-ring").length, 0);
+  assert.match(empty.text("#home-goals-period"), /Semana de \d{2}\/\d{2} a \d{2}\/\d{2}\.$/);
+  assert.doesNotMatch(empty.text("#home-goals-period"), /Musculação|Calistenia/);
   assert.deepEqual(empty.storageWrites, [], "Home vazia gravou no armazenamento");
   empty.close();
 
   const now = new Date();
-  const date = now.toISOString().slice(0, 10);
+  const date = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0")
+  ].join("-");
   const record = {
     id: "home-goal-record", date, finishedAt: now.toISOString(), modality: "weights",
-    routineName: "Teste", durationMs: 60000, completedSets: 2, totalPlannedSets: 2,
+    routineName: "Teste", durationMs: 15 * 60000, completedSets: 2, totalPlannedSets: 2,
     status: "completed", exercises: []
   };
-  const goals = { version: 1, updatedAt: null, modality: "weights", weeklySessions: 1, weeklySets: 4, weeklyMinutes: 1 };
+  const goals = { version: 1, updatedAt: null, modality: "weights", weeklySessions: 3, weeklySets: 12, weeklyMinutes: 60 };
   const app = await boot({
     "forja-treino-historico-v1": [record],
     "forja-treino-metas-v1": goals
   }, "index.html");
   assert.equal(app.$$("#home-goals-content .ui-ring").length, 3, "Três alvos ativos devem renderizar três anéis");
-  assert.match(app.text("#home-goals-content"), /1\/1/);
-  assert.match(app.text("#home-goals-content"), /2\/4/);
-  assert.match(app.text("#home-goals-content"), /Meta atingida/);
-  assert.match(app.text("#home-goals-period"), /Semana de/);
+  assert.match(app.text("#home-goals-content"), /1\/3/);
+  assert.match(app.text("#home-goals-content"), /Faltam 2 treinos/);
+  assert.match(app.text("#home-goals-content"), /2\/12/);
+  assert.match(app.text("#home-goals-content"), /Faltam 10 séries/);
+  assert.match(app.text("#home-goals-content"), /15\/60/);
+  assert.match(app.text("#home-goals-content"), /Faltam 45 min/);
+  assert.match(app.text("#home-goals-period"), /Semana de .* · Musculação\.$/);
   assert.deepEqual(app.storageWrites, [], "Exibir metas na home gravou no armazenamento");
   assert.match(app.text("#home-week-note"), /1 treino/);
 
-  app.F.saveGoals({ modality: "weights", weeklySessions: 2, weeklySets: 0, weeklyMinutes: 0 });
-  assert.equal(app.$$("#home-goals-content .ui-ring").length, 1, "Atualização de metas não redesenhou a seção");
+  /* Singular e meta atingida na mesma atualização. */
+  app.F.saveGoals({ modality: "all", weeklySessions: 2, weeklySets: 3, weeklyMinutes: 15 });
+  assert.equal(app.$$("#home-goals-content .ui-ring").length, 3, "Atualização de metas não redesenhou a seção");
   assert.match(app.text("#home-goals-content"), /1\/2/);
+  assert.match(app.text("#home-goals-content"), /Falta 1 treino/);
+  assert.match(app.text("#home-goals-content"), /Falta 1 série/);
+  assert.match(app.text("#home-goals-content"), /Meta atingida/);
+  assert.doesNotMatch(app.text("#home-goals-period"), /Musculação|Calistenia/, "Escopo 'all' não deve exibir filtro de modalidade");
+
+  /* Modalidade Calistenia filtrada e estado de zero progresso preservado. */
+  app.F.saveGoals({ modality: "calisthenics", weeklySessions: 2, weeklySets: 0, weeklyMinutes: 0 });
+  assert.equal(app.$$("#home-goals-content .ui-ring").length, 1);
+  assert.match(app.text("#home-goals-period"), /Semana de .* · Calistenia\.$/);
+  assert.match(app.text("#home-goals-content"), /0\/2/);
+  assert.match(app.text("#home-goals-content"), /Ainda sem progresso/);
   app.close();
 
   const invalid = await boot({
@@ -1900,7 +1921,8 @@ await runTest("42a. Home: metas semanais reutilizam métricas, estados e não gr
     "forja-treino-metas-v1": goals
   }, "index.html");
   assert.equal(invalid.$$("#home-goals-content .ui-ring").length, 3);
-  assert.match(invalid.text("#home-goals-content"), /0\/1/);
+  assert.match(invalid.text("#home-goals-content"), /0\/3/);
+  assert.match(invalid.text("#home-goals-content"), /Ainda sem progresso/);
   assert.deepEqual(invalid.storageWrites, [], "Dados inválidos causaram gravação ao carregar");
   assertNoErrors(invalid, "metas semanais na home com histórico inválido");
   invalid.close();
@@ -3030,13 +3052,28 @@ await runTest("61. Onboarding: Pular não cria nem persiste nenhum dado", async 
   app.close();
 });
 
-await runTest("62. Onboarding: Configurar depois navega para Perfil e não grava nada", async () => {
+await runTest("62. Onboarding: sem botão duplicado de dispensa e com acesso preservado para configurar depois em Perfil", async () => {
   const app = await boot({}, "index.html");
-  app.click(onboardingButton(app, "Configurar depois"));
+
+  const buttons = app.$$("#onboarding-root button").map(item => item.textContent.trim());
+  assert.deepEqual(buttons, ["Pular", "Salvar perfil"], "Onboarding deve manter apenas Pular e Salvar perfil");
+
+  /* Todos os cinco campos essenciais permanecem visíveis e acessíveis. */
+  for (const id of ["onb-objetivo", "onb-nivel", "onb-equipamento", "onb-dias", "onb-duracao"]) {
+    const field = app.d.getElementById(id);
+    assert.ok(field, "Campo essencial ausente no onboarding: " + id);
+    assert.equal(field.hidden, false, "Campo essencial oculto no onboarding: " + id);
+  }
+
+  const profileLink = app.$("#onboarding-root .onboarding-profile-link");
+  assert.ok(profileLink, "Link para configurar depois em Perfil ausente");
+  assert.match(profileLink.getAttribute("href"), /perfil\/index\.html$/);
+
+  app.click(profileLink);
   await until(() => app.pageUrl && app.pageUrl.indexOf("perfil") !== -1, "navegação para Perfil");
 
-  assert.equal(app.raw(PROFILE_KEY), null, "Configurar depois não deve gravar o perfil");
-  assert.deepEqual(app.storageWrites, [], "Configurar depois não deve gravar nada: " + JSON.stringify(app.storageWrites));
+  assert.equal(app.raw(PROFILE_KEY), null, "Navegar para Perfil não deve gravar o perfil");
+  assert.deepEqual(app.storageWrites, [], "Navegar para Perfil não deve gravar nada: " + JSON.stringify(app.storageWrites));
   app.close();
 });
 
@@ -3306,6 +3343,611 @@ await runTest("72. Importação de backup atualiza estado em memória e formulá
   assert.equal(app.d.getElementById("prof-equipamento").value, "nenhum", "O equipamento importado aparece no formulário");
   assert.equal(app.d.getElementById("prof-dias").value, "2", "Os dias importados aparecem no formulário");
   assert.equal(app.d.getElementById("prof-duracao").value, "30", "A duração importada aparece no formulário");
+  app.close();
+});
+
+await runTest("73. Home: seletores semânticos não ambíguos entre onboarding e ação principal", async () => {
+  const app = await boot({}, "index.html");
+  assertNoErrors(app);
+
+  assert.equal(app.$$(".home-action-title").length, 1, ".home-action-title deve ser exclusivo da ação principal");
+  assert.equal(app.text(".home-action-title"), "Monte sua primeira rotina");
+  assert.equal(app.$("#home-action-heading").tagName.toLowerCase(), "h2");
+  assert.equal(app.$("#home-action").getAttribute("aria-labelledby"), "home-action-heading");
+
+  const panel = onboardingPanel(app);
+  assert.ok(panel, "Onboarding deve estar visível para usuário novo");
+  assert.equal(panel.getAttribute("aria-labelledby"), "home-onboarding-heading");
+  assert.equal(app.text("#home-onboarding-heading"), "Seu perfil de treino");
+  assert.ok(app.$("#home-onboarding-heading").classList.contains("onboarding-title"));
+  assert.equal(app.$("#home-onboarding-heading").classList.contains("home-action-title"), false);
+  app.close();
+});
+
+await runTest("74. Home: sincronização via evento storage (metas, histórico, rotinas, legado v1, sessão ativa e perfil) sem gravar nada", async () => {
+  const app = await boot({}, "index.html");
+  assert.deepEqual(app.storageWrites, []);
+
+  function externalWrite(key, value) {
+    const raw = JSON.stringify(value);
+    app.w.localStorage.setItem(key, raw);
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: raw }));
+  }
+
+  function externalRemove(key) {
+    app.w.localStorage.removeItem(key);
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: null }));
+  }
+
+  let expectedWrites = 0;
+
+  /* 1. Outra aba configura metas semanais filtradas por Musculação. */
+  externalWrite("forja-treino-metas-v1", {
+    version: 1, updatedAt: new Date().toISOString(), modality: "weights",
+    weeklySessions: 3, weeklySets: 12, weeklyMinutes: 60
+  });
+  expectedWrites += 1;
+  assert.equal(app.F.state.goals.weeklySessions, 3, "F.state.goals deve atualizar antes do render");
+  assert.equal(app.F.state.goals.modality, "weights");
+  assert.match(app.text("#home-goals-period"), /Semana de .* · Musculação\.$/);
+  assert.match(app.text("#home-goals-content"), /Ainda sem progresso/);
+
+  /* 2. Outra aba registra treino no histórico -> metas, semana, histórico recente e onboarding atualizam. */
+  const now = new Date();
+  const todayLocal = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0")
+  ].join("-");
+  externalWrite("forja-treino-historico-v1", [{
+    id: "ext-h1", date: todayLocal, finishedAt: now.toISOString(), modality: "weights",
+    routineName: "Superior A", durationMs: 15 * 60000, completedSets: 2, totalPlannedSets: 4,
+    status: "completed", exercises: []
+  }]);
+  expectedWrites += 1;
+  assert.equal(app.F.state.history.length, 1, "F.state.history desatualizado");
+  assert.match(app.text("#home-goals-content"), /Faltam 2 treinos/);
+  assert.match(app.text("#home-goals-content"), /Faltam 10 séries/);
+  assert.match(app.text("#home-goals-content"), /Faltam 45 min/);
+  assert.match(app.text("#home-week-note"), /1 treino/);
+  assert.match(app.text("#home-recent-list"), /Superior A/);
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Onboarding deve fechar quando histórico chega de outra aba");
+
+  /* 3. Outra aba cria rotinas (formato v2/v3) -> ação principal atualiza. */
+  const rA = makeRoutine("weights", "Superior A", [{ id: "w-1", name: "Supino", sets: 3, reps: "8", section: "main" }], "rot-a");
+  const rB = makeRoutine("weights", "Inferior B", [{ id: "w-2", name: "Agachamento", sets: 3, reps: "8", section: "main" }], "rot-b");
+  externalWrite("forja-treino-rotinas-v1", routinesStore([], [rA, rB]));
+  expectedWrites += 1;
+  assert.equal(app.F.state.routines.weights.length, 2, "F.state.routines desatualizado");
+  assert.match(app.text("#home-primary-button"), /Iniciar Inferior B/, "Com Superior A no histórico, próxima rotina deve ser Inferior B");
+
+  /* 4. Compatibilidade v1: sem rotinas v2, exercícios legados em forja-treino-exercicios-v1 geram rotina padrão em memória sem gravar. */
+  externalRemove("forja-treino-rotinas-v1");
+  expectedWrites += 1;
+  externalWrite("forja-treino-exercicios-v1", {
+    calisthenics: [{ id: "leg-1", name: "Flexão", sets: 3, reps: "12", rest: 60 }],
+    weights: []
+  });
+  expectedWrites += 1;
+  assert.equal(app.F.state.routines.calisthenics.length, 1, "Exercícios legados v1 devem popular rotina em memória");
+  assert.equal(app.raw("forja-treino-rotinas-v1"), null, "Sincronizar legado v1 na Home não pode gravar chave nova");
+  assert.match(app.text("#home-primary-button"), /Iniciar Rotina padrão/);
+
+  /* 5. Outra aba inicia sessão ativa -> banner aparece e ação principal recolhe. */
+  const sess = sessionSeed(rA, { id: "ext-active" });
+  externalWrite("forja-treino-sessao-ativa-v1", sess);
+  expectedWrites += 1;
+  assert.ok(app.F.state.activeWorkout, "F.state.activeWorkout desatualizado");
+  assert.equal(app.$("#active-session-banner").hidden, false);
+  assert.equal(app.$("#home-action").hidden, true);
+
+  /* 6. JSON inválido vindo de outra aba não derruba a Home nem cria forja-treino-dados-preservados-v1. */
+  app.w.localStorage.setItem("forja-treino-metas-v1", "{corrompido");
+  app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: "forja-treino-metas-v1", newValue: "{corrompido" }));
+  expectedWrites += 1;
+  assert.equal(app.raw("forja-treino-dados-preservados-v1"), null, "Evento storage não pode criar chave de preservação");
+
+  assert.equal(app.storageWrites.length, expectedWrites, "A Home gravou dados por conta própria ao sincronizar storage: " + JSON.stringify(app.storageWrites));
+  assertNoErrors(app, "sincronização storage na Home");
+  app.close();
+});
+
+await runTest("75. Home: retorno via pageshow (BFCache) sincroniza F.state e interface sem recarregar no boot nem gravar dados", async () => {
+  const app = await boot({}, "index.html");
+  assert.ok(onboardingPanel(app), "Onboarding visível antes de sair da Home");
+
+  /* pageshow normal do carregamento inicial (persisted: false) sem mudanças não grava nem duplica trabalho. */
+  const bootShow = new app.w.Event("pageshow");
+  bootShow.persisted = false;
+  app.w.dispatchEvent(bootShow);
+  assert.deepEqual(app.storageWrites, []);
+
+  /* Simula alterações feitas em outras páginas antes de voltar à Home via BFCache. */
+  const routine = makeRoutine("calisthenics", "Calistenia Base", [{ id: "c-1", name: "Barra fixa", sets: 4, reps: "6", section: "main" }], "rot-bf");
+  const now = new Date();
+  const todayLocal = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0")
+  ].join("-");
+
+  app.w.localStorage.setItem(PROFILE_KEY, JSON.stringify(profileSeed({ objetivo: "calistenia", diasPorSemana: 3 })));
+  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([routine], [])));
+  app.w.localStorage.setItem("forja-treino-metas-v1", JSON.stringify({
+    version: 1, updatedAt: now.toISOString(), modality: "calisthenics",
+    weeklySessions: 3, weeklySets: 12, weeklyMinutes: 45
+  }));
+  app.w.localStorage.setItem("forja-treino-historico-v1", JSON.stringify([{
+    id: "bf-h1", date: todayLocal, finishedAt: now.toISOString(), modality: "calisthenics",
+    routineId: "rot-bf", routineName: "Calistenia Base", durationMs: 20 * 60000,
+    completedSets: 4, totalPlannedSets: 4, status: "completed", exercises: []
+  }]));
+  const writesBeforeReturn = app.storageWrites.length;
+
+  const bfShow = new app.w.Event("pageshow");
+  bfShow.persisted = true;
+  app.w.dispatchEvent(bfShow);
+
+  assert.equal(app.F.state.profile.objetivo, "calistenia", "F.state.profile deve atualizar no retorno BFCache");
+  assert.equal(app.F.state.routines.calisthenics.length, 1, "F.state.routines deve atualizar no retorno BFCache");
+  assert.equal(app.F.state.goals.weeklySessions, 3, "F.state.goals deve atualizar no retorno BFCache");
+  assert.equal(app.F.state.history.length, 1, "F.state.history deve atualizar no retorno BFCache");
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Onboarding deve sumir ao voltar com perfil/rotina/histórico");
+  assert.match(app.text("#home-primary-button"), /Iniciar Calistenia Base/);
+  assert.match(app.text("#home-goals-period"), /Semana de .* · Calistenia\.$/);
+  assert.match(app.text("#home-goals-content"), /Faltam 2 treinos/);
+  assert.match(app.text("#home-goals-content"), /Faltam 8 séries/);
+  assert.match(app.text("#home-goals-content"), /Faltam 25 min/);
+  assert.equal(app.storageWrites.length, writesBeforeReturn, "Retorno via pageshow não pode gravar em localStorage");
+  assertNoErrors(app, "retorno via pageshow BFCache");
+  app.close();
+});
+
+/* ------------------------------------------------------------------ */
+/* Auditoria de ausência de escrita em F.syncStateFromStorage          */
+/* ------------------------------------------------------------------ */
+
+function captureFullStorage(storage) {
+  const entries = {};
+  const keys = [];
+  for (let i = 0; i < storage.length; i += 1) {
+    keys.push(storage.key(i));
+  }
+  keys.sort().forEach(key => {
+    entries[key] = storage.getItem(key);
+  });
+  return { keys: keys.sort(), entries };
+}
+
+function assertReadOnlyExecution(app, label, fn) {
+  const beforeLocal = captureFullStorage(app.w.localStorage);
+  const beforeSession = captureFullStorage(app.w.sessionStorage);
+
+  const calls = {
+    setItem: [],
+    removeItem: [],
+    clear: [],
+    notifyChanged: [],
+    onChange: [],
+    archivePreservedValue: [],
+    recordMigration: []
+  };
+
+  const proto = app.w.Storage.prototype;
+  const origSetItem = proto.setItem;
+  const origRemoveItem = proto.removeItem;
+  const origClear = proto.clear;
+  const origNotify = app.F.store.notifyChanged;
+  const origArchive = app.F.archivePreservedValue;
+  const origRecordMigration = app.F.recordMigration;
+  const unsubOnChange = app.F.store.onChange(key => calls.onChange.push(key));
+
+  proto.setItem = function spySetItem(key, value) {
+    calls.setItem.push({ target: this === app.w.localStorage ? "local" : "session", key: String(key), value: String(value) });
+    return origSetItem.apply(this, arguments);
+  };
+  proto.removeItem = function spyRemoveItem(key) {
+    calls.removeItem.push({ target: this === app.w.localStorage ? "local" : "session", key: String(key) });
+    return origRemoveItem.apply(this, arguments);
+  };
+  proto.clear = function spyClear() {
+    calls.clear.push({ target: this === app.w.localStorage ? "local" : "session" });
+    return origClear.apply(this, arguments);
+  };
+  app.F.store.notifyChanged = function spyNotify(key) {
+    calls.notifyChanged.push(key);
+    return origNotify.apply(this, arguments);
+  };
+  app.F.archivePreservedValue = function spyArchive(key, raw, reason) {
+    calls.archivePreservedValue.push({ key, reason });
+    return origArchive.apply(this, arguments);
+  };
+  app.F.recordMigration = function spyMigration(details) {
+    calls.recordMigration.push(details);
+    return origRecordMigration.apply(this, arguments);
+  };
+
+  let result;
+  try {
+    result = fn();
+  } finally {
+    proto.setItem = origSetItem;
+    proto.removeItem = origRemoveItem;
+    proto.clear = origClear;
+    app.F.store.notifyChanged = origNotify;
+    app.F.archivePreservedValue = origArchive;
+    app.F.recordMigration = origRecordMigration;
+    unsubOnChange();
+  }
+
+  const afterLocal = captureFullStorage(app.w.localStorage);
+  const afterSession = captureFullStorage(app.w.sessionStorage);
+
+  assert.deepEqual(calls.setItem, [], "[" + label + "] setItem não pode ser chamado");
+  assert.deepEqual(calls.removeItem, [], "[" + label + "] removeItem não pode ser chamado");
+  assert.deepEqual(calls.clear, [], "[" + label + "] clear não pode ser chamado");
+  assert.deepEqual(calls.notifyChanged, [], "[" + label + "] notifyChanged não pode ser chamado");
+  assert.deepEqual(calls.onChange, [], "[" + label + "] ouvintes onChange não podem disparar");
+  assert.deepEqual(calls.archivePreservedValue, [], "[" + label + "] archivePreservedValue não pode ser chamado");
+  assert.deepEqual(calls.recordMigration, [], "[" + label + "] recordMigration não pode ser chamado");
+  assert.deepEqual(afterLocal, beforeLocal, "[" + label + "] localStorage deve permanecer byte a byte idêntico");
+  assert.deepEqual(afterSession, beforeSession, "[" + label + "] sessionStorage deve permanecer byte a byte idêntico");
+
+  return result;
+}
+
+function plainFromRealm(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+await runTest("76a. Segurança syncStateFromStorage: chamada sem argumento atualiza todo F.state com zero escrita", async () => {
+  const app = await boot({}, "index.html");
+  const rCal = makeRoutine("calisthenics", "Calistenia Sync", [{ id: "sc-1", name: "Flexão", sets: 3, reps: "12", section: "main" }], "rot-sc");
+  const rWei = makeRoutine("weights", "Musculação Sync", [{ id: "sw-1", name: "Supino", sets: 4, reps: "8", load: "60 kg", section: "main" }], "rot-sw");
+  const activeV2 = sessionSeed(rWei, { running: false, elapsedMs: 120000 });
+
+  app.set("forja-treino-rotinas-v1", routinesStore([rCal], [rWei]));
+  app.set("forja-treino-historico-v1", [{
+    id: "h-sync-all", date: todayKey(), finishedAt: new Date().toISOString(),
+    modality: "weights", routineId: "rot-sw", routineName: "Musculação Sync",
+    durationMs: 1800000, completedSets: 4, totalPlannedSets: 4, status: "completed", exercises: []
+  }]);
+  app.set("forja-treino-biblioteca-v1", {
+    calisthenics: [{ id: "lib-1", name: "Prancha RKC", sets: 3, type: "duration", duration: 40, rest: 45, section: "abs" }],
+    weights: []
+  });
+  app.set("forja-preferencias-v1", { soundOnRest: false, vibrateOnRest: true });
+  app.set("forja-treino-metas-v1", { version: 1, updatedAt: "2026-10-24T10:00:00.000Z", modality: "weights", weeklySessions: 4, weeklySets: 16, weeklyMinutes: 120 });
+  app.set("forja-treino-rotacao-v1", { version: 1, overrideRoutineId: null, nextRoutineId: "rot-sw", nextModality: "weights", lastRoutineId: "rot-sc", lastModality: "calisthenics", previousState: null, updatedAt: 1700000000000 });
+  app.set(PROFILE_KEY, profileSeed({ objetivo: "forca", nivel: "avancado", equipamento: "academia", diasPorSemana: 5, duracaoMinutos: 60 }));
+  app.set("forja-treino-sessao-ativa-v1", activeV2);
+  app.set("forja-missoes-" + todayKey(), [{ id: "m-1", text: "Treinar pesado", done: false }]);
+
+  const ok = assertReadOnlyExecution(app, "syncStateFromStorage() sem argumento", () => app.F.syncStateFromStorage());
+  assert.equal(ok, true);
+  assert.equal(app.F.state.routines.calisthenics[0].id, "rot-sc");
+  assert.equal(app.F.state.routines.weights[0].id, "rot-sw");
+  assert.equal(app.F.state.history.length, 1);
+  assert.equal(app.F.state.library.calisthenics[0].name, "Prancha RKC");
+  assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: true });
+  assert.equal(app.F.state.goals.weeklySessions, 4);
+  assert.equal(app.F.state.rotation.nextRoutineId, "rot-sw");
+  assert.equal(app.F.state.profile.objetivo, "forca");
+  assert.equal(app.F.state.activeWorkout.routineId, "rot-sw");
+  assert.equal(app.F.state.storageInfo.routines.exists, true);
+
+  const okNull = assertReadOnlyExecution(app, "syncStateFromStorage(null)", () => app.F.syncStateFromStorage(null));
+  assert.equal(okNull, true);
+  assertNoErrors(app, "76a sync sem argumento");
+  app.close();
+});
+
+await runTest("76b. Segurança syncStateFromStorage: cada chave suportada atualiza apenas a memória sem tocar no storage", async () => {
+  const app = await boot({}, "index.html");
+  const KEYS = app.F.KEYS;
+  const rCal = makeRoutine("calisthenics", "Barra A", [{ id: "b-1", name: "Barra fixa", sets: 4, reps: "8", section: "main" }], "rot-b1");
+
+  /* 1. legacyExercises */
+  app.set(KEYS.legacyExercises, { calisthenics: [{ id: "leg-k1", name: "Paralelas", sets: 3, reps: "10", rest: 60 }], weights: [] });
+  assert.equal(assertReadOnlyExecution(app, "chave legacyExercises", () => app.F.syncStateFromStorage(KEYS.legacyExercises)), true);
+  assert.equal(app.F.state.legacyExercises.calisthenics[0].name, "Paralelas");
+  assert.equal(app.F.state.routines.calisthenics[0].name, "Rotina padrão");
+
+  /* 2. routines */
+  app.set(KEYS.routines, routinesStore([rCal], []));
+  assert.equal(assertReadOnlyExecution(app, "chave routines", () => app.F.syncStateFromStorage(KEYS.routines)), true);
+  assert.equal(app.F.state.routines.calisthenics[0].id, "rot-b1");
+
+  /* 3. history */
+  app.set(KEYS.history, [{ id: "hk-1", date: todayKey(), modality: "calisthenics", routineName: "Barra A", completedSets: 4, durationMs: 600000, status: "completed" }]);
+  assert.equal(assertReadOnlyExecution(app, "chave history", () => app.F.syncStateFromStorage(KEYS.history)), true);
+  assert.equal(app.F.state.history.length, 1);
+  assert.equal(app.F.state.history[0].id, "hk-1");
+
+  /* 4. library */
+  app.set(KEYS.library, { calisthenics: [], weights: [{ id: "lk-1", name: "Remada curvada", sets: 4, reps: "8", load: "70 kg", rest: 90, section: "main" }] });
+  assert.equal(assertReadOnlyExecution(app, "chave library", () => app.F.syncStateFromStorage(KEYS.library)), true);
+  assert.equal(app.F.state.library.weights[0].name, "Remada curvada");
+
+  /* 5. preferences */
+  app.set(KEYS.preferences, { soundOnRest: false, vibrateOnRest: false });
+  assert.equal(assertReadOnlyExecution(app, "chave preferences", () => app.F.syncStateFromStorage(KEYS.preferences)), true);
+  assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: false });
+
+  /* 6. goals */
+  app.set(KEYS.goals, { version: 1, updatedAt: "2026-10-24T12:00:00.000Z", modality: "calisthenics", weeklySessions: 3, weeklySets: 12, weeklyMinutes: 60 });
+  assert.equal(assertReadOnlyExecution(app, "chave goals", () => app.F.syncStateFromStorage(KEYS.goals)), true);
+  assert.equal(app.F.state.goals.modality, "calisthenics");
+  assert.equal(app.F.state.goals.weeklySets, 12);
+
+  /* 7. rotation */
+  app.set(KEYS.rotation, { version: 1, overrideRoutineId: "rot-b1", nextRoutineId: "rot-b1", nextModality: "calisthenics", lastRoutineId: null, lastModality: null, previousState: null, updatedAt: 1700000000123 });
+  assert.equal(assertReadOnlyExecution(app, "chave rotation", () => app.F.syncStateFromStorage(KEYS.rotation)), true);
+  assert.equal(app.F.state.rotation.overrideRoutineId, "rot-b1");
+
+  /* 8. profile */
+  app.set(KEYS.profile, profileSeed({ objetivo: "calistenia", nivel: "intermediario", equipamento: "nenhum", diasPorSemana: 4, duracaoMinutos: 45 }));
+  assert.equal(assertReadOnlyExecution(app, "chave profile", () => app.F.syncStateFromStorage(KEYS.profile)), true);
+  assert.equal(app.F.state.profile.equipamento, "nenhum");
+  assert.equal(app.F.state.profile.diasPorSemana, 4);
+
+  /* 9. active */
+  app.set(KEYS.active, sessionSeed(rCal, { running: false, elapsedMs: 45000 }));
+  assert.equal(assertReadOnlyExecution(app, "chave active", () => app.F.syncStateFromStorage(KEYS.active)), true);
+  assert.equal(app.F.state.activeWorkout.routineId, "rot-b1");
+
+  /* 10. missões e chaves auxiliares registradas */
+  const missionKey = "forja-missoes-" + todayKey();
+  app.set(missionKey, [{ id: "mk-1", text: "Alongar", done: true }]);
+  assert.equal(assertReadOnlyExecution(app, "chave missoes", () => app.F.syncStateFromStorage(missionKey)), true);
+
+  [KEYS.migration, KEYS.legacyActiveArchive, KEYS.preserved, KEYS.safety].forEach(auxKey => {
+    app.set(auxKey, { ok: true });
+    assert.equal(assertReadOnlyExecution(app, "chave auxiliar " + auxKey, () => app.F.syncStateFromStorage(auxKey)), true);
+  });
+
+  /* Chave desconhecida */
+  app.set("chave-externa-qualquer", "1");
+  assert.equal(assertReadOnlyExecution(app, "chave desconhecida", () => app.F.syncStateFromStorage("chave-externa-qualquer")), false);
+
+  assertNoErrors(app, "76b sync por chave");
+  app.close();
+});
+
+await runTest("76c. Segurança syncStateFromStorage: dados legados v1 normalizam só em memória sem migrar nem arquivar no disco", async () => {
+  const app = await boot({}, "index.html");
+  const KEYS = app.F.KEYS;
+
+  /* Injeta dados estritamente v1 (exercícios soltos + sessão v1 sem version:2 + histórico v1 + missão texto) após o boot. */
+  app.set(KEYS.legacyExercises, {
+    calisthenics: [{ id: "v1-ex-1", name: "Flexão diamante", sets: 4, reps: "12", rest: 60 }],
+    weights: [{ id: "v1-ex-2", name: "Agachamento livre", sets: 5, reps: "5", rest: 120, load: "100 kg" }]
+  });
+  app.set(KEYS.active, {
+    date: "2026-10-24",
+    modality: "calisthenics",
+    running: false,
+    elapsedMs: 95000,
+    completedSets: { "v1-ex-1": 2 }
+  });
+  app.set(KEYS.history, [{
+    id: "v1-hist-1",
+    date: "2026-10-23",
+    modality: "weights",
+    routineName: "Treino antigo",
+    durationMs: 1500000,
+    completedSets: 5,
+    status: "completed"
+  }]);
+  app.set("forja-missoes-2026-10-24", ["Caminhar 30 min"]);
+
+  /* Mesmo chamando primeiro para KEYS.active isoladamente (com F.state vazio!), reconstrói em memória sem gravar nada. */
+  assertReadOnlyExecution(app, "sync v1 isolado em KEYS.active", () => {
+    assert.equal(app.F.syncStateFromStorage(KEYS.active), true);
+  });
+  assert.ok(app.F.state.activeWorkout, "Sessão legada v1 deve ser migrada em memória");
+  assert.equal(app.F.state.activeWorkout.version, 2);
+  assert.equal(app.F.state.activeWorkout.completedSets["v1-ex-1"], 2);
+  assert.equal(app.raw(KEYS.routines), null, "Não deve criar forja-treino-rotinas-v1 no disco");
+  assert.equal(app.raw(KEYS.migration), null, "Não deve criar forja-treino-migracao-v1 no disco");
+  assert.equal(app.raw(KEYS.legacyActiveArchive), null, "Não deve criar arquivo de sessão legada no disco");
+  assert.equal(app.raw(KEYS.preserved), null, "Não deve criar arquivo de dados preservados no disco");
+  assert.equal(JSON.parse(app.raw(KEYS.active)).version, undefined, "Sessão ativa no disco deve continuar em formato v1 original");
+
+  /* Testando também KEYS.routines isoladamente partindo de estado limpo em memória. */
+  app.F.state.legacyExercises = { calisthenics: [], weights: [] };
+  app.F.state.routines = { calisthenics: [], weights: [] };
+  assertReadOnlyExecution(app, "sync v1 isolado em KEYS.routines", () => {
+    assert.equal(app.F.syncStateFromStorage(KEYS.routines), true);
+  });
+  assert.equal(app.F.state.routines.calisthenics[0].name, "Rotina padrão");
+  assert.equal(app.F.state.routines.weights[0].name, "Rotina padrão");
+  assert.equal(app.raw(KEYS.routines), null);
+
+  /* E chamada completa sem argumento sobre todo o conjunto v1. */
+  assertReadOnlyExecution(app, "sync v1 completo sem argumento", () => {
+    assert.equal(app.F.syncStateFromStorage(), true);
+  });
+  assert.equal(app.F.state.history.length, 1);
+  assert.equal(app.F.state.activeWorkout.completedSets["v1-ex-1"], 2);
+  assertNoErrors(app, "76c legado v1");
+  app.close();
+});
+
+await runTest("76d. Segurança syncStateFromStorage: JSON inválido não arquiva, não remove chaves e limpa apenas F.state em memória", async () => {
+  const rCal = makeRoutine("calisthenics", "Rotina Inicial", [{ id: "ri-1", name: "Barra", sets: 3, reps: "8", section: "main" }], "rot-init");
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([rCal], []),
+    "forja-treino-historico-v1": [{ id: "hi-1", date: todayKey(), modality: "calisthenics", routineName: "Rotina Inicial", completedSets: 3, durationMs: 600000, status: "completed" }],
+    "forja-treino-sessao-ativa-v1": sessionSeed(rCal, { running: false, elapsedMs: 10000 }),
+    "forja-treino-metas-v1": { version: 1, updatedAt: "2026-10-24T08:00:00.000Z", modality: "calisthenics", weeklySessions: 3, weeklySets: 9, weeklyMinutes: 45 },
+    [PROFILE_KEY]: profileSeed({ objetivo: "forca", diasPorSemana: 3 })
+  }, "index.html");
+  const KEYS = app.F.KEYS;
+
+  /* Corrompe todas as chaves no localStorage após o boot. */
+  app.set(KEYS.legacyExercises, "{json-quebrado-exercicios");
+  app.set(KEYS.routines, "{json-quebrado-rotinas");
+  app.set(KEYS.history, "[json-quebrado-historico");
+  app.set(KEYS.library, "{json-quebrado-biblioteca");
+  app.set(KEYS.preferences, "{json-quebrado-preferencias");
+  app.set(KEYS.goals, "{json-quebrado-metas");
+  app.set(KEYS.rotation, "{json-quebrado-rotacao");
+  app.set(KEYS.profile, "{json-quebrado-perfil");
+  app.set(KEYS.active, "{json-quebrado-sessao");
+  app.set("forja-missoes-" + todayKey(), "{json-quebrado-missoes");
+
+  /* Por chave individual */
+  [
+    KEYS.legacyExercises,
+    KEYS.routines,
+    KEYS.history,
+    KEYS.library,
+    KEYS.preferences,
+    KEYS.goals,
+    KEYS.rotation,
+    KEYS.profile,
+    KEYS.active,
+    "forja-missoes-" + todayKey()
+  ].forEach(corruptKey => {
+    assertReadOnlyExecution(app, "JSON inválido em " + corruptKey, () => {
+      assert.equal(app.F.syncStateFromStorage(corruptKey), true);
+    });
+  });
+
+  /* E sem argumento com todas corrompidas ao mesmo tempo ( mais array com itens não-objeto em history ) */
+  assertReadOnlyExecution(app, "JSON inválido global sem argumento", () => {
+    assert.equal(app.F.syncStateFromStorage(), true);
+  });
+
+  assert.equal(app.F.state.legacyExercisesCorrupt, true);
+  assert.deepEqual(plainFromRealm(app.F.state.routines), { calisthenics: [], weights: [] });
+  assert.deepEqual(plainFromRealm(app.F.state.history), []);
+  assert.deepEqual(plainFromRealm(app.F.state.library), { calisthenics: [], weights: [] });
+  assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: true });
+  assert.equal(app.F.state.goals.weeklySessions, 0);
+  assert.equal(app.F.state.profile.updatedAt, null);
+  assert.equal(app.F.state.activeWorkout, null);
+  assert.equal(app.F.state.storageInfo.routines.corrupt, true);
+  assert.equal(app.F.state.storageInfo.active.corrupt, true);
+  assert.equal(app.raw(KEYS.preserved), null, "Não deve criar forja-treino-dados-preservados-v1");
+  assert.equal(app.raw(KEYS.active), "{json-quebrado-sessao", "Não deve apagar sessão ativa corrompida");
+
+  /* Array JSON válido mas com elementos inválidos em history */
+  app.set(KEYS.history, JSON.stringify([null, 42, "invalido"]));
+  assertReadOnlyExecution(app, "history com elementos não-objeto", () => {
+    assert.equal(app.F.syncStateFromStorage(KEYS.history), true);
+  });
+  assert.deepEqual(plainFromRealm(app.F.state.history), []);
+
+  assertNoErrors(app, "76d JSON inválido");
+  app.close();
+});
+
+await runTest("76e. Segurança de sincronização: eventos storage e pageshow/BFCache não executam setItem, removeItem nem clear", async () => {
+  const app = await boot({}, "index.html");
+  const KEYS = app.F.KEYS;
+
+  /* 1. Evento storage com dados legados v1 */
+  app.set(KEYS.legacyExercises, {
+    calisthenics: [{ id: "st-v1", name: "Barra australiana", sets: 3, reps: "12", rest: 60 }],
+    weights: []
+  });
+  assertReadOnlyExecution(app, "evento storage legacyExercises v1", () => {
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: KEYS.legacyExercises }));
+  });
+  assert.match(app.text("#home-primary-button"), /Iniciar Rotina padrão/);
+
+  /* 2. Evento storage com sessão legada v1 */
+  app.set(KEYS.active, {
+    date: todayKey(),
+    modality: "calisthenics",
+    running: false,
+    elapsedMs: 30000,
+    completedSets: { "st-v1": 1 }
+  });
+  assertReadOnlyExecution(app, "evento storage active v1", () => {
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: KEYS.active }));
+  });
+  assert.equal(app.d.getElementById("active-session-banner").hidden, false);
+
+  /* 3. Evento storage com JSON inválido */
+  app.set(KEYS.goals, "{metas-invalidas");
+  assertReadOnlyExecution(app, "evento storage goals inválido", () => {
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: KEYS.goals }));
+  });
+
+  /* 4. Evento storage key=null */
+  app.w.localStorage.removeItem(KEYS.active);
+  assertReadOnlyExecution(app, "evento storage key=null", () => {
+    app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: null }));
+  });
+  assert.equal(app.d.getElementById("active-session-banner").hidden, true);
+
+  /* 5. pageshow BFCache (persisted: true) com alterações externas combinadas (válidas + corrompidas) */
+  app.set(KEYS.profile, profileSeed({ objetivo: "resistencia", diasPorSemana: 4 }));
+  app.set(KEYS.rotation, "{rotacao-corrompida");
+  assertReadOnlyExecution(app, "pageshow persisted=true (BFCache)", () => {
+    const ev = new app.w.Event("pageshow");
+    ev.persisted = true;
+    app.w.dispatchEvent(ev);
+  });
+  assert.equal(app.F.state.profile.objetivo, "resistencia");
+  assert.equal(app.F.state.rotation.nextRoutineId, null);
+
+  /* 6. pageshow persisted=false sem e com mudanças */
+  assertReadOnlyExecution(app, "pageshow persisted=false inalterado", () => {
+    const ev = new app.w.Event("pageshow");
+    ev.persisted = false;
+    app.w.dispatchEvent(ev);
+  });
+
+  assertNoErrors(app, "76e eventos storage e pageshow");
+  app.close();
+});
+
+await runTest("76f. Segurança syncStateFromStorage: preferências ausentes ou inválidas usam padrão em memória sem gravar", async () => {
+  const app = await boot({
+    "forja-preferencias-v1": { soundOnRest: false, vibrateOnRest: false }
+  }, "index.html");
+  const KEYS = app.F.KEYS;
+  assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: false });
+
+  /* 1. Preferências ausentes (chave removida externamente) */
+  app.w.localStorage.removeItem(KEYS.preferences);
+  assertReadOnlyExecution(app, "preferências ausentes por chave", () => {
+    assert.equal(app.F.syncStateFromStorage(KEYS.preferences), true);
+  });
+  assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: true });
+  assert.equal(app.raw(KEYS.preferences), null, "Chave ausente não deve ser criada");
+
+  /* 2. Preferências com JSON inválido */
+  app.F.state.preferences = { soundOnRest: false, vibrateOnRest: false };
+  app.set(KEYS.preferences, "{json-invalido");
+  assertReadOnlyExecution(app, "preferências JSON inválido", () => {
+    assert.equal(app.F.syncStateFromStorage(KEYS.preferences), true);
+  });
+  assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: true });
+  assert.equal(app.raw(KEYS.preserved), null);
+
+  /* 3. Preferências com tipos não-objeto (array, string, número, null) */
+  for (const invalidRaw of ["[1,2,3]", "\"desligado\"", "0", "null"]) {
+    app.F.state.preferences = { soundOnRest: false, vibrateOnRest: false };
+    app.set(KEYS.preferences, invalidRaw);
+    assertReadOnlyExecution(app, "preferências não-objeto " + invalidRaw, () => {
+      assert.equal(app.F.syncStateFromStorage(), true);
+    });
+    assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: true });
+  }
+
+  /* 4. Preferências parciais / valores não booleanos */
+  app.set(KEYS.preferences, JSON.stringify({ soundOnRest: false }));
+  assertReadOnlyExecution(app, "preferências parciais", () => {
+    assert.equal(app.F.syncStateFromStorage(KEYS.preferences), true);
+  });
+  assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: true });
+
+  assertNoErrors(app, "76f preferências ausentes/inválidas");
   app.close();
 });
 
