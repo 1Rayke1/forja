@@ -25,7 +25,8 @@ sem uso (remoção possível na etapa 10).
 | 3 | fatia 1: tipografia por classe e superfície do casco (`8b17e3e`); cartões mantidos como estão |
 | 4 | **feita em 25/10/2026, na paleta atual** — ver “Situação” na própria etapa |
 | 5 | **feita em 25/10/2026, na paleta atual** — ver “Situação” na própria etapa |
-| 6–10 | pendentes |
+| 6 | **feita em 25/10/2026, na paleta atual e só com CSS** — ver “Situação” na própria etapa |
+| 7–10 | pendentes |
 
 Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
 
@@ -231,8 +232,9 @@ referenciava uma variável inexistente. `explorar/atlas.html` não carrega
 `npm test` 162/162 (inclui navegação ativa nas 12 páginas e hash dos
 arquivos protegidos). O `npm run test:e2e` não pôde rodar no ambiente desta
 sessão: o Chromium empacotado exige `libnspr4.so`, ausente e sem pacote
-disponível no sandbox — pendência de ambiente, não de código; rodar a suíte
-de navegador na primeira oportunidade.
+disponível no sandbox — pendência de ambiente, não de código. **Resolvido na
+etapa 6:** a suíte de navegador rodou integralmente (25/25) com a solução de
+ambiente descrita na “Situação” da etapa 6.
 
 ---
 
@@ -247,6 +249,51 @@ onboarding com 2 botões exatos, `#home-action-heading` com o texto certo) é o
 contrato. Nenhum texto funcional muda.
 **Risco:** alto — é a página mais testada. Cada commit roda E2E completo.
 **Reversão:** granular, um bloco por vez.
+
+**Situação (25/10/2026): feita, na paleta atual e só com CSS.** Os oito
+blocos entraram como oito commits no fim de `app.css` (`5ec93a9` … `832d552`,
+um por bloco, na ordem do plano; +145 linhas, nenhuma linha apagada):
+
+1. **Saudação** — hierarquia e medida de leitura: `clamp(26–34 px)` com
+   `text-wrap: balance`, subtítulo em 15 px na família de texto.
+2. **Ação principal** — cartão no padrão do sistema (raio 18, ritmo
+   `--space-*`); o CTA, que recebe `.treino-square` de compatibilidade e era
+   reescrito por `performance.css` (fundos translúcidos, texto claro,
+   alinhado à esquerda, 66 px), volta ao padrão dos botões primários do app
+   por seletor `#home-action .home-action-button`: limão, texto escuro, 48 px
+   e centralizado. A classe legada e o texto não mudam.
+3. **Semana** — cabeçalho 19 px e as três estatísticas em cartões do sistema
+   (raio 13, valor tabular, rótulo legível).
+4. **Metas** — período, anéis e notas alinhados (raio do sistema nos cartões
+   de anel, percentuais tabulares).
+5. **Último treino** — item de lista legível em 320 px (nome 15/700, meta em
+   13 px, quebra por palavra).
+6. **Calendário** — só CSS, como manda a tabela: mesmos IDs, mesmas células e
+   as mesmas cores funcionais (`today`, `selected`, `has-tasks` em limão);
+   alvos de 44 px nos botões de mês e números tabulares.
+7. **Missões** — mesmo formulário e mesma lista (42/100 px nas telas
+   estreitas): trilho de 8 px, alvo de 44 px no “Adicionar” e no excluir,
+   itens na superfície afundada e vazio no padrão `.ui-empty`.
+8. **Onboarding** — mesmos campos, colunas e gramatura compacta; as regras
+   novas estão escopadas sob `#onboarding-root` porque o mesmo formulário
+   (`.field-block`/`.field-input`) vive no Perfil, que pertence à etapa 9.
+
+Nenhum HTML, ID, texto, script, chave de `localStorage` ou arquivo protegido
+foi tocado: `git diff` da etapa mostra um arquivo (`app.css`). Todas as regras
+são explicitamente escopadas em blocos da home (`#conteudo`, `#home-week`,
+`.home-secondary`, `#onboarding-root`), então nada vaza para as outras 11
+páginas — que compartilham classes como `.section-title` e `.calendar-panel`.
+`npm test` 162/162 e `npm run test:e2e` **25/25**, incluindo “Home
+estabilizada”, “Ação TREINO compacta”, “Sem rolagem horizontal em
+320…1280 px em todas as páginas” e “Atlas: pixels fiéis à referência”.
+
+**E2E de volta no ambiente, resolvendo a pendência da etapa 5:** o tarball
+`al2023.tar.br` que o próprio `@sparticuz/chromium` empacota traz
+`libnspr4.so`/`libnss3.so`; extraídas em `/tmp` e lançadas no
+`LD_LIBRARY_PATH`, o navegador empacotado abre normalmente
+(`LD_LIBRARY_PATH=/tmp/fjlibs/lib npm run test:e2e`). Nada disso entra no
+repositório nem no `package.json`: é só a camada de bibliotecas do próprio
+pacote, em disco temporário do ambiente de teste.
 
 ---
 
