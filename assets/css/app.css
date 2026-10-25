@@ -393,6 +393,24 @@ select.field-input { padding-left: 12px; }
 #home-recent .home-recent-meta { font-family: var(--fj-fonte-texto); font-size: var(--font-sm); line-height: 1.5; }
 #home-recent .home-recent-note { margin-top: 10px; font-size: var(--font-sm); }
 
+/* 6.6 Calendário — só CSS: mesmos IDs, células e cores funcionais -------- */
+.home-secondary { margin-top: 20px; gap: var(--space-3); }
+.home-secondary > .home-section { margin: 0; }
+.home-secondary .calendar-panel,
+.home-secondary .missions-panel { padding: var(--space-4); border-radius: var(--radius-lg); }
+.home-secondary .section-title { font-size: var(--font-lg); }
+.home-secondary .calendar-panel .month-navigation { gap: var(--space-3); margin: 14px 0 16px; }
+.home-secondary .calendar-panel .month-title { font-size: var(--font-md); font-variant-numeric: tabular-nums; }
+.home-secondary .calendar-panel .nav-button { width: 44px; height: 44px; border-color: var(--border); border-radius: var(--radius-sm); font-family: var(--fj-fonte-texto); font-size: 20px; line-height: 1; }
+.home-secondary .calendar-panel .weekday { padding: 4px 0; font-family: var(--fj-fonte-texto); font-size: var(--font-xs); font-weight: 600; letter-spacing: 0.06em; }
+.home-secondary .calendar-panel .day { border-radius: var(--radius-sm); background: var(--panel2); font-family: var(--fj-fonte-numero); font-size: var(--font-sm); font-variant-numeric: tabular-nums; }
+.home-secondary .calendar-panel .day:disabled { background: transparent; }
+.home-secondary .calendar-panel .day.today { border-color: var(--lime); }
+.home-secondary .calendar-panel .day.selected { background: var(--lime); color: #12160c; font-weight: 800; }
+.home-secondary .calendar-panel .day.has-tasks::after { background: var(--lime); }
+.home-secondary .calendar-panel .day.selected.has-tasks::after { background: #12160c; }
+.home-secondary .calendar-panel .calendar-hint { margin-top: 14px; font-size: var(--font-xs); line-height: 1.5; }
+
 /* Legado: manter .treino-square compatível mas não usado na home nova */
 .treino-cta {
   background: var(--panel);
