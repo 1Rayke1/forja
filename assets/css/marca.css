@@ -9,7 +9,10 @@
      2. tokens da identidade em :root, prefixo --fj-* (etapa 2);
      3. ativação da etapa 3: tipografia e superfície do casco;
      4. etapa 4: componentes e estados, na paleta atual (25/10/2026);
-     5. etapa 5: cabeçalho, navegação e rodapé, na paleta atual.
+     5. etapa 5: cabeçalho, navegação e rodapé, na paleta atual;
+     6. etapa 6: Início (blocos da home e onboarding), na paleta atual;
+     7. etapa 7: Treino e execução, na paleta atual;
+     8. etapa 8: Progresso e gráficos, na paleta atual.
 
    REGRAS DE ISOLAMENTO DO ATLAS (valem para todas as etapas seguintes):
 
@@ -23,6 +26,8 @@
        seletor de elemento nu (body, p, h1, button, li…), justamente porque
        eles alcançariam, por herança, o texto de .execution-figure em
        treino/executar.html e as legendas .atlas-* de treino/biblioteca.html.
+       A única exceção é o prefixo de escopo `body[data-page="…"]` da etapa 8:
+       ele não estiliza o body, apenas restringe as regras àquela página.
      - Nenhuma lista de restauração de tokens: se um dia for preciso voltar
        atrás num ponto, remove-se a regra que o causou.
 
@@ -32,7 +37,8 @@
    O <link> desta folha entra depois de system.css e, em
    treino/biblioteca.html, depois de atlas.css.
 
-   O que ainda NÃO está aqui (etapas 6 a 9): cartões e telas.
+   O que ainda NÃO está aqui: Perfil, Configurações e Explorar (etapa 9) e a
+   limpeza de literais órfãos (etapa 10).
    Direção revisada em 25/10/2026: sem emblema e sem a paleta brasa/bronze —
    ver docs/rebranding/07-plano-por-etapas.md.
 
@@ -1227,4 +1233,400 @@ a.ui-button:active {
 
 .summary-exercises li {
   border-bottom-color: var(--line-soft);
+}
+
+/* ==========================================================================
+   ETAPA 8 — Progresso e gráficos (progresso/index.html), na paleta atual
+   --------------------------------------------------------------------------
+   Diretrizes obrigatórias:
+     - preservar fundo, superfícies e acento limão; nenhuma cor nova (todo
+       valor usado aqui já existe em performance.css, system.css ou nos
+       tokens --fj-* da etapa 2);
+     - nenhum cálculo, ID, markup ou storage: os cinco gráficos continuam
+       desenhados por forja-graficos.js com os mesmos números. Lá só se
+       extraiu a geometria para um objeto STYLE no topo do arquivo;
+     - escopo por body[data-page="progresso"]. .ui-chart/.ui-ring também
+       aparecem na Início (anéis de metas) e .history-* nas telas de treino,
+       já resolvidas nas etapas 6 e 7; nada desta etapa deve alcançá-las;
+     - leitura em 320 px: rótulos curtos, valores tabulares e nenhuma coluna
+       rígida que force rolagem horizontal.
+
+   Correções concretas encontradas nesta etapa:
+     - a legenda do heatmap (.ui-heatmap-swatch) não tinha background algum:
+       os cinco quadradinhos de "menos … mais" apareciam vazios;
+     - .compare-delta.is-down herdava var(--gold), que em performance.css vale
+       o mesmo limão de is-up: alta e queda ficavam idênticas. O sinal (+/−)
+       já vinha no texto; agora a cor também difere (limão na alta, osso claro
+       na queda, cinza no estável) e nenhum estado depende só dela;
+     - .ui-column-bar com valor zero caía para 2 px, abaixo do mínimo
+       legível: passa a 3 px, com raio próprio para não sumir no eixo.
+   ========================================================================== */
+
+/* 8.1 Base dos gráficos ----------------------------------------------------- */
+
+body[data-page="progresso"] .ui-chart {
+  margin-top: var(--space-3);
+}
+
+/* Rótulos na família de texto; valores e eixos com numerais tabulares. */
+body[data-page="progresso"] .ui-chart-caption,
+body[data-page="progresso"] .ui-bar-label,
+body[data-page="progresso"] .ui-column-label,
+body[data-page="progresso"] .ui-heatmap-row-label,
+body[data-page="progresso"] .ui-heatmap-legend,
+body[data-page="progresso"] .ui-ring-label,
+body[data-page="progresso"] .ui-ring-note {
+  font-family: var(--fj-fonte-texto);
+}
+
+body[data-page="progresso"] .ui-bar-value,
+body[data-page="progresso"] .ui-column-value,
+body[data-page="progresso"] .ui-line-edge,
+body[data-page="progresso"] .ui-ring-percent,
+body[data-page="progresso"] .ui-ring-value-text,
+body[data-page="progresso"] .ui-table td {
+  font-family: var(--fj-fonte-numero);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tabela que lê o gráfico em texto: respiro de tabela de dados. */
+body[data-page="progresso"] .ui-table {
+  margin-top: var(--space-3);
+}
+
+body[data-page="progresso"] .ui-table th,
+body[data-page="progresso"] .ui-table td {
+  padding: 8px 10px;
+}
+
+/* 8.2 Barras horizontais (séries por semana) -------------------------------- */
+
+body[data-page="progresso"] .ui-bars {
+  gap: var(--space-2);
+}
+
+body[data-page="progresso"] .ui-bar-track {
+  height: 10px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-soft);
+}
+
+/* 8.3 Colunas semanais ------------------------------------------------------ */
+
+body[data-page="progresso"] .ui-columns {
+  gap: var(--space-1);
+}
+
+/* Correção da etapa 8: a coluna era um grid sem linha de altura definida,
+   então o `height: N%` que o forja-graficos.js escreve na barra resolvia
+   contra altura indefinida e caía no min-height. Todas as barras — 0, 1 ou 20
+   treinos — apareciam com 2 px, e o gráfico ficava vazio. Com a primeira
+   linha em `1fr` (altura definida pela altura fixa da coluna), a porcentagem
+   volta a valer: a barra cresce proporcionalmente ao maior valor. */
+body[data-page="progresso"] .ui-column {
+  height: 124px;
+  gap: 4px;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  align-content: stretch;
+}
+
+/* `align-self: end` mantém todas as barras no mesmo eixo (o topo da coluna
+   é o teto do gráfico, não a base da barra): sem isso a barra crescia a
+   partir do alto da área e zeradas ficavam soltas no meio. */
+body[data-page="progresso"] .ui-column-bar {
+  align-self: end;
+  min-height: 3px;
+  border-radius: 5px 5px 2px 2px;
+}
+
+body[data-page="progresso"] .ui-column-value,
+body[data-page="progresso"] .ui-column-label {
+  font-size: var(--font-xs);
+  line-height: 1.3;
+}
+
+/* 8.4 Linha de evolução ----------------------------------------------------- */
+
+body[data-page="progresso"] .ui-line {
+  gap: 6px;
+}
+
+body[data-page="progresso"] .ui-line-svg {
+  height: 120px;
+}
+
+/* O ponto é o dado: limão cheio com um anel da cor do fundo, para não se
+   confundir com a própria linha quando dois pontos ficam próximos. */
+body[data-page="progresso"] .ui-line-dot {
+  stroke: var(--fj-carvao);
+  stroke-width: 1.5;
+}
+
+body[data-page="progresso"] .ui-line-edge {
+  gap: var(--space-2);
+  font-size: var(--font-xs);
+  overflow-wrap: anywhere;
+}
+
+/* 8.5 Calendário de frequência (heatmap) ------------------------------------ */
+
+body[data-page="progresso"] .ui-heatmap {
+  gap: var(--space-3);
+}
+
+/* Dia sem treino: superfície afundada com fio discreto, para a grade existir
+   mesmo com a janela inteira zerada. Precisa vir antes dos níveis, porque o
+   seletor com body[data-page] tem especificidade maior que .level-N. */
+body[data-page="progresso"] .ui-heatmap-cell {
+  background: var(--fj-ferro-baixo);
+}
+
+body[data-page="progresso"] .ui-heatmap-cell.level-0 {
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+
+body[data-page="progresso"] .ui-heatmap-cell.level-1,
+body[data-page="progresso"] .ui-heatmap-swatch.level-1 {
+  background: rgba(183, 243, 74, 0.22);
+}
+
+body[data-page="progresso"] .ui-heatmap-cell.level-2,
+body[data-page="progresso"] .ui-heatmap-swatch.level-2 {
+  background: rgba(183, 243, 74, 0.42);
+}
+
+body[data-page="progresso"] .ui-heatmap-cell.level-3,
+body[data-page="progresso"] .ui-heatmap-swatch.level-3 {
+  background: rgba(183, 243, 74, 0.66);
+}
+
+body[data-page="progresso"] .ui-heatmap-cell.level-4,
+body[data-page="progresso"] .ui-heatmap-swatch.level-4 {
+  background: var(--lime);
+}
+
+/* Correção da etapa 8: os quadradinhos da legenda não tinham cor nenhuma. */
+body[data-page="progresso"] .ui-heatmap-swatch.level-0 {
+  background: var(--fj-ferro-baixo);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+
+body[data-page="progresso"] .ui-heatmap-legend {
+  gap: 5px;
+  font-size: var(--font-xs);
+}
+
+/* 8.6 Anéis de metas -------------------------------------------------------- */
+
+body[data-page="progresso"] #goals-progress,
+body[data-page="progresso"] .goals-progress {
+  gap: var(--space-3);
+}
+
+body[data-page="progresso"] .goals-progress {
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+body[data-page="progresso"] .goals-progress .ui-ring {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: var(--space-3) var(--space-2);
+}
+
+body[data-page="progresso"] .ui-ring-track {
+  stroke: var(--border);
+}
+
+body[data-page="progresso"] .ui-ring-percent {
+  font-size: var(--font-lg);
+}
+
+body[data-page="progresso"] .ui-ring-value-text {
+  font-size: var(--font-xs);
+}
+
+body[data-page="progresso"] .ui-ring-label {
+  font-size: var(--font-sm);
+}
+
+body[data-page="progresso"] .ui-ring-note {
+  font-size: var(--font-xs);
+  line-height: 1.4;
+}
+
+/* 8.7 Comparação de períodos ------------------------------------------------ */
+
+body[data-page="progresso"] .compare-row {
+  padding: 10px var(--space-3);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+body[data-page="progresso"] .compare-main strong {
+  font-family: var(--fj-fonte-titulo);
+  font-size: var(--font-sm);
+  font-weight: var(--fj-peso-forte);
+  letter-spacing: var(--fj-tracking-titulo);
+}
+
+body[data-page="progresso"] .compare-main span {
+  font-size: var(--font-xs);
+  overflow-wrap: anywhere;
+}
+
+body[data-page="progresso"] .compare-delta {
+  font-family: var(--fj-fonte-numero);
+  font-size: var(--font-sm);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Queda não é erro: texto claro, distinto do limão da alta e do cinza do
+   estável. O sinal "−" continua sendo a informação principal. */
+body[data-page="progresso"] .compare-delta.is-down {
+  color: var(--fj-osso-suave);
+}
+
+body[data-page="progresso"] .compare-delta.is-flat {
+  font-weight: 700;
+}
+
+/* 8.8 Recordes -------------------------------------------------------------- */
+
+body[data-page="progresso"] .records-list {
+  gap: var(--space-3);
+}
+
+body[data-page="progresso"] .record-item {
+  gap: 4px;
+  padding: var(--space-3) 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+body[data-page="progresso"] .record-title {
+  font-family: var(--fj-fonte-titulo);
+  font-size: var(--font-sm);
+  font-weight: var(--fj-peso-forte);
+  letter-spacing: var(--fj-tracking-titulo);
+  overflow-wrap: anywhere;
+}
+
+body[data-page="progresso"] .record-value {
+  font-family: var(--fj-fonte-numero);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+body[data-page="progresso"] .record-detail,
+body[data-page="progresso"] .record-criteria {
+  overflow-wrap: anywhere;
+}
+
+body[data-page="progresso"] .record-criteria {
+  line-height: 1.5;
+}
+
+/* 8.9 Por rotina / por exercício ------------------------------------------- */
+
+body[data-page="progresso"] .progress-list {
+  gap: var(--space-2);
+}
+
+body[data-page="progresso"] .progress-list li {
+  padding: 10px var(--space-3);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+body[data-page="progresso"] .progress-row-main strong {
+  font-size: var(--font-sm);
+}
+
+body[data-page="progresso"] .progress-row-main span {
+  font-size: var(--font-xs);
+  line-height: 1.45;
+}
+
+/* 8.10 Histórico ------------------------------------------------------------ */
+
+body[data-page="progresso"] .history-item {
+  border-color: var(--line-soft);
+  border-radius: var(--radius-md);
+  overflow-wrap: anywhere;
+}
+
+body[data-page="progresso"] .history-item-head .history-title {
+  font-size: var(--font-md);
+}
+
+body[data-page="progresso"] .history-status {
+  font-size: var(--font-xs);
+}
+
+/* 8.11 Desktop (a partir de 720 px) -----------------------------------------
+   Em 1280 px as barras do gráfico semanal ficavam com 34 px num trilho de
+   140 px e o heatmap mantinha células de 14 px: legível, mas apertado numa
+   área larga. A partir de 720 px as duas peças crescem um degrau — nada muda
+   em celular. */
+
+@media (min-width: 720px) {
+  body[data-page="progresso"] .ui-columns {
+    gap: var(--space-3);
+  }
+
+  body[data-page="progresso"] .ui-column {
+    height: 148px;
+  }
+
+  body[data-page="progresso"] .ui-column-bar {
+    max-width: 44px;
+  }
+
+  body[data-page="progresso"] .ui-heatmap-body {
+    grid-template-columns: 18px repeat(auto-fill, 18px);
+    grid-template-rows: repeat(7, 18px);
+  }
+
+  body[data-page="progresso"] .ui-heatmap-cell {
+    width: 18px;
+    height: 18px;
+  }
+
+  body[data-page="progresso"] .ui-heatmap-swatch {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* 8.12 Tela estreita (320–420 px) ------------------------------------------- */
+
+@media (max-width: 420px) {
+  body[data-page="progresso"] .ui-column {
+    height: 112px;
+  }
+
+  /* 12 semanas × 14 px ainda cabem; o respiro entre células encolhe antes
+     de qualquer célula sair da coluna. */
+  body[data-page="progresso"] .ui-heatmap-body {
+    gap: 3px;
+  }
+
+  body[data-page="progresso"] .ui-column-label,
+  body[data-page="progresso"] .ui-column-value {
+    font-size: 10px;
+  }
+
+  body[data-page="progresso"] .ui-line-svg {
+    height: 104px;
+  }
+
+  body[data-page="progresso"] .compare-delta {
+    font-size: var(--font-xs);
+  }
 }
