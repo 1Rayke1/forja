@@ -28,7 +28,8 @@ sem uso (remoção possível na etapa 10).
 | 6 | **feita em 25/10/2026, na paleta atual e só com CSS** — ver “Situação” na própria etapa |
 | 7 | **feita em 25/10/2026, na paleta atual e só com CSS** — ver “Situação” na própria etapa |
 | 8 | **feita em 25/10/2026, na paleta atual e só com CSS + constantes de estilo** — ver “Situação” na própria etapa |
-| 9–10 | pendentes |
+| 9 | **feita em 25/10/2026, na paleta atual (CSS + limpeza pontual de HTML)** — ver “Situação” na própria etapa |
+| 10 | pendente |
 
 Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
 
@@ -428,6 +429,61 @@ PARIDADE 40) e `npm run test:e2e` **25/25** com o Chromium empacotado
 **Verificação:** E2E de backup/restauração; conferir que exportar segue gerando
 o mesmo JSON (comparação campo a campo com o export de antes).
 **Risco:** baixo.
+
+**Situação (25/10/2026): feita, na paleta atual.** Arquivos tocados:
+`assets/css/marca.css` (bloco “ETAPA 9”, escopado em
+`body[data-page="perfil"]`, `body[data-page="configuracoes"]` e
+`body[data-page="explorar"]`), `perfil/index.html` e `explorar/index.html`
+(`configuracoes/index.html` já não tinha estilos inline e recebeu todas as
+melhorias via `marca.css`; nenhum arquivo JS foi alterado).
+
+O que entrou:
+
+1. **Superfícies unificadas em Perfil e Configurações:** `.preferences-panel`,
+   `.backup-panel` e os três blocos `.storage-panel` (dois em
+   `perfil/index.html` e um em `configuracoes/index.html`) passaram ao mesmo
+   cartão do sistema (`var(--surface)`, borda `1px solid var(--border)`,
+   `var(--radius-lg)`, sem sombra herdada nem fundo translúcido divergente),
+   com ritmo vertical consistente e recuos responsivos (20 px em desktop,
+   16 px em celular e 14 px até 380 px). Em `configuracoes/index.html`, o
+   `.back-link` recebeu superfície contida sem `margin-left: -10px` nem
+   sublinhado, evitando corte de foco em 320 px.
+2. **Formulário de perfil (`#profile-form`) e seção “Meu corpo”:** grade em
+   1 coluna abaixo de 560 px (evitando truncamento de rótulos e `select` em
+   320–430 px) e 2 colunas equilibradas a partir de 560 px, com
+   `#prof-equipamento` ocupando a linha inteira (`1 / -1`); numerais tabulares
+   nos campos numéricos e em `#profile-status`; botão `#profile-save` em
+   largura total até 420 px; estado vazio de medidas corporais com borda
+   tracejada via CSS e zero `style=""` inline (8 atributos removidos de
+   `perfil/index.html`).
+3. **Painel de backup (`.backup-panel`) e preferências do descanso
+   (`.preferences-panel .check-row`):** botões de exportação, importação e
+   desfazer empilhados em largura total no celular e distribuídos em linha a
+   partir de 560 px; `#backup-status` separado por fio sutil com tipografia
+   tabular legível; linhas `.check-row` escopadas ao painel (sem afetar
+   modais de `forja-core.js`) com superfície afundada, alvo mínimo de 48 px e
+   realce em `--accent-line` quando marcadas.
+4. **Explorar (`explorar/index.html`):** substituição dos glifos `◉`
+   (`#card-exercicios`) e `◎` (`#card-anatomia`) por ícones SVG `24×24` de
+   traço (`stroke="currentColor"`, `stroke-width="2"`, `aria-hidden="true"`)
+   alinhados ao catálogo do sistema (`book` e `atlas`), remoção integral dos
+   4 atributos `style=""` inline, restauração da legibilidade de
+   `.modality-desc` em 13 px (`Inter Forja`) em todas as larguras (corrigindo a
+   redução de 9–10 px herdada de `responsive.css`), grade de 2 colunas em
+   `.hub-list` a partir de 720 px com `.modality-meta` alinhado na base e
+   atalhos em 2 colunas a partir de 560 px.
+
+Escopo e garantias preservados: nenhum controle novo, nenhuma preferência nova,
+nenhum ID, `aria-*`, `role`, texto visível, chave/esquema de `localStorage` ou
+arquivo protegido (`forja-calendario.js`, `assets/anatomia/*`,
+`forja-figura.js`, `forja-atlas.js`, `atlas.css`, `explorar/atlas.html`) foi
+alterado. Comparação campo a campo do JSON gerado por `F.buildBackupObject()`
+antes e depois das mudanças (em `perfil` e `configuracoes`): **100% idêntico**
+em todas as chaves, metadados e resumos. Testes executados: `npm test`
+**162/162** (`metricas` 18/18, `forja` 92/92, `atlas` 12/12, `paridade` 40/40)
+e `npm run test:e2e` **25/25** em Chromium real (incluindo backup/restauração
+ponta a ponta em Perfil e Configurações e ausência de rolagem horizontal de
+320 a 1280 px).
 
 ---
 
