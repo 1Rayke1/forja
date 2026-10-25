@@ -411,6 +411,22 @@ select.field-input { padding-left: 12px; }
 .home-secondary .calendar-panel .day.selected.has-tasks::after { background: #12160c; }
 .home-secondary .calendar-panel .calendar-hint { margin-top: 14px; font-size: var(--font-xs); line-height: 1.5; }
 
+/* 6.7 Missões — progresso, formulário, itens e estado vazio -------------- */
+.home-secondary .missions-panel .missions-heading { margin-bottom: 12px; }
+.home-secondary .missions-panel .selected-date { margin-top: 6px; font-family: var(--fj-fonte-texto); font-size: var(--font-sm); }
+.home-secondary .missions-panel .progress-label { margin-top: 6px; font-size: var(--font-xs); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+.home-secondary .missions-panel .progress-track { height: 8px; margin-bottom: 16px; background: var(--border); }
+.home-secondary .missions-panel .task-form { gap: var(--space-2); margin-bottom: 12px; }
+.home-secondary .missions-panel .task-form .add-button { min-height: 44px; }
+.home-secondary .missions-panel .task-list { gap: var(--space-2); }
+.home-secondary .missions-panel .task { gap: 12px; padding: 12px; border-color: var(--border); border-radius: var(--radius-md); background: var(--surface-sunken); }
+.home-secondary .missions-panel .task input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--lime); }
+.home-secondary .missions-panel .task-text { font-family: var(--fj-fonte-texto); font-size: 14px; line-height: 1.45; }
+.home-secondary .missions-panel .task.done .task-text { color: var(--muted); text-decoration-color: var(--muted); }
+.home-secondary .missions-panel .delete-button { display: grid; place-items: center; min-width: 44px; min-height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-family: var(--fj-fonte-texto); }
+.home-secondary .missions-panel .delete-button:hover { color: var(--danger); }
+.home-secondary .missions-panel .task-list .empty { padding: 16px; border: 1px dashed var(--line-soft); border-radius: var(--radius-md); background: var(--surface-sunken); font-family: var(--fj-fonte-texto); font-size: var(--font-sm); line-height: 1.5; }
+
 /* Legado: manter .treino-square compatível mas não usado na home nova */
 .treino-cta {
   background: var(--panel);
