@@ -12,7 +12,8 @@
      5. etapa 5: cabeçalho, navegação e rodapé, na paleta atual;
      6. etapa 6: Início (blocos da home e onboarding), na paleta atual;
      7. etapa 7: Treino e execução, na paleta atual;
-     8. etapa 8: Progresso e gráficos, na paleta atual.
+     8. etapa 8: Progresso e gráficos, na paleta atual;
+     9. etapa 9: Perfil, configurações e explorar, na paleta atual.
 
    REGRAS DE ISOLAMENTO DO ATLAS (valem para todas as etapas seguintes):
 
@@ -26,8 +27,9 @@
        seletor de elemento nu (body, p, h1, button, li…), justamente porque
        eles alcançariam, por herança, o texto de .execution-figure em
        treino/executar.html e as legendas .atlas-* de treino/biblioteca.html.
-       A única exceção é o prefixo de escopo `body[data-page="…"]` da etapa 8:
-       ele não estiliza o body, apenas restringe as regras àquela página.
+       A única exceção é o prefixo de escopo `body[data-page="…"]` das etapas
+       8 e 9: ele não estiliza o body, apenas restringe as regras àquela
+       página.
      - Nenhuma lista de restauração de tokens: se um dia for preciso voltar
        atrás num ponto, remove-se a regra que o causou.
 
@@ -37,8 +39,8 @@
    O <link> desta folha entra depois de system.css e, em
    treino/biblioteca.html, depois de atlas.css.
 
-   O que ainda NÃO está aqui: Perfil, Configurações e Explorar (etapa 9) e a
-   limpeza de literais órfãos (etapa 10).
+   O que ainda NÃO está aqui: a limpeza de literais órfãos e o fechamento
+   (etapa 10).
    Direção revisada em 25/10/2026: sem emblema e sem a paleta brasa/bronze —
    ver docs/rebranding/07-plano-por-etapas.md.
 
@@ -1628,5 +1630,385 @@ body[data-page="progresso"] .history-status {
 
   body[data-page="progresso"] .compare-delta {
     font-size: var(--font-xs);
+  }
+}
+
+/* ==========================================================================
+   ETAPA 9 — Perfil, configurações e explorar (perfil/index.html,
+   configuracoes/index.html, explorar/index.html), na paleta atual
+   --------------------------------------------------------------------------
+   Diretrizes obrigatórias:
+     - preservar fundo carvão, acento limão e superfícies atuais; nenhuma cor
+       nova e nenhum controle ou preferência nova;
+     - escopo estrito por body[data-page="perfil"],
+       body[data-page="configuracoes"] e body[data-page="explorar"], sem
+       alcançar treino/index.html (.hub-list/.modality-card),
+       progresso/index.html (.goals-form/.goals-fields), modais (.check-row)
+       nem explorar/atlas.html (protegido);
+     - substituir todos os atributos style="" inline de perfil/index.html (8)
+       e explorar/index.html (4) por regras do sistema, e trocar os glifos
+       tipográficos ◉/◎ de explorar/index.html pelos ícones SVG da interface.
+
+   Correções concretas encontradas nesta etapa:
+     - #profile-form reaproveitava .goals-fields do Progresso (4 colunas em
+       ≥640 px para 5 campos, deixando a duração isolada na segunda fileira,
+       e 2 colunas estreitas em 390 px que apertavam os selects);
+     - .backup-panel, .preferences-panel e .storage-panel na mesma tela
+       misturavam três margens (18, 20 e 26 px), três raios (12, 14 e 17 px)
+       e três tamanhos de texto corrido (12, 15 e 16 px), e .storage-panel p
+       ficava fora da família auto-hospedada;
+     - em explorar/index.html, .modality-desc caía para 10 px (≤560 px) e
+       9 px (≤380 px) pela regra legada de grade dupla de responsive.css,
+       embora ali os cartões ocupem a largura inteira e tragam frases longas.
+   ========================================================================== */
+
+/* 9.1 Painéis compartilhados (Perfil e Configurações) ----------------------- */
+
+body[data-page="perfil"] .preferences-panel,
+body[data-page="perfil"] .backup-panel,
+body[data-page="perfil"] .storage-panel,
+body[data-page="configuracoes"] .preferences-panel,
+body[data-page="configuracoes"] .backup-panel,
+body[data-page="configuracoes"] .storage-panel {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: none;
+  min-width: 0;
+}
+
+body[data-page="perfil"] .preferences-panel .section-title,
+body[data-page="perfil"] .backup-panel .section-title,
+body[data-page="perfil"] .storage-panel .section-title,
+body[data-page="configuracoes"] .preferences-panel .section-title,
+body[data-page="configuracoes"] .backup-panel .section-title,
+body[data-page="configuracoes"] .storage-panel .section-title {
+  margin: 0;
+  font-size: var(--font-lg);
+}
+
+body[data-page="perfil"] .preferences-panel > .screen-subtitle,
+body[data-page="perfil"] .backup-description,
+body[data-page="configuracoes"] .backup-description {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--fj-fonte-texto);
+  font-size: var(--font-sm);
+  font-weight: 400;
+  line-height: var(--fj-altura-linha-texto);
+}
+
+/* 9.2 Formulário de perfil e bloco "Meu corpo" (perfil/index.html) ---------- */
+
+body[data-page="perfil"] #profile-form {
+  margin: 0;
+  gap: var(--space-3);
+}
+
+body[data-page="perfil"] #profile-form .goals-fields {
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+body[data-page="perfil"] #profile-form .field-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--font-xs);
+  font-weight: var(--fj-peso-medio);
+  letter-spacing: 0.04em;
+}
+
+body[data-page="perfil"] #profile-form input[type="number"] {
+  font-family: var(--fj-fonte-numero);
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="perfil"] #profile-form .field-hint,
+body[data-page="perfil"] #profile-form .field-error {
+  margin: 0;
+}
+
+body[data-page="perfil"] #profile-form .goals-actions {
+  margin: 0;
+  gap: var(--space-3);
+}
+
+body[data-page="perfil"] #profile-status {
+  margin: 0;
+  font-size: var(--font-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="perfil"] .profile-body-stack {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+body[data-page="perfil"] .profile-body-stack .section-note {
+  margin: 0;
+  font-size: var(--font-xs);
+  line-height: 1.5;
+}
+
+/* 9.3 Backup e restauração (.backup-panel) ---------------------------------- */
+
+body[data-page="perfil"] .backup-actions,
+body[data-page="configuracoes"] .backup-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+body[data-page="perfil"] .backup-actions .secondary-button,
+body[data-page="configuracoes"] .backup-actions .secondary-button {
+  width: 100%;
+}
+
+body[data-page="perfil"] .backup-meta,
+body[data-page="configuracoes"] .backup-meta {
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line-soft);
+  color: var(--muted);
+  font-size: var(--font-xs);
+  line-height: var(--fj-altura-linha-texto);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 9.4 Preferências do descanso (.check-row) --------------------------------- */
+
+body[data-page="perfil"] .preferences-panel .check-row,
+body[data-page="configuracoes"] .preferences-panel .check-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-size: var(--font-sm);
+  line-height: 1.45;
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+body[data-page="perfil"] .preferences-panel .check-row:hover,
+body[data-page="configuracoes"] .preferences-panel .check-row:hover {
+  border-color: var(--border);
+  background: var(--row-hover);
+}
+
+body[data-page="perfil"] .preferences-panel .check-row:has(input:checked),
+body[data-page="configuracoes"] .preferences-panel .check-row:has(input:checked) {
+  border-color: var(--accent-line);
+}
+
+body[data-page="perfil"] .preferences-panel .check-row input[type="checkbox"],
+body[data-page="configuracoes"] .preferences-panel .check-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--lime);
+  cursor: pointer;
+}
+
+/* 9.5 Três .storage-panel e barra superior de Configurações ----------------- */
+
+body[data-page="perfil"] .storage-panel p,
+body[data-page="configuracoes"] .storage-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--fj-fonte-texto);
+  font-size: var(--font-sm);
+  font-weight: 400;
+  line-height: var(--fj-altura-linha-texto);
+}
+
+body[data-page="perfil"] .storage-panel .storage-panel-actions {
+  margin-top: var(--space-1);
+}
+
+body[data-page="configuracoes"] .screen-toolbar {
+  margin-bottom: var(--space-3);
+}
+
+body[data-page="configuracoes"] .back-link {
+  margin-left: 0;
+  padding-inline: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--lime);
+  font-size: var(--font-sm);
+  text-decoration: none;
+}
+
+body[data-page="configuracoes"] .back-link:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+/* 9.6 Explorar (explorar/index.html) ---------------------------------------- */
+
+body[data-page="explorar"] .hub-list {
+  margin-top: var(--space-4);
+  gap: var(--space-3);
+}
+
+body[data-page="explorar"] .hub-list .modality-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+}
+
+body[data-page="explorar"] .modality-top {
+  margin-bottom: var(--space-1);
+}
+
+body[data-page="explorar"] .modality-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--lime);
+}
+
+body[data-page="explorar"] .modality-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+body[data-page="explorar"] .modality-name {
+  font-size: var(--font-md);
+  letter-spacing: 0.05em;
+}
+
+body[data-page="explorar"] .modality-desc {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--fj-fonte-texto);
+  font-size: var(--font-sm);
+  font-weight: 400;
+  line-height: var(--fj-altura-linha-texto);
+}
+
+body[data-page="explorar"] .modality-meta {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  color: var(--lime);
+  font-size: var(--font-xs);
+}
+
+body[data-page="explorar"] .section-block {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+body[data-page="explorar"] .section-block .section-title {
+  margin: 0;
+  font-size: var(--font-lg);
+}
+
+body[data-page="explorar"] .section-block .section-note {
+  margin: 0;
+  font-size: var(--font-sm);
+  line-height: var(--fj-altura-linha-texto);
+}
+
+body[data-page="explorar"] .explorar-shortcuts {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* 9.7 Pontos de corte responsivos (320…1280 px) ----------------------------- */
+
+@media (min-width: 560px) {
+  body[data-page="perfil"] #profile-form .goals-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body[data-page="perfil"] #profile-form .goals-fields > .field-block:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  body[data-page="perfil"] .backup-actions,
+  body[data-page="configuracoes"] .backup-actions {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  body[data-page="perfil"] .backup-actions .secondary-button,
+  body[data-page="configuracoes"] .backup-actions .secondary-button {
+    flex: 1 1 180px;
+    width: auto;
+  }
+
+  body[data-page="explorar"] .explorar-shortcuts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 720px) {
+  body[data-page="perfil"] .preferences-panel,
+  body[data-page="perfil"] .backup-panel,
+  body[data-page="perfil"] .storage-panel,
+  body[data-page="configuracoes"] .preferences-panel,
+  body[data-page="configuracoes"] .backup-panel,
+  body[data-page="configuracoes"] .storage-panel,
+  body[data-page="explorar"] .section-block {
+    margin-top: 20px;
+    padding: 20px;
+  }
+
+  body[data-page="explorar"] .hub-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  body[data-page="explorar"] .hub-list .modality-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  body[data-page="perfil"] #profile-save,
+  body[data-page="perfil"] .storage-panel .storage-panel-actions .secondary-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  body[data-page="perfil"] .preferences-panel,
+  body[data-page="perfil"] .backup-panel,
+  body[data-page="perfil"] .storage-panel,
+  body[data-page="configuracoes"] .preferences-panel,
+  body[data-page="configuracoes"] .backup-panel,
+  body[data-page="configuracoes"] .storage-panel,
+  body[data-page="explorar"] .hub-list .modality-card,
+  body[data-page="explorar"] .section-block {
+    padding: 14px;
+  }
+
+  body[data-page="perfil"] .profile-body-stack .ui-empty {
+    padding: 12px;
   }
 }
