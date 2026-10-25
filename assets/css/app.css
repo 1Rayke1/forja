@@ -300,6 +300,24 @@ select.field-input { padding-left: 12px; }
 @media (min-width: 700px) { .home-week-stats { gap: 10px; } .home-action-card { padding: 18px; } }
 @media (max-width: 380px) { .home-week-stats { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; } .home-week-stat { padding: 8px 6px; } .home-week-stat-value { font-size: 18px; } }
 
+/* ==========================================================================
+   ETAPA 6 — Início (index.html), na paleta atual
+   --------------------------------------------------------------------------
+   Um bloco por commit, na ordem do plano: saudação, ação principal, semana,
+   metas, último treino, calendário (só CSS), missões e onboarding. Só esta
+   folha muda: nenhum HTML, ID, texto, script, chave de dados ou arquivo
+   protegido é tocado. As regras usam os tokens de performance.css/system.css
+   e as famílias de marca.css; seletores com #id / .home-secondary vencem a
+   cascata de performance.css sem precisar de !important. Nenhuma cor nova:
+   limão, carvão e superfícies de sempre. O atlas não carrega esta home.
+   ========================================================================== */
+
+/* 6.1 Saudação — hierarquia e medida de leitura -------------------------- */
+#conteudo > .home-greeting { margin: 4px 0 18px; }
+.home-eyebrow { margin-bottom: 8px; font-size: var(--font-xs); letter-spacing: var(--fj-tracking-rotulo); }
+#conteudo .home-title { font-size: clamp(26px, 6vw, 34px); line-height: 1.12; text-wrap: balance; overflow-wrap: anywhere; }
+.home-subtitle { max-width: 60ch; font-size: var(--font-md); line-height: var(--fj-altura-linha-texto); }
+
 /* Legado: manter .treino-square compatível mas não usado na home nova */
 .treino-cta {
   background: var(--panel);
