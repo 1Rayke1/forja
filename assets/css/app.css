@@ -300,6 +300,151 @@ select.field-input { padding-left: 12px; }
 @media (min-width: 700px) { .home-week-stats { gap: 10px; } .home-action-card { padding: 18px; } }
 @media (max-width: 380px) { .home-week-stats { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; } .home-week-stat { padding: 8px 6px; } .home-week-stat-value { font-size: 18px; } }
 
+/* ==========================================================================
+   ETAPA 6 — Início (index.html), na paleta atual
+   --------------------------------------------------------------------------
+   Um bloco por commit, na ordem do plano: saudação, ação principal, semana,
+   metas, último treino, calendário (só CSS), missões e onboarding. Só esta
+   folha muda: nenhum HTML, ID, texto, script, chave de dados ou arquivo
+   protegido é tocado. As regras usam os tokens de performance.css/system.css
+   e as famílias de marca.css; seletores com #id / .home-secondary vencem a
+   cascata de performance.css sem precisar de !important. Nenhuma cor nova:
+   limão, carvão e superfícies de sempre. O atlas não carrega esta home.
+   ========================================================================== */
+
+/* 6.1 Saudação — hierarquia e medida de leitura -------------------------- */
+#conteudo > .home-greeting { margin: 4px 0 18px; }
+.home-eyebrow { margin-bottom: 8px; font-size: var(--font-xs); letter-spacing: var(--fj-tracking-rotulo); }
+#conteudo .home-title { font-size: clamp(26px, 6vw, 34px); line-height: 1.12; text-wrap: balance; overflow-wrap: anywhere; }
+.home-subtitle { max-width: 60ch; font-size: var(--font-md); line-height: var(--fj-altura-linha-texto); }
+
+/* 6.2 Ação principal — cartão no padrão do sistema e CTA primário -------- */
+#home-action { margin: 0 0 18px; }
+#home-action .home-action-card { padding: var(--space-4); gap: var(--space-3); border-radius: var(--radius-lg); }
+#home-action .home-action-eyebrow { font-size: var(--font-xs); letter-spacing: var(--fj-tracking-rotulo); }
+#home-action .home-action-title { font-size: var(--font-lg); line-height: var(--fj-altura-linha-titulo); text-wrap: balance; }
+#home-action .home-action-meta,
+#home-action .home-action-hint { font-family: var(--fj-fonte-texto); line-height: var(--fj-altura-linha-texto); }
+#home-action .home-action-meta { font-size: var(--font-sm); }
+#home-action .home-action-hint { font-size: var(--font-xs); }
+
+/* O botão também recebe .treino-square por compatibilidade com os testes;
+   performance.css sobrescreve essa classe e o deixava com cara de link
+   secundário (fundos translúcidos, texto claro, alinhado à esquerda).
+   Com o seletor de #home-action ele volta ao padrão dos botões primários
+   do app: limão, texto escuro, 48 px e centralizado. A classe legada fica. */
+#home-action .home-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--lime);
+  border-radius: 12px;
+  background: var(--lime);
+  color: #12160c;
+  box-shadow: none;
+  font-family: var(--fj-fonte-texto);
+  font-size: var(--font-md);
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* 6.3 Semana — cabeçalho e três estatísticas ----------------------------- */
+#home-week { margin-top: 20px; margin-bottom: 0; }
+#home-week .home-week-head { align-items: center; margin-bottom: 12px; }
+#home-week .home-week-title { font-size: var(--font-lg); }
+#home-week .home-week-link { font-family: var(--fj-fonte-texto); font-size: var(--font-sm); text-underline-offset: 3px; }
+#home-week .home-week-stats { gap: var(--space-2); }
+#home-week .home-week-stat { padding: 12px 8px; border-color: var(--border); border-radius: var(--radius-md); }
+#home-week .home-week-stat-value { font-size: clamp(20px, 5vw, 25px); line-height: 1.1; }
+#home-week .home-week-stat-label { margin-top: 6px; font-size: var(--font-xs); line-height: 1.3; }
+#home-week .home-week-note { margin-top: 10px; font-size: var(--font-sm); }
+
+/* 6.4 Metas — período, anéis e notas ------------------------------------- */
+#home-goals { margin-top: 20px; margin-bottom: 0; }
+#home-goals .home-week-head { align-items: center; margin-bottom: 12px; }
+#home-goals .home-week-title { font-size: var(--font-lg); }
+#home-goals .home-week-link { font-family: var(--fj-fonte-texto); font-size: var(--font-sm); text-underline-offset: 3px; }
+#home-goals .home-goals-period,
+#home-goals .home-goals-note { margin: 0 0 12px; font-size: var(--font-sm); line-height: var(--fj-altura-linha-texto); }
+#home-goals .home-goals-grid { gap: var(--space-2); }
+#home-goals .home-goals-ring { padding: 12px 8px; border-color: var(--border); border-radius: var(--radius-md); }
+#home-goals .ui-ring-percent,
+#home-goals .ui-ring-value-text { font-family: var(--fj-fonte-numero); font-variant-numeric: tabular-nums; }
+#home-goals .ui-ring-percent { font-size: var(--font-lg); }
+#home-goals .ui-ring-value-text,
+#home-goals .ui-ring-note { font-size: var(--font-xs); }
+#home-goals .ui-ring-label { font-family: var(--fj-fonte-texto); font-size: var(--font-sm); overflow-wrap: anywhere; }
+#home-goals .ui-ring-note { line-height: 1.4; }
+
+/* 6.5 Último treino — lista legível em 320 px ---------------------------- */
+#home-recent { margin-top: 20px; margin-bottom: 0; }
+#home-recent .home-recent-head { align-items: center; margin-bottom: 12px; }
+#home-recent .home-recent-title { font-size: var(--font-lg); }
+#home-recent .home-recent-link { font-family: var(--fj-fonte-texto); font-size: var(--font-sm); text-underline-offset: 3px; }
+#home-recent .home-recent-list { gap: var(--space-2); }
+#home-recent .home-recent-item { gap: 4px; padding: 12px; border-color: var(--border); border-radius: var(--radius-md); }
+#home-recent .home-recent-name { font-family: var(--fj-fonte-titulo); font-size: var(--font-md); font-weight: 700; line-height: 1.3; }
+#home-recent .home-recent-meta { font-family: var(--fj-fonte-texto); font-size: var(--font-sm); line-height: 1.5; }
+#home-recent .home-recent-note { margin-top: 10px; font-size: var(--font-sm); }
+
+/* 6.6 Calendário — só CSS: mesmos IDs, células e cores funcionais -------- */
+.home-secondary { margin-top: 20px; gap: var(--space-3); }
+.home-secondary > .home-section { margin: 0; }
+.home-secondary .calendar-panel,
+.home-secondary .missions-panel { padding: var(--space-4); border-radius: var(--radius-lg); }
+.home-secondary .section-title { font-size: var(--font-lg); }
+.home-secondary .calendar-panel .month-navigation { gap: var(--space-3); margin: 14px 0 16px; }
+.home-secondary .calendar-panel .month-title { font-size: var(--font-md); font-variant-numeric: tabular-nums; }
+.home-secondary .calendar-panel .nav-button { width: 44px; height: 44px; border-color: var(--border); border-radius: var(--radius-sm); font-family: var(--fj-fonte-texto); font-size: 20px; line-height: 1; }
+.home-secondary .calendar-panel .weekday { padding: 4px 0; font-family: var(--fj-fonte-texto); font-size: var(--font-xs); font-weight: 600; letter-spacing: 0.06em; }
+.home-secondary .calendar-panel .day { border-radius: var(--radius-sm); background: var(--panel2); font-family: var(--fj-fonte-numero); font-size: var(--font-sm); font-variant-numeric: tabular-nums; }
+.home-secondary .calendar-panel .day:disabled { background: transparent; }
+.home-secondary .calendar-panel .day.today { border-color: var(--lime); }
+.home-secondary .calendar-panel .day.selected { background: var(--lime); color: #12160c; font-weight: 800; }
+.home-secondary .calendar-panel .day.has-tasks::after { background: var(--lime); }
+.home-secondary .calendar-panel .day.selected.has-tasks::after { background: #12160c; }
+.home-secondary .calendar-panel .calendar-hint { margin-top: 14px; font-size: var(--font-xs); line-height: 1.5; }
+
+/* 6.7 Missões — progresso, formulário, itens e estado vazio -------------- */
+.home-secondary .missions-panel .missions-heading { margin-bottom: 12px; }
+.home-secondary .missions-panel .selected-date { margin-top: 6px; font-family: var(--fj-fonte-texto); font-size: var(--font-sm); }
+.home-secondary .missions-panel .progress-label { margin-top: 6px; font-size: var(--font-xs); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+.home-secondary .missions-panel .progress-track { height: 8px; margin-bottom: 16px; background: var(--border); }
+.home-secondary .missions-panel .task-form { gap: var(--space-2); margin-bottom: 12px; }
+.home-secondary .missions-panel .task-form .add-button { min-height: 44px; }
+.home-secondary .missions-panel .task-list { gap: var(--space-2); }
+.home-secondary .missions-panel .task { gap: 12px; padding: 12px; border-color: var(--border); border-radius: var(--radius-md); background: var(--surface-sunken); }
+.home-secondary .missions-panel .task input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--lime); }
+.home-secondary .missions-panel .task-text { font-family: var(--fj-fonte-texto); font-size: 14px; line-height: 1.45; }
+.home-secondary .missions-panel .task.done .task-text { color: var(--muted); text-decoration-color: var(--muted); }
+.home-secondary .missions-panel .delete-button { display: grid; place-items: center; min-width: 44px; min-height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-family: var(--fj-fonte-texto); }
+.home-secondary .missions-panel .delete-button:hover { color: var(--danger); }
+.home-secondary .missions-panel .task-list .empty { padding: 16px; border: 1px dashed var(--line-soft); border-radius: var(--radius-md); background: var(--surface-sunken); font-family: var(--fj-fonte-texto); font-size: var(--font-sm); line-height: 1.5; }
+
+/* 6.8 Onboarding — mesmo formulário, mesma altura, superfície alinhada ---- */
+#onboarding-root { margin: 0 0 12px; }
+#onboarding-root .onboarding-panel { margin: 0; gap: 8px; padding: 12px 14px; border-color: var(--accent-line); border-radius: var(--radius-lg); }
+#onboarding-root .onboarding-head { gap: 4px; }
+#onboarding-root .onboarding-title { font-size: 16px; }
+#onboarding-root .onboarding-eyebrow { font-size: 10px; letter-spacing: var(--fj-tracking-rotulo); }
+#onboarding-root .onboarding-meta { font-family: var(--fj-fonte-texto); font-size: 12px; line-height: 1.45; }
+#onboarding-root .onboarding-profile-link { text-underline-offset: 3px; }
+#onboarding-root .onboarding-form { gap: 6px; }
+#onboarding-root .onboarding-fields { gap: 6px; }
+#onboarding-root .onboarding-fields .field-label { font-size: var(--font-xs); letter-spacing: 0.04em; }
+#onboarding-root .onboarding-panel .field-hint,
+#onboarding-root .onboarding-panel .field-error { font-size: var(--font-xs); line-height: 1.45; }
+#onboarding-root .onboarding-actions { gap: var(--space-2); }
+@media (min-width: 720px) {
+  #onboarding-root .onboarding-panel { padding: 14px 16px; }
+}
+
 /* Legado: manter .treino-square compatível mas não usado na home nova */
 .treino-cta {
   background: var(--panel);
