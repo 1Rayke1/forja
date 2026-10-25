@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORJA · Ícone do app — prova em claro e escuro</title>
+<link rel="stylesheet" href="../tokens/forja.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--fj-carvao);
+    color: var(--fj-osso);
+    font-family: var(--fj-fonte-texto);
+    font-size: var(--fj-texto-md);
+    line-height: var(--fj-altura-linha-texto);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { width: min(100% - 40px, 1060px); margin-inline: auto; }
+  header.top { border-bottom: var(--fj-fio) solid var(--fj-linha); padding: var(--fj-7) 0 var(--fj-5); }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 var(--fj-4); font-size: var(--fj-texto-xs); }
+  .crumbs a { color: var(--fj-aco); text-decoration: none; border-bottom: 1px solid var(--fj-linha-forte); padding-bottom: 2px; }
+  .crumbs a:hover { color: var(--fj-osso); }
+  .kicker {
+    margin: 0 0 var(--fj-3);
+    font-family: var(--fj-fonte-titulo);
+    font-size: var(--fj-texto-xs);
+    font-weight: 700;
+    letter-spacing: var(--fj-tracking-rotulo);
+    text-transform: uppercase;
+    color: var(--fj-bronze);
+  }
+  h1 { margin: 0 0 var(--fj-3); font-family: var(--fj-fonte-titulo); font-size: clamp(25px, 4vw, 34px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.12; max-width: 30ch; }
+  .lead { margin: 0; color: var(--fj-aco); max-width: 68ch; font-size: var(--fj-texto-sm); }
+  section { padding: var(--fj-8) 0; border-bottom: var(--fj-fio) solid var(--fj-linha); }
+  section:last-of-type { border-bottom: 0; }
+  section > h2 { margin: 0 0 var(--fj-2); font-family: var(--fj-fonte-titulo); font-size: var(--fj-texto-xl); font-weight: 800; letter-spacing: -0.02em; }
+  .note { color: var(--fj-aco); margin: 0 0 var(--fj-5); max-width: 72ch; font-size: var(--fj-texto-sm); }
+  .note strong { color: var(--fj-osso); }
+  .note code { background: var(--fj-ferro-alto); border-radius: 4px; padding: 1px 5px; font-size: 12px; overflow-wrap: anywhere; }
+
+  /* Painéis de fundo ---------------------------------------------------- */
+  .proof { border: var(--fj-fio) solid var(--fj-linha-forte); border-radius: var(--fj-raio-md); overflow: hidden; }
+  .proof + .proof { margin-top: var(--fj-5); }
+  .proof-head {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 14px;
+    padding: 11px 16px; border-bottom: var(--fj-fio) solid var(--fj-linha-forte);
+    font-family: var(--fj-fonte-titulo); font-size: var(--fj-texto-sm); font-weight: 750;
+  }
+  .proof-head code { font-family: var(--fj-fonte-texto); font-size: 11px; color: var(--fj-aco-forte); letter-spacing: .04em; }
+  .proof.dark { background: #121010; color: var(--fj-osso); }
+  .proof.dark .proof-head { border-color: #2a2624; }
+  .proof.light { background: #EFE9E2; color: #17130f; }
+  .proof.light .proof-head { border-color: #d9d2c9; }
+  .proof.light .proof-head code { color: #6d635a; }
+  .proof-body { padding: 18px 16px; display: grid; gap: 20px; }
+
+  .stage { overflow-x: auto; }
+  .stage-hint { display: none; margin: 10px 0 0; font-size: 11px; color: currentColor; opacity: .66; }
+  @media (max-width: 700px) { .stage-hint { display: block; } }
+  .stage-row { display: flex; align-items: flex-end; gap: 20px; min-width: max-content; }
+  .tile { display: grid; gap: 7px; justify-items: center; text-align: center; }
+  .tile img { display: block; }
+  .tile small { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: currentColor; opacity: .62; }
+  .proof-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; }
+  .proof-row .tile small { opacity: .72; }
+
+  /* Máscaras ------------------------------------------------------------ */
+  .masks { display: flex; flex-wrap: wrap; gap: 22px; }
+  .masked { display: block; width: 96px; height: 96px; overflow: hidden; background: transparent; }
+  .masked img { width: 96px; height: 96px; display: block; }
+  .masked.circle { border-radius: 50%; }
+  .masked.squircle { border-radius: 22.4%; }
+  .masked.rounded { border-radius: 12.5%; }
+
+  /* Tabelas ------------------------------------------------------------- */
+  table { width: 100%; border-collapse: collapse; font-size: var(--fj-texto-sm); }
+  caption { text-align: left; font-size: var(--fj-texto-xs); color: var(--fj-aco-forte); padding-bottom: 8px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: var(--fj-fio) solid var(--fj-linha); vertical-align: top; }
+  th { font-family: var(--fj-fonte-titulo); font-size: var(--fj-texto-xs); letter-spacing: .06em; text-transform: uppercase; color: var(--fj-aco); font-weight: 700; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pass { color: var(--fj-ok); font-weight: 650; }
+  .warn { color: var(--fj-alerta); font-weight: 650; }
+  .fail { color: var(--fj-erro); font-weight: 650; }
+
+  /* Veredito ------------------------------------------------------------ */
+  .verdict { display: grid; gap: var(--fj-3); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .vcard { background: var(--fj-ferro); border: var(--fj-fio) solid var(--fj-linha); border-radius: var(--fj-raio-md); padding: 16px; display: grid; gap: 8px; align-content: start; }
+  .vcard h3 { margin: 0; font-family: var(--fj-fonte-titulo); font-size: var(--fj-texto-md); font-weight: 750; }
+  .vcard p { margin: 0; font-size: var(--fj-texto-sm); color: var(--fj-aco); }
+  .vcard .tag { justify-self: start; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(127,176,141,.45); color: var(--fj-ok); background: var(--fj-ok-lavado); font-weight: 700; }
+  .vcard .tag.caution { border-color: rgba(217,166,87,.45); color: var(--fj-alerta); background: rgba(217,166,87,.1); }
+
+  .files { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--fj-texto-sm); }
+  .files li { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; padding: 9px 0; border-bottom: var(--fj-fio) solid var(--fj-linha); }
+  .files a { color: var(--fj-brasa-alta); text-decoration: none; }
+  .files a:hover { text-decoration: underline; }
+  .files span { color: var(--fj-aco-forte); font-size: var(--fj-texto-xs); }
+
+  footer { padding: var(--fj-6) 0 var(--fj-8); color: var(--fj-aco-forte); font-size: var(--fj-texto-xs); }
+  @media (max-width: 560px) {
+    th, td { padding: 8px; }
+    .wrap { width: min(100% - 24px, 1060px); }
+    /* Tabela de 4 colunas não cabe em 320 px: vira bloco rotulado. */
+    table, caption, thead, tbody, tr, th, td { display: block; width: 100%; }
+    thead { display: none; }
+    caption { display: block; padding: 0 0 10px; }
+    tr {
+      border: var(--fj-fio) solid var(--fj-linha);
+      border-radius: var(--fj-raio-sm);
+      padding: 6px 10px;
+      margin-bottom: 8px;
+      background: var(--fj-ferro);
+    }
+    td { border-bottom: 0; padding: 6px 0; }
+    td + td { border-top: var(--fj-fio) solid var(--fj-linha); }
+    td::before {
+      content: attr(data-th);
+      display: block;
+      font-family: var(--fj-fonte-titulo);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--fj-aco-forte);
+      margin-bottom: 2px;
+    }
+    td.num { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Navegação do estudo">
+      <a href="../prototipo/index.html">← Protótipo</a>
+      <a href="index.html">Laboratório de marca</a>
+      <a href="../../docs/rebranding/02-conceito-e-marca.md">Conceito e marca</a>
+    </nav>
+    <p class="kicker">Marca · prova de legibilidade</p>
+    <h1>O ícone do app em claro e escuro</h1>
+    <p class="lead">O ícone de disco vazado foi aprovado <strong>como direção</strong>, com uma condição: provar que ele continua legível sobre fundo claro e escuro, nos tamanhos previstos de 512, 192 e 180 px. Esta página faz a prova em tamanho real, com os mesmos arquivos que serão entregues, e registra também onde ele deixa de funcionar.</p>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <div class="wrap">
+      <h2>1. O que está sendo testado</h2>
+      <p class="note">O ícone não é o emblema reduzido: é a marca invertida — disco de brasa <code>#E4693A</code>, bigorna e chama vazadas em carvão <code>#121010</code>, dentro de um tile carvão. O tile é parte do desenho e é o que resolve o fundo claro: o ícone nunca aparece como disco solto sobre a página; ele carrega a própria placa. Sobre <code>#EFE9E2</code>, a borda passa a ser carvão × claro (15,33:1); sobre <code>#121010</code>, a leitura vem do disco (5,76:1 contra o interior).</p>
+      <p class="note">Todos os tamanhos abaixo são renderizações do arquivo real, sem reescalonamento de imagem e sem captura de tela ampliada. Os arquivos estão em <code>design/marca/svg/</code>.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>2. Escuro <span style="color:var(--fj-aco-forte);font-weight:600;font-size:var(--fj-texto-sm)">· #121010</span></h2>
+      <p class="note">Fundo padrão do produto. O disco tem 5,76:1 de contraste contra o carvão interno do glifo e a placa se funde ao fundo — o ícone parece recortado na tela, que é o comportamento desejado na tela inicial.</p>
+
+      <div class="proof dark">
+        <div class="proof-head"><span>Ícone do sistema · 512 px</span><code>svg/icone-app.svg</code></div>
+        <div class="proof-body">
+          <div class="stage">
+            <div class="stage-row">
+              <div class="tile"><img src="svg/icone-app.svg" width="512" height="512" alt="Ícone FORJA em 512 px sobre fundo escuro"><small>512 px · tamanho real</small></div>
+            </div>
+          </div>
+          <p class="stage-hint">Em tela estreita, arraste a faixa para o lado — a imagem não é reduzida.</p>
+        </div>
+      </div>
+
+      <div class="proof dark" style="margin-top:20px">
+        <div class="proof-head"><span>Ícones de instalação · 192 e 180 px</span><code>tamanho real</code></div>
+        <div class="proof-body">
+          <div class="proof-row">
+            <div class="tile"><img src="svg/icone-app.svg" width="192" height="192" alt="Ícone FORJA em 192 px sobre fundo escuro"><small>192 · Android</small></div>
+            <div class="tile"><img src="svg/icone-app.svg" width="180" height="180" alt="Ícone FORJA em 180 px sobre fundo escuro"><small>180 · iOS</small></div>
+            <div class="tile"><img src="svg/icone-app.svg" width="120" height="120" alt="Ícone FORJA em 120 px sobre fundo escuro"><small>120 · atalho</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>3. Claro <span style="color:var(--fj-aco-forte);font-weight:600;font-size:var(--fj-texto-sm)">· #EFE9E2</span></h2>
+      <p class="note">Aqui está a condição aprovada. Brasa sobre claro dá <strong>2,73:1</strong> e bronze dá <strong>2,47:1</strong> — os dois reprovam como marca pequena solta. A resposta não é trocar a cor do disco: é manter o tile carvão, que dá à placa uma borda de <strong>15,33:1</strong> contra o fundo. O disco de brasa passa a ser um detalhe interno, não a silhueta.</p>
+
+      <div class="proof light">
+        <div class="proof-head"><span>Ícone do sistema · 512 px</span><code>svg/icone-app.svg</code></div>
+        <div class="proof-body">
+          <div class="stage">
+            <div class="stage-row">
+              <div class="tile"><img src="svg/icone-app.svg" width="512" height="512" alt="Ícone FORJA em 512 px sobre fundo claro"><small>512 px · tamanho real</small></div>
+            </div>
+          </div>
+          <p class="stage-hint">Em tela estreita, arraste a faixa para o lado — a imagem não é reduzida.</p>
+        </div>
+      </div>
+
+      <div class="proof light" style="margin-top:20px">
+        <div class="proof-head"><span>Ícones de instalação · 192 e 180 px</span><code>tamanho real</code></div>
+        <div class="proof-body">
+          <div class="proof-row">
+            <div class="tile"><img src="svg/icone-app.svg" width="192" height="192" alt="Ícone FORJA em 192 px sobre fundo claro"><small>192 · Android</small></div>
+            <div class="tile"><img src="svg/icone-app.svg" width="180" height="180" alt="Ícone FORJA em 180 px sobre fundo claro"><small>180 · iOS</small></div>
+            <div class="tile"><img src="svg/icone-app.svg" width="120" height="120" alt="Ícone FORJA em 120 px sobre fundo claro"><small>120 · atalho</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>4. Tamanhos pequenos e favicon</h2>
+      <p class="note">O favicon é o mesmo desenho em <code>viewBox</code> 32, com o glifo em 0,46. Até 32 px ele se sustenta; em 16 px a bigorna vira um bloco e a chama se funde — a leitura passa a ser “disco de brasa”, o que ainda identifica a marca na aba, mas não deve ser usado como emblema.</p>
+
+      <div class="proof dark">
+        <div class="proof-head"><span>Escuro · 96 → 16 px</span><code>svg/icone-app.svg · svg/favicon.svg</code></div>
+        <div class="proof-body">
+          <div class="proof-row">
+            <div class="tile"><img src="svg/icone-app.svg" width="96" height="96" alt="Ícone 96 px no escuro"><small>96</small></div>
+            <div class="tile"><img src="svg/icone-app.svg" width="64" height="64" alt="Ícone 64 px no escuro"><small>64</small></div>
+            <div class="tile"><img src="svg/icone-app.svg" width="48" height="48" alt="Ícone 48 px no escuro"><small>48</small></div>
+            <div class="tile"><img src="svg/favicon.svg" width="32" height="32" alt="Favicon 32 px no escuro"><small>32 · favicon</small></div>
+            <div class="tile"><img src="svg/favicon.svg" width="24" height="24" alt="Favicon 24 px no escuro"><small>24</small></div>
+            <div class="tile"><img src="svg/favicon.svg" width="16" height="16" alt="Favicon 16 px no escuro"><small>16</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proof light" style="margin-top:20px">
+        <div class="proof-head"><span>Claro · 96 → 16 px</span><code>svg/icone-app.svg · svg/favicon.svg</code></div>
+        <div class="proof-body">
+          <div class="proof-row">
+            <div class="tile"><img src="svg/icone-app.svg" width="96" height="96" alt="Ícone 96 px no claro"><small>96</small></div>
+            <div class="tile"><img src="svg/icone-app.svg" width="64" height="64" alt="Ícone 64 px no claro"><small>64</small></div>
+            <div class="tile"><img src="svg/icone-app.svg" width="48" height="48" alt="Ícone 48 px no claro"><small>48</small></div>
+            <div class="tile"><img src="svg/favicon.svg" width="32" height="32" alt="Favicon 32 px no claro"><small>32 · favicon</small></div>
+            <div class="tile"><img src="svg/favicon.svg" width="24" height="24" alt="Favicon 24 px no claro"><small>24</small></div>
+            <div class="tile"><img src="svg/favicon.svg" width="16" height="16" alt="Favicon 16 px no claro"><small>16</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>5. Máscaras do sistema</h2>
+      <p class="note">Android recorta em círculo, iOS em squircle, alguns launchers em quadrado arredondado. O disco tem raio 29 de 64 (folga de 3 unidades até a borda), então nenhuma máscara morde a bigorna. Abaixo, o mesmo arquivo sob as três máscaras, a 96 px, no claro e no escuro.</p>
+
+      <div class="proof dark">
+        <div class="proof-head"><span>Máscaras sobre escuro</span><code>96 px</code></div>
+        <div class="proof-body">
+          <div class="masks">
+            <div class="tile"><span class="masked circle"><img src="svg/icone-app.svg" alt="Ícone recortado em círculo"></span><small>círculo</small></div>
+            <div class="tile"><span class="masked squircle"><img src="svg/icone-app.svg" alt="Ícone recortado em squircle"></span><small>squircle</small></div>
+            <div class="tile"><span class="masked rounded"><img src="svg/icone-app.svg" alt="Ícone recortado em quadrado arredondado"></span><small>quadrado</small></div>
+            <div class="tile"><span class="masked" style="border-radius:0"><img src="svg/icone-app.svg" alt="Ícone sem recorte"></span><small>sem recorte</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proof light" style="margin-top:20px">
+        <div class="proof-head"><span>Máscaras sobre claro</span><code>96 px</code></div>
+        <div class="proof-body">
+          <div class="masks">
+            <div class="tile"><span class="masked circle"><img src="svg/icone-app.svg" alt="Ícone recortado em círculo sobre claro"></span><small>círculo</small></div>
+            <div class="tile"><span class="masked squircle"><img src="svg/icone-app.svg" alt="Ícone recortado em squircle sobre claro"></span><small>squircle</small></div>
+            <div class="tile"><span class="masked rounded"><img src="svg/icone-app.svg" alt="Ícone recortado em quadrado arredondado sobre claro"></span><small>quadrado</small></div>
+            <div class="tile"><span class="masked" style="border-radius:0"><img src="svg/icone-app.svg" alt="Ícone sem recorte sobre claro"></span><small>sem recorte</small></div>
+          </div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:var(--fj-5)"><strong>Observação honesta:</strong> no recorte circular sobre claro, a placa carvão desaparece nos cantos e sobra o disco de brasa contra o claro — 2,73:1 na borda. Isso é aceitável em tela inicial (o ícone é vizinho de outros ícones, não sobre página vazia) e é o único cenário em que a condição fica no limite. Por isso a entrega inclui as duas versões: com placa carvão (padrão, mostra o tile) e o favicon (só disco, para abas e atalhos pequenos).</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>6. Números que sustentam a decisão</h2>
+      <table>
+        <caption>Contraste medido com a fórmula WCAG 2.1 (luminância relativa), não estimado.</caption>
+        <thead>
+          <tr><th scope="col">Par</th><th scope="col">Contraste</th><th scope="col">Exigência</th><th scope="col">Resultado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td data-th="Par">Glifo carvão × disco brasa</td><td data-th="Contraste" class="num">5,76:1</td><td data-th="Exigência">≥ 4,5:1 (forma interna)</td><td data-th="Resultado" class="pass">Passa</td></tr>
+          <tr><td data-th="Par">Placa carvão × fundo claro</td><td data-th="Contraste" class="num">15,33:1</td><td data-th="Exigência">≥ 3:1 (borda não textual)</td><td data-th="Resultado" class="pass">Passa</td></tr>
+          <tr><td data-th="Par">Placa carvão × fundo escuro</td><td data-th="Contraste" class="num">1,0:1</td><td data-th="Exigência">— (funde de propósito)</td><td data-th="Resultado" class="pass">Aceitável</td></tr>
+          <tr><td data-th="Par">Disco brasa × fundo escuro</td><td data-th="Contraste" class="num">5,76:1</td><td data-th="Exigência">≥ 3:1 (silhueta)</td><td data-th="Resultado" class="pass">Passa</td></tr>
+          <tr><td data-th="Par">Disco brasa × fundo claro</td><td data-th="Contraste" class="num">2,73:1</td><td data-th="Exigência">≥ 3:1 (silhueta)</td><td data-th="Resultado" class="warn">Falha isolado</td></tr>
+          <tr><td data-th="Par">Bronze × fundo claro</td><td data-th="Contraste" class="num">2,47:1</td><td data-th="Exigência">≥ 3:1</td><td data-th="Resultado" class="fail">Reprovado</td></tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:var(--fj-4)">Consequência prática: <strong>o ícone sempre leva a placa carvão</strong>. O disco de brasa nunca é usado solto sobre fundo claro, e o bronze continua proibido como cor de marca sobre claro — as duas regras já estão no laboratório e agora têm prova visual.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>7. Veredito por tamanho</h2>
+      <div class="verdict">
+        <article class="vcard">
+          <span class="tag">Aprovado</span>
+          <h3>512 px</h3>
+          <p>Forma completa: aro não existe (é disco), chama, face, cintura e base separadas. Lê igual no claro e no escuro.</p>
+        </article>
+        <article class="vcard">
+          <span class="tag">Aprovado</span>
+          <h3>192 e 180 px</h3>
+          <p>Instalação em Android e iOS. Todos os cortes continuam visíveis; a chama é o primeiro detalhe a perder definição, o que não compromete a silhueta.</p>
+        </article>
+        <article class="vcard">
+          <span class="tag caution">Limite</span>
+          <h3>32 px</h3>
+          <p>Favicon na aba. Bigorna ainda legível, chama já encosta na face. É o menor tamanho em que o desenho inteiro se sustenta.</p>
+        </article>
+        <article class="vcard">
+          <span class="tag caution">Só identidade</span>
+          <h3>16 px</h3>
+          <p>Vira disco de brasa. Serve para favicon e aba, nunca como emblema em interface — abaixo de 24 px a regra é usar o compacto, e a aba é a única exceção.</p>
+        </article>
+      </div>
+
+      <h2 style="margin-top:var(--fj-8)">8. Arquivos desta prova</h2>
+      <ul class="files">
+        <li><span><a href="svg/icone-app.svg">svg/icone-app.svg</a> — ícone de sistema, disco vazado, 512 px</span><span>usado em 512 / 192 / 180</span></li>
+        <li><span><a href="svg/favicon.svg">svg/favicon.svg</a> — favicon, mesmo desenho em 32 unidades</span><span>usado em 32 / 24 / 16</span></li>
+        <li><span><a href="index.html">Laboratório de marca</a> — emblema, lockups, construção e regras de uso</span><span>revisão 2</span></li>
+        <li><span><a href="../prototipo/index.html">Protótipo navegável</a> — as telas com a identidade aplicada</span><span>revisão 2</span></li>
+      </ul>
+      <p class="note" style="margin-top:var(--fj-5)">Nada aqui foi aplicado ao aplicativo: estes arquivos vivem em <code>design/</code>, fora de <code>assets/</code>, e não são carregados por nenhuma página do FORJA.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">FORJA · prova do ícone · etapa 1 (protótipo, sem alteração funcional)</div>
+</footer>
+
+</body>
+</html>

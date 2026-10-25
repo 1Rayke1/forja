@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="FORJA">
+  <title>FORJA — favicon</title>
+  <rect width="32" height="32" fill="#121010"/>
+  <circle cx="16" cy="16" r="14.5" fill="#e4693a"/>
+  <g fill="#121010" transform="translate(16 15.5) scale(0.46) translate(-32 -32)">
+    <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+    <path d="M13 33H51L47 40H17Z"/>
+    <path d="M26 40H38L41 46H23Z"/>
+    <path d="M17 46H47L49 52H15Z"/>
+  </g>
+</svg>

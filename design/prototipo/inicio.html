@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Início · Protótipo FORJA</title>
+<link rel="stylesheet" href="prototipo.css">
+</head>
+<body>
+
+<div class="demo-top">
+  <div class="demo-top-inner">
+    <nav class="demo-links" aria-label="Telas do protótipo">
+      <a href="index.html">Visão geral</a>
+      <a href="inicio.html" aria-current="page">Início</a>
+      <a href="execucao.html">Treino em execução</a>
+      <a href="rotinas.html">Rotinas</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="progresso.html">Progresso</a>
+      <a href="perfil.html">Perfil</a>
+      <a href="componentes.html">Componentes e estados</a>
+      <a href="responsivo.html">Responsivo</a>
+    </nav>
+    <span class="demo-note">Protótipo · dados de exemplo</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="inicio.html" aria-label="FORJA — início">
+      <svg viewBox="0 0 64 64" aria-hidden="true" fill="none">
+        <circle cx="32" cy="32" r="29.6" stroke="currentColor" stroke-width="3.6"/>
+        <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+          <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+          <path d="M13 33H51L47 40H17Z"/>
+          <path d="M26 40H38L41 46H23Z"/>
+          <path d="M17 46H47L49 52H15Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">Forja</span>
+    </a>
+    <div class="tagline">Disciplina • Evolução • Consistência</div>
+  </div>
+</header>
+
+<main class="container screen" id="conteudo">
+
+  <section class="home-greeting" aria-label="Boas-vindas">
+    <p class="home-eyebrow">Quarta-feira · 21 de outubro</p>
+    <h1 class="home-title">Um dia de cada vez.<br><em>Mais forte a cada treino.</em></h1>
+    <p class="home-subtitle">Seu espaço para planejar, treinar e acompanhar o que realmente fez.</p>
+  </section>
+
+  <section aria-labelledby="home-action-heading">
+    <div class="home-action-card">
+      <div class="home-action-eyebrow">Próximo treino</div>
+      <h2 class="home-action-title" id="home-action-heading">Treino A · Calistenia</h2>
+      <p class="home-action-meta">Calistenia · 6 exercícios · 18 séries · cerca de 42 min</p>
+      <button class="primary-button home-action-button" type="button">Iniciar Treino A</button>
+      <p class="home-action-hint">Próxima da sequência (1 de 3). Você pode escolher outra em Treinos.</p>
+    </div>
+  </section>
+
+  <div class="home-grid">
+
+    <div>
+      <section class="section-block" aria-labelledby="home-week-heading">
+        <div class="section-head">
+          <h2 class="section-title" id="home-week-heading">Sua semana</h2>
+          <a class="section-link" href="progresso.html">Ver progresso</a>
+        </div>
+        <div class="home-week-stats" role="list">
+          <div class="home-week-stat" role="listitem">
+            <div class="home-week-stat-value">3<span style="color:var(--fj-aco-forte);font-size:var(--fj-texto-sm);font-weight:600">/4</span></div>
+            <div class="home-week-stat-label">treinos</div>
+          </div>
+          <div class="home-week-stat" role="listitem">
+            <div class="home-week-stat-value">42</div>
+            <div class="home-week-stat-label">séries</div>
+          </div>
+          <div class="home-week-stat" role="listitem">
+            <div class="home-week-stat-value">96<span style="color:var(--fj-aco-forte);font-size:var(--fj-texto-sm);font-weight:600">min</span></div>
+            <div class="home-week-stat-label">tempo</div>
+          </div>
+          <div class="home-week-stat" role="listitem">
+            <div class="home-week-stat-value">5</div>
+            <div class="home-week-stat-label">dias seguidos</div>
+          </div>
+        </div>
+        <p class="home-week-note">Segunda a domingo. Conta apenas treinos registrados neste navegador.</p>
+      </section>
+
+      <section class="section-block" aria-labelledby="home-goals-heading">
+        <div class="section-head">
+          <h2 class="section-title" id="home-goals-heading">Metas da semana</h2>
+          <a class="section-link" href="progresso.html">Configurar metas</a>
+        </div>
+        <div class="home-goals-grid">
+          <div class="goal-line">
+            <div class="goal-line-head"><strong>Treinos</strong><span>3 de 4</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+          </div>
+          <div class="goal-line">
+            <div class="goal-line-head"><strong>Séries</strong><span>42 de 60</span></div>
+            <div class="progress-track"><div class="progress-fill is-bronze" style="width:70%"></div></div>
+          </div>
+          <div class="goal-line">
+            <div class="goal-line-head"><strong>Minutos</strong><span>96 de 120</span></div>
+            <div class="progress-track"><div class="progress-fill is-bronze" style="width:80%"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" aria-labelledby="home-recent-heading">
+        <div class="section-head">
+          <h2 class="section-title" id="home-recent-heading">Último treino</h2>
+          <a class="section-link" href="progresso.html">Ver histórico</a>
+        </div>
+        <div class="home-recent-item">
+          <div>
+            <div class="home-recent-name">Treino B · Musculação</div>
+            <div class="home-recent-meta">20 de outubro · 38 min · 14 de 14 séries</div>
+          </div>
+          <span class="chip ok">Concluído</span>
+        </div>
+      </section>
+    </div>
+
+    <div>
+      <section class="section-block" aria-labelledby="calendar-heading">
+        <div class="calendar-panel">
+          <h2 class="section-title" id="calendar-heading">Seu calendário</h2>
+          <div class="month-navigation">
+            <button class="nav-button" type="button" aria-label="Mês anterior">‹</button>
+            <div class="month-title">Outubro 2026</div>
+            <button class="nav-button" type="button" aria-label="Próximo mês">›</button>
+          </div>
+          <div class="calendar-grid">
+            <div class="weekday">D</div><div class="weekday">S</div><div class="weekday">T</div>
+            <div class="weekday">Q</div><div class="weekday">Q</div><div class="weekday">S</div><div class="weekday">S</div>
+            <button class="day" type="button" disabled></button>
+            <button class="day" type="button" disabled></button>
+            <button class="day" type="button" disabled></button>
+            <button class="day" type="button" disabled></button>
+            <button class="day has-tasks" type="button">1</button>
+            <button class="day has-tasks" type="button">2</button>
+            <button class="day" type="button">3</button>
+            <button class="day" type="button">4</button>
+            <button class="day has-tasks" type="button">5</button>
+            <button class="day" type="button">6</button>
+            <button class="day has-tasks" type="button">7</button>
+            <button class="day" type="button">8</button>
+            <button class="day has-tasks" type="button">9</button>
+            <button class="day" type="button">10</button>
+            <button class="day" type="button">11</button>
+            <button class="day" type="button">12</button>
+            <button class="day has-tasks" type="button">13</button>
+            <button class="day has-tasks" type="button">14</button>
+            <button class="day" type="button">15</button>
+            <button class="day" type="button">16</button>
+            <button class="day has-tasks" type="button">17</button>
+            <button class="day has-tasks" type="button">18</button>
+            <button class="day" type="button">19</button>
+            <button class="day has-tasks" type="button">20</button>
+            <button class="day today selected has-tasks" type="button">21</button>
+            <button class="day" type="button">22</button>
+            <button class="day" type="button">23</button>
+            <button class="day" type="button">24</button>
+            <button class="day" type="button">25</button>
+            <button class="day" type="button">26</button>
+            <button class="day" type="button">27</button>
+            <button class="day" type="button">28</button>
+            <button class="day" type="button">29</button>
+            <button class="day" type="button">30</button>
+            <button class="day" type="button">31</button>
+          </div>
+          <p class="calendar-hint">Selecione um dia para consultar ou organizar sua rotina. Os pontos indicam dias com missões.</p>
+        </div>
+      </section>
+
+      <section class="section-block" aria-labelledby="missions-heading">
+        <div class="missions-panel">
+          <div class="missions-heading">
+            <div>
+              <h2 class="section-title" id="missions-heading">Missões</h2>
+              <div class="selected-date">Quarta-feira, 21 de outubro de 2026</div>
+              <div class="progress-label">1 de 3 · 33%</div>
+            </div>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:33%"></div></div>
+          <form class="task-form" onsubmit="return false">
+            <input type="text" placeholder="Qual é sua missão?" aria-label="Nova missão">
+            <button class="add-button" type="submit">Adicionar</button>
+          </form>
+          <div class="task-list">
+            <div class="task done">
+              <input type="checkbox" checked aria-label="Missão concluída">
+              <span class="task-text">Beber 3 L de água</span>
+              <button class="delete-button" type="button" aria-label="Excluir missão">×</button>
+            </div>
+            <div class="task">
+              <input type="checkbox" aria-label="Missão pendente">
+              <span class="task-text">Treinar pernas</span>
+              <button class="delete-button" type="button" aria-label="Excluir missão">×</button>
+            </div>
+            <div class="task">
+              <input type="checkbox" aria-label="Missão pendente">
+              <span class="task-text">Dormir 7 horas</span>
+              <button class="delete-button" type="button" aria-label="Excluir missão">×</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-link is-active" href="inicio.html" aria-current="page">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
+      <span class="bottom-nav-label">Início</span>
+    </a>
+    <a class="bottom-nav-link" href="rotinas.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
+      <span class="bottom-nav-label">Treinos</span>
+    </a>
+    <a class="bottom-nav-link" href="rotinas.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
+      <span class="bottom-nav-label">Explorar</span>
+    </a>
+    <a class="bottom-nav-link" href="progresso.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
+      <span class="bottom-nav-label">Progresso</span>
+    </a>
+    <a class="bottom-nav-link" href="componentes.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
+      <span class="bottom-nav-label">Perfil</span>
+    </a>
+  </div>
+</nav>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">Menos promessas. Mais ação.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+
+<script>
+  // Modo embutido: dentro da página de responsivo, a moldura de navegação do
+  // protótipo é escondida para a tela aparecer sozinha no dispositivo.
+  if (location.href.indexOf("embed") !== -1) {
+    var demoTop = document.querySelector(".demo-top");
+    if (demoTop) demoTop.remove();
+  }
+  const atual = document.querySelector('.demo-links a[aria-current="page"]');
+  if (atual) atual.scrollIntoView({ inline: 'center', block: 'nearest' });
+</script>
+</body>
+</html>

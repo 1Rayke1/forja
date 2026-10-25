@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil · Protótipo FORJA</title>
+<link rel="stylesheet" href="prototipo.css">
+<style>
+  .profile-form { display: grid; gap: var(--fj-3); margin-top: var(--fj-3); }
+  .goals-fields { display: grid; gap: var(--fj-3); }
+  @media (min-width: 620px) { .goals-fields { grid-template-columns: 1fr 1fr; } }
+  .goals-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--fj-3); }
+  .storage-list { display: grid; gap: 0; margin-top: var(--fj-2); }
+  .storage-item {
+    display: flex; justify-content: space-between; gap: var(--fj-3);
+    padding: 9px 0; border-bottom: var(--fj-fio) solid var(--fj-linha);
+    font-size: var(--fj-texto-xs);
+  }
+  .storage-item:last-child { border-bottom: 0; }
+  .storage-item dt { color: var(--fj-aco); }
+  .storage-item dd { margin: 0; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .pref-row { display: flex; align-items: flex-start; gap: 10px; padding: 12px 0; border-bottom: var(--fj-fio) solid var(--fj-linha); }
+  .pref-row:last-child { border-bottom: 0; }
+  .pref-row input { width: 18px; height: 18px; accent-color: var(--fj-brasa); margin-top: 1px; flex: 0 0 auto; }
+  .pref-row span { font-size: var(--fj-texto-sm); line-height: 1.45; }
+  .pref-row small { display: block; color: var(--fj-aco-forte); font-size: 11px; margin-top: 2px; }
+  .backup-actions { display: flex; flex-wrap: wrap; gap: var(--fj-2); margin-top: var(--fj-3); }
+  .backup-actions > * { flex: 1 1 190px; }
+</style>
+</head>
+<body>
+
+<div class="demo-top">
+  <div class="demo-top-inner">
+    <nav class="demo-links" aria-label="Telas do protótipo">
+      <a href="index.html">Visão geral</a>
+      <a href="inicio.html">Início</a>
+      <a href="execucao.html">Treino em execução</a>
+      <a href="rotinas.html">Rotinas</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="progresso.html">Progresso</a>
+      <a href="perfil.html" aria-current="page">Perfil</a>
+      <a href="componentes.html">Componentes e estados</a>
+      <a href="responsivo.html">Responsivo</a>
+    </nav>
+    <span class="demo-note">Protótipo · dados de exemplo</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="inicio.html" aria-label="FORJA — início">
+      <svg viewBox="0 0 64 64" aria-hidden="true" fill="none">
+        <circle cx="32" cy="32" r="29.6" stroke="currentColor" stroke-width="3.6"/>
+        <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+          <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+          <path d="M13 33H51L47 40H17Z"/>
+          <path d="M26 40H38L41 46H23Z"/>
+          <path d="M17 46H47L49 52H15Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">Forja</span>
+    </a>
+    <div class="tagline">Disciplina • Evolução • Consistência</div>
+  </div>
+</header>
+
+<main class="container screen" id="conteudo">
+
+  <div class="page-head">
+    <span class="eyebrow">Perfil</span>
+    <h1 class="screen-title">Perfil</h1>
+    <p class="screen-subtitle">Seu corpo, preferências e dados — tudo permanece neste navegador.</p>
+  </div>
+
+  <section class="preferences-panel" aria-labelledby="perfil-treino-heading">
+    <div class="section-head" style="margin:0 0 var(--fj-2)">
+      <h2 class="section-title" id="perfil-treino-heading">Seu perfil de treino</h2>
+      <span class="chip ok">Salvo</span>
+    </div>
+    <p class="section-note" style="margin:0">Opcional e editável a qualquer momento. O perfil orienta sugestões, mas nunca impede a criação manual de rotinas.</p>
+
+    <form class="profile-form" novalidate>
+      <div class="goals-fields">
+        <div class="field-block" style="margin:0">
+          <label class="field-label" for="prof-objetivo">Objetivo principal</label>
+          <select id="prof-objetivo">
+            <option>Força</option><option selected>Hipertrofia</option><option>Resistência</option><option>Saúde geral</option>
+          </select>
+        </div>
+        <div class="field-block" style="margin:0">
+          <label class="field-label" for="prof-nivel">Nível</label>
+          <select id="prof-nivel">
+            <option>Iniciante</option><option selected>Intermediário</option><option>Avançado</option>
+          </select>
+        </div>
+        <div class="field-block" style="margin:0">
+          <label class="field-label" for="prof-equipamento">Equipamento disponível</label>
+          <select id="prof-equipamento">
+            <option>Casa</option><option selected>Academia</option><option>Parque</option>
+          </select>
+        </div>
+        <div class="field-block" style="margin:0">
+          <label class="field-label" for="prof-dias">Dias por semana</label>
+          <input id="prof-dias" type="number" min="0" max="7" step="1" value="4" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="field-block" style="margin:0">
+          <label class="field-label" for="prof-duracao">Duração desejada (min)</label>
+          <input id="prof-duracao" type="number" min="0" max="240" step="5" value="45" inputmode="numeric" autocomplete="off">
+        </div>
+      </div>
+
+      <p class="field-hint">Campo 0 ou vazio desliga o item. Salvar o perfil não altera treinos nem histórico.</p>
+      <div class="goals-actions">
+        <button class="primary-button" type="submit">Salvar perfil</button>
+        <span class="field-hint">Salvo neste navegador · 21/10 20:14</span>
+      </div>
+    </form>
+  </section>
+
+  <section class="preferences-panel" aria-labelledby="meu-corpo-heading">
+    <h2 class="section-title" id="meu-corpo-heading">Meu corpo</h2>
+    <p class="section-note" style="margin:0 0 var(--fj-3)">Medidas corporais opcionais ficam salvas apenas neste navegador e não são enviadas a nenhum servidor.</p>
+    <div class="ui-empty">
+      <span class="ui-empty-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="currentColor">
+          <path d="M54 19H17L9 24L17 29H54Z"/>
+        <path d="M27 29H37L34 42H30Z"/>
+        <path d="M20 42H44L49 54H15Z"/>
+        </svg>
+      </span>
+      <span>
+        <strong class="ui-empty-title">Medidas em breve</strong>
+        <span class="ui-empty-text">Peso, altura e histórico ficarão aqui, com explicação de como são usados. Por enquanto, mantenha suas rotinas e progresso — nenhum dado sai deste aparelho.</span>
+        <span class="ui-empty-actions">
+          <button class="secondary-button small-button" type="button" disabled>Registrar medida</button>
+        </span>
+      </span>
+    </div>
+    <p class="section-note" style="margin-top:var(--fj-3)">Privacidade: nenhum dado corporal é sincronizado. Use o backup abaixo para levar dados a outro aparelho, se quiser.</p>
+  </section>
+
+  <section class="backup-panel" aria-labelledby="backup-heading">
+    <h2 class="section-title" id="backup-heading">Seus dados</h2>
+    <p class="section-note" style="margin:0">Exporte um backup JSON com missões, calendário, rotinas, biblioteca, histórico e sessão ativa. A importação valida o arquivo e pede confirmação antes de substituir qualquer dado.</p>
+    <div class="backup-actions">
+      <button class="secondary-button" type="button">Exportar backup JSON</button>
+      <button class="secondary-button" type="button">Importar backup JSON</button>
+    </div>
+    <p class="section-note" style="margin-top:var(--fj-3);font-variant-numeric:tabular-nums">Último backup: 19/10/2026 · 14:02. Seus dados permanecem apenas neste navegador.</p>
+  </section>
+
+  <section class="preferences-panel" aria-labelledby="preferences-heading">
+    <h2 class="section-title" id="preferences-heading">Preferências do descanso</h2>
+    <label class="pref-row">
+      <input type="checkbox" checked>
+      <span>Tocar um aviso sonoro quando o descanso terminar</span>
+    </label>
+    <label class="pref-row">
+      <input type="checkbox">
+      <span>Vibrar quando o descanso terminar<small>Depende do aparelho e da permissão do navegador.</small></span>
+    </label>
+  </section>
+
+  <section class="storage-panel" aria-labelledby="storage-heading">
+    <h2 class="section-title" id="storage-heading">Onde seus dados ficam</h2>
+    <p class="section-note" style="margin:0">Os dados do FORJA ficam salvos apenas neste navegador. Eles não são sincronizados entre celular, computador ou outros navegadores.</p>
+    <dl class="storage-list">
+      <div class="storage-item"><dt>Rotinas e biblioteca</dt><dd>6 kb</dd></div>
+      <div class="storage-item"><dt>Histórico e metas</dt><dd>14 kb</dd></div>
+      <div class="storage-item"><dt>Perfil e preferências</dt><dd>1 kb</dd></div>
+      <div class="storage-item"><dt>Backup de segurança</dt><dd>43 kb</dd></div>
+    </dl>
+  </section>
+
+  <section class="storage-panel" aria-labelledby="privacidade-heading">
+    <h2 class="section-title" id="privacidade-heading">Privacidade</h2>
+    <p class="section-note" style="margin:0">Sem rastreamento, sem publicidade e sem envio de dados pessoais. Calendário, missões, rotinas e histórico permanecem no armazenamento local deste navegador.</p>
+    <p style="margin-top:var(--fj-3)"><a href="componentes.html" class="secondary-button small-button">Abrir Dados (compatibilidade)</a></p>
+  </section>
+
+</main>
+
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-link" href="inicio.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
+      <span class="bottom-nav-label">Início</span>
+    </a>
+    <a class="bottom-nav-link" href="rotinas.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
+      <span class="bottom-nav-label">Treinos</span>
+    </a>
+    <a class="bottom-nav-link" href="biblioteca.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
+      <span class="bottom-nav-label">Explorar</span>
+    </a>
+    <a class="bottom-nav-link" href="progresso.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
+      <span class="bottom-nav-label">Progresso</span>
+    </a>
+    <a class="bottom-nav-link is-active" href="perfil.html" aria-current="page">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
+      <span class="bottom-nav-label">Perfil</span>
+    </a>
+  </div>
+</nav>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">Menos promessas. Mais ação.</p>
+    <p class="storage-note">Protótipo da etapa 1 · revisão 2. Nenhuma alteração foi aplicada ao aplicativo.</p>
+  </div>
+</footer>
+
+<script>
+  if (location.href.indexOf("embed") !== -1) {
+    var demoTop = document.querySelector(".demo-top");
+    if (demoTop) demoTop.remove();
+  }
+</script>
+</body>
+</html>

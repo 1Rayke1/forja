@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORJA · Laboratório de marca</title>
+<link rel="stylesheet" href="../tokens/forja.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--fj-carvao);
+    color: var(--fj-osso);
+    font-family: var(--fj-fonte-texto);
+    font-size: var(--fj-texto-md);
+    line-height: var(--fj-altura-linha-texto);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { width: min(100% - 40px, 1060px); margin-inline: auto; }
+  header.top {
+    border-bottom: var(--fj-fio) solid var(--fj-linha);
+    padding: var(--fj-7) 0 var(--fj-5);
+    background: radial-gradient(ellipse at 20% -40%, rgba(228,105,58,.10), transparent 60%);
+  }
+  .kicker {
+    margin: 0 0 var(--fj-3);
+    font-family: var(--fj-fonte-titulo);
+    font-size: var(--fj-texto-xs);
+    font-weight: 700;
+    letter-spacing: var(--fj-tracking-rotulo);
+    text-transform: uppercase;
+    color: var(--fj-bronze);
+  }
+  h1 {
+    margin: 0 0 var(--fj-3);
+    font-family: var(--fj-fonte-titulo);
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.12;
+    max-width: 26ch;
+  }
+  .lead { margin: 0; color: var(--fj-aco); max-width: 66ch; }
+  section { padding: var(--fj-8) 0; border-bottom: var(--fj-fio) solid var(--fj-linha); }
+  section:last-of-type { border-bottom: 0; }
+  section > h2 {
+    margin: 0 0 var(--fj-2);
+    font-family: var(--fj-fonte-titulo);
+    font-size: var(--fj-texto-xl);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .note { color: var(--fj-aco); margin: 0 0 var(--fj-5); max-width: 70ch; font-size: var(--fj-texto-sm); }
+  .note strong { color: var(--fj-osso); }
+  .note-sm { font-size: var(--fj-texto-xs); }
+  .grid-3 { display: grid; gap: var(--fj-4); grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); }
+  .grid-2 { display: grid; gap: var(--fj-4); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .card {
+    background: var(--fj-ferro);
+    border: var(--fj-fio) solid var(--fj-linha);
+    border-radius: var(--fj-raio-md);
+    padding: var(--fj-4);
+    display: grid;
+    gap: var(--fj-3);
+    align-content: start;
+  }
+  .card.is-rec { border-color: var(--fj-brasa-linha); box-shadow: 0 0 0 1px rgba(228,105,58,.18); }
+  .card h3 {
+    margin: 0;
+    font-family: var(--fj-fonte-titulo);
+    font-size: var(--fj-texto-md);
+    font-weight: 800;
+    letter-spacing: .01em;
+  }
+  .tagline { color: var(--fj-aco); font-size: var(--fj-texto-sm); margin: 0; line-height: 1.5; }
+  .mark-stage {
+    display: grid;
+    place-items: center;
+    min-height: 200px;
+    border-radius: var(--fj-raio-sm);
+    background: var(--fj-carvao-fundo);
+    border: var(--fj-fio) solid var(--fj-linha);
+    color: var(--fj-brasa);
+    padding: var(--fj-4);
+  }
+  .mark-stage svg { width: 128px; height: 128px; display: block; }
+  .verdict {
+    font-size: var(--fj-texto-xs);
+    letter-spacing: var(--fj-tracking-rotulo);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--fj-aco-forte);
+  }
+  .verdict.rec { color: var(--fj-brasa); }
+  .spec {
+    display: grid;
+    grid-template-columns: 104px 1fr;
+    gap: 6px var(--fj-3);
+    font-size: var(--fj-texto-sm);
+    margin: 0;
+  }
+  .spec dt { color: var(--fj-aco-forte); font-size: var(--fj-texto-xs); letter-spacing: .04em; padding-top: 2px; }
+  .spec dd { margin: 0; }
+  .lockups { display: grid; gap: var(--fj-4); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .lock {
+    display: grid;
+    place-items: center;
+    padding: var(--fj-5) var(--fj-4);
+    border-radius: var(--fj-raio-md);
+    border: var(--fj-fio) solid var(--fj-linha);
+    min-height: 170px;
+  }
+  .lock.dark { background: var(--fj-carvao-fundo); }
+  .lock.light { background: var(--fj-claro); }
+  .lock.bronze { background: var(--fj-bronze); }
+  .lock img { display: block; max-width: 100%; height: auto; }
+  .lock-label {
+    font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--fj-aco-forte);
+    margin-top: 8px; text-align: center;
+  }
+  .light .lock-label, .bronze .lock-label { color: rgba(23,19,15,.6); }
+  .scale-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--fj-5); color: var(--fj-brasa); }
+  .scale-item { display: grid; justify-items: center; gap: 6px; }
+  .scale-item span { font-size: 10px; color: var(--fj-aco-forte); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .dark-chip {
+    display: grid; place-items: center; background: var(--fj-carvao-fundo);
+    border: var(--fj-fio) solid var(--fj-linha); color: var(--fj-brasa);
+  }
+  .light-chip {
+    display: grid; place-items: center; background: var(--fj-claro);
+    border: var(--fj-fio) solid #d9d2c9; color: var(--fj-preto-quente);
+  }
+  .donts { display: grid; gap: var(--fj-3); grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+  .dont {
+    border: 1px dashed rgba(226,112,106,.42);
+    border-radius: var(--fj-raio-sm);
+    padding: var(--fj-4);
+    background: var(--fj-erro-lavado);
+    display: grid;
+    gap: var(--fj-2);
+    place-items: center;
+    min-height: 148px;
+    text-align: center;
+  }
+  .dont p { margin: 0; font-size: var(--fj-texto-xs); color: var(--fj-aco); line-height: 1.45; }
+  .dont svg { width: 62px; height: 62px; color: var(--fj-erro); }
+  .cols { display: grid; gap: var(--fj-5); grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
+  .grid-build {
+    border-radius: var(--fj-raio-sm); background: var(--fj-carvao-fundo);
+    border: var(--fj-fio) solid var(--fj-linha); padding: var(--fj-4);
+    display: grid; place-items: center; color: var(--fj-brasa);
+  }
+  .grid-build svg { width: 100%; max-width: 260px; height: auto; display: block; }
+  .build-caption { font-size: 10px; color: var(--fj-aco-forte); letter-spacing: .08em; text-transform: uppercase; text-align: center; margin-top: 10px; }
+  .table { width: 100%; border-collapse: collapse; font-size: var(--fj-texto-xs); margin-top: var(--fj-3); }
+  .table th, .table td {
+    text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--fj-linha);
+    vertical-align: top; overflow-wrap: anywhere;
+  }
+  .table th { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--fj-aco-forte); }
+  .table td:first-child { color: var(--fj-osso); font-weight: 650; }
+  /* Em telas estreitas a tabela deixa de ser tabela: cada linha vira um bloco
+     com rótulo, para não espremer três colunas em 280 px. */
+  @media (max-width: 620px) {
+    .table thead { display: none; }
+    .table, .table tbody, .table tr, .table td { display: block; width: auto; }
+    .table tr { border-bottom: var(--fj-fio) solid var(--fj-linha); padding: 10px 0; }
+    .table tr:last-child { border-bottom: 0; }
+    .table td { border: 0; padding: 2px 0; }
+    .table td:first-child { font-size: 13px; padding-bottom: 4px; }
+    .table td + td::before {
+      content: attr(data-th);
+      display: block;
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--fj-aco-forte);
+      margin-bottom: 1px;
+    }
+  }
+  .callout {
+    border-left: 2px solid var(--fj-brasa);
+    background: var(--fj-brasa-lavada);
+    border-radius: 0 var(--fj-raio-sm) var(--fj-raio-sm) 0;
+    padding: 12px 16px;
+    font-size: var(--fj-texto-sm);
+    color: var(--fj-osso-suave);
+  }
+  .callout.warn { border-left-color: var(--fj-bronze); background: rgba(192,139,78,.10); }
+  footer { padding: var(--fj-7) 0 var(--fj-9); color: var(--fj-aco-forte); font-size: var(--fj-texto-xs); }
+  code { font-family: ui-monospace, monospace; font-size: .92em; color: var(--fj-osso-suave); }
+  .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .hdr-demo {
+    display: flex; align-items: center; gap: 10px;
+    border: var(--fj-fio) solid var(--fj-linha); border-radius: var(--fj-raio-sm);
+    padding: 12px 14px; background: var(--fj-carvao-fundo);
+  }
+  .hdr-demo .word {
+    font-family: var(--fj-fonte-titulo); font-weight: 750; font-stretch: 108%;
+    letter-spacing: .06em; font-size: 19px; color: var(--fj-osso);
+  }
+  .hdr-demo .tag {
+    margin-left: auto; font-size: 8.8px; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--fj-aco);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  @media (max-width: 560px) { .hdr-demo .tag { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- Símbolos reutilizados na página (mesma geometria dos arquivos SVG entregues) -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="s-emblema" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="28.5" fill="none" stroke="currentColor" stroke-width="3"/>
+    <g fill="currentColor">
+      <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+      <path d="M13 33H51L47 40H17Z"/>
+      <path d="M26 40H38L41 46H23Z"/>
+      <path d="M17 46H47L49 52H15Z"/>
+    </g>
+  </symbol>
+  <symbol id="s-emblema24" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="29.6" fill="none" stroke="currentColor" stroke-width="3.6"/>
+    <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+      <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+      <path d="M13 33H51L47 40H17Z"/>
+      <path d="M26 40H38L41 46H23Z"/>
+      <path d="M17 46H47L49 52H15Z"/>
+    </g>
+  </symbol>
+  <symbol id="s-compacto" viewBox="0 0 64 64">
+    <g fill="currentColor" transform="translate(32 29) scale(1.2) translate(-32 -32)">
+      <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+      <path d="M13 33H51L47 40H17Z"/>
+      <path d="M26 40H38L41 46H23Z"/>
+      <path d="M17 46H47L49 52H15Z"/>
+    </g>
+  </symbol>
+  <symbol id="s-disco" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="29" fill="currentColor"/>
+    <g fill="#121010" transform="translate(32 31) scale(0.92) translate(-32 -32)">
+      <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+      <path d="M13 33H51L47 40H17Z"/>
+      <path d="M26 40H38L41 46H23Z"/>
+      <path d="M17 46H47L49 52H15Z"/>
+    </g>
+  </symbol>
+  <symbol id="s-bigorna" viewBox="0 0 64 64">
+    <g fill="currentColor">
+      <path d="M10 22H54L48 33H16Z"/>
+      <path d="M25 33H39L44 45H20Z"/>
+      <path d="M15 45H49L53 55H11Z"/>
+    </g>
+  </symbol>
+  <symbol id="s-cunha" viewBox="0 0 64 64">
+    <path fill="currentColor" d="M18 4H52L56 8V16H28V28H46L50 32V40H28V60H18Z"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <p class="kicker">FORJA · Etapa 1 · revisão 2 · proposta para revisão</p>
+    <h1>O martelo não faz o físico. A repetição faz.</h1>
+    <p class="lead">O emblema da bigorna com a chama, na chave circular e nórdica da referência aprovada — reinterpretado do zero, sem ornamento, para funcionar de 16 a 512 px. Esta página mostra as três versões do símbolo, a construção geométrica, os lockups, os tamanhos mínimos e as regras de uso. <strong>Nada aqui está aprovado.</strong></p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <h2>1. A ideia central</h2>
+    <div class="cols">
+      <div>
+        <p class="note" style="margin-bottom:14px">“Assim como uma espada é moldada a cada martelada, um físico é construído treino após treino.”</p>
+        <p class="note">A peça que sai da forja não nasce pronta. Ela é apoiada na bigorna, aquecida, golpeada, virada, golpeada de novo. A bigorna não trabalha: ela <strong>não se move</strong>. O fogo não decide nada: ele <strong>transforma</strong> quem é colocado nele.</p>
+        <p class="note">Daí o emblema ser, ao mesmo tempo, ferramenta e processo: uma <strong>bigorna em três massas</strong> com uma <strong>chama em três movimentos</strong> dentro de um <strong>aro circular</strong>. Nada de martelo, escudo, chifre ou runa. Os três elementos dizem exatamente o que o app faz: o corpo é a peça, a constância é o apoio, o treino é o fogo.</p>
+        <p class="note note-sm" style="color:var(--fj-bronze)">Este é o segundo estudo. O primeiro propunha o F em três chapas; foi substituído pela sua decisão de direção — o emblema circular de bigorna e chama, que tem mais peso simbólico e uma silhueta mais marcante.</p>
+      </div>
+      <div class="grid-build" style="color:var(--fj-brasa)">
+        <svg viewBox="0 0 64 64" aria-label="Emblema: aro, chama e bigorna" style="max-width:300px">
+          <use href="#s-emblema"/>
+        </svg>
+        <p class="build-caption">Aro · chama · bigorna — uma cor, três massas</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Da referência ao desenho</h2>
+    <p class="note">A referência é um emblema circular com bigorna e chama, em chave nórdica premium. O que fazia a imagem funcionar era a <strong>hierarquia</strong>: um contorno forte, uma silhueta de bigorna e o fogo como acento. O que a tornava difícil de transportar para um app era o <strong>excesso de informação</strong>: ornamentos, detalhes internos e simetria decorativa que desaparecem em 24 px.</p>
+    <table class="table">
+      <thead><tr><th>Elemento da referência</th><th>Decisão</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td data-th="Elemento da referência">Aro circular</td><td data-th="Decisão"><strong>Mantido</strong>, traço de 3 unidades</td><td data-th="Por quê">É o que transforma bigorna e chama em <em>emblema</em> e não em pictograma. Dá contenção à marca.</td></tr>
+        <tr><td data-th="Elemento da referência">Bigorna</td><td data-th="Decisão"><strong>Mantida</strong>, reduzida a três massas</td><td data-th="Por quê">Face, cintura e base bastam para a silhueta. Qualquer detalhe a mais vira ruído sob 32 px.</td></tr>
+        <tr><td data-th="Elemento da referência">Chama</td><td data-th="Decisão"><strong>Mantida</strong>, em três curvas</td><td data-th="Por quê">É o único elemento orgânico da marca — e o único que precisa ser curvo para ser fogo, não folha.</td></tr>
+        <tr><td data-th="Elemento da referência">Metal, brilho, relevo</td><td data-th="Decisão"><strong>Removido</strong></td><td data-th="Por quê">Gradiente não sobrevive à compressão, ao tema escuro nem à impressão. A sensação metálica vem do contraste e da geometria.</td></tr>
+        <tr><td data-th="Elemento da referência">Ornamentos, runas, trançados</td><td data-th="Decisão"><strong>Removidos</strong></td><td data-th="Por quê">Levam o produto para “jogo nórdico”. A referência nórdica fica no <em>material</em> (ferro, fogo, peso), não no folclore.</td></tr>
+        <tr><td data-th="Elemento da referência">Chifres, escudos, martelo cruzado</td><td data-th="Decisão"><strong>Não usados</strong></td><td data-th="Por quê">São os clichês que a direção criativa proíbe — e que qualquer app de treino poderia usar.</td></tr>
+        <tr><td data-th="Elemento da referência">Cantos retos e chanfros</td><td data-th="Decisão"><strong>Mantidos a 45°</strong></td><td data-th="Por quê">É o ângulo único da marca: bigorna, base e cortes dos textos seguem o mesmo grau.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout" style="margin-top:18px">
+      O desenho é <strong>original</strong>: não é um redesenho da imagem, é a mesma ideia resolvida em geometria própria — aro de 3 unidades, chama de três curvas, bigorna de três trapézios, tudo em grade de 64.
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Um símbolo, três versões</h2>
+    <p class="note">O mesmo desenho não serve para 16 e para 96 px. Em vez de degradar o emblema, o sistema declara <strong>três recortes ópticos</strong> da mesma marca — e um quarto, que é o ícone do sistema operacional.</p>
+
+    <div class="grid-3">
+      <article class="card is-rec">
+        <div class="mark-stage" style="color:var(--fj-brasa)"><svg viewBox="0 0 64 64" aria-label="Emblema principal"><use href="#s-emblema"/></svg></div>
+        <div>
+          <span class="verdict rec">Marca principal · 28 px ou mais</span>
+          <h3>A · Emblema</h3>
+          <p class="tagline">Aro, chama e bigorna com o traço na espessura de projeto. É a assinatura — a versão que aparece quando a marca precisa ser reconhecida como marca.</p>
+        </div>
+        <dl class="spec">
+          <dt>Uso</dt><dd>Onboarding, resumo pós-treino, abertura, material, imagem social.</dd>
+          <dt>Mínimo</dt><dd>28 px (abaixo disso, entra a versão óptica).</dd>
+        </dl>
+      </article>
+
+      <article class="card">
+        <div class="mark-stage" style="color:var(--fj-brasa)"><svg viewBox="0 0 64 64" aria-label="Emblema em tamanho óptico"><use href="#s-emblema24"/></svg></div>
+        <div>
+          <span class="verdict">Tamanho óptico · 20 a 27 px</span>
+          <h3>B · Emblema óptico</h3>
+          <p class="tagline">O aro engrossa 20% e o miolo cresce 7,5%. Em 24 px, o mesmo desenho mantém o aro legível e a bigorna com massa suficiente para não desaparecer.</p>
+        </div>
+        <dl class="spec">
+          <dt>Uso</dt><dd>Cabeçalho do app — 24 px, ao lado da palavra de 19 px.</dd>
+          <dt>Mínimo</dt><dd>20 px. Abaixo disso, versão compacta.</dd>
+        </dl>
+      </article>
+
+      <article class="card">
+        <div class="mark-stage" style="color:var(--fj-brasa)"><svg viewBox="0 0 64 64" aria-label="Emblema compacto, sem aro"><use href="#s-compacto"/></svg></div>
+        <div>
+          <span class="verdict">Compacto · até 20 px</span>
+          <h3>C · Compacto</h3>
+          <p class="tagline">Sem o aro. Bigorna e chama crescem 20% e o aro sai — porque em 16 px ele viraria uma borda de 0,75 px, que só suja o contorno.</p>
+        </div>
+        <dl class="spec">
+          <dt>Uso</dt><dd>Favicon 16 px, chips, marcas d'água pequenas, canto de material.</dd>
+          <dt>Mínimo</dt><dd>12 px (abaixo disso, não usar a marca).</dd>
+        </dl>
+      </article>
+    </div>
+
+    <h3 style="font-family:var(--fj-fonte-titulo);font-size:var(--fj-texto-lg);margin:var(--fj-6) 0 var(--fj-3)">O quarto recorte: o ícone do sistema</h3>
+    <p class="note">Ícone de app não é emblema reduzido: ele é a marca <strong>invertida</strong> — disco de brasa com a bigorna e a chama vazadas em carvão. A inversão existe por dois motivos práticos: ganha presença na tela inicial, onde todos os ícones competem, e sobrevive a qualquer máscara do sistema (círculo, squircle, quadrado arredondado).</p>
+    <p class="note"><strong>Prova exigida e feita:</strong> o ícone foi aprovado como direção <em>com a condição</em> de demonstrar legibilidade em claro e escuro, nos tamanhos 512, 192 e 180 px. A prova está em <a href="icone.html" style="color:var(--fj-brasa-alta)">icone.html</a> — tamanho real nos dois fundos, escada até 16 px, máscaras do sistema e contrastes medidos.</p>
+    <div class="grid-2">
+      <div class="mark-stage" style="color:var(--fj-brasa);min-height:210px">
+        <svg viewBox="0 0 64 64" style="width:132px;height:132px" aria-label="Ícone do app: disco vazado"><use href="#s-disco"/></svg>
+      </div>
+      <div class="card">
+        <h3>Regras do ícone</h3>
+        <dl class="spec" style="grid-template-columns:96px 1fr">
+          <dt>Disco</dt><dd>r = 29/64 sobre fundo carvão, para a máscara recortar sem perder a borda.</dd>
+          <dt>Conteúdo</dt><dd>Reduzido a 92% e centrado — nunca encosta na borda do disco.</dd>
+          <dt>Cor</dt><dd>Uma cor só: brasa sobre carvão. Não usar o duo em ícone.</dd>
+          <dt>Entregas</dt><dd>512, 192 e 180 px a partir do mesmo vetor.</dd>
+        </dl>
+      </div>
+    </div>
+
+    <h3 style="font-family:var(--fj-fonte-titulo);font-size:var(--fj-texto-lg);margin:var(--fj-6) 0 var(--fj-3)">Escada de tamanhos</h3>
+    <div class="scale-row">
+      <div class="scale-item"><svg viewBox="0 0 64 64" style="width:96px;height:96px;color:var(--fj-brasa)"><use href="#s-emblema"/></svg><span>96 · emblema</span></div>
+      <div class="scale-item"><svg viewBox="0 0 64 64" style="width:64px;height:64px;color:var(--fj-brasa)"><use href="#s-emblema"/></svg><span>64 · emblema</span></div>
+      <div class="scale-item"><svg viewBox="0 0 64 64" style="width:48px;height:48px;color:var(--fj-brasa)"><use href="#s-emblema"/></svg><span>48 · emblema</span></div>
+      <div class="scale-item"><svg viewBox="0 0 64 64" style="width:32px;height:32px;color:var(--fj-brasa)"><use href="#s-emblema"/></svg><span>32 · emblema</span></div>
+      <div class="scale-item"><svg viewBox="0 0 64 64" style="width:24px;height:24px;color:var(--fj-brasa)"><use href="#s-emblema24"/></svg><span>24 · óptico</span></div>
+      <div class="scale-item"><svg viewBox="0 0 64 64" style="width:20px;height:20px;color:var(--fj-brasa)"><use href="#s-emblema24"/></svg><span>20 · óptico</span></div>
+      <div class="scale-item"><svg viewBox="0 0 64 64" style="width:16px;height:16px;color:var(--fj-brasa)"><use href="#s-compacto"/></svg><span>16 · compacto</span></div>
+      <div class="scale-item"><svg viewBox="0 0 64 64" style="width:12px;height:12px;color:var(--fj-brasa)"><use href="#s-compacto"/></svg><span>12 · compacto</span></div>
+    </div>
+    <p class="build-caption" style="text-align:left;margin-top:14px">Cada degrau usa a versão desenhada para ele. Não existe “o emblema reduzido a 16 px”.</p>
+  </section>
+
+  <section>
+    <h2>4. Construção</h2>
+    <div class="cols">
+      <dl class="spec" style="align-content:start">
+        <dt>Grade</dt><dd>64 × 64 unidades.</dd>
+        <dt>Aro</dt><dd>Raio 28,5 · traço 3 · folga de 2,5 até a borda (e 29,6 / 3,6 na versão óptica).</dd>
+        <dt>Chama</dt><dd>Vão de y 9 a 33 · 15 unidades de largura na base · ápice deslocado 1,5 para a direita.</dd>
+        <dt>Bigorna</dt><dd>Face x 13–51 (y 33–40) · cintura x 26–38 (y 40–46) · base x 15–49 (y 46–52).</dd>
+        <dt>Ângulo</dt><dd>45° em todos os cortes: flancos da face, cintura e base.</dd>
+        <dt>Ritmo</dt><dd>As três massas têm alturas 7, 6 e 6 — a base é a mais larga e a face a mais alta.</dd>
+        <dt>Respiro</dt><dd>1 × a espessura do aro em todos os lados. Nada entra nessa margem.</dd>
+        <dt>Contorno</dt><dd>Não existe versão em contorno: a marca é massa + aro, nunca linha solta.</dd>
+      </dl>
+      <div>
+        <div class="grid-build" style="color:var(--fj-brasa)">
+          <svg viewBox="0 0 64 64" aria-label="Construção do emblema sobre grade">
+            <g stroke="#2b2624" stroke-width=".4">
+              <path d="M0 8H64M0 16H64M0 24H64M0 32H64M0 40H64M0 48H64M0 56H64"/>
+              <path d="M8 0V64M16 0V64M24 0V64M32 0V64M40 0V64M48 0V64M56 0V64"/>
+            </g>
+            <circle cx="32" cy="32" r="31" fill="none" stroke="#6b5a44" stroke-dasharray="2 2"/>
+            <circle cx="32" cy="32" r="28.5" fill="none" stroke="currentColor" stroke-width="3"/>
+            <g stroke="#c08b4e" stroke-width=".6" stroke-dasharray="1.5 1.5" opacity=".9">
+              <path d="M32 33V9"/>
+              <path d="M13 33H51"/>
+              <path d="M13 40H51"/>
+              <path d="M26 46H38"/>
+              <path d="M15 52H49"/>
+            </g>
+            <g fill="currentColor" opacity=".95">
+              <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+              <path d="M13 33H51L47 40H17Z"/>
+              <path d="M26 40H38L41 46H23Z"/>
+              <path d="M17 46H47L49 52H15Z"/>
+            </g>
+          </svg>
+        </div>
+        <p class="build-caption">Tracejado externo: respiro · linhas bronze: eixos de medida</p>
+      </div>
+    </div>
+
+    <table class="table">
+      <thead><tr><th>Peça</th><th>Medida</th><th>Papel</th></tr></thead>
+      <tbody>
+        <tr><td data-th="Peça">Aro</td><td data-th="Medida">r 28,5 · traço 3</td><td data-th="Papel">Contém a marca; é o que faz o símbolo “medalhão” em vez de pictograma</td></tr>
+        <tr><td data-th="Peça">Chama</td><td data-th="Medida">24 de altura · 15 de base</td><td data-th="Papel">O processo: três curvas, ápice deslocado, sem simetria perfeita</td></tr>
+        <tr><td data-th="Peça">Face</td><td data-th="Medida">38 × 7, flancos a 45°</td><td data-th="Papel">O plano de trabalho — a parte que recebe o golpe</td></tr>
+        <tr><td data-th="Peça">Cintura</td><td data-th="Medida">12 → 18 (afunila para cima)</td><td data-th="Papel">O ponto frágil; é o que faz a silhueta ler como bigorna</td></tr>
+        <tr><td data-th="Peça">Base</td><td data-th="Medida">34 × 6, alargando para baixo</td><td data-th="Papel">O peso: o que não se move</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>5. Lockups</h2>
+    <p class="note">O nome é parte da marca. O wordmark é composto em <strong>Archivo</strong> (SIL OFL), caixa-alta, largura 108%, peso 750, tracking 0,06 em. Nos lockups, o nome já está <strong>convertido em contornos</strong>: nenhum arquivo depende de fonte instalada.</p>
+    <div class="lockups">
+      <div class="lock dark">
+        <div>
+          <img src="svg/logo-horizontal-escuro.svg" alt="FORJA — assinatura horizontal, emblema em brasa e nome em osso" width="236" height="74">
+          <p class="lock-label">Horizontal · fundo escuro</p>
+        </div>
+      </div>
+      <div class="lock dark">
+        <div>
+          <img src="svg/logo-horizontal-duo.svg" alt="FORJA — assinatura horizontal em duas cores, aro e bigorna em bronze, chama em brasa" width="236" height="74">
+          <p class="lock-label">Horizontal · duo (bronze + brasa)</p>
+        </div>
+      </div>
+      <div class="lock dark">
+        <div>
+          <img src="svg/logo-horizontal-bronze.svg" alt="FORJA — assinatura horizontal inteira em bronze" width="236" height="74">
+          <p class="lock-label">Horizontal · bronze</p>
+        </div>
+      </div>
+      <div class="lock light">
+        <div>
+          <img src="svg/logo-horizontal-claro.svg" alt="FORJA — assinatura horizontal sobre fundo claro" width="236" height="74">
+          <p class="lock-label">Horizontal · fundo claro</p>
+        </div>
+      </div>
+      <div class="lock light">
+        <div>
+          <img src="svg/logo-horizontal-monocromatico.svg" alt="FORJA — assinatura horizontal monocromática" width="236" height="74">
+          <p class="lock-label">Horizontal · monocromático</p>
+        </div>
+      </div>
+      <div class="lock dark" style="grid-column:span 1">
+        <div style="display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;justify-content:center">
+          <div>
+            <img src="svg/logo-vertical-escuro.svg" alt="FORJA — assinatura vertical" width="150">
+            <p class="lock-label">Vertical</p>
+          </div>
+          <div>
+            <img src="svg/logo-vertical-duo.svg" alt="FORJA — assinatura vertical em duas cores" width="150">
+            <p class="lock-label">Vertical · duo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="build-caption" style="text-align:left;margin-top:14px">A tagline aparece apenas na assinatura vertical e, no produto, no cabeçalho largo. Ela nunca é reduzida para caber: onde não há espaço, ela simplesmente não aparece.</p>
+  </section>
+
+  <section>
+    <h2>6. A tagline</h2>
+    <div class="cols">
+      <div>
+        <p class="note"><strong>DISCIPLINA • EVOLUÇÃO • CONSISTÊNCIA</strong> — Inter 600, caixa-alta, tracking 0,30 em, cor aço <code>#a6a29b</code>. Os três pontos são separadores, nunca bullets decorativos.</p>
+        <p class="note">O texto descreve o método do app, não o tema dele: não fala de fogo, não fala de vikings, não fala de RPG. É a frase que sustenta a promessa — e por isso ela é opcional: aparece onde há espaço, e desaparece onde não há.</p>
+        <dl class="spec">
+          <dt>Onde entra</dt><dd>Cabeçalho largo (≥ 720 px), rodapé, capa de material, assinatura vertical.</dd>
+          <dt>Onde não entra</dt><dd>Celular, ícone, favicon, chips, resumo de treino, modais, cabeçalho de página interna.</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <div class="hdr-demo" style="color:var(--fj-brasa)">
+          <svg viewBox="0 0 64 64" style="width:24px;height:24px"><use href="#s-emblema24"/></svg>
+          <span class="word">FORJA</span>
+          <span class="tag">DISCIPLINA • EVOLUÇÃO • CONSISTÊNCIA</span>
+        </div>
+        <p class="lock-label" style="text-align:left;margin:0">Cabeçalho largo — a tagline vive na mesma linha, à direita</p>
+        <div class="hdr-demo" style="color:var(--fj-brasa);max-width:330px">
+          <svg viewBox="0 0 64 64" style="width:24px;height:24px"><use href="#s-emblema24"/></svg>
+          <span class="word">FORJA</span>
+        </div>
+        <p class="lock-label" style="text-align:left;margin:0">Celular — sem tagline, sem aperto</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>7. Regras de uso</h2>
+    <div class="cols">
+      <div>
+        <h3 style="font-family:var(--fj-fonte-titulo);font-size:var(--fj-texto-md);margin:0 0 10px">Sobre escuro (padrão)</h3>
+        <p class="note">Emblema em brasa <code>#e4693a</code> (5,76:1 sobre carvão) ou em osso. A versão duo usa bronze no aro e na bigorna, brasa só na chama.</p>
+        <h3 style="font-family:var(--fj-fonte-titulo);font-size:var(--fj-texto-md);margin:18px 0 10px">Sobre claro</h3>
+        <p class="note">Sempre preto quente <code>#17130f</code>. <strong>Nunca</strong> brasa (2,73:1) nem bronze (2,47:1) sobre o claro da marca — os dois falham para marca pequena.</p>
+        <h3 style="font-family:var(--fj-fonte-titulo);font-size:var(--fj-texto-md);margin:18px 0 10px">Sobre imagem</h3>
+        <p class="note">Só com área de proteção sólida (carvão a 92%) atrás do emblema. Nunca sobre a prancha do atlas sem esse fundo.</p>
+      </div>
+      <div class="card" style="gap:14px">
+        <div class="hdr-demo" style="color:var(--fj-brasa)">
+          <svg viewBox="0 0 64 64" style="width:40px;height:40px"><use href="#s-emblema"/></svg>
+          <span class="word" style="font-size:15px">FORJA</span>
+          <span class="tag" style="font-size:8px">BRASA</span>
+        </div>
+        <div class="hdr-demo" style="color:var(--fj-osso)">
+          <svg viewBox="0 0 64 64" style="width:40px;height:40px"><use href="#s-emblema"/></svg>
+          <span class="word" style="font-size:15px">FORJA</span>
+          <span class="tag" style="font-size:8px">OSSO</span>
+        </div>
+        <div class="hdr-demo" style="background:var(--fj-claro);border-color:#d9d2c9;color:var(--fj-preto-quente)">
+          <svg viewBox="0 0 64 64" style="width:40px;height:40px"><use href="#s-emblema"/></svg>
+          <span class="word" style="font-size:15px;color:var(--fj-preto-quente)">FORJA</span>
+          <span class="tag" style="font-size:8px;color:#6b6156">CLARO</span>
+        </div>
+        <p class="lock-label" style="text-align:left;margin:0">Três fundos permitidos. Nenhum gradiente, nenhuma textura.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>8. O que quebra a marca</h2>
+    <p class="note">Cada quadrado abaixo mostra um uso <strong>proibido</strong> — todos são fáceis de fazer por acidente.</p>
+    <div class="donts">
+      <div class="dont">
+        <svg viewBox="0 0 64 64"><g transform="translate(64 0) scale(-1 1)"><use href="#s-emblema"/></g></svg>
+        <p>Espelhar, rotacionar ou inclinar</p>
+      </div>
+      <div class="dont">
+        <svg viewBox="0 0 64 64" style="fill:none;stroke:currentColor;stroke-width:1.6">
+          <circle cx="32" cy="32" r="28.5"/>
+          <g transform="translate(32 31) scale(.92) translate(-32 -32)">
+            <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+            <path d="M13 33H51L47 40H17Z"/>
+            <path d="M26 40H38L41 46H23Z"/>
+            <path d="M17 46H47L49 52H15Z"/>
+          </g>
+        </svg>
+        <p>Converter em contorno: a marca é massa</p>
+      </div>
+      <div class="dont">
+        <svg viewBox="0 0 64 64">
+          <defs>
+            <linearGradient id="g-rad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f08356"/><stop offset=".55" stop-color="#c08b4e"/><stop offset="1" stop-color="#2b2624"/>
+            </linearGradient>
+          </defs>
+          <g fill="url(#g-rad)" stroke="none"><use href="#s-emblema"/></g>
+        </svg>
+        <p>Gradiente, brilho ou efeito metálico simulado</p>
+      </div>
+      <div class="dont">
+        <svg viewBox="0 0 64 64">
+          <g transform="scale(1 1)">
+            <use href="#s-emblema"/>
+          </g>
+          <g stroke="currentColor" stroke-width="1.2" opacity=".9">
+            <path d="M24 14L32 6L40 14"/>
+            <path d="M18 22L26 14L34 22"/>
+            <path d="M30 22L38 14L46 22"/>
+          </g>
+        </svg>
+        <p>Acrescentar runas, chifres, raios ou ornamentos</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>9. Sistema de símbolos</h2>
+    <p class="note">A identidade tem <strong>uma marca</strong> e um vocabulário de apoio com papéis fixos. Nenhum símbolo secundário substitui o emblema.</p>
+    <table class="table">
+      <thead><tr><th>Peça</th><th>Papel</th><th>Onde aparece</th><th>Regra</th></tr></thead>
+      <tbody>
+        <tr><td data-th="Peça">Emblema</td><td data-th="Papel">Marca principal</td><td data-th="Onde aparece">Cabeçalho, onboarding, resumo pós-treino, material</td><td data-th="Regra">É a única peça que representa a FORJA.</td></tr>
+        <tr><td data-th="Peça">Ícone de app</td><td data-th="Papel">Fachada do produto</td><td data-th="Onde aparece">Tela inicial, aba, atalho</td><td data-th="Regra">Sempre o disco vazado, nunca o emblema com aro.</td></tr>
+        <tr><td data-th="Peça">Compacto</td><td data-th="Papel">Marca em tamanho mínimo</td><td data-th="Onde aparece">Favicon, chips, canto de material</td><td data-th="Regra">Sem aro; abaixo de 12 px não se usa.</td></tr>
+        <tr><td data-th="Peça">Bigorna isolada</td><td data-th="Papel">Grafismo de estado vazio</td><td data-th="Onde aparece">Listas vazias, onboarding, “nenhum treino ainda”</td><td data-th="Regra">Uma cor, opacidade baixa; nunca junto de dados.</td></tr>
+        <tr><td data-th="Peça">Cunha</td><td data-th="Papel">Elemento secundário</td><td data-th="Onde aparece">Marca d'água, separador de material, gravação</td><td data-th="Regra">Nunca no cabeçalho, nunca como ícone do app.</td></tr>
+        <tr><td data-th="Peça">Duo (bronze + brasa)</td><td data-th="Papel">Versão de prestígio</td><td data-th="Onde aparece">Resumo pós-treino, capa de backup, certificado</td><td data-th="Regra">Só em fundo escuro; nunca em 16 px.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-3" style="margin-top:22px">
+      <div class="card">
+        <div class="mark-stage" style="color:var(--fj-bronze);min-height:130px">
+          <svg viewBox="0 0 64 64" style="width:64px;height:64px"><use href="#s-bigorna"/></svg>
+        </div>
+        <p class="tagline">Bigorna isolada: o grafismo do vazio. Sempre em bronze e em opacidade baixa.</p>
+      </div>
+      <div class="card">
+        <div class="mark-stage" style="color:var(--fj-aco);min-height:130px">
+          <svg viewBox="0 0 64 64" style="width:56px;height:56px"><use href="#s-cunha"/></svg>
+        </div>
+        <p class="tagline">Cunha: elemento secundário de material. Não é ícone de app e não vai no cabeçalho.</p>
+      </div>
+      <div class="card">
+        <div class="mark-stage" style="min-height:130px">
+          <svg viewBox="0 0 64 64" style="width:64px;height:64px">
+            <circle cx="32" cy="32" r="28.5" fill="none" stroke="#c08b4e" stroke-width="3"/>
+            <path fill="#e4693a" d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+            <g fill="#c08b4e">
+              <path d="M13 33H51L47 40H17Z"/>
+              <path d="M26 40H38L41 46H23Z"/>
+              <path d="M17 46H47L49 52H15Z"/>
+            </g>
+          </svg>
+        </div>
+        <p class="tagline">Duo: aro e bigorna em bronze, chama em brasa. A versão “de medalha”, para momentos de conclusão.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>10. Arquivos entregues</h2>
+    <table class="table">
+      <thead><tr><th>Arquivo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td data-th="Arquivo">svg/emblema-forja.svg</td><td data-th="Descrição">Marca principal — aro, chama e bigorna em <code>currentColor</code> (≥ 28 px)</td></tr>
+        <tr><td data-th="Arquivo">svg/emblema-forja-24.svg</td><td data-th="Descrição">Versão óptica para 20–27 px (aro 20% mais grosso)</td></tr>
+        <tr><td data-th="Arquivo">svg/emblema-compacto.svg</td><td data-th="Descrição">Sem aro, para ≤ 20 px</td></tr>
+        <tr><td data-th="Arquivo">svg/emblema-duo.svg</td><td data-th="Descrição">Duas cores: bronze + brasa</td></tr>
+        <tr><td data-th="Arquivo">svg/icone-app.svg</td><td data-th="Descrição">Ícone do sistema — disco vazado, 512 px</td></tr>
+        <tr><td data-th="Arquivo">svg/favicon.svg</td><td data-th="Descrição">Favicon 32 px sobre carvão</td></tr>
+        <tr><td data-th="Arquivo">svg/grafismo-bigorna.svg</td><td data-th="Descrição">Bigorna isolada, para estado vazio</td></tr>
+        <tr><td data-th="Arquivo">svg/emblema-cunha.svg</td><td data-th="Descrição">Elemento secundário</td></tr>
+        <tr><td data-th="Arquivo">svg/logo-horizontal-escuro.svg</td><td data-th="Descrição">Assinatura horizontal sobre escuro</td></tr>
+        <tr><td data-th="Arquivo">svg/logo-horizontal-duo.svg</td><td data-th="Descrição">Assinatura horizontal em duas cores</td></tr>
+        <tr><td data-th="Arquivo">svg/logo-horizontal-bronze.svg</td><td data-th="Descrição">Assinatura horizontal em bronze</td></tr>
+        <tr><td data-th="Arquivo">svg/logo-horizontal-claro.svg</td><td data-th="Descrição">Assinatura horizontal sobre claro</td></tr>
+        <tr><td data-th="Arquivo">svg/logo-horizontal-monocromatico.svg</td><td data-th="Descrição">Assinatura horizontal de uma cor (carimbo, gravação)</td></tr>
+        <tr><td data-th="Arquivo">svg/logo-vertical-escuro.svg</td><td data-th="Descrição">Assinatura vertical com tagline</td></tr>
+        <tr><td data-th="Arquivo">svg/logo-vertical-duo.svg</td><td data-th="Descrição">Assinatura vertical em duas cores</td></tr>
+        <tr><td data-th="Arquivo">svg/logo-vertical-claro.svg</td><td data-th="Descrição">Assinatura vertical sobre claro</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn" style="margin-top:20px">
+      <strong>Aprovação pendente.</strong> Confirme a direção do emblema, o tamanho do cabeçalho (24 px), a tagline em três palavras e o emblema discreto no resumo pós-treino. Nenhum arquivo do aplicativo foi alterado até aqui.
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  Protótipo da etapa 1 · revisão 2 · a paleta carvão, ferro, aço, osso, bronze e brasa <code>#e4693a</code> permanece inalterada.
+</footer>
+
+</body>
+</html>

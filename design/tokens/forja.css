@@ -1,0 +1,180 @@
+/* ==========================================================================
+   FORJA — camada de tokens da proposta de rebranding (v1, para revisão)
+   --------------------------------------------------------------------------
+   Arquivo de PROPOSTA, fora de assets/. Não é carregado por nenhuma página do
+   aplicativo nesta etapa. Serve a dois fins:
+     1. ser a fonte única de verdade do protótipo em design/prototipo/;
+     2. provar que a identidade nova cabe em CSS custom properties, sem tocar
+        em lógica, HTML semântico ou armazenamento.
+
+   Ordem de carregamento pretendida na implementação futura:
+     base.css → treino.css → execucao.css → configuracoes.css → app.css →
+     performance.css → system.css → responsive.css → marca/forja-marca.css
+   (a camada de marca entra por último e apenas redefine tokens e superfícies).
+
+   Toda cor abaixo é HIPÓTESE de design. Nenhuma foi validada com usuários.
+   Contrastes medidos em relação ao fundo indicado — ver docs/rebranding/
+   sistema-visual.md §2.3.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo Forja";
+  src: url("../fontes/archivo-variable-latin.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter Forja";
+  src: url("../fontes/inter-variable-latin.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* 1. Matéria — superfícies -------------------------------------------- */
+  --fj-carvao: #121010;        /* fundo do app. Carvão quente, não preto puro */
+  --fj-carvao-fundo: #0d0b0b;  /* rodapé, fundo de moldura */
+  --fj-ferro: #1a1717;         /* superfície 1: cartões */
+  --fj-ferro-alto: #221e1d;    /* superfície 2: elementos dentro do cartão */
+  --fj-ferro-baixo: #151212;   /* superfície afundada: inputs, trilhas */
+  --fj-linha: #302b29;         /* borda padrão */
+  --fj-linha-forte: #453e3a;   /* borda de destaque / divisor visível */
+
+  /* 2. Matéria — leitura ------------------------------------------------ */
+  --fj-osso: #f2ede7;          /* texto primário — 16,29:1 no carvão */
+  --fj-osso-suave: #d8d2ca;    /* texto primário em cartões — 12,64:1 */
+  --fj-aco: #a6a29b;           /* texto secundário — 7,46:1 */
+  --fj-aco-forte: #8c8781;     /* texto terciário/legenda — 5,33:1 */
+  --fj-desligado: #6e6964;     /* texto desabilitado — uso não textual */
+
+  /* 3. Calor — acento e material ---------------------------------------- */
+  --fj-brasa: #e4693a;         /* ação primária, foco, sessão ativa — 5,76:1 */
+  --fj-brasa-alta: #f08356;    /* hover — 7,30:1 */
+  --fj-brasa-baixa: #b04f27;   /* pressionado */
+  --fj-brasa-lavada: rgba(228, 105, 58, 0.12);  /* fundo de estado selecionado */
+  --fj-brasa-linha: rgba(228, 105, 58, 0.38);   /* borda de estado selecionado */
+  --fj-bronze: #c08b4e;        /* detalhe de material: emblema, fio, número-chave — 6,36:1 */
+  --fj-bronze-alto: #dca75f;   /* bronze em texto pequeno sobre ferro — 7,18:1 */
+  --fj-bronze-escuro: #8a5a2b; /* bronze legível em superfície clara — 4,87:1 */
+  --fj-claro: #efe9e2;         /* superfície clara (impressão, imagem de compartilhamento) */
+  --fj-preto-quente: #17130f;  /* texto sobre claro — 15,33:1 */
+
+  /* 4. Semântica -------------------------------------------------------- */
+  --fj-ok: #7fb08d;            /* 7,67:1 */
+  --fj-ok-lavado: rgba(127, 176, 141, 0.12);
+  --fj-alerta: #d9a657;        /* 8,62:1 */
+  --fj-alerta-lavado: rgba(217, 166, 87, 0.12);
+  --fj-erro: #e2706a;          /* 6,10:1 */
+  --fj-erro-lavado: rgba(226, 112, 106, 0.12);
+
+  /* 5. Tipografia ------------------------------------------------------- */
+  --fj-fonte-titulo: "Archivo Forja", "Archivo", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  --fj-fonte-texto: "Inter Forja", "Inter", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  --fj-fonte-numero: "Inter Forja", "Inter", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  /* cronômetro e tempo: Inter com numerais tabulares — sem fonte monoespaçada
+     separada, para o relógio não parecer um componente de outro produto. */
+
+  --fj-peso-forte: 800;
+  --fj-peso-medio: 600;
+  --fj-peso-texto: 420;
+
+  /* escala tipográfica — razão ~1,25, arredondada em px inteiros */
+  --fj-texto-2xs: 10px;   /* legenda de eixo, marca d'água */
+  --fj-texto-xs: 11px;    /* rótulo caixa-alta */
+  --fj-texto-sm: 13px;    /* meta, apoio */
+  --fj-texto-md: 15px;    /* corpo */
+  --fj-texto-lg: 18px;    /* título de seção */
+  --fj-texto-xl: 22px;    /* título de bloco */
+  --fj-texto-2xl: 28px;   /* título de tela */
+  --fj-texto-3xl: 34px;   /* número-herói / título de início */
+  --fj-texto-4xl: 44px;   /* cronômetro */
+
+  --fj-altura-linha-aperto: 1.08;
+  --fj-altura-linha-titulo: 1.2;
+  --fj-altura-linha-texto: 1.55;
+
+  --fj-tracking-titulo: -0.02em;
+  --fj-tracking-rotulo: 0.13em;
+  --fj-tracking-marca: 0.06em;
+
+  /* 6. Espaço — base 4, sem valores fora da escala ---------------------- */
+  --fj-1: 4px;
+  --fj-2: 8px;
+  --fj-3: 12px;
+  --fj-4: 16px;
+  --fj-5: 20px;
+  --fj-6: 24px;
+  --fj-7: 32px;
+  --fj-8: 40px;
+  --fj-9: 56px;
+
+  /* 7. Forma ------------------------------------------------------------ */
+  --fj-raio-xs: 6px;   /* chip, marca d'água */
+  --fj-raio-sm: 10px;  /* input, botão */
+  --fj-raio-md: 14px;  /* cartão */
+  --fj-raio-lg: 20px;  /* painel, folha */
+  --fj-raio-pill: 999px;
+  --fj-fio: 1px;       /* espessura única de borda em toda a interface */
+
+  /* 8. Elevação — três níveis, nenhum decorativo ------------------------ */
+  --fj-sombra-1: 0 1px 0 rgba(255, 255, 255, 0.03) inset;
+  --fj-sombra-2: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --fj-sombra-3: 0 24px 64px rgba(0, 0, 0, 0.46);
+
+  /* 9. Movimento -------------------------------------------------------- */
+  --fj-duracao-curta: 120ms;
+  --fj-duracao-media: 180ms;
+  --fj-curva: cubic-bezier(0.2, 0.7, 0.3, 1);
+
+  /* 10. Medidas de layout ---------------------------------------------- */
+  --fj-largura-leitura: 880px;
+  --fj-largura-form: 560px;
+  --fj-alvo-toque: 44px;
+  --fj-nav-altura: 60px;
+  --fj-fio-foco: 2px;
+
+  /* 11. Ponte com as variáveis atuais do app ---------------------------
+     Mantém os nomes históricos vivos para que os arquivos existentes
+     continuem funcionando enquanto a camada nova entra em vigor.         */
+  --bg: var(--fj-carvao);
+  --panel: var(--fj-ferro);
+  --panel2: var(--fj-ferro-alto);
+  --text: var(--fj-osso);
+  --muted: var(--fj-aco);
+  --border: var(--fj-linha);
+  --gold: var(--fj-bronze);
+  --lime: var(--fj-brasa);
+  --green: var(--fj-ok);
+  --red: var(--fj-erro);
+  --surface: var(--fj-ferro);
+  --surface-raised: var(--fj-ferro-alto);
+  --surface-sunken: var(--fj-ferro-baixo);
+  --line-soft: var(--fj-linha);
+  --accent-soft: var(--fj-brasa-lavada);
+  --accent-line: var(--fj-brasa-linha);
+  --danger: var(--fj-erro);
+  --danger-soft: var(--fj-erro-lavado);
+  --ok: var(--fj-ok);
+  --space-1: var(--fj-1);
+  --space-2: var(--fj-2);
+  --space-3: var(--fj-3);
+  --space-4: var(--fj-4);
+  --space-5: var(--fj-5);
+  --space-6: var(--fj-7);
+  --radius-sm: var(--fj-raio-sm);
+  --radius-md: var(--fj-raio-md);
+  --radius-lg: var(--fj-raio-lg);
+  --font-xs: var(--fj-texto-xs);
+  --font-sm: var(--fj-texto-sm);
+  --font-md: var(--fj-texto-md);
+  --font-lg: var(--fj-texto-lg);
+  --font-xl: var(--fj-texto-xl);
+  --shadow: var(--fj-sombra-2);
+}

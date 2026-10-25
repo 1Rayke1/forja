@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treino em execução · Protótipo FORJA</title>
+<link rel="stylesheet" href="prototipo.css">
+<style>
+  .execution-figure {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: var(--fj-3);
+    align-items: center;
+    padding: var(--fj-3);
+    border: var(--fj-fio) solid var(--fj-linha);
+    border-radius: var(--fj-raio-sm);
+    background: var(--fj-ferro-baixo);
+  }
+  .execution-figure img { width: 100%; height: 168px; object-fit: contain; display: block; opacity: .92; }
+  .execution-figure p { font-size: var(--fj-texto-xs); color: var(--fj-aco); }
+  .figure-link { color: var(--fj-brasa); font-size: var(--fj-texto-xs); font-weight: 650; background: none; border: 0; padding: 6px 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .summary-totals { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--fj-2); margin-top: var(--fj-2); }
+  @media (min-width: 620px) { .summary-totals { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+  .summary-stat .summary-value { font-size: var(--fj-texto-md); }
+  @media (max-width: 420px) { .summary-stat .summary-value { font-size: 15px; } }
+  .summary-exercises { list-style: none; margin: var(--fj-3) 0 0; padding: 0; display: grid; gap: 5px; }
+  .summary-exercises li { display: flex; justify-content: space-between; gap: var(--fj-2); font-size: var(--fj-texto-xs); color: var(--fj-aco); padding: 8px 0; border-bottom: var(--fj-fio) solid var(--fj-linha); }
+  .summary-exercises li:last-child { border-bottom: 0; }
+  .summary-exercises strong { color: var(--fj-osso); font-weight: 600; }
+  .summary-actions { display: flex; flex-wrap: wrap; gap: var(--fj-2); margin-top: var(--fj-4); }
+  .summary-actions > * { flex: 1 1 160px; }
+  .summary-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--fj-3); }
+  .summary-emblem { display: block; flex: 0 0 auto; width: 40px; height: 40px; opacity: .92; }
+  .summary-emblem svg { width: 100%; height: 100%; display: block; }
+  .summary-emblem { margin-top: 2px; }
+  @media (max-width: 420px) { .summary-emblem { width: 34px; height: 34px; } }
+  .state-note {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: var(--fj-texto-xs); color: var(--fj-aco);
+    border: var(--fj-fio) dashed var(--fj-linha-forte);
+    border-radius: var(--fj-raio-pill);
+    padding: 5px 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-top">
+  <div class="demo-top-inner">
+    <nav class="demo-links" aria-label="Telas do protótipo">
+      <a href="index.html">Visão geral</a>
+      <a href="inicio.html">Início</a>
+      <a href="execucao.html" aria-current="page">Treino em execução</a>
+      <a href="rotinas.html">Rotinas</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="progresso.html">Progresso</a>
+      <a href="perfil.html">Perfil</a>
+      <a href="componentes.html">Componentes e estados</a>
+      <a href="responsivo.html">Responsivo</a>
+    </nav>
+    <span class="demo-note">Protótipo · dados de exemplo</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="inicio.html" aria-label="FORJA — início">
+      <svg viewBox="0 0 64 64" aria-hidden="true" fill="none">
+        <circle cx="32" cy="32" r="29.6" stroke="currentColor" stroke-width="3.6"/>
+        <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+          <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+          <path d="M13 33H51L47 40H17Z"/>
+          <path d="M26 40H38L41 46H23Z"/>
+          <path d="M17 46H47L49 52H15Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">Forja</span>
+    </a>
+    <div class="tagline">Disciplina • Evolução • Consistência</div>
+  </div>
+</header>
+
+<main class="container screen execution-screen" id="conteudo">
+
+  <div class="screen-toolbar">
+    <a class="back-link" href="inicio.html">← Sair do treino</a>
+    <span class="eyebrow" style="margin-left:auto">Sessão em andamento</span>
+  </div>
+
+  <div class="execution-header">
+    <div>
+      <div class="execution-clock">18:42</div>
+      <div class="eyebrow" style="margin:4px 0 0">Treino A · Calistenia</div>
+    </div>
+    <span class="chip brasa">Série 2 de 4</span>
+  </div>
+
+  <div class="execution-progress">
+    <div class="execution-progress-meta">
+      <span>Exercício 2 de 6</span>
+      <span><strong style="color:var(--fj-osso)">7 de 18 séries</strong></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:39%"></div></div>
+  </div>
+
+  <article class="exercise-focus">
+    <div class="section-badge">Treino principal</div>
+    <div class="exercise-position">02 / 06</div>
+    <h1 class="focus-name">Flexão de braço</h1>
+    <p class="focus-plan">4 séries · 10 repetições · descanso 60 s</p>
+
+    <div class="focus-grid">
+      <div class="focus-stat">
+        <div class="focus-stat-label">Séries feitas</div>
+        <div class="focus-stat-value">2 <small>/ 4</small></div>
+      </div>
+      <div class="focus-stat">
+        <div class="focus-stat-label">Alvo por série</div>
+        <div class="focus-stat-value">10 <small>reps</small></div>
+      </div>
+      <div class="focus-stat">
+        <div class="focus-stat-label">Descanso</div>
+        <div class="focus-stat-value">60 <small>s</small></div>
+      </div>
+    </div>
+
+    <div class="execution-figure">
+      <img src="../../assets/anatomia/anterior.png" alt="Modelo anatômico muscular, vista anterior, usado pelo atlas da FORJA">
+      <div>
+        <p><strong style="color:var(--fj-osso)">Peitoral</strong> principal · Tríceps e deltoide anteriores como secundários.</p>
+        <button class="figure-link" type="button">Ver músculos trabalhados</button>
+      </div>
+    </div>
+  </article>
+
+  <section class="set-panel" aria-labelledby="set-heading">
+    <div class="set-count">
+      <strong id="set-heading">Séries concluídas</strong>
+      <span>2 de 4</span>
+    </div>
+    <div class="set-pips" aria-hidden="true">
+      <div class="set-pip is-done"></div>
+      <div class="set-pip is-done"></div>
+      <div class="set-pip"></div>
+      <div class="set-pip"></div>
+    </div>
+
+    <section class="timer-panel" aria-label="Cronômetro da série">
+      <div class="timer-head">
+        <span>Descanso em andamento</span>
+        <span>0:38</span>
+      </div>
+      <div class="timer-display" role="timer">00:38</div>
+      <div class="progress-track timer-track"><div class="progress-fill" style="width:63%"></div></div>
+      <p class="timer-caption">O descanso termina sozinho. Você pode pular quando estiver pronto.</p>
+      <div class="timer-actions">
+        <button class="secondary-button small-button" type="button">− 15 s</button>
+        <button class="secondary-button small-button" type="button">+ 15 s</button>
+        <button class="primary-button" type="button" style="flex:1 1 140px">Pular descanso</button>
+      </div>
+    </section>
+
+    <section class="log-panel" aria-labelledby="log-heading">
+      <h2 class="bp-label" id="log-heading" style="font-family:var(--fj-fonte-texto)">Registro da série</h2>
+      <div class="log-fields">
+        <div class="field-block">
+          <label class="field-label" for="log-reps">Repetições feitas</label>
+          <input id="log-reps" type="text" value="10">
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="log-rpe">Esforço (RPE)</label>
+          <select id="log-rpe">
+            <option>Não registrar</option>
+            <option selected>8 · bem difícil</option>
+          </select>
+        </div>
+      </div>
+      <ul class="log-list">
+        <li class="log-entry">
+          <span class="log-entry-main">Série 1 · 10 reps · RPE 7 · 1:12</span>
+          <span class="log-entry-actions">
+            <button type="button">Corrigir</button>
+            <button type="button">Remover</button>
+          </span>
+        </li>
+        <li class="log-entry">
+          <span class="log-entry-main">Série 2 · 9 reps · RPE 8 · 1:04</span>
+          <span class="log-entry-actions">
+            <button type="button">Corrigir</button>
+            <button type="button">Remover</button>
+          </span>
+        </li>
+      </ul>
+    </section>
+
+    <button class="big-set-button" type="button">Concluir série</button>
+  </section>
+
+  <nav class="execution-nav" aria-label="Navegar entre exercícios" style="margin-top:var(--fj-4)">
+    <button class="nav-text-button" type="button">← Exercício anterior</button>
+    <button class="nav-text-button" type="button">Pular exercício</button>
+  </nav>
+
+  <section class="section-block" aria-labelledby="rest-standalone">
+    <div class="section-head"><h2 class="section-title" id="rest-standalone">Estado de descanso isolado</h2></div>
+    <div class="rest-panel">
+      <div class="rest-label">Descanso</div>
+      <div class="rest-timer">01:15</div>
+      <p class="rest-caption">Próxima série de Flexão de braço · 60 s previstos</p>
+      <div class="rest-adjust">
+        <button class="secondary-button small-button" type="button">− 15 s</button>
+        <span class="rest-adjust-state">75 s</span>
+        <button class="secondary-button small-button" type="button">+ 15 s</button>
+      </div>
+      <div class="bp-row" style="justify-content:center">
+        <button class="secondary-button small-button" type="button">Pausar descanso</button>
+        <button class="primary-button small-button" type="button">Pular descanso</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="paused">
+    <div class="section-head">
+      <h2 class="section-title" id="paused">Treino pausado</h2>
+      <span class="state-note">o cronômetro para, os dados continuam salvos</span>
+    </div>
+    <div class="session-paused-overlay">
+      <strong>Treino pausado</strong>
+      <span style="color:var(--fj-aco);font-size:var(--fj-texto-xs)">O cronômetro está parado. Retome quando estiver pronto.</span>
+      <div class="bp-row" style="justify-content:center;margin-top:8px">
+        <button class="primary-button small-button" type="button">Retomar treino</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="resumo">
+    <div class="section-head">
+      <h2 class="section-title" id="resumo">Resumo pós-treino</h2>
+      <span class="state-note">tela de conclusão</span>
+    </div>
+    <div class="session-summary" style="padding:var(--fj-5);display:grid;gap:var(--fj-3)">
+      <div class="summary-head">
+        <div>
+          <p class="eyebrow" style="margin:0 0 4px">Treino A · Calistenia</p>
+          <h3 style="font-size:var(--fj-texto-xl)">Treino concluído</h3>
+          <p style="color:var(--fj-aco);font-size:var(--fj-texto-sm);margin-top:4px">18 de 18 séries registradas em 41 min.</p>
+        </div>
+        <span class="summary-emblem" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="28.5" stroke="#c08b4e" stroke-width="3"/>
+            <path fill="#e4693a" d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+            <g fill="#c08b4e">
+              <path d="M13 33H51L47 40H17Z"/>
+              <path d="M26 40H38L41 46H23Z"/>
+              <path d="M17 46H47L49 52H15Z"/>
+            </g>
+          </svg>
+        </span>
+      </div>
+      <div class="summary-stats">
+        <div class="summary-stat"><div class="summary-value">41:12</div><div class="summary-label">duração</div></div>
+        <div class="summary-stat"><div class="summary-value">18/18</div><div class="summary-label">séries</div></div>
+        <div class="summary-stat"><div class="summary-value">6/6</div><div class="summary-label">exercícios</div></div>
+        <div class="summary-stat"><div class="summary-value">Completo</div><div class="summary-label">situação</div></div>
+      </div>
+      <div class="summary-totals">
+        <div class="summary-stat"><div class="summary-value">1.240 kg</div><div class="summary-label">volume</div></div>
+        <div class="summary-stat"><div class="summary-value">186</div><div class="summary-label">repetições</div></div>
+        <div class="summary-stat"><div class="summary-value">9:20</div><div class="summary-label">tempo de série</div></div>
+        <div class="summary-stat"><div class="summary-value">—</div><div class="summary-label">distância</div></div>
+      </div>
+      <ul class="summary-exercises">
+        <li><strong>Flexão de braço</strong><span>4 séries · 39 reps</span></li>
+        <li><strong>Barra fixa</strong><span>4 séries · 24 reps</span></li>
+        <li><strong>Agachamento livre</strong><span>4 séries · 60 reps</span></li>
+      </ul>
+      <div class="summary-actions">
+        <a class="secondary-button" href="progresso.html">Ver no progresso</a>
+        <button class="primary-button" type="button">Voltar à modalidade</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="execution-footer">
+  <button class="secondary-button" type="button">Pausar treino</button>
+  <button class="secondary-button danger-button" type="button">Encerrar sessão</button>
+</footer>
+
+
+<script>
+  // Modo embutido: dentro da página de responsivo, a moldura de navegação do
+  // protótipo é escondida para a tela aparecer sozinha no dispositivo.
+  if (location.href.indexOf("embed") !== -1) {
+    var demoTop = document.querySelector(".demo-top");
+    if (demoTop) demoTop.remove();
+  }
+  const atual = document.querySelector('.demo-links a[aria-current="page"]');
+  if (atual) atual.scrollIntoView({ inline: 'center', block: 'nearest' });
+</script>
+</body>
+</html>

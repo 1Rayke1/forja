@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Componentes e estados · Protótipo FORJA</title>
+<link rel="stylesheet" href="prototipo.css">
+<style>
+  .bp-toc {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: var(--fj-3) 0 var(--fj-4);
+    border-bottom: var(--fj-fio) solid var(--fj-linha);
+    margin-bottom: var(--fj-4);
+  }
+  .bp-toc a {
+    font-size: var(--fj-texto-xs);
+    text-decoration: none;
+    color: var(--fj-aco);
+    border: var(--fj-fio) solid var(--fj-linha);
+    border-radius: var(--fj-raio-pill);
+    padding: 5px 11px;
+  }
+  .bp-toc a:hover { color: var(--fj-osso); border-color: var(--fj-linha-forte); }
+  .scale-row-demo { display: grid; gap: 6px; }
+  .scale-item-demo { display: flex; align-items: center; gap: var(--fj-3); font-size: var(--fj-texto-xs); color: var(--fj-aco); }
+  .scale-bar { height: 10px; border-radius: 2px; background: var(--fj-brasa); opacity: .8; }
+  .radius-demo { display: flex; flex-wrap: wrap; gap: var(--fj-3); }
+  .radius-box { width: 76px; height: 54px; background: var(--fj-ferro-alto); border: var(--fj-fio) solid var(--fj-linha-forte); display: grid; place-items: end center; padding-bottom: 4px; font-size: 9px; color: var(--fj-aco-forte); }
+  .elev-demo { display: flex; flex-wrap: wrap; gap: var(--fj-3); }
+  .elev-box { width: 108px; height: 66px; border-radius: var(--fj-raio-md); background: var(--fj-ferro); border: var(--fj-fio) solid var(--fj-linha); display: grid; place-items: center; font-size: 10px; color: var(--fj-aco); }
+  .pattern-demo {
+    height: 84px;
+    border-radius: var(--fj-raio-sm);
+    border: var(--fj-fio) solid var(--fj-linha);
+    background-color: var(--fj-carvao);
+    background-image: repeating-linear-gradient(135deg, rgba(192,139,78,.16) 0 1px, transparent 1px 7px);
+  }
+  .ember-rule { height: 2px; background: linear-gradient(90deg, var(--fj-brasa), rgba(228,105,58,0) 70%); border-radius: 2px; }
+  .do-dont { display: grid; gap: var(--fj-2); grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .do, .dont { border-radius: var(--fj-raio-sm); padding: 10px 12px; font-size: var(--fj-texto-xs); border: var(--fj-fio) solid; }
+  .do { border-color: rgba(127,176,141,.4); background: var(--fj-ok-lavado); color: var(--fj-osso-suave); }
+  .dont { border-color: rgba(226,112,106,.4); background: var(--fj-erro-lavado); color: var(--fj-osso-suave); }
+  .do strong, .dont strong { display: block; margin-bottom: 2px; letter-spacing: .08em; text-transform: uppercase; font-size: 10px; }
+  .do strong { color: var(--fj-ok); }
+  .dont strong { color: var(--fj-erro); }
+  details.spec-block { border: var(--fj-fio) solid var(--fj-linha); border-radius: var(--fj-raio-sm); padding: 10px 14px; }
+  details.spec-block summary { cursor: pointer; font-size: var(--fj-texto-sm); font-weight: 650; }
+  details.spec-block p { font-size: var(--fj-texto-xs); color: var(--fj-aco); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="demo-top">
+  <div class="demo-top-inner">
+    <nav class="demo-links" aria-label="Telas do protótipo">
+      <a href="index.html">Visão geral</a>
+      <a href="inicio.html">Início</a>
+      <a href="execucao.html">Treino em execução</a>
+      <a href="rotinas.html">Rotinas</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="progresso.html">Progresso</a>
+      <a href="perfil.html">Perfil</a>
+      <a href="componentes.html" aria-current="page">Componentes e estados</a>
+      <a href="responsivo.html">Responsivo</a>
+    </nav>
+    <span class="demo-note">Protótipo · sistema visual</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="inicio.html" aria-label="FORJA — início">
+      <svg viewBox="0 0 64 64" aria-hidden="true" fill="none">
+        <circle cx="32" cy="32" r="29.6" stroke="currentColor" stroke-width="3.6"/>
+        <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+          <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+          <path d="M13 33H51L47 40H17Z"/>
+          <path d="M26 40H38L41 46H23Z"/>
+          <path d="M17 46H47L49 52H15Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">Forja</span>
+    </a>
+    <div class="tagline">Disciplina • Evolução • Consistência</div>
+  </div>
+</header>
+
+<main class="container blueprint" id="conteudo">
+
+  <div class="page-head">
+    <span class="eyebrow">Sistema visual · v1 para revisão</span>
+    <h1 class="screen-title">Componentes e estados</h1>
+    <p class="screen-subtitle">Tudo abaixo é renderizado com as mesmas classes que o aplicativo já usa. Se um componente aparece aqui, ele pode ser reestilizado sem tocar em HTML ou JavaScript.</p>
+  </div>
+
+  <nav class="bp-toc" aria-label="Seções">
+    <a href="#cor">Cor</a>
+    <a href="#tipografia">Tipografia</a>
+    <a href="#espaco">Espaço e forma</a>
+    <a href="#icones">Ícones</a>
+    <a href="#botoes">Botões</a>
+    <a href="#campos">Campos</a>
+    <a href="#dados">Dados e gráficos</a>
+    <a href="#estados">Estados</a>
+    <a href="#dialogos">Diálogos</a>
+    <a href="#grafismo">Grafismos</a>
+  </nav>
+
+  <section class="bp-section" id="cor">
+    <h2>1. Cor</h2>
+    <p class="bp-lede">Carvão, ferro, aço, bronze e brasa. A brasa aparece só onde há ação ou progresso; o bronze fica no detalhe de material (emblema, fio de seção, recorde); o aço é texto. Nenhuma tela usa mais de uma cor de acento por bloco.</p>
+
+    <div class="bp-label" style="margin-bottom:8px">Superfícies</div>
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-chip" style="background:#121010"></div><div class="swatch-meta"><div class="swatch-name">Carvão</div><div class="swatch-hex">#121010 · fundo do app</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#0d0b0b"></div><div class="swatch-meta"><div class="swatch-name">Carvão fundo</div><div class="swatch-hex">#0D0B0B · moldura</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#1a1717"></div><div class="swatch-meta"><div class="swatch-name">Ferro</div><div class="swatch-hex">#1A1717 · cartão</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#221e1d"></div><div class="swatch-meta"><div class="swatch-name">Ferro alto</div><div class="swatch-hex">#221E1D · dentro do cartão</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#151212"></div><div class="swatch-meta"><div class="swatch-name">Ferro baixo</div><div class="swatch-hex">#151212 · campo e trilha</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#302b29"></div><div class="swatch-meta"><div class="swatch-name">Linha</div><div class="swatch-hex">#302B29 · borda 1 px</div></div></div>
+    </div>
+
+    <div class="bp-label" style="margin:16px 0 8px">Leitura</div>
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-chip" style="background:#f2ede7"></div><div class="swatch-meta"><div class="swatch-name">Osso</div><div class="swatch-hex">#F2EDE7 · 16,29:1</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#a6a29b"></div><div class="swatch-meta"><div class="swatch-name">Aço</div><div class="swatch-hex">#A6A29B · 7,46:1</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#8c8781"></div><div class="swatch-meta"><div class="swatch-name">Aço forte</div><div class="swatch-hex">#8C8781 · 5,33:1</div></div></div>
+    </div>
+
+    <div class="bp-label" style="margin:16px 0 8px">Acento e material</div>
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-chip" style="background:#e4693a"></div><div class="swatch-meta"><div class="swatch-name">Brasa</div><div class="swatch-hex">#E4693A · 5,76:1</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#f08356"></div><div class="swatch-meta"><div class="swatch-name">Brasa alta</div><div class="swatch-hex">#F08356 · 7,30:1</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#c08b4e"></div><div class="swatch-meta"><div class="swatch-name">Bronze</div><div class="swatch-hex">#C08B4E · 6,36:1</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#221e1d;border-bottom:1px solid #453e3a"></div><div class="swatch-meta"><div class="swatch-name">Bronze p/ claro</div><div class="swatch-hex">#8A5A2B · 4,87:1 no claro</div></div></div>
+    </div>
+
+    <div class="bp-label" style="margin:16px 0 8px">Semântica</div>
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-chip" style="background:#7fb08d"></div><div class="swatch-meta"><div class="swatch-name">Sucesso</div><div class="swatch-hex">#7FB08D · 7,67:1</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#d9a657"></div><div class="swatch-meta"><div class="swatch-name">Atenção</div><div class="swatch-hex">#D9A657 · 8,62:1</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#e2706a"></div><div class="swatch-meta"><div class="swatch-name">Erro</div><div class="swatch-hex">#E2706A · 6,10:1</div></div></div>
+    </div>
+
+    <div class="do-dont" style="margin-top:16px">
+      <div class="do"><strong>Fazer</strong>Uma cor de acento por bloco. Progresso e ação em brasa; números históricos em osso.</div>
+      <div class="dont"><strong>Evitar</strong>Gradiente, glow e texto em brasa pequeno sobre brasa. A brasa nunca é fundo de texto corrido.</div>
+    </div>
+
+    <details class="spec-block" style="margin-top:16px">
+      <summary>Regra de contraste adotada (e o que muda em relação ao app atual)</summary>
+      <p>Todo texto tem no mínimo 4,5:1 contra o fundo real em que aparece, e todo elemento de interface (borda, foco, ícone informativo) tem no mínimo 3:1. O app atual usa verde-limão #B7F34A como acento (14,4:1 — ótimo) mas também como fundo de botão com texto escuro; a troca para brasa #E4693A mantém 5,75:1 com o texto #14100C. O azul/âmbar do atlas continuam válidos como cores de papel muscular e estão fora desta camada.</p>
+    </details>
+  </section>
+
+  <section class="bp-section" id="tipografia">
+    <h2>2. Tipografia</h2>
+    <p class="bp-lede">Archivo para títulos, marca e números-herói; Inter para corpo, rótulos e tabelas. As duas são variáveis, abertas (SIL OFL) e auto-hospedadas — nenhuma requisição a terceiros, coerente com um app que não envia dados para fora. Numerais tabulares no cronômetro, nas séries e nos totais, para os dígitos não dançarem a cada segundo.</p>
+    <div class="type-spec">
+      <div class="type-line">
+        <span class="meta">Archivo 800 · 34/1,08 · −0,025em</span>
+        <span style="font-family:var(--fj-fonte-titulo);font-size:34px;font-weight:800;letter-spacing:-.025em;line-height:1.08">Mais forte a cada treino.</span>
+      </div>
+      <div class="type-line">
+        <span class="meta">Archivo 800 · 28/1,2 · título de tela</span>
+        <span style="font-family:var(--fj-fonte-titulo);font-size:28px;font-weight:800;letter-spacing:-.02em">Progresso</span>
+      </div>
+      <div class="type-line">
+        <span class="meta">Archivo 750 · 18/1,2 · título de seção + fio de 14 px</span>
+        <span style="font-family:var(--fj-fonte-titulo);font-size:18px;font-weight:750;display:inline-flex;align-items:center;gap:10px"><span style="width:14px;height:2px;background:var(--fj-bronze);display:inline-block;border-radius:2px"></span>Resumo do período</span>
+      </div>
+      <div class="type-line">
+        <span class="meta">Inter 420 · 15/1,55 · corpo</span>
+        <span style="font-size:15px;line-height:1.55">Tudo aqui é calculado somente com os treinos registrados neste navegador. Nenhum número é estimado.</span>
+      </div>
+      <div class="type-line">
+        <span class="meta">Inter 650 · 13 · meta e apoio</span>
+        <span style="font-size:13px;font-weight:650;color:var(--fj-aco)">6 exercícios · 18 séries planejadas · última vez em 18 de outubro</span>
+      </div>
+      <div class="type-line">
+        <span class="meta">Inter 700 · 11 · rótulo caixa-alta 0,09em · bronze</span>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--fj-bronze)">Próximo treino</span>
+      </div>
+      <div class="type-line">
+        <span class="meta">Archivo 800 · 44 · cronômetro com numerais tabulares</span>
+        <span style="font-family:var(--fj-fonte-titulo);font-size:44px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums">18:42</span>
+      </div>
+      <div class="type-line">
+        <span class="meta">Palavra da marca · Archivo 750 · largura 108% · tracking 0,06em</span>
+        <span style="font-family:var(--fj-fonte-titulo);font-weight:750;font-stretch:108%;letter-spacing:.06em;text-transform:uppercase;font-size:32px">FORJA</span>
+      </div>
+    </div>
+    <div class="do-dont" style="margin-top:16px">
+      <div class="do"><strong>Fazer</strong>Uma família por função. Título forte, corpo neutro. Números com tabular-nums.</div>
+      <div class="dont"><strong>Evitar</strong>Serifa, gótica, fonte "viking", texto em caixa-alta no corpo e peso 800 em frases longas.</div>
+    </div>
+  </section>
+
+  <section class="bp-section" id="espaco">
+    <h2>3. Espaço, forma e elevação</h2>
+    <div class="bp-grid">
+      <div class="bp-tile">
+        <h3>Escala de espaço (base 4)</h3>
+        <div class="scale-row-demo">
+          <div class="scale-item-demo"><span style="width:34px">4</span><span class="scale-bar" style="width:4px"></span></div>
+          <div class="scale-item-demo"><span style="width:34px">8</span><span class="scale-bar" style="width:8px"></span></div>
+          <div class="scale-item-demo"><span style="width:34px">12</span><span class="scale-bar" style="width:12px"></span></div>
+          <div class="scale-item-demo"><span style="width:34px">16</span><span class="scale-bar" style="width:16px"></span></div>
+          <div class="scale-item-demo"><span style="width:34px">20</span><span class="scale-bar" style="width:20px"></span></div>
+          <div class="scale-item-demo"><span style="width:34px">24</span><span class="scale-bar" style="width:24px"></span></div>
+          <div class="scale-item-demo"><span style="width:34px">32</span><span class="scale-bar" style="width:32px"></span></div>
+          <div class="scale-item-demo"><span style="width:34px">40</span><span class="scale-bar" style="width:40px"></span></div>
+          <div class="scale-item-demo"><span style="width:34px">56</span><span class="scale-bar" style="width:56px"></span></div>
+        </div>
+        <p class="bp-cap">Nenhum valor fora da escala. Espaço entre seções: 32 px no celular, 40 px no desktop.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Raios</h3>
+        <div class="radius-demo">
+          <div class="radius-box" style="border-radius:6px">6</div>
+          <div class="radius-box" style="border-radius:10px">10</div>
+          <div class="radius-box" style="border-radius:14px">14</div>
+          <div class="radius-box" style="border-radius:20px">20</div>
+          <div class="radius-box" style="border-radius:999px">pill</div>
+        </div>
+        <p class="bp-cap">Campo e botão 10 · cartão 14 · folha e modal 20 · marcador de filtro/orbe pill.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Elevação</h3>
+        <div class="elev-demo">
+          <div class="elev-box" style="box-shadow:var(--fj-sombra-1)">1 · repouso</div>
+          <div class="elev-box" style="box-shadow:var(--fj-sombra-2)">2 · flutuante</div>
+          <div class="elev-box" style="box-shadow:var(--fj-sombra-3)">3 · modal</div>
+        </div>
+        <p class="bp-cap">Sombras quase invisíveis: no escuro, quem separa planos é a borda de 1 px, não o brilho.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Bordas</h3>
+        <div style="display:grid;gap:6px">
+          <div style="height:0;border-top:1px solid var(--fj-linha)"></div>
+          <div style="height:0;border-top:1px solid var(--fj-linha-forte)"></div>
+          <div style="height:0;border-top:2px solid var(--fj-bronze)"></div>
+          <div style="height:0;border-top:2px dashed rgba(226,112,106,.5)"></div>
+        </div>
+        <p class="bp-cap">1 px linha · 1 px linha forte (estado hover) · 2 px bronze (fio de seção) · 2 px tracejado (vazio/erro).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bp-section" id="icones">
+    <h2>4. Ícones</h2>
+    <p class="bp-lede">O conjunto é o que já existe em <code>forja-ui.js</code> (traço 24 px, cantos arredondados, corrente com o texto). Nada de emoji no lugar de ícone. Onde hoje há emoji na interface — por exemplo nos cartões de Explorar e no botão de ação da home — a proposta é usar estes símbolos.</p>
+    <div class="icon-grid">
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg><span>halteres</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M7 4v3M17 4v3M5 6h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2ZM8 13h3M8 16h6"/></svg><span>calendário</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span>gráfico</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z"/></svg><span>meta</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg><span>relógio</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg><span>iniciar</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg><span>pausar</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span>adicionar</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM15.5 15.5 21 21"/></svg><span>buscar</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12.5 9 18 20 6"/></svg><span>concluir</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg><span>fechar</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3ZM15 6l3 3"/></svg><span>editar</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13M11 11v6M13 11v6"/></svg><span>excluir</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 9h10v10H9zM5 15V5h10"/></svg><span>duplicar</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM12 9v4l2.5 1.5M9 2h6"/></svg><span>cronômetro</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 15 15 3l6 6L9 21l-6-6ZM8 8l2 2M11 5l2 2M5 11l2 2"/></svg><span>medida</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5ZM4 18.5A2.5 2.5 0 0 1 6.5 16H19"/></svg><span>biblioteca</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3ZM4 9v6c0 1.7 3.6 3 8 3s8-1.3 8-3V9M4 15v3c0 1.7 3.6 3 8 3s8-1.3 8-3v-3"/></svg><span>dados</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22c3.9 0 6-2.5 6-5.5 0-4-4-5.5-3-9.5-3 1-4.5 3.5-4.5 6C10.5 10 9 9 9 7c-2 1.5-3 3.9-3 6.5C6 19.5 8.1 22 12 22Z"/></svg><span>brasa</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3 2.5 20h19L12 3ZM12 10v4M12 17h.01"/></svg><span>alerta</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM12 11v6M12 7.5h.01"/></svg><span>info</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V8a4 4 0 0 1 4-4h9m0 0-3-3m3 3-3 3M20 15v1a4 4 0 0 1-4 4H7m0 0 3 3m-3-3 3-3"/></svg><span>rotina</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h16l-6 7v6l-4 2v-8L4 5Z"/></svg><span>filtro</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 7v5l3 2M3.5 12A8.5 8.5 0 1 1 12 20.5a8.5 8.5 0 0 1-6.4-2.9M4 4v4h4"/></svg><span>histórico</span></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V6a2 2 0 0 1 2-2h2M20 9V6a2 2 0 0 0-2-2h-2M4 15v3a2 2 0 0 0 2 2h2M20 15v3a2 2 0 0 1-2 2h-2M8 12h8"/></svg><span>atlas</span></div>
+    </div>
+    <p class="bp-cap" style="margin-top:10px">Tamanhos: 20 px na barra inferior, 18 px dentro de botão, 16 px em rótulo. Cor sempre herdada de <code>currentColor</code>.</p>
+  </section>
+
+  <section class="bp-section" id="botoes">
+    <h2>5. Botões</h2>
+    <p class="bp-lede">Hierarquia de três níveis e um alvo de toque de 44 px em tudo que é tocável. A ação primária é uma por tela — na execução, “Concluir série” é a única coisa em brasa.</p>
+    <div class="bp-grid">
+      <div class="bp-tile">
+        <h3>Hierarquia</h3>
+        <div class="bp-row">
+          <button class="primary-button" type="button">Ação primária</button>
+          <button class="secondary-button" type="button">Ação secundária</button>
+        </div>
+        <div class="bp-row">
+          <button class="nav-text-button" type="button">Ação terciária</button>
+          <button class="secondary-button danger-button" type="button">Excluir</button>
+        </div>
+        <div class="bp-row">
+          <button class="primary-button full-width" type="button">Ação de largura total</button>
+        </div>
+      </div>
+      <div class="bp-tile">
+        <h3>Estados</h3>
+        <div class="bp-row">
+          <button class="primary-button" type="button">Repouso</button>
+          <button class="primary-button" type="button" style="background:var(--fj-brasa-alta)">Hover</button>
+          <button class="primary-button" type="button" style="background:var(--fj-brasa-baixa)">Pressionado</button>
+        </div>
+        <div class="bp-row">
+          <button class="primary-button" type="button" disabled>Desabilitado</button>
+          <button class="secondary-button" type="button" disabled>Desabilitado</button>
+        </div>
+        <div class="bp-row">
+          <button class="primary-button" type="button" style="outline:2px solid var(--fj-brasa);outline-offset:3px">Foco visível</button>
+        </div>
+        <div class="bp-row">
+          <button class="primary-button" type="button" aria-busy="true" style="opacity:.75">Salvando…</button>
+        </div>
+      </div>
+      <div class="bp-tile">
+        <h3>Regras</h3>
+        <ul style="margin:0;padding-left:18px;font-size:var(--fj-texto-xs);color:var(--fj-aco);display:grid;gap:5px">
+          <li>Altura mínima 44 px; 36 px só em ação terciária dentro de cartão.</li>
+          <li>Raio 10 px; sem pílula em ação principal (pílula é filtro e chip).</li>
+          <li>Sem ícone decorativo — ícone só quando substitui texto curto e óbvio.</li>
+          <li>Desabilitado reduz a opacidade, nunca muda a cor de acento.</li>
+          <li>Foco: contorno de 2 px brasa com 3 px de afastamento, sempre visível no teclado.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="bp-section" id="campos">
+    <h2>6. Campos e filtros</h2>
+    <div class="bp-grid">
+      <div class="bp-tile">
+        <h3>Campo de texto</h3>
+        <div class="field-block">
+          <label class="field-label" for="d1">Nome da rotina</label>
+          <input id="d1" type="text" value="Treino A · Empurrar">
+          <p class="field-hint">Até 60 caracteres. O nome aparece no resumo e no histórico.</p>
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="d2">Campo com erro</label>
+          <input id="d2" type="number" value="0" aria-invalid="true">
+          <p class="field-error">Informe um número de séries entre 1 e 30.</p>
+        </div>
+        <div class="field-block" style="margin:0">
+          <label class="field-label" for="d3">Desabilitado</label>
+          <input id="d3" type="text" value="Somente leitura" disabled>
+        </div>
+      </div>
+      <div class="bp-tile">
+        <h3>Seleção e filtros</h3>
+        <div class="field-block">
+          <label class="field-label" for="d4">Modalidade</label>
+          <select id="d4"><option>Calistenia</option><option>Musculação</option></select>
+        </div>
+        <div class="filter-group" role="group" aria-label="Período">
+          <button class="filter-button" type="button" aria-pressed="true">Semana</button>
+          <button class="filter-button" type="button" aria-pressed="false">Mês</button>
+          <button class="filter-button" type="button" aria-pressed="false">Tudo</button>
+        </div>
+        <div class="bp-row">
+          <span class="chip">Todos</span>
+          <span class="chip brasa">Filtro ativo</span>
+          <span class="chip bronze">Dorsais</span>
+          <span class="chip ok">Concluído</span>
+          <span class="chip erro">Parcial</span>
+        </div>
+      </div>
+      <div class="bp-tile">
+        <h3>Checkbox e opções</h3>
+        <label class="check-row" style="border:0;padding:6px 0">
+          <input type="checkbox" checked><span>Vibrar quando o descanso terminar</span>
+        </label>
+        <label class="check-row" style="border:0;padding:6px 0">
+          <input type="checkbox"><span>Tocar aviso sonoro</span>
+        </label>
+        <p class="bp-cap">O checkbox nativo é mantido (acessibilidade e leitor de tela), só a cor de destaque muda.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bp-section" id="dados">
+    <h2>7. Dados, séries e gráficos</h2>
+    <p class="bp-lede">Os componentes de dados existem em <code>forja-graficos.js</code> e já são acessíveis (tabela alternativa). A camada nova só ajusta cor, espessura e ritmo — a estrutura e os critérios de cálculo permanecem exatamente iguais.</p>
+    <div class="bp-grid">
+      <div class="bp-tile">
+        <h3>Cartões de estatística</h3>
+        <div class="ui-stats">
+          <div class="ui-stat"><div class="ui-stat-value">9</div><div class="ui-stat-label">treinos</div></div>
+          <div class="ui-stat is-accent"><div class="ui-stat-value">7</div><div class="ui-stat-label">concluídos</div></div>
+          <div class="ui-stat"><div class="ui-stat-value">142</div><div class="ui-stat-label">séries</div></div>
+        </div>
+        <p class="bp-cap">Valor em osso; acento só no cartão que responde à pergunta principal da tela.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Colunas semanais</h3>
+        <div class="ui-chart">
+          <div class="ui-columns">
+            <div class="ui-column"><span class="ui-column-value">12</span><div class="ui-column-bar" style="height:55%"></div><span class="ui-column-label">S1</span></div>
+            <div class="ui-column"><span class="ui-column-value">18</span><div class="ui-column-bar" style="height:85%"></div><span class="ui-column-label">S2</span></div>
+            <div class="ui-column"><span class="ui-column-value">9</span><div class="ui-column-bar" style="height:42%"></div><span class="ui-column-label">S3</span></div>
+            <div class="ui-column"><span class="ui-column-value">0</span><div class="ui-column-bar is-muted" style="height:4%"></div><span class="ui-column-label">S4</span></div>
+            <div class="ui-column"><span class="ui-column-value">20</span><div class="ui-column-bar" style="height:100%"></div><span class="ui-column-label">S5</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Anel de meta</h3>
+        <div class="ui-ring">
+          <svg class="ui-ring-svg" viewBox="0 0 100 100" role="img" aria-label="Metas: 75 por cento">
+            <circle class="ui-ring-track" cx="50" cy="50" r="42" fill="none" stroke-width="8"/>
+            <circle class="ui-ring-value" cx="50" cy="50" r="42" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="66" transform="rotate(-90 50 50)"/>
+          </svg>
+          <div class="ui-ring-center"><span class="ui-ring-percent">75%</span><span class="ui-ring-value-text">3 de 4</span></div>
+          <p class="ui-ring-label">Treinos na semana</p>
+        </div>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Linha de evolução</h3>
+        <div class="ui-line">
+          <svg class="ui-line-svg" viewBox="0 0 320 110" preserveAspectRatio="none" role="img" aria-label="Evolução de carga">
+            <path class="ui-line-axis" d="M0 95 H320"/>
+            <path class="ui-line-area" d="M8 80 L70 70 L132 55 L194 58 L256 38 L300 26 L300 95 L8 95 Z"/>
+            <path class="ui-line-path" d="M8 80 L70 70 L132 55 L194 58 L256 38 L300 26"/>
+            <circle class="ui-line-dot" cx="8" cy="80" r="2.5"/>
+            <circle class="ui-line-dot" cx="70" cy="70" r="2.5"/>
+            <circle class="ui-line-dot" cx="132" cy="55" r="2.5"/>
+            <circle class="ui-line-dot" cx="194" cy="58" r="2.5"/>
+            <circle class="ui-line-dot" cx="256" cy="38" r="2.5"/>
+            <circle class="ui-line-dot" cx="300" cy="26" r="2.5"/>
+          </svg>
+          <div class="ui-line-edge"><span>40 kg</span><span>50 kg</span></div>
+        </div>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Barras horizontais</h3>
+        <div class="ui-bars">
+          <div class="ui-bar-row"><span class="ui-bar-label">Calistenia</span><span class="ui-bar-track"><span class="ui-bar-fill" style="width:78%"></span></span><span class="ui-bar-value">78%</span></div>
+          <div class="ui-bar-row"><span class="ui-bar-label">Musculação</span><span class="ui-bar-track"><span class="ui-bar-fill" style="width:56%"></span></span><span class="ui-bar-value">56%</span></div>
+          <div class="ui-bar-row"><span class="ui-bar-label">Sem dados</span><span class="ui-bar-track"><span class="ui-bar-fill is-muted" style="width:6%"></span></span><span class="ui-bar-value">—</span></div>
+        </div>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Frequência</h3>
+        <div class="ui-heatmap">
+          <div class="ui-heatmap-body">
+            <div class="ui-heatmap-row-label">S</div><div class="ui-heatmap-row-label">T</div><div class="ui-heatmap-row-label">Q</div>
+            <div class="ui-heatmap-row-label">Q</div><div class="ui-heatmap-row-label">S</div><div class="ui-heatmap-row-label">S</div>
+            <div class="ui-heatmap-row-label">D</div>
+            <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div>
+            <div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div>
+            <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div>
+            <div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell"></div>
+            <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell future"></div>
+          </div>
+        </div>
+        <p class="bp-cap">Escala de 4 níveis + célula futura tracejada. O nível nunca é a única informação: a tabela e o texto dizem o número.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bp-section" id="estados">
+    <h2>8. Estados</h2>
+    <p class="bp-lede">Toda tela pode estar vazia, carregando, com erro, desabilitada ou em foco. Estes são os desenhos de cada caso — e o princípio é sempre o mesmo: dizer o que aconteceu, o que não foi alterado e o que fazer agora.</p>
+    <div class="bp-grid">
+
+      <div class="bp-tile">
+        <h3>Vazio</h3>
+        <div class="ui-empty">
+          <span class="ui-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="currentColor"><path d="M54 19H17L9 24L17 29H54Z"/>
+        <path d="M27 29H37L34 42H30Z"/>
+        <path d="M20 42H44L49 54H15Z"/></svg>
+          </span>
+          <span>
+            <strong class="ui-empty-title">Nenhum treino registrado</strong>
+            <span class="ui-empty-text">Assim que você concluir um treino, o resumo e os recordes aparecem aqui. Nada foi apagado.</span>
+            <span class="ui-empty-actions">
+              <a class="primary-button small-button" href="rotinas.html">Escolher uma rotina</a>
+            </span>
+          </span>
+        </div>
+        <p class="bp-cap">A bigorna é o grafismo do vazio. Ela nunca aparece em tela com dados.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Carregando</h3>
+        <div style="display:grid;gap:8px">
+          <div class="skeleton" style="height:14px;width:52%"></div>
+          <div class="skeleton" style="height:58px"></div>
+          <div class="skeleton" style="height:58px"></div>
+          <div class="skeleton" style="height:14px;width:74%"></div>
+        </div>
+        <p class="bp-cap">Sem spinner girando no meio da tela. O esqueleto preserva a altura final e evita salto de layout.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Erro</h3>
+        <div class="ui-empty" style="border-style:solid;border-color:rgba(226,112,106,.45);background:var(--fj-erro-lavado)">
+          <span class="ui-empty-icon" style="color:var(--fj-erro)" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3 2.5 20h19L12 3ZM12 10v4M12 17h.01"/></svg>
+          </span>
+          <span>
+            <strong class="ui-empty-title">Não foi possível importar o backup</strong>
+            <span class="ui-empty-text">O arquivo não é um backup da FORJA. Seus dados atuais continuam exatamente como estavam.</span>
+            <span class="ui-empty-actions">
+              <button class="secondary-button small-button" type="button">Escolher outro arquivo</button>
+            </span>
+          </span>
+        </div>
+        <p class="bp-cap">O erro sempre declara o estado dos dados. Nunca só “deu erro”.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Sucesso</h3>
+        <div class="toast ok">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fj-ok)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 12.5 9 18 20 6"/></svg>
+          <span>Rotina salva. O histórico não foi alterado.</span>
+        </div>
+        <div class="toast error" style="margin-top:8px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fj-erro)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3ZM12 10v4M12 17h.01"/></svg>
+          <span>O navegador recusou a gravação. A alteração foi desfeita.</span>
+        </div>
+        <div class="toast" style="margin-top:8px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fj-brasa)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM12 11v6M12 7.5h.01"/></svg>
+          <span>Seus dados ficam só neste navegador.</span>
+        </div>
+        <p class="bp-cap">Aviso = faixa de 2 px à esquerda + ícone. Fundo neutro, para não tingir a tela.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Foco e teclado</h3>
+        <div class="bp-row">
+          <button class="secondary-button" type="button" style="outline:2px solid var(--fj-brasa);outline-offset:2px">Botão focado</button>
+          <input type="text" value="Campo focado" style="max-width:150px;border-color:var(--fj-brasa);box-shadow:0 0 0 3px var(--fj-brasa-lavada)">
+        </div>
+        <p class="bp-cap">Foco de 2 px em brasa, com afastamento. Visível em todos os fundos e nunca removido sem substituto.</p>
+      </div>
+
+      <div class="bp-tile">
+        <h3>Desabilitado</h3>
+        <div class="bp-row">
+          <button class="primary-button" type="button" disabled>Iniciar treino</button>
+        </div>
+        <input type="text" value="Campo bloqueado" disabled style="margin-top:8px">
+        <p class="bp-cap">Um botão desabilitado sempre tem um motivo visível por perto — aqui, “adicione exercícios para iniciar”.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="bp-section" id="dialogos">
+    <h2>9. Diálogos, folhas e confirmações</h2>
+    <p class="bp-lede">O app usa <code>F.showModal</code> para confirmar exclusão, renomear, aplicar período e importar backup. O desenho abaixo mantém a mesma estrutura (título, mensagem, detalhes, ações) e só troca a superfície.</p>
+    <div class="bp-grid">
+      <div class="modal-backdrop">
+        <div class="modal-card">
+          <h2>Excluir “Treino C · Pernas”?</h2>
+          <p class="modal-message">A rotina será removida. O histórico de treinos já registrados não é apagado.</p>
+          <div class="modal-details"><strong>3 treinos no histórico</strong> continuam disponíveis no Progresso.</div>
+          <div class="modal-actions">
+            <button class="secondary-button" type="button">Cancelar</button>
+            <button class="primary-button" type="button" style="background:var(--fj-erro);border-color:var(--fj-erro);color:#1a0f0e">Excluir rotina</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-backdrop">
+        <div class="modal-card">
+          <h2>Renomear rotina</h2>
+          <div class="field-block">
+            <label class="field-label" for="m1">Novo nome</label>
+            <input id="m1" type="text" value="Treino A · Empurrar">
+            <p class="field-hint">Até 60 caracteres.</p>
+          </div>
+          <div class="modal-actions">
+            <button class="secondary-button" type="button">Cancelar</button>
+            <button class="primary-button" type="button">Salvar nome</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="bp-cap" style="margin-top:10px">Ação destrutiva só usa vermelho no botão final; o resto do diálogo permanece neutro, para o olho não ler “erro” antes de ler o texto.</p>
+  </section>
+
+  <section class="bp-section" id="grafismo">
+    <h2>10. Grafismos da forja (uso pontual)</h2>
+    <p class="bp-lede">A ideia de forjar aparece em quatro lugares, e só neles. Em nenhum momento ela vira textura de fundo da interface inteira.</p>
+    <div class="bp-grid">
+      <div class="bp-tile">
+        <h3>1. Fio de brasa no cartão de ação</h3>
+        <div class="ember-rule"></div>
+        <p class="bp-cap">Uma linha de 2 px no topo do “Próximo treino”. Marca o começo do trabalho, sem brilho.</p>
+      </div>
+      <div class="bp-tile">
+        <h3>2. Fio de bronze antes do título de seção</h3>
+        <div class="bp-row" style="gap:10px">
+          <span style="width:14px;height:2px;background:var(--fj-bronze);border-radius:2px;display:inline-block"></span>
+          <strong style="font-family:var(--fj-fonte-titulo);font-size:18px">Sua semana</strong>
+        </div>
+        <p class="bp-cap">Um traço curto em bronze, de 14 × 2 px, alinhado à esquerda do título. Substitui ícones decorativos.</p>
+      </div>
+      <div class="bp-tile">
+        <h3>3. Hachura de 45° no vazio</h3>
+        <div class="pattern-demo"></div>
+        <p class="bp-cap">Só em estado vazio e no cabeçalho de onboarding. Opacidade 0,16 — lê como textura, não como imagem.</p>
+      </div>
+      <div class="bp-tile">
+        <h3>4. Bigorna como ícone de vazio</h3>
+        <div class="bp-row" style="justify-content:center">
+          <svg viewBox="0 0 64 64" width="56" height="56" fill="var(--fj-bronze)" aria-hidden="true"><path d="M54 19H17L9 24L17 29H54Z"/>
+        <path d="M27 29H37L34 42H30Z"/>
+        <path d="M20 42H44L49 54H15Z"/></svg>
+        </div>
+        <p class="bp-cap">A peça parada na bancada, esperando o golpe. Nunca junto de dados.</p>
+      </div>
+    </div>
+    <div class="do-dont" style="margin-top:16px">
+      <div class="do"><strong>Fazer</strong>Grafismo em uma cor, com opacidade baixa, atrás do conteúdo e sem animação.</div>
+      <div class="dont"><strong>Evitar</strong>Runas, chifres, escudos, chamas animadas, metal escovado em gradiente e fonte “medieval”.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">Menos promessas. Mais ação.</p>
+    <p class="storage-note">Protótipo da etapa 1. Nenhuma alteração foi aplicada ao aplicativo.</p>
+  </div>
+</footer>
+
+
+<script>
+  // Modo embutido: dentro da página de responsivo, a moldura de navegação do
+  // protótipo é escondida para a tela aparecer sozinha no dispositivo.
+  if (location.href.indexOf("embed") !== -1) {
+    var demoTop = document.querySelector(".demo-top");
+    if (demoTop) demoTop.remove();
+  }
+  const atual = document.querySelector('.demo-links a[aria-current="page"]');
+  if (atual) atual.scrollIntoView({ inline: 'center', block: 'nearest' });
+</script>
+</body>
+</html>

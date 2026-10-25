@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORJA · Protótipo de alta fidelidade — etapa 1</title>
+<link rel="stylesheet" href="prototipo.css">
+<style>
+  .hub-hero { display: grid; gap: var(--fj-3); padding: var(--fj-7) 0 var(--fj-5); }
+  .hub-mark { width: 56px; height: 56px; color: var(--fj-brasa); }
+  .hub-title {
+    font-size: clamp(30px, 6vw, 44px);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1.05;
+    max-width: 24ch;
+  }
+  .hub-title em { font-style: normal; color: var(--fj-brasa); }
+  .hub-lede { color: var(--fj-aco); max-width: 62ch; }
+  .screen-grid { display: grid; gap: var(--fj-3); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .screen-card {
+    display: grid;
+    gap: 6px;
+    padding: var(--fj-4);
+    border: var(--fj-fio) solid var(--fj-linha);
+    border-radius: var(--fj-raio-md);
+    background: var(--fj-ferro);
+    text-decoration: none;
+    color: var(--fj-osso);
+    align-content: start;
+    min-height: 132px;
+  }
+  .screen-card:hover { border-color: var(--fj-linha-forte); background: var(--fj-ferro-alto); }
+  .screen-card .num {
+    font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--fj-bronze); font-weight: 700;
+  }
+  .screen-card h3 { font-size: var(--fj-texto-md); }
+  .screen-card p { font-size: var(--fj-texto-xs); color: var(--fj-aco); }
+  .status-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .status-list li {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 10px;
+    font-size: var(--fj-texto-sm);
+    color: var(--fj-aco);
+    align-items: start;
+  }
+  .status-list li strong { color: var(--fj-osso); font-weight: 650; }
+  .tick { color: var(--fj-ok); }
+  .todo { color: var(--fj-alerta); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="index.html" aria-label="FORJA — início">
+      <svg viewBox="0 0 64 64" aria-hidden="true" fill="none">
+        <circle cx="32" cy="32" r="29.6" stroke="currentColor" stroke-width="3.6"/>
+        <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+          <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+          <path d="M13 33H51L47 40H17Z"/>
+          <path d="M26 40H38L41 46H23Z"/>
+          <path d="M17 46H47L49 52H15Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">Forja</span>
+    </a>
+    <div class="tagline">Protótipo · etapa 1</div>
+  </div>
+</header>
+
+<main class="container blueprint" id="conteudo">
+
+  <section class="hub-hero">
+    <svg class="hub-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none">
+      <circle cx="32" cy="32" r="28.5" stroke="currentColor" stroke-width="3"/>
+      <g fill="currentColor">
+        <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+        <path d="M13 33H51L47 40H17Z"/>
+        <path d="M26 40H38L41 46H23Z"/>
+        <path d="M17 46H47L49 52H15Z"/>
+      </g>
+    </svg>
+    <h1 class="hub-title">O martelo não faz o físico.<br><em>A repetição faz.</em></h1>
+    <p class="hub-lede">Este é o protótipo navegável da nova identidade da FORJA — <strong>revisão 2</strong>, com o emblema de bigorna e chama no cabeçalho e a tagline <em>Disciplina • Evolução • Consistência</em>. Ele usa HTML e CSS reais, com os mesmos nomes de classe do aplicativo, e nenhum dado é gravado: todas as informações nas telas são de exemplo, digitadas à mão a partir dos fluxos que já existem.</p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2 class="section-title">Telas do protótipo</h2>
+      <span class="chip">8 telas + 2 documentos</span>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="inicio.html">
+        <span class="num">01 · prioridade</span>
+        <h3>Início</h3>
+        <p>Próximo treino, semana, metas, último treino, calendário e missões.</p>
+      </a>
+      <a class="screen-card" href="execucao.html">
+        <span class="num">02 · prioridade</span>
+        <h3>Treino em execução</h3>
+        <p>Exercício atual, séries, cronômetro, descanso, registro, pausa e resumo.</p>
+      </a>
+      <a class="screen-card" href="rotinas.html">
+        <span class="num">03 · prioridade</span>
+        <h3>Rotinas</h3>
+        <p>Cartões de rotina, rotação, ações por rotina e editor de seções.</p>
+      </a>
+      <a class="screen-card" href="biblioteca.html">
+        <span class="num">04 · prioridade</span>
+        <h3>Biblioteca de exercícios</h3>
+        <p>Busca, filtros com contagem, resultados, detalhe do exercício e estado vazio.</p>
+      </a>
+      <a class="screen-card" href="progresso.html">
+        <span class="num">05 · prioridade</span>
+        <h3>Progresso e calendário</h3>
+        <p>Resumo do período, metas, comparação, frequência, gráficos, recordes e histórico.</p>
+      </a>
+      <a class="screen-card" href="perfil.html">
+        <span class="num">06 · prioridade</span>
+        <h3>Perfil</h3>
+        <p>Perfil de treino, "Meu corpo", backup, preferências de descanso, armazenamento e privacidade.</p>
+      </a>
+      <a class="screen-card" href="componentes.html">
+        <span class="num">07 · sistema</span>
+        <h3>Componentes e estados</h3>
+        <p>Cor, tipografia, espaço, ícones, botões, campos, gráficos, vazio, erro, carregando, foco e diálogos.</p>
+      </a>
+      <a class="screen-card" href="responsivo.html">
+        <span class="num">08 · sistema</span>
+        <h3>Responsivo</h3>
+        <p>As mesmas telas em 320–768 px e no desktop, com os pontos de quebra explicados.</p>
+      </a>
+      <a class="screen-card" href="../marca/index.html">
+        <span class="num">09 · marca</span>
+        <h3>Laboratório de marca</h3>
+        <p>O emblema de bigorna e chama em três recortes ópticos, ícone de app, lockups, construção e regras de uso.</p>
+      </a>
+      <a class="screen-card" href="../marca/icone.html">
+        <span class="num">10 · marca</span>
+        <h3>Prova do ícone</h3>
+        <p>O ícone de app em 512, 192 e 180 px, em tamanho real sobre claro e escuro, com máscaras e contrastes medidos.</p>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2 class="section-title">O que este protótipo prova — e o que não prova</h2></div>
+    <div class="bp-grid">
+      <div class="bp-tile">
+        <h3>Prova</h3>
+        <ul class="status-list">
+          <li><span class="tick">✓</span><span><strong>A identidade cabe em CSS.</strong> Nenhuma classe nova foi necessária para as telas: o protótipo reescreve os seletores que o app já usa.</span></li>
+          <li><span class="tick">✓</span><span><strong>Os componentes existentes bastam.</strong> Cartão, chip, estatística, gráfico, estado vazio e modal já estão em <code>forja-ui.js</code> e <code>forja-graficos.js</code>.</span></li>
+          <li><span class="tick">✓</span><span><strong>O layout aguenta 320 px.</strong> Sem rolagem horizontal e com alvo de 44 px.</span></li>
+          <li><span class="tick">✓</span><span><strong>A marca não domina.</strong> Emblema e palavra aparecem no cabeçalho; o resto da tela é treino.</span></li>
+        </ul>
+      </div>
+      <div class="bp-tile">
+        <h3>Não prova</h3>
+        <ul class="status-list">
+          <li><span class="todo">!</span><span><strong>Comportamento real.</strong> Botões não executam fluxos, não há <code>localStorage</code> nem cálculo de métrica. Isso continua no código atual, intocado.</span></li>
+          <li><span class="todo">!</span><span><strong>Fidelidade da anatomia.</strong> A prancha do atlas aparece só como imagem de apoio na execução; nenhuma região foi redesenhada.</span></li>
+          <li><span class="todo">!</span><span><strong>Validação com usuários.</strong> Nada aqui foi testado com pessoas reais.</span></li>
+          <li><span class="todo">!</span><span><strong>Identidade aprovada em direção.</strong> Emblema, ícone de app, tagline e cabeçalho foram aprovados com cinco decisões; a aplicação ainda depende do seu aval final desta rodada.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2 class="section-title">Como abrir</h2></div>
+    <p class="bp-lede" style="margin:0">Dois caminhos, ambos sem build:</p>
+    <div class="bp-tile" style="margin-top:12px">
+      <p class="bp-cap" style="font-size:var(--fj-texto-sm);color:var(--fj-osso-suave)">
+        1. Abra <code>design/prototipo/index.html</code> direto no navegador (funciona por <code>file://</code>).<br>
+        2. Ou sirva com <code>npm run serve</code> e acesse <code>http://127.0.0.1:8080/design/prototipo/</code>.
+      </p>
+      <p class="bp-cap">A página de responsivo usa <code>&lt;iframe&gt;</code> com arquivos locais; se o navegador bloquear, use o caminho 2.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">Menos promessas. Mais ação.</p>
+    <p class="storage-note">Arquivo de trabalho da etapa 1. O aplicativo em produção permanece exatamente como está.</p>
+  </div>
+</footer>
+
+</body>
+</html>
