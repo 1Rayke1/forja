@@ -26,26 +26,27 @@ sem uso (remoção possível na etapa 10).
 | 4 | **feita em 25/10/2026, na paleta atual** — ver “Situação” na própria etapa |
 | 5 | **feita em 25/10/2026, na paleta atual** — ver “Situação” na própria etapa |
 | 6 | **feita em 25/10/2026, na paleta atual e só com CSS** — ver “Situação” na própria etapa |
-| 7–10 | pendentes |
+| 7 | **feita em 25/10/2026, na paleta atual e só com CSS** — ver “Situação” na própria etapa |
+| 8–10 | pendentes |
 
 Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
 
-- resíduos do dourado antigo em blocos de tela — hover e `::after` de
+- ~~resíduos do dourado antigo em blocos de tela — hover e `::after` de
   `.modality-card`; `.exercise-focus` (pai da figura: exige o cuidado da
   etapa 3); `.session-notes`; `.rest-panel` e `.rest-caption`;
   `.session-summary` com `.summary-stat` e itens; `.exercise-form-card.editing`;
-  `.timer-panel.is-paused` (etapa 7);
+  `.timer-panel.is-paused` (etapa 7)~~ — resolvido na etapa 7;
 - `.summary-label` (Progresso, modalidades, resumo) em minúsculas de 10 px,
   enquanto `.ui-stat-label` e `.home-week-stat-label` são caixa-alta de 11 px:
-  padronizar com a tela, porque em 320 px “CONCLUÍDOS” não cabe na coluna;
+  padronizado na etapa 7 nas telas de treino;
 - foco inicial do diálogo destrutivo cai no botão de perigo (`F.showModal`
   foca a primeira ação que não é “cancelar”); levar ao botão seguro exige
   mudança de lógica em `forja-core.js`;
 - `.compare-delta.is-down` usa `var(--gold)`, hoje igual ao limão de
   `is-up` (etapa 8);
-- nomes que quebram no meio da palavra em 320 px (linha do editor, caixas de
+- ~~nomes que quebram no meio da palavra em 320 px (linha do editor, caixas de
   seção do cartão de rotina) e `.history-status` esticado na largura do item
-  (etapa 7);
+  (etapa 7)~~ — resolvido na etapa 7 com `overflow-wrap: anywhere` e `white-space: nowrap`;
 - ~~`--bottom-nav-height` é usada em `app.css` e não é definida~~ — resolvido na etapa 5 (definida em `marca.css` pelo cálculo da barra: 69 px);
 - `explorar/atlas.html` não carrega `marca.css` (isolamento): seus botões,
   campos e o select sem seta seguem o estado anterior.
@@ -308,6 +309,45 @@ Atenção especial: `executar.html` tem cronômetro e estado em memória. A regr
 **Verificação:** E2E cobre iniciar, registrar série, descanso, pausa, concluir,
 resumo. Rodar em 390 px (alvo real) e 1280.
 **Risco:** alto. **Reversão:** commit por tela.
+
+**Situação (25/10/2026): feita, na paleta atual e só com CSS.** O bloco
+entrou no fim de `assets/css/marca.css` sob o cabeçalho “ETAPA 7”, sem tocar
+em nenhum arquivo JavaScript nem alterar nenhum ID ou contrato funcional do
+HTML:
+
+1. **Hub de treino (`treino/index.html`):** `.modality-card` na superfície do
+   sistema com sombra e borda limpas, sem o pseudo-elemento circular decorativo
+   dourado (`::after`); hover com borda em acento limão translúcido;
+   números de modalidade tabulares em limão e setas responsivas com hover.
+2. **Modalidades (`calistenia.html` e `musculacao.html`):** `.routine-card` e
+   seções em cartões consistentes; contadores de seção em limão tabular;
+   resumo de histórico (`.history-summary`) com superfícies afundadas e
+   valores tabulares; `.history-status` contido com `white-space: nowrap` e
+   `flex-shrink: 0`, eliminando o problema de esticar na largura do item;
+   resíduos dourados de `.active-hint` trocados por acento limão translúcido.
+3. **Editor de rotina (`rotina.html`):** seções estilizadas com
+   `.editor-section`, títulos integrados, contadores de seção tabulares;
+   nomes de exercícios com proteção contra quebra anômala de palavras;
+   cartão de edição `.exercise-form-card.editing` em acento limão translúcido;
+   barra de salvamento alinhada com as superfícies do sistema.
+4. **Execução (`executar.html`):** `.exercise-focus` e `.focus-stat` limpos
+   com superfícies neutras de alto contraste, preservando estritamente o
+   painel e a figura do atlas (`.execution-figure`); `.session-notes` com fio
+   de limão translúcido; cronômetro da série e timers com borda ativa limão e
+   pausado neutro; descanso (`.rest-panel` e `.rest-caption`) com acento limão
+   e superfícies do sistema; painel de pausa `.session-paused-overlay`
+   tracejado no padrão; rodapé de ações (`.execution-footer`) centralizado e
+   balanceado para desktop e celular sem alterar a fixação.
+5. **Resumo pós-treino (`.session-summary`):** círculo de sucesso
+   `.summary-check`, rótulo de modalidade e valores estatísticos consolidados
+   em limão e superfícies escuras de alto contraste, removendo os gradientes
+   dourados residuais.
+
+Nenhum arquivo JS, chave de storage, HTML ou arquivo protegido do atlas foi
+alterado. Testes aprovados: `tests/metricas.test.mjs` (18/18),
+`tests/forja.test.mjs` (92/92), `tests/atlas.test.mjs` (12/12),
+`tests/paridade.test.mjs` (40/40) e suíte ponta a ponta em navegador real
+`tests/e2e.browser.mjs` (25/25 verificações completas).
 
 ---
 

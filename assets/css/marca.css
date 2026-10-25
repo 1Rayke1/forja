@@ -917,3 +917,314 @@ a.ui-button:active {
 .site-footer .storage-note {
   font-size: var(--font-sm);
 }
+
+/* ==========================================================================
+   ETAPA 7 — Treino e execução (treino/index.html, calistenia, musculacao,
+   rotina, biblioteca, executar), na paleta atual
+   --------------------------------------------------------------------------
+   Diretrizes obrigatórias:
+     - Preservar as cores (acento limão, superfícies de performance.css e
+       system.css, fundo carvão de marca.css);
+     - Sem tema nórdico, sem RPG, sem bigornas decorativas;
+     - Limpar os resíduos do dourado antigo identificados na etapa 4:
+       hover e ::after de .modality-card; .exercise-focus; .session-notes;
+       .rest-panel e .rest-caption; .session-summary com .summary-stat e
+       itens; .exercise-form-card.editing; .timer-panel.is-paused / is-running;
+       .active-hint;
+     - Melhorias de usabilidade e responsividade em 320–1280 px:
+       prevenir quebras de palavras longas em telas estreitas (320 px);
+       manter .history-status contido como pílula e alinhado;
+       padronizar estatísticas do histórico (.summary-stat / .summary-label);
+       centralizar ações no rodapé da execução (.execution-footer);
+       isolamento estrito do atlas mantido (.execution-figure e atlas.html).
+   ========================================================================== */
+
+/* 7.1 Hub de treino (treino/index.html) ------------------------------------- */
+
+.modality-card {
+  border-color: var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.modality-card::after {
+  display: none;
+}
+
+.modality-card:hover,
+.modality-card:focus-visible {
+  border-color: var(--accent-line);
+  background: var(--surface-raised);
+}
+
+.modality-icon {
+  font-family: var(--fj-fonte-numero);
+  font-variant-numeric: tabular-nums;
+  color: var(--lime);
+}
+
+.modality-arrow {
+  color: var(--muted);
+}
+
+.modality-card:hover .modality-arrow,
+.modality-card:focus-visible .modality-arrow {
+  color: var(--lime);
+}
+
+/* 7.2 Telas de modalidade (calistenia.html / musculacao.html) -------------- */
+
+.active-hint {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.active-hint strong {
+  color: var(--lime);
+}
+
+.routine-card {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.routine-sections li strong {
+  color: var(--lime);
+  font-family: var(--fj-fonte-numero);
+  font-variant-numeric: tabular-nums;
+}
+
+.routine-sections li.is-empty strong {
+  color: var(--muted);
+}
+
+/* Estatísticas de resumo do histórico na modalidade */
+.history-summary .summary-item {
+  border-color: var(--border);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  padding: 10px 4px;
+}
+
+.history-summary .summary-value {
+  color: var(--lime);
+  font-family: var(--fj-fonte-numero);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-summary .summary-label {
+  color: var(--muted);
+  font-family: var(--fj-fonte-texto);
+  font-size: var(--font-xs);
+  line-height: 1.35;
+}
+
+/* Histórico de treino */
+.history-item {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.history-status {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.history-record-feedback {
+  border-left-color: var(--accent-line);
+}
+
+.history-exercises summary {
+  color: var(--lime);
+}
+
+/* 7.3 Editor de rotina (rotina.html) -------------------------------------- */
+
+.routine-name-input:focus {
+  border-color: var(--accent-line);
+}
+
+.editor-save-bar {
+  border-color: var(--border);
+  background: var(--panel2);
+}
+
+.editor-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 14px;
+  margin-top: 14px;
+}
+
+.editor-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.editor-section-head .section-title {
+  margin: 0;
+}
+
+.editor-section-head .section-count {
+  font-family: var(--fj-fonte-numero);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: var(--font-xs);
+}
+
+.editor-exercise {
+  border-color: var(--border);
+  background: var(--panel2);
+  border-radius: var(--radius-sm);
+}
+
+.editor-exercise-name {
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.exercise-form-card {
+  border-color: var(--border);
+  background: var(--panel);
+}
+
+.exercise-form-card.editing {
+  border-color: var(--accent-line);
+  background: var(--surface-raised);
+}
+
+/* 7.4 Execução do treino (executar.html) ---------------------------------- */
+
+.execution-progress-meta strong {
+  color: var(--lime);
+  font-family: var(--fj-fonte-numero);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-fill {
+  background: var(--lime);
+}
+
+/* Painel de foco: mantém fundo escuro neutro para preservar o contraste
+   da figura do atlas (.execution-figure) contida nele. */
+.exercise-focus {
+  border-color: var(--border);
+  background: var(--panel);
+}
+
+.focus-stat {
+  border-color: var(--border);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.focus-stat-value {
+  color: var(--text);
+}
+
+.focus-stat-value small {
+  color: var(--muted);
+}
+
+.session-notes {
+  border-left: 3px solid var(--accent-line);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.session-notes strong {
+  color: var(--lime);
+}
+
+/* Cronômetro e timers */
+.timer-panel.is-running {
+  border-color: var(--accent-line);
+}
+
+.timer-panel.is-paused {
+  border-color: var(--border);
+  background: var(--surface-raised);
+}
+
+.timer-display {
+  color: var(--lime);
+}
+
+/* Painel de descanso */
+.rest-panel {
+  border-color: var(--accent-line);
+  background: var(--surface-raised);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.rest-panel .rest-label {
+  color: var(--lime);
+}
+
+.rest-timer {
+  color: var(--lime);
+}
+
+.rest-caption {
+  color: var(--muted);
+}
+
+.session-paused-overlay {
+  border: 1px dashed var(--accent-line);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.session-paused-overlay strong {
+  color: var(--lime);
+}
+
+/* Rodapé de ações da execução: alinhamento limpo no celular e desktop */
+.execution-footer {
+  border-top-color: var(--line-soft);
+  justify-content: center;
+}
+
+.execution-footer .secondary-button,
+.execution-footer .danger-button {
+  max-width: 280px;
+}
+
+/* 7.5 Resumo da sessão (.session-summary) -------------------------------- */
+
+.session-summary {
+  border-color: var(--accent-line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.summary-check {
+  border-color: var(--lime);
+  color: var(--lime);
+}
+
+.summary-routine {
+  color: var(--lime) !important;
+}
+
+.summary-stat {
+  border-color: var(--border);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.summary-stat .summary-value {
+  color: var(--lime);
+}
+
+.summary-exercises li {
+  border-bottom-color: var(--line-soft);
+}
