@@ -8,7 +8,8 @@
      1. @font-face das duas famílias auto-hospedadas (etapa 2);
      2. tokens da identidade em :root, prefixo --fj-* (etapa 2);
      3. ativação da etapa 3: tipografia e superfície do casco;
-     4. etapa 4: componentes e estados, na paleta atual (25/10/2026).
+     4. etapa 4: componentes e estados, na paleta atual (25/10/2026);
+     5. etapa 5: cabeçalho, navegação e rodapé, na paleta atual.
 
    REGRAS DE ISOLAMENTO DO ATLAS (valem para todas as etapas seguintes):
 
@@ -31,7 +32,7 @@
    O <link> desta folha entra depois de system.css e, em
    treino/biblioteca.html, depois de atlas.css.
 
-   O que ainda NÃO está aqui (etapas 5 a 9): navegação, cartões e telas.
+   O que ainda NÃO está aqui (etapas 6 a 9): cartões e telas.
    Direção revisada em 25/10/2026: sem emblema e sem a paleta brasa/bronze —
    ver docs/rebranding/07-plano-por-etapas.md.
 
@@ -757,5 +758,162 @@ a.ui-button:active {
 
 .section-empty {
   color: var(--muted);
+  font-size: var(--font-sm);
+}
+
+/* ==========================================================================
+   ETAPA 5 — cabeçalho, navegação e rodapé, na paleta atual
+   --------------------------------------------------------------------------
+   Direção revisada (25/10/2026) aplicada também aqui: sem emblema, sem
+   tagline nova e sem brasa/bronze. O cabeçalho mantém a palavra FORJA e a
+   linha DISCIPLINA DIÁRIA que as 12 páginas já trazem; a barra inferior
+   mantém os cinco destinos, os mesmos ícones SVG inline (idênticos nas 12
+   páginas, traço 1,9) e o limão atual no item ativo. Nenhum HTML muda:
+   cabeçalho, navegação e rodapé já são idênticos em todas as páginas
+   (conferido arquivo a arquivo), então a padronização é só desta camada.
+
+   Isolamento do atlas mantido: explorar/atlas.html não carrega esta folha,
+   logo seu cabeçalho, sua barra e seu rodapé seguem exatamente como estão,
+   pelas camadas app.css/performance.css que ele já usa.
+
+     - `--bottom-nav-height` era usada em app.css (padding inferior do
+       conteúdo) sem ser definida em folha alguma: a declaração caía e o
+       conteúdo podia terminar sob a barra. Definida aqui pelo cálculo da
+       própria barra: 1 px de borda + 6 px de respiro superior + 56 px do
+       link + 6 px de respiro inferior = 69 px (a safe-area entra nos dois
+       cálculos, em app.css e na barra).
+     - Item ativo distinguível sem depender só da cor: fundo limão
+       translúcido (o mesmo --accent-soft dos estados selecionados) e ícone
+       com traço mais forte; cor e texto não mudam.
+     - Rodapé: o padding inferior passa a contar a barra fixa — sem isso o
+       fim do rodapé ficava sob a navegação ao rolar até o fim da página.
+   ========================================================================== */
+
+:root {
+  --bottom-nav-height: 69px;
+}
+
+/* 5.1 Cabeçalho ------------------------------------------------------------
+   Alinhamento central (era baseline, que desalinhava palavra e linha de
+   apoio quando a fonte de marca carrega), alvo de toque de 44 px na palavra
+   e tipografia das famílias já auto-hospedadas. Cor continua o limão atual
+   (--gold de performance.css já vale o limão; --lime é o mesmo valor). */
+
+.site-header-inner {
+  align-items: center;
+  min-height: 60px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  gap: 16px;
+}
+
+.site-header .logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--fj-fonte-titulo);
+  font-size: 23px;
+  font-weight: var(--fj-peso-forte);
+  letter-spacing: 0.16em;
+  line-height: 1;
+  color: var(--lime);
+}
+
+.site-header .tagline {
+  font-family: var(--fj-fonte-texto);
+  font-size: 10px;
+  font-weight: var(--fj-peso-medio);
+  letter-spacing: 0.18em;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+/* Em 320–380 px palavra e linha de apoio continuam numa linha só, sem
+   comprimir o alvo da palavra: só o tamanho e o tracking recuam. */
+@media (max-width: 380px) {
+  .site-header-inner {
+    gap: 10px;
+  }
+
+  .site-header .logo {
+    font-size: 21px;
+  }
+
+  .site-header .tagline {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+}
+
+/* Link de salto na mesma família e no raio dos demais controles; a cor
+   (limão com texto escuro, de performance.css) não muda. */
+.skip-link {
+  font-family: var(--fj-fonte-texto);
+  border-radius: var(--radius-sm);
+}
+
+/* 5.2 Barra inferior ---------------------------------------------------------
+   Mesmos cinco destinos, ícones e rótulos. Respiro e grade levemente mais
+   regulares, rótulo de 11 px (era 10,5 px) e estado ativo por fundo + traço,
+   não só por cor. O foco visível continua o de app.css (3 px em limão). */
+
+.bottom-nav {
+  border-top-color: var(--line-soft);
+  box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.bottom-nav-inner {
+  width: min(100% - 16px, 540px);
+  gap: 4px;
+  align-items: stretch;
+}
+
+.bottom-nav-link {
+  gap: 4px;
+  font-family: var(--fj-fonte-texto);
+  font-size: var(--font-xs);
+  letter-spacing: 0.03em;
+}
+
+.bottom-nav-label {
+  font-size: var(--font-xs);
+}
+
+.bottom-nav-link:hover {
+  background: var(--row-hover);
+}
+
+.bottom-nav-link.is-active,
+.bottom-nav-link[aria-current="page"] {
+  background: var(--accent-soft);
+}
+
+.bottom-nav-link.is-active .bottom-nav-icon svg,
+.bottom-nav-link[aria-current="page"] .bottom-nav-icon svg {
+  stroke-width: 2.2;
+}
+
+/* 5.3 Rodapé ---------------------------------------------------------------
+   Hierarquia e respiro no padrão das seções: lema em rótulo (11 px, caixa
+   já vem do texto) e nota de armazenamento em texto de apoio legível. O
+   padding inferior soma a altura da barra fixa para o rodapé nunca terminar
+   coberto por ela. `.execution-footer` (treino/executar.html) é outro
+   componente e fica fora daqui. */
+
+.site-footer {
+  padding-top: 24px;
+  padding-bottom: calc(var(--bottom-nav-height) + 24px + env(safe-area-inset-bottom, 0px));
+  border-top-color: var(--line-soft);
+}
+
+.footer-motto {
+  margin-bottom: 8px;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--lime);
+}
+
+.site-footer .storage-note {
   font-size: var(--font-sm);
 }

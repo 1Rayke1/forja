@@ -24,7 +24,8 @@ sem uso (remoção possível na etapa 10).
 | 2 | parcial: `marca.css` com fontes e tokens, `<link>` em 11 páginas (`11c18c7`, `184b218`); favicon, SVGs de marca, `theme-color` e `preload` eram do emblema e saem do escopo |
 | 3 | fatia 1: tipografia por classe e superfície do casco (`8b17e3e`); cartões mantidos como estão |
 | 4 | **feita em 25/10/2026, na paleta atual** — ver “Situação” na própria etapa |
-| 5–10 | pendentes |
+| 5 | **feita em 25/10/2026, na paleta atual** — ver “Situação” na própria etapa |
+| 6–10 | pendentes |
 
 Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
 
@@ -44,7 +45,7 @@ Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
 - nomes que quebram no meio da palavra em 320 px (linha do editor, caixas de
   seção do cartão de rotina) e `.history-status` esticado na largura do item
   (etapa 7);
-- `--bottom-nav-height` é usada em `app.css` e não é definida (etapa 5);
+- ~~`--bottom-nav-height` é usada em `app.css` e não é definida~~ — resolvido na etapa 5 (definida em `marca.css` pelo cálculo da barra: 69 px);
 - `explorar/atlas.html` não carrega `marca.css` (isolamento): seus botões,
   campos e o select sem seta seguem o estado anterior.
 
@@ -210,6 +211,28 @@ rolagem horizontal em 320–1280 px; estilos computados do atlas idênticos
 script de substituição único + revisão arquivo a arquivo (`git diff` de 12
 arquivos com 3 linhas cada).
 **Reversão:** `git revert`; o `<svg>` inline não tem dependência.
+
+**Situação (25/10/2026): feita, na paleta atual e sem HTML novo.** A tabela
+acima é a proposta original (emblema, tagline nova e brasa), abandonada pela
+direção revisada. Como cabeçalho, barra inferior e rodapé já eram idênticos
+nas 12 páginas — mesmos ícones SVG (traço 1,9), mesmos cinco destinos, mesma
+palavra FORJA e mesma linha DISCIPLINA DIÁRIA — nenhum HTML precisou mudar:
+a etapa é um bloco “ETAPA 5” no fim de `marca.css`. Nele: cabeçalho com
+alinhamento central, altura mínima de 60 px, palavra em Archivo 800 com alvo
+de 44 px e linha de apoio em Inter 600 legível (com recuo só em ≤380 px);
+barra inferior com rótulos de 11 px e item ativo distinguível sem depender
+só da cor (fundo `--accent-soft` + traço do ícone em 2,2), mantidos cor
+limão, destinos, `is-active`/`aria-current` e foco de 3 px; rodapé com
+hierarquia de rótulo/texto de apoio e padding inferior somando a barra fixa,
+que antes cobria o fim do rodapé; e `--bottom-nav-height` enfim definida
+(69 px = 1 + 6 + 56 + 6), corrigindo o `padding-bottom` de `app.css` que
+referenciava uma variável inexistente. `explorar/atlas.html` não carrega
+`marca.css` e segue intocado, como mandam as regras de isolamento.
+`npm test` 162/162 (inclui navegação ativa nas 12 páginas e hash dos
+arquivos protegidos). O `npm run test:e2e` não pôde rodar no ambiente desta
+sessão: o Chromium empacotado exige `libnspr4.so`, ausente e sem pacote
+disponível no sandbox — pendência de ambiente, não de código; rodar a suíte
+de navegador na primeira oportunidade.
 
 ---
 
