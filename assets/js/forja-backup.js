@@ -83,6 +83,140 @@ function validateBackupKeys(keys) {
   return true;
 }
 
+/*
+  Chaves auxiliares que não têm um descritor no registro, mas existem no
+  armazenamento do app. Sem um nome legível, o preview mostraria a chave crua.
+*/
+const AUXILIARY_KEY_LABELS = {
+  [KEYS.preserved]: "Dados preservados de leitura inválida",
+  [KEYS.rotation]: "Sequência de rotinas"
+};
+
+function describeStorageKey(key) {
+  if (F.MISSION_KEY_PATTERN.test(key)) {
+    const day = F.parseDateKey(key.slice("forja-missoes-".length));
+    if (day) {
+      return "Missões de " + formatDate(day, {
+        day: "2-digit", month: "2-digit", year: "numeric"
+      });
+    }
+    return "Missões do dia";
+  }
+
+  if (AUXILIARY_KEY_LABELS[key]) return AUXILIARY_KEY_LABELS[key];
+
+  const spec = F.registry.byKey(key);
+  return spec && spec.label ? spec.label : key;
+}
+
+/*
+  Nomes legíveis de uma lista de chaves. As chaves de missão são agrupadas em
+  uma linha só ("Missões e calendário (3 dias)") para o preview não virar uma
+  lista de trinta dias.
+*/
+function describeKeyList(keys, emptyLabel) {
+  const list = Array.isArray(keys) ? keys : [];
+  if (list.length === 0) return emptyLabel || "nenhuma";
+
+  const names = [];
+  let missionDays = 0;
+
+  list.forEach(key => {
+    if (F.MISSION_KEY_PATTERN.test(key)) {
+      missionDays += 1;
+      return;
+    }
+    names.push(describeStorageKey(key));
+  });
+
+  if (missionDays > 0) {
+    names.unshift("Missões e calendário (" + missionDays +
+      (missionDays === 1 ? " dia)" : " dias)"));
+  }
+
+  return names.join(", ");
+}
+
+/* Texto de uma missão, na mesma regra que o calendário usa para exibir. */
+function missionText(task) {
+  if (typeof task === "string") return task.trim();
+  if (!isPlainObject(task)) return "";
+  return String(task.text || task.title || "").trim();
+}
+
+/*
+  Missões sem texto nunca aparecem na Home — o calendário descarta o item ao
+  ler. Importar uma delas criaria um dado invisível, que conta no preview mas
+  não pode ser apagado pela interface. A restauração remove esses itens e, se
+  o dia ficar sem nenhuma missão, não cria a chave vazia.
+*/
+function normalizeBackupMissions(keys) {
+  let ignored = 0;
+  let emptyDays = 0;
+  let changed = false;
+  const next = {};
+
+  Object.keys(keys).forEach(key => {
+    const value = keys[key];
+
+    if (!F.MISSION_KEY_PATTERN.test(key) || !Array.isArray(value)) {
+      next[key] = value;
+      return;
+    }
+
+    const kept = value.filter(task => missionText(task) !== "");
+    ignored += value.length - kept.length;
+
+    if (kept.length === 0 && value.length > 0) {
+      emptyDays += 1;
+      changed = true;
+      return;
+    }
+
+    if (kept.length !== value.length) changed = true;
+    next[key] = kept.length === value.length ? value : kept;
+  });
+
+  return {
+    keys: changed ? next : keys,
+    ignored,
+    emptyDays
+  };
+}
+
+/*
+  O histórico do app tem teto (F.HISTORY_LIMIT) e é sempre exibido do mais
+  recente para o mais antigo. Um backup pode vir de outro aparelho, de uma
+  versão antiga ou editado à mão; por isso a restauração ordena por data e
+  mantém os registros mais recentes, avisando antes o que será descartado.
+  O corte nunca depende da posição do registro no arquivo.
+*/
+function normalizeBackupHistory(keys) {
+  const history = keys[KEYS.history];
+
+  if (!Array.isArray(history) || typeof F.normalizeHistoryList !== "function") {
+    return { keys, adjustment: null };
+  }
+
+  const normalized = F.normalizeHistoryList(history);
+  const dropped = Math.max(0, history.length - normalized.length);
+
+  if (dropped === 0) {
+    return { keys: Object.assign({}, keys, { [KEYS.history]: normalized }), adjustment: null };
+  }
+
+  return {
+    keys: Object.assign({}, keys, { [KEYS.history]: normalized }),
+    adjustment: {
+      fileCount: history.length,
+      keptCount: normalized.length,
+      dropped,
+      limit: F.HISTORY_LIMIT,
+      oldestKept: normalized.length > 0 ? normalized[normalized.length - 1] : null
+    }
+  };
+}
+
 function validateBackupPayload(payload) {
   if (!isPlainObject(payload)) {
     throw new Error("O arquivo não contém um objeto JSON de backup.");
@@ -106,10 +240,24 @@ function validateBackupPayload(payload) {
 
   validateBackupKeys(payload.keys);
 
+  const history = normalizeBackupHistory(payload.keys);
+  const missions = normalizeBackupMissions(history.keys);
+  const keys = missions.keys;
+
+  if (!isPlainObject(keys) || Object.keys(keys).length === 0) {
+    throw new Error("O backup não contém nenhum dado utilizável do FORJA.");
+  }
+
   return {
-    keys: payload.keys,
+    keys,
     exportedAt: typeof payload.exportedAt === "string" ? payload.exportedAt : null,
-    version: payload.version
+    version: payload.version,
+    adjustments: {
+      history: history.adjustment,
+      missions: missions.ignored > 0
+        ? { ignored: missions.ignored, emptyDays: missions.emptyDays }
+        : null
+    }
   };
 }
 
@@ -322,12 +470,28 @@ function readFileAsText(file) {
   });
 }
 
+/* " (o mais antigo mantido é 18/07/2026)" — ajuda o usuário a ver o corte. */
+function describeOldestKept(record) {
+  if (!isPlainObject(record)) return "";
+
+  const raw = record.finishedAt || record.date;
+  if (!raw) return "";
+
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return " (o mais antigo mantido é " + formatDate(date, {
+    day: "2-digit", month: "2-digit", year: "numeric"
+  }) + ")";
+}
+
 function makeBackupPreview(validated, currentKeys) {
   const summary = computeBackupSummary(validated.keys);
   const backupKeyNames = Object.keys(validated.keys);
   const removed = currentKeys.filter(key => !backupKeyNames.includes(key));
   const overwritten = currentKeys.filter(key => backupKeyNames.includes(key));
   const warnings = [];
+  const adjustments = validated.adjustments || {};
 
   if (F.state.activeWorkout && !validated.keys[KEYS.active]) {
     warnings.push(
@@ -352,7 +516,48 @@ function makeBackupPreview(validated, currentKeys) {
 
   if (removed.length > 0) {
     warnings.push(
-      removed.length + " chave(s) atual(is) que não existem no backup serão removidas."
+      removed.length + " chave(s) atual(is) que não existem no backup serão removidas: " +
+      describeKeyList(removed) + "."
+    );
+  }
+
+  /*
+    As duas chaves abaixo não são dados de treino comuns: uma guarda cópias de
+    dados que não puderam ser lidos e a outra decide qual rotina vem primeiro.
+    Removê-las é seguro (o desfazer recupera), mas o usuário precisa saber.
+  */
+  if (removed.includes(KEYS.preserved)) {
+    warnings.push(
+      "A cesta de dados preservados (" + KEYS.preserved + ") será removida. " +
+      "Ela guarda cópias de dados antigos que não puderam ser lidos; " +
+      "\"Desfazer última importação\" a recupera enquanto a cópia de segurança existir."
+    );
+  }
+
+  if (removed.includes(KEYS.rotation)) {
+    warnings.push(
+      "A sequência de rotinas (" + KEYS.rotation + ") será removida; " +
+      "a próxima rotina será escolhida novamente pelo app."
+    );
+  }
+
+  if (adjustments.history && adjustments.history.dropped > 0) {
+    const cut = adjustments.history;
+    warnings.push(
+      "O arquivo tem " + cut.fileCount + " treinos no histórico; o FORJA guarda até " +
+      cut.limit + ". Serão restaurados os " + cut.keptCount +
+      " mais recentes" + describeOldestKept(cut.oldestKept) + " e " +
+      cut.dropped + " registro(s) mais antigo(s) do arquivo serão descartados."
+    );
+  }
+
+  if (adjustments.missions && adjustments.missions.ignored > 0) {
+    warnings.push(
+      adjustments.missions.ignored + " missão(ões) sem texto do arquivo serão ignoradas" +
+      (adjustments.missions.emptyDays > 0
+        ? " (" + adjustments.missions.emptyDays + " dia(s) ficarão sem missões e não serão restaurados)"
+        : "") +
+      ". O FORJA não exibe missão vazia."
     );
   }
 
@@ -379,9 +584,14 @@ function makeBackupPreview(validated, currentKeys) {
   restoredList.appendChild(routineItem);
 
   const historyItem = document.createElement("li");
+  const historyCut = adjustments.history;
   historyItem.textContent = "Histórico: " + summary.history + " treino(s) " +
     "(Calistenia: " + summary.historyByMode.calisthenics +
-    ", Musculação: " + summary.historyByMode.weights + ").";
+    ", Musculação: " + summary.historyByMode.weights + ")" +
+    (historyCut && historyCut.dropped > 0
+      ? " — de " + historyCut.fileCount + " no arquivo; os " + historyCut.dropped +
+        " mais antigos não serão restaurados (limite de " + historyCut.limit + ")."
+      : ".");
   restoredList.appendChild(historyItem);
 
   const legacyTotal = summary.legacyExercises.calisthenics +
@@ -416,11 +626,28 @@ function makeBackupPreview(validated, currentKeys) {
   details.appendChild(effectTitle);
 
   const effectList = document.createElement("ul");
-  const replaceItem = document.createElement("li");
-  replaceItem.textContent = overwritten.length +
-    " chave(s) serão substituídas; " + removed.length +
-    " chave(s) atual(is) serão removidas.";
-  effectList.appendChild(replaceItem);
+
+  if (overwritten.length > 0) {
+    const replaceItem = document.createElement("li");
+    replaceItem.textContent = overwritten.length + " chave(s) serão substituídas: " +
+      describeKeyList(overwritten) + ".";
+    effectList.appendChild(replaceItem);
+  } else {
+    const replaceItem = document.createElement("li");
+    replaceItem.textContent = "Nenhuma chave atual será substituída.";
+    effectList.appendChild(replaceItem);
+  }
+
+  if (removed.length > 0) {
+    const removeItem = document.createElement("li");
+    removeItem.textContent = removed.length + " chave(s) atual(is) serão removidas: " +
+      describeKeyList(removed) + ".";
+    effectList.appendChild(removeItem);
+  } else {
+    const removeItem = document.createElement("li");
+    removeItem.textContent = "Nenhuma chave atual será removida.";
+    effectList.appendChild(removeItem);
+  }
 
   const safetyItem = document.createElement("li");
   safetyItem.textContent =
@@ -547,6 +774,12 @@ function applyRestore(keys, options = {}) {
   };
 
   if (!saveJSON(KEYS.safety, safety)) {
+    showToast(
+      "Não foi possível salvar a cópia de segurança do estado atual. " +
+      "Nada foi alterado no FORJA; libere espaço no navegador e tente de novo.",
+      "error",
+      6500
+    );
     return false;
   }
 
@@ -563,22 +796,39 @@ function applyRestore(keys, options = {}) {
 
     showModal({
       title: "Falha ao restaurar",
-      message: rollback.ok
-        ? "Não foi possível concluir a restauração. Seus dados anteriores foram recuperados integralmente. Detalhe: " + error.message
+      message: (rollback.ok
+        ? "Não foi possível concluir a restauração. Seus dados anteriores foram recuperados integralmente. "
         : "Não foi possível concluir a restauração nem recuperar todas as chaves. " +
-          "Chaves com problema: " + rollback.failedKeys.join(", ") + ". " +
-          "A cópia de segurança anterior continua em forja-backup-seguranca-v1. " +
-          "Detalhe: " + error.message,
+          "Chaves com problema: " + rollback.failedKeys.join(", ") + ". ") +
+        "A cópia de segurança do estado anterior está em " + KEYS.safety +
+        ": use \"Desfazer última importação\" para voltar a ela, sem precisar recarregar. " +
+        "Detalhe: " + error.message,
       actions: [
         { id: "close", label: "Fechar", className: "secondary-button" }
       ]
     });
 
+    /*
+      A restauração falhou no meio do caminho: o armazenamento pode ter voltado
+      ao estado anterior ou ficado parcial, e o botão de desfazer ainda estava
+      oculto. Reler os dados (sem gravar nada) e redesenhar o status deixa a
+      recuperação disponível na mesma tela, com o estado real na interface.
+    */
+    try {
+      reloadApplicationData();
+    } catch (reloadError) {
+      if (global.console && typeof global.console.error === "function") {
+        global.console.error(reloadError);
+      }
+    }
+
     return false;
   }
 
   reloadApplicationData();
-  showToast("Backup restaurado. " + Object.keys(keys).length + " chave(s) carregada(s).");
+  showToast(options.reason === "undo-import"
+    ? "Cópia anterior restaurada. " + Object.keys(keys).length + " chave(s) carregada(s)."
+    : "Backup restaurado. " + Object.keys(keys).length + " chave(s) carregada(s).");
   return true;
 }
 

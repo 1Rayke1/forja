@@ -28,7 +28,21 @@
     if (typeof F.renderExecution === "function") F.renderExecution();
   }
 
+  /*
+    "Pular para o conteúdo" leva a rolagem até <main id="conteudo">, mas o foco
+    ficava no topo porque o main não é focável. Deixá-lo focável por programa
+    (tabindex="-1", fora da ordem do Tab) faz o navegador mover o foco para o
+    conteúdo em todas as páginas, inclusive na do atlas.
+  */
+  function prepareSkipTarget() {
+    const target = doc.getElementById("conteudo");
+    if (target && !target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+    }
+  }
+
   function boot() {
+    prepareSkipTarget();
     F.bootData();
 
     const name = F.pageName();

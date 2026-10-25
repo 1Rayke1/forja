@@ -4673,6 +4673,442 @@ await runTest("76f. Segurança syncStateFromStorage: preferências ausentes ou i
   app.close();
 });
 
+/* ------------------------------------------------------------------ */
+/* 77. Regressões da auditoria (D-01 … D-11)                           */
+/* ------------------------------------------------------------------ */
+
+/* Cria N registros de histórico, do mais antigo (índice 0) ao mais novo. */
+function historySeries(count, startKey = "2026-01-01") {
+  const base = new Date(startKey + "T12:00:00");
+  const list = [];
+
+  for (let index = 0; index < count; index += 1) {
+    const date = new Date(base.getTime());
+    date.setDate(date.getDate() + index);
+    list.push(seedRecord(date, [seedExercise("Flexão", [seedLog({ reps: "10", load: "10 kg" })])], {
+      id: "aud-" + index,
+      routineName: "Treino " + (index + 1)
+    }));
+  }
+
+  return list;
+}
+
+function backupOf(keys) {
+  return {
+    app: "FORJA",
+    format: "forja-backup",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    keys
+  };
+}
+
+await runTest("77a. D-01: importar 250 registros mantém os mais recentes e não perde treino novo", async () => {
+  const series = historySeries(250);
+  assert.equal(series.length, 250);
+  const newest = series[series.length - 1].date;
+  const oldest = series[0].date;
+
+  const app = await boot({}, "configuracoes/index.html");
+  await app.importFile(backupOf({ "forja-treino-historico-v1": series }));
+  await wait(40);
+
+  /* O preview avisa o corte antes de confirmar. */
+  const preview = app.text(".modal-details");
+  assert.match(preview, /250 treinos no histórico/i, "Preview não informa o tamanho do arquivo");
+  assert.match(preview, /200 mais recentes/i, "Preview não informa quais registros ficam");
+  assert.match(preview, /50 registro\(s\) mais antigo\(s\).*descartados/i, "Preview não informa o descarte");
+  assert.match(preview, /limite de 200/i);
+
+  await app.modal("restore");
+  await wait(60);
+
+  const stored = app.data("forja-treino-historico-v1");
+  assert.equal(stored.length, 200, "O armazenamento deve respeitar o limite do app");
+  assert.equal(stored[0].date, newest, "O registro mais recente do arquivo deve vir primeiro");
+  assert.ok(!stored.some(record => record.date === oldest), "O mais antigo do arquivo é o único descartado");
+  assert.ok(stored.some(record => record.date === newest), "O mais novo do arquivo não pode ser descartado");
+
+  /* Progresso e exportação concordam com o armazenamento. */
+  await app.go(BASE + "progresso/index.html");
+  await wait(120);
+  assert.equal(app.text("#progress-sessions"), "200");
+  assert.equal(app.$$("#progress-history .history-item").length, 200);
+  const exported = app.F.buildBackupObject();
+  assert.equal(exported.keys["forja-treino-historico-v1"].length, 200, "Exportação divergiu do armazenamento");
+
+  /* Um treino novo entra e o registro mais novo do arquivo continua lá. */
+  const routine = makeRoutine("calisthenics", "Treino novo", [
+    { name: "Flexão", section: "main", sets: 1, reps: "10", rest: 0, id: "novo-1" }
+  ], "rot-novo");
+
+  const exec = await boot({
+    "forja-treino-rotinas-v1": routinesStore([routine], []),
+    "forja-treino-historico-v1": app.data("forja-treino-historico-v1"),
+    "forja-treino-sessao-ativa-v1": sessionSeed(routine, { id: "s-novo" })
+  }, "treino/executar.html");
+  await wait(30);
+  exec.click("#complete-set");
+  await wait(60);
+  assert.equal(exec.$("#execution-summary").hidden, false, "Concluir a série deveria encerrar a sessão de 1 série");
+
+  const after = exec.data("forja-treino-historico-v1");
+  assert.equal(after.length, 200, "O histórico deve continuar no limite depois do treino novo");
+  assert.ok(after.some(record => record.date === newest), "O registro mais novo importado desapareceu");
+  assert.equal(after[0].routineName, "Treino novo", "O treino recém-concluído deve entrar no topo");
+  /* Importados: 200 mais recentes (aud-50…aud-249). O treino novo empurra
+     para fora exatamente um: o mais antigo da lista, aud-50. */
+  assert.ok(!after.some(record => record.id === "aud-50"), "O descarte deve ser do registro mais antigo");
+  assert.ok(after.some(record => record.id === "aud-51"), "O segundo mais antigo precisa sobreviver");
+
+  assertNoErrors(exec, "D-01 histórico acima do limite");
+  exec.close();
+  app.close();
+});
+
+await runTest("77b. D-01/D-05: ordem do histórico não depende da ordem do arquivo", async () => {
+  const asc = historySeries(4).map((record, index) => Object.assign({}, record, {
+    id: "ord-" + index,
+    date: ["2026-01-10", "2026-02-10", "2026-03-10", "2026-04-10"][index],
+    finishedAt: ["2026-01-10", "2026-02-10", "2026-03-10", "2026-04-10"][index] + "T12:00:00.000Z",
+    routineName: "Rotina " + (index + 1)
+  }));
+
+  const app = await boot({ "forja-treino-historico-v1": asc }, "index.html");
+  await wait(40);
+  const recent = app.$$(".home-recent-name").map(node => node.textContent.trim());
+  assert.deepEqual(recent, ["Rotina 4", "Rotina 3", "Rotina 2"], "Home deve mostrar o mais recente primeiro");
+
+  await app.go(BASE + "progresso/index.html");
+  await wait(120);
+  const titles = app.$$("#progress-history .history-item").map(node => node.textContent);
+  assert.match(titles[0], /Rotina 4/, "Progresso deve começar pelo treino mais recente");
+  assert.match(titles[3], /Rotina 1/);
+
+  /* A leitura corrige a ordem em memória sem regravar o arquivo antigo. */
+  await app.reload();
+  await wait(80);
+  assert.equal(app.data("forja-treino-historico-v1")[0].id, "ord-0",
+    "O arquivo importado não pode ser reescrito só por abrir a página");
+  assert.equal(app.raw("forja-treino-historico-v1"), JSON.stringify(asc));
+  assert.equal(app.$$("#progress-history .history-item").length, 4);
+  assert.match(app.$$("#progress-history .history-item")[0].textContent, /Rotina 4/,
+    "Depois de recarregar, a tela continua do mais recente para o mais antigo");
+
+  assertNoErrors(app, "D-05 ordem do histórico");
+  app.close();
+});
+
+await runTest("77c. D-02: falha na restauração libera o desfazer na mesma tela", async () => {
+  const today = todayKey();
+  const app = await boot({
+    ["forja-missoes-" + today]: [{ id: "m1", text: "Original", done: false }],
+    "forja-treino-rotinas-v1": routinesStore([sampleRoutine()], []),
+    "forja-preferencias-v1": { soundOnRest: false, vibrateOnRest: false }
+  }, "configuracoes/index.html");
+  await wait(30);
+
+  assert.equal(app.$("#restore-safety-backup").hidden, true, "Desfazer não deveria existir antes de importar");
+
+  const backup = backupOf({
+    ["forja-missoes-" + today]: [{ id: "m2", text: "Do backup", done: false }],
+    "forja-preferencias-v1": { soundOnRest: true, vibrateOnRest: true }
+  });
+
+  const guard = installFailingStorage(app, { failOn: "forja-missoes-" + today, times: 2 });
+  await app.importFile(backup);
+  app.modalAction("restore");
+  await wait(200);
+  guard.restore();
+
+  /* Sem recarregar: o desfazer aparece e o status informa a cópia. */
+  assert.match(app.text("#modal-title"), /Falha ao restaurar/);
+  assert.match(app.text(".modal-message"), /forja-backup-seguranca-v1/);
+  assert.match(app.text(".modal-message"), /sem precisar recarregar/);
+  app.modalAction("close");
+  await wait(30);
+
+  assert.equal(app.$("#restore-safety-backup").hidden, false, "Desfazer precisa aparecer sem recarregar");
+  assert.match(app.text("#backup-status"), /Cópia de segurança de .* disponível/);
+
+  /* Recuperação imediata, na mesma página. */
+  app.click("#restore-safety-backup");
+  await wait(30);
+  await app.modal("restore");
+  await wait(80);
+
+  assert.equal(app.data("forja-missoes-" + today)[0].text, "Original", "Desfazer não recuperou as missões");
+  assert.deepEqual(app.data("forja-preferencias-v1"), { soundOnRest: false, vibrateOnRest: false },
+    "Desfazer não recuperou as preferências");
+  assert.match(app.text("#toast"), /Cópia anterior restaurada/);
+
+  assertNoErrors(app, "D-02 desfazer na mesma tela");
+  app.close();
+});
+
+await runTest("77d. D-03: preview nomeia as chaves removidas e avisa as duas sensíveis", async () => {
+  const today = todayKey();
+  const preserved = [{ archivedAt: "2026-10-20T10:00:00.000Z", key: "forja-treino-historico-v1", reason: "JSON inválido", raw: "{corrompido" }];
+
+  const app = await boot({
+    ["forja-missoes-" + today]: [{ id: "m1", text: "Atual", done: false }],
+    "forja-treino-dados-preservados-v1": preserved,
+    "forja-treino-rotacao-v1": { version: 1, nextRoutineId: "r2" }
+  }, "configuracoes/index.html");
+  await wait(30);
+
+  await app.importFile(backupOf({ ["forja-missoes-" + today]: [{ id: "m2", text: "Do backup", done: false }] }));
+  await wait(40);
+
+  const details = app.text(".modal-details");
+  assert.match(details, /serão removidas: .*Dados preservados de leitura inválida/,
+    "Preview deve nomear a cesta de dados preservados");
+  assert.match(details, /Sequência de rotinas/, "Preview deve nomear a chave de rotação");
+  assert.match(details, /forja-treino-dados-preservados-v1/, "Preview deve mostrar a chave técnica dos dados preservados");
+  assert.match(details, /forja-treino-rotacao-v1/, "Preview deve mostrar a chave técnica da rotação");
+  assert.match(details, /Desfazer última importação.*recupera/i, "Preview não explica como recuperar");
+  assert.match(details, /Missões e calendário \(1 dia\)/, "Preview deve agrupar as chaves de missão");
+
+  await app.modal("restore");
+  await wait(60);
+  assert.equal(app.data("forja-treino-dados-preservados-v1"), null, "A cesta foi removida (comportamento explícito)");
+  assert.equal(app.data("forja-treino-rotacao-v1"), null);
+
+  /* O desfazer devolve as duas chaves. */
+  app.click("#restore-safety-backup");
+  await wait(30);
+  await app.modal("restore");
+  await wait(80);
+  assert.deepEqual(app.data("forja-treino-dados-preservados-v1"), preserved, "Desfazer não devolveu a cesta");
+  assert.equal(app.data("forja-treino-rotacao-v1").nextRoutineId, "r2");
+
+  assertNoErrors(app, "D-03 chaves nomeadas");
+  app.close();
+});
+
+await runTest("77e. D-04: descanso não anuncia cada segundo e mantém os momentos importantes", async () => {
+  const routine = makeRoutine("calisthenics", "Treino descanso", [
+    { id: "r1", name: "Flexão", sets: 2, reps: "10", rest: 60 }
+  ], "rot-rest");
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([routine], []),
+    "forja-treino-sessao-ativa-v1": sessionSeed(routine, { id: "s-rest" })
+  }, "treino/executar.html", { now: 5_000_000 });
+  await wait(30);
+
+  assert.equal(app.$("#execution-rest").hasAttribute("aria-live"), false,
+    "O painel com o contador não pode ser uma região viva");
+  assert.equal(app.$("#rest-timer").getAttribute("aria-live"), "off");
+  assert.equal(app.$("#rest-timer").getAttribute("role"), "timer");
+
+  app.click("#complete-set");
+  await wait(20);
+  app.advance(1000);
+  assert.equal(app.text("#rest-timer"), "00:59", "O contador continua visível e atualizando");
+  app.advance(1000);
+  assert.equal(app.text("#rest-timer"), "00:58");
+
+  app.click("#pause-rest");
+  await wait(90);
+  assert.match(app.text("#rest-caption"), /pausado/i);
+  assert.match(app.text("#forja-live-region"), /Descanso pausado/, "Pausa deveria ser anunciada uma vez");
+
+  app.click("#resume-rest");
+  await wait(90);
+  assert.match(app.text("#forja-live-region"), /Descanso retomado/);
+
+  app.click("#rest-minus");
+  await wait(90);
+  assert.match(app.text("#forja-live-region"), /Descanso ajustado/);
+
+  /* Fim do descanso continua avisando pelo toast (role=status). */
+  assert.equal(app.$("#toast").getAttribute("role"), "status");
+  app.click("#skip-rest");
+  await wait(30);
+  assert.match(app.text("#toast"), /Descanso pulado/);
+
+  assertNoErrors(app, "D-04 descanso acessível");
+  app.close();
+});
+
+await runTest("77f. D-07: abrir o descanso rola até o painel e reserva a barra inferior", async () => {
+  const routine = makeRoutine("calisthenics", "Treino descanso", [
+    { id: "r1", name: "Flexão", sets: 2, reps: "10", rest: 60 }
+  ], "rot-scroll");
+
+  const css = fs.readFileSync(path.join(repoRoot, "assets/css/marca.css"), "utf8");
+  assert.match(css, /\.rest-panel[\s\S]*?scroll-margin-bottom:\s*calc\(var\(--bottom-nav-height\)/,
+    "O painel precisa reservar o espaço da barra inferior ao rolar");
+
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([routine], []),
+    "forja-treino-sessao-ativa-v1": sessionSeed(routine, { id: "s-scroll" })
+  }, "treino/executar.html");
+  await wait(30);
+
+  const calls = [];
+  app.w.Element.prototype.scrollIntoView = function recordScroll(options) {
+    calls.push({ id: this.id, block: options && options.block });
+  };
+
+  app.click("#complete-set");
+  await wait(40);
+
+  assert.equal(app.$("#execution-rest").hidden, false, "O descanso deveria estar aberto");
+  assert.ok(
+    calls.some(call => call.id === "execution-rest"),
+    "Abrir o descanso precisa levar a rolagem até o painel: " + JSON.stringify(calls)
+  );
+
+  /* Recarregar com descanso pendente também traz o painel para a tela. */
+  await app.reload();
+  await wait(60);
+  assert.equal(app.$("#execution-rest").hidden, false, "O descanso pendente deveria reabrir após recarregar");
+
+  assertNoErrors(app, "D-07 rolagem do descanso");
+  app.close();
+});
+
+await runTest("77g. D-08: o skip link move o foco para o conteúdo", async () => {
+  for (const page of ["index.html", "progresso/index.html", "treino/biblioteca.html"]) {
+    const app = await boot({}, page);
+    await wait(30);
+
+    const main = app.$("#conteudo");
+    assert.ok(main, "Página sem #conteudo: " + page);
+    assert.equal(main.getAttribute("tabindex"), "-1", "O destino do skip link precisa ser focável: " + page);
+
+    /* O CSS não pode suprimir o foco de forma que quebre o fluxo visível. */
+    const link = app.$(".skip-link");
+    assert.ok(link, "Skip link ausente: " + page);
+    assert.equal(link.getAttribute("href"), "#conteudo");
+
+    main.focus();
+    assert.equal(app.d.activeElement, main, "O foco não foi para o conteúdo em " + page);
+
+    /* Mantém funcionando o resto do teclado: o primeiro Tab sai do skip link. */
+    link.focus();
+    assert.equal(app.d.activeElement, link);
+    app.close();
+  }
+});
+
+await runTest("77h. D-09: a Biblioteca tem exatamente um h1", async () => {
+  const app = await boot({}, "treino/biblioteca.html");
+  await wait(120);
+
+  const headings = app.$$("h1");
+  assert.equal(headings.length, 1, "A Biblioteca deve ter um único h1");
+  assert.equal(headings[0].textContent.trim(), "Biblioteca de exercícios");
+  assert.equal(headings[0].id, "catalog-heading");
+  assert.equal(headings[0].className, "ui-section-title", "O visual do título não deve mudar");
+
+  /* O bloco de ajuda continua no nível seguinte. */
+  const help = app.$$("h2").map(node => node.textContent.trim());
+  assert.ok(help.includes("Como a biblioteca funciona"), "Títulos internos continuam em h2");
+
+  assertNoErrors(app, "D-09 h1 da Biblioteca");
+  app.close();
+});
+
+await runTest("77i. D-10: missão sem texto é ignorada com aviso, sem dado invisível", async () => {
+  const today = todayKey();
+  const dayKey = "forja-missoes-" + today;
+
+  const app = await boot({}, "configuracoes/index.html");
+  await app.importFile(backupOf({
+    [dayKey]: [{ id: "vazia", text: "", done: false }, { id: "ok", text: "Missão visível", done: false }]
+  }));
+  await wait(40);
+
+  assert.match(app.text(".modal-details"), /1 missão\(ões\) sem texto .* ignoradas/i,
+    "O preview deve avisar as missões ignoradas");
+
+  await app.modal("restore");
+  await wait(60);
+
+  const stored = app.data(dayKey);
+  assert.equal(stored.length, 1, "O armazenamento não pode guardar missão vazia");
+  assert.equal(stored[0].text, "Missão visível");
+
+  await app.go(BASE + "index.html");
+  await wait(120);
+  assert.equal(app.$$("#task-list .task").length, 1);
+  assert.equal(app.text("#progress-label"), "0 de 1 · 0%", "A contagem precisa bater com o que aparece");
+
+  /* Dia inteiro sem texto: a chave não é recriada e o preview avisa. */
+  const emptyDay = "forja-missoes-2026-03-03";
+  const second = await boot({}, "configuracoes/index.html");
+  await second.importFile(backupOf({
+    [emptyDay]: [{ id: "a", text: "", done: false }],
+    [dayKey]: [{ id: "ok", text: "Missão visível", done: false }]
+  }));
+  await wait(40);
+  assert.match(second.text(".modal-details"), /ficarão sem missões e não serão restaurados/i);
+  await second.modal("restore");
+  await wait(60);
+  assert.equal(second.data(emptyDay), null, "Um dia só com missões vazias não deve ser gravado");
+  assertNoErrors(second, "D-10 dia vazio");
+  second.close();
+
+  assertNoErrors(app, "D-10 missão vazia");
+  app.close();
+});
+
+await runTest("77j. D-06: \"Falta 1 série\" no Progresso e na Home", async () => {
+  const today = new Date();
+  const record = seedRecord(today, [seedExercise("Flexão", [
+    seedLog({ reps: "10", load: "10 kg" }), seedLog({ set: 2, reps: "10", load: "10 kg" })
+  ])], { completedSets: 19, totalPlannedSets: 19, status: "completed" });
+
+  const goals = { version: 1, updatedAt: null, modality: "all", weeklySessions: 1, weeklySets: 20, weeklyMinutes: 0 };
+  const app = await boot({
+    "forja-treino-historico-v1": [record],
+    "forja-treino-metas-v1": goals
+  }, "progresso/index.html");
+  await wait(120);
+
+  const progressGoals = app.text("#goals-progress");
+  assert.match(progressGoals, /Falta 1 série/, "Progresso deve concordar no singular");
+  assert.ok(!/Faltam 1 séries/.test(progressGoals), "Plural errado ainda aparece: " + progressGoals);
+
+  await app.go(BASE + "index.html");
+  await wait(120);
+  const homeGoals = app.text("#home-goals-content");
+  assert.match(homeGoals, /Falta 1 série/, "Home e Progresso precisam usar o mesmo texto");
+
+  /* Plural continua certo quando falta mais de um. */
+  const plural = await boot({
+    "forja-treino-historico-v1": [record],
+    "forja-treino-metas-v1": Object.assign({}, goals, { weeklySets: 25 })
+  }, "progresso/index.html");
+  await wait(120);
+  assert.match(plural.text("#goals-progress"), /Faltam 6 séries/);
+  assertNoErrors(plural, "D-06 plural");
+  plural.close();
+
+  assertNoErrors(app, "D-06 singular");
+  app.close();
+});
+
+await runTest("77k. D-11: a barra inferior mantém os cinco rótulos legíveis em 320 px", async () => {
+  const css = fs.readFileSync(path.join(repoRoot, "assets/css/marca.css"), "utf8");
+  assert.match(css, /@media \(max-width: 359px\)[\s\S]*?\.bottom-nav-inner[\s\S]*?width:\s*100%/,
+    "A barra precisa liberar a largura total em telas de 320 px");
+  assert.match(css, /@media \(max-width: 359px\)[\s\S]*?\.bottom-nav-link[\s\S]*?letter-spacing:\s*0/,
+    "O espaçamento entre letras precisa caber em 320 px");
+
+  const app = await boot({}, "index.html");
+  await wait(30);
+  const labels = app.$$(".bottom-nav-label").map(node => node.textContent.trim());
+  assert.deepEqual(labels, ["Início", "Treinos", "Explorar", "Progresso", "Perfil"]);
+  assert.equal(app.$$(".bottom-nav-link").length, 5, "A barra continua com cinco destinos");
+  assertNoErrors(app, "D-11 barra inferior");
+  app.close();
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));

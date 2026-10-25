@@ -420,7 +420,7 @@
         valueText: item.current + "/" + item.target,
         note: item.met
           ? "Meta batida"
-          : "Faltam " + formatMeasure(item.remaining, item.unit)
+          : F.formatGoalRemaining(item)
       }));
     });
 

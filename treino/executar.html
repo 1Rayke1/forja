@@ -171,9 +171,14 @@
           <button type="button" class="nav-text-button" id="next-exercise" hidden>Próximo exercício →</button>
         </nav>
 
-        <section class="rest-panel" id="execution-rest" aria-live="polite" hidden>
+        <!--
+          O contador muda a cada segundo: mantê-lo dentro de uma região viva
+          faria o leitor de tela anunciar cada segundo. O início, o fim e as
+          ações do descanso são anunciados pelo toast e por F.ui.announce.
+        -->
+        <section class="rest-panel" id="execution-rest" hidden>
           <div class="rest-label">Descanso</div>
-          <div class="rest-timer" id="rest-timer">00:00</div>
+          <div class="rest-timer" id="rest-timer" role="timer" aria-live="off">00:00</div>
           <div class="rest-caption" id="rest-caption"></div>
           <div class="rest-adjust" role="group" aria-label="Ajustar a duração deste descanso">
             <button type="button" class="secondary-button small-button" id="rest-minus" aria-label="Diminuir 15 segundos deste descanso">&minus;15 s</button>

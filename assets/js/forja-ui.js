@@ -184,7 +184,13 @@
     const head = el("div", "ui-section-head");
     const text = el("div", "ui-section-text");
 
-    const title = el("h2", "ui-section-title", options.title);
+    /*
+      `headingLevel` permite que o título principal de uma página criada por
+      componente seja um h1 (Biblioteca), mantendo h2 como padrão nos blocos
+      internos. A classe e o visual continuam os mesmos.
+    */
+    const level = options.headingLevel === "h1" ? "h1" : "h2";
+    const title = el(level, "ui-section-title", options.title);
     if (options.id) title.id = options.id;
     text.appendChild(title);
 

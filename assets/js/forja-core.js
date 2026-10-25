@@ -218,6 +218,22 @@
     return value + " " + (value === 1 ? singular : plural);
   };
 
+  /*
+    Texto do que falta para uma meta semanal. Verbo e unidade concordam com o
+    número: "Falta 1 série", "Faltam 3 séries", "Falta 1 treino", "Faltam 45 min".
+    A mesma função é usada na Home e no Progresso.
+  */
+  F.formatGoalRemaining = function formatGoalRemaining(item) {
+    const remaining = Math.max(0, Math.round(Number(item && item.remaining) || 0));
+    const verb = remaining === 1 ? "Falta " : "Faltam ";
+    const unit = item && item.unit;
+
+    if (unit === "sessions") return verb + F.pluralize(remaining, "treino", "treinos");
+    if (unit === "sets") return verb + F.pluralize(remaining, "série", "séries");
+    if (unit === "minutes") return verb + remaining + " min";
+    return verb + remaining;
+  };
+
   /* Número com separador de milhar pt-BR, sem casas quando é inteiro. */
   F.formatNumber = function formatNumber(value, digits) {
     const number = Number(value);
@@ -292,13 +308,31 @@
     );
   };
 
-  F.safeScrollIntoView = function safeScrollIntoView(element) {
-    if (element && typeof element.scrollIntoView === "function") {
+  /*
+    Rola até um elemento respeitando "reduzir movimento". O bloco padrão é
+    "nearest" (rola o mínimo necessário); quem precisa de outro alinhamento
+    passa `block`, como o painel de descanso, que reserva espaço para a barra
+    inferior e para o toast via `scroll-margin`.
+  */
+  F.safeScrollIntoView = function safeScrollIntoView(element, options = {}) {
+    if (!element || typeof element.scrollIntoView !== "function") return;
+
+    let behavior = options.behavior === "auto" || options.behavior === "smooth"
+      ? options.behavior
+      : "smooth";
+
+    if (typeof global.matchMedia === "function") {
       try {
-        element.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if (global.matchMedia("(prefers-reduced-motion: reduce)").matches) behavior = "auto";
       } catch (error) {
-        // Navegadores antigos podem não aceitar opções.
+        // matchMedia indisponível: segue com a rolagem suave.
       }
+    }
+
+    try {
+      element.scrollIntoView({ behavior, block: options.block || "nearest" });
+    } catch (error) {
+      // Navegadores antigos podem não aceitar opções.
     }
   };
 

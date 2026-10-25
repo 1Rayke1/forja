@@ -105,7 +105,11 @@ exercises`) continua válido. Os novos registros acrescentam:
 }
 ```
 
-Limite de 200 registros (mesmo comportamento anterior).
+Limite de 200 registros (mesmo comportamento anterior). O limite vale por
+**data**, não por posição no arquivo: a leitura ordena do mais recente para o
+mais antigo e a gravação de um treino novo descarta sempre o registro mais
+antigo da lista. Um histórico maior que 200 vindo de uma importação é
+normalizado na prévia (ver 3.2), com aviso do que será descartado.
 
 ---
 
@@ -196,20 +200,32 @@ por natureza**: nenhuma chave antiga é alterada ou removida.
    - histórico: array, modalidade válida, números não negativos;
    - sessão ativa: modalidade, fila não vazia, índice dentro da fila,
      progresso em objeto.
-4. Prévia em modal com:
+4. Normalizações antes da prévia (sempre avisadas nela):
+   - **histórico**: ordenado por data e limitado a 200; se o arquivo tiver
+     mais, ficam os mais recentes e o descarte aparece com o total do arquivo,
+     o total mantido, a data do mais antigo mantido e o limite;
+   - **missões sem texto** (`text: ""`): ignoradas, porque o calendário não as
+     exibe; um dia que ficaria sem nenhuma missão não é gravado.
+5. Prévia em modal com:
    - dias de missões e total de missões;
    - rotinas por modalidade e total de exercícios;
-   - histórico por modalidade;
+   - histórico por modalidade (e o corte acima, quando houver);
    - exercícios antigos preservados;
    - sessão ativa (ou aviso de que a atual será removida);
-   - quantas chaves serão substituídas/removidas e avisos.
-5. Só após o botão **"Substituir e restaurar"** os dados mudam.
-6. Antes de gravar:
+   - **nome** de cada chave que será substituída e de cada chave que será
+     removida, com destaque para `forja-treino-dados-preservados-v1`
+     (cesta de dados preservados) e `forja-treino-rotacao-v1`
+     (sequência de rotinas), além dos avisos correspondentes.
+6. Só após o botão **"Substituir e restaurar"** os dados mudam.
+7. Antes de gravar:
    - cópia integral do estado atual em `forja-backup-seguranca-v1`;
    - remoção e regravação das chaves `forja-*` **uma a uma** (nunca
      `localStorage.clear()`), com verificação de leitura/parse;
-   - em caso de falha, tentativa de rollback para a cópia de segurança.
-7. A tela é recarregada com os dados restaurados e a sessão ativa, se
+   - em caso de falha, tentativa de rollback para a cópia de segurança e
+     **releitura imediata da tela**: o aviso de falha, o botão
+     "Desfazer última importação" e o status da cópia aparecem sem precisar
+     recarregar.
+8. A tela é recarregada com os dados restaurados e a sessão ativa, se
    existir, é reaberta.
 
 ### 3.3 Desfazer
@@ -404,6 +420,33 @@ Como prova de que os novos testes não são vazios, a suíte foi executada
 contra o `index.html` anterior (`96cdeb4`): **32/39**, com falhas nos sete
 testes ligados aos itens 1–4 (13b, 13c, 13e, 14a, 14b, 14d, 15a). O teste
 12c passa nas duas versões, confirmando que as regras móveis nunca sumiram.
+
+### 6.2 Correções da auditoria final (11 defeitos)
+
+A auditoria somente leitura de 25/10/2026 (`/home/user/auditoria/relatorio-forja-auditoria.md`)
+confirmou 11 defeitos (0 P0, 1 P1, 3 P2, 7 P3). Todos foram corrigidos na origem,
+sem mudar chaves de armazenamento, formato de backup, HTML estrutural das telas
+nem identidade visual:
+
+| ID | Gravidade | Correção | Testes de regressão |
+| --- | --- | --- | --- |
+| D-01 | P1 | O limite de 200 passou a valer por **data**: a leitura ordena o histórico, a prévia da importação normaliza e avisa o corte (total do arquivo, quantos ficam, data do mais antigo mantido, quantos saem) e `persistHistoryRecord` descarta sempre o mais antigo — nunca o mais recente. Prévia, tela, armazenamento e exportação passam a coincidir. | 77a, 77b, E2E "D-01" |
+| D-02 | P2 | Falha de restauração agora relê os dados e redesenha o status sem recarregar: o botão "Desfazer última importação" e o aviso da cópia aparecem na mesma tela; a mensagem diz como reverter e o desfazer confirma com "Cópia anterior restaurada". | 77c, E2E "D-02" |
+| D-03 | P2 | A prévia lista **pelo nome** as chaves substituídas e removidas, com avisos próprios para `forja-treino-dados-preservados-v1` e `forja-treino-rotacao-v1`, explica o que cada uma guarda e como recuperar pelo desfazer. | 77d |
+| D-04 | P2 | O painel de descanso deixou de ser região viva; o contador tem `role="timer"` e `aria-live="off"`. Pausa, retomada e ajuste são anunciados uma vez por `F.ui.announce`. | 77e, E2E "D-04/D-07" |
+| D-05 | P3 | Histórico e "Último treino" são ordenados por data na leitura e na importação, sem regravar o arquivo existente. | 77b |
+| D-06 | P3 | `F.formatGoalRemaining` é a única fonte do texto de metas: "Falta 1 série" na Home e no Progresso. | 77j |
+| D-07 | P3 | O painel reserva espaço da barra e do toast (`scroll-margin-bottom`), abre já rolado para a área visível, inclusive após recarregar, e se corrige depois de girar a tela. | 77f, E2E "D-04/D-07" |
+| D-08 | P3 | `<main id="conteudo">` recebe `tabindex="-1"` no boot, então o skip link move o foco (não só a rolagem). | 77g, E2E "D-08/D-11" |
+| D-09 | P3 | O título da Biblioteca é `h1` (via `headingLevel` no componente), mantendo a classe e o visual. | 77h |
+| D-10 | P3 | Missões sem texto são ignoradas na importação com aviso na prévia; um dia que ficaria vazio não é gravado. | 77i |
+| D-11 | P3 | A barra inferior libera a largura total em até 359 px: os cinco rótulos cabem sem truncamento. | 77k, E2E "D-08/D-11" |
+
+Decisão registrada (D-03): a cesta de dados preservados continua sendo removida
+por uma restauração que não a inclui, porque o contrato documentado é
+"restauração substitui os dados atuais" e o "Desfazer" precisa reproduzir o
+estado anterior exatamente (teste 13a). A remoção passou a ser explícita
+(nome, chave técnica, aviso dedicado) e reversível em um clique.
 
 ---
 

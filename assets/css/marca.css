@@ -647,6 +647,22 @@ a.ui-button:active {
   font-size: var(--font-xs);
 }
 
+/* Em 320 px os cinco rótulos precisam caber: sem essa folga "Progresso" era
+   cortado com reticências (54 px de espaço para 58 px de texto). O tamanho da
+   fonte e a identidade da barra continuam os mesmos. */
+@media (max-width: 359px) {
+  .bottom-nav-inner {
+    width: 100%;
+    gap: 2px;
+  }
+
+  .bottom-nav-link {
+    padding-left: 0;
+    padding-right: 0;
+    letter-spacing: 0;
+  }
+}
+
 .bottom-nav-link:hover {
   background: var(--row-hover);
 }
@@ -911,6 +927,9 @@ a.ui-button:active {
   background: var(--surface-raised);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
+  /* Ao rolar até o descanso (scrollIntoView), reserva a barra inferior fixa
+     e a faixa do toast: o botão "Pular descanso" fica visível acima das duas. */
+  scroll-margin-bottom: calc(var(--bottom-nav-height) + 72px);
 }
 
 .rest-panel .rest-label {
