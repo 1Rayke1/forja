@@ -15,8 +15,9 @@ estética de forja foram abandonadas — paleta brasa/bronze, emblema de bigorna
 e chama, hachura, bigorna isolada e tagline **não** serão aplicados. As
 etapas seguintes continuam valendo como lista de trabalho, lidas sob esta
 direção: componentes e telas usam só os tokens que o app já tem. Os tokens
-`--fj-brasa*`, `--fj-bronze*` e semânticos declarados em `marca.css` seguem lá
-sem uso (remoção possível na etapa 10).
+`--fj-brasa*`, `--fj-bronze*` e semânticos declarados em `marca.css` ficaram
+sem uso e **foram removidos na etapa 10** (só permanecem os 14 tokens
+`--fj-*` efetivamente referenciados).
 
 | Etapa | Situação |
 | --- | --- |
@@ -29,7 +30,7 @@ sem uso (remoção possível na etapa 10).
 | 7 | **feita em 25/10/2026, na paleta atual e só com CSS** — ver “Situação” na própria etapa |
 | 8 | **feita em 25/10/2026, na paleta atual e só com CSS + constantes de estilo** — ver “Situação” na própria etapa |
 | 9 | **feita em 25/10/2026, na paleta atual (CSS + limpeza pontual de HTML)** — ver “Situação” na própria etapa |
-| 10 | pendente |
+| 10 | **feita em 25/10/2026** — ver “Situação” na própria etapa |
 
 Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
 
@@ -498,7 +499,75 @@ ponta a ponta em Perfil e Configurações e ausência de rolagem horizontal de
 | Capturas finais das 12 páginas × 6 larguras | `tools/capturas.mjs` |
 | Atualizar `docs/forja-3.0-plano.md` com o que mudou | documentação |
 
-**Saída:** um commit de fechamento com métricas antes/depois.
+**Situação (25/10/2026): feita, na paleta atual e só com CSS + documentação.**
+Nenhum JavaScript, HTML, ID, `aria-*`, texto funcional, chave de `localStorage`,
+formato de backup ou arquivo protegido mudou. O hash de `forja-calendario.js`
+continua `30a8253…928c5` e `atlas.css`/`explorar/atlas.html`/`assets/anatomia/*`
+seguem intocados.
+
+1. **Tokens órfãos removidos de `marca.css`.** O `:root` declarava 75 tokens
+   `--fj-*`; uma varredura de alcançabilidade sobre `assets/`, as 12 páginas e
+   os testes mostrou que só 14 eram referenciados (os de tipografia,
+   `--fj-carvao*`, `--fj-linha`, `--fj-ferro-baixo`, `--fj-osso-suave`). Os
+   **61 sem consumo** saíram — inclusive toda a paleta brasa/bronze
+   (`--fj-brasa*`, `--fj-bronze*`), a semântica não usada (`--fj-ok*`,
+   `--fj-alerta*`, `--fj-erro*`), as escalas de texto/raio/espaço/sombra/
+   movimento e as medidas de layout não aplicadas. Os protótipos de `design/`
+   têm CSS próprio e não consomem esta folha, então nada quebrou.
+2. **Regras mortas removidas (comprovadas por ausência no HTML estático e nos
+   literais do JS).** Total de conjuntos de regra nas 10 folhas: **1262 →
+   1176 (−86)**. Por arquivo: `base` 80→72, `treino` 105→87, `execucao`
+   64→61, `app` 351→342, `performance` 93→68, `responsive` 35→27, `system`
+   193→179, `marca` 239→238; `atlas.css` (96) e `configuracoes.css` (6)
+   intactos. Exemplos removidos: `.app-nav`/`.nav-link` (a navegação é toda
+   `.bottom-nav-*`), `.hero`/`.quote*`/`.subtitle`/`.workout-*`,
+   `.home-hero*`/`.home-start-*`/`.treino-cta`/`.treino-square-icon|-title|-sub`,
+   `.routine-badge`/`.routine-head`/`.active-routine`/`.editor-header`/
+   `.editor-name-label`/`.editor-toolbar-actions`, `.session-subactions`,
+   `.summary-check`, `.ui-tabs`/`.ui-screen-head`/`.ui-record*`/
+   `.ui-chip-ok`/`.ui-chip-danger`/`.ui-button-block`, `.save-button`,
+   `.history-card`/`.session-card`/`.settings-card`/`.mission-item`/
+   `.modal`/`.modal-content` e `.field-grid.three`.
+   **Preservados de propósito:** `.workout-panel` e `.modality-grid` (o teste
+   de paridade casa esses seletores no conjunto concatenado das folhas),
+   `.treino-square` (forja-inicio.js ainda adiciona a classe por
+   compatibilidade), `.task.done`/`.set-pip.done` e `.ui-chip-accent`/
+   `.ui-chip-muted` (montados por JS), e tudo do atlas.
+3. **Literais de cor.** Total nas 10 folhas: **274 → 237 (−37)**; os 25 de
+   `atlas.css` permanecem exatamente iguais. Os literais dourados que sobram
+   vivem em regras **vivas** (muitas ativas no `atlas.html`, que não carrega
+   `marca.css`), portanto não são órfãos e foram mantidos. As cores
+   funcionais e o acento limão (`#B7F34A`/`var(--lime)`) não mudaram.
+4. **Tamanho de `marca.css`: 63 129 → 44 301 bytes (−18 828, −29,8%)**, e
+   **10 264 bytes em gzip**. O código CSS puro da folha ficou em ~32 KB,
+   abaixo do orçamento de ~35 KB; o arquivo cru não chega aos 35 KB por causa
+   dos comentários e da formatação expandida (estilo do projeto, sem etapa de
+   build/minificação). A meta não foi forçada: nenhuma regra necessária foi
+   apagada.
+5. **Contraste (medição em navegador real, 12 páginas).** Nova ferramenta
+   `tools/auditoria-etapa10.mjs` calcula a razão WCAG 2.1 do texto contra o
+   fundo resolvido (composição dos ancestrais) em 390 e 1280 px. **Zero
+   falhas**: o menor contraste medido foi **5,94:1** (chip da biblioteca),
+   acima do mínimo AA de 4,5:1 para texto normal. Pares-chave: texto escuro
+   `#12160c` sobre botão limão = 13,91:1; limão sobre carvão = 14,39:1;
+   texto `#F2F4F0` sobre `#0D0F0E` = 17,38:1; apoio `#A0A69F` sobre painel =
+   6,91:1; perigo `#FF7777` = 6,67:1; placeholder = 4,56:1.
+6. **Capturas e overflow.** A auditoria gera 24 capturas (12 páginas × 390 e
+   1280 px) em `artifacts/forja-etapa10/` e mede rolagem horizontal em
+   320/360/390/430/768/1280 px: **nenhuma página estoura em nenhuma largura**.
+   `tools/capturas.mjs` (fluxo de execução) falha neste ambiente **já na
+   `main` limpa, antes de qualquer mudança** — o Chromium empacotado não chega
+   a expor `#log-reps` no fluxo automatizado; é limitação da ferramenta/
+   ambiente, não regressão (a suíte E2E, que cobre a execução, segue 25/25).
+
+**Testes no estado final:** `npm test` **162/162** (MÉTRICAS 18, FORJA 92,
+ATLAS 12, PARIDADE 40) e `npm run test:e2e` **25/25** em Chromium real
+(`LD_LIBRARY_PATH=/tmp/fjlibs/lib`, bibliotecas do próprio
+`@sparticuz/chromium`, como nas etapas 6–9). Balanço de chaves verificado nas
+10 folhas e nenhum erro de console/pageerror nas 12 páginas.
+
+**Saída:** fechamento com métricas antes/depois medidas, sem novas
+dependências e sem deploy manual.
 
 ---
 

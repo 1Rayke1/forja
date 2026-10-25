@@ -1,19 +1,7 @@
 /* FORJA — treinos: central, modalidades, rotinas, editor e histórico. */
 /* FORJA TREINO — início, rotinas, editor e execução */
 
-.workout-heading { margin-bottom: 4px; }
-
-.workout-panel > .subtitle { margin-bottom: 18px; }
-
-.workout-view { margin-top: 4px; }
-
-.eyebrow-muted {
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-}
-
+/* .modality-grid permanece como regra legada verificada pela suíte de paridade. */
 .modality-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -106,12 +94,6 @@
   color: var(--gold);
 }
 
-.home-hint {
-  margin: 14px 0 0;
-  font-size: 11px;
-  color: #888;
-}
-
 .active-session-banner {
   display: flex;
   align-items: center;
@@ -146,12 +128,6 @@
   display: flex;
   gap: 7px;
   flex-wrap: wrap;
-}
-
-.workout-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 22px 0;
 }
 
 .screen-toolbar {
@@ -192,25 +168,6 @@
   font-size: 12px;
 }
 
-.screen-heading {
-  margin: 14px 0 18px;
-}
-
-.routine-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.subheading {
-  margin: 0;
-  font-size: 16px;
-  font-weight: bold;
-}
-
 .routine-list {
   display: flex;
   flex-direction: column;
@@ -224,34 +181,11 @@
   padding: 14px;
 }
 
-.routine-card.active-routine {
-  border-color: #5a4a28;
-  background: #18150f;
-}
-
-.routine-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-
 .routine-name {
   font-size: 16px;
   font-weight: bold;
   line-height: 1.3;
   overflow-wrap: anywhere;
-}
-
-.routine-badge {
-  flex-shrink: 0;
-  padding: 3px 8px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: bold;
-  white-space: nowrap;
 }
 
 .routine-meta {
@@ -279,8 +213,6 @@
 .routine-actions .small-button {
   min-height: 38px;
 }
-
-.routine-actions .spacer { flex: 1; }
 
 .empty-card {
   padding: 21px 16px;
@@ -343,23 +275,6 @@
 }
 
 /* Editor de rotina */
-
-.editor-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
-}
-
-.editor-name-label {
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
 
 .routine-name-input {
   width: 100%;
@@ -560,10 +475,6 @@
   gap: 10px;
 }
 
-.field-grid.three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .workout-form input,
 .workout-form select,
 .workout-form textarea { width: 100%; }
@@ -649,20 +560,6 @@ textarea {
   color: var(--muted);
   font-size: 11px;
   min-width: 0;
-}
-
-.editor-toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.editor-toolbar-actions .primary-button {
-  min-height: 38px;
-  padding: 8px 13px;
-  font-size: 12px;
 }
 
 /* Histórico por modalidade */
