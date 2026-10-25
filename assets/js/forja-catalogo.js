@@ -463,6 +463,49 @@
   /* API pública                                                         */
   /* ------------------------------------------------------------------ */
 
+  /* A identidade de uma cópia é libraryId, nunca o nome digitado. Dados da
+     sessão/rotina têm precedência; só completamos metadados disponíveis. */
+  function describeExercise(exercise, mode) {
+    const origin = exercise.libraryId || exercise.id;
+    const known = items(mode).find(item => item.id === origin);
+    const merged = Object.assign({}, known || {}, exercise);
+    if (known) {
+      ["instructions", "category"].forEach(key => {
+        if (!merged[key]) merged[key] = known[key];
+      });
+      ["muscles", "equipment"].forEach(key => {
+        if (!merged[key] || !merged[key].length) merged[key] = known[key];
+      });
+    }
+    const record = catalogRecord(merged, mode, "personalizado");
+    // normalizeLibraryItem descreve uma origem, não uma cópia de rotina: a
+    // referência precisa ser preservada explicitamente nesta visão de leitura.
+    if (record) {
+      record.libraryId = origin;
+      record.roles = normalizeRoles(exercise.roles) || (known && known.roles) || null;
+    }
+    return record;
+  }
+
+  // Reservado para um piloto aprovado separadamente. Nenhuma mídia publicada.
+  // Contrato editorial e condições de aprovação: docs/fotografias-exercicios.md.
+  /**
+   * Entradas futuras, por `${mode}:${libraryId}`, sem dados pessoais:
+   * { status: "approved", exerciseId, mode, src, alt, sourceUrl, author,
+   *   license, licenseUrl, attribution, verifiedAt, evidence, reviewedBy,
+   *   variant, modifications, modelPermission }
+   * `evidence` registra a comprovação da licença e revisão técnica; a licença
+   * do repositório de origem não substitui a permissão individual da foto.
+   */
+  const PHOTO_MANIFEST = Object.freeze({});
+  function photoFor(record) {
+    if (!record) return null;
+    const origin = record.libraryId || record.id;
+    const photo = PHOTO_MANIFEST[record.mode + ":" + origin];
+    return photo && photo.status === "approved" && photo.exerciseId === origin && photo.mode === record.mode
+      ? photo : null;
+  }
+
   F.catalog = {
     CATEGORY_NAMES: Object.assign({}, CATEGORY_NAMES, EXTRA_CATEGORIES),
     categoryLabel,
@@ -475,6 +518,11 @@
     normalizeRoles,
     musclesFromRoles,
     toExercise,
+    describeExercise,
+    showDetail,
+    renderRow: recordRow,
+    PHOTO_MANIFEST,
+    photoFor,
     /* Categorias presentes no catálogo atual (para o formulário). */
     categories(mode) {
       const used = countBy(items(mode), record => [record.category]);
@@ -630,7 +678,7 @@
     return row;
   }
 
-  function recordRow(record) {
+  function recordRow(record, options = {}) {
     const row = F.ui.el("div", "ui-exercise-row");
     const main = F.ui.el("div", "ui-exercise-main");
 
@@ -647,15 +695,15 @@
       variant: "secondary-button",
       className: "small-button",
       ariaLabel: "Ver detalhes de " + record.name,
-      onClick: () => showDetail(record)
+      onClick: () => showDetail(record, { readOnly: Boolean(options.readOnlyDetail) })
     }));
     actions.appendChild(F.ui.button({
       label: "Adicionar",
       icon: "plus",
-      variant: "primary-button",
+      variant: options.onAdd ? "secondary-button" : "primary-button",
       className: "small-button",
       ariaLabel: "Adicionar " + record.name + " a uma rotina",
-      onClick: () => addToRoutine(record)
+      onClick: options.onAdd || (() => addToRoutine(record))
     }));
     row.appendChild(actions);
 
@@ -686,14 +734,18 @@
     return parts.join(" · ");
   }
 
-  async function showDetail(record) {
+  async function showDetail(record, options = {}) {
     const lines = [];
 
     if (record.instructions) lines.push(record.instructions);
+    if (!record.instructions) lines.push("Nenhuma instrução salva para este exercício.");
+    if (record.equipment && record.equipment.length) lines.push("Equipamento: " + record.equipment.join(", ") + ".");
     if (record.roles) lines.push("Grupos musculares — " + roleSummary(record.roles) + ".");
+    else if (record.muscles && record.muscles.length) lines.push("Grupos musculares informados: " + record.muscles.join(", ") + ".");
     if (record.notes) lines.push("Observação salva: " + record.notes);
     if (record.mode === "weights" && record.load) lines.push("Carga de referência digitada: " + record.load);
-    lines.push(historyLine(record));
+    if (!options.readOnly) lines.push(historyLine(record));
+    if (!photoFor(record)) lines.push("Fotografia demonstrativa ainda não disponível.");
 
     const details = linesNode(lines,
       "Nenhuma instrução salva para este exercício. Ao criar um item personalizado você pode escrever o passo a passo e ele aparece aqui.");
@@ -703,7 +755,7 @@
       módulo do atlas está carregado e o exercício tem classificação — nada é
       desenhado por suposição.
     */
-    if (F.atlas && F.atlas.figurePair) {
+    if (!options.readOnly && F.atlas && F.atlas.figurePair) {
       const highlights = F.atlas.highlightsFor(record);
 
       if (Object.keys(highlights).length > 0) {
@@ -719,17 +771,19 @@
       title: record.name,
       message: F.catalog.summary(record),
       details,
-      fields: [{
+      fields: options.readOnly ? [] : [{
         id: "section",
         label: "Adicionar na seção",
         type: "select",
         value: record.section,
         options: SECTIONS.map(section => ({ value: section, label: F.SECTION_NAMES[section] }))
       }],
-      actions: [
-        { id: "cancel", label: "Fechar", className: "secondary-button" },
-        { id: "add", label: "Adicionar à rotina", className: "primary-button" }
-      ]
+      actions: options.readOnly
+        ? [{ id: "cancel", label: "Fechar", className: "secondary-button" }]
+        : [
+          { id: "cancel", label: "Fechar", className: "secondary-button" },
+          { id: "add", label: "Adicionar à rotina", className: "primary-button" }
+        ]
     });
 
     if (result.action !== "add") return;

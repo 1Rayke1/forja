@@ -1715,3 +1715,11 @@ body[data-page="explorar"] .explorar-shortcuts {
     padding: 12px;
   }
 }
+
+/* Evolução web 1: rotinas primeiro, mesma superfície e sem novo hub de cartões. */
+body[data-page="treino"] .hub-routines { margin-bottom: 24px; }
+body[data-page="treino"] #hub-modality { max-width: 320px; margin-bottom: 16px; }
+body[data-page="treino"] .home-week-head { flex-wrap: wrap; gap: 12px; }
+body[data-page="treino"] .hub-footer-links .secondary-button { white-space: normal; }
+#library-list .ui-exercise-actions .small-button { min-height: 44px; }
+#execution-instructions { min-height: 44px; margin-top: 12px; }

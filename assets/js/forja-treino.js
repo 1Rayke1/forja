@@ -1,7 +1,7 @@
 /*
   FORJA — treino: hub, listas de rotinas por modalidade e editor de rotina.
 
-  - treino/index.html        → hub com CALISTENIA e MUSCULAÇÃO (vertical).
+  - treino/index.html        → rotinas com início direto e filtro por modalidade.
   - calistenia.html /
     musculacao.html          → rotinas da modalidade e histórico recente.
   - treino/rotina.html       → editor (criar/editar exercícios, biblioteca).
@@ -92,6 +92,19 @@
         pluralize(records, "treino registrado", "treinos registrados");
     });
 
+    const list = byId("hub-routine-list");
+    const filter = byId("hub-modality");
+    if (list) {
+      list.replaceChildren();
+      const routines = MODALITIES.filter(mode => !filter.value || mode === filter.value)
+        .flatMap(mode => getModeRoutines(mode));
+      routines.forEach(routine => list.appendChild(renderRoutineCard(routine, { compact: true })));
+      if (!routines.length) list.appendChild(makeEmpty(
+        "Nenhuma rotina por aqui",
+        totalRoutines ? "Escolha outra modalidade ou crie uma rotina." : "Crie sua primeira rotina para começar."
+      ));
+    }
+
     const createLink = byId("hub-create-routine");
     if (createLink) {
       createLink.href = F.url("rotina", { nova: "1" });
@@ -103,6 +116,7 @@
 
   F.pages.treino = function initTreinoHub() {
     renderHub();
+    byId("hub-modality").addEventListener("change", renderHub);
     F.onDataChanged(renderHub);
     watchExternalChanges(
       [KEYS.routines, KEYS.legacyExercises, KEYS.history, KEYS.active, KEYS.rotation],
@@ -437,7 +451,7 @@
     }
   }
 
-  function renderRoutineCard(routine) {
+  function renderRoutineCard(routine, options = {}) {
     const card = document.createElement("article");
     card.className = "routine-card";
     card.setAttribute("data-routine-id", routine.id);
@@ -457,6 +471,7 @@
       : pluralize(total, "exercício", "exercícios") + " · " +
         pluralize(getRoutineTotalSets(routine), "série", "séries") + " planejadas";
 
+    if (options.compact) meta.textContent = MODE_NAMES[routine.modality] + " · " + meta.textContent;
     header.append(name, meta);
 
     const sections = document.createElement("ul");
@@ -482,12 +497,12 @@
     start.textContent = total === 0 ? "Adicione exercícios para iniciar" : "Iniciar treino";
     start.disabled = total === 0;
     start.addEventListener("click", () => {
-      F.startRoutine(currentModality, routine.id);
+      F.startRoutine(routine.modality, routine.id);
     });
 
     const edit = document.createElement("a");
     edit.className = "secondary-button";
-    edit.href = editorUrl(currentModality, routine.id);
+    edit.href = editorUrl(routine.modality, routine.id);
     edit.textContent = "Editar exercícios";
 
     const tools = document.createElement("div");
@@ -499,8 +514,13 @@
     remove.classList.add("danger-button");
 
     tools.append(rename, duplicate, remove);
-    actions.append(start, edit, tools);
-    card.append(header, sections, actions);
+    start.setAttribute("aria-label", "Iniciar " + routine.name);
+    edit.setAttribute("aria-label", "Editar " + routine.name);
+    actions.append(start, edit);
+    if (!options.compact) actions.appendChild(tools);
+    card.appendChild(header);
+    if (!options.compact) card.appendChild(sections);
+    card.appendChild(actions);
 
     return card;
   }
@@ -754,6 +774,11 @@
     const tools = document.createElement("div");
     tools.className = "exercise-tools";
 
+    const details = makeToolButton("Detalhes", () => {
+      F.catalog.showDetail(F.catalog.describeExercise(exercise, draftModality), { readOnly: true });
+    });
+    details.setAttribute("aria-label", "Ver detalhes de " + exercise.name);
+    tools.appendChild(details);
     tools.append(
       makeIconButton("↑", "Mover " + exercise.name + " para cima", index === 0,
         () => moveExercise(section, exercise.id, -1)),
@@ -1154,140 +1179,39 @@
     return out.slice(0, 6);
   }
 
-  function catalogMetaFor(item) {
-    if (!F.catalog) return null;
-    return F.catalog.metadataFor(item);
-  }
-
-
-  function libraryItems() {
-    const builtin = (F.EXERCISE_LIBRARY[draftModality] || []).map(item => {
-      return Object.assign({}, item, { custom: false });
-    });
-    const custom = (F.state.library[draftModality] || []).map(item => {
-      return Object.assign({}, item, { custom: true });
-    });
-
-    return custom.concat(builtin);
-  }
-
   function renderLibrary() {
     const list = byId("library-list");
     const catalogLink = byId("open-catalog");
-
-    /*
-      O painel dentro do editor é a busca rápida; a tela completa tem filtros
-      por categoria, músculo, equipamento e medição. O link leva já filtrado
-      pela modalidade da rotina aberta.
-    */
-    if (catalogLink) {
-      const mode = draftModality || currentModality;
-      catalogLink.href = F.url("biblioteca", mode ? { modalidade: mode } : null);
-    }
-    const query = normalizeSearch(librarySearchValue);
-    const items = libraryItems().filter(item => {
-      return !query || normalizeSearch(item.name).includes(query);
-    });
-
-    list.innerHTML = "";
-
-    if (items.length === 0) {
-      list.appendChild(makeEmpty(
-        "Nenhum exercício encontrado",
-        "Tente outro termo ou crie um exercício personalizado abaixo."
-      ));
+    if (catalogLink) catalogLink.href = F.url("biblioteca", { modalidade: draftModality });
+    const items = F.catalog.filter({ mode: draftModality, query: librarySearchValue });
+    list.replaceChildren();
+    if (!items.length) {
+      list.appendChild(makeEmpty("Nenhum exercício encontrado",
+        "Tente outro termo ou crie um exercício personalizado abaixo."));
       return;
     }
-
     items.forEach(item => {
-      const row = document.createElement("div");
-      row.className = "library-item";
-
-      const main = document.createElement("div");
-      main.className = "library-item-main";
-
-      const name = document.createElement("strong");
-      name.textContent = item.name;
-
-      const meta = document.createElement("span");
-      meta.className = "library-item-meta";
-      const metaParts = [(item.custom ? "Personalizado" : "Sugerido") + " · " +
-        SECTION_NAMES[item.section] + " · " + formatExerciseMeta(item)];
-      const meta2 = catalogMetaFor(item);
-
-      if (meta2 && meta2.label) metaParts.push(meta2.label);
-      if (meta2 && meta2.muscles.length) metaParts.push(meta2.muscles.join(", "));
-
-      meta.textContent = metaParts.join(" · ");
-
-      main.append(name, meta);
-
-      const actions = document.createElement("div");
-      actions.className = "library-item-actions";
-
-      const add = document.createElement("button");
-      add.type = "button";
-      add.className = "secondary-button small-button";
-      add.textContent = "Adicionar";
-      add.setAttribute("aria-label", "Adicionar " + item.name + " à rotina");
-      add.addEventListener("click", () => addFromLibrary(item));
-      actions.appendChild(add);
-
-      if (item.custom) {
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.className = "secondary-button small-button danger-button";
-        remove.textContent = "Excluir";
+      const row = F.catalog.renderRow(item, {
+        onAdd: () => addFromLibrary(item),
+        readOnlyDetail: true
+      });
+      // Mesma linha e dados da biblioteca; somente a ação de inclusão muda.
+      row.classList.add("library-item");
+      if (item.source === "personalizado") {
+        const remove = makeToolButton("Excluir", () => deleteCustomExercise(item.id));
+        remove.classList.add("danger-button");
         remove.setAttribute("aria-label", "Excluir " + item.name + " da biblioteca");
-        remove.addEventListener("click", () => deleteCustomExercise(item.id));
-        actions.appendChild(remove);
+        row.querySelector(".ui-exercise-actions").appendChild(remove);
       }
-
-      row.append(main, actions);
       list.appendChild(row);
     });
   }
 
-  /*
-    Converte um item da biblioteca (sugerido ou personalizado) no exercício
-    que entra na rotina, com a mesma estrutura produzida pela página completa
-    da biblioteca: a conversão canônica é `F.catalog.toExercise`, que registra
-    `libraryId` e traz as instruções do item. O catálogo só é consultado na
-    hora do uso — nunca na carga deste módulo —, portanto não há dependência
-    circular entre os scripts; sem ele, a cópia local aplica as mesmas regras
-    a partir do item cru (origem explícita e instruções do catálogo).
-  */
+  /* Os dois consumidores (busca e link ?exercicio=) recebem registros do
+     catálogo. Uma única conversão mantém origem e metadados, sem fallback
+     paralelo ou nova procura por nome. O catálogo é acessado só após o boot. */
   function exerciseFromLibraryItem(item) {
-    if (!item) return null;
-
-    const section = SECTION_NAMES[item.section] ? item.section : "main";
-
-    if (F.catalog && typeof F.catalog.items === "function" &&
-      typeof F.catalog.toExercise === "function") {
-      const wantedId = item.libraryId || item.id;
-      const record = F.catalog.items(draftModality).find(candidate => {
-        return candidate.id === item.id ||
-          candidate.libraryId === wantedId ||
-          candidate.id === wantedId;
-      });
-      if (record) {
-        const fromCatalog = F.catalog.toExercise(record, section);
-        if (fromCatalog) return fromCatalog;
-      }
-    }
-
-    const copy = normalizeExercise(Object.assign({}, item, {
-      id: createId("exercise"),
-      libraryId: item.libraryId || item.id || null,
-      load: draftModality === "weights" ? item.load || "" : ""
-    }), section);
-
-    if (copy && !copy.instructions) {
-      const meta = catalogMetaFor(item);
-      if (meta && meta.instructions) copy.instructions = meta.instructions;
-    }
-
-    return copy;
+    return item ? F.catalog.toExercise(item, SECTION_NAMES[item.section] ? item.section : "main") : null;
   }
 
   function addFromLibrary(item) {
@@ -1526,7 +1450,7 @@
       editingRef = null;
 
       if (preloadExercise) {
-        const match = libraryItems().find(item => {
+        const match = F.catalog.items(draftModality).find(item => {
           return item.id === preloadExercise ||
             normalizeSearch(item.name) === normalizeSearch(preloadExercise);
         });
