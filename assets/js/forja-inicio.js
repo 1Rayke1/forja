@@ -227,20 +227,10 @@
     }
   }
 
+  /* Mesma regra e mesmo texto do Progresso (F.formatGoalRemaining). */
   function formatGoalRemaining(item) {
-    var remaining = Math.max(0, Math.round(Number(item && item.remaining) || 0));
-    var verb = remaining === 1 ? "Falta " : "Faltam ";
-
-    if (item && item.unit === "sessions") {
-      return verb + (F.pluralize ? F.pluralize(remaining, "treino", "treinos") : remaining + (remaining === 1 ? " treino" : " treinos"));
-    }
-    if (item && item.unit === "sets") {
-      return verb + (F.pluralize ? F.pluralize(remaining, "série", "séries") : remaining + (remaining === 1 ? " série" : " séries"));
-    }
-    if (item && item.unit === "minutes") {
-      return verb + remaining + " min";
-    }
-    return verb + remaining;
+    if (typeof F.formatGoalRemaining === "function") return F.formatGoalRemaining(item);
+    return "Faltam " + Math.max(0, Math.round(Number(item && item.remaining) || 0));
   }
 
   function formatGoalNote(item) {

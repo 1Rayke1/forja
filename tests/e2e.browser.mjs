@@ -1542,6 +1542,295 @@ await check('Home estabilizada: onboarding compacto em 5 larguras, metas com uni
   }
 });
 
+/* ------------------------------------------------------------------ */
+/* Regressões da auditoria (D-01, D-02, D-04, D-07, D-08, D-11)        */
+/* ------------------------------------------------------------------ */
+
+/* Backup sintético com `count` treinos, do mais antigo ao mais novo. */
+function historyBackupFile(count, name) {
+  const records = [];
+  const base = new Date('2026-01-01T12:00:00');
+
+  for (let index = 0; index < count; index += 1) {
+    const date = new Date(base.getTime());
+    date.setDate(date.getDate() + index);
+    const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') +
+      '-' + String(date.getDate()).padStart(2, '0');
+    records.push({
+      id: 'e2e-aud-' + index,
+      date: key,
+      modality: 'calisthenics',
+      routineName: 'Auditoria ' + (index + 1),
+      durationMs: 600000,
+      completedSets: 1,
+      totalPlannedSets: 1,
+      status: 'completed',
+      finishedAt: key + 'T12:00:00.000Z',
+      exercises: [{ id: 'ex', name: 'Flexão', section: 'main', plannedSets: 1, completedSets: 1, reps: '10', type: 'reps', logs: [{ set: 1, reps: '10' }] }]
+    });
+  }
+
+  const file = artifactPath(name);
+  fs.writeFileSync(file, JSON.stringify({
+    app: 'FORJA', format: 'forja-backup', version: 1,
+    exportedAt: new Date().toISOString(),
+    keys: { 'forja-treino-historico-v1': records }
+  }));
+  return { file, newest: records[records.length - 1].date, records };
+}
+
+await check('D-01: importar 250 treinos avisa o limite, guarda os 200 mais recentes e não perde o novo', async () => {
+  const saved = await forjaRaw();
+  try {
+    await go('configuracoes/');
+    await clearForjaStorage();
+    await go('configuracoes/');
+
+    const { file, newest } = historyBackupFile(250, 'aud-250.json');
+    await (await page.$('#import-backup-input')).uploadFile(file);
+    await page.waitForSelector('[data-modal-action="restore"]', { timeout: 5000 });
+
+    const preview = await text('.modal-details');
+    assert.match(preview, /250 treinos no histórico/i, 'Preview não informa o tamanho do arquivo');
+    assert.match(preview, /200 mais recentes/i, 'Preview não informa o que fica');
+    assert.match(preview, /50 registro\(s\) mais antigo\(s\).*descartados/i, 'Preview não informa o descarte');
+
+    await jsClick('[data-modal-action="restore"]');
+    await sleep(400);
+
+    const stored = await data('forja-treino-historico-v1');
+    assert.equal(stored.length, 200, 'O armazenamento deveria respeitar o limite de 200');
+    assert.equal(stored[0].date, newest, 'O mais recente do arquivo deveria estar no topo');
+    assert.match(await text('#toast'), /Backup restaurado\. 1 chave\(s\) carregada\(s\)\./);
+
+    await go('progresso/');
+    assert.equal(await text('#progress-sessions'), '200', 'Sessões deveria contar os 200 guardados');
+    const rows = await page.$$eval('#progress-history .history-item', els => els.length);
+    assert.equal(rows, 200, 'A lista deveria ter 200 registros');
+    const exportedCount = await page.evaluate(() => window.Forja.buildBackupObject().keys['forja-treino-historico-v1'].length);
+    assert.equal(exportedCount, 200, 'A exportação precisa concordar com a tela e o armazenamento');
+
+    /* Conclui um treino novo de uma série: o importado mais recente precisa ficar. */
+    await page.evaluate(() => {
+      const exercise = {
+        id: 'aud-ex', name: 'Flexão', sets: 1, type: 'reps', reps: '10',
+        duration: 45, rest: 0, load: '', notes: '', section: 'main'
+      };
+      const routine = {
+        id: 'aud-r1', name: 'Treino novo', modality: 'calisthenics',
+        sections: { warmup: [], main: [exercise], abs: [], finisher: [] },
+        createdAt: 1, updatedAt: 1
+      };
+      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [routine], weights: [] }));
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+        version: 2, id: 'aud-session', date: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()),
+        modality: 'calisthenics', routineId: routine.id, routineName: routine.name,
+        startedAt: now.getTime() - 60000, elapsedMs: 0, running: true, currentIndex: 0,
+        completedSets: { [exercise.id]: 0 }, totalPlannedSets: 1,
+        queue: [Object.assign({}, exercise)], status: 'active',
+        restEndAt: null, restRemainingMs: 0, restPaused: false, pendingAdvance: false,
+        restPlannedSeconds: 0, setTimer: null, setLogs: {}, logDraft: {}
+      }));
+    });
+
+    await go('treino/executar.html');
+    await jsClick('#complete-set');
+    assert.ok(await waitFor(() => !document.getElementById('execution-summary').hidden, 6000),
+      'A sessão de uma série deveria ser concluída');
+
+    const after = await data('forja-treino-historico-v1');
+    assert.equal(after.length, 200, 'O histórico deveria continuar com 200 registros');
+    assert.equal(after[0].routineName, 'Treino novo', 'O treino novo deveria entrar no topo');
+    assert.ok(after.some(record => record.date === newest),
+      'O registro mais recente importado desapareceu depois do treino novo');
+    assert.ok(!after.some(record => record.id === 'e2e-aud-0'),
+      'Apenas o mais antigo do arquivo pode sair');
+    await page.screenshot({ path: artifactPath('d01-historico-200.png') });
+  } finally {
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('D-02: falha na restauração deixa o desfazer disponível na mesma tela', async () => {
+  const saved = await forjaRaw();
+  try {
+    await go('configuracoes/');
+    await clearForjaStorage();
+    await page.evaluate(() => {
+      localStorage.setItem('forja-missoes-2026-10-25', JSON.stringify([{ id: 'm1', text: 'Original', done: false }]));
+      localStorage.setItem('forja-preferencias-v1', JSON.stringify({ soundOnRest: false, vibrateOnRest: false }));
+      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [], weights: [] }));
+    });
+    await go('configuracoes/');
+    assert.equal(await page.$eval('#restore-safety-backup', el => el.hidden), true,
+      'Desfazer não deveria aparecer antes de importar');
+
+    const backup = artifactPath('aud-falha.json');
+    fs.writeFileSync(backup, JSON.stringify({
+      app: 'FORJA', format: 'forja-backup', version: 1, exportedAt: new Date().toISOString(),
+      keys: {
+        'forja-missoes-2026-10-25': [{ id: 'm2', text: 'Do backup', done: false }],
+        'forja-preferencias-v1': { soundOnRest: true, vibrateOnRest: true }
+      }
+    }));
+
+    await (await page.$('#import-backup-input')).uploadFile(backup);
+    await page.waitForSelector('[data-modal-action="restore"]', { timeout: 5000 });
+
+    /* Falha simulada de cota a partir da segunda escrita, sem recarregar. */
+    await page.evaluate(() => {
+      window.__forjaOriginalSetItem = Storage.prototype.setItem;
+      window.__forjaWriteCount = 0;
+      Storage.prototype.setItem = function (key, value) {
+        window.__forjaWriteCount += 1;
+        if (window.__forjaWriteCount >= 2) {
+          const error = new Error('QuotaExceededError simulado');
+          error.name = 'QuotaExceededError';
+          throw error;
+        }
+        return window.__forjaOriginalSetItem.call(this, key, value);
+      };
+    });
+    await jsClick('[data-modal-action="restore"]');
+    await sleep(500);
+    await page.evaluate(() => { Storage.prototype.setItem = window.__forjaOriginalSetItem; });
+
+    assert.match(await text('#modal-title'), /Falha ao restaurar/);
+    assert.match(await text('.modal-message'), /forja-backup-seguranca-v1/);
+    await jsClick('[data-modal-action="close"]');
+    await sleep(150);
+
+    assert.equal(await page.$eval('#restore-safety-backup', el => el.hidden), false,
+      'O desfazer precisa aparecer sem recarregar a página');
+    assert.match(await text('#backup-status'), /Cópia de segurança de .* disponível/);
+
+    await jsClick('#restore-safety-backup');
+    await page.waitForSelector('[data-modal-action="restore"]', { timeout: 5000 });
+    await jsClick('[data-modal-action="restore"]');
+    await sleep(400);
+
+    assert.equal((await data('forja-missoes-2026-10-25'))[0].text, 'Original', 'Desfazer não recuperou as missões');
+    assert.equal((await data('forja-preferencias-v1')).soundOnRest, false, 'Desfazer não recuperou as preferências');
+    assert.match(await text('#toast'), /Cópia anterior restaurada/);
+  } finally {
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visíveis acima da barra', async () => {
+  const saved = await forjaRaw();
+  try {
+    await page.setViewport(MOBILE);
+    await seedRestSession();
+    await go('treino/executar.html');
+    await jsClick('#complete-set');
+    assert.ok(await waitFor(() => !document.getElementById('execution-rest').hidden, 5000),
+      'O descanso não começou');
+    await sleep(300);
+
+    const rest = await page.evaluate(() => {
+      const panel = document.getElementById('execution-rest');
+      const timer = document.getElementById('rest-timer');
+      return {
+        panelLive: panel.getAttribute('aria-live'),
+        timerLive: timer.getAttribute('aria-live'),
+        timerRole: timer.getAttribute('role'),
+        caption: document.getElementById('rest-caption').textContent.trim()
+      };
+    });
+    assert.equal(rest.panelLive, null, 'O painel do descanso não pode ser uma região viva');
+    assert.equal(rest.timerLive, 'off', 'O contador precisa ficar fora da região viva');
+    assert.equal(rest.timerRole, 'timer');
+
+    const geometry = async () => page.evaluate(() => {
+      const nav = document.querySelector('.bottom-nav').getBoundingClientRect();
+      const skip = document.getElementById('skip-rest').getBoundingClientRect();
+      const toast = document.getElementById('toast');
+      const toastRect = toast && !toast.hidden ? toast.getBoundingClientRect() : null;
+      return {
+        navTop: nav.top,
+        skipTop: skip.top,
+        skipBottom: skip.bottom,
+        toastTop: toastRect ? toastRect.top : Infinity,
+        viewport: window.innerHeight
+      };
+    });
+
+    for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }, { width: 1280, height: 900 }]) {
+      await page.setViewport(viewport);
+      await sleep(500);
+      const box = await geometry();
+      assert.ok(box.skipTop >= 0 && box.skipBottom <= box.viewport,
+        'Pular descanso fora da tela em ' + viewport.width + 'x' + viewport.height + ': ' + JSON.stringify(box));
+      assert.ok(box.skipBottom <= box.navTop + 0.5,
+        'Pular descanso coberto pela barra inferior em ' + viewport.width + 'x' + viewport.height + ': ' + JSON.stringify(box));
+      assert.ok(box.skipBottom <= box.toastTop + 0.5,
+        'Pular descanso coberto pelo toast em ' + viewport.width + 'x' + viewport.height + ': ' + JSON.stringify(box));
+    }
+
+    await page.setViewport(MOBILE);
+    await page.screenshot({ path: artifactPath('d07-descanso-visivel.png') });
+
+    /* Pausa é anunciada uma vez na região viva, sem depender do contador. */
+    await jsClick('#pause-rest');
+    assert.ok(await waitFor(() => (document.getElementById('forja-live-region')?.textContent || '').includes('Descanso pausado'), 3000),
+      'A pausa do descanso deveria ser anunciada');
+    await jsClick('#resume-rest');
+    assert.ok(await waitFor(() => (document.getElementById('forja-live-region')?.textContent || '').includes('Descanso retomado'), 3000),
+      'A retomada do descanso deveria ser anunciada');
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos em 320 px', async () => {
+  const saved = await forjaRaw();
+  try {
+    for (const rel of ['', 'progresso/', 'treino/biblioteca.html', 'explorar/atlas.html']) {
+      await go(rel);
+      await page.keyboard.press('Tab');
+      const focused = await page.evaluate(() => document.activeElement.className);
+      assert.match(String(focused), /skip-link/, 'O primeiro Tab deveria focar o skip link em ' + (rel || 'index'));
+      await page.keyboard.press('Enter');
+      await sleep(200);
+      const target = await page.evaluate(() => ({
+        tag: document.activeElement.tagName,
+        id: document.activeElement.id,
+        tabindex: document.getElementById('conteudo')?.getAttribute('tabindex')
+      }));
+      assert.equal(target.id, 'conteudo', 'O skip link não moveu o foco para o conteúdo em ' + (rel || 'index'));
+      assert.equal(target.tabindex, '-1');
+    }
+
+    await go('treino/biblioteca.html');
+    await page.setViewport({ width: 320, height: 640 });
+    await sleep(250);
+
+    const h1 = await page.$$eval('h1', els => els.map(el => el.textContent.trim()));
+    assert.deepEqual(h1, ['Biblioteca de exercícios'], 'A Biblioteca deveria ter um h1 com o título');
+
+    const nav = await page.evaluate(() => [...document.querySelectorAll('.bottom-nav-label')].map(el => ({
+      text: el.textContent.trim(),
+      clipped: el.scrollWidth > el.clientWidth + 1
+    })));
+    assert.deepEqual(nav.map(item => item.text), ['Início', 'Treinos', 'Explorar', 'Progresso', 'Perfil']);
+    assert.deepEqual(nav.filter(item => item.clipped), [], 'Nenhum rótulo pode ficar truncado a 320 px');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), 0,
+      'A barra inferior não pode criar rolagem horizontal');
+    await page.screenshot({ path: artifactPath('d11-nav-320.png') });
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });

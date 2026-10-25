@@ -1046,6 +1046,7 @@
 
     host.appendChild(F.ui.sectionHead({
       id: "catalog-heading",
+      headingLevel: "h1",
       title: "Biblioteca de exercícios",
       note: "Lista os exercícios sugeridos e os seus, com instruções, grupos musculares e equipamento. Consultar não altera nada: o único botão que muda uma rotina é Adicionar."
     }));

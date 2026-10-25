@@ -1520,6 +1520,58 @@ function validateRoutinesStore(value, label) {
   return true;
 }
 
+/*
+  Data de um registro do histórico, usada para ordenar e limitar por data em
+  vez de por posição no arquivo. A regra é a mesma da leitura de métricas:
+  `finishedAt` quando válido e, na falta dele, a chave `date`.
+*/
+function historyRecordTime(record) {
+  if (!isPlainObject(record)) return 0;
+
+  if (record.finishedAt) {
+    const finished = Date.parse(record.finishedAt);
+    if (Number.isFinite(finished)) return finished;
+  }
+
+  if (record.date) {
+    const day = Date.parse(record.date + "T00:00:00");
+    if (Number.isFinite(day)) return day;
+  }
+
+  if (record.startedAt) {
+    const started = Date.parse(record.startedAt);
+    if (Number.isFinite(started)) return started;
+  }
+
+  return 0;
+}
+
+/*
+  Histórico do mais recente para o mais antigo, sem alterar os registros.
+  A ordenação é estável: empates mantêm a ordem em que já estavam.
+*/
+function sortHistoryRecords(list) {
+  if (!Array.isArray(list)) return [];
+
+  return list
+    .map((record, index) => ({ record, index }))
+    .sort((a, b) => {
+      const diff = historyRecordTime(b.record) - historyRecordTime(a.record);
+      return diff !== 0 ? diff : a.index - b.index;
+    })
+    .map(item => item.record);
+}
+
+/*
+  Histórico canônico do app: ordenado por data e limitado ao teto do histórico.
+  O corte escolhe os registros mais recentes — nunca os que estão no fim do
+  arquivo —, então um backup fora de ordem não perde os treinos novos.
+*/
+function normalizeHistoryList(list, limit) {
+  const max = Number.isInteger(limit) && limit > 0 ? limit : F.HISTORY_LIMIT;
+  return sortHistoryRecords(list).slice(0, max);
+}
+
 function validateHistoryList(value) {
   if (!Array.isArray(value)) throw new Error("O histórico de treinos do backup é inválido.");
 
@@ -2194,7 +2246,12 @@ F.registry.register({
       return [];
     }
 
-    return stored.value;
+    /*
+      Ordena por data sem gravar nada. Um histórico gravado fora de ordem (por
+      exemplo, por uma importação antiga) passa a aparecer do mais recente para
+      o mais antigo em todas as telas, que é como o app grava os seus.
+    */
+    return sortHistoryRecords(stored.value.filter(isPlainObject));
   },
   validate: validateHistoryList,
   persist: () => saveJSON(WORKOUT_HISTORY_KEY, F.state.history),
@@ -2588,7 +2645,11 @@ function readRoutinesReadOnly() {
 function readHistoryReadOnly() {
   const stored = parseStorageValue(WORKOUT_HISTORY_KEY);
   if (!stored.exists || stored.error || !Array.isArray(stored.value)) return [];
-  return stored.value.filter(isPlainObject);
+
+  /* Ler já devolve a ordem canônica, sem gravar nada: a Home e o Progresso
+     mostram sempre o treino mais recente primeiro, mesmo com um arquivo
+     importado fora de ordem por uma versão anterior. */
+  return sortHistoryRecords(stored.value.filter(isPlainObject));
 }
 
 function readLibraryReadOnly() {
@@ -2818,6 +2879,9 @@ Object.assign(F, {
   PERFIL_MAX_MINUTOS,
   validateRoutinesStore,
   validateHistoryList,
+  normalizeHistoryList,
+  sortHistoryRecords,
+  historyRecordTime,
   validateActiveSession,
   validateLibraryStore,
   validateGoalsStore,

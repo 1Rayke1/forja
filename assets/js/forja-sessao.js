@@ -286,6 +286,15 @@
     }
   }
 
+  /*
+    Aviso falado de um estado do descanso. O painel não é mais uma região viva
+    (o contador mudaria a cada segundo), então pausa, retomada e ajuste são
+    anunciados aqui, uma vez por ação.
+  */
+  function announceRest(message) {
+    if (F.ui && typeof F.ui.announce === "function") F.ui.announce(message);
+  }
+
   function pauseRest() {
     const s = session();
     if (!s || !s.restEndAt || !s.running) return;
@@ -296,6 +305,7 @@
 
     saveActiveWorkout();
     renderExecution();
+    announceRest("Descanso pausado. Retome quando quiser.");
   }
 
   function resumeRest() {
@@ -312,6 +322,7 @@
 
     saveActiveWorkout();
     renderExecution();
+    announceRest("Descanso retomado.");
   }
 
   function skipRest() {
@@ -550,7 +561,9 @@
     if (!isExecutionPage()) return;
 
     if (target === "rest") {
-      safeScrollIntoView(byId("execution-rest"));
+      /* O CSS reserva a barra inferior e o toast com scroll-margin, então
+         "nearest" deixa o botão "Pular descanso" acima dos dois. */
+      safeScrollIntoView(byId("execution-rest"), { block: "nearest" });
       return;
     }
 
@@ -848,9 +861,7 @@
 
     renderExecution();
 
-    if (F.ui) {
-      F.ui.announce("Descanso ajustado para " + formatRest(s.restPlannedSeconds) + ".");
-    }
+    announceRest("Descanso ajustado para " + formatRest(s.restPlannedSeconds) + ".");
   }
 
   /* Pausa e retomada da sessão inteira */
@@ -1027,6 +1038,15 @@
     };
   }
 
+  /*
+    Grava o treino recém-concluído no histórico.
+
+    O histórico é sempre ordenado por data e limitado a HISTORY_LIMIT: o corte
+    escolhe os registros mais ANTIGOS, nunca os que estão no fim do array. Se
+    o relógio do aparelho estiver fora de ordem em relação aos registros já
+    guardados, o treino recém-concluído continua entrando (ele é a ação mais
+    recente do usuário) e o mais antigo da lista é o único descartado.
+  */
   function persistHistoryRecord(record) {
     if (!record) return false;
 
@@ -1035,11 +1055,16 @@
     }
 
     const previous = F.state.history.slice();
-    F.state.history.unshift(record);
+    const combined = [record].concat(F.state.history);
+    let next = typeof F.normalizeHistoryList === "function"
+      ? F.normalizeHistoryList(combined, HISTORY_LIMIT)
+      : combined.slice(0, HISTORY_LIMIT);
 
-    if (F.state.history.length > HISTORY_LIMIT) {
-      F.state.history = F.state.history.slice(0, HISTORY_LIMIT);
+    if (!next.some(item => F.isPlainObject(item) && item.id === record.id)) {
+      next = [record].concat(next.slice(0, Math.max(0, HISTORY_LIMIT - 1)));
     }
+
+    F.state.history = next;
 
     if (!saveJSON(KEYS.history, F.state.history)) {
       F.state.history = previous;
@@ -1752,9 +1777,14 @@
     const panel = byId("execution-rest");
     const s = session();
     const active = Boolean(s && hasRestState());
+    const wasVisible = !panel.hidden;
 
     panel.hidden = !active;
     if (!active) return;
+
+    /* Ao abrir (inclusive depois de recarregar com descanso pendente), leva o
+       painel para a área visível; sem isso as ações ficavam abaixo da dobra. */
+    if (!wasVisible) requestExecutionScroll("rest");
 
     const exercise = currentSessionExercise();
     const done = exercise ? Number(s.completedSets[exercise.id]) || 0 : 0;
@@ -1862,6 +1892,43 @@
     }
   };
 
+  /*
+    Girar o aparelho ou mudar a janela durante o descanso pode deixar as ações
+    abaixo da dobra (a altura útil muda). Se o painel está aberto e o botão
+    principal saiu da área visível, rola de novo até ele. A rolagem só acontece
+    nesse caso: quem rolou para outro ponto de propósito não é interrompido.
+  */
+  function keepRestPanelVisible() {
+    if (!isExecutionPage()) return;
+
+    const panel = byId("execution-rest");
+    const skip = byId("skip-rest");
+    if (!panel || panel.hidden || !skip) return;
+
+    let box;
+    try {
+      box = skip.getBoundingClientRect();
+    } catch (error) {
+      return;
+    }
+
+    if (!box || !box.height) return;
+
+    const nav = document.querySelector(".bottom-nav");
+    let limit = global.innerHeight || 0;
+
+    if (nav) {
+      const navBox = nav.getBoundingClientRect();
+      if (navBox && navBox.height) limit = Math.min(limit || navBox.top, navBox.top);
+    }
+
+    /* Rolagem imediata: é uma correção depois do redimensionamento, não uma
+       animação pedida pelo usuário. */
+    if (limit && box.bottom > limit) {
+      safeScrollIntoView(panel, { block: "nearest", behavior: "auto" });
+    }
+  }
+
   /* Página "executar" */
 
   F.pages.executar = function initExecution() {
@@ -1886,6 +1953,15 @@
     bind("end-session", openEndSessionDialog);
     bind("minimize-session", leaveExecution);
     bind("summary-close", closeSessionSummary);
+
+    let resizeTimer = null;
+    global.addEventListener("resize", () => {
+      if (resizeTimer) global.clearTimeout(resizeTimer);
+      resizeTimer = global.setTimeout(() => {
+        resizeTimer = null;
+        keepRestPanelVisible();
+      }, 120);
+    });
     bind("set-timer-start", startSetTimer);
     bind("set-timer-pause", pauseSetTimer);
     bind("set-timer-resume", resumeSetTimer);
