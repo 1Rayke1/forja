@@ -7,7 +7,8 @@
 
      1. @font-face das duas famílias auto-hospedadas (etapa 2);
      2. tokens da identidade em :root, prefixo --fj-* (etapa 2);
-     3. ativação da etapa 3: tipografia e superfície do casco.
+     3. ativação da etapa 3: tipografia e superfície do casco;
+     4. etapa 4: componentes e estados, na paleta atual (25/10/2026).
 
    REGRAS DE ISOLAMENTO DO ATLAS (valem para todas as etapas seguintes):
 
@@ -30,9 +31,9 @@
    O <link> desta folha entra depois de system.css e, em
    treino/biblioteca.html, depois de atlas.css.
 
-   O que ainda NÃO está aqui (etapas 4 a 9): cores de componente, botões,
-   campos, chips, modais, toasts, estados vazios, cabeçalho com emblema,
-   navegação, cartões e telas.
+   O que ainda NÃO está aqui (etapas 5 a 9): navegação, cartões e telas.
+   Direção revisada em 25/10/2026: sem emblema e sem a paleta brasa/bronze —
+   ver docs/rebranding/07-plano-por-etapas.md.
 
    Fontes: Archivo e Inter, SIL OFL 1.1 (licenças em assets/fontes/).
    Contrastes e escala: docs/rebranding/03-sistema-visual.md.
@@ -321,4 +322,440 @@ body {
   font-family: var(--fj-fonte-numero);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
+}
+
+/* ==========================================================================
+   ETAPA 4 — componentes e estados, na paleta atual
+   --------------------------------------------------------------------------
+   Direção revisada em 25/10/2026: ficam a paleta, o fundo e o padrão visual
+   atuais do app. A proposta de brasa/bronze, emblema e grafismos de forja foi
+   abandonada; os tokens --fj-brasa* e --fj-bronze* declarados acima não são
+   usados por nenhuma regra.
+
+   Regra desta etapa: nenhuma cor nova. Todo valor já existe no app — tokens
+   de performance.css (--lime, --panel, --panel2, --surface-raised, --border,
+   --text, --muted) e de system.css (--accent-soft, --accent-line, --danger,
+   --danger-soft, --ok, --line-soft, --surface-sunken, --radius-*, --font-*),
+   ou um literal já usado por eles. O trabalho é levar os componentes legados
+   (base.css, treino.css, execucao.css, app.css, configuracoes.css) ao padrão
+   dos componentes do sistema (.ui-*), que já é o da biblioteca, do progresso,
+   do explorar e do atlas, e devolver estados que se perderam:
+
+     - botão de perigo sem vermelho: performance.css força a cor e a borda do
+       secundário com !important, e todo .danger-button também é secundário;
+     - resíduos do acento dourado anterior (#5a4a28, #211c12, #4a4029,
+       #241f16, #2d271a, #6b5a22, #f0d797) no aviso, nos selos, na pílula de
+       edição, nos botões do editor e em estados de hover;
+     - seta do select invisível: o `background` com !important de
+       performance.css apaga a imagem que base.css desenhava;
+     - seletor de tipo sem estado acima de 560 px: o rádio tem opacidade 0,
+       nada indica o tipo marcado e o foco do teclado fica invisível;
+     - desabilitado em cinco opacidades diferentes (0,35 a 0,6) e um cinza;
+     - botões de ação abaixo de 44 px;
+     - aviso (toast) cobrindo a barra inferior.
+
+   Fora desta etapa, de propósito: superfícies de cartão e blocos de tela
+   (cartão de modalidade, foco do exercício, notas da sessão, painel de
+   descanso, resumo pós-treino, calendário e missões, barra inferior), que
+   pertencem às etapas 5 a 9. Filtros compactos (.ui-segment, .ui-chip-toggle)
+   mantêm a altura: são filtros, não ações, e já passam de 24 px (WCAG 2.5.8).
+
+   Isolamento do atlas mantido: nenhuma regra alcança .execution-figure
+   (inclusive o botão #execution-figure-details, que segue como antes), o
+   bloco .modal-details.atlas-modal do diálogo "Músculos trabalhados" nem o
+   .modal-figure do detalhe da biblioteca (figura e legenda).
+
+   Sobre !important: performance.css trava fundo, borda e cor de botões e de
+   campos com !important. Um estado (perigo, hover, seta do select) só vence
+   com !important num seletor mais específico; o uso fica restrito às
+   propriedades que performance.css trava.
+   ========================================================================== */
+
+/* 4.1 Família tipográfica dos componentes ---------------------------------
+   Os componentes herdavam a família do corpo ("Inter" não instalada, logo a
+   fonte do sistema), enquanto títulos, rótulos e textos de apoio já usam as
+   famílias auto-hospedadas desde a etapa 3. Só a família muda aqui.
+   .icon-button e .session-back ficam de fora: usam caracteres (↑ ↓ ✎ × ←)
+   como ícone, e na Inter o × fica menor e mais fino. */
+
+.primary-button,
+.secondary-button,
+.small-button,
+.add-button,
+.ui-button,
+.big-set-button,
+.section-add-button,
+.back-link,
+.filter-button,
+.ui-segment,
+.ui-chip-toggle,
+.ui-chip,
+.plan-chip,
+.history-status,
+.dirty-pill,
+.field-label,
+.field-hint,
+.field-error,
+.check-row,
+.modal-field-check,
+.type-switch label,
+.container input,
+.container select,
+.container textarea,
+.modal-card input,
+.modal-card select,
+.modal-card textarea,
+.modal-message,
+.modal-detail-line,
+.toast,
+.empty-card,
+.section-empty {
+  font-family: var(--fj-fonte-texto);
+}
+
+.modal-card h2,
+.empty-card strong {
+  font-family: var(--fj-fonte-titulo);
+  font-weight: var(--fj-peso-forte);
+  letter-spacing: var(--fj-tracking-titulo);
+  line-height: var(--fj-altura-linha-titulo);
+}
+
+/* 4.2 Botões ----------------------------------------------------------------
+   Primário: limão, como já é. Secundário e pequeno: o mesmo padrão de
+   .ui-button (13 px, peso 700, 44 px de altura), em vez de 12 px / 400 com
+   altura variando de 38 a 46 px conforme a tela. */
+
+.secondary-button,
+.small-button {
+  min-height: 44px;
+  font-size: var(--font-sm);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* Contextos que fixavam altura menor (38, 42 e 43 px) e texto de 12 px. */
+.routine-actions .primary-button,
+.routine-actions .secondary-button,
+.routine-actions .small-button,
+.editor-toolbar-actions .primary-button,
+.backup-actions .secondary-button,
+.modal-actions button {
+  min-height: 44px;
+}
+
+.routine-actions .primary-button,
+.editor-toolbar-actions .primary-button {
+  font-size: var(--font-sm);
+}
+
+/* Hover e pressão também nos links com aparência de botão — os <button> já
+   recebem brilho e escala de performance.css; os <a> não recebiam nada. */
+a.primary-button,
+a.secondary-button,
+a.ui-button {
+  transition: transform 0.16s ease, filter 0.16s ease, border-color 0.16s ease;
+}
+
+a.primary-button:hover,
+a.secondary-button:hover,
+a.ui-button:hover {
+  filter: brightness(1.08);
+}
+
+a.primary-button:active,
+a.secondary-button:active,
+a.ui-button:active {
+  transform: scale(0.98);
+}
+
+/* Secundário: o hover de treino.css (#555 / #292929) nunca aparecia por causa
+   do !important de performance.css; a borda clareia, no mesmo cinza-verde. */
+.secondary-button:not(.primary-button):not(.danger-button):hover:not(:disabled),
+.small-button:not(.primary-button):not(.danger-button):hover:not(:disabled) {
+  border-color: rgba(160, 166, 159, 0.45) !important;
+}
+
+/* Perigo: o padrão original de treino.css (texto e borda vermelhos, fundo
+   avermelhado no hover), agora com os tokens de system.css. */
+.danger-button,
+.secondary-button.danger-button {
+  border-color: rgba(255, 119, 119, 0.42) !important;
+  color: var(--danger) !important;
+}
+
+.danger-button:hover:not(:disabled) {
+  border-color: rgba(255, 119, 119, 0.62) !important;
+  background-image: linear-gradient(var(--danger-soft), var(--danger-soft)) !important;
+}
+
+/* Botão de série: hover limão (era o dourado claro #f0d797), mesmo raio e
+   mesma cor de texto do primário. Tamanho e peso continuam os da execução. */
+.big-set-button {
+  border-radius: 12px;
+  color: #12160c;
+}
+
+.big-set-button:hover:not(:disabled) {
+  background: var(--lime);
+}
+
+/* Desabilitado: um só estado em todos os botões — opacidade 0,45 (a de
+   .ui-button) e escala de cinza, para o primário desabilitado não parecer um
+   botão verde-oliva ativo. O rótulo continua legível (≈3,6:1), e é ele que
+   explica o motivo ("Aguarde o descanso", "Adicione exercícios para
+   iniciar"). */
+.primary-button:disabled,
+.secondary-button:disabled,
+.small-button:disabled,
+.add-button:disabled,
+.ui-button:disabled,
+.routine-start:disabled,
+.icon-button:disabled,
+.exercise-nav .nav-text-button:disabled,
+#set-timer-manual:disabled {
+  opacity: 0.45;
+  filter: grayscale(1);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.big-set-button:disabled {
+  background: var(--lime);
+  color: #12160c;
+  opacity: 0.45;
+  filter: grayscale(1);
+  cursor: not-allowed;
+}
+
+/* Botões de ícone e de voltar: 44 px, raio e superfície do secundário. */
+.icon-button {
+  border-color: #3a413a;
+  border-radius: 11px;
+  background: var(--surface-raised);
+}
+
+.icon-button:hover:not(:disabled) {
+  border-color: var(--accent-line);
+  color: var(--lime);
+}
+
+.icon-button.remove:hover:not(:disabled) {
+  border-color: rgba(255, 119, 119, 0.42);
+  color: var(--danger);
+}
+
+.session-back {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+}
+
+/* Ações em texto/contorno limão: hover limão translúcido, sem marrom. */
+.section-add-button {
+  border-color: var(--accent-line);
+  border-radius: 11px;
+}
+
+.section-add-button:hover:not(:disabled),
+.back-link:hover {
+  background: var(--accent-soft);
+}
+
+.back-link {
+  min-height: 44px;
+}
+
+/* Navegação entre exercícios: alvo de 44 px; o texto não muda. O botão da
+   figura (#execution-figure-details) não entra aqui, de propósito. */
+.exercise-nav .nav-text-button {
+  min-height: 44px;
+}
+
+/* 4.3 Campos ---------------------------------------------------------------- */
+
+/* Seta do select de volta, em cinza (como o ícone da busca), com o espaço à
+   direita que ela precisa. Sem ela o select parecia um campo de texto.
+   `min-width: 0` e `max-width: 100%`: com os 38 px da seta, a largura
+   intrínseca do select ("Todas as modalidades") passava da coluna da grade
+   de metas em 390 e 768 px; assim ele encolhe junto com a coluna. */
+.container select,
+.modal-card select {
+  min-width: 0;
+  max-width: 100%;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23a0a69f' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+  background-position: right 13px center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Data do período personalizado: mesmo fundo e borda dos outros campos. */
+.progress-custom-period input[type="date"] {
+  border-color: #3b423b;
+  background: #111411;
+}
+
+/* Seletor Repetições/Duração (editor e exercício personalizado). Acima de
+   560 px o rádio ficava com opacidade 0 e o texto do <label> não tem <span>
+   — as regras `input:checked + span` de treino.css nunca casavam. Resultado:
+   nenhuma indicação do tipo marcado e foco invisível. Até 560 px
+   performance.css já mostrava o rádio; o mesmo tratamento vale agora em
+   todas as larguras (o rádio visível recebe o contorno de foco global), e o
+   rótulo marcado ganha o limão translúcido dos filtros pressionados. */
+.field-grid > .type-switch {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  border-radius: 11px;
+  background: var(--surface-sunken);
+}
+
+.field-grid > .type-switch label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 8px;
+  font-size: var(--font-sm);
+  white-space: nowrap;
+}
+
+.field-grid > .type-switch input {
+  position: static;
+  width: 16px;
+  height: 16px;
+  margin: 0 8px 0 0;
+  opacity: 1;
+  pointer-events: auto;
+  accent-color: var(--lime);
+}
+
+.field-grid > .type-switch label:has(input:checked) {
+  background: var(--accent-soft);
+  color: var(--lime);
+}
+
+/* 4.4 Selos, estatísticas, barras e pips ------------------------------------
+   Selos no padrão de .ui-chip: pílula, borda de 1 px, variante de destaque em
+   limão translúcido e variante "ok" em verde (os dois já existem em
+   system.css). */
+
+.section-badge,
+.dirty-pill {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--lime);
+}
+
+.section-badge {
+  font-size: 10px;
+}
+
+.dirty-pill {
+  font-size: var(--font-xs);
+}
+
+.dirty-pill.saved {
+  border-color: rgba(143, 215, 164, 0.4);
+  background: transparent;
+  color: var(--ok);
+}
+
+/* Histórico: "Concluído" em limão e "Parcial" neutro. Antes os dois eram
+   limão e só a borda (verde ou marrom) diferenciava. */
+.history-status.completed {
+  border-color: var(--accent-line);
+  color: var(--lime);
+}
+
+.history-status.partial {
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+/* Plano do exercício ("4 séries", "15 repetições"): pílula como os demais
+   selos; o texto segue claro e forte, porque é a informação da série. */
+.plan-chip {
+  border-color: var(--line-soft);
+  border-radius: 999px;
+  background: var(--panel2);
+}
+
+/* Pips de série: trilho na mesma cor da barra de progresso (var(--border)). */
+.set-pip {
+  background: var(--border);
+}
+
+/* 4.5 Diálogos (17, todos via F.showModal) -----------------------------------
+   Superfície e borda dos cartões do app, raio grande do sistema. */
+
+.modal-card {
+  border-color: var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+}
+
+/* Bloco de detalhes. Ficam de fora o do diálogo "Músculos trabalhados"
+   (.atlas-modal) e o do detalhe da biblioteca quando traz a figura
+   (.modal-figure): figura e legenda do atlas não herdam nada daqui — as
+   linhas de texto desse detalhe recebem a família por .modal-detail-line.
+   Regra própria porque, num navegador sem :has(), o seletor descartaria a
+   lista inteira; assim só este bloco deixa de valer. */
+.modal-details:not(.atlas-modal):not(:has(.modal-figure)) {
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-family: var(--fj-fonte-texto);
+}
+
+/* Três ações lado a lado em 390 px ("Cancelar", "Remover esta série",
+   "Salvar correção"): respiro lateral menor para o rótulo do meio caber em
+   duas linhas. Abaixo disso as ações já quebram em duas fileiras. */
+.modal-actions button {
+  padding-inline: 8px;
+}
+
+/* 4.6 Aviso, estado do backup e estados vazios ------------------------------ */
+
+/* Aviso: acima da barra inferior (69 px + margem), superfície neutra e faixa
+   de 3 px à esquerda pelo tom — limão para informação, vermelho para erro. */
+.toast {
+  bottom: calc(69px + 12px + env(safe-area-inset-bottom, 0px));
+  border-color: var(--border);
+  border-left: 3px solid var(--lime);
+  background: var(--panel2);
+  font-size: var(--font-sm);
+}
+
+.toast.error {
+  border-color: rgba(255, 119, 119, 0.45);
+  border-left-color: var(--danger);
+  background: var(--panel2);
+}
+
+/* #backup-status: cinza do app (era #888) e 11 px, o mínimo de texto
+   corrido; a data/valor em destaque volta a se distinguir do resto. */
+.backup-meta {
+  color: var(--muted);
+  font-size: var(--font-xs);
+}
+
+.backup-meta strong {
+  color: var(--text);
+}
+
+/* Vazios legados no padrão de .ui-empty: tracejado, fundo afundado, raio do
+   sistema e texto em cinza legível (#777 ficava abaixo de 4,5:1). */
+.empty-card {
+  border: 1px dashed rgba(160, 166, 159, 0.34);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-size: var(--font-sm);
+}
+
+.empty-card strong {
+  font-size: var(--font-md);
+}
+
+.section-empty {
+  color: var(--muted);
+  font-size: var(--font-sm);
 }
