@@ -3,6 +3,15 @@
 > “Assim como uma espada é moldada a cada martelada, um físico é construído
 > treino após treino.”
 
+> **Atualização de 25/10/2026 — direção revisada.** Ficam as cores, o fundo e
+> o padrão visual atuais do app (acento limão sobre carvão). A proposta de
+> tema nórdico e a estética de forja — brasa, bronze, emblema, hachura,
+> bigorna e tagline — foram abandonadas. A etapa 4 (componentes e estados)
+> foi feita na paleta atual. Andamento, pendências e o que vale daqui em
+> diante: [`07-plano-por-etapas.md`](07-plano-por-etapas.md), seção
+> “Andamento e mudança de direção”. O restante deste documento descreve a
+> proposta original e fica como registro.
+
 Esta pasta reúne o **projeto de identidade visual** da FORJA, etapa 1:
 conceito, sistema visual e protótipo de alta fidelidade. **Nenhum arquivo do
 aplicativo foi alterado.** O app continua exatamente como está na `main`

@@ -6,6 +6,50 @@ seguinte, condicionado à sua aprovação.
 
 ---
 
+## Andamento e mudança de direção (25/10/2026)
+
+**Direção revisada a pedido do dono do projeto:** ficam as cores, o fundo e o
+padrão visual atuais do app (acento limão, superfícies de `performance.css` e
+`system.css`, fundo carvão de `marca.css`). A proposta de tema nórdico e a
+estética de forja foram abandonadas — paleta brasa/bronze, emblema de bigorna
+e chama, hachura, bigorna isolada e tagline **não** serão aplicados. As
+etapas seguintes continuam valendo como lista de trabalho, lidas sob esta
+direção: componentes e telas usam só os tokens que o app já tem. Os tokens
+`--fj-brasa*`, `--fj-bronze*` e semânticos declarados em `marca.css` seguem lá
+sem uso (remoção possível na etapa 10).
+
+| Etapa | Situação |
+| --- | --- |
+| 1 | congelada (`738eca5`) |
+| 2 | parcial: `marca.css` com fontes e tokens, `<link>` em 11 páginas (`11c18c7`, `184b218`); favicon, SVGs de marca, `theme-color` e `preload` eram do emblema e saem do escopo |
+| 3 | fatia 1: tipografia por classe e superfície do casco (`8b17e3e`); cartões mantidos como estão |
+| 4 | **feita em 25/10/2026, na paleta atual** — ver “Situação” na própria etapa |
+| 5–10 | pendentes |
+
+Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
+
+- resíduos do dourado antigo em blocos de tela — hover e `::after` de
+  `.modality-card`; `.exercise-focus` (pai da figura: exige o cuidado da
+  etapa 3); `.session-notes`; `.rest-panel` e `.rest-caption`;
+  `.session-summary` com `.summary-stat` e itens; `.exercise-form-card.editing`;
+  `.timer-panel.is-paused` (etapa 7);
+- `.summary-label` (Progresso, modalidades, resumo) em minúsculas de 10 px,
+  enquanto `.ui-stat-label` e `.home-week-stat-label` são caixa-alta de 11 px:
+  padronizar com a tela, porque em 320 px “CONCLUÍDOS” não cabe na coluna;
+- foco inicial do diálogo destrutivo cai no botão de perigo (`F.showModal`
+  foca a primeira ação que não é “cancelar”); levar ao botão seguro exige
+  mudança de lógica em `forja-core.js`;
+- `.compare-delta.is-down` usa `var(--gold)`, hoje igual ao limão de
+  `is-up` (etapa 8);
+- nomes que quebram no meio da palavra em 320 px (linha do editor, caixas de
+  seção do cartão de rotina) e `.history-status` esticado na largura do item
+  (etapa 7);
+- `--bottom-nav-height` é usada em `app.css` e não é definida (etapa 5);
+- `explorar/atlas.html` não carrega `marca.css` (isolamento): seus botões,
+  campos e o select sem seta seguem o estado anterior.
+
+---
+
 ## 0. Regras que valem para todas as etapas
 
 1. **Entrega pequena, sempre verde.** Ao fim de cada etapa: `npm test`
@@ -133,6 +177,21 @@ A etapa de maior impacto visual e a que concentra risco de quebra de layout.
 foco visível em todos os controles: `:focus-visible` com contorno de 2 px em
 aço, nunca removido.
 **Risco:** baixo — são regras aditivas. **Reversão:** remover o bloco.
+
+**Situação (25/10/2026): feita, na paleta atual.** Um bloco no fim de
+`marca.css` (“ETAPA 4”); `system.css` não precisou mudar. Nenhuma cor nova:
+os componentes legados foram levados ao padrão dos componentes `.ui-*` e
+estados quebrados foram corrigidos — perigo voltou a ser vermelho (o
+`!important` de `performance.css` o deixava igual ao secundário), seta do
+select restaurada, seletor de tipo com estado visível acima de 560 px,
+desabilitado único (opacidade 0,45 + cinza), botões de ação com 44 px, aviso
+acima da barra inferior e resíduos dourados trocados pelos equivalentes em
+limão translúcido. O contorno de foco continua o atual (3 px limão): a
+auditoria por Tab encontrou 309 paradas de foco nas 11 páginas, todas
+visíveis em 390 e 1280 px (antes, o rádio do seletor de tipo ficava
+invisível em 1280 px). `npm test` 162/162, `npm run test:e2e` 25/25, sem
+rolagem horizontal em 320–1280 px; estilos computados do atlas idênticos
+(328 nós em quatro blocos) e arquivos protegidos com o mesmo hash.
 
 ---
 
