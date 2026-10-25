@@ -157,3 +157,31 @@ Toda métrica da etapa 5 tem critério declarado e testado:
 | 3 | `treino/biblioteca.html` + `forja-catalogo.js`: 37 exercícios com metadados, busca com normalização NFD, filtros combináveis, revelação progressiva (12 por bloco), detalhe sem gravar nada, adicionar à rotina com rollback; metadados no editor de rotina e link da biblioteca nas páginas de modalidade | Testes FORJA 27, 27b, 28, 29, 30; paridade 10 (ids e ausência de erro de console); E2E cobre a rota nova em 6 larguras; capturas `biblioteca-390/1280.png` |
 | 4 | Correção e remoção da última série por série; ajuste do descanso em andamento em passos de 15 s (com pausar/retomar e persistência por timestamp); registro de distância por série com unidade do exercício; RPE por série e RPE/nota da sessão; totais reais (`volumeKg`, `reps`, `seconds`, `distanceMeters`, `setsLogged`, `setsWithoutVolume`) no registro e no resumo; nota e esforço aparecem no histórico | Testes FORJA 31, 32, 33, 33b (fluxo real na página, incluindo recarregar no meio do descanso ajustado); suíte completa 35/35 + 40/40; E2E 16/16; checagem de overflow das telas novas em 320–1280 px; capturas `executar-log/descanso/corrigir/resumo-390.png` e `executar-resumo-1280.png` |
 | 5 | `forja-metricas.js`: períodos (semana/mês/tudo/personalizado com comparação do bloco anterior), totais por unidade, séries semanais, frequência de 12 semanas, evolução por exercício (4 medidas), recordes com critério, comparação de períodos, metas semanais e busca/filtro do histórico. Página de Progresso reescrita consumindo `forja-graficos.js` e a camada de metas; formulário de metas (`forja-treino-metas-v1`) com validação e persistência; busca no histórico (rotina, exercício, carga digitada, nota) + status; controles de período na URL. `recordDate`/`formatRecordDate` deixaram de ser duplicados (usados de `F.metricas` em progresso e treino) | `npm test`: métricas 18/18, FORJA 41/41 (34–39 novos, incluindo comparação de storage antes/depois para provar ausência de gravação ociosa e o teto de 200 registros), paridade 40/40 (hash do calendário e count de `setInterval` intactos); `npm run test:e2e` 17/17 com verificação nova da tela em Chromium real (calendário, gráficos, recordes, metas salvas e persistentes, busca, overflow em 320/390/768/1280 px); capturas `progresso-etapa5-390.png` e `progresso-etapa5-1280.png` |
+
+## 6. Trilha visual (rebranding) — fechamento
+
+Paralela às etapas funcionais acima, a transformação visual está documentada
+em `docs/rebranding/07-plano-por-etapas.md` (etapas 1–10). A direção revisada
+(25/10/2026) manteve a identidade já existente — fundo carvão, acento limão
+(`#B7F34A`) e as superfícies de `performance.css`/`system.css` — e abandonou a
+proposta de tema nórdico e a paleta brasa/bronze. A **etapa 10 (fechamento e
+polimento)** consolidou a camada `assets/css/marca.css` sem tocar lógica, IDs,
+textos, `aria-*`, armazenamento local, formatos de backup ou os arquivos
+protegidos do atlas e do calendário.
+
+Métricas medidas na etapa 10 (antes → depois):
+
+| Indicador | Antes | Depois |
+|---|---|---|
+| Tamanho de `marca.css` | 63 129 B | 44 301 B (−29,8%; 10 264 B em gzip) |
+| Tokens `--fj-*` declarados em `marca.css` | 75 | 14 (61 órfãos removidos) |
+| Conjuntos de regra nas 10 folhas | 1 262 | 1 176 (−86) |
+| Literais de cor nas 10 folhas | 274 | 237 (−37; os 25 de `atlas.css` intactos) |
+| Contraste mínimo medido (12 páginas, 390/1280 px) | — | 5,94:1 (tudo ≥ 4,5:1 AA; zero falhas) |
+| Rolagem horizontal (320–1280 px, 12 páginas) | — | nenhuma |
+
+Verificação final: `npm test` 162/162 (MÉTRICAS 18, FORJA 92, ATLAS 12,
+PARIDADE 40) e `npm run test:e2e` 25/25 em Chromium real; hash de
+`forja-calendario.js` permanece `30a8253…928c5` e os arquivos do atlas seguem
+intocados. Detalhes e lista de regras removidas em
+`docs/rebranding/07-plano-por-etapas.md`, seção “Etapa 10”.

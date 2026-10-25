@@ -1,51 +1,27 @@
 /* ==========================================================================
-   FORJA — camada de marca
+   FORJA — camada de marca (etapas 2 a 10 do rebranding)
    --------------------------------------------------------------------------
-   Quarta camada de CSS do aplicativo. Carregada por último, depois de
-   performance.css e system.css (e depois de atlas.css nas páginas que o
-   carregam). Conteúdo, em ordem:
+   Quarta camada de CSS, carregada depois de performance.css e system.css
+   (e depois de atlas.css nas páginas que o carregam). Ordem real:
+   base → treino → execucao → configuracoes → app → responsive →
+   performance → system [→ atlas] → marca.
 
-     1. @font-face das duas famílias auto-hospedadas (etapa 2);
-     2. tokens da identidade em :root, prefixo --fj-* (etapa 2);
-     3. ativação da etapa 3: tipografia e superfície do casco;
-     4. etapa 4: componentes e estados, na paleta atual (25/10/2026);
-     5. etapa 5: cabeçalho, navegação e rodapé, na paleta atual;
-     6. etapa 6: Início (blocos da home e onboarding), na paleta atual;
-     7. etapa 7: Treino e execução, na paleta atual;
-     8. etapa 8: Progresso e gráficos, na paleta atual;
-     9. etapa 9: Perfil, configurações e explorar, na paleta atual.
-
-   REGRAS DE ISOLAMENTO DO ATLAS (valem para todas as etapas seguintes):
-
+   REGRAS DE ISOLAMENTO DO ATLAS (manter em qualquer edição futura):
      - Nenhum token histórico (--bg, --panel, --text, --muted, --border,
-       --lime, --gold, --accent-*) é redefinido aqui, nem em :root nem em
-       body. atlas.css consome esses nomes e as cores de papel do atlas
-       (#b7f34a, #f2b84b, #8cc0e0) são verificadas por teste de pixel: um
-       remapeamento global as recoloriria.
+       --lime, --gold, --accent-*) é redefinido aqui. atlas.css consome
+       esses nomes e as cores de papel do atlas (#b7f34a, #f2b84b, #8cc0e0)
+       são verificadas por teste de pixel.
      - Esta folha não é carregada por explorar/atlas.html.
-     - Toda regra usa seletor de classe ou de bloco do aplicativo. Não há
-       seletor de elemento nu (body, p, h1, button, li…), justamente porque
-       eles alcançariam, por herança, o texto de .execution-figure em
-       treino/executar.html e as legendas .atlas-* de treino/biblioteca.html.
-       A única exceção é o prefixo de escopo `body[data-page="…"]` das etapas
-       8 e 9: ele não estiliza o body, apenas restringe as regras àquela
-       página.
-     - Nenhuma lista de restauração de tokens: se um dia for preciso voltar
-       atrás num ponto, remove-se a regra que o causou.
+     - Só seletores de classe/bloco do app; nada de elemento nu (body, p, h1,
+       button…), por herança sobre .execution-figure e legendas .atlas-*.
+       Exceção: o escopo body[data-page="…"] das etapas 8 e 9, que só
+       restringe, não estiliza o body.
+     - Nenhuma lista de restauração de tokens.
 
-   Ordem de carregamento real das páginas (conferida no repositório):
-     base.css → treino.css → execucao.css → configuracoes.css → app.css →
-     responsive.css → performance.css → system.css   [→ atlas.css]
-   O <link> desta folha entra depois de system.css e, em
-   treino/biblioteca.html, depois de atlas.css.
-
-   O que ainda NÃO está aqui: a limpeza de literais órfãos e o fechamento
-   (etapa 10).
-   Direção revisada em 25/10/2026: sem emblema e sem a paleta brasa/bronze —
-   ver docs/rebranding/07-plano-por-etapas.md.
-
-   Fontes: Archivo e Inter, SIL OFL 1.1 (licenças em assets/fontes/).
-   Contrastes e escala: docs/rebranding/03-sistema-visual.md.
+   Etapa 10 (fechamento): os tokens --fj-* sem consumo foram removidos
+   (paleta brasa/bronze abandonada, semântica, escalas não usadas). Só
+   permanecem os 14 tokens referenciados por marca.css/app.css.
+   Fontes Archivo e Inter, SIL OFL 1.1 (licenças em assets/fontes/).
    ========================================================================== */
 
 @font-face {
@@ -65,137 +41,38 @@
   font-display: swap;
 }
 
+/* Tokens --fj-* efetivamente consumidos no app (14). O restante da paleta
+   proposta (brasa/bronze, semântica, espaçamento, raios, sombras, movimento)
+   não foi adotado e foi removido na etapa 10; as regras usam os tokens
+   legados de performance.css/system.css (--lime, --surface, --border etc.). */
 :root {
-  /* 1. Matéria — superfícies -------------------------------------------- */
-  --fj-carvao: #121010;        /* fundo do app. Carvão quente, não preto puro */
-  --fj-carvao-fundo: #0d0b0b;  /* rodapé, fundo de moldura */
-  --fj-ferro: #1a1717;         /* superfície 1: cartões */
-  --fj-ferro-alto: #221e1d;    /* superfície 2: elementos dentro do cartão */
-  --fj-ferro-baixo: #151212;   /* superfície afundada: inputs, trilhas */
-  --fj-linha: #302b29;         /* borda padrão */
-  --fj-linha-forte: #453e3a;   /* borda de destaque / divisor visível */
+  /* Matéria — superfícies e linhas (fundo carvão) */
+  --fj-carvao: #121010;        /* fundo do app */
+  --fj-carvao-fundo: #0d0b0b;  /* rodapé, moldura */
+  --fj-ferro-baixo: #151212;   /* superfície afundada (heatmap sem treino) */
+  --fj-linha: #302b29;         /* borda do cabeçalho */
+  --fj-osso-suave: #d8d2ca;    /* queda na comparação de períodos */
 
-  /* 2. Matéria — leitura ------------------------------------------------ */
-  --fj-osso: #f2ede7;          /* texto primário — 16,29:1 no carvão */
-  --fj-osso-suave: #d8d2ca;    /* texto primário em cartões — 12,64:1 */
-  --fj-aco: #a6a29b;           /* texto secundário — 7,46:1 */
-  --fj-aco-forte: #8c8781;     /* texto terciário/legenda — 5,33:1 */
-  --fj-desligado: #6e6964;     /* texto desabilitado — uso não textual */
-
-  /* 3. Calor — acento e material ---------------------------------------- */
-  --fj-brasa: #e4693a;         /* ação primária, foco, sessão ativa — 5,76:1 */
-  --fj-brasa-alta: #f08356;    /* hover — 7,30:1 */
-  --fj-brasa-baixa: #b04f27;   /* pressionado */
-  --fj-brasa-lavada: rgba(228, 105, 58, 0.12);  /* fundo de estado selecionado */
-  --fj-brasa-linha: rgba(228, 105, 58, 0.38);   /* borda de estado selecionado */
-  --fj-bronze: #c08b4e;        /* detalhe de material: emblema, fio, número-chave — 6,36:1 */
-  --fj-bronze-alto: #dca75f;   /* bronze em texto pequeno — 8,79:1 no carvão, 8,26:1 no ferro */
-  --fj-bronze-escuro: #8a5a2b; /* bronze sobre claro #EFE9E2 — 4,87:1 */
-  --fj-claro: #efe9e2;         /* superfície clara (impressão, imagem de compartilhamento) */
-  --fj-preto-quente: #17130f;  /* texto sobre claro — 15,33:1 */
-
-  /* 4. Semântica -------------------------------------------------------- */
-  --fj-ok: #7fb08d;            /* 7,67:1 */
-  --fj-ok-lavado: rgba(127, 176, 141, 0.12);
-  --fj-alerta: #d9a657;        /* 8,62:1 */
-  --fj-alerta-lavado: rgba(217, 166, 87, 0.12);
-  --fj-erro: #e2706a;          /* 6,10:1 */
-  --fj-erro-lavado: rgba(226, 112, 106, 0.12);
-
-  /* 5. Tipografia ------------------------------------------------------- */
+  /* Tipografia */
   --fj-fonte-titulo: "Archivo Forja", "Archivo", ui-sans-serif, system-ui,
     -apple-system, "Segoe UI", sans-serif;
   --fj-fonte-texto: "Inter Forja", "Inter", ui-sans-serif, system-ui,
     -apple-system, "Segoe UI", sans-serif;
   --fj-fonte-numero: "Inter Forja", "Inter", ui-sans-serif, system-ui,
     -apple-system, "Segoe UI", sans-serif;
-  /* cronômetro e tempo: Inter com numerais tabulares — sem fonte monoespaçada
-     separada, para o relógio não parecer um componente de outro produto. */
-
   --fj-peso-forte: 800;
   --fj-peso-medio: 600;
-  --fj-peso-texto: 420;
-
-  /* escala tipográfica — razão ~1,25, arredondada em px inteiros */
-  --fj-texto-2xs: 10px;   /* legenda de eixo, marca d'água */
-  --fj-texto-xs: 11px;    /* rótulo caixa-alta */
-  --fj-texto-sm: 13px;    /* meta, apoio */
-  --fj-texto-md: 15px;    /* corpo */
-  --fj-texto-lg: 18px;    /* título de seção */
-  --fj-texto-xl: 22px;    /* título de bloco */
-  --fj-texto-2xl: 28px;   /* título de tela */
-  --fj-texto-3xl: 34px;   /* número-herói / título de início */
-  --fj-texto-4xl: 44px;   /* cronômetro */
-
-  --fj-altura-linha-aperto: 1.08;
   --fj-altura-linha-titulo: 1.2;
   --fj-altura-linha-texto: 1.55;
-
   --fj-tracking-titulo: -0.02em;
   --fj-tracking-rotulo: 0.13em;
-  --fj-tracking-marca: 0.06em;
-
-  /* 6. Espaço — base 4, sem valores fora da escala ---------------------- */
-  --fj-1: 4px;
-  --fj-2: 8px;
-  --fj-3: 12px;
-  --fj-4: 16px;
-  --fj-5: 20px;
-  --fj-6: 24px;
-  --fj-7: 32px;
-  --fj-8: 40px;
-  --fj-9: 56px;
-
-  /* 7. Forma ------------------------------------------------------------ */
-  --fj-raio-xs: 6px;   /* chip, marca d'água */
-  --fj-raio-sm: 10px;  /* input, botão */
-  --fj-raio-md: 14px;  /* cartão */
-  --fj-raio-lg: 20px;  /* painel, folha */
-  --fj-raio-pill: 999px;
-  --fj-fio: 1px;       /* espessura única de borda em toda a interface */
-
-  /* 8. Elevação — três níveis, nenhum decorativo ------------------------ */
-  --fj-sombra-1: 0 1px 0 rgba(255, 255, 255, 0.03) inset;
-  --fj-sombra-2: 0 8px 24px rgba(0, 0, 0, 0.28);
-  --fj-sombra-3: 0 24px 64px rgba(0, 0, 0, 0.46);
-
-  /* 9. Movimento -------------------------------------------------------- */
-  --fj-duracao-curta: 120ms;
-  --fj-duracao-media: 180ms;
-  --fj-curva: cubic-bezier(0.2, 0.7, 0.3, 1);
-
-  /* 10. Medidas de layout ---------------------------------------------- */
-  --fj-largura-leitura: 880px;
-  --fj-largura-form: 560px;
-  --fj-alvo-toque: 44px;
-  --fj-nav-altura: 60px;
-  --fj-fio-foco: 2px;
 }
 
 /* ==========================================================================
-   ETAPA 3 — ativação controlada, fatia 1: tipografia e superfície do casco
-   --------------------------------------------------------------------------
-   Por que esta fatia para onde para:
-
-   - TIPOGRAFIA por seletor de classe, nunca por `body`/herança. Uma regra em
-     `body` alcançaria, por herança, `.execution-figure-caption` e o botão
-     `#execution-figure-details` — os dois textos dentro do bloco da figura em
-     treino/executar.html — e as legendas `.atlas-*` de treino/biblioteca.html.
-     Parar a herança exigiria uma lista de restauração, que é justamente o que
-     o isolamento do atlas proíbe. Então a tipografia entra por seletor.
-
-   - SUPERFÍCIE só no casco (`html`, `body`, `.site-header`). Os cartões ficam
-     para a fatia seguinte porque, em treino/executar.html, `.exercise-focus` é
-     o pai direto de `.execution-figure`: mudar o fundo dele mudaria a cor
-     composta do painel translúcido da figura.
-
-   - TAMANHOS: nenhum `font-size` muda nesta fatia. A escala nova mexe na
-     quebra de linha e precisa ser verificada tela por tela em 320 px; isso
-     pertence às etapas 6 a 9, junto de cada tela.
-
-   Nada aqui redefine token histórico. As cores de ação continuam vindo de
-   performance.css/system.css e serão trocadas componente por componente nas
-   etapas 4 e 5.
+   ETAPA 3 — tipografia e superfície do casco
+   Tipografia sempre por seletor de classe (nunca por body/herança), para não
+   alcançar .execution-figure nem legendas .atlas-*. Superfície só no casco
+   (html/body/.site-header); nenhum token histórico é redefinido.
    ========================================================================== */
 
 /* 3.1 Superfície do casco ------------------------------------------------- */
@@ -214,11 +91,8 @@ body {
   border-bottom-color: var(--fj-linha);
 }
 
-/* 3.2 Títulos — Archivo, peso forte, tracking fechado ---------------------
-   Só elementos que contêm apenas o próprio título. `.home-greeting` fica de
-   fora de propósito: é o contêiner que também abriga `.home-subtitle`, e peso
-   e tracking declarados nele seriam herdados pelo texto de apoio (foi medido:
-   o subtítulo passava a 800 e perdia a leitura). */
+/* 3.2 Títulos — só elementos que contêm apenas o próprio título.
+   .home-greeting fica de fora: também abriga .home-subtitle. */
 
 .home-title,
 .screen-title,
@@ -241,11 +115,8 @@ body {
   line-height: var(--fj-altura-linha-titulo);
 }
 
-/* 3.3 Rótulos — Inter, caixa-alta com tracking ---------------------------
-   `.field-label`, `.field-hint` e `.field-error` ficam de fora de propósito:
-   são componentes de formulário (etapa 4) e, além disso, atlas.css reutiliza
-   `.field-label`/`.field-hint` no filtro da página do atlas — estilizá-los
-   aqui mexeria em altura de texto dentro de #atlas-root. */
+/* 3.3 Rótulos. .field-label/.field-hint/.field-error ficam de fora: são
+   componentes de formulário e o atlas reutiliza os dois primeiros. */
 
 .eyebrow,
 .home-eyebrow,
@@ -266,22 +137,15 @@ body {
   letter-spacing: var(--fj-tracking-rotulo);
 }
 
-/* Barra de progresso da execução: família e tracking, mas sem peso — o
-   <strong> interno subiria de 700 para 900 por herança de `bolder`.
-   Tracking em px, não em `--fj-tracking-rotulo`: o elemento renderiza a 14 px,
-   e 0,13em daria 1,82 px, mais solto que os 0,5 px medidos no app atual. */
+/* Sem peso: o <strong> interno subiria de 700 para 900 por herança de bolder.
+   Tracking em px (0,5), não no token de rótulo, por renderizar a 14 px. */
 .execution-progress-meta {
   font-family: var(--fj-fonte-texto);
   letter-spacing: 0.5px;
 }
 
-/* 3.4 Texto de apoio — Inter no ritmo de leitura -------------------------
-   `font-weight: 400` explícito é uma trava, não um ajuste: o texto de apoio
-   nunca deve herdar o peso de um título. Sem esta linha, bastaria um contêiner
-   com peso próprio (como `.home-greeting` chegou a ter) para o parágrafo subir
-   para 800 por herança — foi medido. Com ela, o parágrafo fica em 400 mesmo
-   que um ancestral declare peso forte. `<strong>` interno não é afetado:
-   tem peso próprio. */
+/* 3.4 Texto de apoio — font-weight 400 é trava contra herança de peso de
+   título. <strong> interno tem peso próprio e não é afetado. */
 
 .home-subtitle,
 .screen-subtitle,
@@ -307,16 +171,15 @@ body {
   line-height: var(--fj-altura-linha-texto);
 }
 
-/* Dois membros já nascem em 700 no app e mantêm a ênfase: recebem família e
-   ritmo, mas ficam fora da trava de peso. `.summary-routine` é um <p> dentro de
-   `.session-summary`, daí o `:not()` na regra acima. */
+/* Já nascem com ênfase: fora da trava de peso. .summary-routine é <p>,
+   por isso o :not() na regra acima. */
 .footer-motto,
 .summary-routine {
   font-family: var(--fj-fonte-texto);
   line-height: var(--fj-altura-linha-texto);
 }
 
-/* 3.5 Números — tabulares, para o valor não pular de largura ------------ */
+/* 3.5 Números tabulares, para o valor não pular de largura. */
 
 .execution-clock,
 .rest-timer,
@@ -334,58 +197,18 @@ body {
 }
 
 /* ==========================================================================
-   ETAPA 4 — componentes e estados, na paleta atual
-   --------------------------------------------------------------------------
-   Direção revisada em 25/10/2026: ficam a paleta, o fundo e o padrão visual
-   atuais do app. A proposta de brasa/bronze, emblema e grafismos de forja foi
-   abandonada; os tokens --fj-brasa* e --fj-bronze* declarados acima não são
-   usados por nenhuma regra.
-
-   Regra desta etapa: nenhuma cor nova. Todo valor já existe no app — tokens
-   de performance.css (--lime, --panel, --panel2, --surface-raised, --border,
-   --text, --muted) e de system.css (--accent-soft, --accent-line, --danger,
-   --danger-soft, --ok, --line-soft, --surface-sunken, --radius-*, --font-*),
-   ou um literal já usado por eles. O trabalho é levar os componentes legados
-   (base.css, treino.css, execucao.css, app.css, configuracoes.css) ao padrão
-   dos componentes do sistema (.ui-*), que já é o da biblioteca, do progresso,
-   do explorar e do atlas, e devolver estados que se perderam:
-
-     - botão de perigo sem vermelho: performance.css força a cor e a borda do
-       secundário com !important, e todo .danger-button também é secundário;
-     - resíduos do acento dourado anterior (#5a4a28, #211c12, #4a4029,
-       #241f16, #2d271a, #6b5a22, #f0d797) no aviso, nos selos, na pílula de
-       edição, nos botões do editor e em estados de hover;
-     - seta do select invisível: o `background` com !important de
-       performance.css apaga a imagem que base.css desenhava;
-     - seletor de tipo sem estado acima de 560 px: o rádio tem opacidade 0,
-       nada indica o tipo marcado e o foco do teclado fica invisível;
-     - desabilitado em cinco opacidades diferentes (0,35 a 0,6) e um cinza;
-     - botões de ação abaixo de 44 px;
-     - aviso (toast) cobrindo a barra inferior.
-
-   Fora desta etapa, de propósito: superfícies de cartão e blocos de tela
-   (cartão de modalidade, foco do exercício, notas da sessão, painel de
-   descanso, resumo pós-treino, calendário e missões, barra inferior), que
-   pertencem às etapas 5 a 9. Filtros compactos (.ui-segment, .ui-chip-toggle)
-   mantêm a altura: são filtros, não ações, e já passam de 24 px (WCAG 2.5.8).
-
-   Isolamento do atlas mantido: nenhuma regra alcança .execution-figure
-   (inclusive o botão #execution-figure-details, que segue como antes), o
-   bloco .modal-details.atlas-modal do diálogo "Músculos trabalhados" nem o
-   .modal-figure do detalhe da biblioteca (figura e legenda).
-
-   Sobre !important: performance.css trava fundo, borda e cor de botões e de
-   campos com !important. Um estado (perigo, hover, seta do select) só vence
-   com !important num seletor mais específico; o uso fica restrito às
-   propriedades que performance.css trava.
+   ETAPA 4 — componentes e estados, na paleta atual (limão/carvão)
+   Nenhuma cor nova: só tokens de performance.css/system.css ou literais já
+   usados por eles. Componentes legados levados ao padrão .ui-* e estados
+   perdidos devolvidos (perigo vermelho, seta do select, seletor de tipo,
+   desabilitado único, alvos de 44 px, toast acima da barra).
+   !important só vence propriedades que performance.css trava com !important.
+   Nenhuma regra alcança .execution-figure, .modal-details.atlas-modal ou
+   .modal-figure (isolamento do atlas).
    ========================================================================== */
 
-/* 4.1 Família tipográfica dos componentes ---------------------------------
-   Os componentes herdavam a família do corpo ("Inter" não instalada, logo a
-   fonte do sistema), enquanto títulos, rótulos e textos de apoio já usam as
-   famílias auto-hospedadas desde a etapa 3. Só a família muda aqui.
-   .icon-button e .session-back ficam de fora: usam caracteres (↑ ↓ ✎ × ←)
-   como ícone, e na Inter o × fica menor e mais fino. */
+/* 4.1 Só a família tipográfica muda. .icon-button/.session-back ficam de
+   fora: usam glifos (↑ ↓ ✎ × ←) que encolhem na Inter. */
 
 .primary-button,
 .secondary-button,
@@ -430,10 +253,7 @@ body {
   line-height: var(--fj-altura-linha-titulo);
 }
 
-/* 4.2 Botões ----------------------------------------------------------------
-   Primário: limão, como já é. Secundário e pequeno: o mesmo padrão de
-   .ui-button (13 px, peso 700, 44 px de altura), em vez de 12 px / 400 com
-   altura variando de 38 a 46 px conforme a tela. */
+/* 4.2 Botões — secundário/pequeno no padrão .ui-button (13 px, 700, 44 px). */
 
 .secondary-button,
 .small-button {
@@ -443,23 +263,20 @@ body {
   line-height: 1.25;
 }
 
-/* Contextos que fixavam altura menor (38, 42 e 43 px) e texto de 12 px. */
+/* Contextos que fixavam altura menor que 44 px. */
 .routine-actions .primary-button,
 .routine-actions .secondary-button,
 .routine-actions .small-button,
-.editor-toolbar-actions .primary-button,
 .backup-actions .secondary-button,
 .modal-actions button {
   min-height: 44px;
 }
 
-.routine-actions .primary-button,
-.editor-toolbar-actions .primary-button {
+.routine-actions .primary-button {
   font-size: var(--font-sm);
 }
 
-/* Hover e pressão também nos links com aparência de botão — os <button> já
-   recebem brilho e escala de performance.css; os <a> não recebiam nada. */
+/* Hover/pressão também nos <a> com aparência de botão (os <button> já têm). */
 a.primary-button,
 a.secondary-button,
 a.ui-button {
@@ -478,15 +295,14 @@ a.ui-button:active {
   transform: scale(0.98);
 }
 
-/* Secundário: o hover de treino.css (#555 / #292929) nunca aparecia por causa
-   do !important de performance.css; a borda clareia, no mesmo cinza-verde. */
+/* Hover do secundário: o de treino.css perdia para o !important de
+   performance.css; aqui a borda clareia com !important no mesmo cinza. */
 .secondary-button:not(.primary-button):not(.danger-button):hover:not(:disabled),
 .small-button:not(.primary-button):not(.danger-button):hover:not(:disabled) {
   border-color: rgba(160, 166, 159, 0.45) !important;
 }
 
-/* Perigo: o padrão original de treino.css (texto e borda vermelhos, fundo
-   avermelhado no hover), agora com os tokens de system.css. */
+/* Perigo vermelho (tokens de system.css); o !important vence performance.css. */
 .danger-button,
 .secondary-button.danger-button {
   border-color: rgba(255, 119, 119, 0.42) !important;
@@ -498,8 +314,7 @@ a.ui-button:active {
   background-image: linear-gradient(var(--danger-soft), var(--danger-soft)) !important;
 }
 
-/* Botão de série: hover limão (era o dourado claro #f0d797), mesmo raio e
-   mesma cor de texto do primário. Tamanho e peso continuam os da execução. */
+/* Botão de série: hover limão, mesmo raio e cor de texto do primário. */
 .big-set-button {
   border-radius: 12px;
   color: #12160c;
@@ -509,11 +324,7 @@ a.ui-button:active {
   background: var(--lime);
 }
 
-/* Desabilitado: um só estado em todos os botões — opacidade 0,45 (a de
-   .ui-button) e escala de cinza, para o primário desabilitado não parecer um
-   botão verde-oliva ativo. O rótulo continua legível (≈3,6:1), e é ele que
-   explica o motivo ("Aguarde o descanso", "Adicione exercícios para
-   iniciar"). */
+/* Desabilitado único: opacidade 0,45 + escala de cinza em todos os botões. */
 .primary-button:disabled,
 .secondary-button:disabled,
 .small-button:disabled,
@@ -575,19 +386,15 @@ a.ui-button:active {
   min-height: 44px;
 }
 
-/* Navegação entre exercícios: alvo de 44 px; o texto não muda. O botão da
-   figura (#execution-figure-details) não entra aqui, de propósito. */
+/* Alvo de 44 px. O botão da figura (#execution-figure-details) fica de fora. */
 .exercise-nav .nav-text-button {
   min-height: 44px;
 }
 
 /* 4.3 Campos ---------------------------------------------------------------- */
 
-/* Seta do select de volta, em cinza (como o ícone da busca), com o espaço à
-   direita que ela precisa. Sem ela o select parecia um campo de texto.
-   `min-width: 0` e `max-width: 100%`: com os 38 px da seta, a largura
-   intrínseca do select ("Todas as modalidades") passava da coluna da grade
-   de metas em 390 e 768 px; assim ele encolhe junto com a coluna. */
+/* Seta do select restaurada (performance.css apagava a imagem da base).
+   min-width:0/max-width:100% evitam estouro da coluna de metas em 390/768. */
 .container select,
 .modal-card select {
   min-width: 0;
@@ -604,13 +411,9 @@ a.ui-button:active {
   background: #111411;
 }
 
-/* Seletor Repetições/Duração (editor e exercício personalizado). Acima de
-   560 px o rádio ficava com opacidade 0 e o texto do <label> não tem <span>
-   — as regras `input:checked + span` de treino.css nunca casavam. Resultado:
-   nenhuma indicação do tipo marcado e foco invisível. Até 560 px
-   performance.css já mostrava o rádio; o mesmo tratamento vale agora em
-   todas as larguras (o rádio visível recebe o contorno de foco global), e o
-   rótulo marcado ganha o limão translúcido dos filtros pressionados. */
+/* Seletor Repetições/Duração: acima de 560 px o rádio ficava invisível
+   (opacidade 0) e o label não tem <span>, então as regras de treino.css não
+   casavam. Rádio visível em qualquer largura; rótulo marcado em limão. */
 .field-grid > .type-switch {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
@@ -643,10 +446,7 @@ a.ui-button:active {
   color: var(--lime);
 }
 
-/* 4.4 Selos, estatísticas, barras e pips ------------------------------------
-   Selos no padrão de .ui-chip: pílula, borda de 1 px, variante de destaque em
-   limão translúcido e variante "ok" em verde (os dois já existem em
-   system.css). */
+/* 4.4 Selos no padrão .ui-chip (pílula, borda de 1 px, limão translúcido). */
 
 .section-badge,
 .dirty-pill {
@@ -669,8 +469,7 @@ a.ui-button:active {
   color: var(--ok);
 }
 
-/* Histórico: "Concluído" em limão e "Parcial" neutro. Antes os dois eram
-   limão e só a borda (verde ou marrom) diferenciava. */
+/* Histórico: "Concluído" em limão, "Parcial" neutro (antes iguais). */
 .history-status.completed {
   border-color: var(--accent-line);
   color: var(--lime);
@@ -681,8 +480,7 @@ a.ui-button:active {
   color: var(--muted);
 }
 
-/* Plano do exercício ("4 séries", "15 repetições"): pílula como os demais
-   selos; o texto segue claro e forte, porque é a informação da série. */
+/* Plano do exercício em pílula; texto forte por ser a informação da série. */
 .plan-chip {
   border-color: var(--line-soft);
   border-radius: 999px;
@@ -694,8 +492,7 @@ a.ui-button:active {
   background: var(--border);
 }
 
-/* 4.5 Diálogos (17, todos via F.showModal) -----------------------------------
-   Superfície e borda dos cartões do app, raio grande do sistema. */
+/* 4.5 Diálogos (F.showModal): superfície e raio do sistema. */
 
 .modal-card {
   border-color: var(--border);
@@ -703,29 +500,23 @@ a.ui-button:active {
   background: var(--panel);
 }
 
-/* Bloco de detalhes. Ficam de fora o do diálogo "Músculos trabalhados"
-   (.atlas-modal) e o do detalhe da biblioteca quando traz a figura
-   (.modal-figure): figura e legenda do atlas não herdam nada daqui — as
-   linhas de texto desse detalhe recebem a família por .modal-detail-line.
-   Regra própria porque, num navegador sem :has(), o seletor descartaria a
-   lista inteira; assim só este bloco deixa de valer. */
+/* Fora do escopo: .atlas-modal e o detalhe com .modal-figure (isolamento do
+   atlas). Sem :has() o seletor simplesmente não aplica, em vez de descartar
+   a lista inteira. */
 .modal-details:not(.atlas-modal):not(:has(.modal-figure)) {
   border-radius: var(--radius-sm);
   background: var(--surface-sunken);
   font-family: var(--fj-fonte-texto);
 }
 
-/* Três ações lado a lado em 390 px ("Cancelar", "Remover esta série",
-   "Salvar correção"): respiro lateral menor para o rótulo do meio caber em
-   duas linhas. Abaixo disso as ações já quebram em duas fileiras. */
+/* Três ações cabem lado a lado em 390 px; abaixo disso quebram em fileiras. */
 .modal-actions button {
   padding-inline: 8px;
 }
 
 /* 4.6 Aviso, estado do backup e estados vazios ------------------------------ */
 
-/* Aviso: acima da barra inferior (69 px + margem), superfície neutra e faixa
-   de 3 px à esquerda pelo tom — limão para informação, vermelho para erro. */
+/* Toast acima da barra inferior (69 px + margem); faixa esquerda por tom. */
 .toast {
   bottom: calc(69px + 12px + env(safe-area-inset-bottom, 0px));
   border-color: var(--border);
@@ -740,8 +531,7 @@ a.ui-button:active {
   background: var(--panel2);
 }
 
-/* #backup-status: cinza do app (era #888) e 11 px, o mínimo de texto
-   corrido; a data/valor em destaque volta a se distinguir do resto. */
+/* #backup-status em 11 px (mínimo de texto corrido); data/valor em destaque. */
 .backup-meta {
   color: var(--muted);
   font-size: var(--font-xs);
@@ -751,8 +541,7 @@ a.ui-button:active {
   color: var(--text);
 }
 
-/* Vazios legados no padrão de .ui-empty: tracejado, fundo afundado, raio do
-   sistema e texto em cinza legível (#777 ficava abaixo de 4,5:1). */
+/* Vazios legados no padrão .ui-empty: tracejado, fundo afundado, cinza legível. */
 .empty-card {
   border: 1px dashed rgba(160, 166, 159, 0.34);
   border-radius: var(--radius-md);
@@ -770,42 +559,17 @@ a.ui-button:active {
 }
 
 /* ==========================================================================
-   ETAPA 5 — cabeçalho, navegação e rodapé, na paleta atual
-   --------------------------------------------------------------------------
-   Direção revisada (25/10/2026) aplicada também aqui: sem emblema, sem
-   tagline nova e sem brasa/bronze. O cabeçalho mantém a palavra FORJA e a
-   linha DISCIPLINA DIÁRIA que as 12 páginas já trazem; a barra inferior
-   mantém os cinco destinos, os mesmos ícones SVG inline (idênticos nas 12
-   páginas, traço 1,9) e o limão atual no item ativo. Nenhum HTML muda:
-   cabeçalho, navegação e rodapé já são idênticos em todas as páginas
-   (conferido arquivo a arquivo), então a padronização é só desta camada.
-
-   Isolamento do atlas mantido: explorar/atlas.html não carrega esta folha,
-   logo seu cabeçalho, sua barra e seu rodapé seguem exatamente como estão,
-   pelas camadas app.css/performance.css que ele já usa.
-
-     - `--bottom-nav-height` era usada em app.css (padding inferior do
-       conteúdo) sem ser definida em folha alguma: a declaração caía e o
-       conteúdo podia terminar sob a barra. Definida aqui pelo cálculo da
-       própria barra: 1 px de borda + 6 px de respiro superior + 56 px do
-       link + 6 px de respiro inferior = 69 px (a safe-area entra nos dois
-       cálculos, em app.css e na barra).
-     - Item ativo distinguível sem depender só da cor: fundo limão
-       translúcido (o mesmo --accent-soft dos estados selecionados) e ícone
-       com traço mais forte; cor e texto não mudam.
-     - Rodapé: o padding inferior passa a contar a barra fixa — sem isso o
-       fim do rodapé ficava sob a navegação ao rolar até o fim da página.
+   ETAPA 5 — cabeçalho, barra inferior e rodapé (só CSS, HTML idêntico nas
+   12 páginas). atlas.html não carrega esta folha e segue intocado.
+   --bottom-nav-height era usada por app.css sem definição: 1+6+56+6 = 69 px.
+   Item ativo distinguível por fundo + traço do ícone, não só pela cor.
    ========================================================================== */
 
 :root {
   --bottom-nav-height: 69px;
 }
 
-/* 5.1 Cabeçalho ------------------------------------------------------------
-   Alinhamento central (era baseline, que desalinhava palavra e linha de
-   apoio quando a fonte de marca carrega), alvo de toque de 44 px na palavra
-   e tipografia das famílias já auto-hospedadas. Cor continua o limão atual
-   (--gold de performance.css já vale o limão; --lime é o mesmo valor). */
+/* 5.1 Cabeçalho centralizado, palavra com alvo de 44 px, cor limão mantida. */
 
 .site-header-inner {
   align-items: center;
@@ -836,8 +600,7 @@ a.ui-button:active {
   white-space: nowrap;
 }
 
-/* Em 320–380 px palavra e linha de apoio continuam numa linha só, sem
-   comprimir o alvo da palavra: só o tamanho e o tracking recuam. */
+/* Até 380 px: tamanho e tracking recuam para manter tudo numa linha. */
 @media (max-width: 380px) {
   .site-header-inner {
     gap: 10px;
@@ -853,17 +616,14 @@ a.ui-button:active {
   }
 }
 
-/* Link de salto na mesma família e no raio dos demais controles; a cor
-   (limão com texto escuro, de performance.css) não muda. */
+/* Link de salto na família do sistema; a cor vem de performance.css. */
 .skip-link {
   font-family: var(--fj-fonte-texto);
   border-radius: var(--radius-sm);
 }
 
-/* 5.2 Barra inferior ---------------------------------------------------------
-   Mesmos cinco destinos, ícones e rótulos. Respiro e grade levemente mais
-   regulares, rótulo de 11 px (era 10,5 px) e estado ativo por fundo + traço,
-   não só por cor. O foco visível continua o de app.css (3 px em limão). */
+/* 5.2 Barra inferior: rótulo de 11 px; ativo por fundo + traço do ícone.
+   O foco visível continua o de app.css (3 px em limão). */
 
 .bottom-nav {
   border-top-color: var(--line-soft);
@@ -901,12 +661,8 @@ a.ui-button:active {
   stroke-width: 2.2;
 }
 
-/* 5.3 Rodapé ---------------------------------------------------------------
-   Hierarquia e respiro no padrão das seções: lema em rótulo (11 px, caixa
-   já vem do texto) e nota de armazenamento em texto de apoio legível. O
-   padding inferior soma a altura da barra fixa para o rodapé nunca terminar
-   coberto por ela. `.execution-footer` (treino/executar.html) é outro
-   componente e fica fora daqui. */
+/* 5.3 Rodapé: o padding inferior soma a barra fixa. .execution-footer é
+   outro componente e fica fora. */
 
 .site-footer {
   padding-top: 24px;
@@ -927,27 +683,13 @@ a.ui-button:active {
 }
 
 /* ==========================================================================
-   ETAPA 7 — Treino e execução (treino/index.html, calistenia, musculacao,
-   rotina, biblioteca, executar), na paleta atual
-   --------------------------------------------------------------------------
-   Diretrizes obrigatórias:
-     - Preservar as cores (acento limão, superfícies de performance.css e
-       system.css, fundo carvão de marca.css);
-     - Sem tema nórdico, sem RPG, sem bigornas decorativas;
-     - Limpar os resíduos do dourado antigo identificados na etapa 4:
-       hover e ::after de .modality-card; .exercise-focus; .session-notes;
-       .rest-panel e .rest-caption; .session-summary com .summary-stat e
-       itens; .exercise-form-card.editing; .timer-panel.is-paused / is-running;
-       .active-hint;
-     - Melhorias de usabilidade e responsividade em 320–1280 px:
-       prevenir quebras de palavras longas em telas estreitas (320 px);
-       manter .history-status contido como pílula e alinhado;
-       padronizar estatísticas do histórico (.summary-stat / .summary-label);
-       centralizar ações no rodapé da execução (.execution-footer);
-       isolamento estrito do atlas mantido (.execution-figure e atlas.html).
+   ETAPA 7 — treino e execução, na paleta atual (limão/carvão, só CSS).
+   Remove os resíduos dourados e padroniza superfícies, pílulas de histórico
+   e quebra de palavras em 320 px. Isolamento do atlas mantido: nada alcança
+   .execution-figure nem explorar/atlas.html.
    ========================================================================== */
 
-/* 7.1 Hub de treino (treino/index.html) ------------------------------------- */
+/* 7.1 Hub de treino. */
 
 .modality-card {
   border-color: var(--border);
@@ -1118,8 +860,7 @@ a.ui-button:active {
   background: var(--lime);
 }
 
-/* Painel de foco: mantém fundo escuro neutro para preservar o contraste
-   da figura do atlas (.execution-figure) contida nele. */
+/* Fundo escuro neutro para preservar o contraste da .execution-figure. */
 .exercise-focus {
   border-color: var(--border);
   background: var(--panel);
@@ -1194,7 +935,7 @@ a.ui-button:active {
   color: var(--lime);
 }
 
-/* Rodapé de ações da execução: alinhamento limpo no celular e desktop */
+/* Rodapé de ações centralizado no celular e no desktop. */
 .execution-footer {
   border-top-color: var(--line-soft);
   justify-content: center;
@@ -1212,11 +953,6 @@ a.ui-button:active {
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow);
-}
-
-.summary-check {
-  border-color: var(--lime);
-  color: var(--lime);
 }
 
 .summary-routine {
@@ -1238,33 +974,16 @@ a.ui-button:active {
 }
 
 /* ==========================================================================
-   ETAPA 8 — Progresso e gráficos (progresso/index.html), na paleta atual
-   --------------------------------------------------------------------------
-   Diretrizes obrigatórias:
-     - preservar fundo, superfícies e acento limão; nenhuma cor nova (todo
-       valor usado aqui já existe em performance.css, system.css ou nos
-       tokens --fj-* da etapa 2);
-     - nenhum cálculo, ID, markup ou storage: os cinco gráficos continuam
-       desenhados por forja-graficos.js com os mesmos números. Lá só se
-       extraiu a geometria para um objeto STYLE no topo do arquivo;
-     - escopo por body[data-page="progresso"]. .ui-chart/.ui-ring também
-       aparecem na Início (anéis de metas) e .history-* nas telas de treino,
-       já resolvidas nas etapas 6 e 7; nada desta etapa deve alcançá-las;
-     - leitura em 320 px: rótulos curtos, valores tabulares e nenhuma coluna
-       rígida que force rolagem horizontal.
-
-   Correções concretas encontradas nesta etapa:
-     - a legenda do heatmap (.ui-heatmap-swatch) não tinha background algum:
-       os cinco quadradinhos de "menos … mais" apareciam vazios;
-     - .compare-delta.is-down herdava var(--gold), que em performance.css vale
-       o mesmo limão de is-up: alta e queda ficavam idênticas. O sinal (+/−)
-       já vinha no texto; agora a cor também difere (limão na alta, osso claro
-       na queda, cinza no estável) e nenhum estado depende só dela;
-     - .ui-column-bar com valor zero caía para 2 px, abaixo do mínimo
-       legível: passa a 3 px, com raio próprio para não sumir no eixo.
+   ETAPA 8 — progresso e gráficos, escopo body[data-page="progresso"] (só
+   CSS; a geometria ficou em forja-graficos.js, sem tocar cálculo ou markup).
+   Correções não óbvias mantidas aqui:
+     - .ui-heatmap-swatch não tinha background: a legenda aparecia vazia;
+     - .compare-delta.is-down herdava --gold (= limão de is-up); agora alta
+       em limão, queda em osso claro, estável em cinza (nunca só pela cor);
+     - .ui-column-bar com valor zero caía a 2 px: mínimo de 3 px no eixo.
    ========================================================================== */
 
-/* 8.1 Base dos gráficos ----------------------------------------------------- */
+/* 8.1 Base dos gráficos. */
 
 body[data-page="progresso"] .ui-chart {
   margin-top: var(--space-3);
@@ -1319,12 +1038,8 @@ body[data-page="progresso"] .ui-columns {
   gap: var(--space-1);
 }
 
-/* Correção da etapa 8: a coluna era um grid sem linha de altura definida,
-   então o `height: N%` que o forja-graficos.js escreve na barra resolvia
-   contra altura indefinida e caía no min-height. Todas as barras — 0, 1 ou 20
-   treinos — apareciam com 2 px, e o gráfico ficava vazio. Com a primeira
-   linha em `1fr` (altura definida pela altura fixa da coluna), a porcentagem
-   volta a valer: a barra cresce proporcionalmente ao maior valor. */
+/* Grid com linha 1fr: sem altura definida, o height:N% da barra caía no
+   min-height e todas as colunas apareciam com 2 px. */
 body[data-page="progresso"] .ui-column {
   height: 124px;
   gap: 4px;
@@ -1332,9 +1047,7 @@ body[data-page="progresso"] .ui-column {
   align-content: stretch;
 }
 
-/* `align-self: end` mantém todas as barras no mesmo eixo (o topo da coluna
-   é o teto do gráfico, não a base da barra): sem isso a barra crescia a
-   partir do alto da área e zeradas ficavam soltas no meio. */
+/* align-self:end ancora a barra na base; sem isso as zeradas sobem ao meio. */
 body[data-page="progresso"] .ui-column-bar {
   align-self: end;
   min-height: 3px;
@@ -1357,8 +1070,7 @@ body[data-page="progresso"] .ui-line-svg {
   height: 120px;
 }
 
-/* O ponto é o dado: limão cheio com um anel da cor do fundo, para não se
-   confundir com a própria linha quando dois pontos ficam próximos. */
+/* Ponto limão com anel da cor do fundo, para não se fundir com a linha. */
 body[data-page="progresso"] .ui-line-dot {
   stroke: var(--fj-carvao);
   stroke-width: 1.5;
@@ -1376,9 +1088,8 @@ body[data-page="progresso"] .ui-heatmap {
   gap: var(--space-3);
 }
 
-/* Dia sem treino: superfície afundada com fio discreto, para a grade existir
-   mesmo com a janela inteira zerada. Precisa vir antes dos níveis, porque o
-   seletor com body[data-page] tem especificidade maior que .level-N. */
+/* Dia sem treino: grade existe mesmo zerada. Vem antes de .level-N (a
+   especificidade de body[data-page] é maior). */
 body[data-page="progresso"] .ui-heatmap-cell {
   background: var(--fj-ferro-baixo);
 }
@@ -1407,7 +1118,7 @@ body[data-page="progresso"] .ui-heatmap-swatch.level-4 {
   background: var(--lime);
 }
 
-/* Correção da etapa 8: os quadradinhos da legenda não tinham cor nenhuma. */
+/* Legenda level-0: antes não tinha cor e os quadradinhos apareciam vazios. */
 body[data-page="progresso"] .ui-heatmap-swatch.level-0 {
   background: var(--fj-ferro-baixo);
   box-shadow: inset 0 0 0 1px var(--line-soft);
@@ -1486,8 +1197,8 @@ body[data-page="progresso"] .compare-delta {
   white-space: nowrap;
 }
 
-/* Queda não é erro: texto claro, distinto do limão da alta e do cinza do
-   estável. O sinal "−" continua sendo a informação principal. */
+/* Queda não é erro: osso claro, distinto do limão da alta e do cinza estável;
+   o sinal "−" continua sendo a informação principal. */
 body[data-page="progresso"] .compare-delta.is-down {
   color: var(--fj-osso-suave);
 }
@@ -1571,11 +1282,7 @@ body[data-page="progresso"] .history-status {
   font-size: var(--font-xs);
 }
 
-/* 8.11 Desktop (a partir de 720 px) -----------------------------------------
-   Em 1280 px as barras do gráfico semanal ficavam com 34 px num trilho de
-   140 px e o heatmap mantinha células de 14 px: legível, mas apertado numa
-   área larga. A partir de 720 px as duas peças crescem um degrau — nada muda
-   em celular. */
+/* 8.11 A partir de 720 px colunas e células do heatmap crescem um degrau. */
 
 @media (min-width: 720px) {
   body[data-page="progresso"] .ui-columns {
@@ -1613,8 +1320,7 @@ body[data-page="progresso"] .history-status {
     height: 112px;
   }
 
-  /* 12 semanas × 14 px ainda cabem; o respiro entre células encolhe antes
-     de qualquer célula sair da coluna. */
+  /* O respiro encolhe antes de qualquer célula sair da coluna. */
   body[data-page="progresso"] .ui-heatmap-body {
     gap: 3px;
   }
@@ -1634,35 +1340,13 @@ body[data-page="progresso"] .history-status {
 }
 
 /* ==========================================================================
-   ETAPA 9 — Perfil, configurações e explorar (perfil/index.html,
-   configuracoes/index.html, explorar/index.html), na paleta atual
-   --------------------------------------------------------------------------
-   Diretrizes obrigatórias:
-     - preservar fundo carvão, acento limão e superfícies atuais; nenhuma cor
-       nova e nenhum controle ou preferência nova;
-     - escopo estrito por body[data-page="perfil"],
-       body[data-page="configuracoes"] e body[data-page="explorar"], sem
-       alcançar treino/index.html (.hub-list/.modality-card),
-       progresso/index.html (.goals-form/.goals-fields), modais (.check-row)
-       nem explorar/atlas.html (protegido);
-     - substituir todos os atributos style="" inline de perfil/index.html (8)
-       e explorar/index.html (4) por regras do sistema, e trocar os glifos
-       tipográficos ◉/◎ de explorar/index.html pelos ícones SVG da interface.
-
-   Correções concretas encontradas nesta etapa:
-     - #profile-form reaproveitava .goals-fields do Progresso (4 colunas em
-       ≥640 px para 5 campos, deixando a duração isolada na segunda fileira,
-       e 2 colunas estreitas em 390 px que apertavam os selects);
-     - .backup-panel, .preferences-panel e .storage-panel na mesma tela
-       misturavam três margens (18, 20 e 26 px), três raios (12, 14 e 17 px)
-       e três tamanhos de texto corrido (12, 15 e 16 px), e .storage-panel p
-       ficava fora da família auto-hospedada;
-     - em explorar/index.html, .modality-desc caía para 10 px (≤560 px) e
-       9 px (≤380 px) pela regra legada de grade dupla de responsive.css,
-       embora ali os cartões ocupem a largura inteira e tragam frases longas.
+   ETAPA 9 — perfil, configurações e explorar, escopo por body[data-page].
+   Nenhuma cor/controle/preferência nova; não alcança treino, progresso,
+   modais nem explorar/atlas.html (protegido). Os style="" inline e os glifos
+   ◉/◎ do explorar foram substituídos por regras do sistema e ícones SVG.
    ========================================================================== */
 
-/* 9.1 Painéis compartilhados (Perfil e Configurações) ----------------------- */
+/* 9.1 Painéis compartilhados (perfil e configurações). */
 
 body[data-page="perfil"] .preferences-panel,
 body[data-page="perfil"] .backup-panel,

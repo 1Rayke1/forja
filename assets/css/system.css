@@ -70,7 +70,6 @@
   cursor: pointer;
 }
 
-.ui-button.ui-button-block { width: 100%; }
 .ui-button[disabled] { opacity: 0.45; cursor: not-allowed; }
 .ui-button.danger-button { color: var(--danger); }
 .ui-button.danger-button:hover:not(:disabled) { background: var(--danger-soft); }
@@ -115,8 +114,6 @@
 }
 
 .ui-chip-accent { border-color: var(--accent-line); background: var(--accent-soft); color: var(--lime); }
-.ui-chip-ok { border-color: rgba(143, 215, 164, 0.4); color: var(--ok); }
-.ui-chip-danger { border-color: rgba(255, 119, 119, 0.4); color: var(--danger); }
 
 /* Estatísticas ------------------------------------------------------- */
 
@@ -290,16 +287,6 @@
 .ui-table th { color: var(--muted); font-size: var(--font-xs); text-transform: uppercase; letter-spacing: 0.4px; }
 .ui-table tbody th { color: var(--text); text-transform: none; letter-spacing: 0; font-weight: 700; }
 
-/* Abas de página (conteúdo alternável dentro de uma mesma tela) ------- */
-
-.ui-tabs { display: grid; gap: var(--space-4); }
-.ui-tab-panel[hidden] { display: none; }
-
-/* Cabeçalho de tela com ação ------------------------------------------ */
-
-.ui-screen-head { display: grid; gap: var(--space-3); margin-bottom: var(--space-4); }
-.ui-screen-title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
-
 /* Lista da biblioteca (treino/biblioteca.html) ------------------------ */
 
 .catalog-search-wrap { margin: var(--space-2) 0; }
@@ -383,16 +370,6 @@
 .ui-exercise-meta { color: var(--muted); font-size: var(--font-sm); }
 .ui-exercise-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .ui-exercise-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-
-/* Histórico e registros ------------------------------------------------ */
-
-.ui-record { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-sunken); padding: 13px; display: grid; gap: 7px; }
-.ui-record-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }
-.ui-record-title { font-size: var(--font-md); font-weight: 800; letter-spacing: -0.2px; }
-.ui-record-meta { color: var(--muted); font-size: var(--font-sm); }
-.ui-record-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
-.ui-record-list li { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--font-sm); color: var(--muted); }
-.ui-record-list strong { color: var(--text); }
 
 @media (max-width: 560px) {
   .ui-bar-row { grid-template-columns: 68px 1fr auto; }

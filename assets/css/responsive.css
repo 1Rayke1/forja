@@ -19,20 +19,12 @@
 
   .focus-grid .focus-stat:last-child { grid-column: 1 / -1; }
 
-  .field-grid.three { grid-template-columns: 1fr 1fr; }
-
-  .field-grid.three > :first-child { grid-column: 1 / -1; }
-
   .execution-wrap { width: min(100% - 24px, 680px); }
 
   .summary-stats { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 380px) {
-  .workout-panel { padding: 12px; }
-
-  .modality-grid { gap: 8px; }
-
   .modality-card {
     min-height: 150px;
     padding: 11px;
@@ -46,10 +38,6 @@
 
   .modality-meta { font-size: 9px; padding-top: 11px; }
 
-  .routine-actions .spacer { display: none; }
-
-  .editor-toolbar-actions { width: 100%; justify-content: space-between; }
-
   .routine-actions .primary-button { width: 100%; flex: 1 1 100%; }
 
   .routine-actions .secondary-button { flex: 1; }
@@ -59,10 +47,6 @@
   .exercise-tools { margin-left: auto; }
 
   .field-grid { grid-template-columns: 1fr; }
-
-  .field-grid.three { grid-template-columns: 1fr 1fr; }
-
-  .field-grid.three > :first-child { grid-column: auto; }
 
   .focus-name { font-size: 30px; }
 

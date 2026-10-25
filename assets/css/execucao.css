@@ -257,18 +257,6 @@
   cursor: not-allowed;
 }
 
-.session-subactions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 9px;
-}
-
-.session-subactions .secondary-button {
-  flex: 1;
-  min-height: 40px;
-}
-
 .exercise-nav {
   display: flex;
   justify-content: space-between;
@@ -363,19 +351,6 @@
     radial-gradient(circle at 50% 0%, rgba(231, 199, 121, .15), transparent 55%),
     #15130e;
   text-align: center;
-}
-
-.summary-check {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 11px;
-  border: 1px solid var(--gold);
-  border-radius: 50%;
-  color: var(--gold);
-  font-size: 24px;
 }
 
 .session-summary h2 {

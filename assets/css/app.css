@@ -31,29 +31,7 @@
 .site-header .logo { color: var(--gold); text-decoration: none; }
 .site-header .tagline { color: var(--muted); font-size: 11px; letter-spacing: 2px; text-align: right; }
 
-/* Topo minimalista: a navegação vive na barra inferior */
-.app-nav { display: none !important; }
-.nav-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 6px 4px;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-  text-align: center;
-  border-bottom: 3px solid transparent;
-  overflow-wrap: anywhere;
-}
-.nav-link:hover,
-.nav-link:focus-visible { color: var(--text); }
-.nav-link.is-current,
-.nav-link[aria-current="page"] {
-  color: var(--gold);
-  border-bottom-color: var(--gold);
-}
+/* A navegação vive exclusivamente na barra inferior (.bottom-nav). */
 
 /* Barra inferior fixa — mobile-first, 5 destinos */
 .bottom-nav {
@@ -445,15 +423,10 @@ select.field-input { padding-left: 12px; }
   #onboarding-root .onboarding-panel { padding: 14px 16px; }
 }
 
-/* Legado: manter .treino-square compatível mas não usado na home nova */
-.treino-cta {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px;
-  text-align: center;
-}
-.treino-cta .home-hint { margin: 8px 0 14px; }
+/* Legado: .treino-square é adicionado por forja-inicio.js ao botão da home
+   para compatibilidade com os testes; a aparência ativa vem de performance.css
+   e marca.css. Os antigos filhos .treino-square-icon/-title/-sub não existem
+   mais no DOM e foram removidos na etapa 10. */
 .treino-square {
   display: flex;
   flex-direction: column;
@@ -476,9 +449,6 @@ select.field-input { padding-left: 12px; }
 .treino-square:hover { box-shadow: 0 14px 34px rgba(231, 199, 121, 0.32); }
 .treino-square:active { transform: scale(0.97); }
 .treino-square:focus-visible { outline: 3px solid #ffffff; outline-offset: 4px; }
-.treino-square-icon { width: 64px; height: 64px; flex: 0 0 auto; }
-.treino-square-title { font-size: 26px; font-weight: 800; letter-spacing: 3px; line-height: 1; }
-.treino-square-sub { font-size: 13px; font-weight: 600; line-height: 1.3; text-align: center; max-width: 180px; opacity: 0.85; }
 a.primary-button,
 a.secondary-button {
   display: inline-flex;

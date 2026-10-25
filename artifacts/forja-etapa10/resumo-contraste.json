@@ -1,0 +1,173 @@
+{
+  "summary": [
+    {
+      "page": "index.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".field-label",
+        "text": "Objetivo",
+        "ratio": 6.91,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(25,28,26)"
+      },
+      "amostras": 52,
+      "falhas": 0
+    },
+    {
+      "page": "treino/index.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".screen-subtitle",
+        "text": "Escolha a modalidade. Cada u",
+        "ratio": 7.63,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(18,16,16)"
+      },
+      "amostras": 28,
+      "falhas": 0
+    },
+    {
+      "page": "treino/calistenia.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".empty-card, .ui-empty",
+        "text": "Nenhuma rotina aindaCrie uma",
+        "ratio": 7.4,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(18,21,19)"
+      },
+      "amostras": 40,
+      "falhas": 0
+    },
+    {
+      "page": "treino/musculacao.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".empty-card, .ui-empty",
+        "text": "Nenhuma rotina aindaCrie uma",
+        "ratio": 7.4,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(18,21,19)"
+      },
+      "amostras": 40,
+      "falhas": 0
+    },
+    {
+      "page": "treino/rotina.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".field-label",
+        "text": "Seção",
+        "ratio": 6.91,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(25,28,26)"
+      },
+      "amostras": 84,
+      "falhas": 0
+    },
+    {
+      "page": "treino/executar.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".screen-subtitle",
+        "text": "Inicie uma rotina na sua mod",
+        "ratio": 6.91,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(25,28,26)"
+      },
+      "amostras": 24,
+      "falhas": 0
+    },
+    {
+      "page": "treino/biblioteca.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".ui-chip",
+        "text": "Aquecimento",
+        "ratio": 5.94,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(37,41,37)"
+      },
+      "amostras": 196,
+      "falhas": 0
+    },
+    {
+      "page": "progresso/index.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".screen-subtitle",
+        "text": "Tudo aqui é calculado soment",
+        "ratio": 7.63,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(18,16,16)"
+      },
+      "amostras": 100,
+      "falhas": 0
+    },
+    {
+      "page": "perfil/index.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".screen-subtitle",
+        "text": "Opcional e editável a qualqu",
+        "ratio": 6.91,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(25,28,26)"
+      },
+      "amostras": 74,
+      "falhas": 0
+    },
+    {
+      "page": "configuracoes/index.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".screen-subtitle",
+        "text": "Faça backup, restaure seus d",
+        "ratio": 7.63,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(18,16,16)"
+      },
+      "amostras": 38,
+      "falhas": 0
+    },
+    {
+      "page": "explorar/index.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".section-note",
+        "text": "A biblioteca filtra por músc",
+        "ratio": 6.91,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(25,28,26)"
+      },
+      "amostras": 30,
+      "falhas": 0
+    },
+    {
+      "page": "explorar/atlas.html",
+      "overflow": "nenhum",
+      "min": {
+        "sel": ".field-label",
+        "text": "Escolha um exercício do catá",
+        "ratio": 6.91,
+        "large": false,
+        "fg": "rgb(160, 166, 159)",
+        "bg": "rgb(25,28,26)"
+      },
+      "amostras": 26,
+      "falhas": 0
+    }
+  ],
+  "problems": []
+}
