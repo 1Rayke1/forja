@@ -22,6 +22,35 @@
 
   const el = F.ui.el;
 
+  /*
+    Constantes de estilo (etapa 8). Ficam no topo, num único objeto, para que
+    geometria do desenho e raio dos pontos não fiquem espalhados como números
+    soltos no meio do cálculo.
+
+    Nenhuma cor aqui, de propósito: cor é CSS (.ui-bar-fill, .ui-column-bar,
+    .ui-line-path, .ui-line-dot, .ui-heatmap-cell, .ui-ring-value). Assim a
+    paleta muda numa folha de estilo, sem `getComputedStyle` dentro do desenho
+    e sem redesenhar gráfico quando o tema muda.
+
+    `strokeWidth` da linha e dos anéis também fica no CSS: atributo de
+    apresentação em SVG perde para qualquer regra CSS, então duplicar o valor
+    aqui só criaria duas fontes de verdade para a mesma espessura.
+  */
+
+  const STYLE = {
+    line: {
+      width: 320,
+      height: 120,
+      padding: { top: 12, right: 10, bottom: 20, left: 10 },
+      pointRadius: 3.4
+    },
+    ring: {
+      size: 88,
+      radius: 38,
+      strokeWidth: 9
+    }
+  };
+
   function formatValue(value, format) {
     if (typeof format === "function") return format(value);
     if (value === null || value === undefined) return "—";
@@ -132,9 +161,9 @@
     const points = (options.points || []).filter(point => point && Number.isFinite(Number(point.y)));
     if (points.length < 2) return null;
 
-    const width = 320;
-    const height = 120;
-    const padding = { top: 12, right: 10, bottom: 20, left: 10 };
+    const width = STYLE.line.width;
+    const height = STYLE.line.height;
+    const padding = STYLE.line.padding;
 
     const xs = points.map((point, index) => (points.length === 1
       ? width / 2
@@ -187,7 +216,7 @@
       const dot = doc.createElementNS(SVG_NS, "circle");
       dot.setAttribute("cx", xs[index].toFixed(1));
       dot.setAttribute("cy", scaleY(point.y).toFixed(1));
-      dot.setAttribute("r", "3.4");
+      dot.setAttribute("r", String(STYLE.line.pointRadius));
       dot.setAttribute("class", "ui-line-dot");
 
       const dotTitle = doc.createElementNS(SVG_NS, "title");
@@ -301,8 +330,8 @@
 
   function ring(options) {
     const percent = Math.max(0, Math.min(100, Math.round(Number(options.percent) || 0)));
-    const size = 88;
-    const radius = 38;
+    const size = STYLE.ring.size;
+    const radius = STYLE.ring.radius;
     const circumference = 2 * Math.PI * radius;
 
     const svg = doc.createElementNS(SVG_NS, "svg");
@@ -318,7 +347,7 @@
     track.setAttribute("r", radius);
     track.setAttribute("class", "ui-ring-track");
     track.setAttribute("fill", "none");
-    track.setAttribute("stroke-width", "9");
+    track.setAttribute("stroke-width", String(STYLE.ring.strokeWidth));
 
     const value = doc.createElementNS(SVG_NS, "circle");
     value.setAttribute("cx", size / 2);
@@ -326,7 +355,7 @@
     value.setAttribute("r", radius);
     value.setAttribute("class", "ui-ring-value");
     value.setAttribute("fill", "none");
-    value.setAttribute("stroke-width", "9");
+    value.setAttribute("stroke-width", String(STYLE.ring.strokeWidth));
     value.setAttribute("stroke-linecap", "round");
     value.setAttribute("stroke-dasharray", (circumference * percent / 100).toFixed(2) + " " + circumference.toFixed(2));
     value.setAttribute("transform", "rotate(-90 " + size / 2 + " " + size / 2 + ")");
