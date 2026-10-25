@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rotinas e biblioteca · Protótipo FORJA</title>
+<link rel="stylesheet" href="prototipo.css">
+<style>
+  .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--fj-2); }
+  .library-search { display: grid; grid-template-columns: 1fr auto; gap: var(--fj-2); }
+  .exercise-row-main { display: flex; align-items: center; gap: var(--fj-3); min-width: 0; }
+  .ex-icon { width: 34px; height: 34px; flex: 0 0 auto; border-radius: var(--fj-raio-xs); border: var(--fj-fio) solid var(--fj-linha); display: grid; place-items: center; color: var(--fj-bronze); }
+  .ex-icon svg { width: 18px; height: 18px; }
+  .editor-section { border: var(--fj-fio) solid var(--fj-linha); border-radius: var(--fj-raio-sm); padding: var(--fj-3); display: grid; gap: var(--fj-2); background: var(--fj-ferro); }
+  .editor-section-head { display: flex; align-items: center; justify-content: space-between; gap: var(--fj-2); }
+  .editor-section h3 { font-family: var(--fj-fonte-texto); font-size: var(--fj-texto-sm); font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
+  .section-count { font-size: 10px; color: var(--fj-aco-forte); border: var(--fj-fio) solid var(--fj-linha); border-radius: var(--fj-raio-pill); padding: 1px 7px; font-variant-numeric: tabular-nums; }
+  .editor-exercise { display: flex; flex-wrap: wrap; align-items: center; gap: var(--fj-2); padding: 9px 11px; border-radius: var(--fj-raio-xs); background: var(--fj-ferro-baixo); border: var(--fj-fio) solid var(--fj-linha); }
+  .editor-exercise strong { font-size: var(--fj-texto-sm); font-weight: 600; flex: 1 1 120px; min-width: 0; }
+  .editor-exercise span { font-size: var(--fj-texto-xs); color: var(--fj-aco); font-variant-numeric: tabular-nums; }
+  .exercise-tools { display: flex; gap: 2px; margin-left: auto; }
+  .exercise-tools button { background: none; border: 0; color: var(--fj-aco-forte); font-size: 11px; padding: 6px 7px; border-radius: var(--fj-raio-xs); cursor: pointer; }
+  .exercise-tools button:hover { color: var(--fj-osso); background: rgba(255,255,255,.04); }
+  .dirty-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: var(--fj-raio-pill); border: var(--fj-fio) solid var(--fj-linha-forte); color: var(--fj-aco); }
+  .dirty-pill.saved { color: var(--fj-ok); border-color: rgba(127,176,141,.38); background: var(--fj-ok-lavado); }
+  .dirty-pill.dirty { color: var(--fj-alerta); border-color: rgba(217,166,87,.4); background: var(--fj-alerta-lavado); }
+</style>
+</head>
+<body>
+
+<div class="demo-top">
+  <div class="demo-top-inner">
+    <nav class="demo-links" aria-label="Telas do protótipo">
+      <a href="index.html">Visão geral</a>
+      <a href="inicio.html">Início</a>
+      <a href="execucao.html">Treino em execução</a>
+      <a href="rotinas.html" aria-current="page">Rotinas</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="progresso.html">Progresso</a>
+      <a href="perfil.html">Perfil</a>
+      <a href="componentes.html">Componentes e estados</a>
+      <a href="responsivo.html">Responsivo</a>
+    </nav>
+    <span class="demo-note">Protótipo · dados de exemplo</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="inicio.html" aria-label="FORJA — início">
+      <svg viewBox="0 0 64 64" aria-hidden="true" fill="none">
+        <circle cx="32" cy="32" r="29.6" stroke="currentColor" stroke-width="3.6"/>
+        <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+          <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+          <path d="M13 33H51L47 40H17Z"/>
+          <path d="M26 40H38L41 46H23Z"/>
+          <path d="M17 46H47L49 52H15Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">Forja</span>
+    </a>
+    <div class="tagline">Disciplina • Evolução • Consistência</div>
+  </div>
+</header>
+
+<main class="container screen" id="conteudo">
+
+  <div class="screen-toolbar">
+    <a class="back-link" href="inicio.html">← Início</a>
+    <span class="eyebrow" style="margin:0">Treino</span>
+  </div>
+
+  <div class="page-head">
+    <span class="eyebrow">Suas rotinas</span>
+    <h1 class="screen-title">Treino</h1>
+    <p class="screen-subtitle">Calistenia e musculação têm rotinas e histórico próprios. Escolha a modalidade para ver as rotinas.</p>
+  </div>
+
+  <div class="filter-group" role="group" aria-label="Filtrar por modalidade">
+    <button class="filter-button" type="button" aria-pressed="true">Calistenia</button>
+    <button class="filter-button" type="button" aria-pressed="false">Musculação</button>
+    <button class="filter-button" type="button" aria-pressed="false">Todas</button>
+  </div>
+
+  <section class="section-block" aria-labelledby="rotinas-heading">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title" id="rotinas-heading">Rotinas</h2>
+        <p class="section-note" style="margin-top:2px">3 rotinas de calistenia · 42 séries planejadas no total</p>
+      </div>
+      <button class="primary-button small-button" type="button">+ Nova rotina</button>
+    </div>
+
+    <div class="routine-list">
+
+      <article class="routine-card">
+        <div class="routine-card-header">
+          <h3 class="routine-name">Treino A · Empurrar</h3>
+          <p class="routine-meta">6 exercícios · 18 séries planejadas · última vez em 18 de outubro</p>
+        </div>
+        <ul class="routine-sections">
+          <li><span>Aquecimento</span><strong>2</strong></li>
+          <li><span>Principal</span><strong>12</strong></li>
+          <li><span>Abdômen</span><strong>3</strong></li>
+          <li class="is-empty"><span>Finalizador</span><strong>0</strong></li>
+        </ul>
+        <div class="routine-actions">
+          <button class="primary-button routine-start" type="button">Iniciar treino</button>
+          <a class="secondary-button" href="#editor">Editar exercícios</a>
+          <div class="routine-tools">
+            <button type="button">Renomear</button>
+            <button type="button">Duplicar</button>
+            <button type="button" class="danger-button">Excluir</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="routine-card">
+        <div class="routine-card-header">
+          <h3 class="routine-name">Treino B · Puxar</h3>
+          <p class="routine-meta">5 exercícios · 15 séries planejadas · última vez em 14 de outubro</p>
+        </div>
+        <ul class="routine-sections">
+          <li><span>Aquecimento</span><strong>1</strong></li>
+          <li><span>Principal</span><strong>11</strong></li>
+          <li><span>Abdômen</span><strong>3</strong></li>
+          <li><span>Finalizador</span><strong>1</strong></li>
+        </ul>
+        <div class="routine-actions">
+          <button class="primary-button routine-start" type="button">Iniciar treino</button>
+          <a class="secondary-button" href="#editor">Editar exercícios</a>
+          <div class="routine-tools">
+            <button type="button">Renomear</button>
+            <button type="button">Duplicar</button>
+            <button type="button" class="danger-button">Excluir</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="routine-card">
+        <div class="routine-card-header">
+          <h3 class="routine-name">Treino C · Pernas</h3>
+          <p class="routine-meta">Sem exercícios ainda</p>
+        </div>
+        <ul class="routine-sections">
+          <li class="is-empty"><span>Aquecimento</span><strong>0</strong></li>
+          <li class="is-empty"><span>Principal</span><strong>0</strong></li>
+          <li class="is-empty"><span>Abdômen</span><strong>0</strong></li>
+          <li class="is-empty"><span>Finalizador</span><strong>0</strong></li>
+        </ul>
+        <div class="routine-actions">
+          <button class="primary-button routine-start" type="button" disabled>Adicione exercícios para iniciar</button>
+          <a class="secondary-button" href="#editor">Editar exercícios</a>
+        </div>
+        <p class="section-note" style="margin:0">Uma rotina sem exercícios não pode ser iniciada. Nada foi apagado: o histórico dela continua intacto.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="biblioteca-heading">
+    <div class="section-head">
+      <h2 class="section-title" id="biblioteca-heading">Biblioteca de exercícios</h2>
+      <span class="chip">37 sugeridos</span>
+    </div>
+
+    <div class="catalog-controls">
+      <div class="library-search">
+        <input type="search" placeholder="Buscar por nome, músculo ou equipamento" aria-label="Buscar exercício" value="barra">
+        <button class="secondary-button" type="button">Buscar</button>
+      </div>
+      <div class="filter-grid">
+        <div class="catalog-filter">
+          <label class="catalog-filter-label" for="f-cat">Categoria</label>
+          <select id="f-cat"><option>Todas</option><option>Puxar</option><option>Empurrar</option></select>
+        </div>
+        <div class="catalog-filter">
+          <label class="catalog-filter-label" for="f-mus">Grupo muscular</label>
+          <select id="f-mus"><option>Todos</option><option>Dorsais</option><option>Bíceps</option></select>
+        </div>
+        <div class="catalog-filter">
+          <label class="catalog-filter-label" for="f-eq">Equipamento</label>
+          <select id="f-eq"><option>Todos</option><option selected>Barra fixa</option><option>Chão</option></select>
+        </div>
+      </div>
+      <div class="bp-row" style="justify-content:space-between">
+        <p class="catalog-status" style="margin:0">4 exercícios com esses critérios</p>
+        <button class="nav-text-button" type="button" style="min-height:32px">Limpar filtros</button>
+      </div>
+    </div>
+
+    <div class="catalog-list">
+      <button class="ui-exercise-row" type="button">
+        <span class="exercise-row-main">
+          <span class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3v18M5 8h14M5 16h14"/></svg></span>
+          <span class="ui-exercise-main">
+            <span class="ui-exercise-name">Barra fixa (pegada pronada)</span>
+            <span class="ui-exercise-meta">Puxar · 4 séries · 6 reps · descanso 90 s</span>
+          </span>
+        </span>
+        <span class="ui-exercise-tags">
+          <span class="chip">Dorsais</span>
+          <span class="chip">Barra fixa</span>
+        </span>
+      </button>
+
+      <button class="ui-exercise-row" type="button">
+        <span class="exercise-row-main">
+          <span class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 18l6-12h4l6 12M8 18h8"/></svg></span>
+          <span class="ui-exercise-main">
+            <span class="ui-exercise-name">Remada invertida</span>
+            <span class="ui-exercise-meta">Puxar · 4 séries · 8 reps · descanso 90 s</span>
+          </span>
+        </span>
+        <span class="ui-exercise-tags">
+          <span class="chip">Costas</span>
+          <span class="chip">Barra fixa</span>
+        </span>
+      </button>
+
+      <button class="ui-exercise-row" type="button">
+        <span class="exercise-row-main">
+          <span class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 6h14M5 12h14M5 18h9"/></svg></span>
+          <span class="ui-exercise-main">
+            <span class="ui-exercise-name">Prancha frontal</span>
+            <span class="ui-exercise-meta">Core · 3 séries · 30 s · descanso 45 s</span>
+          </span>
+        </span>
+        <span class="ui-exercise-tags">
+          <span class="chip">Abdômen</span>
+          <span class="chip">Chão</span>
+        </span>
+      </button>
+
+      <button class="ui-exercise-row" type="button">
+        <span class="exercise-row-main">
+          <span class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M7 5v14M17 5v14M4 9h16M4 15h16"/></svg></span>
+          <span class="ui-exercise-main">
+            <span class="ui-exercise-name">Barra fixa com pegada neutra</span>
+            <span class="ui-exercise-meta">Puxar · 3 séries · 6 reps · descanso 90 s</span>
+          </span>
+        </span>
+        <span class="ui-exercise-tags">
+          <span class="chip">Dorsais</span>
+          <span class="chip">Seus</span>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="editor-heading" id="editor">
+    <div class="section-head">
+      <h2 class="section-title" id="editor-heading">Editor de rotina</h2>
+      <span class="dirty-pill dirty">Alterações não salvas</span>
+    </div>
+
+    <div class="field-block">
+      <label class="field-label" for="routine-name">Nome da rotina</label>
+      <input id="routine-name" type="text" value="Treino A · Empurrar">
+    </div>
+
+    <div class="bp-row" style="margin-bottom:var(--fj-4)">
+      <button class="secondary-button" type="button">Cancelar</button>
+      <button class="primary-button" type="button">Salvar rotina</button>
+    </div>
+
+    <div style="display:grid;gap:var(--fj-2)">
+      <section class="editor-section">
+        <div class="editor-section-head">
+          <h3>Treino principal <span class="section-count">3</span></h3>
+          <button class="section-add-button small-button" type="button">+ Adicionar</button>
+        </div>
+        <div class="editor-exercise">
+          <strong>Flexão de braço</strong><span>4 × 10 · 60 s</span>
+          <div class="exercise-tools">
+            <button type="button">↑</button><button type="button">↓</button>
+            <button type="button">Editar</button><button type="button">Remover</button>
+          </div>
+        </div>
+        <div class="editor-exercise">
+          <strong>Paralela (mergulho)</strong><span>3 × 8 · 75 s</span>
+          <div class="exercise-tools">
+            <button type="button">↑</button><button type="button">↓</button>
+            <button type="button">Editar</button><button type="button">Remover</button>
+          </div>
+        </div>
+        <div class="editor-exercise">
+          <strong>Agachamento livre</strong><span>4 × 15 · 60 s</span>
+          <div class="exercise-tools">
+            <button type="button">↑</button><button type="button">↓</button>
+            <button type="button">Editar</button><button type="button">Remover</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="editor-section">
+        <div class="editor-section-head">
+          <h3>Abdômen <span class="section-count">1</span></h3>
+          <button class="section-add-button small-button" type="button">+ Adicionar</button>
+        </div>
+        <div class="editor-exercise">
+          <strong>Prancha frontal</strong><span>3 × 30 s · 45 s</span>
+          <div class="exercise-tools">
+            <button type="button">↑</button><button type="button">↓</button>
+            <button type="button">Editar</button><button type="button">Remover</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="editor-section">
+        <div class="editor-section-head">
+          <h3>Finalizador <span class="section-count">0</span></h3>
+          <button class="section-add-button small-button" type="button">+ Adicionar</button>
+        </div>
+        <div class="ui-empty">
+          <span class="ui-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="currentColor"><path d="M54 19H17L9 24L17 29H54Z"/>
+        <path d="M27 29H37L34 42H30Z"/>
+        <path d="M20 42H44L49 54H15Z"/></svg>
+          </span>
+          <span>
+            <strong class="ui-empty-title">Nenhum exercício no finalizador</strong>
+            <span class="ui-empty-text">O finalizador é opcional. A rotina pode ser iniciada assim mesmo — só o treino principal precisa de exercícios.</span>
+          </span>
+        </div>
+      </section>
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-link" href="inicio.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
+      <span class="bottom-nav-label">Início</span>
+    </a>
+    <a class="bottom-nav-link is-active" href="rotinas.html" aria-current="page">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
+      <span class="bottom-nav-label">Treinos</span>
+    </a>
+    <a class="bottom-nav-link" href="rotinas.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
+      <span class="bottom-nav-label">Explorar</span>
+    </a>
+    <a class="bottom-nav-link" href="progresso.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
+      <span class="bottom-nav-label">Progresso</span>
+    </a>
+    <a class="bottom-nav-link" href="componentes.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
+      <span class="bottom-nav-label">Perfil</span>
+    </a>
+  </div>
+</nav>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">Menos promessas. Mais ação.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+<script>
+  // Modo embutido: dentro da página de responsivo, a moldura de navegação do
+  // protótipo é escondida para a tela aparecer sozinha no dispositivo.
+  if (location.href.indexOf("embed") !== -1) {
+    var demoTop = document.querySelector(".demo-top");
+    if (demoTop) demoTop.remove();
+  }
+  const atual = document.querySelector('.demo-links a[aria-current="page"]');
+  if (atual) atual.scrollIntoView({ inline: 'center', block: 'nearest' });
+</script>
+</body>
+</html>

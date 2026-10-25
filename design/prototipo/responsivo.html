@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Responsivo · Protótipo FORJA</title>
+<link rel="stylesheet" href="prototipo.css">
+<style>
+  .rv-controls {
+    display: grid;
+    gap: var(--fj-3);
+    padding: var(--fj-4);
+    border: var(--fj-fio) solid var(--fj-linha);
+    border-radius: var(--fj-raio-md);
+    background: var(--fj-ferro);
+    margin-bottom: var(--fj-5);
+  }
+  .rv-row { display: flex; flex-wrap: wrap; gap: var(--fj-2); align-items: center; }
+  .rv-row > .field-label { min-width: 76px; }
+  .rv-pill {
+    border: var(--fj-fio) solid var(--fj-linha-forte);
+    background: transparent;
+    color: var(--fj-aco);
+    border-radius: var(--fj-raio-pill);
+    padding: 7px 14px;
+    font-size: var(--fj-texto-xs);
+    font-weight: 650;
+    min-height: 34px;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .rv-pill[aria-pressed="true"] {
+    border-color: var(--fj-brasa-linha);
+    background: var(--fj-brasa-lavada);
+    color: var(--fj-brasa-alta);
+  }
+  .rv-stage {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .device {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    justify-items: center;
+    min-width: 0;
+  }
+  .device-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fj-aco-forte);
+    font-variant-numeric: tabular-nums;
+  }
+  .device-frame {
+    border: 1px solid var(--fj-linha-forte);
+    border-radius: 26px;
+    background: var(--fj-carvao-fundo);
+    padding: 7px;
+    box-shadow: var(--fj-sombra-2);
+    min-width: 0;
+    max-width: 100%;
+  }
+  .device-screen {
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--fj-carvao);
+    min-width: 0;
+    max-width: 100%;
+  }
+  .device-screen iframe { display: block; border: 0; width: 100%; background: var(--fj-carvao); }
+  .desktop-frame {
+    border: 1px solid var(--fj-linha-forte);
+    border-radius: 12px;
+    background: var(--fj-carvao-fundo);
+    padding: 6px;
+    box-shadow: var(--fj-sombra-2);
+  }
+  .desktop-frame .device-screen { border-radius: 8px; }
+  #desktop-scaler { min-width: 0; max-width: 100%; }
+  .bp-table { width: 100%; border-collapse: collapse; font-size: var(--fj-texto-xs); }
+  .bp-table th, .bp-table td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--fj-linha);
+    vertical-align: top;
+  }
+  .bp-table th {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fj-ac);
+    color: var(--fj-aco-forte);
+    font-weight: 700;
+  }
+  .bp-table td strong { font-variant-numeric: tabular-nums; }
+  .bp-table td:first-child { white-space: nowrap; color: var(--fj-osso); font-weight: 650; }
+</style>
+</head>
+<body>
+
+<div class="demo-top">
+  <div class="demo-top-inner">
+    <nav class="demo-links" aria-label="Telas do protótipo">
+      <a href="index.html">Visão geral</a>
+      <a href="inicio.html">Início</a>
+      <a href="execucao.html">Treino em execução</a>
+      <a href="rotinas.html">Rotinas</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="progresso.html">Progresso</a>
+      <a href="perfil.html">Perfil</a>
+      <a href="componentes.html">Componentes e estados</a>
+      <a href="responsivo.html" aria-current="page">Responsivo</a>
+    </nav>
+    <span class="demo-note">Protótipo · comparação de larguras</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="inicio.html" aria-label="FORJA — início">
+      <svg viewBox="0 0 64 64" aria-hidden="true" fill="none">
+        <circle cx="32" cy="32" r="29.6" stroke="currentColor" stroke-width="3.6"/>
+        <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+          <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+          <path d="M13 33H51L47 40H17Z"/>
+          <path d="M26 40H38L41 46H23Z"/>
+          <path d="M17 46H47L49 52H15Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">Forja</span>
+    </a>
+    <div class="tagline">Disciplina • Evolução • Consistência</div>
+  </div>
+</header>
+
+<main class="container blueprint" id="conteudo">
+
+  <div class="page-head">
+    <span class="eyebrow">Demonstração responsiva</span>
+    <h1 class="screen-title">Celular e desktop</h1>
+    <p class="screen-subtitle">As telas reais do protótipo, carregadas em tempo real, em duas larguras. Troque a tela e a largura para inspecionar quebra de linha, alvo de toque e rolagem horizontal.</p>
+  </div>
+
+  <div class="rv-controls">
+    <div class="rv-row">
+      <span class="field-label">Tela</span>
+      <button class="rv-pill" type="button" data-screen="inicio.html" aria-pressed="true">Início</button>
+      <button class="rv-pill" type="button" data-screen="execucao.html" aria-pressed="false">Execução</button>
+      <button class="rv-pill" type="button" data-screen="rotinas.html" aria-pressed="false">Rotinas</button>
+      <button class="rv-pill" type="button" data-screen="biblioteca.html" aria-pressed="false">Biblioteca</button>
+      <button class="rv-pill" type="button" data-screen="progresso.html" aria-pressed="false">Progresso</button>
+      <button class="rv-pill" type="button" data-screen="perfil.html" aria-pressed="false">Perfil</button>
+      <button class="rv-pill" type="button" data-screen="componentes.html" aria-pressed="false">Componentes</button>
+    </div>
+    <div class="rv-row">
+      <span class="field-label">Largura</span>
+      <button class="rv-pill" type="button" data-width="320" aria-pressed="false">320</button>
+      <button class="rv-pill" type="button" data-width="360" aria-pressed="false">360</button>
+      <button class="rv-pill" type="button" data-width="390" aria-pressed="true">390</button>
+      <button class="rv-pill" type="button" data-width="430" aria-pressed="false">430</button>
+      <button class="rv-pill" type="button" data-width="768" aria-pressed="false">768</button>
+    </div>
+    <p class="bp-cap" id="rv-status" style="font-variant-numeric:tabular-nums" aria-live="polite">Celular 390 × 780 · Início</p>
+  </div>
+
+  <div class="rv-stage">
+    <div class="device">
+      <div class="device-frame">
+        <div class="device-screen">
+          <iframe id="frame-mobile" src="inicio.html?embed=1" title="Protótipo em largura de celular" width="390" height="780"></iframe>
+        </div>
+      </div>
+      <span class="device-label">Celular · <span id="mobile-size">390</span> px</span>
+    </div>
+
+    <div class="device" style="flex: 1 1 520px; min-width: 0; justify-items: stretch">
+      <div class="desktop-frame">
+        <div class="device-screen">
+          <div id="desktop-scaler" style="width:100%; overflow:hidden">
+            <iframe id="frame-desktop" src="inicio.html?embed=1" title="Protótipo em largura de desktop" width="1280" height="960"
+                    style="width:1280px; height:960px; transform-origin: top left"></iframe>
+          </div>
+        </div>
+      </div>
+      <span class="device-label" style="justify-self:center">Desktop · 1280 px (reduzido para caber)</span>
+    </div>
+  </div>
+
+  <p class="bp-cap" style="margin-top:14px; text-align:center">
+    Nas duas molduras a interface é a mesma que você vê ao abrir cada tela. A barra
+    inferior é <code>position: fixed</code> também no desktop — por isso ela aparece
+    na base da janela, sobreposta ao conteúdo que continua rolando por baixo. É o
+    comportamento real do app, não um artefato da demonstração.
+  </p>
+
+  <section class="bp-section">
+    <h2>Pontos de quebra e o que muda</h2>
+    <p class="bp-lede">Sete larguras de referência, herdadas do que o app já testa hoje (320, 360, 390, 430, 768 e 1280) mais o ponto de 560 px que já existe nas regras atuais. Nenhuma página ganha um breakpoint próprio: a mudança é sempre na camada compartilhada.</p>
+    <table class="bp-table">
+      <thead>
+        <tr><th>Largura</th><th>Layout</th><th>O que muda</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>320–359</td><td>1 coluna</td><td>Container de 24 px de margem; título a 28 px; grade de estatística em 2 colunas; nome da rotina quebra em duas linhas; barra inferior com rótulos reduzidos.</td></tr>
+        <tr><td>360–429</td><td>1 coluna</td><td>Padrão do produto. Container de 32 px; título a 34 px; calendário com células de 36 px; campos de 44 px de altura.</td></tr>
+        <tr><td>430–559</td><td>1 coluna larga</td><td>Mesma estrutura; resumo de treino em 4 colunas; card de exercício com tags à direita do nome.</td></tr>
+        <tr><td>560–719</td><td>1 coluna</td><td>Grades internas passam a 3 colunas; foco de execução com os três indicadores na mesma linha.</td></tr>
+        <tr><td>720–1023</td><td>2 colunas</td><td>Container de 48 px até 880 px; hub de modalidades e biblioteca em 2 colunas; calendário com células de 54 px.</td></tr>
+        <tr><td>1024+</td><td>2 colunas + pílula</td><td>Início em duas colunas (semana/metas à esquerda, calendário/missões à direita); barra inferior vira pílula flutuante centralizada; conteúdo em 880 px.</td></tr>
+      </tbody>
+    </table>
+    <p class="bp-cap" style="margin-top:10px">A barra inferior continua sendo a mesma marcação e o mesmo <code>position: fixed</code> em todas as larguras — no desktop ela só ganha uma superfície de pílula. Isso evita duplicar navegação e mantém o teste de “5 destinos” válido.</p>
+  </section>
+
+  <section class="bp-section">
+    <h2>Regras que valem em qualquer largura</h2>
+    <div class="bp-grid">
+      <div class="bp-tile">
+        <h3>Sem rolagem horizontal</h3>
+        <p class="bp-cap">Nenhuma tela pode passar de 1 px de rolagem lateral. Nomes longos usam <code>overflow-wrap: anywhere</code>; números usam <code>tabular-nums</code>; imagens do atlas têm <code>min-width: 0</code> e escala preservada.</p>
+      </div>
+      <div class="bp-tile">
+        <h3>Alvo de toque de 44 px</h3>
+        <p class="bp-cap">Todo controle tocável tem no mínimo 44 × 44 px, inclusive os botões de ferramenta (renomear, duplicar, excluir) e os ajustes de descanso de ±15 s. Isso é maior que o atual em vários pontos.</p>
+      </div>
+      <div class="bp-tile">
+        <h3>Uma ação primária por tela</h3>
+        <p class="bp-cap">Na execução, só “Concluir série” é brasa. Na home, só “Iniciar treino”. O resto é secundário ou texto.</p>
+      </div>
+      <div class="bp-tile">
+        <h3>Sem ícone flutuante sobre conteúdo</h3>
+        <p class="bp-cap">A barra inferior reserva o próprio espaço com <code>padding-bottom</code>; o rodapé nunca fica escondido atrás dela.</p>
+      </div>
+      <div class="bp-tile">
+        <h3>Movimento curto e opcional</h3>
+        <p class="bp-cap">Transições de 120–180 ms, só em cor, borda e opacidade. Com <code>prefers-reduced-motion</code>, tudo cai para 0,01 ms — inclusive o brilho do esqueleto de carregamento.</p>
+      </div>
+      <div class="bp-tile">
+        <h3>Zoom de 200% não quebra</h3>
+        <p class="bp-cap">Como tudo é tipografia em rem/px com layout em grid fluido, ampliar o texto não gera corte: as grades caem para 1 coluna em vez de esconder conteúdo.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">Menos promessas. Mais ação.</p>
+    <p class="storage-note">Protótipo da etapa 1. Nenhuma alteração foi aplicada ao aplicativo.</p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var mobile = document.getElementById('frame-mobile');
+    var desktop = document.getElementById('frame-desktop');
+    var scaler = document.getElementById('desktop-scaler');
+    var status = document.getElementById('rv-status');
+    var mobileSize = document.getElementById('mobile-size');
+    var screenName = 'Início';
+    var width = 390;
+
+    function scaleDesktop() {
+      var available = scaler.clientWidth;
+      var factor = Math.min(1, Math.round((available / 1280) * 1000) / 1000);
+      desktop.style.transform = 'scale(' + factor + ')';
+      scaler.style.height = Math.round(960 * factor) + 'px';
+      desktop.setAttribute('title', 'Protótipo em largura de desktop, reduzido a ' + Math.round(factor * 100) + '%');
+    }
+
+    function load() {
+      mobile.src = screenName.toLowerCase().replace('ç', 'c').replace('ã', 'a') + '.html?embed=1';
+      desktop.src = mobile.src;
+      status.textContent = 'Celular ' + width + ' × 780 · ' + screenName + ' · Desktop 1280';
+    }
+
+    // Mapa explícito, para não depender de normalização de acentos.
+    var files = {
+      'Início': 'inicio.html',
+      'Execução': 'execucao.html',
+      'Rotinas': 'rotinas.html',
+      'Biblioteca': 'biblioteca.html',
+      'Progresso': 'progresso.html',
+      'Perfil': 'perfil.html',
+      'Componentes': 'componentes.html'
+    };
+
+    function apply() {
+      var file = files[screenName] + '?embed=1';
+      mobile.src = file;
+      mobile.width = width;
+      mobile.style.width = width + 'px';
+      mobileSize.textContent = width;
+      desktop.src = file;
+      status.textContent = 'Celular ' + width + ' × 780 · ' + screenName + ' · Desktop 1280';
+      scaleDesktop();
+    }
+
+    document.querySelectorAll('[data-screen]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        screenName = button.textContent.trim();
+        document.querySelectorAll('[data-screen]').forEach(function (other) {
+          other.setAttribute('aria-pressed', String(other === button));
+        });
+        apply();
+      });
+    });
+
+    document.querySelectorAll('[data-width]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        width = Number(button.getAttribute('data-width'));
+        document.querySelectorAll('[data-width]').forEach(function (other) {
+          other.setAttribute('aria-pressed', String(other === button));
+        });
+        apply();
+      });
+    });
+
+    window.addEventListener('resize', scaleDesktop);
+    desktop.addEventListener('load', scaleDesktop);
+    apply();
+    requestAnimationFrame(scaleDesktop);
+  }());
+</script>
+</body>
+</html>

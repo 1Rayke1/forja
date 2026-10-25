@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progresso · Protótipo FORJA</title>
+<link rel="stylesheet" href="prototipo.css">
+<style>
+  .period-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+  .period-tabs button {
+    border: var(--fj-fio) solid var(--fj-linha);
+    background: transparent;
+    color: var(--fj-aco);
+    border-radius: var(--fj-raio-pill);
+    padding: 6px 13px;
+    min-height: 34px;
+    font-size: var(--fj-texto-xs);
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .period-tabs button[aria-pressed="true"] { border-color: var(--fj-brasa-linha); background: var(--fj-brasa-lavada); color: var(--fj-brasa-alta); }
+  .compare-grid { display: grid; gap: var(--fj-2); }
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: var(--fj-3);
+    align-items: baseline;
+    padding: 11px 14px;
+    border: var(--fj-fio) solid var(--fj-linha);
+    border-radius: var(--fj-raio-sm);
+    background: var(--fj-ferro);
+    font-size: var(--fj-texto-sm);
+  }
+  .compare-row .value { font-weight: 750; font-variant-numeric: tabular-nums; }
+  .delta { font-size: var(--fj-texto-xs); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .delta.up { color: var(--fj-ok); }
+  .delta.down { color: var(--fj-erro); }
+  .delta.flat { color: var(--fj-aco-forte); }
+  .legend-row { display: flex; flex-wrap: wrap; gap: var(--fj-3); font-size: var(--fj-texto-xs); color: var(--fj-aco); }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="demo-top">
+  <div class="demo-top-inner">
+    <nav class="demo-links" aria-label="Telas do protótipo">
+      <a href="index.html">Visão geral</a>
+      <a href="inicio.html">Início</a>
+      <a href="execucao.html">Treino em execução</a>
+      <a href="rotinas.html">Rotinas</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="progresso.html" aria-current="page">Progresso</a>
+      <a href="perfil.html">Perfil</a>
+      <a href="componentes.html">Componentes e estados</a>
+      <a href="responsivo.html">Responsivo</a>
+    </nav>
+    <span class="demo-note">Protótipo · dados de exemplo</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="inicio.html" aria-label="FORJA — início">
+      <svg viewBox="0 0 64 64" aria-hidden="true" fill="none">
+        <circle cx="32" cy="32" r="29.6" stroke="currentColor" stroke-width="3.6"/>
+        <g fill="currentColor" transform="translate(32 31.5) scale(1.075) translate(-32 -31.5)">
+          <path d="M32 9C37 15 39.5 20 39.5 25.5C39.5 30 36 33 32 33C28 33 24.5 30 24.5 25.5C24.5 20.5 26.5 17.5 28.5 14.5C28.5 18.5 30 20.5 31.5 20.5C31.5 16.5 31.5 13 32 9Z"/>
+          <path d="M13 33H51L47 40H17Z"/>
+          <path d="M26 40H38L41 46H23Z"/>
+          <path d="M17 46H47L49 52H15Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">Forja</span>
+    </a>
+    <div class="tagline">Disciplina • Evolução • Consistência</div>
+  </div>
+</header>
+
+<main class="container screen" id="conteudo">
+
+  <div class="screen-toolbar">
+    <a class="back-link" href="inicio.html">← Início</a>
+    <span class="eyebrow" style="margin:0">Progresso</span>
+  </div>
+
+  <div class="page-head">
+    <h1 class="screen-title">Progresso</h1>
+    <p class="screen-subtitle">Tudo aqui é calculado somente com os treinos registrados neste navegador. Nenhum número é estimado.</p>
+  </div>
+
+  <div class="filter-group" role="group" aria-label="Filtrar por modalidade">
+    <button class="filter-button" type="button" aria-pressed="true">Todas</button>
+    <button class="filter-button" type="button" aria-pressed="false">Calistenia</button>
+    <button class="filter-button" type="button" aria-pressed="false">Musculação</button>
+  </div>
+
+  <div class="bp-row" style="margin-top:var(--fj-3);justify-content:space-between">
+    <span class="field-label">Período</span>
+    <div class="period-tabs" role="group" aria-label="Período">
+      <button type="button" aria-pressed="false">Semana</button>
+      <button type="button" aria-pressed="true">Mês</button>
+      <button type="button" aria-pressed="false">Tudo</button>
+      <button type="button" aria-pressed="false">Personalizado</button>
+    </div>
+  </div>
+  <p class="section-note">Exibindo: <strong style="color:var(--fj-osso)">Todas as modalidades</strong> · 1 a 31 de outubro</p>
+
+  <section class="section-block" aria-labelledby="resumo-heading">
+    <div class="section-head"><h2 class="section-title" id="resumo-heading">Resumo do período</h2></div>
+    <div class="ui-stats">
+      <div class="ui-stat"><div class="ui-stat-value">9</div><div class="ui-stat-label">treinos</div></div>
+      <div class="ui-stat is-accent"><div class="ui-stat-value">7</div><div class="ui-stat-label">concluídos</div></div>
+      <div class="ui-stat"><div class="ui-stat-value">2</div><div class="ui-stat-label">parciais</div></div>
+      <div class="ui-stat"><div class="ui-stat-value">142/150</div><div class="ui-stat-label">séries feitas</div></div>
+      <div class="ui-stat"><div class="ui-stat-value">5h 41</div><div class="ui-stat-label">tempo total</div></div>
+    </div>
+    <div class="ui-stats" style="margin-top:var(--fj-2)">
+      <div class="ui-stat"><div class="ui-stat-value">8.640 kg</div><div class="ui-stat-label">volume</div></div>
+      <div class="ui-stat"><div class="ui-stat-value">1.284</div><div class="ui-stat-label">repetições</div></div>
+      <div class="ui-stat"><div class="ui-stat-value">3,2 km</div><div class="ui-stat-label">distância</div></div>
+      <div class="ui-stat"><div class="ui-stat-value">4,1</div><div class="ui-stat-label">média de séries por treino</div></div>
+    </div>
+    <p class="section-note">Volume só soma séries com carga numérica registrada. Séries sem carga aparecem na contagem de séries, não no volume.</p>
+  </section>
+
+  <section class="section-block" aria-labelledby="meta-heading">
+    <div class="section-head">
+      <h2 class="section-title" id="meta-heading">Metas da semana</h2>
+      <a class="section-link" href="#metas">Configurar</a>
+    </div>
+    <div class="rings-row">
+      <div class="ui-ring">
+        <svg class="ui-ring-svg" viewBox="0 0 100 100" role="img" aria-label="Treinos: 75 por cento da meta">
+          <circle class="ui-ring-track" cx="50" cy="50" r="42" fill="none" stroke-width="8"/>
+          <circle class="ui-ring-value" cx="50" cy="50" r="42" fill="none" stroke-width="8" stroke-linecap="round"
+                  stroke-dasharray="264" stroke-dashoffset="66" transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="ui-ring-center"><span class="ui-ring-percent">75%</span><span class="ui-ring-value-text">3 de 4</span></div>
+        <p class="ui-ring-label">Treinos</p>
+      </div>
+      <div class="ui-ring">
+        <svg class="ui-ring-svg" viewBox="0 0 100 100" role="img" aria-label="Séries: 70 por cento da meta">
+          <circle class="ui-ring-track" cx="50" cy="50" r="42" fill="none" stroke-width="8"/>
+          <circle class="ui-ring-value" cx="50" cy="50" r="42" fill="none" stroke-width="8" stroke-linecap="round"
+                  stroke-dasharray="264" stroke-dashoffset="79" transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="ui-ring-center"><span class="ui-ring-percent">70%</span><span class="ui-ring-value-text">42 de 60</span></div>
+        <p class="ui-ring-label">Séries</p>
+      </div>
+      <div class="ui-ring">
+        <svg class="ui-ring-svg" viewBox="0 0 100 100" role="img" aria-label="Minutos: 80 por cento da meta">
+          <circle class="ui-ring-track" cx="50" cy="50" r="42" fill="none" stroke-width="8"/>
+          <circle class="ui-ring-value" cx="50" cy="50" r="42" fill="none" stroke-width="8" stroke-linecap="round"
+                  stroke-dasharray="264" stroke-dashoffset="53" transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="ui-ring-center"><span class="ui-ring-percent">80%</span><span class="ui-ring-value-text">96 de 120</span></div>
+        <p class="ui-ring-label">Minutos</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="compare-heading">
+    <div class="section-head"><h2 class="section-title" id="compare-heading">Comparação de períodos</h2></div>
+    <p class="section-note" style="margin-bottom:var(--fj-3)">1 a 31 de outubro contra 1 a 30 de setembro.</p>
+    <div class="compare-grid">
+      <div class="compare-row"><span>Treinos</span><span class="value">9</span><span class="delta up">+2</span></div>
+      <div class="compare-row"><span>Séries</span><span class="value">142</span><span class="delta up">+18</span></div>
+      <div class="compare-row"><span>Volume</span><span class="value">8.640 kg</span><span class="delta up">+740 kg</span></div>
+      <div class="compare-row"><span>Tempo total</span><span class="value">5h 41</span><span class="delta down">−28 min</span></div>
+    </div>
+    <p class="section-note">Comparação sempre contra o bloco imediatamente anterior de mesmo tamanho. “Tudo” não compara.</p>
+  </section>
+
+  <section class="section-block" aria-labelledby="freq-heading">
+    <div class="section-head"><h2 class="section-title" id="freq-heading">Calendário de frequência</h2></div>
+    <p class="section-note" style="margin-bottom:var(--fj-3)">Últimas 12 semanas, de segunda a domingo. A intensidade da célula é o número de séries concluídas no dia.</p>
+    <div class="ui-heatmap">
+      <div class="ui-heatmap-body">
+        <div class="ui-heatmap-row-label">S</div>
+        <div class="ui-heatmap-row-label">T</div>
+        <div class="ui-heatmap-row-label">Q</div>
+        <div class="ui-heatmap-row-label">Q</div>
+        <div class="ui-heatmap-row-label">S</div>
+        <div class="ui-heatmap-row-label">S</div>
+        <div class="ui-heatmap-row-label">D</div>
+        <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div>
+        <div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div>
+        <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div>
+        <div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div>
+        <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div>
+        <div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div>
+        <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell level-1"></div>
+        <div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div>
+        <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div>
+        <div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-1"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div>
+        <div class="ui-heatmap-cell level-4"></div><div class="ui-heatmap-cell level-3"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell level-2"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell future"></div>
+        <div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell"></div><div class="ui-heatmap-cell future"></div>
+      </div>
+      <div class="legend-row">
+        <span class="legend-item"><span class="legend-dot" style="background:var(--fj-ferro-alto)"></span>sem treino</span>
+        <span class="legend-item"><span class="legend-dot" style="background:rgba(228,105,58,.24)"></span>1–5</span>
+        <span class="legend-item"><span class="legend-dot" style="background:rgba(228,105,58,.44)"></span>6–11</span>
+        <span class="legend-item"><span class="legend-dot" style="background:rgba(228,105,58,.68)"></span>12–17</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--fj-brasa)"></span>18+</span>
+        <span class="legend-item"><span class="legend-dot" style="border:1px dashed var(--fj-linha-forte)"></span>futuro</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="semana-heading">
+    <div class="section-head"><h2 class="section-title" id="semana-heading">Semana a semana</h2></div>
+    <p class="section-note" style="margin-bottom:var(--fj-3)">Últimas 8 semanas, de segunda a domingo. Cada treino entra na semana em que foi encerrado.</p>
+    <div class="ui-chart">
+      <div class="ui-columns">
+        <div class="ui-column"><span class="ui-column-value">12</span><div class="ui-column-bar" style="height:60%"></div><span class="ui-column-label">31/8</span></div>
+        <div class="ui-column"><span class="ui-column-value">18</span><div class="ui-column-bar" style="height:90%"></div><span class="ui-column-label">7/9</span></div>
+        <div class="ui-column"><span class="ui-column-value">9</span><div class="ui-column-bar" style="height:45%"></div><span class="ui-column-label">14/9</span></div>
+        <div class="ui-column"><span class="ui-column-value">0</span><div class="ui-column-bar is-muted" style="height:4%"></div><span class="ui-column-label">21/9</span></div>
+        <div class="ui-column"><span class="ui-column-value">16</span><div class="ui-column-bar" style="height:80%"></div><span class="ui-column-label">28/9</span></div>
+        <div class="ui-column"><span class="ui-column-value">20</span><div class="ui-column-bar" style="height:100%"></div><span class="ui-column-label">5/10</span></div>
+        <div class="ui-column"><span class="ui-column-value">14</span><div class="ui-column-bar" style="height:70%"></div><span class="ui-column-label">12/10</span></div>
+        <div class="ui-column"><span class="ui-column-value">8</span><div class="ui-column-bar" style="height:40%"></div><span class="ui-column-label">19/10</span></div>
+      </div>
+      <p class="ui-chart-caption">Colunas: séries concluídas por semana. Semana sem treino aparece vazia, não é omitida.</p>
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="evolucao-heading">
+    <div class="section-head">
+      <h2 class="section-title" id="evolucao-heading">Evolução por exercício</h2>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="evolucao-select">Exercício</label>
+      <select id="evolucao-select">
+        <option>Supino reto com barra · carga</option>
+        <option>Barra fixa · repetições</option>
+        <option>Prancha frontal · tempo</option>
+      </select>
+    </div>
+    <div class="ui-line">
+      <svg class="ui-line-svg" viewBox="0 0 320 120" preserveAspectRatio="none" role="img" aria-label="Evolução de carga no supino reto: 40, 42, 45, 45, 47, 50 kg">
+        <path class="ui-line-axis" d="M0 100 H320"/>
+        <path class="ui-line-area" d="M8 84 L60 76 L112 62 L164 62 L216 48 L268 30 L268 100 L8 100 Z"/>
+        <path class="ui-line-path" d="M8 84 L60 76 L112 62 L164 62 L216 48 L268 30"/>
+        <circle class="ui-line-dot" cx="8" cy="84" r="2.5"/>
+        <circle class="ui-line-dot" cx="60" cy="76" r="2.5"/>
+        <circle class="ui-line-dot" cx="112" cy="62" r="2.5"/>
+        <circle class="ui-line-dot" cx="164" cy="62" r="2.5"/>
+        <circle class="ui-line-dot" cx="216" cy="48" r="2.5"/>
+        <circle class="ui-line-dot" cx="268" cy="30" r="2.5"/>
+      </svg>
+      <div class="ui-line-edge"><span>24/9 · 40 kg</span><span>19/10 · 50 kg</span></div>
+      <p class="ui-chart-caption">Melhor carga de cada treino. A linha só aparece com 2 treinos medidos; aqui são 6.</p>
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="recordes-heading">
+    <div class="section-head"><h2 class="section-title" id="recordes-heading">Recordes</h2></div>
+    <p class="section-note" style="margin-bottom:var(--fj-3)">Cada recorde mostra o critério usado. Categorias sem dado medido não aparecem.</p>
+    <ul class="records-list">
+      <li><span class="record-name">Maior carga em uma série</span><span class="record-value">50 kg</span><span class="record-criteria">Supino reto com barra · 19 de outubro</span></li>
+      <li><span class="record-name">Mais repetições em uma série</span><span class="record-value">20 reps</span><span class="record-criteria">Agachamento livre · 12 de outubro</span></li>
+      <li><span class="record-name">Maior volume em um treino</span><span class="record-value">1.015 kg</span><span class="record-criteria">Treino B · 20 de outubro</span></li>
+      <li><span class="record-name">Treino mais longo</span><span class="record-value">58:14</span><span class="record-criteria">Treino A · 5 de outubro</span></li>
+    </ul>
+  </section>
+
+  <section class="section-block" aria-labelledby="historico-heading">
+    <div class="section-head"><h2 class="section-title" id="historico-heading">Histórico</h2></div>
+    <div class="field-grid" style="margin-bottom:var(--fj-3)">
+      <div class="field-block" style="margin:0">
+        <label class="field-label" for="busca">Buscar no histórico</label>
+        <input id="busca" type="search" placeholder="Rotina, exercício, carga digitada ou nota">
+      </div>
+      <div class="field-block" style="margin:0">
+        <label class="field-label" for="status">Status</label>
+        <select id="status"><option>Todos</option><option>Concluídos</option><option>Parciais</option></select>
+      </div>
+    </div>
+    <p class="catalog-status">9 treinos no período · 2 parciais</p>
+    <div style="display:grid;gap:6px">
+      <div class="history-item">
+        <div>
+          <div class="history-item-title">Treino A · Calistenia</div>
+          <div class="history-item-meta">21 de outubro · 41 min · 18/18 séries · 1.240 kg</div>
+        </div>
+        <span class="chip ok">Concluído</span>
+      </div>
+      <div class="history-item">
+        <div>
+          <div class="history-item-title">Treino B · Musculação</div>
+          <div class="history-item-meta">20 de outubro · 38 min · 14/14 séries · 1.015 kg</div>
+        </div>
+        <span class="chip ok">Concluído</span>
+      </div>
+      <div class="history-item">
+        <div>
+          <div class="history-item-title">Treino A · Musculação</div>
+          <div class="history-item-meta">18 de outubro · 22 min · 7/14 séries</div>
+        </div>
+        <span class="chip" style="border-color:rgba(217,166,87,.42);color:var(--fj-alerta)">Parcial</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" aria-labelledby="metas">
+    <div class="section-head"><h2 class="section-title" id="metas-heading">Metas</h2></div>
+    <div class="ui-card">
+      <div class="field-grid">
+        <div class="field-block"><label class="field-label" for="g1">Treinos por semana</label><input id="g1" type="number" value="4"></div>
+        <div class="field-block"><label class="field-label" for="g2">Séries por semana</label><input id="g2" type="number" value="60"></div>
+        <div class="field-block"><label class="field-label" for="g3">Minutos por semana</label><input id="g3" type="number" value="120"></div>
+        <div class="field-block">
+          <label class="field-label" for="g4">Escopo da meta</label>
+          <select id="g4"><option>Todas as modalidades</option><option>Calistenia</option><option>Musculação</option></select>
+        </div>
+      </div>
+      <p class="field-hint">Alvo 0 desliga o item. Salvar metas não altera nenhum treino do histórico.</p>
+      <div class="bp-row">
+        <button class="primary-button" type="button">Salvar metas</button>
+        <span class="catalog-status" style="margin:0">Metas salvas às 18:12.</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-link" href="inicio.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
+      <span class="bottom-nav-label">Início</span>
+    </a>
+    <a class="bottom-nav-link" href="rotinas.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
+      <span class="bottom-nav-label">Treinos</span>
+    </a>
+    <a class="bottom-nav-link" href="rotinas.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
+      <span class="bottom-nav-label">Explorar</span>
+    </a>
+    <a class="bottom-nav-link is-active" href="progresso.html" aria-current="page">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
+      <span class="bottom-nav-label">Progresso</span>
+    </a>
+    <a class="bottom-nav-link" href="componentes.html">
+      <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
+      <span class="bottom-nav-label">Perfil</span>
+    </a>
+  </div>
+</nav>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">Menos promessas. Mais ação.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+  </div>
+</footer>
+
+
+<script>
+  // Modo embutido: dentro da página de responsivo, a moldura de navegação do
+  // protótipo é escondida para a tela aparecer sozinha no dispositivo.
+  if (location.href.indexOf("embed") !== -1) {
+    var demoTop = document.querySelector(".demo-top");
+    if (demoTop) demoTop.remove();
+  }
+  const atual = document.querySelector('.demo-links a[aria-current="page"]');
+  if (atual) atual.scrollIntoView({ inline: 'center', block: 'nearest' });
+</script>
+</body>
+</html>
