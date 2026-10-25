@@ -427,6 +427,24 @@ select.field-input { padding-left: 12px; }
 .home-secondary .missions-panel .delete-button:hover { color: var(--danger); }
 .home-secondary .missions-panel .task-list .empty { padding: 16px; border: 1px dashed var(--line-soft); border-radius: var(--radius-md); background: var(--surface-sunken); font-family: var(--fj-fonte-texto); font-size: var(--font-sm); line-height: 1.5; }
 
+/* 6.8 Onboarding — mesmo formulário, mesma altura, superfície alinhada ---- */
+#onboarding-root { margin: 0 0 12px; }
+#onboarding-root .onboarding-panel { margin: 0; gap: 8px; padding: 12px 14px; border-color: var(--accent-line); border-radius: var(--radius-lg); }
+#onboarding-root .onboarding-head { gap: 4px; }
+#onboarding-root .onboarding-title { font-size: 16px; }
+#onboarding-root .onboarding-eyebrow { font-size: 10px; letter-spacing: var(--fj-tracking-rotulo); }
+#onboarding-root .onboarding-meta { font-family: var(--fj-fonte-texto); font-size: 12px; line-height: 1.45; }
+#onboarding-root .onboarding-profile-link { text-underline-offset: 3px; }
+#onboarding-root .onboarding-form { gap: 6px; }
+#onboarding-root .onboarding-fields { gap: 6px; }
+#onboarding-root .onboarding-fields .field-label { font-size: var(--font-xs); letter-spacing: 0.04em; }
+#onboarding-root .onboarding-panel .field-hint,
+#onboarding-root .onboarding-panel .field-error { font-size: var(--font-xs); line-height: 1.45; }
+#onboarding-root .onboarding-actions { gap: var(--space-2); }
+@media (min-width: 720px) {
+  #onboarding-root .onboarding-panel { padding: 14px 16px; }
+}
+
 /* Legado: manter .treino-square compatível mas não usado na home nova */
 .treino-cta {
   background: var(--panel);
