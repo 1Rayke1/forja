@@ -1939,6 +1939,11 @@
 
     bind("complete-set", completeCurrentSet);
     bind("execution-figure-details", openExerciseFigureDetails);
+    bind("execution-instructions", () => {
+      const exercise = currentSessionExercise();
+      const s = session();
+      if (exercise && s) F.catalog.showDetail(F.catalog.describeExercise(exercise, s.modality), { readOnly: true });
+    });
     bind("start-rest", startRestManually);
     bind("previous-exercise", goToPreviousExercise);
     bind("next-exercise", goToNextExercise);

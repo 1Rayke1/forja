@@ -753,7 +753,7 @@
       const preferredAction = settings.actions.find(action => action.id !== "cancel");
       const preferredButton = preferredAction
         ? actions.querySelector('[data-modal-action="' + preferredAction.id + '"]')
-        : null;
+        : actions.querySelector("button");
 
       if (fieldInputs.length > 0) {
         const first = fieldInputs[0];

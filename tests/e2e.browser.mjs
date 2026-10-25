@@ -718,8 +718,8 @@ await check('Navegação por seções: início → TREINO → hub → CALISTENIA
   await jsClick('a[href="treino/index.html"], a[href="treino/"]');
   await expectPath('/treino/');
   assert.equal(await text('h1'), 'TREINO', 'Título do hub');
-  assert.ok(await page.$('.modality-card#mode-calisthenics'), 'Cartão de calistenia');
-  assert.ok(await page.$('.modality-card#mode-weights'), 'Cartão de musculação');
+  assert.ok(await page.$('a#mode-calisthenics'), 'Cartão de calistenia');
+  assert.ok(await page.$('a#mode-weights'), 'Cartão de musculação');
   assert.ok(await page.$('[aria-current="page"]'), 'Seção atual não indicada');
 
   await jsClick('#mode-calisthenics');
@@ -1826,6 +1826,137 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
     await page.screenshot({ path: artifactPath('d11-nav-320.png') });
   } finally {
     await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+/* Fluxos da primeira evolução web, isolados dos dados das verificações acima. */
+await check('Evolução 1 — rotinas diretas, filtro e início com a modalidade correta', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await seedRestSession();
+    await page.evaluate(() => {
+      localStorage.removeItem('forja-treino-sessao-ativa-v1');
+      const key = 'forja-treino-rotinas-v1';
+      const routines = JSON.parse(localStorage.getItem(key));
+      const weights = structuredClone(routines.calisthenics[0]);
+      weights.id = 'e2e-direto-weights'; weights.name = 'Musculação direta'; weights.modality = 'weights';
+      routines.weights = [weights];
+      localStorage.setItem(key, JSON.stringify(routines));
+    });
+    await go('treino/');
+    const before = await forjaRaw();
+    for (const width of [320, 390, 1280]) {
+      await page.setViewport({ width, height: 844 });
+      assert.equal(await page.$$eval('#hub-routine-list .routine-card', els => els.length), 2);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+      const heights = await page.$$eval('#hub-routine-list .routine-actions > *', els => els.map(el => el.getBoundingClientRect().height));
+      assert.ok(heights.every(height => height >= 44));
+    }
+    await page.setViewport(MOBILE);
+    await page.screenshot({ path: artifactPath('evolucao1-rotinas-390.png'), fullPage: true });
+    await page.select('#hub-modality', 'weights');
+    assert.equal(await page.$$eval('#hub-routine-list .routine-card', els => els.length), 1);
+    assert.deepEqual(await forjaRaw(), before, 'Filtrar não pode alterar dados');
+    await clickCentered('#hub-routine-list .routine-start');
+    await expectPath('/treino/executar.html');
+    const active = await data('forja-treino-sessao-ativa-v1');
+    assert.equal(active.routineId, 'e2e-direto-weights');
+    assert.equal(active.modality, 'weights');
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Evolução 1 — consulta e inclusão contextual preservam rascunho, ordem, foco e IDs', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await seedRestSession();
+    await page.evaluate(() => localStorage.removeItem('forja-treino-sessao-ativa-v1'));
+    await go('treino/rotina.html?modalidade=calisthenics&id=e2e-prefs-rest');
+    await fill('#routine-name-input', 'Rascunho preservado');
+    await fill('#exercise-name', 'Ainda digitando');
+    await fill('#exercise-reps', '8-12');
+    await fill('#exercise-rest', '75');
+    const before = await forjaRaw();
+    const order = await page.$$eval('.editor-exercise', els => els.map(el => el.dataset.exerciseId));
+    await clickCentered('#library-toggle');
+    await fill('#library-search', 'peito');
+    const count = await page.evaluate(() => Forja.catalog.filter({ mode: 'calisthenics', query: 'peito' }).length);
+    assert.equal(await page.$$eval('#library-list .ui-exercise-row', els => els.length), count);
+    await clickCentered('#library-list .ui-exercise-row button');
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.modalAction), 'cancel');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.modalAction), 'cancel');
+    await page.keyboard.down('Shift'); await page.keyboard.press('Tab'); await page.keyboard.up('Shift');
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.modalAction), 'cancel');
+    await page.screenshot({ path: artifactPath('evolucao1-editor-detalhes-390.png') });
+    await page.keyboard.press('Escape');
+    assert.equal(await page.evaluate(() => document.activeElement.getAttribute('aria-label')), 'Ver detalhes de Flexão de braço');
+    assert.equal(await page.$eval('#routine-name-input', el => el.value), 'Rascunho preservado');
+    assert.equal(await page.$eval('#exercise-name', el => el.value), 'Ainda digitando');
+    assert.equal(await page.$eval('#exercise-reps', el => el.value), '8-12');
+    assert.equal(await page.$eval('#exercise-rest', el => el.value), '75');
+    assert.deepEqual(await page.$$eval('.editor-exercise', els => els.map(el => el.dataset.exerciseId)), order);
+    assert.deepEqual(await forjaRaw(), before);
+    await jsClick('#library-list .ui-exercise-row button', /^Adicionar$/);
+    assert.deepEqual(await forjaRaw(), before, 'Inclusão não salva antes da confirmação');
+    await jsClick('#save-routine-top');
+    await expectPath('/treino/rotina.html');
+    const routine = (await data('forja-treino-rotinas-v1')).calisthenics[0];
+    assert.equal(routine.name, 'Rascunho preservado');
+    assert.equal(routine.sections.main[0].id, order[0]);
+    assert.equal(routine.sections.main[1].libraryId, 'cal-flexao');
+    assert.ok(routine.sections.main[1].instructions);
+  } finally {
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Evolução 1 — instruções preservam sessão, descanso, valores, pausa e recuperação', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await seedRestSession();
+    await page.evaluate(() => {
+      const key = 'forja-treino-sessao-ativa-v1';
+      const s = JSON.parse(localStorage.getItem(key));
+      s.queue[0].libraryId = 'cal-flexao';
+      s.queue[0].instructions = 'Instrução da sessão: mantenha o corpo alinhado.';
+      s.restEndAt = Date.now() + 60000; s.restPlannedSeconds = 60;
+      localStorage.setItem(key, JSON.stringify(s));
+    });
+    await go('treino/executar.html');
+    await fill('#log-reps', '12');
+    const before = await forjaRaw();
+    const deadline = (await data('forja-treino-sessao-ativa-v1')).restEndAt;
+    await clickCentered('#execution-instructions');
+    assert.match(await text('.modal-details'), /Instrução da sessão/);
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.modalAction), 'cancel');
+    await sleep(1300);
+    assert.equal(await page.evaluate(() => Forja.state.activeWorkout.restEndAt), deadline);
+    await page.screenshot({ path: artifactPath('evolucao1-execucao-instrucoes-390.png') });
+    await page.keyboard.press('Escape');
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'execution-instructions');
+    assert.deepEqual(await forjaRaw(), before, 'Consulta não escreve a sessão');
+    assert.equal(await page.$eval('#log-reps', el => el.value), '12');
+    await clickCentered('#pause-session');
+    const paused = await forjaRaw();
+    await clickCentered('#execution-instructions');
+    await page.keyboard.press('Escape');
+    assert.deepEqual(await forjaRaw(), paused);
+    await page.reload({ waitUntil: 'networkidle0' });
+    assert.equal(await page.evaluate(() => Forja.state.activeWorkout.running), false);
+    assert.equal(await page.$eval('#log-reps', el => el.value), '12');
+    await clickCentered('#resume-session');
+    assert.equal(await page.evaluate(() => Forja.state.activeWorkout.running), true);
+  } finally {
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }

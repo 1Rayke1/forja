@@ -5109,6 +5109,143 @@ await runTest("77k. D-11: a barra inferior mantém os cinco rótulos legíveis e
   app.close();
 });
 
+/* Evolução web 1: nenhuma consulta cria um segundo estado persistente. */
+await runTest("78. Treinos lista, filtra e inicia rotinas diretamente, sem escrita de consulta", async () => {
+  const cal = sampleRoutine("calisthenics", "hub-cal");
+  const mus = sampleRoutine("weights", "hub-mus");
+  const empty = makeRoutine("weights", "Vazia", [], "hub-empty");
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([cal], [mus, empty]) }, "treino/index.html");
+  const before = app.keys().map(key => [key, app.raw(key)]);
+  const writes = app.storageWrites.length;
+  assert.equal(app.$$("#hub-routine-list .routine-card").length, 3);
+  const filter = app.$("#hub-modality");
+  filter.value = "weights";
+  filter.dispatchEvent(new app.w.Event("change", { bubbles: true }));
+  assert.equal(app.$$("#hub-routine-list .routine-card").length, 2);
+  assert.equal(app.$('[data-routine-id="hub-empty"] .routine-start').disabled, true);
+  assert.match(app.$('[data-routine-id="hub-mus"] a').href, /modalidade=weights/);
+  assert.equal(app.storageWrites.length, writes);
+  assert.deepEqual(app.keys().map(key => [key, app.raw(key)]), before);
+  app.click('[data-routine-id="hub-mus"] .routine-start');
+  await pageIs(app, "executar");
+  assert.equal(app.F.state.activeWorkout.routineId, "hub-mus");
+  assert.equal(app.F.state.activeWorkout.modality, "weights");
+  assertNoErrors(app, "hub direto");
+});
+
+await runTest("79. Detalhes e catálogo compartilhados preservam campos, ordem e IDs do editor", async () => {
+  const routine = sampleRoutine();
+  routine.sections.main[0].instructions = "Instrução salva na rotina.";
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) },
+    "treino/rotina.html?modalidade=calisthenics&id=r1");
+  const before = app.raw(app.F.KEYS.routines);
+  app.$("#routine-name-input").value = "Nome em rascunho";
+  app.$("#routine-name-input").dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  app.$("#exercise-name").value = "Exercício ainda digitado";
+  app.$("#exercise-reps").value = "8-12";
+  app.$("#exercise-rest").value = "75";
+  const form = app.$("#exercise-form");
+  const originalOrder = app.$$(".editor-exercise").map(row => row.dataset.exerciseId);
+  const savedDetails = app.$('[data-exercise-id="m1"] .exercise-tools button');
+  savedDetails.focus();
+  app.click(savedDetails);
+  assert.match(app.text(".modal-details"), /Instrução salva na rotina/);
+  assert.equal(app.d.activeElement.dataset.modalAction, "cancel", "Diálogo só com Fechar precisa receber foco");
+  app.d.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  assert.equal(app.d.activeElement, savedDetails);
+  app.click("#library-toggle");
+  const search = app.$("#library-search");
+  search.value = "peito";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  const expected = app.F.catalog.filter({ mode: "calisthenics", query: "peito" });
+  assert.equal(app.$$("#library-list .ui-exercise-row").length, expected.length);
+  const row = app.$("#library-list .ui-exercise-row");
+  const detail = row.querySelector("button");
+  detail.focus();
+  app.click(detail);
+  assert.equal(app.$$("[data-modal-field]").length, 0, "Consulta não pede destino nem muda a rotina");
+  assert.match(app.text(".modal-details"), /Fotografia demonstrativa ainda não disponível/);
+  await app.modal("cancel");
+  assert.equal(app.d.activeElement, detail);
+  assert.equal(app.$("#exercise-form"), form);
+  assert.equal(app.$("#exercise-name").value, "Exercício ainda digitado");
+  assert.equal(app.$("#exercise-reps").value, "8-12");
+  assert.equal(app.$("#exercise-rest").value, "75");
+  assert.equal(app.$("#routine-name-input").value, "Nome em rascunho");
+  assert.deepEqual(app.$$(".editor-exercise").map(row => row.dataset.exerciseId), originalOrder);
+  assert.equal(app.raw(app.F.KEYS.routines), before);
+  const add = [...row.querySelectorAll("button")].find(button => button.textContent === "Adicionar");
+  app.click(add);
+  assert.equal(app.raw(app.F.KEYS.routines), before, "Inclusão espera Salvar");
+  app.click("#save-routine-top");
+  await wait(40);
+  const saved = app.data(app.F.KEYS.routines).calisthenics[0];
+  assert.equal(saved.name, "Nome em rascunho");
+  const original = saved.sections.main.find(ex => ex.id === "m1");
+  assert.equal(original.instructions, "Instrução salva na rotina.");
+  assert.ok(saved.sections[expected[0].section].some(ex => ex.libraryId === expected[0].libraryId));
+  assertNoErrors(app, "editor contextual");
+});
+
+await runTest("80. Instruções na sessão não escrevem nem reiniciam descanso, pausa ou campos digitados", async () => {
+  const routine = heavyRoutine();
+  const exercise = routine.sections.main[0];
+  exercise.libraryId = "mus-supino-reto";
+  exercise.instructions = "Instrução da sessão, não do nome.";
+  const active = sessionSeed(routine, { restEndAt: 61000, restPlannedSeconds: 60 });
+  const app = await boot({
+    "forja-treino-rotinas-v1": routinesStore([], [routine]),
+    "forja-treino-sessao-ativa-v1": active
+  }, "treino/executar.html", { now: 1000 });
+  app.setNow(1000);
+  app.$("#log-load").value = "42";
+  app.$("#log-load").dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  const before = app.raw(app.F.KEYS.active);
+  const memory = JSON.stringify(app.F.state.activeWorkout);
+  const writes = app.storageWrites.length;
+  const trigger = app.$("#execution-instructions");
+  trigger.focus();
+  app.click(trigger);
+  assert.match(app.text(".modal-details"), /Instrução da sessão, não do nome/);
+  assert.equal(app.$$("[data-modal-field]").length, 0);
+  assert.equal(app.d.activeElement.dataset.modalAction, "cancel");
+  app.d.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+  assert.equal(app.d.activeElement.dataset.modalAction, "cancel");
+  app.advance(5000);
+  assert.equal(app.F.state.activeWorkout.restEndAt, 61000);
+  await app.modal("cancel");
+  assert.equal(app.d.activeElement, trigger);
+  assert.equal(app.raw(app.F.KEYS.active), before);
+  assert.equal(JSON.stringify(app.F.state.activeWorkout), memory);
+  assert.equal(app.storageWrites.length, writes);
+  assert.equal(app.$("#log-load").value, "42");
+  app.click("#pause-session");
+  const paused = app.raw(app.F.KEYS.active);
+  app.click(trigger);
+  await app.modal("cancel");
+  assert.equal(app.raw(app.F.KEYS.active), paused);
+  assert.equal(app.F.state.activeWorkout.running, false);
+  await app.go("executar.html");
+  assert.equal(app.F.state.activeWorkout.running, false);
+  assert.equal(app.F.state.activeWorkout.logDraft[exercise.id].load, "42");
+  assertNoErrors(app, "sessão contextual");
+});
+
+await runTest("81. Identidade e preparação de fotos nunca usam correspondência por nome", async () => {
+  const app = await boot({}, "treino/biblioteca.html");
+  const known = app.F.catalog.describeExercise({ id: "copy-123", libraryId: "cal-flexao", name: "Nome editado", instructions: "", sets: 3 }, "calisthenics");
+  assert.equal(known.id, "copy-123");
+  assert.equal(known.libraryId, "cal-flexao");
+  assert.ok(known.instructions);
+  const unknown = app.F.catalog.describeExercise({ id: "custom-no-link", name: "Flexão de braço", sets: 3 }, "calisthenics");
+  assert.equal(unknown.instructions, "", "Nome igual não autoriza associar conteúdo");
+  assert.equal(app.F.catalog.photoFor(known), null);
+  assert.equal(app.F.catalog.photoFor(unknown), null);
+  assert.equal(Object.keys(app.F.catalog.PHOTO_MANIFEST).length, 0);
+  assert.ok(Object.isFrozen(app.F.catalog.PHOTO_MANIFEST));
+  assertNoErrors(app, "fotos sem publicação");
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));

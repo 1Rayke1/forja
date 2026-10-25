@@ -40,36 +40,28 @@
   <div class="page-head">
     <span class="eyebrow">Início · Treino</span>
     <h1 class="screen-title">TREINO</h1>
-    <p class="screen-subtitle">Escolha a modalidade. Cada uma tem rotinas e histórico próprios.</p>
+    <p class="screen-subtitle">Encontre sua rotina e comece. Use a modalidade para filtrar quando precisar.</p>
   </div>
 
-  <nav class="hub-list" aria-label="Modalidades">
-    <a class="modality-card" href="calistenia.html" id="mode-calisthenics">
-      <span class="modality-top">
-        <span class="modality-icon" aria-hidden="true">01</span>
-        <span class="modality-arrow" aria-hidden="true">→</span>
-      </span>
-      <span class="modality-name">CALISTENIA</span>
-      <span class="modality-desc">Treinos com peso corporal, barras e chão.</span>
-      <span class="modality-meta" id="home-calisthenics-meta">Carregando…</span>
-    </a>
+  <section aria-labelledby="hub-routines-heading" class="hub-routines">
+    <div class="home-week-head">
+      <h2 class="section-title" id="hub-routines-heading">Minhas rotinas</h2>
+      <a class="secondary-button" id="hub-create-routine" href="rotina.html?nova=1">Criar nova rotina</a>
+    </div>
+    <label class="field-label" for="hub-modality">Modalidade</label>
+    <select class="field-input" id="hub-modality">
+      <option value="">Todas</option>
+      <option value="calisthenics">Calistenia</option>
+      <option value="weights">Musculação</option>
+    </select>
+    <div class="routine-list" id="hub-routine-list"></div>
+  </section>
 
-    <a class="modality-card" href="musculacao.html" id="mode-weights">
-      <span class="modality-top">
-        <span class="modality-icon" aria-hidden="true">02</span>
-        <span class="modality-arrow" aria-hidden="true">→</span>
-      </span>
-      <span class="modality-name">MUSCULAÇÃO</span>
-      <span class="modality-desc">Treinos com cargas, halteres e máquinas.</span>
-      <span class="modality-meta" id="home-weights-meta">Carregando…</span>
-    </a>
+  <nav class="hub-footer-links" aria-label="Organizar por modalidade">
+    <a class="secondary-button" href="calistenia.html" id="mode-calisthenics">Calistenia · <span id="home-calisthenics-meta"></span></a>
+    <a class="secondary-button" href="musculacao.html" id="mode-weights">Musculação · <span id="home-weights-meta"></span></a>
   </nav>
 
-  <section class="hub-footer-links" aria-label="Acompanhamento">
-    <a class="primary-button full-width" id="hub-create-routine" href="rotina.html?nova=1">Criar nova rotina</a>
-    <a class="secondary-button full-width" href="biblioteca.html">Biblioteca de exercícios: buscar, filtrar e adicionar a uma rotina</a>
-    <a class="secondary-button full-width" href="../progresso/index.html">Ver progresso e histórico geral</a>
-  </section>
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">
