@@ -215,6 +215,8 @@ body {
 .section-title,
 .home-week-title,
 .home-recent-title,
+.onboarding-title,
+.home-action-title,
 .modality-name,
 .focus-name,
 .execution-title,
@@ -237,10 +239,13 @@ body {
 
 .eyebrow,
 .home-eyebrow,
+.onboarding-eyebrow,
+.home-action-eyebrow,
 .section-badge,
 .focus-stat-label,
 .summary-label,
 .ui-stat-label,
+.home-week-stat-label,
 .status-label,
 .modality-meta,
 .timer-caption,
@@ -260,7 +265,13 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* 3.4 Texto de apoio — Inter no ritmo de leitura ------------------------- */
+/* 3.4 Texto de apoio — Inter no ritmo de leitura -------------------------
+   `font-weight: 400` explícito é uma trava, não um ajuste: o texto de apoio
+   nunca deve herdar o peso de um título. Sem esta linha, bastaria um contêiner
+   com peso próprio (como `.home-greeting` chegou a ter) para o parágrafo subir
+   para 800 por herança — foi medido. Com ela, o parágrafo fica em 400 mesmo
+   que um ancestral declare peso forte. `<strong>` interno não é afetado:
+   tem peso próprio. */
 
 .home-subtitle,
 .screen-subtitle,
@@ -280,9 +291,17 @@ body {
 .log-note,
 .summary-note,
 .summary-feedback,
-.summary-routine,
+.session-summary p:not(.summary-routine) {
+  font-family: var(--fj-fonte-texto);
+  font-weight: 400;
+  line-height: var(--fj-altura-linha-texto);
+}
+
+/* Dois membros já nascem em 700 no app e mantêm a ênfase: recebem família e
+   ritmo, mas ficam fora da trava de peso. `.summary-routine` é um <p> dentro de
+   `.session-summary`, daí o `:not()` na regra acima. */
 .footer-motto,
-.session-summary p {
+.summary-routine {
   font-family: var(--fj-fonte-texto);
   line-height: var(--fj-altura-linha-texto);
 }
