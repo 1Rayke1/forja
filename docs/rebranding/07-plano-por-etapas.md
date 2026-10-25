@@ -102,7 +102,7 @@ A etapa de maior impacto visual e a que concentra risco de quebra de layout.
 | Ação | Arquivo |
 | --- | --- |
 | Escala tipográfica, pesos, *tracking*, `font-variant-numeric: tabular-nums` em métricas | `marca.css` |
-| Superfícies (`--fj-carvao`/`ferro`/`ferro-alto`), bordas, raios, sombras — **remapeando os nomes legados** (`--panel`, `--border`, `--muted`, `--accent`) dentro de `marca.css` | `marca.css` |
+| Superfícies (`--fj-carvao`/`ferro`/`ferro-alto`), bordas, raios, sombras — aplicando os tokens `--fj-*` em **seletor explícito de cada componente autorizado**. Proibido redefinir token legado (`--panel`, `--border`, `--muted`, `--accent`, `--lime`, `--bg`, `--text`) em `:root` ou em `body`: o atlas consome esses nomes e as cores de papel são verificadas por teste de pixel | `marca.css` |
 | Substituir fontes `system-ui` por Archivo/Inter nas declarações de `base.css` | `base.css` (edição pontual) |
 
 **Verificação:**

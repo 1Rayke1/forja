@@ -182,9 +182,12 @@ removida. `forja-metricas.js` não é tocado. A tela continua sem gravar nada.
   (`book` e `atlas`), preservando `id="card-exercicios"` e `id="card-anatomia"`.
   Sai o `style=""` inline.
 - `explorar/atlas.html`, `atlas.css`, `forja-atlas.js`, `forja-figura.js` e
-  `assets/anatomia/*`: **intocados**. O atlas herda apenas as variáveis
-  globais que ele já consome (`--border`, `--panel`, `--muted`), que a camada
-  nova redefine de forma compatível. As três cores de papel
+  `assets/anatomia/*`: **intocados**. O atlas continua consumindo os tokens
+  históricos (`--border`, `--panel`, `--muted`, `--lime`) **com os valores que
+  já tem hoje**: a camada nova não os redefine — nem em `:root`, nem em
+  `body` —, porque um remapeamento global recoloria o atlas. A identidade entra
+  nos componentes por token `--fj-*` em seletor explícito, e `marca.css` não é
+  carregada por `explorar/atlas.html`. As três cores de papel
   (`#B7F34A`, `#F2B84B`, `#8CC0E0`) permanecem como estão — são informação
   funcional verificada por teste de pixel.
 - Se a revisão quiser o atlas dentro da nova paleta, isso é uma etapa separada,

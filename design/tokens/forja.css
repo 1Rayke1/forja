@@ -58,7 +58,7 @@
   --fj-brasa-lavada: rgba(228, 105, 58, 0.12);  /* fundo de estado selecionado */
   --fj-brasa-linha: rgba(228, 105, 58, 0.38);   /* borda de estado selecionado */
   --fj-bronze: #c08b4e;        /* detalhe de material: emblema, fio, número-chave — 6,36:1 */
-  --fj-bronze-alto: #dca75f;   /* bronze em texto pequeno sobre ferro — 7,18:1 */
+  --fj-bronze-alto: #dca75f;   /* bronze em texto pequeno — 8,79:1 no carvão, 8,26:1 no ferro */
   --fj-bronze-escuro: #8a5a2b; /* bronze legível em superfície clara — 4,87:1 */
   --fj-claro: #efe9e2;         /* superfície clara (impressão, imagem de compartilhamento) */
   --fj-preto-quente: #17130f;  /* texto sobre claro — 15,33:1 */

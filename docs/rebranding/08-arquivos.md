@@ -13,7 +13,7 @@ Legenda: **novo** (não existe hoje) · **altera** (existe, recebe mudança) ·
 
 | Caminho | O que contém | Tamanho previsto |
 | --- | --- | --- |
-| `assets/css/marca.css` | tokens, `@font-face`, remapeamento dos nomes legados, componentes e estados novas regras | 25–35 KB |
+| `assets/css/marca.css` | tokens `--fj-*` e `@font-face` das duas famílias; da etapa 3 em diante, estilos de componente, superfície e estado aplicados por **seletor explícito** com esses tokens — sem redefinir token legado | 25–35 KB |
 | `assets/fontes/archivo-variable-latin.woff2` | Archivo variável (wght 100–900, `wdth`) | 88 KB |
 | `assets/fontes/inter-variable-latin.woff2` | Inter variável | 47 KB |
 | `assets/fontes/OFL-Archivo.txt`, `OFL-Inter.txt` | licenças (obrigatório redistribuir) | 8 KB |
@@ -81,7 +81,7 @@ Total de páginas alteradas: **11 de 12**.
 | `treino.css` | 735 | cartões de rotina, editor, biblioteca — mantendo `.hub-list` em grid e `.big-set-button` | 7 |
 | `execucao.css` | 447 | foco, pips, cronômetro, descanso, resumo | 7 |
 | `responsive.css` | 84 | ajustes de 380/430/600/760/1024; **manter** `@media (max-width: 380px)` (teste 24) | 3, 7 |
-| `performance.css` | 11 | recebe o remapeamento de `--bg`/`--panel`/`--accent`/`--lime` — ou é sobrescrito por `marca.css`; decisão registrada na etapa 3 | 3 |
+| `performance.css` | 11 | **intocado**: a camada nova não redefine `--bg`/`--panel`/`--accent`/`--lime` nem o sobrescreve. A troca de cor entra por componente, nas etapas 4 e 5, com tokens `--fj-*` em seletor explícito | — |
 | `configuracoes.css` | 35 | painéis da página de configurações | 9 |
 | `atlas.css` | 597 | **intocado** | — |
 | `marca.css` | — | **novo** | 2–10 |

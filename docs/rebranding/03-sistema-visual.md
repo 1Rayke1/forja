@@ -71,7 +71,7 @@ Fundo de referência `#121010` (carvão) e `#1A1717` (ferro).
 | brasa `#E4693A` | **5,76** | 5,41 | ✅ | ❌ |
 | brasa alta `#F08356` | 7,30 | 6,86 | ✅ | ✅ |
 | bronze `#C08B4E` | **6,36** | 5,98 | ✅ | ❌ |
-| bronze alto `#DCA75F` | 8,42 | 7,91 | ✅ | ✅ |
+| bronze alto `#DCA75F` | 8,79 | 8,26 | ✅ | ✅ |
 | ok `#7FB08D` | 7,67 | 7,21 | ✅ | ✅ |
 | alerta `#D9A657` | 8,62 | 8,09 | ✅ | ✅ |
 | erro `#E2706A` | 6,10 | 5,73 | ✅ | ❌ |
