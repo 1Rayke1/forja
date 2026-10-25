@@ -27,7 +27,8 @@ sem uso (remoção possível na etapa 10).
 | 5 | **feita em 25/10/2026, na paleta atual** — ver “Situação” na própria etapa |
 | 6 | **feita em 25/10/2026, na paleta atual e só com CSS** — ver “Situação” na própria etapa |
 | 7 | **feita em 25/10/2026, na paleta atual e só com CSS** — ver “Situação” na própria etapa |
-| 8–10 | pendentes |
+| 8 | **feita em 25/10/2026, na paleta atual e só com CSS + constantes de estilo** — ver “Situação” na própria etapa |
+| 9–10 | pendentes |
 
 Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
 
@@ -42,8 +43,9 @@ Pendências encontradas na etapa 4 e deixadas para a etapa de cada tela:
 - foco inicial do diálogo destrutivo cai no botão de perigo (`F.showModal`
   foca a primeira ação que não é “cancelar”); levar ao botão seguro exige
   mudança de lógica em `forja-core.js`;
-- `.compare-delta.is-down` usa `var(--gold)`, hoje igual ao limão de
-  `is-up` (etapa 8);
+- ~~`.compare-delta.is-down` usa `var(--gold)`, hoje igual ao limão de
+  `is-up`~~ — resolvido na etapa 8 (queda em osso claro, distinta da alta e do
+  estável);
 - ~~nomes que quebram no meio da palavra em 320 px (linha do editor, caixas de
   seção do cartão de rotina) e `.history-status` esticado na largura do item
   (etapa 7)~~ — resolvido na etapa 7 com `overflow-wrap: anywhere` e `white-space: nowrap`;
@@ -365,6 +367,55 @@ o tema novo não depende de `getComputedStyle` para cor (hoje as cores são
 literais no JS → passam a vir de constantes).
 **Risco:** médio. **Reversão:** `forja-graficos.js` é um arquivo pequeno (357
 linhas) e isolado.
+
+**Situação (25/10/2026): feita, na paleta atual, só com CSS.** A tabela desta
+etapa previa paleta no JS; as cores dos cinco gráficos já vinham **todas** de
+classes CSS (`--lime`, `--accent-soft`, `rgba(183,243,74,…)`, `--danger`) e
+nenhum builder usa `getComputedStyle`. Então não houve cor a mover: o que
+faltava era padronizar e consertar. Arquivos tocados: `assets/css/marca.css`
+(bloco “ETAPA 8”, escopado em `body[data-page="progresso"]`) e
+`assets/js/forja-graficos.js` (só constantes de estilo no topo — geometria da
+linha, raio do ponto e medidas do anel — sem tocar em cálculo, saída, texto ou
+`aria-label`).
+
+O que entrou:
+
+1. **Gráficos no padrão do sistema:** rótulos na família de texto e valores,
+   eixos e tabelas com numerais tabulares; barras com trilho afundado e fio,
+   colunas com raio e altura de leitura, linha com área em limão translúcido de
+   12% e ponto com anel da cor do fundo (para dois pontos próximos não se
+   fundirem com a própria linha).
+2. **Heatmap:** dia sem treino com superfície afundada e fio discreto (a grade
+   existe mesmo com a janela zerada) e os quatro níveis de limão reafirmados.
+   **Correção concreta:** `.ui-heatmap-swatch` não tinha `background` nenhum —
+   os cinco quadradinhos da legenda “menos … mais” apareciam vazios em todas as
+   telas, não só no Progresso.
+3. **Colunas semanais — correção de defeito real:** `.ui-column` era um grid
+   sem linha de altura definida e o builder escreve `height: N%` na barra;
+   porcentagem contra altura indefinida caía no `min-height`, então **todas as
+   oito semanas apareciam com a mesma barra de 2 px** e o gráfico ficava vazio
+   (confirmado medindo `getBoundingClientRect` em 390 e 1280 px). Com a linha
+   `1fr` e `align-self: end` na barra, a proporção passou a valer: 0 treinos →
+   3 px no eixo, 1 de 3 → 26 px, 3 de 3 → 78 px em 390 px e 87 px em 1280 px.
+4. **Deltas da comparação:** `.compare-delta.is-down` usava `var(--gold)`, que
+   em `performance.css` vale o mesmo limão de `is-up` — alta e queda saíam com
+   a mesma cor. Agora alta em limão, queda em `--fj-osso-suave` e estável em
+   cinza; o sinal (+/−) e a unidade continuam no texto, medidos no navegador
+   (“+2 treinos (+200%)”, “+4 séries (+200%)”, “+1 h 10 min (+200%)”,
+   “+200 kg (+200%)”). Nenhum estado depende só da cor.
+5. **Recordes, por rotina/exercício e histórico:** superfícies, fios, raios e
+   ritmo do sistema; título de recorde em Archivo; valor medido em limão
+   tabular; `overflow-wrap` para os nomes longos de exercício em 320 px.
+6. **Responsivo:** colunas e células do heatmap crescem um degrau a partir de
+   720 px (barra até 44 px, célula 18 px) e encolhem até 320 px (célula 14 px,
+   respiro de 3 px, rótulos de 10 px) sem gerar rolagem horizontal.
+
+Escopo preservado: nenhum ID, `data-*`, `href`, `aria-*`, texto, chave de
+`localStorage` ou arquivo protegido mudou; `forja-progresso.js` (agregações da
+tela), `forja-metricas.js` e `forja-calendario.js` ficaram intocados. Testes
+executados: `npm test` **162/162** (MÉTRICAS 18, FORJA 92, ATLAS 12,
+PARIDADE 40) e `npm run test:e2e` **25/25** com o Chromium empacotado
+(`LD_LIBRARY_PATH` das bibliotecas do próprio pacote, como na etapa 6).
 
 ---
 
