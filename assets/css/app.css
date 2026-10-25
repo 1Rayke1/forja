@@ -365,6 +365,23 @@ select.field-input { padding-left: 12px; }
 #home-week .home-week-stat-label { margin-top: 6px; font-size: var(--font-xs); line-height: 1.3; }
 #home-week .home-week-note { margin-top: 10px; font-size: var(--font-sm); }
 
+/* 6.4 Metas — período, anéis e notas ------------------------------------- */
+#home-goals { margin-top: 20px; margin-bottom: 0; }
+#home-goals .home-week-head { align-items: center; margin-bottom: 12px; }
+#home-goals .home-week-title { font-size: var(--font-lg); }
+#home-goals .home-week-link { font-family: var(--fj-fonte-texto); font-size: var(--font-sm); text-underline-offset: 3px; }
+#home-goals .home-goals-period,
+#home-goals .home-goals-note { margin: 0 0 12px; font-size: var(--font-sm); line-height: var(--fj-altura-linha-texto); }
+#home-goals .home-goals-grid { gap: var(--space-2); }
+#home-goals .home-goals-ring { padding: 12px 8px; border-color: var(--border); border-radius: var(--radius-md); }
+#home-goals .ui-ring-percent,
+#home-goals .ui-ring-value-text { font-family: var(--fj-fonte-numero); font-variant-numeric: tabular-nums; }
+#home-goals .ui-ring-percent { font-size: var(--font-lg); }
+#home-goals .ui-ring-value-text,
+#home-goals .ui-ring-note { font-size: var(--font-xs); }
+#home-goals .ui-ring-label { font-family: var(--fj-fonte-texto); font-size: var(--font-sm); overflow-wrap: anywhere; }
+#home-goals .ui-ring-note { line-height: 1.4; }
+
 /* Legado: manter .treino-square compatível mas não usado na home nova */
 .treino-cta {
   background: var(--panel);
