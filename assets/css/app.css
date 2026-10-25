@@ -318,6 +318,42 @@ select.field-input { padding-left: 12px; }
 #conteudo .home-title { font-size: clamp(26px, 6vw, 34px); line-height: 1.12; text-wrap: balance; overflow-wrap: anywhere; }
 .home-subtitle { max-width: 60ch; font-size: var(--font-md); line-height: var(--fj-altura-linha-texto); }
 
+/* 6.2 Ação principal — cartão no padrão do sistema e CTA primário -------- */
+#home-action { margin: 0 0 18px; }
+#home-action .home-action-card { padding: var(--space-4); gap: var(--space-3); border-radius: var(--radius-lg); }
+#home-action .home-action-eyebrow { font-size: var(--font-xs); letter-spacing: var(--fj-tracking-rotulo); }
+#home-action .home-action-title { font-size: var(--font-lg); line-height: var(--fj-altura-linha-titulo); text-wrap: balance; }
+#home-action .home-action-meta,
+#home-action .home-action-hint { font-family: var(--fj-fonte-texto); line-height: var(--fj-altura-linha-texto); }
+#home-action .home-action-meta { font-size: var(--font-sm); }
+#home-action .home-action-hint { font-size: var(--font-xs); }
+
+/* O botão também recebe .treino-square por compatibilidade com os testes;
+   performance.css sobrescreve essa classe e o deixava com cara de link
+   secundário (fundos translúcidos, texto claro, alinhado à esquerda).
+   Com o seletor de #home-action ele volta ao padrão dos botões primários
+   do app: limão, texto escuro, 48 px e centralizado. A classe legada fica. */
+#home-action .home-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--lime);
+  border-radius: 12px;
+  background: var(--lime);
+  color: #12160c;
+  box-shadow: none;
+  font-family: var(--fj-fonte-texto);
+  font-size: var(--font-md);
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+}
+
 /* Legado: manter .treino-square compatível mas não usado na home nova */
 .treino-cta {
   background: var(--panel);
