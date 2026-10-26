@@ -1839,9 +1839,19 @@ await runTest("36. Progresso: recordes com critério explícito e sem categoria 
 
 await runTest("37. Progresso: comparação de períodos e metas semanais persistentes", async () => {
   const today = dayOffset(0);
+
+  /*
+    As duas primeiras sessões precisam cair na semana corrente (segunda a
+    domingo). Em uma segunda-feira, "ontem" já pertence à semana anterior, e a
+    meta de 2 treinos nunca fecharia; nesse caso a segunda sessão é do mesmo
+    dia, só em outro horário.
+  */
+  const semanaComecaHoje = ((today.getDay() + 6) % 7) === 0;
+  const segundaSessao = semanaComecaHoje ? dayOffset(0, 18) : dayOffset(-1);
+
   const records = [
     seedRecord(today, [seedExercise("Supino", [seedLog({ reps: "10", load: "40 kg" })])]),
-    seedRecord(dayOffset(-1), [seedExercise("Remada", [seedLog({ reps: "10", load: "20 kg" })])]),
+    seedRecord(segundaSessao, [seedExercise("Remada", [seedLog({ reps: "10", load: "20 kg" })])]),
     seedRecord(dayOffset(-8), [seedExercise("Supino", [seedLog({ reps: "8", load: "30 kg" })])])
   ];
 
@@ -3739,12 +3749,61 @@ function onboardingButton(app, label) {
   return button;
 }
 
-function fillOnboarding(app, values) {
-  if (values.objetivo !== undefined) app.d.getElementById("onb-objetivo").value = values.objetivo;
-  if (values.nivel !== undefined) app.d.getElementById("onb-nivel").value = values.nivel;
-  if (values.equipamento !== undefined) app.d.getElementById("onb-equipamento").value = values.equipamento;
-  if (values.dias !== undefined) app.d.getElementById("onb-dias").value = values.dias;
-  if (values.duracao !== undefined) app.d.getElementById("onb-duracao").value = values.duracao;
+/* Nome real do campo do perfil por trás de cada apelido curto dos testes. */
+const CAMPO_DO_PASSO = {
+  sexo: "sexo",
+  objetivo: "objetivo",
+  nivel: "nivel",
+  dias: "diasPorSemana",
+  duracao: "duracaoMinutos",
+  equipamento: "equipamento",
+  modalidade: "modalidadePreferida"
+};
+
+/* Marca uma opção do onboarding como se o usuário tivesse clicado nela. */
+function escolherOpcao(app, campo, valor) {
+  const nome = CAMPO_DO_PASSO[campo] || campo;
+  const input = app.d.querySelector(
+    'input[name="onboarding-' + nome + '"][value="' + String(valor) + '"]'
+  );
+  assert.ok(input, "Opção não encontrada: " + campo + "=" + valor);
+  input.checked = true;
+  input.dispatchEvent(new app.w.Event("change", { bubbles: true }));
+  return input;
+}
+
+/* Avança (ou conclui) pelo botão principal do onboarding. */
+function avancarOnboarding(app) {
+  app.click("#onboarding-next");
+  return wait(15);
+}
+
+/* Responde uma etapa e vai para a próxima, na ordem real do fluxo. */
+async function responder(app, campo, valor) {
+  escolherOpcao(app, campo, valor);
+  await avancarOnboarding(app);
+}
+
+/* Percorre o onboarding inteiro com respostas fixas até a revisão. */
+async function percorrerOnboarding(app, respostas = {}) {
+  const valores = Object.assign({
+    sexo: "masculino",
+    objetivo: "hipertrofia",
+    nivel: "iniciante",
+    dias: 4,
+    duracao: 45,
+    equipamento: "academia",
+    modalidade: "weights"
+  }, respostas);
+
+  await avancarOnboarding(app); /* apresentação -> sexo */
+  await responder(app, "sexo", valores.sexo);
+  await responder(app, "objetivo", valores.objetivo);
+  await responder(app, "nivel", valores.nivel);
+  await responder(app, "dias", valores.dias);
+  await responder(app, "duracao", valores.duracao);
+  await responder(app, "equipamento", valores.equipamento);
+  await responder(app, "modalidade", valores.modalidade);
 }
 
 await runTest("60. Onboarding: aparece só para usuário novo, não bloqueia a home e não grava nada", async () => {
@@ -3763,70 +3822,98 @@ await runTest("60. Onboarding: aparece só para usuário novo, não bloqueia a h
   app.close();
 });
 
-await runTest("61. Onboarding: Pular não cria nem persiste nenhum dado", async () => {
+await runTest("61. Convite ao onboarding: \"Agora não\" não cria nem persiste nenhum dado", async () => {
   const app = await boot({}, "index.html");
-  app.click(onboardingButton(app, "Pular"));
+  app.click(onboardingButton(app, "Agora não"));
   await wait(20);
 
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Pular deve ocultar o onboarding");
-  assert.equal(app.raw(PROFILE_KEY), null, "Pular não deve gravar o perfil");
-  assert.deepEqual(app.storageWrites, [], "Pular não deve gravar nada: " + JSON.stringify(app.storageWrites));
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "A dispensa deve ocultar o convite");
+  assert.equal(app.raw(PROFILE_KEY), null, "Dispensar não deve gravar o perfil");
+  assert.deepEqual(app.storageWrites, [], "Dispensar não deve gravar nada: " + JSON.stringify(app.storageWrites));
   app.close();
 });
 
-await runTest("62. Onboarding: sem botão duplicado de dispensa e com acesso preservado para configurar depois em Perfil", async () => {
+await runTest("62. Convite ao onboarding: não coleta respostas na Home e leva ao fluxo completo", async () => {
   const app = await boot({}, "index.html");
 
   const buttons = app.$$("#onboarding-root button").map(item => item.textContent.trim());
-  assert.deepEqual(buttons, ["Pular", "Salvar perfil"], "Onboarding deve manter apenas Pular e Salvar perfil");
+  assert.deepEqual(buttons, ["Agora não"], "A Home deve ter só o controle de dispensa");
 
-  /* Todos os cinco campos essenciais permanecem visíveis e acessíveis. */
-  for (const id of ["onb-objetivo", "onb-nivel", "onb-equipamento", "onb-dias", "onb-duracao"]) {
-    const field = app.d.getElementById(id);
-    assert.ok(field, "Campo essencial ausente no onboarding: " + id);
-    assert.equal(field.hidden, false, "Campo essencial oculto no onboarding: " + id);
-  }
+  /* Nenhum campo no convite: as perguntas moram na página de onboarding. */
+  assert.equal(app.$$("#onboarding-root input, #onboarding-root select, #onboarding-root textarea").length, 0,
+    "A Home não deve coletar respostas do onboarding");
+
+  const start = app.$("#onboarding-start");
+  assert.ok(start, "Link para o cadastro guiado ausente");
+  assert.match(start.getAttribute("href"), /onboarding\/index\.html$/);
 
   const profileLink = app.$("#onboarding-root .onboarding-profile-link");
   assert.ok(profileLink, "Link para configurar depois em Perfil ausente");
   assert.match(profileLink.getAttribute("href"), /perfil\/index\.html$/);
 
-  app.click(profileLink);
-  await until(() => app.pageUrl && app.pageUrl.indexOf("perfil") !== -1, "navegação para Perfil");
+  app.click(start);
+  await until(() => app.pageUrl && app.pageUrl.indexOf("onboarding/") !== -1, "navegação para o onboarding");
+  await pageIs(app, "onboarding");
 
-  assert.equal(app.raw(PROFILE_KEY), null, "Navegar para Perfil não deve gravar o perfil");
-  assert.deepEqual(app.storageWrites, [], "Navegar para Perfil não deve gravar nada: " + JSON.stringify(app.storageWrites));
+  assert.equal(app.raw(PROFILE_KEY), null, "Abrir o onboarding não deve gravar o perfil");
+  assert.deepEqual(app.storageWrites, [], "Abrir o onboarding não deve gravar nada: " + JSON.stringify(app.storageWrites));
+
+  /* A primeira tela é a apresentação, com uma única ação principal. */
+  assert.equal(app.text("#onboarding-question"), "Bem-vindo à FORJA");
+  assert.equal(app.text("#onboarding-next"), "Começar");
+  assert.equal(app.$("#onboarding-back").hidden, true, "A primeira tela não tem Voltar");
   app.close();
 });
 
-await runTest("63. Onboarding: Salvar grava somente no confirm explícito e não atrapalha criar rotina manualmente", async () => {
+await runTest("63. Onboarding: grava só no último passo e não atrapalha criar rotina manualmente", async () => {
   const app = await boot({}, "index.html");
 
-  /* Validação: dia acima do teto não salva, informa o problema e mantém o painel. */
-  fillOnboarding(app, { dias: "9" });
-  app.click(onboardingButton(app, "Salvar perfil"));
-  await wait(20);
-  assert.equal(app.raw(PROFILE_KEY), null, "Valor inválido não deve gravar o perfil");
-  assert.equal(app.d.getElementById("onboarding-root").hidden, false, "O onboarding deve continuar visível");
-  assert.ok(app.$("#onboarding-root .field-error").textContent.length > 0, "O erro deve ser informado");
+  app.click("#onboarding-start");
+  await until(() => app.pageUrl && app.pageUrl.indexOf("onboarding/") !== -1, "navegação para o onboarding");
+  await pageIs(app, "onboarding");
 
-  fillOnboarding(app, { objetivo: "hipertrofia", nivel: "iniciante", equipamento: "academia", dias: "4", duracao: "45" });
-  app.click(onboardingButton(app, "Salvar perfil"));
-  await wait(20);
+  /* Sexo é obrigatório: avançar sem escolher avisa e não grava nada. */
+  await avancarOnboarding(app);
+  assert.equal(app.text("#onboarding-question"), "Qual sexo você informa?");
+  await avancarOnboarding(app);
+  assert.equal(app.d.getElementById("onboarding-question").textContent.trim(), "Qual sexo você informa?",
+    "Sem escolha o fluxo não deve avançar");
+  assert.equal(app.$("#onboarding-error").hidden, false, "O erro deve ser informado");
+  assert.ok(app.text("#onboarding-error").length > 0, "O erro deve ter mensagem");
+  assert.equal(app.raw(PROFILE_KEY), null, "Nada deve ser gravado antes do último passo");
+
+  /* Responde tudo e para na revisão: ainda não gravou. */
+  await percorrerOnboarding(app);
+  assert.equal(app.text("#onboarding-next"), "Concluir cadastro");
+  assert.match(app.text(".onboarding-review"), /Masculino/);
+  assert.equal(app.raw(PROFILE_KEY), null, "A revisão não deve gravar o perfil");
+
+  app.click("#onboarding-next");
+  await pageIs(app, "inicio");
 
   const stored = app.data(PROFILE_KEY);
-  assert.ok(stored, "Salvar deve gravar o perfil");
+  assert.ok(stored, "Concluir deve gravar o perfil");
   assert.equal(stored.objetivo, "hipertrofia");
   assert.equal(stored.nivel, "iniciante");
   assert.equal(stored.equipamento, "academia");
   assert.equal(stored.diasPorSemana, 4);
   assert.equal(stored.duracaoMinutos, 45);
+  assert.equal(stored.sexo, "masculino");
+  assert.equal(stored.modalidadePreferida, "weights");
+  assert.equal(stored.version, 2, "O perfil gravado usa o modelo v2");
   assert.ok(stored.updatedAt, "O perfil gravado tem marcação de hora");
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "O onboarding deve sumir após salvar");
+  assert.ok(stored.onboardingConcluidoEm, "O perfil registra a conclusão do onboarding");
 
-  /* O perfil não substitui a capacidade de criar rotinas manualmente. */
-  const primary = app.$("#home-primary-button");
-  assert.ok(primary, "A home deve continuar oferecendo a ação primária de treino");
+  /* A meta semanal veio junto (opt-in marcado por padrão) e o perfil não a inventou depois. */
+  const goals = app.data("forja-treino-metas-v1");
+  assert.ok(goals, "A meta sugerida deve ser gravada com a confirmação");
+  assert.equal(goals.weeklySessions, 4);
+  assert.equal(goals.weeklyMinutes, 180);
+  assert.equal(goals.modality, "weights");
+
+  /* A home continua oferecendo criar rotina manualmente e o convite sumiu. */
+  assert.ok(app.$("#home-primary-button"), "A home deve continuar oferecendo a ação primária de treino");
+  assert.equal(onboardingPanel(app), null, "O convite deve sumir depois de concluir");
 
   /* Ao voltar (reload), o onboarding não repete para quem já tem perfil. */
   await app.reload();
@@ -3971,12 +4058,16 @@ await runTest("69. Equipamento 'Sem equipamentos' é opção válida no perfil, 
   assert.ok(app.F.PERFIL_EQUIPAMENTOS.indexOf("nenhum") !== -1, "O valor deve constar na lista de equipamentos");
   assert.equal(app.F.PERFIL_LABELS.equipamento.nenhum, "Sem equipamentos", "O rótulo deve ser 'Sem equipamentos'");
 
-  /* Onboarding aceita a opção e grava. */
-  fillOnboarding(app, { equipamento: "nenhum" });
-  app.click(onboardingButton(app, "Salvar perfil"));
-  await wait(20);
-  const stored = app.data(PROFILE_KEY);
-  assert.equal(stored.equipamento, "nenhum", "O onboarding deve gravar 'Sem equipamentos'");
+  /* O onboarding oferece a opção e ela chega ao perfil pela mesma normalização. */
+  const onboardingPage = await boot({}, "onboarding/index.html");
+  const passoEquipamento = onboardingPage.F.onboarding.PASSOS.find(passo => passo.campo === "equipamento");
+  assert.ok(passoEquipamento, "O onboarding deve ter a pergunta de equipamento");
+  assert.ok(passoEquipamento.opcoes.some(opcao => opcao.valor === "nenhum"),
+    "O onboarding deve oferecer 'Sem equipamentos'");
+  onboardingPage.close();
+
+  const stored = app.F.normalizeProfile({ equipamento: "nenhum" });
+  assert.equal(stored.equipamento, "nenhum", "O perfil aceita 'Sem equipamentos'");
 
   /* Normalização, validação e resumo consistentes. */
   assert.equal(app.F.normalizeProfile(stored).equipamento, "nenhum", "Normalização preserva o valor");
@@ -4003,8 +4094,9 @@ await runTest("70. F.state.profile é inicializado em todas as páginas (ausente
     "progresso/index.html", "perfil/index.html", "configuracoes/index.html", "explorar/index.html"
   ];
   const empty = {
-    version: 1, updatedAt: null, objetivo: "", nivel: "", equipamento: "",
-    diasPorSemana: 0, duracaoMinutos: 0
+    version: 2, updatedAt: null, objetivo: "", nivel: "", equipamento: "",
+    diasPorSemana: 0, duracaoMinutos: 0,
+    sexo: "", modalidadePreferida: "", onboardingConcluidoEm: null
   };
 
   for (const page of pages) {
@@ -4035,18 +4127,24 @@ await runTest("70. F.state.profile é inicializado em todas as páginas (ausente
   validPerfil.close();
 });
 
-await runTest("71. Onboarding: Pular não reaparece na mesma visita e não grava nada", async () => {
+await runTest("71. Onboarding: \"Agora não\" vale para a sessão, não reaparece e não grava nada", async () => {
   const app = await boot({}, "index.html");
-  app.click(onboardingButton(app, "Pular"));
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Pular deve ocultar o onboarding");
+  app.click(onboardingButton(app, "Agora não"));
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "A dispensa deve ocultar o convite");
 
   /* Redesenhos e re-inicializações da home não trazem o painel de volta. */
   app.F.pages.inicio();
   await wait(20);
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "O onboarding não deve reaparecer na mesma visita");
+  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "O onboarding não deve reaparecer na mesma sessão");
   assert.equal(app.$$("#onboarding-root button").length, 0, "Nenhum controle do onboarding deve voltar");
   assert.equal(app.raw(PROFILE_KEY), null, "Nada deve ser gravado");
   assert.deepEqual(app.storageWrites, [], "Nada deve ser gravado: " + JSON.stringify(app.storageWrites));
+
+  /* Navegar para outra página e voltar mantém a dispensa (sessionStorage). */
+  await app.go(BASE + "treino/index.html");
+  await app.go(BASE + "index.html");
+  assert.equal(onboardingPanel(app), null, "O convite não deve voltar dentro da mesma sessão");
+  assert.equal(app.raw(PROFILE_KEY), null, "A dispensa não cria perfil");
   app.close();
 });
 

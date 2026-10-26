@@ -474,6 +474,7 @@
       executar: "treino",
       progresso: "progresso",
       configuracoes: "perfil",
+      onboarding: "perfil",
       explorar: "explorar",
       perfil: "perfil"
     };

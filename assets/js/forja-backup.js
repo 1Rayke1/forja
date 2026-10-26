@@ -1031,6 +1031,8 @@ function updateBackupStatus() {
     fillProfileSelect(byId("prof-objetivo"), F.PERFIL_OPTIONS.objetivo, profile.objetivo);
     fillProfileSelect(byId("prof-nivel"), F.PERFIL_OPTIONS.nivel, profile.nivel);
     fillProfileSelect(byId("prof-equipamento"), F.PERFIL_OPTIONS.equipamento, profile.equipamento);
+    fillProfileSelect(byId("prof-sexo"), F.PERFIL_OPTIONS.sexo, profile.sexo);
+    fillProfileSelect(byId("prof-modalidade"), F.PERFIL_OPTIONS.modalidade, profile.modalidadePreferida);
 
     const dias = byId("prof-dias");
     if (dias) dias.value = String(profile.diasPorSemana || 0);
@@ -1052,7 +1054,9 @@ function updateBackupStatus() {
     const values = {
       objetivo: (byId("prof-objetivo") || {}).value || "",
       nivel: (byId("prof-nivel") || {}).value || "",
-      equipamento: (byId("prof-equipamento") || {}).value || ""
+      equipamento: (byId("prof-equipamento") || {}).value || "",
+      sexo: (byId("prof-sexo") || {}).value || "",
+      modalidadePreferida: (byId("prof-modalidade") || {}).value || ""
     };
     const errors = [];
 

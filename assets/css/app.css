@@ -213,26 +213,7 @@ main.container { padding-top: 18px; padding-bottom: calc(var(--bottom-nav-height
 .onboarding-meta { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.3; overflow-wrap: anywhere; }
 .onboarding-profile-link { color: var(--lime); font-weight: 700; text-decoration: none; }
 .onboarding-profile-link:hover, .onboarding-profile-link:focus-visible { text-decoration: underline; }
-.onboarding-form { display: grid; gap: 5px; margin: 0; min-width: 0; }
-.onboarding-fields {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 6px;
-  min-width: 0;
-}
-.onboarding-fields .field-block { gap: 3px; margin: 0; min-width: 0; }
-.onboarding-fields .field-label { font-size: 11.5px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.onboarding-fields .field-input { width: 100%; min-width: 0; min-height: 44px; padding: 8px; font-size: 13.5px; }
-.onboarding-col-half { grid-column: span 6; }
-.onboarding-col-equip { grid-column: span 5; }
-.onboarding-col-days { grid-column: span 3; }
-.onboarding-col-duration { grid-column: span 4; }
-@media (max-width: 359px) {
-  .onboarding-col-equip { grid-column: 1 / -1; }
-  .onboarding-col-days, .onboarding-col-duration { grid-column: span 6; }
-}
-.onboarding-panel .field-hint { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.3; }
-.onboarding-panel .field-error { margin: 0; }
+.onboarding-meta-secondary { font-size: 11.5px; }
 .onboarding-actions {
   display: grid;
   grid-template-columns: minmax(0, auto) minmax(0, 1fr);
@@ -240,13 +221,20 @@ main.container { padding-top: 18px; padding-bottom: calc(var(--bottom-nav-height
   align-items: center;
 }
 .onboarding-actions .secondary-button,
-.onboarding-actions .primary-button { min-height: 44px; padding: 8px 14px; }
+.onboarding-actions .primary-button {
+  min-height: 44px;
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}
+@media (max-width: 359px) {
+  .onboarding-actions { grid-template-columns: minmax(0, 1fr); }
+}
 @media (min-width: 720px) {
   .onboarding-panel { padding: 14px 16px; gap: 8px; }
-  .onboarding-col-half { grid-column: span 3; }
-  .onboarding-col-equip { grid-column: span 2; }
-  .onboarding-col-days { grid-column: span 2; }
-  .onboarding-col-duration { grid-column: span 2; }
   .onboarding-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; }
 }
 .field-input { min-height: 44px; }
@@ -413,11 +401,6 @@ select.field-input { padding-left: 12px; }
 #onboarding-root .onboarding-eyebrow { font-size: 10px; letter-spacing: var(--fj-tracking-rotulo); }
 #onboarding-root .onboarding-meta { font-family: var(--fj-fonte-texto); font-size: 12px; line-height: 1.45; }
 #onboarding-root .onboarding-profile-link { text-underline-offset: 3px; }
-#onboarding-root .onboarding-form { gap: 6px; }
-#onboarding-root .onboarding-fields { gap: 6px; }
-#onboarding-root .onboarding-fields .field-label { font-size: var(--font-xs); letter-spacing: 0.04em; }
-#onboarding-root .onboarding-panel .field-hint,
-#onboarding-root .onboarding-panel .field-error { font-size: var(--font-xs); line-height: 1.45; }
 #onboarding-root .onboarding-actions { gap: var(--space-2); }
 @media (min-width: 720px) {
   #onboarding-root .onboarding-panel { padding: 14px 16px; }

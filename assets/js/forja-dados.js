@@ -1225,15 +1225,49 @@ function goalsAreActive(goals) {
 
 /*
   Perfil opcional do usuário: objetivo, nível, equipamento disponível, dias
-  por semana e duração desejada. Todos os campos são opcionais (ausente = 0 ou
-  "") e editáveis depois. O perfil orienta sugestões futuras e nunca impede a
-  criação manual de rotinas. A chave é aditiva: nada que já existe muda.
+  por semana, duração desejada, sexo informado (usado só para escolher o
+  personagem das demonstrações) e modalidade preferida. Todos os campos são
+  opcionais (ausente = 0 ou "") e editáveis depois. O perfil orienta sugestões
+  futuras e nunca impede a criação manual de rotinas. A chave é aditiva: nada
+  que já existe muda.
+
+  Versão do modelo (`version` dentro do valor, não a chave):
+
+    1  objetivo, nível, equipamento, diasPorSemana, duracaoMinutos
+    2  + sexo, modalidadePreferida, onboardingConcluidoEm (aditivo)
+
+  Um perfil v1 é lido como v2 na primeira leitura: os campos novos ficam
+  vazios (nunca inferidos) e nada é gravado até o usuário salvar de novo. A
+  chave `forja-perfil-v1` não muda de nome nem de formato de JSON — o backup
+  continua sendo o mesmo objeto.
 */
+const PERFIL_VERSION = 2;
 const PERFIL_OBJETIVOS = ["forca", "hipertrofia", "resistencia", "calistenia", "recuperacao"];
 const PERFIL_NIVEIS = ["iniciante", "intermediario", "avancado"];
 const PERFIL_EQUIPAMENTOS = ["nenhum", "casa", "academia", "ambos"];
+
+/*
+  Sexo informado pelo usuário. Só dois valores com efeito definido:
+  "masculino" e "feminino", que futuramente selecionam o personagem das
+  demonstrações. O vazio significa "não informado" (inclui "prefiro não
+  informar") e o app continua funcionando sem personagem. Nenhum outro valor
+  é aceito e nada é inferido por nome, aparência ou objetivo.
+*/
+const PERFIL_SEXOS = ["masculino", "feminino"];
+const PERFIL_MODALIDADES = ["calisthenics", "weights"];
 const PERFIL_MAX_DIAS = 7;
 const PERFIL_MAX_MINUTOS = 240;
+
+/*
+  Personagens de demonstração (3D entram numa etapa futura). Hoje existe só o
+  contrato: `resolvePersonagem(perfil)` devolve um destes objetos quando o sexo
+  informado é reconhecido e `null` em qualquer outro caso — quem desenhar o
+  personagem não deve exibir nada quando receber `null`.
+*/
+const PERSONAGENS = Object.freeze({
+  masculino: Object.freeze({ id: "masculino", label: "Personagem masculino" }),
+  feminino: Object.freeze({ id: "feminino", label: "Personagem feminino" })
+});
 
 const PERFIL_LABELS = {
   objetivo: {
@@ -1253,6 +1287,14 @@ const PERFIL_LABELS = {
     casa: "Casa / peso corporal",
     academia: "Academia",
     ambos: "Ambos"
+  },
+  sexo: {
+    masculino: "Masculino",
+    feminino: "Feminino"
+  },
+  modalidade: {
+    calisthenics: "Calistenia",
+    weights: "Musculação"
   }
 };
 
@@ -1278,30 +1320,137 @@ const PERFIL_OPTIONS = {
     { value: "casa", label: "Casa / peso corporal" },
     { value: "academia", label: "Academia" },
     { value: "ambos", label: "Ambos" }
+  ],
+  sexo: [
+    { value: "", label: "Não informado" },
+    { value: "masculino", label: "Masculino" },
+    { value: "feminino", label: "Feminino" }
+  ],
+  modalidade: [
+    { value: "", label: "Sem preferência" },
+    { value: "calisthenics", label: "Calistenia" },
+    { value: "weights", label: "Musculação" }
   ]
 };
 
+/* Campos conhecidos do perfil. Qualquer outro campo é preservado, não lido. */
+const PERFIL_KNOWN_KEYS = [
+  "version",
+  "updatedAt",
+  "objetivo",
+  "nivel",
+  "equipamento",
+  "diasPorSemana",
+  "duracaoMinutos",
+  "sexo",
+  "modalidadePreferida",
+  "onboardingConcluidoEm"
+];
+
+/* Data ISO aceita só quando é texto e o navegador consegue interpretar. */
+function normalizeIsoText(value) {
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  if (!text) return null;
+  return Number.isNaN(Date.parse(text)) ? null : text;
+}
+
 function normalizeProfile(raw) {
   const base = {
-    version: 1,
+    version: PERFIL_VERSION,
     updatedAt: null,
     objetivo: "",
     nivel: "",
     equipamento: "",
     diasPorSemana: 0,
-    duracaoMinutos: 0
+    duracaoMinutos: 0,
+    sexo: "",
+    modalidadePreferida: "",
+    onboardingConcluidoEm: null
   };
 
   if (!isPlainObject(raw)) return base;
 
   return {
-    version: 1,
-    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
+    version: PERFIL_VERSION,
+    updatedAt: normalizeIsoText(raw.updatedAt),
     objetivo: PERFIL_OBJETIVOS.indexOf(raw.objetivo) !== -1 ? raw.objetivo : "",
     nivel: PERFIL_NIVEIS.indexOf(raw.nivel) !== -1 ? raw.nivel : "",
     equipamento: PERFIL_EQUIPAMENTOS.indexOf(raw.equipamento) !== -1 ? raw.equipamento : "",
     diasPorSemana: clampInteger(raw.diasPorSemana, 0, PERFIL_MAX_DIAS, 0),
-    duracaoMinutos: clampInteger(raw.duracaoMinutos, 0, PERFIL_MAX_MINUTOS, 0)
+    duracaoMinutos: clampInteger(raw.duracaoMinutos, 0, PERFIL_MAX_MINUTOS, 0),
+    /* Valor não reconhecido vira "não informado": nunca um palpite. */
+    sexo: PERFIL_SEXOS.indexOf(raw.sexo) !== -1 ? raw.sexo : "",
+    modalidadePreferida: PERFIL_MODALIDADES.indexOf(raw.modalidadePreferida) !== -1
+      ? raw.modalidadePreferida
+      : "",
+    onboardingConcluidoEm: normalizeIsoText(raw.onboardingConcluidoEm)
+  };
+}
+
+/*
+  Preserva campos que este módulo não conhece (versões futuras do app ou
+  anotações de outra ferramenta). Eles não são lidos nem usados, mas também não
+  são apagados na gravação.
+*/
+function carryUnknownProfileKeys(normalized, source) {
+  if (!isPlainObject(source)) return normalized;
+
+  const out = Object.assign({}, normalized);
+
+  Object.keys(source).forEach(key => {
+    if (PERFIL_KNOWN_KEYS.indexOf(key) !== -1) return;
+    out[key] = cloneData(source[key]);
+  });
+
+  return out;
+}
+
+/* Perfil já configurado: salvo agora ou por uma versão anterior do app. */
+function profileIsConfigured(profile) {
+  const current = isPlainObject(profile) ? profile : F.state.profile;
+
+  if (!isPlainObject(current)) return false;
+  return Boolean(normalizeIsoText(current.updatedAt) || normalizeIsoText(current.onboardingConcluidoEm));
+}
+
+/* Campo vazio porque o usuário nunca respondeu (não é "resposta errada"). */
+function profileHasAnyAnswer(profile) {
+  const current = normalizeProfile(profile);
+
+  return Boolean(
+    current.objetivo || current.nivel || current.equipamento || current.sexo ||
+    current.modalidadePreferida || current.diasPorSemana > 0 || current.duracaoMinutos > 0
+  );
+}
+
+/*
+  Personagem das demonstrações. Retorna `null` enquanto o sexo não estiver
+  informado ou não for reconhecido — e nenhuma tela deve exibir personagem
+  nesse caso. Não olha nome, aparência, objetivo nem histórico.
+*/
+function resolvePersonagem(profile) {
+  const current = normalizeProfile(profile);
+  const personagem = PERSONAGENS[current.sexo];
+  return personagem ? Object.assign({}, personagem) : null;
+}
+
+/*
+  Sugestão de metas semanais a partir do perfil: treinos por semana = dias
+  respondidos; minutos = dias × duração da sessão. É só uma sugestão — quem
+  grava é a tela de metas, depois da confirmação do usuário.
+*/
+function profileGoalSuggestion(profile) {
+  const current = normalizeProfile(profile);
+  const sessions = current.diasPorSemana;
+  const minutes = Math.min(7 * 60 * 24, sessions * current.duracaoMinutos);
+
+  if (sessions === 0 && minutes === 0) return null;
+
+  return {
+    weeklySessions: sessions,
+    weeklyMinutes: minutes,
+    modality: current.modalidadePreferida || "all"
   };
 }
 
@@ -1329,14 +1478,23 @@ function loadProfile() {
 }
 
 /*
-  Única gravação do perfil: só acontece quando o usuário confirma. Se o
-  navegador recusar, a memória volta exatamente ao que estava armazenado.
+  Única gravação do perfil: só acontece quando o usuário confirma. Parte do que
+  está armazenado agora (não só da memória) para não perder alterações feitas
+  em outra aba nem campos desconhecidos. Se o navegador recusar, a memória
+  volta exatamente ao que estava.
 */
 function saveProfile(patch) {
   const previous = cloneData(F.state.profile);
-  const next = normalizeProfile(Object.assign({}, F.state.profile, patch, {
+  const stored = parseStorageValue(WORKOUT_PROFILE_KEY);
+  const storedValue = stored.exists && !stored.error && isPlainObject(stored.value)
+    ? stored.value
+    : null;
+
+  const merged = Object.assign({}, storedValue, F.state.profile, patch, {
     updatedAt: new Date().toISOString()
-  }));
+  });
+
+  const next = carryUnknownProfileKeys(normalizeProfile(merged), storedValue);
 
   F.state.profile = next;
 
@@ -1370,6 +1528,25 @@ function validateProfileStore(value) {
     PERFIL_EQUIPAMENTOS.indexOf(value.equipamento) === -1) {
     throw new Error("O equipamento do perfil é inválido.");
   }
+
+  if (value.sexo !== undefined &&
+    value.sexo !== "" &&
+    PERFIL_SEXOS.indexOf(value.sexo) === -1) {
+    throw new Error("O sexo informado no perfil é inválido.");
+  }
+
+  if (value.modalidadePreferida !== undefined &&
+    value.modalidadePreferida !== "" &&
+    PERFIL_MODALIDADES.indexOf(value.modalidadePreferida) === -1) {
+    throw new Error("A modalidade preferida do perfil é inválida.");
+  }
+
+  ["updatedAt", "onboardingConcluidoEm"].forEach(field => {
+    if (value[field] === undefined || value[field] === null) return;
+    if (typeof value[field] !== "string" || Number.isNaN(Date.parse(value[field]))) {
+      throw new Error("A data de atualização do perfil é inválida.");
+    }
+  });
 
   if (value.diasPorSemana !== undefined) {
     const dias = Number(value.diasPorSemana);
@@ -2870,13 +3047,21 @@ Object.assign(F, {
   saveProfile,
   validateProfileStore,
   profileSummarize,
+  profileIsConfigured,
+  profileHasAnyAnswer,
+  profileGoalSuggestion,
+  resolvePersonagem,
   PERFIL_OPTIONS,
   PERFIL_LABELS,
   PERFIL_OBJETIVOS,
   PERFIL_NIVEIS,
   PERFIL_EQUIPAMENTOS,
+  PERFIL_SEXOS,
+  PERFIL_MODALIDADES,
+  PERFIL_VERSION,
   PERFIL_MAX_DIAS,
   PERFIL_MAX_MINUTOS,
+  PERSONAGENS,
   validateRoutinesStore,
   validateHistoryList,
   normalizeHistoryList,

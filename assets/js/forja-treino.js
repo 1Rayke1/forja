@@ -114,9 +114,36 @@
     }
   }
 
+  /*
+    Filtro inicial do hub a partir da modalidade preferida do perfil
+    (definida no onboarding ou em Perfil). É só um ponto de partida: o usuário
+    troca o filtro e a escolha dele manda no resto da visita.
+  */
+  function applyModalityPreference() {
+    const filter = byId("hub-modality");
+    const hint = byId("hub-modality-hint");
+    const profile = F.state.profile || {};
+
+    if (!filter || !profile.modalidadePreferida) return;
+    if (filter.value !== "") return;
+
+    filter.value = profile.modalidadePreferida;
+
+    if (hint) {
+      hint.textContent = "Filtro inicial definido pela sua modalidade preferida no perfil. Troque quando quiser.";
+      hint.hidden = false;
+    }
+  }
+
   F.pages.treino = function initTreinoHub() {
+    applyModalityPreference();
     renderHub();
-    byId("hub-modality").addEventListener("change", renderHub);
+    byId("hub-modality").addEventListener("change", () => {
+      /* Escolha manual: o aviso de "filtro do perfil" deixa de valer. */
+      const hint = byId("hub-modality-hint");
+      if (hint) hint.hidden = true;
+      renderHub();
+    });
     F.onDataChanged(renderHub);
     watchExternalChanges(
       [KEYS.routines, KEYS.legacyExercises, KEYS.history, KEYS.active, KEYS.rotation],

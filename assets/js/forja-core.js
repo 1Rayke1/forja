@@ -29,6 +29,7 @@
     executar: "treino/executar.html",
     progresso: "progresso/index.html",
     perfil: "perfil/index.html",
+    onboarding: "onboarding/index.html",
     configuracoes: "configuracoes/index.html"
   });
 
@@ -390,6 +391,38 @@
       }));
     } catch (error) {
       // Modo privado sem sessionStorage: o aviso simplesmente não aparece.
+    }
+  };
+
+  /*
+    Dispensa do convite ao onboarding. Fica na sessão do navegador (não no
+    armazenamento do FORJA, não entra em backup) para o app não repetir o
+    convite a cada navegação da mesma visita, sem gravar dado nenhum.
+  */
+  const ONBOARDING_SKIP_KEY = "forja-onboarding-dispensado";
+
+  F.setOnboardingSkipped = function setOnboardingSkipped() {
+    try {
+      global.sessionStorage.setItem(ONBOARDING_SKIP_KEY, "1");
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  F.onboardingSkipped = function onboardingSkipped() {
+    try {
+      return global.sessionStorage.getItem(ONBOARDING_SKIP_KEY) === "1";
+    } catch (error) {
+      return false;
+    }
+  };
+
+  F.clearOnboardingSkipped = function clearOnboardingSkipped() {
+    try {
+      global.sessionStorage.removeItem(ONBOARDING_SKIP_KEY);
+    } catch (error) {
+      // Sem sessionStorage não há o que limpar.
     }
   };
 
