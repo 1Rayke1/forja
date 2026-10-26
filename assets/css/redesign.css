@@ -126,7 +126,8 @@ body[data-page="inicio"] main.container { display: grid; grid-template-columns: 
 body[data-page="inicio"] .active-session-banner,
 body[data-page="inicio"] .home-greeting,
 body[data-page="inicio"] #onboarding-root { grid-column: 1 / -1; }
-body[data-page="inicio"] .home-greeting { margin: 0 0 4px; }
+body[data-page="inicio"] .home-greeting { grid-column: 1; grid-row: 2; margin: 0 0 4px; }
+body[data-page="inicio"] #onboarding-root { grid-column: 1 / -1; grid-row: 3; margin: 0; }
 body[data-page="inicio"] #home-action { grid-column: 2; grid-row: 2; align-self: stretch; }
 body[data-page="inicio"] .home-overview { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,.82fr); gap: 18px; margin-top: 22px; }
 body[data-page="inicio"] .home-week, body[data-page="inicio"] .home-goals { margin: 0; padding: 18px; border: 1px solid var(--fj-stroke); border-radius: 16px; background: rgba(16,23,25,.74); }
