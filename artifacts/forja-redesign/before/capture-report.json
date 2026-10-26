@@ -1,0 +1,238 @@
+{
+  "generatedAt": "2026-10-26T17:35:26.928Z",
+  "fixture": "redesign-visual-sample-v1",
+  "fixtureTime": "2026-10-26T17:00:00.000Z",
+  "viewportHeight": 900,
+  "screenshotMode": "viewport",
+  "widths": [
+    320,
+    360,
+    390,
+    430,
+    768,
+    1280
+  ],
+  "pages": {
+    "inicio": {
+      "320": {
+        "file": "inicio-320.png",
+        "width": 320,
+        "scrollWidth": 320,
+        "height": 1654,
+        "errors": []
+      },
+      "360": {
+        "file": "inicio-360.png",
+        "width": 360,
+        "scrollWidth": 360,
+        "height": 1620,
+        "errors": []
+      },
+      "390": {
+        "file": "inicio-390.png",
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1620,
+        "errors": []
+      },
+      "430": {
+        "file": "inicio-430.png",
+        "width": 430,
+        "scrollWidth": 430,
+        "height": 1578,
+        "errors": []
+      },
+      "768": {
+        "file": "inicio-768.png",
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 1226,
+        "errors": []
+      },
+      "1280": {
+        "file": "inicio-1280.png",
+        "width": 1280,
+        "scrollWidth": 1280,
+        "height": 1178,
+        "errors": []
+      }
+    },
+    "treinos": {
+      "320": {
+        "file": "treinos-320.png",
+        "width": 320,
+        "scrollWidth": 320,
+        "height": 1700,
+        "errors": []
+      },
+      "360": {
+        "file": "treinos-360.png",
+        "width": 360,
+        "scrollWidth": 360,
+        "height": 1694,
+        "errors": []
+      },
+      "390": {
+        "file": "treinos-390.png",
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1695,
+        "errors": []
+      },
+      "430": {
+        "file": "treinos-430.png",
+        "width": 430,
+        "scrollWidth": 430,
+        "height": 1678,
+        "errors": []
+      },
+      "768": {
+        "file": "treinos-768.png",
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 1577,
+        "errors": []
+      },
+      "1280": {
+        "file": "treinos-1280.png",
+        "width": 1280,
+        "scrollWidth": 1280,
+        "height": 1577,
+        "errors": []
+      }
+    },
+    "explorar": {
+      "320": {
+        "file": "explorar-320.png",
+        "width": 320,
+        "scrollWidth": 320,
+        "height": 4319,
+        "errors": []
+      },
+      "360": {
+        "file": "explorar-360.png",
+        "width": 360,
+        "scrollWidth": 360,
+        "height": 4319,
+        "errors": []
+      },
+      "390": {
+        "file": "explorar-390.png",
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 4159,
+        "errors": []
+      },
+      "430": {
+        "file": "explorar-430.png",
+        "width": 430,
+        "scrollWidth": 430,
+        "height": 3928,
+        "errors": []
+      },
+      "768": {
+        "file": "explorar-768.png",
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 2880,
+        "errors": []
+      },
+      "1280": {
+        "file": "explorar-1280.png",
+        "width": 1280,
+        "scrollWidth": 1280,
+        "height": 2342,
+        "errors": []
+      }
+    },
+    "progresso": {
+      "320": {
+        "file": "progresso-320.png",
+        "width": 320,
+        "scrollWidth": 320,
+        "height": 2432,
+        "errors": []
+      },
+      "360": {
+        "file": "progresso-360.png",
+        "width": 360,
+        "scrollWidth": 360,
+        "height": 2343,
+        "errors": []
+      },
+      "390": {
+        "file": "progresso-390.png",
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 2345,
+        "errors": []
+      },
+      "430": {
+        "file": "progresso-430.png",
+        "width": 430,
+        "scrollWidth": 430,
+        "height": 2336,
+        "errors": []
+      },
+      "768": {
+        "file": "progresso-768.png",
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 2094,
+        "errors": []
+      },
+      "1280": {
+        "file": "progresso-1280.png",
+        "width": 1280,
+        "scrollWidth": 1280,
+        "height": 2054,
+        "errors": []
+      }
+    },
+    "perfil": {
+      "320": {
+        "file": "perfil-320.png",
+        "width": 320,
+        "scrollWidth": 320,
+        "height": 2371,
+        "errors": []
+      },
+      "360": {
+        "file": "perfil-360.png",
+        "width": 360,
+        "scrollWidth": 360,
+        "height": 2301,
+        "errors": []
+      },
+      "390": {
+        "file": "perfil-390.png",
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 2278,
+        "errors": []
+      },
+      "430": {
+        "file": "perfil-430.png",
+        "width": 430,
+        "scrollWidth": 430,
+        "height": 2197,
+        "errors": []
+      },
+      "768": {
+        "file": "perfil-768.png",
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 1680,
+        "errors": []
+      },
+      "1280": {
+        "file": "perfil-1280.png",
+        "width": 1280,
+        "scrollWidth": 1280,
+        "height": 1680,
+        "errors": []
+      }
+    }
+  },
+  "overflow": []
+}
