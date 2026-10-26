@@ -1962,6 +1962,24 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
   }
 });
 
+await check('Piloto sem autorização mantém detalhe acessível e não solicita fotografias', async () => {
+  await page.setViewport(MOBILE);
+  const requested = [];
+  const onRequest = request => { if (request.url().includes('/assets/exercicios/')) requested.push(request.url()); };
+  page.on('request', onRequest);
+  try {
+    await go('treino/biblioteca.html?exercicio=cal-flexao');
+    await page.waitForSelector('[role="dialog"]');
+    assert.equal(await page.evaluate(() => Object.keys(Forja.catalog.PHOTO_MANIFEST).length), 0);
+    const dialog = await page.$eval('[role="dialog"]', node => node.textContent);
+    assert.match(dialog, /Fotografia demonstrativa ainda não disponível/);
+    assert.match(dialog, /cotovelos/);
+    assert.deepEqual(requested, []);
+    await page.screenshot({ path: artifactPath('fotografias-pendente-390.png') });
+    await page.keyboard.press('Escape');
+  } finally { page.off('request', onRequest); }
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });

@@ -498,12 +498,53 @@
    * do repositório de origem não substitui a permissão individual da foto.
    */
   const PHOTO_MANIFEST = Object.freeze({});
-  function photoFor(record) {
+  function photoFor(record, manifest = PHOTO_MANIFEST) {
     if (!record) return null;
     const origin = record.libraryId || record.id;
-    const photo = PHOTO_MANIFEST[record.mode + ":" + origin];
-    return photo && photo.status === "approved" && photo.exerciseId === origin && photo.mode === record.mode
-      ? photo : null;
+    const known = items(record.mode).find(item => item.id === origin && item.source === "sugerido");
+    const photo = manifest[record.mode + ":" + origin];
+    if (!known || !photo || photo.status !== "approved" || photo.exerciseId !== origin || photo.mode !== record.mode) return null;
+    // Um vínculo antigo não autoriza ilustrar uma variante editada. Na dúvida,
+    // omitir a foto; não escrever flags novas nas rotinas ou sessões salvas.
+    if (["name", "instructions"].some(key => record[key] && record[key] !== known[key])) return null;
+    if (record.equipment && record.equipment.length && JSON.stringify(record.equipment) !== JSON.stringify(known.equipment)) return null;
+    const required = ["variant", "alt", "sourceUrl", "license", "licenseUrl", "attribution",
+      "verifiedAt", "evidence", "reviewedBy", "modifications", "modelPermission"];
+    if (required.some(key => typeof photo[key] !== "string" || !photo[key].trim())) return null;
+    if (!/^https:\/\//.test(photo.sourceUrl) || !/^https:\/\//.test(photo.licenseUrl)) return null;
+    if (!/^assets\/exercicios\/[a-z0-9-]+\.(webp|jpg|png)$/.test(photo.src)) return null;
+    if (!Number.isInteger(photo.width) || !Number.isInteger(photo.height) || photo.width < 1 || photo.height < 1) return null;
+    return photo;
+  }
+
+  // Recebe somente metadados já revisados. Não baixa mídias externas e não
+  // substitui a revisão editorial/legal por uma validação de campos.
+  function renderPhoto(photo, compact = false) {
+    const figure = F.ui.el("figure", "exercise-photo" + (compact ? " exercise-photo--compact" : ""));
+    const fallback = F.ui.el("p", "ui-inline-note", "Fotografia demonstrativa indisponível. As instruções continuam abaixo.");
+    const image = doc.createElement("img");
+    image.alt = photo.alt;
+    image.width = photo.width;
+    image.height = photo.height;
+    image.setAttribute("loading", "lazy");
+    image.setAttribute("decoding", "async");
+    image.addEventListener("error", () => {
+      image.remove();
+      figure.insertBefore(fallback, figure.firstChild);
+    }, { once: true });
+    image.src = F.url(photo.src);
+    figure.appendChild(image);
+    const caption = F.ui.el("figcaption", "exercise-photo-credit");
+    const source = F.ui.el("a", "", photo.attribution);
+    source.href = photo.sourceUrl;
+    const license = F.ui.el("a", "", photo.license);
+    license.href = photo.licenseUrl;
+    caption.appendChild(source);
+    caption.appendChild(doc.createTextNode(" · "));
+    caption.appendChild(license);
+    if (!compact) caption.appendChild(F.ui.el("p", "", "Variante: " + photo.variant + ". Alterações: " + photo.modifications + ". Uma fotografia não demonstra toda a execução."));
+    figure.appendChild(caption);
+    return figure;
   }
 
   F.catalog = {
@@ -523,6 +564,7 @@
     renderRow: recordRow,
     PHOTO_MANIFEST,
     photoFor,
+    renderPhoto,
     /* Categorias presentes no catálogo atual (para o formulário). */
     categories(mode) {
       const used = countBy(items(mode), record => [record.category]);
@@ -685,6 +727,8 @@
     main.appendChild(F.ui.el("h3", "ui-exercise-name", record.name));
     main.appendChild(F.ui.el("p", "ui-exercise-meta", F.catalog.summary(record)));
 
+    const photo = photoFor(record);
+    if (photo) main.appendChild(renderPhoto(photo, true));
     main.appendChild(tagRow(record));
     row.appendChild(main);
 
@@ -749,6 +793,9 @@
 
     const details = linesNode(lines,
       "Nenhuma instrução salva para este exercício. Ao criar um item personalizado você pode escrever o passo a passo e ele aparece aqui.");
+
+    const photo = photoFor(record);
+    if (photo) details.insertBefore(renderPhoto(photo), details.firstChild);
 
     /*
       Figura das regiões trabalhadas (mesma peça do atlas). Só entra quando o

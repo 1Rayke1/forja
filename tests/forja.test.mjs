@@ -5246,6 +5246,45 @@ await runTest("81. Identidade e preparação de fotos nunca usam correspondênci
   assertNoErrors(app, "fotos sem publicação");
 });
 
+await runTest("82. Fotos exigem origem exata, contrato completo e variante conservadora; falha mantém crédito e instruções", async () => {
+  const app = await boot({}, "treino/biblioteca.html");
+  const catalog = app.F.catalog;
+  const record = catalog.items("calisthenics").find(item => item.id === "cal-flexao");
+  // Fixture de metadados, NÃO é fotografia aprovada nem entra no manifesto.
+  const photo = { status: "approved", exerciseId: record.id, mode: record.mode,
+    src: "assets/exercicios/fixture.webp", width: 640, height: 480,
+    alt: "Pessoa em flexão, mãos no chão, corpo alinhado e cotovelos flexionados.",
+    variant: "Flexão no solo", sourceUrl: "https://example.org/photo", author: "Fixture",
+    license: "Licença de teste", licenseUrl: "https://example.org/license",
+    attribution: "Fixture de teste — não publicar", verifiedAt: "2026-10-25",
+    evidence: "fixture", reviewedBy: "fixture", modifications: "nenhuma", modelPermission: "fixture" };
+  const manifest = { [record.mode + ":" + record.id]: photo };
+  assert.equal(catalog.photoFor(record, manifest), photo);
+  for (const key of Object.keys(photo).filter(key => key !== "author")) {
+    const invalid = { ...photo }; delete invalid[key];
+    assert.equal(catalog.photoFor(record, { [record.mode + ":" + record.id]: invalid }), null, key);
+  }
+  for (const patch of [{ mode: "weights" }, { name: "Flexão com joelhos" },
+    { instructions: "Outra variante" }, { equipment: ["halteres"] }, { id: "desconhecido", libraryId: "desconhecido" }]) {
+    assert.equal(catalog.photoFor({ ...record, ...patch }, manifest), null);
+  }
+  assert.equal(catalog.photoFor({ ...record, id: "copia", libraryId: record.id }, manifest), photo);
+  const figure = catalog.renderPhoto(photo);
+  app.d.body.appendChild(figure);
+  const image = figure.querySelector("img");
+  assert.equal(image.alt, photo.alt);
+  assert.equal(image.width, 640);
+  assert.equal(image.height, 480);
+  assert.equal(image.getAttribute("loading"), "lazy");
+  assert.match(image.getAttribute("src"), /^\.\.\/assets\/exercicios\/fixture.webp$/);
+  assert.equal(figure.querySelectorAll("a").length, 2);
+  image.dispatchEvent(new app.w.Event("error"));
+  assert.equal(figure.querySelector("img"), null);
+  assert.match(figure.textContent, /indisponível/);
+  assert.match(figure.textContent, /Fixture de teste/);
+  assert.equal(Object.keys(catalog.PHOTO_MANIFEST).length, 0);
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));
