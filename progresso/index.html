@@ -47,6 +47,7 @@
     <p class="screen-subtitle">Tudo aqui é calculado somente com os treinos registrados neste navegador. Nenhum número é estimado.</p>
   </div>
 
+  <div class="progress-controls" aria-label="Controles de progresso">
   <div class="filter-group" role="group" aria-label="Filtrar por modalidade">
     <button type="button" class="filter-button" data-filter="all" aria-pressed="true">Todas</button>
     <button type="button" class="filter-button" data-filter="calisthenics" aria-pressed="false">Calistenia</button>
@@ -71,6 +72,8 @@
   </div>
   <p class="field-error" id="period-error" hidden></p>
 
+  </div>
+
   <p class="scope-note">Exibindo: <strong id="progress-scope">Todas as modalidades</strong></p>
 
   <section class="section-block" aria-labelledby="progress-summary-heading">
@@ -87,8 +90,25 @@
     <p class="limit-note" id="progress-limit-note" hidden></p>
   </section>
 
-  <section class="section-block" aria-labelledby="progress-goals-heading">
-    <h2 class="section-title" id="progress-goals-heading">Metas da semana</h2>
+  <section class="section-block" aria-labelledby="progress-evolution-heading">
+    <h2 class="section-title" id="progress-evolution-heading">Evolução por exercício</h2>
+    <div class="evolution-toolbar">
+      <label class="field-label" for="evolution-select">Exercício</label>
+      <select id="evolution-select"></select>
+    </div>
+    <div id="progress-evolution"></div>
+  </section>
+
+  <section class="section-block" aria-labelledby="progress-frequency-heading">
+    <h2 class="section-title" id="progress-frequency-heading">Calendário de frequência</h2>
+    <p class="section-note">Últimas 12 semanas, de segunda a domingo. A intensidade da célula é o número de séries concluídas no dia.</p>
+    <div id="progress-frequency"></div>
+    <p class="limit-note" id="frequency-note"></p>
+  </section>
+
+  <details class="progress-disclosure">
+    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-goals-heading">Metas da semana</h2></summary>
+  <section class="section-block progress-disclosure-content" aria-labelledby="progress-goals-heading">
     <p class="section-note" id="goals-scope-note">Metas semanais contam apenas os treinos desta semana (segunda a domingo), no escopo escolhido abaixo.</p>
     <form id="goals-form" class="goals-form" novalidate>
       <div class="goals-fields">
@@ -124,54 +144,50 @@
     </form>
     <div id="goals-progress"></div>
   </section>
+  </details>
 
-  <section class="section-block" aria-labelledby="progress-compare-heading">
-    <h2 class="section-title" id="progress-compare-heading">Comparação de períodos</h2>
+  <details class="progress-disclosure">
+    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-compare-heading">Comparação de períodos</h2></summary>
+  <section class="section-block progress-disclosure-content" aria-labelledby="progress-compare-heading">
     <p class="section-note" id="compare-scope-note"></p>
     <div id="progress-compare"></div>
   </section>
+  </details>
 
-  <section class="section-block" aria-labelledby="progress-frequency-heading">
-    <h2 class="section-title" id="progress-frequency-heading">Calendário de frequência</h2>
-    <p class="section-note">Últimas 12 semanas, de segunda a domingo. A intensidade da célula é o número de séries concluídas no dia.</p>
-    <div id="progress-frequency"></div>
-    <p class="limit-note" id="frequency-note"></p>
-  </section>
-
-  <section class="section-block" aria-labelledby="progress-weekly-heading">
-    <h2 class="section-title" id="progress-weekly-heading">Semana a semana</h2>
+  <details class="progress-disclosure">
+    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-weekly-heading">Semana a semana</h2></summary>
+  <section class="section-block progress-disclosure-content" aria-labelledby="progress-weekly-heading">
     <p class="section-note">Últimas 8 semanas, contadas de segunda a domingo. Cada treino entra na semana da data em que foi encerrado.</p>
     <div id="progress-weekly"></div>
   </section>
+  </details>
 
-  <section class="section-block" aria-labelledby="progress-evolution-heading">
-    <h2 class="section-title" id="progress-evolution-heading">Evolução por exercício</h2>
-    <div class="evolution-toolbar">
-      <label class="field-label" for="evolution-select">Exercício</label>
-      <select id="evolution-select"></select>
-    </div>
-    <div id="progress-evolution"></div>
-  </section>
-
-  <section class="section-block" aria-labelledby="progress-records-heading">
-    <h2 class="section-title" id="progress-records-heading">Recordes</h2>
+  <details class="progress-disclosure">
+    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-records-heading">Recordes</h2></summary>
+  <section class="section-block progress-disclosure-content" aria-labelledby="progress-records-heading">
     <p class="section-note">Cada recorde mostra o critério usado. Categorias sem dado medido simplesmente não aparecem.</p>
     <ul class="records-list" id="progress-records"></ul>
     <p class="limit-note" id="records-note"></p>
   </section>
+  </details>
 
-  <section class="section-block" aria-labelledby="progress-routines-heading">
-    <h2 class="section-title" id="progress-routines-heading">Por rotina</h2>
+  <details class="progress-disclosure">
+    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-routines-heading">Por rotina</h2></summary>
+  <section class="section-block progress-disclosure-content" aria-labelledby="progress-routines-heading">
     <ul class="progress-list" id="progress-routines"></ul>
   </section>
+  </details>
 
-  <section class="section-block" aria-labelledby="progress-exercises-heading">
-    <h2 class="section-title" id="progress-exercises-heading">Por exercício</h2>
+  <details class="progress-disclosure">
+    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-exercises-heading">Por exercício</h2></summary>
+  <section class="section-block progress-disclosure-content" aria-labelledby="progress-exercises-heading">
     <ul class="progress-list" id="progress-exercises"></ul>
   </section>
+  </details>
 
-  <section class="section-block" aria-labelledby="progress-history-heading">
-    <h2 class="section-title" id="progress-history-heading">Histórico</h2>
+  <details class="progress-disclosure">
+    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-history-heading">Histórico</h2></summary>
+  <section class="section-block progress-disclosure-content" aria-labelledby="progress-history-heading">
     <div class="history-tools">
       <div class="field-block">
         <label class="field-label" for="history-search">Buscar no histórico</label>
@@ -193,6 +209,7 @@
     </div>
     <div class="history-list" id="progress-history"></div>
   </section>
+  </details>
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">

@@ -546,8 +546,40 @@
     actions.append(start, edit);
     if (!options.compact) actions.appendChild(tools);
     card.appendChild(header);
+    if (options.compact && total > 0) {
+      const preview = document.createElement("ul");
+      preview.className = "routine-exercise-preview";
+      const exerciseNames = (F.SECTION_ORDER || ["warmup", "main", "abs", "finisher"])
+        .flatMap(section => Array.isArray(routine.sections && routine.sections[section]) ? routine.sections[section] : [])
+        .map(item => {
+          const suggestions = F.EXERCISE_LIBRARY && F.EXERCISE_LIBRARY[routine.modality] || [];
+          const record = suggestions.find(candidate => candidate.id === (item && item.id));
+          return (record && record.name) || (item && (item.exerciseName || item.name || item.title));
+        })
+        .filter(Boolean);
+      exerciseNames.slice(0, 3).forEach(exerciseName => {
+        const entry = document.createElement("li");
+        entry.textContent = exerciseName;
+        preview.appendChild(entry);
+      });
+      if (exerciseNames.length > 3) {
+        const more = document.createElement("li");
+        more.className = "routine-exercise-more";
+        more.textContent = "+" + (exerciseNames.length - 3) + " exercícios";
+        preview.appendChild(more);
+      }
+      card.appendChild(preview);
+    }
     if (!options.compact) card.appendChild(sections);
     card.appendChild(actions);
+    if (options.compact) {
+      const more = document.createElement("details");
+      more.className = "routine-more-actions";
+      const summary = document.createElement("summary");
+      summary.textContent = "Mais ações";
+      more.append(summary, tools);
+      card.appendChild(more);
+    }
 
     return card;
   }

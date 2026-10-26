@@ -297,29 +297,40 @@
       return;
     }
 
-    if (!F.charts || typeof F.charts.ring !== "function") {
-      var noChart = document.createElement("p");
-      noChart.className = "home-goals-note";
-      noChart.textContent = "Suas metas estão configuradas. Consulte o progresso para ver os detalhes.";
-      host.appendChild(noChart);
-      return;
-    }
-
     var grid = document.createElement("div");
     grid.className = "home-goals-grid";
     grid.setAttribute("role", "list");
     items.forEach(function (item) {
       var current = Number(item.current) || 0;
       var target = Number(item.target) || 0;
-      var ring = F.charts.ring({
-        percent: Math.max(0, Math.min(100, Number(item.percent) || 0)),
-        label: item.label,
-        valueText: current + "/" + target,
-        note: formatGoalNote(item)
-      });
-      ring.setAttribute("role", "listitem");
-      ring.classList.add("home-goals-ring");
-      grid.appendChild(ring);
+      var percent = Math.max(0, Math.min(100, Number(item.percent) || 0));
+      var row = document.createElement("div");
+      row.className = "home-goal-row"
+      row.setAttribute("role", "listitem");
+      var head = document.createElement("div");
+      head.className = "home-goal-head";
+      var label = document.createElement("strong");
+      label.textContent = item.label;
+      var value = document.createElement("span");
+      value.className = "home-goal-value";
+      value.textContent = current + "/" + target;
+      head.append(label, value);
+      var track = document.createElement("div");
+      track.className = "home-goal-track";
+      track.setAttribute("role", "progressbar");
+      track.setAttribute("aria-valuemin", "0");
+      track.setAttribute("aria-valuemax", "100");
+      track.setAttribute("aria-valuenow", String(Math.round(percent)));
+      track.setAttribute("aria-label", item.label + ": " + current + " de " + target);
+      var fill = document.createElement("span");
+      fill.className = "home-goal-fill";
+      fill.style.width = percent + "%";
+      track.appendChild(fill);
+      var note = document.createElement("span");
+      note.className = "home-goal-note";
+      note.textContent = formatGoalNote(item);
+      row.append(head, track, note);
+      grid.appendChild(row);
     });
     host.appendChild(grid);
   }
@@ -350,7 +361,16 @@
     }
 
     var recent = history.slice(0, 3);
-    recent.forEach(function (record) {
+    var archive = null;
+    recent.forEach(function (record, index) {
+      if (index === 1) {
+        archive = document.createElement("details");
+        archive.className = "home-recent-archive";
+        var summary = document.createElement("summary");
+        summary.textContent = "Treinos anteriores";
+        archive.appendChild(summary);
+        list.appendChild(archive);
+      }
       var item = document.createElement("div");
       item.className = "home-recent-item";
       var name = document.createElement("div");
@@ -363,11 +383,11 @@
       meta.textContent = formatRecordDate(record) + " · " + mode + " · " + status + " · " + (Number(record.completedSets)||0) + "/" + (Number(record.totalPlannedSets)||0) + " séries";
       item.appendChild(name);
       item.appendChild(meta);
-      list.appendChild(item);
+      (index === 0 ? list : archive).appendChild(item);
     });
 
     if (history.length > 3) {
-      note.textContent = history.length + " treinos no histórico. Veja todos em Progresso.";
+      note.textContent = "Mais " + (history.length - 3) + " treinos no histórico. Veja todos em Progresso.";
     }
   }
 

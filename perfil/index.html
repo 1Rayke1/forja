@@ -40,10 +40,10 @@
   <div class="page-head">
     <span class="eyebrow">Perfil</span>
     <h1 class="screen-title">Perfil</h1>
-    <p class="screen-subtitle">Seu corpo, preferências e dados — tudo permanece neste navegador.</p>
+    <p class="screen-subtitle">Seu plano de treino, preferências e dados — tudo permanece neste navegador.</p>
   </div>
 
-  <section class="preferences-panel" aria-labelledby="perfil-treino-heading">
+  <section class="profile-group preferences-panel" aria-labelledby="perfil-treino-heading">
     <h2 class="section-title" id="perfil-treino-heading">Seu perfil de treino</h2>
     <p class="screen-subtitle">Opcional e editável a qualquer momento. O perfil orienta sugestões futuras, mas nunca impede a criação manual de rotinas.</p>
     <p class="profile-onboarding-cta">
@@ -92,23 +92,24 @@
     </form>
   </section>
 
-  <section class="preferences-panel" aria-labelledby="meu-corpo-heading">
-    <h2 class="section-title" id="meu-corpo-heading">Meu corpo</h2>
-    <p class="screen-subtitle">Medidas corporais opcionais ficam salvas apenas neste navegador e não são enviadas a nenhum servidor.</p>
-    <div class="profile-body-stack">
-      <div class="ui-empty">
-        <span class="ui-icon ui-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
-        <div class="ui-empty-body">
-          <strong class="ui-empty-title">Medidas em breve</strong>
-          <p class="ui-empty-text">Peso, altura e histórico ficarão aqui, com explicação de como são usados. Por enquanto, mantenha suas rotinas e progresso — nenhum dado sai deste aparelho.</p>
-        </div>
-      </div>
-      <p class="section-note">Privacidade: nenhum dado corporal é sincronizado. Use o backup abaixo para levar dados a outro aparelho, se quiser.</p>
+  <section class="profile-group preferences-panel" aria-labelledby="preferences-heading">
+    <h2 class="section-title" id="preferences-heading">Preferências</h2>
+    <div class="profile-preference-options">
+      <label class="check-row">
+        <input type="checkbox" id="pref-sound">
+        <span>Tocar um aviso sonoro quando o descanso terminar</span>
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="pref-vibrate">
+        <span>Vibrar quando o descanso terminar (se o aparelho permitir)</span>
+      </label>
     </div>
   </section>
 
-  <section class="backup-panel" aria-labelledby="backup-heading">
-    <h2 class="section-title" id="backup-heading">Seus dados</h2>
+  <section class="profile-group preferences-panel profile-data-actions" aria-labelledby="profile-data-heading">
+    <h2 class="section-title" id="profile-data-heading">Dados e backup</h2>
+    <p class="profile-data-note">Seus dados ficam apenas neste navegador: não sincronizam entre aparelhos nem são enviados a servidores. Exporte um backup para transferi-los.</p>
+    <h3 class="section-title profile-backup-title" id="backup-heading">Backup</h3>
     <p class="backup-description">Exporte um backup JSON com missões, calendário, rotinas, biblioteca, histórico e sessão ativa. A importação valida o arquivo e pede confirmação antes de substituir qualquer dado.</p>
     <div class="backup-actions">
       <button type="button" class="secondary-button" id="export-backup">Exportar backup JSON</button>
@@ -119,28 +120,9 @@
     <div class="backup-meta" id="backup-status">Seus dados permanecem apenas neste navegador. Faça backups regulares.</div>
   </section>
 
-  <section class="preferences-panel" aria-labelledby="preferences-heading">
-    <h2 class="section-title" id="preferences-heading">Preferências do descanso</h2>
-    <label class="check-row">
-      <input type="checkbox" id="pref-sound">
-      <span>Tocar um aviso sonoro quando o descanso terminar</span>
-    </label>
-    <label class="check-row">
-      <input type="checkbox" id="pref-vibrate">
-      <span>Vibrar quando o descanso terminar (se o aparelho permitir)</span>
-    </label>
-  </section>
 
-  <section class="storage-panel" aria-labelledby="storage-heading">
-    <h2 class="section-title" id="storage-heading">Onde seus dados ficam</h2>
-    <p>Os dados do FORJA ficam salvos apenas neste navegador. Eles não são sincronizados entre celular, computador ou outros navegadores. Para levar seus dados para outro aparelho, exporte um backup e importe-o lá.</p>
-  </section>
 
-  <section class="storage-panel" aria-labelledby="privacidade-heading">
-    <h2 class="section-title" id="privacidade-heading">Privacidade</h2>
-    <p>Sem rastreamento, sem publicidade e sem envio de dados pessoais. Calendário, missões, rotinas e histórico permanecem no armazenamento local deste navegador.</p>
-    <p class="storage-panel-actions"><a href="../configuracoes/index.html" class="secondary-button small-button">Abrir Dados (compatibilidade)</a></p>
-  </section>
+
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">

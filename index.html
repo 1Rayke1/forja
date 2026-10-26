@@ -47,6 +47,7 @@
 
   <section id="home-action" aria-labelledby="home-action-heading"></section>
 
+  <div class="home-overview" role="group" aria-label="Resumo da semana">
   <section class="home-week" id="home-week" aria-labelledby="home-week-heading">
     <div class="home-week-head">
       <h2 class="home-week-title" id="home-week-heading">Sua semana</h2>
@@ -65,6 +66,8 @@
     <div id="home-goals-content"></div>
   </section>
 
+  </div>
+
   <section class="home-recent" id="home-recent" aria-labelledby="home-recent-heading">
     <div class="home-recent-head">
       <h2 class="home-recent-title" id="home-recent-heading">Último treino</h2>
@@ -75,9 +78,9 @@
   </section>
 
   <div class="home-secondary">
-    <section class="home-section" aria-labelledby="calendar-heading">
+    <details class="home-section home-disclosure">
+      <summary class="section-title" id="calendar-heading">Seu calendário <span class="disclosure-hint">Consultar ou organizar dias</span></summary>
       <div class="calendar-panel">
-        <h2 class="section-title" id="calendar-heading">Seu calendário</h2>
         <div class="month-navigation">
           <button class="nav-button" id="prev-month" type="button" aria-label="Mês anterior">‹</button>
           <div class="month-title" id="month-title"></div>
@@ -86,13 +89,13 @@
         <div class="calendar-grid" id="calendar-grid"></div>
         <p class="calendar-hint">Selecione um dia para consultar ou organizar sua rotina. Os pontos indicam dias com missões.</p>
       </div>
-    </section>
+    </details>
 
-    <section class="home-section" aria-labelledby="missions-heading">
+    <details class="home-section home-disclosure">
+      <summary class="section-title" id="missions-heading">Missões <span class="disclosure-hint">Planejar tarefas do dia</span></summary>
       <div class="missions-panel">
         <div class="missions-heading">
           <div>
-            <h2 class="section-title" id="missions-heading">Missões</h2>
             <div class="selected-date" id="selected-date"></div>
             <div class="progress-label" id="progress-label">0 de 0 · 0%</div>
           </div>
@@ -108,7 +111,7 @@
         </form>
         <div class="task-list" id="task-list"></div>
       </div>
-    </section>
+    </details>
   </div>
 </main>
 

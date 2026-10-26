@@ -1723,3 +1723,156 @@ body[data-page="treino"] .home-week-head { flex-wrap: wrap; gap: 12px; }
 body[data-page="treino"] .hub-footer-links .secondary-button { white-space: normal; }
 #library-list .ui-exercise-actions .small-button { min-height: 44px; }
 #execution-instructions { min-height: 44px; margin-top: 12px; }
+
+/* ==========================================================================
+   REDESIGN — fluxos e composição das cinco telas
+   Estrutura em primeiro plano; paleta FORJA, tipografia Archivo/Inter e
+   componentes do sistema mantidos. Sem efeitos no atlas nem nos arquivos
+   anatômicos.
+   ========================================================================== */
+
+/* Início: ação à frente, semana/metas legíveis e tarefas cotidianas recolhidas. */
+body[data-page="inicio"] #conteudo { max-width: 1120px; }
+body[data-page="inicio"] .home-greeting { margin: 8px 0 18px; }
+body[data-page="inicio"] .home-title { max-width: 17ch; font-size: clamp(30px, 5vw, 42px); line-height: 1.06; }
+body[data-page="inicio"] #home-action { margin: 0 0 20px; }
+body[data-page="inicio"] #home-action .home-action-card { min-height: 150px; padding: clamp(18px, 3vw, 28px); border: 1px solid rgba(201,255,67,.28); border-left: 4px solid var(--lime); background: linear-gradient(105deg, rgba(201,255,67,.09), var(--panel) 65%); }
+body[data-page="inicio"] .home-overview { display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; margin-top: 4px; }
+body[data-page="inicio"] .home-week, body[data-page="inicio"] .home-goals, body[data-page="inicio"] .home-recent { min-width: 0; margin: 0; padding: 16px 0; border-top: 1px solid var(--border); }
+body[data-page="inicio"] .home-week-stat { border: 0; border-left: 1px solid var(--border); border-radius: 0; background: transparent; text-align: left; }
+body[data-page="inicio"] .home-week-stat:first-child { border-left: 0; }
+body[data-page="inicio"] .home-week-stat-value { color: var(--lime); }
+body[data-page="inicio"] .home-goals-grid { display: grid; gap: 13px; }
+body[data-page="inicio"] .home-goal-row { display: grid; justify-items: stretch; position: static; gap: 7px 12px; min-width: 0; }
+body[data-page="inicio"] .home-recent-archive { border-top: 1px solid var(--border); }
+body[data-page="inicio"] .home-recent-archive > summary { min-height: 44px; display: flex; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
+body[data-page="inicio"] .home-goal-row { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 7px 12px; align-items: center; }
+body[data-page="inicio"] .home-goal-head { display: flex; justify-content: space-between; gap: 10px; min-width: 0; color: var(--text); font-size: 13px; }
+body[data-page="inicio"] .home-goal-head strong { overflow-wrap: anywhere; }
+body[data-page="inicio"] .home-goal-value { font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
+body[data-page="inicio"] .home-goal-track { grid-column: 1 / -1; height: 7px; overflow: hidden; border-radius: 99px; background: #333832; }
+body[data-page="inicio"] .home-goal-fill { display: block; height: 100%; border-radius: inherit; background: var(--lime); }
+body[data-page="inicio"] .home-goal-note { color: var(--muted); font-size: 12px; white-space: nowrap; }
+body[data-page="inicio"] .home-recent-item { grid-template-columns: minmax(100px,.55fr) minmax(0,1fr); align-items: baseline; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; padding: 10px 0; }
+body[data-page="inicio"] .home-recent-item:last-child { border-bottom: 0; }
+body[data-page="inicio"] .home-secondary { display: grid; gap: 10px; margin-top: 12px; }
+body[data-page="inicio"] .home-disclosure { min-width: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+body[data-page="inicio"] .home-disclosure > summary { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 14px; cursor: pointer; list-style: none; }
+body[data-page="inicio"] .home-disclosure > summary::-webkit-details-marker { display: none; }
+body[data-page="inicio"] .home-disclosure > summary::after { content: "+"; color: var(--lime); font-size: 24px; line-height: 1; }
+body[data-page="inicio"] .home-disclosure[open] > summary::after { content: "−"; }
+body[data-page="inicio"] .disclosure-hint { color: var(--muted); font: 400 12px/1.4 var(--fj-fonte-texto, Inter, sans-serif); }
+body[data-page="inicio"] .home-disclosure .calendar-panel, body[data-page="inicio"] .home-disclosure .missions-panel { padding: 0 0 18px; }
+body[data-page="inicio"] .home-secondary .calendar-grid .day { min-height: 44px; height: 44px; aspect-ratio: auto; }
+
+/* Treinos: comparar rotinas como linhas; ações principais expostas e demais agrupadas. */
+body[data-page="treino"] .hub-routines { margin-bottom: 24px; }
+body[data-page="treino"] #hub-modality { max-width: 280px; }
+body[data-page="treino"] #hub-routine-list { display: grid; gap: 0; border-top: 1px solid var(--border); }
+body[data-page="treino"] #hub-routine-list .routine-card { display: grid; grid-template-columns: minmax(0,1fr); gap: 8px 18px; padding: 16px 0; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; }
+body[data-page="treino"] #hub-routine-list .routine-name { font-size: 17px; }
+body[data-page="treino"] #hub-routine-list .routine-meta { margin-top: 3px; font-size: 12px; }
+body[data-page="treino"] .routine-exercise-preview { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; padding: 0; color: var(--muted); font-size: 12px; list-style: none; }
+body[data-page="treino"] .routine-exercise-preview li:not(.routine-exercise-more)::before { content: "· "; color: var(--lime); }
+body[data-page="treino"] .routine-exercise-more { color: var(--text); }
+body[data-page="treino"] .routine-actions { margin-top: 2px; }
+body[data-page="treino"] #hub-routine-list .routine-actions .primary-button, body[data-page="treino"] #hub-routine-list .routine-actions .secondary-button { min-height: 44px; }
+body[data-page="treino"] .routine-more-actions { margin-top: 2px; }
+body[data-page="treino"] .routine-more-actions > summary { width: fit-content; min-height: 44px; display: flex; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
+body[data-page="treino"] .routine-more-actions .routine-tools { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 2px; }
+body[data-page="treino"] .routine-more-actions button { min-height: 44px; }
+
+/* Explorar: busca e resultados em fluxo único; filtros laterais sob disclosure. */
+body[data-page="explorar"] .page-head { margin-bottom: 14px; }
+body[data-page="explorar"] .explore-library { margin-top: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+body[data-page="explorar"] #catalog-root > .ui-section-head { margin-bottom: 12px; }
+body[data-page="explorar"] #catalog-root > .ui-section-head h1 { display: none; }
+body[data-page="explorar"] #catalog-root > .ui-section-head p { display: none; }
+body[data-page="explorar"] #catalog-search { min-height: 52px; font-size: 16px; }
+body[data-page="explorar"] .catalog-filter-disclosure { margin: 10px 0 14px; border-bottom: 1px solid var(--border); }
+body[data-page="explorar"] .catalog-filter-disclosure > summary { min-height: 48px; display: flex; align-items: center; color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; }
+body[data-page="explorar"] .catalog-filter-disclosure .catalog-controls { padding-bottom: 12px; }
+body[data-page="explorar"] .explore-atlas { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 24px; padding: 18px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+body[data-page="explorar"] .explore-atlas .section-title { margin: 5px 0; }
+body[data-page="explorar"] .explore-atlas .section-note { margin: 0; }
+body[data-page="explorar"] .explore-atlas .primary-button { min-height: 48px; white-space: nowrap; }
+
+/* Progresso: dados exatos em primeiro plano, os desdobramentos permanecem acessíveis. */
+body[data-page="progresso"] #conteudo { max-width: 1120px; }
+body[data-page="progresso"] .progress-controls { display: grid; gap: 10px; margin: 4px 0 12px; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+body[data-page="progresso"] .progress-controls .filter-group { margin: 0; }
+body[data-page="progresso"] .progress-period { margin: 0; }
+body[data-page="progresso"] .progress-custom-period { margin: 10px 0; }
+body[data-page="progresso"] .scope-note { margin: 8px 0 14px; }
+body[data-page="progresso"] .section-block[aria-labelledby="progress-summary-heading"] { margin: 0 0 18px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+body[data-page="progresso"] .progress-summary { display: flex; flex-wrap: wrap; gap: 0; margin: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+body[data-page="progresso"] .progress-summary .summary-item { flex: 1 1 95px; min-width: 0; padding: 12px; border: 0; border-left: 1px solid var(--border); background: transparent; }
+body[data-page="progresso"] .progress-summary .summary-item:first-child { border-left: 0; }
+body[data-page="progresso"] .progress-summary .summary-value { font-size: 21px; }
+body[data-page="progresso"] .progress-summary .summary-label { font-size: 11px; }
+body[data-page="progresso"] #progress-totals { margin-top: 10px; }
+body[data-page="progresso"] #progress-totals .ui-stats { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+body[data-page="progresso"] #progress-totals .ui-stat { flex: 1 1 100px; padding: 11px 10px; border: 0; border-left: 1px solid var(--border); border-radius: 0; background: transparent; }
+body[data-page="progresso"] #progress-totals .ui-stat:first-child { border-left: 0; }
+body[data-page="progresso"] #progress-totals .ui-stat-value { font-size: 16px; }
+body[data-page="progresso"] #progress-totals .ui-stat-label { font-size: 10px; line-height: 1.3; }
+body[data-page="progresso"] .progress-disclosure { margin: 0; border-bottom: 1px solid var(--border); }
+body[data-page="progresso"] .progress-disclosure:first-of-type { border-top: 1px solid var(--border); }
+body[data-page="progresso"] .progress-disclosure > summary { min-height: 58px; display: flex; align-items: center; list-style: none; cursor: pointer; }
+body[data-page="progresso"] .progress-disclosure > summary::-webkit-details-marker { display: none; }
+body[data-page="progresso"] .progress-disclosure > summary::after { content: "+"; margin-left: auto; color: var(--lime); font-size: 23px; }
+body[data-page="progresso"] .progress-disclosure[open] > summary::after { content: "−"; }
+body[data-page="progresso"] .progress-disclosure > summary .section-title { margin: 0; font-size: 16px; }
+body[data-page="progresso"] .progress-disclosure-content { margin: 0; padding: 0 0 18px; border: 0; background: transparent; box-shadow: none; }
+body[data-page="progresso"] section[aria-labelledby="progress-evolution-heading"], body[data-page="progresso"] section[aria-labelledby="progress-frequency-heading"] { margin: 14px 0 20px; }
+body[data-page="progresso"] #progress-evolution-heading, body[data-page="progresso"] #progress-frequency-heading { margin-bottom: 8px; }
+
+/* Perfil: três zonas funcionais, mantendo cada campo e ação de backup. */
+body[data-page="perfil"] #conteudo { max-width: 960px; }
+body[data-page="perfil"] .profile-group { margin: 0; padding: 18px 0; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; box-shadow: none; }
+body[data-page="perfil"] .profile-group > .section-title { margin-bottom: 6px; }
+body[data-page="perfil"] .profile-group .screen-subtitle { max-width: 68ch; line-height: 1.5; }
+body[data-page="perfil"] .profile-preference-options { display: grid; gap: 4px; margin-top: 12px; }
+body[data-page="perfil"] .profile-data-group { border-bottom: 0; padding-bottom: 0; }
+body[data-page="perfil"] .profile-data-group .profile-data-note { max-width: 70ch; color: var(--muted); line-height: 1.5; }
+body[data-page="perfil"] .profile-data-actions { margin: 12px 0 0; padding: 16px 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: transparent; box-shadow: none; }
+body[data-page="perfil"] .profile-backup-title { margin-top: 18px; font-size: 15px; }
+body[data-page="perfil"] .profile-compat-link { margin: 10px 0; }
+
+/* Foco visível e alvos tocáveis também nos novos disclosures. */
+body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) :is(details > summary, .routine-actions a, .routine-actions button):focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; border-radius: 4px; }
+@media (min-width: 720px) {
+  body[data-page="inicio"] .home-overview { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 28px; }
+  body[data-page="inicio"] .home-secondary { grid-template-columns: 1fr 1fr; gap: 28px; }
+  body[data-page="treino"] #hub-routine-list .routine-card { grid-template-columns: minmax(0,1fr) auto; }
+  body[data-page="treino"] #hub-routine-list .routine-card > header, body[data-page="treino"] #hub-routine-list .routine-card > .routine-exercise-preview { grid-column: 1 / -1; }
+  body[data-page="treino"] #hub-routine-list .routine-more-actions { grid-column: 1 / -1; }
+  body[data-page="progresso"] .progress-controls { grid-template-columns: auto minmax(220px,1fr); align-items: center; }
+}
+@media (max-width: 420px) {
+  body[data-page="inicio"] .home-recent-item { grid-template-columns: 1fr; gap: 3px; }
+  body[data-page="inicio"] .disclosure-hint { max-width: 13ch; text-align: right; }
+  body[data-page="explorar"] .explore-atlas { align-items: flex-start; flex-direction: column; }
+  body[data-page="progresso"] .progress-summary .summary-item { flex-basis: 82px; padding: 10px 8px; }
+}
+/* Alvos táteis explícitos para links de atalho e controles compactos. */
+body[data-page="inicio"] :is(.home-week-link,.home-recent-link) { min-height: 44px; display: inline-flex; align-items: center; }
+body[data-page="explorar"] .catalog-controls :is(.ui-segment,.ui-chip-toggle) { min-height: 44px; }
+body[data-page="progresso"] .progress-controls :is(.filter-button,.ui-segment) { min-height: 44px; }
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"] {
+  appearance: none; width: 44px; height: 44px; flex: 0 0 44px; margin: 0;
+  display: grid; place-content: center; border: 1px solid var(--border-strong, #687064);
+  border-radius: 9px; background: var(--surface-sunken, #121512); cursor: pointer;
+}
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"]::after {
+  content: ""; width: 10px; height: 6px; border: solid #111; border-width: 0 0 2px 2px;
+  transform: rotate(-45deg) scale(0); transition: transform .12s ease;
+}
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"]:checked { border-color: var(--lime); background: var(--lime); }
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"]:checked::after { transform: rotate(-45deg) scale(1); }
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"]:focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) *,
+  body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) *::before,
+  body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
