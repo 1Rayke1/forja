@@ -498,12 +498,86 @@
    * do repositório de origem não substitui a permissão individual da foto.
    */
   const PHOTO_MANIFEST = Object.freeze({});
-  function photoFor(record) {
-    if (!record) return null;
+  function publicHttps(value) {
+    if (typeof value !== "string" || value !== value.trim() || /[\s\\]/.test(value)) return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && !url.username && !url.password && !url.port &&
+        /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/i.test(url.hostname) &&
+        !/\.(localhost|local|internal|test|invalid)$/i.test(url.hostname);
+    } catch (_) { return false; }
+  }
+
+  function validPhoto(photo) {
+    if (!photo || typeof photo !== "object" || Array.isArray(photo)) return false;
+    const text = ["exerciseId", "mode", "variant", "alt", "license", "attribution", "modifications"];
+    if (text.some(key => typeof photo[key] !== "string" || !photo[key].trim() || photo[key] !== photo[key].trim() || /[\u0000-\u001f]/.test(photo[key]))) return false;
+    // Autoria desconhecida deve ser explícita (null), nunca inventada.
+    if (!(photo.author === null || (typeof photo.author === "string" && photo.author.trim() === photo.author && photo.author.length > 0 && !/[\u0000-\u001f]/.test(photo.author)))) return false;
+    if (photo.status !== "approved" || !MODES.includes(photo.mode) || !/^[a-z0-9-]+$/.test(photo.exerciseId)) return false;
+    if (!publicHttps(photo.sourceUrl) || !publicHttps(photo.licenseUrl)) return false;
+    if (typeof photo.verifiedAt !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(photo.verifiedAt)) return false;
+    const date = new Date(photo.verifiedAt + "T00:00:00.000Z");
+    if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== photo.verifiedAt || photo.verifiedAt > new Date().toISOString().slice(0, 10)) return false;
+    // Referências públicas opacas; os documentos sensíveis ficam fora do Git.
+    if (typeof photo.reviewedBy !== "string" || !/^reviewer:[a-z0-9-]+$/.test(photo.reviewedBy)) return false;
+    if (typeof photo.evidence !== "string" || !/^evidence:[a-z0-9-]+$/.test(photo.evidence)) return false;
+    if (typeof photo.modelPermission !== "string" || !/^(permission|not-required):[a-z0-9-]+$/.test(photo.modelPermission)) return false;
+    if (typeof photo.src !== "string" || !/^assets\/exercicios\/[a-z0-9-]+\.(webp|jpg|png)$/.test(photo.src)) return false;
+    if (!Number.isInteger(photo.width) || !Number.isInteger(photo.height) || photo.width < 1 || photo.width > 640 || photo.height < 1 || photo.height > 960) return false;
+    const signature = photo.exerciseSignature;
+    if (!signature || typeof signature !== "object" || Array.isArray(signature)) return false;
+    if (["name", "instructions"].some(key => typeof signature[key] !== "string" || !signature[key].trim())) return false;
+    return Array.isArray(signature.equipment) && signature.equipment.length > 0 &&
+      signature.equipment.every(value => typeof value === "string" && value.trim() === value && value.length > 0);
+  }
+
+  function photoFor(record, manifest = PHOTO_MANIFEST) {
+    if (!record || !MODES.includes(record.mode) || !manifest || typeof manifest !== "object" || Array.isArray(manifest)) return null;
     const origin = record.libraryId || record.id;
-    const photo = PHOTO_MANIFEST[record.mode + ":" + origin];
-    return photo && photo.status === "approved" && photo.exerciseId === origin && photo.mode === record.mode
-      ? photo : null;
+    const photo = Object.prototype.hasOwnProperty.call(manifest, record.mode + ":" + origin)
+      ? manifest[record.mode + ":" + origin] : null;
+    if (!validPhoto(photo) || photo.exerciseId !== origin || photo.mode !== record.mode) return null;
+    const known = items(record.mode).find(item => item.id === origin && item.source === "sugerido");
+    if (!known) return null;
+    // Política fail-closed: qualquer observação pode redefinir a execução.
+    // Não tentar interpretar linguagem natural ("joelhos", "unilateral", etc.).
+    if ((record.notes !== undefined && record.notes !== "") || (known.notes !== undefined && known.notes !== "")) return null;
+    const signature = photo.exerciseSignature;
+    if (["name", "instructions"].some(key => record[key] !== known[key] || signature[key] !== known[key])) return null;
+    if (!Array.isArray(record.equipment) || JSON.stringify(record.equipment) !== JSON.stringify(known.equipment) ||
+      JSON.stringify(signature.equipment) !== JSON.stringify(known.equipment)) return null;
+    return photo;
+  }
+
+  // Recebe somente metadados já revisados. Não baixa mídias externas e não
+  // substitui a revisão editorial/legal por uma validação de campos.
+  function renderPhoto(photo, compact = false) {
+    const figure = F.ui.el("figure", "exercise-photo" + (compact ? " exercise-photo--compact" : ""));
+    const fallback = F.ui.el("p", "ui-inline-note", compact ? "Fotografia demonstrativa indisponível. Consulte Detalhes para ver as instruções." : "Fotografia demonstrativa indisponível. Consulte as instruções neste detalhe.");
+    const image = doc.createElement("img");
+    image.alt = photo.alt;
+    image.width = photo.width;
+    image.height = photo.height;
+    image.setAttribute("loading", "lazy");
+    image.setAttribute("decoding", "async");
+    image.addEventListener("error", () => {
+      image.remove();
+      figure.insertBefore(fallback, figure.firstChild);
+    }, { once: true });
+    image.src = F.url(photo.src);
+    figure.appendChild(image);
+    const caption = F.ui.el("figcaption", "exercise-photo-credit");
+    const source = F.ui.el("a", "", photo.attribution);
+    source.href = photo.sourceUrl;
+    const license = F.ui.el("a", "", photo.license);
+    license.href = photo.licenseUrl;
+    caption.appendChild(source);
+    caption.appendChild(doc.createTextNode(" · "));
+    caption.appendChild(license);
+    if (!compact) caption.appendChild(F.ui.el("p", "", "Variante: " + photo.variant + ". Alterações: " + photo.modifications + ". Uma fotografia não demonstra toda a execução."));
+    figure.appendChild(caption);
+    return figure;
   }
 
   F.catalog = {
@@ -523,6 +597,8 @@
     renderRow: recordRow,
     PHOTO_MANIFEST,
     photoFor,
+    validPhoto,
+    renderPhoto,
     /* Categorias presentes no catálogo atual (para o formulário). */
     categories(mode) {
       const used = countBy(items(mode), record => [record.category]);
@@ -685,6 +761,8 @@
     main.appendChild(F.ui.el("h3", "ui-exercise-name", record.name));
     main.appendChild(F.ui.el("p", "ui-exercise-meta", F.catalog.summary(record)));
 
+    const photo = photoFor(record);
+    if (photo) main.appendChild(renderPhoto(photo, true));
     main.appendChild(tagRow(record));
     row.appendChild(main);
 
@@ -749,6 +827,9 @@
 
     const details = linesNode(lines,
       "Nenhuma instrução salva para este exercício. Ao criar um item personalizado você pode escrever o passo a passo e ele aparece aqui.");
+
+    const photo = photoFor(record);
+    if (photo) details.insertBefore(renderPhoto(photo), details.firstChild);
 
     /*
       Figura das regiões trabalhadas (mesma peça do atlas). Só entra quando o

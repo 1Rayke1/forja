@@ -1723,3 +1723,11 @@ body[data-page="treino"] .home-week-head { flex-wrap: wrap; gap: 12px; }
 body[data-page="treino"] .hub-footer-links .secondary-button { white-space: normal; }
 #library-list .ui-exercise-actions .small-button { min-height: 44px; }
 #execution-instructions { min-height: 44px; margin-top: 12px; }
+
+/* Fotografias editoriais: sem recorte de apoios, barras ou membros. */
+.exercise-photo { margin: 0 0 1rem; min-width: 0; }
+.exercise-photo img { display: block; width: 100%; height: auto; max-height: 360px; object-fit: contain; border-radius: 8px; }
+.exercise-photo--compact { max-width: 240px; margin-top: .75rem; }
+.exercise-photo-credit { font-size: .8rem; line-height: 1.5; overflow-wrap: anywhere; }
+.exercise-photo-credit a { color: var(--accent, #c5f955); text-decoration: underline; }
+.exercise-photo-credit a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

@@ -1962,6 +1962,45 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
   }
 });
 
+await check('Piloto sem autorização mantém detalhe acessível e não solicita fotografias', async () => {
+  await page.setViewport(MOBILE);
+  const requested = [];
+  const onRequest = request => { if (request.url().includes('/assets/exercicios/')) requested.push(request.url()); };
+  page.on('request', onRequest);
+  try {
+    await go('treino/biblioteca.html?exercicio=cal-flexao');
+    await page.waitForSelector('[role="dialog"]');
+    assert.equal(await page.evaluate(() => Object.keys(Forja.catalog.PHOTO_MANIFEST).length), 0);
+    const dialog = await page.$eval('[role="dialog"]', node => node.textContent);
+    assert.match(dialog, /Fotografia demonstrativa ainda não disponível/);
+    assert.match(dialog, /cotovelos/);
+    assert.deepEqual(requested, []);
+    const guards = await page.evaluate(() => {
+      const c = Forja.catalog;
+      const r = c.items('calisthenics').find(item => item.id === 'cal-flexao');
+      const p = { status: 'approved', exerciseId: r.id, mode: r.mode,
+        src: 'assets/exercicios/fixture.webp', width: 640, height: 480,
+        alt: 'Fixture, não publicar', variant: 'Flexão no solo', author: null,
+        license: 'Fixture', attribution: 'Fixture', modifications: 'nenhuma',
+        sourceUrl: 'https://example.org/photo', licenseUrl: 'https://example.org/license',
+        verifiedAt: '2024-02-29', reviewedBy: 'reviewer:fixture', evidence: 'evidence:fixture',
+        modelPermission: 'permission:fixture', exerciseSignature: { name: r.name, instructions: r.instructions, equipment: r.equipment } };
+      const m = { [r.mode + ':' + r.id]: p };
+      const result = [c.photoFor(r, m) === p,
+        c.photoFor({ ...r, id: 'copy', libraryId: r.id, notes: 'Joelhos apoiados' }, m) === null,
+        c.validPhoto({ ...p, verifiedAt: '2026-02-30' }) === false];
+      // Imagem lazy fora do DOM: evento sintético, sem baixar/publicar fotografia.
+      const figure = c.renderPhoto(p, true);
+      figure.querySelector('img').dispatchEvent(new Event('error'));
+      result.push(!figure.querySelector('img') && figure.textContent.includes('Consulte Detalhes'));
+      return result;
+    });
+    assert.deepEqual(guards, [true, true, true, true]);
+    await page.screenshot({ path: artifactPath('fotografias-pendente-390.png') });
+    await page.keyboard.press('Escape');
+  } finally { page.off('request', onRequest); }
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });
