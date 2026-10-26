@@ -484,13 +484,60 @@
       erro.hidden = false;
     }
 
+    /*
+      A barra inferior é fixa. Em telas baixas, uma etapa com muitas opções
+      empurrava "Continuar" para trás da barra: o toque no botão ativava a
+      navegação em vez de avançar. Esta função alinha o início do cartão e,
+      quando a ação ainda fica na faixa da barra, rola o mínimo necessário
+      para deixá-la inteira acima dela.
+
+      A correção usa rolagem explícita: `scrollIntoView({ block: "nearest" })`
+      considera o botão visível quando ele está inteiro dentro da viewport,
+      mesmo que a barra fixa esteja por cima — e não rola nada. O
+      `scroll-margin-bottom` de #onboarding-next (onboarding.css) continua
+      protegendo outros alinhamentos programáticos do botão.
+
+      A rolagem é instantânea de propósito: `html { scroll-behavior: smooth }`
+      (performance.css) deixava a posição final indefinida durante a animação,
+      e um clique imediato acertava o elemento errado. Em ambientes sem
+      `scrollIntoView` (jsdom, navegadores antigos) a função não faz nada e a
+      rolagem natural continua valendo.
+    */
+    function revelarEtapa(alinharTopo) {
+      if (typeof shell.scrollIntoView !== "function" ||
+          typeof avancar.getBoundingClientRect !== "function" ||
+          typeof global.scrollTo !== "function") return;
+
+      try {
+        if (alinharTopo) shell.scrollIntoView({ behavior: "instant", block: "start" });
+      } catch (error) {
+        return; /* Sem suporte a opções: mantém a posição atual. */
+      }
+
+      const nav = doc.querySelector(".bottom-nav");
+      const alturaNav = nav && typeof nav.getBoundingClientRect === "function"
+        ? nav.getBoundingClientRect().height
+        : 0;
+      const limite = global.innerHeight - alturaNav - 12;
+      const caixa = avancar.getBoundingClientRect();
+
+      if (caixa.bottom <= limite) return;
+
+      const destino = global.scrollY + Math.ceil(caixa.bottom - limite);
+      try {
+        global.scrollTo({ top: destino, behavior: "instant" });
+      } catch (error) {
+        try { global.scrollTo(0, destino); } catch (ignorado) { /* sem rolagem programática */ }
+      }
+    }
+
     function irPara(indice) {
       state.passo = Math.max(0, Math.min(PASSOS.length - 1, indice));
       gravarRascunho(state);
       render();
       const alvo = stepHost.querySelector("#onboarding-question");
       if (alvo && typeof alvo.focus === "function") alvo.focus({ preventScroll: true });
-      F.safeScrollIntoView(shell, { block: "start" });
+      revelarEtapa(true);
     }
 
     function render() {
@@ -615,6 +662,27 @@
     }
 
     render();
+    /* Primeira renderização: sem alinhar o topo (o cabeçalho continua visível),
+       mas já garantindo que a ação não nasça atrás da barra inferior. */
+    revelarEtapa(false);
+
+    /* As fontes auto-hospedadas usam font-display: swap. Quando a fonte
+       definitiva assenta, as opções podem ficar mais altas e empurrar o botão
+       de novo para a faixa da barra. Recheca sem alinhar o topo nem mudar a
+       etapa; ambientes sem FontFaceSet (jsdom) ficam só com a checagem acima. */
+    if (doc.fonts && doc.fonts.ready && typeof doc.fonts.ready.then === "function") {
+      doc.fonts.ready.then(() => revelarEtapa(false));
+    }
+
+    /* Girar o aparelho muda a largura e pode empurrar a ação para trás da barra
+       de novo. Só reage à largura: mostrar/esconder a barra do navegador muda
+       a altura e não deve puxar a página enquanto a pessoa lê a pergunta. */
+    let larguraAnterior = global.innerWidth;
+    global.addEventListener("resize", () => {
+      if (global.innerWidth === larguraAnterior) return;
+      larguraAnterior = global.innerWidth;
+      revelarEtapa(false);
+    });
   };
 
   F.onboarding = {

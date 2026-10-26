@@ -322,6 +322,13 @@
   font-size: var(--font-md);
 }
 
+/* Reserva a faixa da barra inferior fixa em qualquer alinhamento programático
+   da ação principal (foco, clique ou scrollIntoView). Em 320 px, sem essa
+   folga, o botão parava atrás da barra e o toque ativava a navegação. */
+#onboarding-next {
+  scroll-margin-bottom: calc(var(--bottom-nav-height, 69px) + 16px);
+}
+
 .onboarding-exit-note {
   display: grid;
   gap: 2px;

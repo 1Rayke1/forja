@@ -375,6 +375,10 @@
 
 .editor-exercise {
   display: flex;
+  /* Os 5 botões de ação (266 px) não cabem ao lado do nome em telas de
+     celular. Com quebra por largura de conteúdo, eles passam para a linha
+     seguinte em vez de comprimir o nome a poucos pixels. */
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding: 11px 14px;
@@ -384,7 +388,10 @@
 .editor-exercise:last-child { border-bottom: 0; }
 
 .editor-exercise-main {
-  flex: 1;
+  /* A base de 220 px é o tamanho hipotético usado pelo flex para decidir a
+     quebra de linha: nome + ferramentas + gap só ficam juntos quando cabem.
+     Sozinho na linha, o bloco cresce e ocupa toda a largura disponível. */
+  flex: 1 1 220px;
   min-width: 0;
 }
 
@@ -406,6 +413,7 @@
   align-items: center;
   gap: 3px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .icon-button {

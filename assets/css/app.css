@@ -232,6 +232,22 @@ main.container { padding-top: 18px; padding-bottom: calc(var(--bottom-nav-height
 }
 @media (max-width: 359px) {
   .onboarding-actions { grid-template-columns: minmax(0, 1fr); }
+
+  /* O atlas não carrega marca.css (isolamento do atlas anatômico). Sem a
+     camada de marca, a fonte de fallback alarga "Progresso" e o rótulo era
+     cortado com reticências em 320 px. Estas são as mesmas declarações que
+     marca.css já aplica às outras páginas, aqui na base e só para o atlas:
+     nenhum arquivo protegido é alterado. */
+  body[data-page="atlas"] .bottom-nav-inner {
+    width: 100%;
+    gap: 2px;
+  }
+
+  body[data-page="atlas"] .bottom-nav-link {
+    padding-left: 0;
+    padding-right: 0;
+    letter-spacing: 0;
+  }
 }
 @media (min-width: 720px) {
   .onboarding-panel { padding: 14px 16px; gap: 8px; }
