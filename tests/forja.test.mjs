@@ -10,6 +10,7 @@
 */
 
 import assert from "node:assert/strict";
+import { checkPhotoBudget, PHOTO_BUDGET } from "../tools/verificar-fotografias.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -1841,7 +1842,8 @@ await runTest("37. Progresso: comparação de períodos e metas semanais persist
   const today = dayOffset(0);
   const records = [
     seedRecord(today, [seedExercise("Supino", [seedLog({ reps: "10", load: "40 kg" })])]),
-    seedRecord(dayOffset(-1), [seedExercise("Remada", [seedLog({ reps: "10", load: "20 kg" })])]),
+    // Mesma semana em qualquer dia, inclusive segunda-feira: duas sessões distintas.
+    seedRecord(dayOffset(0, 10), [seedExercise("Remada", [seedLog({ reps: "10", load: "20 kg" })])]),
     seedRecord(dayOffset(-8), [seedExercise("Supino", [seedLog({ reps: "8", load: "30 kg" })])])
   ];
 
@@ -5257,10 +5259,11 @@ await runTest("82. Fotos exigem origem exata, contrato completo e variante conse
     variant: "Flexão no solo", sourceUrl: "https://example.org/photo", author: "Fixture",
     license: "Licença de teste", licenseUrl: "https://example.org/license",
     attribution: "Fixture de teste — não publicar", verifiedAt: "2026-10-25",
-    evidence: "fixture", reviewedBy: "fixture", modifications: "nenhuma", modelPermission: "fixture" };
+    evidence: "evidence:fixture", reviewedBy: "reviewer:fixture", modifications: "nenhuma", modelPermission: "permission:fixture",
+    exerciseSignature: { name: record.name, instructions: record.instructions, equipment: Array.from(record.equipment) } };
   const manifest = { [record.mode + ":" + record.id]: photo };
   assert.equal(catalog.photoFor(record, manifest), photo);
-  for (const key of Object.keys(photo).filter(key => key !== "author")) {
+  for (const key of Object.keys(photo)) {
     const invalid = { ...photo }; delete invalid[key];
     assert.equal(catalog.photoFor(record, { [record.mode + ":" + record.id]: invalid }), null, key);
   }
@@ -5269,6 +5272,38 @@ await runTest("82. Fotos exigem origem exata, contrato completo e variante conse
     assert.equal(catalog.photoFor({ ...record, ...patch }, manifest), null);
   }
   assert.equal(catalog.photoFor({ ...record, id: "copia", libraryId: record.id }, manifest), photo);
+  // Observações nunca são interpretadas como prova de compatibilidade.
+  for (const notes of ["Joelhos apoiados", "unilateral", "Usar halteres", "observação neutra", " ", null, {}, 3]) {
+    const copy = { ...record, id: "copia", libraryId: record.id, notes };
+    assert.equal(catalog.photoFor(copy, manifest), null);
+    if (typeof notes === "string" && notes.trim()) {
+      const described = catalog.describeExercise(copy, record.mode);
+      assert.equal(catalog.photoFor(described, manifest), null);
+      assert.equal(described.notes, notes.trim());
+      assert.equal(copy.notes, notes, "Consulta não altera cópia");
+    }
+  }
+  const invalidValues = {
+    status: ["draft", true], mode: [null, "unknown"], exerciseId: [[], "../x"],
+    variant: ["", {}, "  variante"], alt: [" ", 2], license: [null, []],
+    attribution: ["", {}], modifications: [[], "\n"], author: [undefined, "", 5, {}],
+    sourceUrl: ["https://", "javascript:alert(1)", "http://example.org/a", "https://localhost/a", "https://127.0.0.1/a", "https://a:b@example.org/a", "https://example.org:8443/a", "https://example.org/has space"],
+    licenseUrl: ["https://", "https://example.invalid/a", {}, "file:///license"],
+    verifiedAt: ["2026-02-30", "2025-02-29", "2026-13-01", "2026-1-01", "2026-10-25T00:00:00Z", "9999-01-01", null, 123],
+    reviewedBy: ["", "Nome sem referência", {}], evidence: ["", "autorizado", {}],
+    modelPermission: ["", "suposta autorização", {}], src: ["../x.jpg", "https://example.org/x.jpg", "assets/exercicios/../x.jpg"],
+    width: [0, 641, "640", NaN], height: [0, 961, 2.5],
+    exerciseSignature: [null, [], {}, { ...photo.exerciseSignature, instructions: "Joelhos apoiados" }, { ...photo.exerciseSignature, equipment: ["halteres"] }]
+  };
+  for (const [key, values] of Object.entries(invalidValues)) {
+    for (const value of values) {
+      assert.equal(catalog.photoFor(record, { [record.mode + ":" + record.id]: { ...photo, [key]: value } }), null, key + ": " + String(value));
+    }
+  }
+  assert.ok(catalog.validPhoto({ ...photo, author: null }), "Ausência de autoria é explícita, sujeita à revisão humana");
+  assert.ok(catalog.validPhoto({ ...photo, verifiedAt: "2024-02-29" }), "Dia bissexto real é válido");
+  for (const invalid of [null, [], "x", 2]) assert.equal(catalog.validPhoto(invalid), false);
+  assert.equal(catalog.photoFor(record, null), null);
   const figure = catalog.renderPhoto(photo);
   app.d.body.appendChild(figure);
   const image = figure.querySelector("img");
@@ -5282,7 +5317,33 @@ await runTest("82. Fotos exigem origem exata, contrato completo e variante conse
   assert.equal(figure.querySelector("img"), null);
   assert.match(figure.textContent, /indisponível/);
   assert.match(figure.textContent, /Fixture de teste/);
+  const compact = catalog.renderPhoto(photo, true);
+  compact.querySelector("img").dispatchEvent(new app.w.Event("error"));
+  assert.match(compact.textContent, /Consulte Detalhes/);
+  assert.doesNotMatch(compact.textContent, /abaixo/);
   assert.equal(Object.keys(catalog.PHOTO_MANIFEST).length, 0);
+});
+
+await runTest("83. Orçamento de fotografias valida manifesto real vazio, ausências e limites sem baixar mídia", async () => {
+  const app = await boot({}, "treino/biblioteca.html");
+  for (const [key, photo] of Object.entries(app.F.catalog.PHOTO_MANIFEST)) {
+    assert.ok(app.F.catalog.validPhoto(photo), key);
+    assert.equal(key, photo.mode + ":" + photo.exerciseId);
+    const record = app.F.catalog.items(photo.mode).find(item => item.id === photo.exerciseId);
+    assert.equal(app.F.catalog.photoFor(record), photo, key);
+  }
+  assert.deepEqual(checkPhotoBudget(app.F.catalog.PHOTO_MANIFEST, repoRoot), { count: 0, bytes: 0 });
+  const photo = { src: "assets/exercicios/fixture.webp" };
+  const read = () => Buffer.alloc(PHOTO_BUDGET.each);
+  assert.deepEqual(checkPhotoBudget({ one: photo }, repoRoot, read), { count: 1, bytes: 102400 });
+  assert.throws(() => checkPhotoBudget({ one: photo }, repoRoot), /ENOENT/);
+  assert.throws(() => checkPhotoBudget({ one: photo }, repoRoot, () => Buffer.alloc(102401)), /100 KiB/);
+  assert.throws(() => checkPhotoBudget({ one: photo }, repoRoot, () => Buffer.alloc(0)), /vazio/);
+  assert.throws(() => checkPhotoBudget({ one: { src: "../escape.jpg" } }, repoRoot, read), /Caminho/);
+  const eight = Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, photo]));
+  assert.equal(checkPhotoBudget(eight, repoRoot, read).bytes, PHOTO_BUDGET.total);
+  assert.throws(() => checkPhotoBudget({ ...eight, nine: photo }, repoRoot, read), /8 fotografias/);
+  assert.throws(() => checkPhotoBudget([], repoRoot, read), /Manifesto/);
 });
 
 const failed = results.filter(result => !result.ok);

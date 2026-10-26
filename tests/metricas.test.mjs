@@ -56,8 +56,10 @@ function test(name, fn) {
 /* Dados de apoio                                                      */
 /* ------------------------------------------------------------------ */
 
+// As datas simuladas entram no mesmo realm da API (instanceof Date).
+// Construção local preserva o fuso do processo, sem fixar UTC nem o relógio real.
 function at(year, month, day, hour = 10, minute = 0) {
-  return new Date(year, month - 1, day, hour, minute, 0, 0);
+  return new dom.window.Date(year, month - 1, day, hour, minute, 0, 0);
 }
 
 function key(date) {

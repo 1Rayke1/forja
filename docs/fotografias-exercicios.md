@@ -66,3 +66,13 @@ A próxima autorização deverá incluir renderização, créditos visíveis, or
 de bytes, imagens responsivas e tratamento de falha de rede. Não habilitar apenas
 preenchendo o manifesto: a presente entrega prepara identidade e contrato, mas
 não implementa o carregamento de mídia nem o piloto.
+
+## Atualização de segurança — etapa parcial de 26/10/2026
+
+O comportamento descrito acima registra a preparação da etapa 1. Há agora
+renderizador compartilhado, ainda inativo porque o manifesto permanece vazio.
+Contrato e aprovação editorial originais continuam necessários. Consultar
+`fotografias-seguranca-testes.md` para a política conservadora de observações,
+assinatura `exerciseSignature: { name, instructions, equipment }`, autoria
+explícita (`string` ou `null`), referências opacas de revisão/evidência/permissão,
+validação de datas/URLs e orçamento automatizado. Nenhuma imagem foi aprovada.

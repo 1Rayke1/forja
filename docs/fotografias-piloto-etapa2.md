@@ -105,3 +105,11 @@ a figura anatômica não é apresentada como fotografia demonstrativa.
 
 Arquivos alterados: `assets/js/forja-catalogo.js`, `assets/css/marca.css`,
 `tests/forja.test.mjs`, `tests/e2e.browser.mjs`, esta documentação e a captura acima.
+
+## Revisão posterior (26/10/2026)
+
+Os resultados acima são históricos, não garantia de reprodução em outra data.
+A revisão seguinte reproduziu cinco falhas de métricas e uma do teste FORJA 37
+na base, expostas pela mudança de semana. Correções, política de variantes,
+validação mais estrita e novos resultados estão em `fotografias-seguranca-testes.md`.
+O PR continua parcial, sem fotografias aprovadas.
