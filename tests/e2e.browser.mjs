@@ -423,11 +423,18 @@ await go('');
 
 await check('Calendário e missões funcionam na página inicial', async () => {
   currentLabel = 'inicio';
+  assert.equal(await page.$eval('#calendar-heading', el => el.closest('details').open), false,
+    'Calendário começa recolhido');
+  assert.equal(await page.$eval('#missions-heading', el => el.closest('details').open), false,
+    'Missões começam recolhidas');
+  await page.click('#calendar-heading');
+  await page.click('#missions-heading');
   assert.ok((await page.$$('#calendar-grid .day')).length >= 28, 'Calendário sem dias');
   await page.$eval('#task-input', el => { el.value = 'Missão E2E'; });
   await page.evaluate(() => document.getElementById('task-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await sleep(120);
   assert.equal(await page.$$eval('#task-list .task', rows => rows.length), 1, 'Missão não foi adicionada');
+  await page.$eval('#task-list .task input[type=checkbox]', el => el.scrollIntoView({ block: 'center' }));
   await page.click('#task-list .task input[type=checkbox]');
   await sleep(120);
   assert.equal(await text('#progress-label'), '1 de 1 · 100%');
@@ -1979,6 +1986,31 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
 });
 
 /* Fluxos da primeira evolução web, isolados dos dados das verificações acima. */
+await check('Explorar — busca e resultados inline, filtros recolhidos e atlas em acesso único', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('explorar/');
+    assert.ok(await page.$('#catalog-root'), 'Catálogo inline ausente');
+    assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), false,
+      'Filtros secundários começam recolhidos');
+    assert.equal(await page.$$eval('.explore-atlas a[href="atlas.html"]', els => els.length), 1,
+      'Acesso ao atlas deve aparecer uma vez');
+    await fill('#catalog-search', 'flexão');
+    assert.ok(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length > 0),
+      'A busca não mostrou resultados na tela Explorar');
+    assert.match(await text('#catalog-list'), /flexão/i);
+    await page.click('.catalog-filter-disclosure > summary');
+    assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), true);
+    assert.deepEqual(await forjaRaw(), {}, 'Consultar catálogo não alterou dados locais');
+    await page.screenshot({ path: artifactPath('explorar-inline-390.png'), fullPage: true });
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
 await check('Evolução 1 — rotinas diretas, filtro e início com a modalidade correta', async () => {
   const saved = await forjaRaw();
   try {

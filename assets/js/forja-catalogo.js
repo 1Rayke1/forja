@@ -1125,7 +1125,16 @@
 
     controls = F.ui.el("div", "catalog-controls");
     controls.id = "catalog-controls";
-    host.appendChild(controls);
+    if (doc.body && doc.body.getAttribute("data-page") === "explorar") {
+      const filterDisclosure = doc.createElement("details");
+      filterDisclosure.className = "catalog-filter-disclosure";
+      const summary = doc.createElement("summary");
+      summary.textContent = "Filtros adicionais";
+      filterDisclosure.append(summary, controls);
+      host.appendChild(filterDisclosure);
+    } else {
+      host.appendChild(controls);
+    }
 
     status = F.ui.el("p", "catalog-status");
     status.id = "catalog-status";
@@ -1166,7 +1175,7 @@
     await showDetail(record);
   }
 
-  F.pages.biblioteca = function initBiblioteca() {
+  function initBiblioteca() {
     const params = new URLSearchParams(global.location.search);
     const mode = params.get("modalidade");
 
@@ -1211,5 +1220,8 @@
        Sem esse parâmetro (ex.: `?musculo=peito` vindo do atlas), nada abre. */
     const requested = params.get("exercicio");
     if (requested) openRequestedExercise(requested);
-  };
+  }
+
+  F.pages.biblioteca = initBiblioteca;
+  F.pages.explorar = initBiblioteca;
 })(window);

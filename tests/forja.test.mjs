@@ -2103,7 +2103,7 @@ await runTest("42a. Home: metas semanais reutilizam métricas, estados e não gr
   assert.ok(empty.$("#home-goals"));
   assert.ok(empty.$('#home-goals a[href="progresso/index.html"]'));
   assert.match(empty.text("#home-goals-content"), /ainda não configurou/);
-  assert.equal(empty.$$("#home-goals-content .ui-ring").length, 0);
+  assert.equal(empty.$$("#home-goals-content .home-goal-row").length, 0);
   assert.match(empty.text("#home-goals-period"), /Semana de \d{2}\/\d{2} a \d{2}\/\d{2}\.$/);
   assert.doesNotMatch(empty.text("#home-goals-period"), /Musculação|Calistenia/);
   assert.deepEqual(empty.storageWrites, [], "Home vazia gravou no armazenamento");
@@ -2125,7 +2125,7 @@ await runTest("42a. Home: metas semanais reutilizam métricas, estados e não gr
     "forja-treino-historico-v1": [record],
     "forja-treino-metas-v1": goals
   }, "index.html");
-  assert.equal(app.$$("#home-goals-content .ui-ring").length, 3, "Três alvos ativos devem renderizar três anéis");
+  assert.equal(app.$$("#home-goals-content .home-goal-row").length, 3, "Três alvos ativos devem renderizar três barras");
   assert.match(app.text("#home-goals-content"), /1\/3/);
   assert.match(app.text("#home-goals-content"), /Faltam 2 treinos/);
   assert.match(app.text("#home-goals-content"), /2\/12/);
@@ -2138,7 +2138,7 @@ await runTest("42a. Home: metas semanais reutilizam métricas, estados e não gr
 
   /* Singular e meta atingida na mesma atualização. */
   app.F.saveGoals({ modality: "all", weeklySessions: 2, weeklySets: 3, weeklyMinutes: 15 });
-  assert.equal(app.$$("#home-goals-content .ui-ring").length, 3, "Atualização de metas não redesenhou a seção");
+  assert.equal(app.$$("#home-goals-content .home-goal-row").length, 3, "Atualização de metas não redesenhou a seção");
   assert.match(app.text("#home-goals-content"), /1\/2/);
   assert.match(app.text("#home-goals-content"), /Falta 1 treino/);
   assert.match(app.text("#home-goals-content"), /Falta 1 série/);
@@ -2147,7 +2147,7 @@ await runTest("42a. Home: metas semanais reutilizam métricas, estados e não gr
 
   /* Modalidade Calistenia filtrada e estado de zero progresso preservado. */
   app.F.saveGoals({ modality: "calisthenics", weeklySessions: 2, weeklySets: 0, weeklyMinutes: 0 });
-  assert.equal(app.$$("#home-goals-content .ui-ring").length, 1);
+  assert.equal(app.$$("#home-goals-content .home-goal-row").length, 1);
   assert.match(app.text("#home-goals-period"), /Semana de .* · Calistenia\.$/);
   assert.match(app.text("#home-goals-content"), /0\/2/);
   assert.match(app.text("#home-goals-content"), /Ainda sem progresso/);
@@ -2157,7 +2157,7 @@ await runTest("42a. Home: metas semanais reutilizam métricas, estados e não gr
     "forja-treino-historico-v1": [{ id: "bad", date: "invalida", modality: "weights" }],
     "forja-treino-metas-v1": goals
   }, "index.html");
-  assert.equal(invalid.$$("#home-goals-content .ui-ring").length, 3);
+  assert.equal(invalid.$$("#home-goals-content .home-goal-row").length, 3);
   assert.match(invalid.text("#home-goals-content"), /0\/3/);
   assert.match(invalid.text("#home-goals-content"), /Ainda sem progresso/);
   assert.deepEqual(invalid.storageWrites, [], "Dados inválidos causaram gravação ao carregar");

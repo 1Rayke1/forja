@@ -1725,611 +1725,154 @@ body[data-page="treino"] .hub-footer-links .secondary-button { white-space: norm
 #execution-instructions { min-height: 44px; margin-top: 12px; }
 
 /* ==========================================================================
-   P1.3 — hierarquia visual e consistência (Início, Treinos, Explorar,
-   Progresso e Perfil)
-   --------------------------------------------------------------------------
-   Esta seção fica na camada de marca já existente (a última carregada pelo
-   app). Não é uma folha nova e não é carregada por explorar/atlas.html.
-   Todos os seletores são restritos às cinco telas desta etapa; atlas.css,
-   forja-atlas.js, forja-figura.js, as pranchas anatômicas e seus testes
-   permanecem sem efeito colateral. Nenhum HTML, ID, texto, dado ou script é
-   alterado. Onde performance.css usa `!important`, a regra equivalente usa o
-   mesmo mecanismo para manter uma única fonte de verdade visual.
+   REDESIGN — fluxos e composição das cinco telas
+   Estrutura em primeiro plano; paleta FORJA, tipografia Archivo/Inter e
+   componentes do sistema mantidos. Sem efeitos no atlas nem nos arquivos
+   anatômicos.
    ========================================================================== */
 
-:root {
-  /* Escala de texto e ritmo usada apenas pelos seletores abaixo. */
-  --p13-display: clamp(30px, 4vw, 38px);
-  --p13-secao: clamp(18px, 1.6vw, 21px);
-  --p13-cartao: 17px;
-  --p13-rotulo: 12px;
-  --p13-espaco-secao: 24px;
-  --p13-raio-cartao: 12px;
-  --p13-raio-painel: 16px;
-  --p13-linha: rgba(160, 166, 159, 0.18);
-  --p13-dado: rgba(183, 243, 74, 0.34);
-  --p13-dado-forte: rgba(183, 243, 74, 0.58);
-}
-
-/* 1. Hierarquia tipográfica ------------------------------------------------ */
-/* H1 bem maior que seções; seções maiores que títulos de cartão; rótulos
-   legíveis a 12 px. `!important` em .section-title vence as regras por painel
-   das etapas 6/9 sem duplicar a declaração em cada contexto. */
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .screen-title,
-body[data-page="inicio"] #conteudo .home-title {
-  font-size: var(--p13-display);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-  margin-bottom: 8px;
-}
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .section-title,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .ui-section-title,
-body[data-page="inicio"] #home-week .home-week-title,
-body[data-page="inicio"] #home-goals .home-week-title,
-body[data-page="inicio"] #home-recent .home-recent-title {
-  font-size: var(--p13-secao) !important;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-  text-wrap: balance;
-}
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .page-head {
-  margin-bottom: var(--p13-espaco-secao);
-}
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .page-head .screen-subtitle,
-body[data-page="inicio"] .home-subtitle {
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--muted);
-  max-width: 66ch;
-}
-
-body[data-page="inicio"] #home-action .home-action-title {
-  font-size: clamp(21px, 2vw, 24px);
-  line-height: 1.18;
-}
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .ui-card-title {
-  font-size: var(--p13-cartao);
-}
-
-body[data-page="treino"] .routine-card-header .routine-name {
-  font-size: 18px;
-  line-height: 1.25;
-}
-
-body[data-page="explorar"] .modality-name {
-  font-size: 16px;
-}
-
-body[data-page="progresso"] .compare-main strong,
-body[data-page="progresso"] .record-title {
-  font-size: 14px;
-}
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .eyebrow,
-body[data-page="inicio"] .home-action-eyebrow,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .field-label,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .field-hint,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .summary-label,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .ui-stat-label,
-body[data-page="inicio"] .home-week-stat-label,
-body[data-page="progresso"] .ui-chart-caption,
-body[data-page="progresso"] .ui-heatmap-legend,
-body[data-page="progresso"] .ui-table th {
-  font-size: var(--p13-rotulo) !important;
-  line-height: 1.45;
-}
-
-body[data-page="inicio"] .home-eyebrow {
-  color: var(--muted);
-  font-size: var(--p13-rotulo);
-}
-
-body[data-page="explorar"] .modality-meta,
-body[data-page="perfil"] .profile-body-stack .section-note {
-  font-size: var(--p13-rotulo);
-}
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .section-note,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .scope-note,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .limit-note,
-body[data-page="inicio"] .home-goals-period,
-body[data-page="inicio"] .home-goals-note,
-body[data-page="inicio"] .home-week-note,
-body[data-page="inicio"] .home-recent-note,
-body[data-page="perfil"] .backup-description,
-body[data-page="perfil"] .storage-panel p {
-  font-size: 13px;
-  line-height: 1.55;
-  max-width: 70ch;
-}
-
-/* 2. Ritmo e uso do espaço ------------------------------------------------- */
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) main.container {
-  padding-top: 24px;
-}
-
-body[data-page="inicio"] #home-week,
-body[data-page="inicio"] #home-goals,
-body[data-page="inicio"] #home-recent,
-body[data-page="inicio"] .home-secondary,
-body[data-page="progresso"] .section-block {
-  margin-top: var(--p13-espaco-secao);
-}
-
-body[data-page="progresso"] .section-block {
-  padding-top: 18px;
-  border-top: 1px solid var(--p13-linha);
-}
-
-body[data-page="inicio"] .home-secondary {
-  gap: var(--p13-espaco-secao);
-}
-
-body[data-page="progresso"] .filter-group { margin-bottom: 12px; }
-body[data-page="progresso"] .progress-period { margin-bottom: 12px; }
-body[data-page="progresso"] .scope-note { margin-bottom: 16px; }
-
-/* 3. Superfícies: menos cartões repetidos, mais composição ------------------ */
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .ui-card,
-body[data-page="inicio"] .home-action-card,
-body[data-page="inicio"] .home-secondary .calendar-panel,
-body[data-page="inicio"] .home-secondary .missions-panel,
-body[data-page="treino"] .routine-card,
-body[data-page="explorar"] .modality-card,
-body[data-page="explorar"] .section-block,
-body[data-page="perfil"] .preferences-panel,
-body[data-page="perfil"] .backup-panel,
-body[data-page="perfil"] .storage-panel {
-  border: 1px solid var(--border);
-  border-radius: var(--p13-raio-painel);
-  background: var(--surface);
-  padding: 18px;
-  box-shadow: none;
-}
-
-body[data-page="inicio"] .home-action-card {
-  /* Destaque primário concentrado na ação, sem tingir o cartão inteiro. */
-  box-shadow: inset 3px 0 0 var(--lime);
-}
-
-body[data-page="inicio"] .home-action-card.is-empty {
-  border-style: dashed;
-  box-shadow: none;
-}
-
-body[data-page="inicio"] .home-recent-item,
-body[data-page="treino"] .history-item,
-body[data-page="progresso"] .history-item,
-body[data-page="progresso"] .compare-row,
-body[data-page="progresso"] .record-item,
-body[data-page="progresso"] .progress-list li,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .ui-list-item {
-  border: 1px solid var(--p13-linha);
-  border-radius: var(--p13-raio-cartao);
-  background: var(--surface-sunken);
-  padding: 12px 14px;
-}
-
-/* Faixas de estatísticas: uma superfície, separadores de 1 px, sem cartões
-   repetidos. O último item nunca fica órfão numa linha estreita. */
-body[data-page="inicio"] #home-week .home-week-stats {
-  gap: 1px;
-  border: 1px solid var(--border);
-  border-radius: var(--p13-raio-painel);
-  background: var(--p13-linha);
-  overflow: hidden;
-}
-
-body[data-page="inicio"] #home-week .home-week-stat {
-  border: 0;
-  border-radius: 0;
-  background: var(--surface);
-  padding: 16px 8px;
-}
-
-body[data-page="progresso"] .history-summary {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  margin: 16px 0 0;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--p13-raio-painel);
-  background: var(--p13-linha);
-  overflow: hidden;
-}
-
-body[data-page="progresso"] .history-summary .summary-item {
-  border: 0;
-  border-radius: 0;
-  background: var(--surface);
-  padding: 14px 10px;
-}
-
-body[data-page="progresso"] .history-summary .summary-item:last-child {
-  grid-column: 1 / -1;
-}
-
-body[data-page="progresso"] .ui-stats {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  margin-top: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--p13-raio-painel);
-  background: var(--p13-linha);
-  overflow: hidden;
-}
-
-body[data-page="progresso"] .ui-stats .ui-stat {
-  border: 0;
-  border-radius: 0;
-  background: var(--surface);
-  padding: 16px 12px;
-}
-
-body[data-page="progresso"] .ui-stats .ui-stat.is-accent {
-  background: var(--accent-soft);
-}
-
-/* Metas: 1, 2 ou 3 anéis ocupam a largura disponível sem sobra de colunas.
-   O `:has()` apenas conta os filhos — nenhum dado é criado ou removido. */
-body[data-page="inicio"] #home-goals .home-goals-grid,
-body[data-page="progresso"] #goals-progress .goals-progress {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  border: 1px solid var(--border);
-  border-radius: var(--p13-raio-painel);
-  background: var(--p13-linha);
-  overflow: hidden;
-}
-
-body[data-page="inicio"] #home-goals .home-goals-grid:has(> :nth-child(2):last-child),
-body[data-page="progresso"] #goals-progress .goals-progress:has(> :nth-child(2):last-child) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-body[data-page="inicio"] #home-goals .home-goals-grid:has(> :only-child),
-body[data-page="progresso"] #goals-progress .goals-progress:has(> :only-child) {
-  grid-template-columns: 1fr;
-}
-
-body[data-page="inicio"] #home-goals .home-goals-grid > *,
-body[data-page="progresso"] #goals-progress .goals-progress > * {
-  min-width: 0;
-  border: 0;
-  border-radius: 0;
-  background: var(--surface);
-  padding: 14px 8px;
-}
-
-/* 4. Botões, links e estados ativos ---------------------------------------- */
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .primary-button,
-body[data-page="inicio"] #home-action .home-action-button {
-  border-radius: var(--p13-raio-cartao);
-  box-shadow: none;
-  min-height: 48px;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-body[data-page="inicio"] #home-action .home-action-button {
-  font-size: 15px;
-}
-
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .secondary-button:not(.primary-button),
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .small-button:not(.primary-button) {
-  min-height: 44px;
-  border: 1px solid rgba(160, 166, 159, 0.28) !important;
-  border-radius: var(--p13-raio-cartao);
-  background: var(--surface-raised) !important;
-  color: var(--text) !important;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-body[data-page="inicio"] .home-week-link,
-body[data-page="inicio"] .home-recent-link,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .back-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding-inline: 4px;
-  color: var(--lime);
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  text-underline-offset: 3px;
-}
-
-body[data-page="inicio"] .home-week-link:hover,
-body[data-page="inicio"] .home-recent-link:hover,
-body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .back-link:hover {
-  text-decoration: underline;
-}
-
-/* Um controle ativo por grupo: filtro recebe superfície + traço limão;
-   o segmento de período continua sendo o estado ativo preenchido. */
-body[data-page="progresso"] .filter-button[aria-pressed="true"],
-body[data-page="progresso"] .filter-button.is-active {
-  background: var(--surface-raised) !important;
-  border-color: var(--accent-line) !important;
-  color: var(--text) !important;
-  box-shadow: inset 0 -3px 0 var(--lime);
-}
-
-body[data-page="progresso"] .ui-segment {
-  min-height: 44px;
-}
-
-/* Elementos informativos deixam de disputar atenção com o limão. */
-body[data-page="progresso"] .history-summary .summary-value,
-body[data-page="progresso"] .record-value {
-  color: var(--text);
-}
-
-body[data-page="progresso"] .history-status.completed {
-  color: var(--ok);
-  border-color: rgba(143, 215, 164, 0.4);
-}
-
-body[data-page="progresso"] .history-exercises summary {
-  color: var(--text);
-  font-weight: 600;
-}
-
-body[data-page="explorar"] .modality-icon {
-  border-color: var(--border);
-  background: var(--surface-sunken);
-  color: var(--text);
-}
-
-body[data-page="inicio"] .home-secondary .calendar-panel .nav-button {
-  color: var(--text);
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-}
-
-body[data-page="inicio"] .home-secondary .calendar-panel .nav-button:hover {
-  color: var(--lime);
-  border-color: var(--accent-line);
-}
-
-body[data-page="inicio"] .home-secondary .missions-panel .selected-date {
-  color: var(--muted);
-}
-
-/* Calendário: alvo vertical de 44 px sem estourar a grade de 7 colunas
-   em 320 px. A largura continua limitada pela grade (exceção densa real). */
-body[data-page="inicio"] .home-secondary .calendar-panel .day {
-  aspect-ratio: auto;
-  min-height: clamp(44px, 6vw, 54px);
-  display: grid;
-  place-items: center;
-}
-
-/* 5. Gráficos: leitura mais limpa, dados preservados ------------------------ */
-
-/* Barras históricas em verde discreto; a semana atual fica em limão. */
-body[data-page="progresso"] .ui-bars .ui-bar-fill:not(.is-muted):not(.is-warn) {
-  background: var(--p13-dado);
-}
-
-body[data-page="progresso"] .ui-bars .ui-bar-row:last-child .ui-bar-fill:not(.is-muted):not(.is-warn) {
-  background: var(--lime);
-}
-
-body[data-page="progresso"] .ui-columns .ui-column-bar:not(.is-muted) {
-  background: var(--p13-dado);
-}
-
-body[data-page="progresso"] .ui-columns .ui-column:last-child .ui-column-bar:not(.is-muted) {
-  background: var(--lime);
-}
-
-body[data-page="progresso"] .ui-line-area {
-  fill: rgba(183, 243, 74, 0.06);
-}
-
-body[data-page="progresso"] .ui-line-dot {
-  fill: var(--p13-dado-forte);
-}
-
-body[data-page="progresso"] .ui-line-dot:last-of-type {
-  fill: var(--lime);
-}
-
-/* Quando há tabela, o gráfico mostra forma + rótulo e a tabela mostra os
-   valores exatos. Os números inline continuam no DOM e no `aria-label` das
-   barras, mas deixam de ser repetidos duas vezes na mesma figura. */
-body[data-page="progresso"] .ui-chart:has(.ui-table) .ui-bar-row {
-  grid-template-columns: 84px minmax(0, 1fr);
-}
-
-body[data-page="progresso"] .ui-chart:has(.ui-table) .ui-bar-value {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
-
-body[data-page="progresso"] .ui-chart:has(.ui-table) .ui-table {
-  margin-top: 14px;
-  border-top: 1px solid var(--p13-linha);
-  font-size: 12px;
-}
-
-body[data-page="progresso"] .ui-chart:has(.ui-table) .ui-table th,
-body[data-page="progresso"] .ui-chart:has(.ui-table) .ui-table td {
-  padding: 7px 8px;
-}
-
-body[data-page="progresso"] .ui-chart:has(.ui-table) .ui-table tbody tr:last-child {
-  font-weight: 700;
-}
-
-body[data-page="progresso"] #progress-weekly .ui-chart + .ui-chart {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid var(--p13-linha);
-}
-
-/* 6. Telas estreitas ------------------------------------------------------- */
-
-@media (max-width: 380px) {
-  /* Três anéis cabem em 320 px sem cartão órfão e sem corte de texto. */
-  body[data-page="inicio"] .home-goals-grid .ui-ring-svg,
-  body[data-page="progresso"] .goals-progress .ui-ring-svg {
-    width: 72px;
-    height: 72px;
-  }
-
-  body[data-page="inicio"] .home-goals-grid .ui-ring-center,
-  body[data-page="progresso"] .goals-progress .ui-ring-center {
-    height: 72px;
-  }
-
-  body[data-page="inicio"] .home-goals-grid .ui-ring-percent,
-  body[data-page="progresso"] .goals-progress .ui-ring-percent {
-    font-size: 17px;
-  }
-
-  body[data-page="inicio"] .home-goals-grid .ui-ring-value-text,
-  body[data-page="inicio"] .home-goals-grid .ui-ring-note,
-  body[data-page="progresso"] .goals-progress .ui-ring-value-text,
-  body[data-page="progresso"] .goals-progress .ui-ring-note {
-    font-size: 11px;
-  }
-
-  body[data-page="progresso"] .ui-chart:has(.ui-table) .ui-bar-row {
-    grid-template-columns: 68px minmax(0, 1fr);
-  }
-}
-
-/* 7. Telas largas ---------------------------------------------------------- */
-
-@media (min-width: 560px) {
-  body[data-page="progresso"] .ui-stats {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
+/* Início: ação à frente, semana/metas legíveis e tarefas cotidianas recolhidas. */
+body[data-page="inicio"] #conteudo { max-width: 1120px; }
+body[data-page="inicio"] .home-greeting { margin: 8px 0 18px; }
+body[data-page="inicio"] .home-title { max-width: 17ch; font-size: clamp(30px, 5vw, 42px); line-height: 1.06; }
+body[data-page="inicio"] #home-action { margin: 0 0 20px; }
+body[data-page="inicio"] #home-action .home-action-card { min-height: 150px; padding: clamp(18px, 3vw, 28px); border: 1px solid rgba(201,255,67,.28); border-left: 4px solid var(--lime); background: linear-gradient(105deg, rgba(201,255,67,.09), var(--panel) 65%); }
+body[data-page="inicio"] .home-overview { display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; margin-top: 4px; }
+body[data-page="inicio"] .home-week, body[data-page="inicio"] .home-goals, body[data-page="inicio"] .home-recent { min-width: 0; margin: 0; padding: 16px 0; border-top: 1px solid var(--border); }
+body[data-page="inicio"] .home-week-stat { border: 0; border-left: 1px solid var(--border); border-radius: 0; background: transparent; text-align: left; }
+body[data-page="inicio"] .home-week-stat:first-child { border-left: 0; }
+body[data-page="inicio"] .home-week-stat-value { color: var(--lime); }
+body[data-page="inicio"] .home-goals-grid { display: grid; gap: 13px; }
+body[data-page="inicio"] .home-goal-row { display: grid; justify-items: stretch; position: static; gap: 7px 12px; min-width: 0; }
+body[data-page="inicio"] .home-recent-archive { border-top: 1px solid var(--border); }
+body[data-page="inicio"] .home-recent-archive > summary { min-height: 44px; display: flex; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
+body[data-page="inicio"] .home-goal-row { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 7px 12px; align-items: center; }
+body[data-page="inicio"] .home-goal-head { display: flex; justify-content: space-between; gap: 10px; min-width: 0; color: var(--text); font-size: 13px; }
+body[data-page="inicio"] .home-goal-head strong { overflow-wrap: anywhere; }
+body[data-page="inicio"] .home-goal-value { font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
+body[data-page="inicio"] .home-goal-track { grid-column: 1 / -1; height: 7px; overflow: hidden; border-radius: 99px; background: #333832; }
+body[data-page="inicio"] .home-goal-fill { display: block; height: 100%; border-radius: inherit; background: var(--lime); }
+body[data-page="inicio"] .home-goal-note { color: var(--muted); font-size: 12px; white-space: nowrap; }
+body[data-page="inicio"] .home-recent-item { grid-template-columns: minmax(100px,.55fr) minmax(0,1fr); align-items: baseline; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; padding: 10px 0; }
+body[data-page="inicio"] .home-recent-item:last-child { border-bottom: 0; }
+body[data-page="inicio"] .home-secondary { display: grid; gap: 10px; margin-top: 12px; }
+body[data-page="inicio"] .home-disclosure { min-width: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+body[data-page="inicio"] .home-disclosure > summary { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 14px; cursor: pointer; list-style: none; }
+body[data-page="inicio"] .home-disclosure > summary::-webkit-details-marker { display: none; }
+body[data-page="inicio"] .home-disclosure > summary::after { content: "+"; color: var(--lime); font-size: 24px; line-height: 1; }
+body[data-page="inicio"] .home-disclosure[open] > summary::after { content: "−"; }
+body[data-page="inicio"] .disclosure-hint { color: var(--muted); font: 400 12px/1.4 var(--fj-fonte-texto, Inter, sans-serif); }
+body[data-page="inicio"] .home-disclosure .calendar-panel, body[data-page="inicio"] .home-disclosure .missions-panel { padding: 0 0 18px; }
+body[data-page="inicio"] .home-secondary .calendar-grid .day { min-height: 44px; height: 44px; aspect-ratio: auto; }
+
+/* Treinos: comparar rotinas como linhas; ações principais expostas e demais agrupadas. */
+body[data-page="treino"] .hub-routines { margin-bottom: 24px; }
+body[data-page="treino"] #hub-modality { max-width: 280px; }
+body[data-page="treino"] #hub-routine-list { display: grid; gap: 0; border-top: 1px solid var(--border); }
+body[data-page="treino"] #hub-routine-list .routine-card { display: grid; grid-template-columns: minmax(0,1fr); gap: 8px 18px; padding: 16px 0; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; }
+body[data-page="treino"] #hub-routine-list .routine-name { font-size: 17px; }
+body[data-page="treino"] #hub-routine-list .routine-meta { margin-top: 3px; font-size: 12px; }
+body[data-page="treino"] .routine-exercise-preview { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; padding: 0; color: var(--muted); font-size: 12px; list-style: none; }
+body[data-page="treino"] .routine-exercise-preview li:not(.routine-exercise-more)::before { content: "· "; color: var(--lime); }
+body[data-page="treino"] .routine-exercise-more { color: var(--text); }
+body[data-page="treino"] .routine-actions { margin-top: 2px; }
+body[data-page="treino"] #hub-routine-list .routine-actions .primary-button, body[data-page="treino"] #hub-routine-list .routine-actions .secondary-button { min-height: 44px; }
+body[data-page="treino"] .routine-more-actions { margin-top: 2px; }
+body[data-page="treino"] .routine-more-actions > summary { width: fit-content; min-height: 44px; display: flex; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
+body[data-page="treino"] .routine-more-actions .routine-tools { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 2px; }
+body[data-page="treino"] .routine-more-actions button { min-height: 44px; }
+
+/* Explorar: busca e resultados em fluxo único; filtros laterais sob disclosure. */
+body[data-page="explorar"] .page-head { margin-bottom: 14px; }
+body[data-page="explorar"] .explore-library { margin-top: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+body[data-page="explorar"] #catalog-root > .ui-section-head { margin-bottom: 12px; }
+body[data-page="explorar"] #catalog-root > .ui-section-head h1 { display: none; }
+body[data-page="explorar"] #catalog-root > .ui-section-head p { display: none; }
+body[data-page="explorar"] #catalog-search { min-height: 52px; font-size: 16px; }
+body[data-page="explorar"] .catalog-filter-disclosure { margin: 10px 0 14px; border-bottom: 1px solid var(--border); }
+body[data-page="explorar"] .catalog-filter-disclosure > summary { min-height: 48px; display: flex; align-items: center; color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; }
+body[data-page="explorar"] .catalog-filter-disclosure .catalog-controls { padding-bottom: 12px; }
+body[data-page="explorar"] .explore-atlas { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 24px; padding: 18px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+body[data-page="explorar"] .explore-atlas .section-title { margin: 5px 0; }
+body[data-page="explorar"] .explore-atlas .section-note { margin: 0; }
+body[data-page="explorar"] .explore-atlas .primary-button { min-height: 48px; white-space: nowrap; }
+
+/* Progresso: dados exatos em primeiro plano, os desdobramentos permanecem acessíveis. */
+body[data-page="progresso"] #conteudo { max-width: 1120px; }
+body[data-page="progresso"] .progress-controls { display: grid; gap: 10px; margin: 4px 0 12px; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+body[data-page="progresso"] .progress-controls .filter-group { margin: 0; }
+body[data-page="progresso"] .progress-period { margin: 0; }
+body[data-page="progresso"] .progress-custom-period { margin: 10px 0; }
+body[data-page="progresso"] .scope-note { margin: 8px 0 14px; }
+body[data-page="progresso"] .section-block[aria-labelledby="progress-summary-heading"] { margin: 0 0 18px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+body[data-page="progresso"] .progress-summary { display: flex; flex-wrap: wrap; gap: 0; margin: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+body[data-page="progresso"] .progress-summary .summary-item { flex: 1 1 95px; min-width: 0; padding: 12px; border: 0; border-left: 1px solid var(--border); background: transparent; }
+body[data-page="progresso"] .progress-summary .summary-item:first-child { border-left: 0; }
+body[data-page="progresso"] .progress-summary .summary-value { font-size: 21px; }
+body[data-page="progresso"] .progress-summary .summary-label { font-size: 11px; }
+body[data-page="progresso"] #progress-totals { margin-top: 10px; }
+body[data-page="progresso"] #progress-totals .ui-stats { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+body[data-page="progresso"] #progress-totals .ui-stat { flex: 1 1 100px; padding: 11px 10px; border: 0; border-left: 1px solid var(--border); border-radius: 0; background: transparent; }
+body[data-page="progresso"] #progress-totals .ui-stat:first-child { border-left: 0; }
+body[data-page="progresso"] #progress-totals .ui-stat-value { font-size: 16px; }
+body[data-page="progresso"] #progress-totals .ui-stat-label { font-size: 10px; line-height: 1.3; }
+body[data-page="progresso"] .progress-disclosure { margin: 0; border-bottom: 1px solid var(--border); }
+body[data-page="progresso"] .progress-disclosure:first-of-type { border-top: 1px solid var(--border); }
+body[data-page="progresso"] .progress-disclosure > summary { min-height: 58px; display: flex; align-items: center; list-style: none; cursor: pointer; }
+body[data-page="progresso"] .progress-disclosure > summary::-webkit-details-marker { display: none; }
+body[data-page="progresso"] .progress-disclosure > summary::after { content: "+"; margin-left: auto; color: var(--lime); font-size: 23px; }
+body[data-page="progresso"] .progress-disclosure[open] > summary::after { content: "−"; }
+body[data-page="progresso"] .progress-disclosure > summary .section-title { margin: 0; font-size: 16px; }
+body[data-page="progresso"] .progress-disclosure-content { margin: 0; padding: 0 0 18px; border: 0; background: transparent; box-shadow: none; }
+body[data-page="progresso"] section[aria-labelledby="progress-evolution-heading"], body[data-page="progresso"] section[aria-labelledby="progress-frequency-heading"] { margin: 14px 0 20px; }
+body[data-page="progresso"] #progress-evolution-heading, body[data-page="progresso"] #progress-frequency-heading { margin-bottom: 8px; }
+
+/* Perfil: três zonas funcionais, mantendo cada campo e ação de backup. */
+body[data-page="perfil"] #conteudo { max-width: 960px; }
+body[data-page="perfil"] .profile-group { margin: 0; padding: 18px 0; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; box-shadow: none; }
+body[data-page="perfil"] .profile-group > .section-title { margin-bottom: 6px; }
+body[data-page="perfil"] .profile-group .screen-subtitle { max-width: 68ch; line-height: 1.5; }
+body[data-page="perfil"] .profile-preference-options { display: grid; gap: 4px; margin-top: 12px; }
+body[data-page="perfil"] .profile-data-group { border-bottom: 0; padding-bottom: 0; }
+body[data-page="perfil"] .profile-data-group .profile-data-note { max-width: 70ch; color: var(--muted); line-height: 1.5; }
+body[data-page="perfil"] .profile-data-actions { margin: 12px 0 0; padding: 16px 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: transparent; box-shadow: none; }
+body[data-page="perfil"] .profile-backup-title { margin-top: 18px; font-size: 15px; }
+body[data-page="perfil"] .profile-compat-link { margin: 10px 0; }
+
+/* Foco visível e alvos tocáveis também nos novos disclosures. */
+body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) :is(details > summary, .routine-actions a, .routine-actions button):focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; border-radius: 4px; }
 @media (min-width: 720px) {
-  body[data-page="progresso"] .history-summary {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  body[data-page="progresso"] .history-summary .summary-item:last-child {
-    grid-column: auto;
-  }
-
-  body[data-page="treino"] .hub-footer-links {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
+  body[data-page="inicio"] .home-overview { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 28px; }
+  body[data-page="inicio"] .home-secondary { grid-template-columns: 1fr 1fr; gap: 28px; }
+  body[data-page="treino"] #hub-routine-list .routine-card { grid-template-columns: minmax(0,1fr) auto; }
+  body[data-page="treino"] #hub-routine-list .routine-card > header, body[data-page="treino"] #hub-routine-list .routine-card > .routine-exercise-preview { grid-column: 1 / -1; }
+  body[data-page="treino"] #hub-routine-list .routine-more-actions { grid-column: 1 / -1; }
+  body[data-page="progresso"] .progress-controls { grid-template-columns: auto minmax(220px,1fr); align-items: center; }
 }
-
-@media (min-width: 1000px) {
-  /* Início: semana e metas lado a lado; histórico e apoio em largura cheia. */
-  body[data-page="inicio"] #conteudo {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--p13-espaco-secao);
-    align-items: start;
-  }
-
-  body[data-page="inicio"] #conteudo > .home-greeting,
-  body[data-page="inicio"] #conteudo > .active-session-banner,
-  body[data-page="inicio"] #conteudo > #onboarding-root,
-  body[data-page="inicio"] #conteudo > #home-action,
-  body[data-page="inicio"] #conteudo > #home-recent,
-  body[data-page="inicio"] #conteudo > .home-secondary {
-    grid-column: 1 / -1;
-  }
-
-  body[data-page="inicio"] #home-week,
-  body[data-page="inicio"] #home-goals {
-    margin-top: 0;
-  }
-
-  body[data-page="inicio"] .home-secondary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+@media (max-width: 420px) {
+  body[data-page="inicio"] .home-recent-item { grid-template-columns: 1fr; gap: 3px; }
+  body[data-page="inicio"] .disclosure-hint { max-width: 13ch; text-align: right; }
+  body[data-page="explorar"] .explore-atlas { align-items: flex-start; flex-direction: column; }
+  body[data-page="progresso"] .progress-summary .summary-item { flex-basis: 82px; padding: 10px 8px; }
 }
-
-@media (min-width: 1100px) {
-  body:is([data-page="inicio"], [data-page="treino"], [data-page="explorar"], [data-page="progresso"], [data-page="perfil"]) .container {
-    width: min(100% - 64px, 1120px);
-  }
-
-  body[data-page="treino"] .routine-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  body[data-page="treino"] .routine-list > :last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
-
-  /* Progresso: pares de seções; gráficos semanais e histórico usam a largura
-     inteira. A ordem visual acompanha a ordem do DOM e do teclado. */
-  body[data-page="progresso"] #conteudo {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--p13-espaco-secao);
-    align-items: start;
-  }
-
-  body[data-page="progresso"] #conteudo > .active-session-banner,
-  body[data-page="progresso"] #conteudo > .page-head,
-  body[data-page="progresso"] #conteudo > .screen-toolbar,
-  body[data-page="progresso"] #conteudo > .filter-group,
-  body[data-page="progresso"] #conteudo > .progress-period,
-  body[data-page="progresso"] #conteudo > .progress-custom-period,
-  body[data-page="progresso"] #conteudo > #period-error,
-  body[data-page="progresso"] #conteudo > .scope-note,
-  body[data-page="progresso"] #conteudo > section[aria-labelledby="progress-weekly-heading"],
-  body[data-page="progresso"] #conteudo > section[aria-labelledby="progress-history-heading"] {
-    grid-column: 1 / -1;
-  }
-
-  body[data-page="progresso"] #conteudo > .section-block {
-    margin-top: 0;
-    margin-bottom: var(--p13-espaco-secao);
-  }
-
-  /* Perfil: formulário principal e privacidade em largura cheia; os quatro
-     painéis curtos formam duas linhas equilibradas. */
-  body[data-page="perfil"] #conteudo {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--p13-espaco-secao);
-    align-items: start;
-  }
-
-  body[data-page="perfil"] #conteudo > .active-session-banner,
-  body[data-page="perfil"] #conteudo > .page-head,
-  body[data-page="perfil"] #conteudo > section[aria-labelledby="perfil-treino-heading"],
-  body[data-page="perfil"] #conteudo > section[aria-labelledby="privacidade-heading"] {
-    grid-column: 1 / -1;
-  }
-
-  body[data-page="perfil"] #conteudo > section {
-    margin-top: 0;
-    margin-bottom: var(--p13-espaco-secao);
-  }
+/* Alvos táteis explícitos para links de atalho e controles compactos. */
+body[data-page="inicio"] :is(.home-week-link,.home-recent-link) { min-height: 44px; display: inline-flex; align-items: center; }
+body[data-page="explorar"] .catalog-controls :is(.ui-segment,.ui-chip-toggle) { min-height: 44px; }
+body[data-page="progresso"] .progress-controls :is(.filter-button,.ui-segment) { min-height: 44px; }
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"] {
+  appearance: none; width: 44px; height: 44px; flex: 0 0 44px; margin: 0;
+  display: grid; place-content: center; border: 1px solid var(--border-strong, #687064);
+  border-radius: 9px; background: var(--surface-sunken, #121512); cursor: pointer;
+}
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"]::after {
+  content: ""; width: 10px; height: 6px; border: solid #111; border-width: 0 0 2px 2px;
+  transform: rotate(-45deg) scale(0); transition: transform .12s ease;
+}
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"]:checked { border-color: var(--lime); background: var(--lime); }
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"]:checked::after { transform: rotate(-45deg) scale(1); }
+body[data-page="inicio"] .home-secondary .missions-panel .task input[type="checkbox"]:focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) *,
+  body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) *::before,
+  body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
