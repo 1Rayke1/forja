@@ -1,0 +1,819 @@
+{
+  "generatedAt": "2026-10-26T14:13:01.513Z",
+  "fixedNow": "2026-10-26T12:00:00.000Z",
+  "widths": [
+    320,
+    360,
+    390,
+    430,
+    768,
+    1280
+  ],
+  "pages": [
+    "inicio",
+    "treinos",
+    "explorar",
+    "progresso",
+    "perfil"
+  ],
+  "data": {
+    "allTextEqual": true,
+    "allSelectorsEqual": true,
+    "allStorageEqual": true,
+    "differences": []
+  },
+  "overflow": {
+    "beforeMax": 0,
+    "afterMax": 0,
+    "byWidth": {
+      "320": {
+        "before": 0,
+        "after": 0
+      },
+      "360": {
+        "before": 0,
+        "after": 0
+      },
+      "390": {
+        "before": 0,
+        "after": 0
+      },
+      "430": {
+        "before": 0,
+        "after": 0
+      },
+      "768": {
+        "before": 0,
+        "after": 0
+      },
+      "1280": {
+        "before": 0,
+        "after": 0
+      }
+    }
+  },
+  "contrast": {
+    "beforeMin": 6.91,
+    "afterMin": 6.91,
+    "threshold": 4.5
+  },
+  "interactiveTargets": {
+    "unexplainedBefore": 42,
+    "unexplainedAfter": 0,
+    "exceptions": [
+      "button.day: grade densa de 7 colunas; altura >=44 px, largura limitada pelo calendário em 320 px",
+      "input[type=checkbox]: 20 px visual, mas o label .check-row inteiro tem altura >=48 px e é clicável"
+    ]
+  },
+  "grids": {
+    "before": [
+      {
+        "page": "inicio",
+        "width": "320",
+        "grid": ".home-goals-grid",
+        "children": 3,
+        "tracks": 2,
+        "rows": [
+          2,
+          1
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "inicio",
+        "width": "360",
+        "grid": ".home-goals-grid",
+        "children": 3,
+        "tracks": 2,
+        "rows": [
+          2,
+          1
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "inicio",
+        "width": "390",
+        "grid": ".home-goals-grid",
+        "children": 3,
+        "tracks": 2,
+        "rows": [
+          2,
+          1
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "inicio",
+        "width": "430",
+        "grid": ".home-goals-grid",
+        "children": 3,
+        "tracks": 2,
+        "rows": [
+          2,
+          1
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "inicio",
+        "width": "768",
+        "grid": ".home-goals-grid",
+        "children": 3,
+        "tracks": 5,
+        "rows": [
+          3
+        ],
+        "orphan": false,
+        "emptyTracks": 2
+      },
+      {
+        "page": "inicio",
+        "width": "1280",
+        "grid": ".home-goals-grid",
+        "children": 3,
+        "tracks": 6,
+        "rows": [
+          3
+        ],
+        "orphan": false,
+        "emptyTracks": 3
+      },
+      {
+        "page": "progresso",
+        "width": "320",
+        "grid": ".goals-progress",
+        "children": 3,
+        "tracks": 2,
+        "rows": [
+          2,
+          1
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "320",
+        "grid": "#goals-progress .goals-progress",
+        "children": 3,
+        "tracks": 2,
+        "rows": [
+          2,
+          1
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "320",
+        "grid": ".history-summary",
+        "children": 5,
+        "tracks": 3,
+        "rows": [
+          3,
+          2
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "360",
+        "grid": ".history-summary",
+        "children": 5,
+        "tracks": 3,
+        "rows": [
+          3,
+          2
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "390",
+        "grid": ".history-summary",
+        "children": 5,
+        "tracks": 3,
+        "rows": [
+          3,
+          2
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "390",
+        "grid": ".ui-stats",
+        "children": 4,
+        "tracks": 3,
+        "rows": [
+          3,
+          1
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "430",
+        "grid": ".history-summary",
+        "children": 5,
+        "tracks": 3,
+        "rows": [
+          3,
+          2
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "430",
+        "grid": ".ui-stats",
+        "children": 4,
+        "tracks": 3,
+        "rows": [
+          3,
+          1
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "768",
+        "grid": ".goals-progress",
+        "children": 3,
+        "tracks": 6,
+        "rows": [
+          3
+        ],
+        "orphan": false,
+        "emptyTracks": 3
+      },
+      {
+        "page": "progresso",
+        "width": "768",
+        "grid": "#goals-progress .goals-progress",
+        "children": 3,
+        "tracks": 6,
+        "rows": [
+          3
+        ],
+        "orphan": false,
+        "emptyTracks": 3
+      },
+      {
+        "page": "progresso",
+        "width": "768",
+        "grid": ".history-summary",
+        "children": 5,
+        "tracks": 3,
+        "rows": [
+          3,
+          2
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "768",
+        "grid": ".ui-stats",
+        "children": 4,
+        "tracks": 7,
+        "rows": [
+          4
+        ],
+        "orphan": false,
+        "emptyTracks": 3
+      },
+      {
+        "page": "progresso",
+        "width": "1280",
+        "grid": ".goals-progress",
+        "children": 3,
+        "tracks": 7,
+        "rows": [
+          3
+        ],
+        "orphan": false,
+        "emptyTracks": 4
+      },
+      {
+        "page": "progresso",
+        "width": "1280",
+        "grid": "#goals-progress .goals-progress",
+        "children": 3,
+        "tracks": 7,
+        "rows": [
+          3
+        ],
+        "orphan": false,
+        "emptyTracks": 4
+      },
+      {
+        "page": "progresso",
+        "width": "1280",
+        "grid": ".history-summary",
+        "children": 5,
+        "tracks": 3,
+        "rows": [
+          3,
+          2
+        ],
+        "orphan": true,
+        "emptyTracks": 0
+      },
+      {
+        "page": "progresso",
+        "width": "1280",
+        "grid": ".ui-stats",
+        "children": 4,
+        "tracks": 8,
+        "rows": [
+          4
+        ],
+        "orphan": false,
+        "emptyTracks": 4
+      }
+    ],
+    "after": []
+  },
+  "accent": {
+    "before": {
+      "inicio-320": {
+        "color": 16,
+        "background": 5,
+        "border": 17
+      },
+      "inicio-360": {
+        "color": 16,
+        "background": 5,
+        "border": 17
+      },
+      "inicio-390": {
+        "color": 16,
+        "background": 5,
+        "border": 17
+      },
+      "inicio-430": {
+        "color": 16,
+        "background": 5,
+        "border": 17
+      },
+      "inicio-768": {
+        "color": 16,
+        "background": 5,
+        "border": 17
+      },
+      "inicio-1280": {
+        "color": 16,
+        "background": 5,
+        "border": 17
+      },
+      "treinos-320": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-360": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-390": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-430": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-768": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-1280": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "explorar-320": {
+        "color": 17,
+        "background": 1,
+        "border": 15
+      },
+      "explorar-360": {
+        "color": 17,
+        "background": 1,
+        "border": 15
+      },
+      "explorar-390": {
+        "color": 17,
+        "background": 1,
+        "border": 15
+      },
+      "explorar-430": {
+        "color": 17,
+        "background": 1,
+        "border": 15
+      },
+      "explorar-768": {
+        "color": 17,
+        "background": 1,
+        "border": 15
+      },
+      "explorar-1280": {
+        "color": 17,
+        "background": 1,
+        "border": 15
+      },
+      "progresso-320": {
+        "color": 41,
+        "background": 20,
+        "border": 34
+      },
+      "progresso-360": {
+        "color": 41,
+        "background": 20,
+        "border": 34
+      },
+      "progresso-390": {
+        "color": 41,
+        "background": 20,
+        "border": 34
+      },
+      "progresso-430": {
+        "color": 41,
+        "background": 20,
+        "border": 34
+      },
+      "progresso-768": {
+        "color": 41,
+        "background": 20,
+        "border": 34
+      },
+      "progresso-1280": {
+        "color": 41,
+        "background": 20,
+        "border": 34
+      },
+      "perfil-320": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-360": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-390": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-430": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-768": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-1280": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      }
+    },
+    "after": {
+      "inicio-320": {
+        "color": 12,
+        "background": 5,
+        "border": 15
+      },
+      "inicio-360": {
+        "color": 12,
+        "background": 5,
+        "border": 15
+      },
+      "inicio-390": {
+        "color": 12,
+        "background": 5,
+        "border": 15
+      },
+      "inicio-430": {
+        "color": 12,
+        "background": 5,
+        "border": 15
+      },
+      "inicio-768": {
+        "color": 12,
+        "background": 5,
+        "border": 15
+      },
+      "inicio-1280": {
+        "color": 12,
+        "background": 5,
+        "border": 15
+      },
+      "treinos-320": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-360": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-390": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-430": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-768": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "treinos-1280": {
+        "color": 8,
+        "background": 3,
+        "border": 10
+      },
+      "explorar-320": {
+        "color": 11,
+        "background": 1,
+        "border": 11
+      },
+      "explorar-360": {
+        "color": 11,
+        "background": 1,
+        "border": 11
+      },
+      "explorar-390": {
+        "color": 11,
+        "background": 1,
+        "border": 11
+      },
+      "explorar-430": {
+        "color": 11,
+        "background": 1,
+        "border": 11
+      },
+      "explorar-768": {
+        "color": 11,
+        "background": 1,
+        "border": 11
+      },
+      "explorar-1280": {
+        "color": 11,
+        "background": 1,
+        "border": 11
+      },
+      "progresso-320": {
+        "color": 11,
+        "background": 5,
+        "border": 12
+      },
+      "progresso-360": {
+        "color": 11,
+        "background": 5,
+        "border": 12
+      },
+      "progresso-390": {
+        "color": 11,
+        "background": 5,
+        "border": 12
+      },
+      "progresso-430": {
+        "color": 11,
+        "background": 5,
+        "border": 12
+      },
+      "progresso-768": {
+        "color": 11,
+        "background": 5,
+        "border": 12
+      },
+      "progresso-1280": {
+        "color": 11,
+        "background": 5,
+        "border": 12
+      },
+      "perfil-320": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-360": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-390": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-430": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-768": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      },
+      "perfil-1280": {
+        "color": 12,
+        "background": 2,
+        "border": 13
+      }
+    },
+    "totals": {
+      "before": {
+        "color": 564,
+        "background": 186,
+        "border": 534
+      },
+      "after": {
+        "color": 324,
+        "background": 96,
+        "border": 366
+      }
+    }
+  },
+  "typography390": {
+    "inicio": {
+      ".home-title": {
+        "fontSize": 30,
+        "fontWeight": "800"
+      },
+      ".section-title": {
+        "fontSize": 18,
+        "fontWeight": "700"
+      },
+      ".home-week-title": {
+        "fontSize": 18,
+        "fontWeight": "700"
+      },
+      ".home-action-title": {
+        "fontSize": 21,
+        "fontWeight": "800"
+      },
+      ".home-subtitle": {
+        "fontSize": 15,
+        "fontWeight": "400"
+      },
+      ".home-eyebrow": {
+        "fontSize": 12,
+        "fontWeight": "600"
+      },
+      ".home-week-stat-label": {
+        "fontSize": 12,
+        "fontWeight": "600"
+      }
+    },
+    "treinos": {
+      ".screen-title": {
+        "fontSize": 30,
+        "fontWeight": "800"
+      },
+      ".section-title": {
+        "fontSize": 18,
+        "fontWeight": "700"
+      },
+      ".screen-subtitle": {
+        "fontSize": 15,
+        "fontWeight": "400"
+      },
+      ".eyebrow": {
+        "fontSize": 12,
+        "fontWeight": "600"
+      },
+      ".field-label": {
+        "fontSize": 12,
+        "fontWeight": "400"
+      }
+    },
+    "explorar": {
+      ".screen-title": {
+        "fontSize": 30,
+        "fontWeight": "800"
+      },
+      ".section-title": {
+        "fontSize": 18,
+        "fontWeight": "700"
+      },
+      ".screen-subtitle": {
+        "fontSize": 15,
+        "fontWeight": "400"
+      },
+      ".eyebrow": {
+        "fontSize": 12,
+        "fontWeight": "600"
+      }
+    },
+    "progresso": {
+      ".screen-title": {
+        "fontSize": 30,
+        "fontWeight": "800"
+      },
+      ".section-title": {
+        "fontSize": 18,
+        "fontWeight": "700"
+      },
+      ".screen-subtitle": {
+        "fontSize": 15,
+        "fontWeight": "400"
+      },
+      ".eyebrow": {
+        "fontSize": 12,
+        "fontWeight": "600"
+      },
+      ".field-label": {
+        "fontSize": 12,
+        "fontWeight": "400"
+      },
+      ".ui-stat-label": {
+        "fontSize": 12,
+        "fontWeight": "600"
+      },
+      ".ui-chart-caption": {
+        "fontSize": 12,
+        "fontWeight": "400"
+      }
+    },
+    "perfil": {
+      ".screen-title": {
+        "fontSize": 30,
+        "fontWeight": "800"
+      },
+      ".section-title": {
+        "fontSize": 18,
+        "fontWeight": "700"
+      },
+      ".screen-subtitle": {
+        "fontSize": 15,
+        "fontWeight": "400"
+      },
+      ".eyebrow": {
+        "fontSize": 12,
+        "fontWeight": "600"
+      },
+      ".field-label": {
+        "fontSize": 12,
+        "fontWeight": "600"
+      }
+    }
+  },
+  "documentHeight1280": {
+    "inicio": {
+      "before": 2201,
+      "after": 1751
+    },
+    "treinos": {
+      "before": 1159,
+      "after": 899
+    },
+    "explorar": {
+      "before": 844,
+      "after": 885
+    },
+    "progresso": {
+      "before": 6715,
+      "after": 5699
+    },
+    "perfil": {
+      "before": 2152,
+      "after": 1843
+    }
+  },
+  "consoleErrors": {
+    "before": 0,
+    "after": 0
+  }
+}
