@@ -1,55 +1,81 @@
 # FORJA — relatório do redesign visual
 
-**Data:** 26/10/2026
+**Data da validação:** 26/10/2026
 
-**Base examinada:** `main` / `origin/main` em `059b235`
+**Base de comparação:** `main` / `origin/main`, commit `059b235` (PR #33 integrada).
 
-**PR #33:** integrado (`MERGED`) em 26/10/2026; base da PR: `main`.
+**Revisão validada:** branch `arena/bccf915f-forja`, PR #34. A branch é fixada pelo ambiente Arena.
 
-**Branch desta sessão:** `arena/bccf915f-forja` (fixada pelo ambiente Arena).
+**Estado da PR:** aberta, sem merge e sem deploy.
 
-## Implementação
+## Redesign e comparação visual
 
-Foi adicionada uma camada de apresentação separada em `assets/css/redesign.css`, carregada apenas nas cinco páginas principais. Ela reorganiza a hierarquia e as superfícies sem alterar armazenamento, histórico, contratos do catálogo ou fluxos de ação:
+Foi adicionada uma camada de apresentação em `assets/css/redesign.css`, carregada apenas nas cinco páginas principais. A revisão das capturas Antes/Depois confirmou mudanças de hierarquia e layout, não só de cor ou acabamento:
 
-- **Início:** saudação e ação principal, resumo semanal e metas em grupos distintos; progresso por barras; calendário e missões continuam recolhíveis; cartões recentes ficam abaixo da prioridade de treino.
-- **Treinos:** filtro e criação agrupados como barra de ferramentas; cartões comparáveis em duas colunas em telas amplas e uma em telas pequenas; iniciar e editar permanecem visíveis; ações adicionais ficam num `details` acessível que já existe no DOM.
-- **Explorar:** busca mais destacada; filtros adicionais compactos/recolhíveis; resultados em primeiro plano e atlas acessível pelo cartão próprio. O título da biblioteca passa a `h2` nesta tela, mantendo o único `h1` da página.
-- **Progresso:** filtros e período agrupados; totais reais e evolução com prioridade; painéis analíticos secundários permanecem recolhíveis. O gráfico de evolução existente já inclui tabela textual e critério de medição.
-- **Perfil:** formulário e preferências organizados em superfícies consistentes; formulário de treino em duas colunas quando cabe; preferências e controles reais de backup/restauração permanecem presentes.
-- **Sistema visual compartilhado:** carvão, verde-limão, bordas discretas, títulos Archivo, texto Inter, estados de foco visíveis, alvos de toque ampliados e ajustes para 320–760 px. Nenhuma fotografia de exercício nem personagem/modelo novo foi adicionado.
+- **Início:** antes o CTA ocupava sozinho a largura toda e os resumos vinham depois; agora saudação e próximo treino formam o primeiro bloco, com resumo e metas agrupados abaixo. Em telas pequenas o CTA e os cartões empilham sem perda de ação. Barras de meta, calendário e missões conservam os dados e controles existentes.
+- **Treinos:** a lista vertical de largura única passou a cartões comparáveis em duas colunas em desktop, uma coluna no celular; filtro/criação ficam juntos, iniciar e editar permanecem explícitos e as demais ações continuam no menu recolhível.
+- **Explorar:** busca maior e mais visível, filtros adicionais compactos/recolhíveis e resultados em grade de duas colunas em desktop/uma em celular. Atlas continua acessível e não foram adicionadas imagens demonstrativas. O título interno da biblioteca é `h2` nesta página, preservando um único `h1`.
+- **Progresso:** filtros e período foram agrupados, totais reais ficaram compactos e a evolução medida ganhou prioridade visual; os painéis analíticos restantes continuam acessíveis em seções recolhíveis. O gráfico de evolução conserva alternativa tabular e critério textual.
+- **Perfil:** formulário de treino em duas colunas quando há espaço e empilhado no celular; preferências e backup/restauração ficaram em grupos mais definidos, sem criar opções fictícias.
+- **Navegação:** em 320 px todos os cinco rótulos ficam visíveis; o ajuste evita truncar “Progresso”. A navegação continua fixa e com as mesmas cinco rotas.
 
-## Arquivos alterados
+Comparação representativa: [Início — antes, 1280 px](../artifacts/forja-redesign/before/inicio-1280.png) · [depois, 1280 px](../artifacts/forja-redesign/after/inicio-1280.png); [Treinos — antes, 1280 px](../artifacts/forja-redesign/before/treinos-1280.png) · [depois, 1280 px](../artifacts/forja-redesign/after/treinos-1280.png); [Explorar — depois, 320 px](../artifacts/forja-redesign/after/explorar-320.png); [Progresso — depois, 1280 px](../artifacts/forja-redesign/after/progresso-1280.png); [Perfil — depois, 1280 px](../artifacts/forja-redesign/after/perfil-1280.png).
 
-- `assets/css/redesign.css` — camada visual e layouts responsivos das cinco telas.
-- `assets/js/forja-catalogo.js` — hierarquia de heading da biblioteca na tela Explorar.
-- `index.html`, `treino/index.html`, `explorar/index.html`, `progresso/index.html`, `perfil/index.html` — carregam a nova folha visual.
-- `tools/capturas-redesign.mjs` — ferramenta reprodutível para capturar as mesmas cinco telas, com o mesmo conjunto local de dados de teste, em 320, 360, 390, 430, 768 e 1280 px.
+## Capturas e método
 
-## Verificações executadas
+Foram geradas **60 capturas de navegador**: 30 Antes e 30 Depois — cinco telas × seis larguras (`320`, `360`, `390`, `430`, `768`, `1280` px). Cada captura mostra o viewport real de **900 px de altura**, com a navegação fixa no seu lugar normal. O relatório de cada conjunto também registra a largura e a altura completa do documento.
 
-- `npm test` — **aprovado**: métricas 18/18, testes FORJA 107/107, onboarding 17/17, atlas 12/12, paridade 40/40.
-- `git diff --check` — **aprovado**.
-- Parse sintático de `assets/css/redesign.css` usando `css-tree` — **aprovado**, 165 regras CSS parseadas.
-- Arquivos protegidos — **sem alterações no diff**: calendário, `assets/anatomia/*`, figura, atlas JS/CSS/HTML e `tests/atlas.test.mjs`.
-- `npm run test:e2e` — **não executou**: o Chromium empacotado não inicia neste sandbox, pois faltam `libnspr4.so` (e dependências NSS). Nenhum teste de navegador real foi contado como aprovado.
+- Antes: [`artifacts/forja-redesign/before/`](../artifacts/forja-redesign/before/) — revisão `059b235`, exportada com `git archive` para `/tmp/forja-before`, sem trocar de branch.
+- Depois: [`artifacts/forja-redesign/after/`](../artifacts/forja-redesign/after/) — implementação desta PR.
+- Relatórios de captura: [`before/capture-report.json`](../artifacts/forja-redesign/before/capture-report.json) e [`after/capture-report.json`](../artifacts/forja-redesign/after/capture-report.json). Cada diretório também contém as 30 imagens PNG.
 
-## Capturas e comparação visual — pendente por limitação do ambiente
+As duas revisões usaram a mesma ferramenta, o mesmo fixture sintético versionado (`redesign-visual-sample-v1`), o mesmo instante fixo (`2026-10-26T14:00:00-03:00`) e armazenamento isolado/reinicializado por captura. O fixture fornece três rotinas, quatro registros de treino, metas e perfil para que cartões, gráfico e indicadores tenham conteúdo comparável; não representa nem modifica dados de usuário.
 
-O gerador de capturas foi executado contra a revisão anterior, mas o processo terminou antes de abrir qualquer página: `/tmp/chromium` falhou ao carregar por falta de `libnspr4.so`. Portanto, **não há capturas Antes/Depois nem comparação visual medida neste workspace**. Não foram substituídas por mockups ou imagens sintéticas.
+## Ambiente de navegador
 
-Quando houver Chromium com bibliotecas NSPR/NSS, executar:
+Não havia Chrome ou Firefox instalado no sistema. O Chromium 138 usado pelos testes já estava empacotado em `@sparticuz/chromium`; seu arquivo `al2023.tar.br` contém `libnspr4.so` e bibliotecas NSS. Extraí essas bibliotecas apenas para `/tmp/forja-browser-libs/lib` e executei os processos com `LD_LIBRARY_PATH=/tmp/forja-browser-libs/lib`. Assim, foi possível usar um navegador real sem adicionar dependências ao aplicativo publicado, alterar testes ou modificar `package.json`/lockfile.
+
+Preparo temporário e execução reproduzível:
 
 ```sh
-node tools/capturas-redesign.mjs artifacts/forja-redesign/before
-node tools/capturas-redesign.mjs artifacts/forja-redesign/after
+mkdir -p /tmp/forja-browser-libs
+node -e "const f=require('node:fs'),z=require('node:zlib');f.writeFileSync('/tmp/al2023.tar',z.brotliDecompressSync(f.readFileSync('node_modules/@sparticuz/chromium/bin/al2023.tar.br')))"
+tar -xf /tmp/al2023.tar -C /tmp/forja-browser-libs
+
+# Depois (branch atual)
+env FORJA_CAPTURE_NOW='2026-10-26T14:00:00-03:00' LD_LIBRARY_PATH=/tmp/forja-browser-libs/lib node tools/capturas-redesign.mjs artifacts/forja-redesign/after
+
+# Antes (checkout de arquivos da base, sem trocar a branch da sessão)
+mkdir -p /tmp/forja-before
+git archive 059b235 | tar -x -C /tmp/forja-before
+env FORJA_ROOT=/tmp/forja-before FORJA_CAPTURE_NOW='2026-10-26T14:00:00-03:00' LD_LIBRARY_PATH=/tmp/forja-browser-libs/lib node tools/capturas-redesign.mjs artifacts/forja-redesign/before
+
+env LD_LIBRARY_PATH=/tmp/forja-browser-libs/lib npm run test:e2e
 ```
 
-O script usa a mesma rotina, histórico, metas e perfil de demonstração nos dois diretórios e escreve `capture-report.json` com dimensões, overflow e erros de JavaScript. A ausência das capturas significa que a matriz real de overflow nas seis larguras e a comparação visual **ainda precisam de confirmação no navegador**.
+## Testes e verificações executados
 
-## Limitações remanescentes
+- `npm test` — **aprovado**: métricas 18/18; FORJA 107/107; onboarding 17/17; atlas 12/12; paridade 40/40.
+- `LD_LIBRARY_PATH=/tmp/forja-browser-libs/lib npm run test:e2e` — **aprovado em Chromium real**: 34/34 verificações.
+- E2E mediu **zero rolagem horizontal** nas larguras 320, 360, 390, 430, 768 e 1280 px em todas as páginas cobertas; também verificou erros de JavaScript, HTTP e recursos ausentes, alvos de toque, navegação, fluxos de dados/backup e as telas principais.
+- Capturas Antes/Depois: **0 overflow e 0 erros de página, console ou requisição** em cada conjunto (30 combinações de tela/largura por revisão); relatórios JSON anexos às imagens.
+- Parse sintático de `assets/css/redesign.css` com `css-tree` — **aprovado**.
+- `git diff --check` — **aprovado**.
+- Arquivos protegidos — **sem alterações**: `assets/js/forja-calendario.js`, `assets/anatomia/*`, `assets/js/forja-figura.js`, `assets/js/forja-atlas.js`, `assets/css/atlas.css`, `explorar/atlas.html` e `tests/atlas.test.mjs`.
 
-1. A validação E2E e as capturas em Chromium dependem de bibliotecas de runtime ausentes no sandbox.
-2. A imagem de referência organiza cinco mockups lado a lado; o app real continua sendo um fluxo de páginas com navegação inferior, para preservar sua arquitetura estática e usabilidade móvel.
-3. O aceite final de fidelidade visual requer revisar as capturas de navegador nas larguras solicitadas. Esta mudança implementa uma reorganização perceptível de hierarquia/layout, mas não declara essa comparação concluída.
-4. A branch de trabalho é fixada pelo ambiente Arena; não foi criada outra branch. A PR de revisão deve sair de `arena/bccf915f-forja`.
+## Arquivos da implementação
+
+- `assets/css/redesign.css` — camada visual e regras responsivas.
+- `assets/js/forja-catalogo.js` — hierarquia semântica do título da biblioteca em Explorar.
+- `index.html`, `treino/index.html`, `explorar/index.html`, `progresso/index.html`, `perfil/index.html` — inclusão da folha visual.
+- `tools/capturas-redesign.mjs` — captura das cinco telas, com fixture/horário fixos, seleção de raiz para Antes/Depois, medição de overflow e coleta de erros.
+- `artifacts/forja-redesign/{before,after}/` — 60 capturas e dois relatórios JSON.
+- `docs/relatorio-redesign-visual.md` — este relatório.
+
+## Limitações
+
+1. As capturas mostram os primeiros 900 px do viewport em cada largura; o conteúdo abaixo da dobra continua navegável e as alturas totais estão nos JSONs.
+2. Os dados das imagens são sintéticos e controlados para comparação justa, não dados pessoais do usuário.
+3. A referência mostra cinco mockups lado a lado; o produto mantém suas páginas e navegação reais para preservar a arquitetura estática e a usabilidade em celulares.
+4. Fotografias de exercícios e modelos/personagens 3D permanecem fora do escopo, conforme solicitado.
+5. As bibliotecas NSPR/NSS foram extraídas temporariamente em `/tmp`; nenhum pacote de runtime foi adicionado ao GitHub Pages.

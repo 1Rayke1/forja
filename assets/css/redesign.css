@@ -123,13 +123,11 @@ summary:focus-visible {
 
 /* HOME — greeting/action first; weekly facts and goals become scannable groups. */
 body[data-page="inicio"] main.container { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(340px,.9fr); column-gap: 24px; align-content: start; }
-body[data-page="inicio"] .active-session-banner,
-body[data-page="inicio"] .home-greeting,
-body[data-page="inicio"] #onboarding-root { grid-column: 1 / -1; }
+body[data-page="inicio"] .active-session-banner { grid-column: 1 / -1; grid-row: 1; }
 body[data-page="inicio"] .home-greeting { grid-column: 1; grid-row: 2; margin: 0 0 4px; }
 body[data-page="inicio"] #onboarding-root { grid-column: 1 / -1; grid-row: 3; margin: 0; }
 body[data-page="inicio"] #home-action { grid-column: 2; grid-row: 2; align-self: stretch; }
-body[data-page="inicio"] .home-overview { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,.82fr); gap: 18px; margin-top: 22px; }
+body[data-page="inicio"] .home-overview { grid-column: 1 / -1; grid-row: 4; display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,.82fr); gap: 18px; margin-top: 22px; }
 body[data-page="inicio"] .home-week, body[data-page="inicio"] .home-goals { margin: 0; padding: 18px; border: 1px solid var(--fj-stroke); border-radius: 16px; background: rgba(16,23,25,.74); }
 .home-week-head, .home-recent-head { margin-bottom: 13px; }
 .home-week-stat { min-height: 78px; padding: 14px 10px; border-radius: 13px; }
@@ -142,9 +140,9 @@ body[data-page="inicio"] .home-week, body[data-page="inicio"] .home-goals { marg
 .home-goal-track { height: 8px; margin-top: 8px; background: #263133; border-radius: 99px; }
 .home-goal-fill { background: var(--fj-accent); border-radius: inherit; box-shadow: 0 0 14px rgba(183,243,74,.25); }
 .home-goal-note { color: var(--fj-muted); font-size: 11px; }
-body[data-page="inicio"] .home-recent { grid-column: 1 / -1; margin-top: 22px; }
+body[data-page="inicio"] .home-recent { grid-column: 1 / -1; grid-row: 5; margin-top: 22px; }
 body[data-page="inicio"] .home-recent-list { grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),1fr)); }
-body[data-page="inicio"] .home-secondary { grid-column: 1 / -1; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 10px; }
+body[data-page="inicio"] .home-secondary { grid-column: 1 / -1; grid-row: 6; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 10px; }
 .home-disclosure { border: 1px solid var(--fj-stroke); border-radius: 15px; background: var(--fj-surface); overflow: hidden; }
 .home-disclosure > summary { display: flex; justify-content: space-between; gap: 12px; padding: 15px 17px; cursor: pointer; list-style: none; }
 .home-disclosure > summary::-webkit-details-marker { display: none; }
@@ -271,12 +269,18 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
   body[data-page="perfil"] .backup-actions { grid-template-columns: 1fr; }
 }
 @media (max-width: 380px) {
+  .bottom-nav-inner { width: 100%; gap: 0; }
+  .bottom-nav-link { padding-inline: 0; letter-spacing: 0; }
+  .bottom-nav-label { font-size: 10px; letter-spacing: 0; overflow: visible; text-overflow: clip; }
   main.container, .site-header-inner { width: calc(100% - 24px); }
   main.container { padding-top: 19px; }
   .site-header-inner { min-height: 62px; }
-  .site-header .tagline { font-size: 9px; letter-spacing: .14em; }
+  .site-header .tagline { font-size: 10px; letter-spacing: .14em; }
+  body[data-page="inicio"] .home-week, body[data-page="inicio"] .home-goals { padding: 14px; }
+  body[data-page="inicio"] .home-week-title, body[data-page="inicio"] .home-recent-title { font-size: 16px; }
+  body[data-page="inicio"] .home-week-link { font-size: 10.5px; white-space: nowrap; }
   .home-week-stat { padding-inline: 5px; }
-  .home-week-stat-value { font-size: 21px; }
+  .home-week-stat-value { font-size: 18px; white-space: nowrap; }
   body[data-page="treino"] .hub-routines > .home-week-head { align-items: stretch; flex-direction: column; padding: 14px; }
   body[data-page="treino"] .routine-actions { grid-template-columns: 1fr; }
   body[data-page="treino"] .routine-actions > .routine-start { grid-column: auto; }
