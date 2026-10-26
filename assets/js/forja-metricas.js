@@ -37,6 +37,17 @@
     return value !== null && typeof value === "object" && !Array.isArray(value);
   }
 
+  /*
+    `Date` válido de qualquer realm. O `instanceof` puro falha para datas
+    criadas em outra janela (iframe, worker, jsdom nos testes) e fazia as
+    funções ignorarem o `now` recebido — caindo na data real do sistema.
+  */
+  function isValidDate(value) {
+    if (!isObject(value)) return false;
+    if (Object.prototype.toString.call(value) !== "[object Date]") return false;
+    return !Number.isNaN(value.getTime());
+  }
+
   function toNumber(value) {
     if (typeof value === "number") return Number.isFinite(value) ? value : null;
     if (typeof value === "string" && value.trim() !== "") {
@@ -186,9 +197,7 @@
   */
   function resolvePeriod(kind, options) {
     const settings = isObject(options) ? options : {};
-    const now = settings.now instanceof Date && !Number.isNaN(settings.now.getTime())
-      ? settings.now
-      : new Date();
+    const now = isValidDate(settings.now) ? settings.now : new Date();
 
     if (kind === "week") {
       const from = startOfWeek(now);
@@ -473,9 +482,7 @@
 
   function weeklySeries(records, options) {
     const settings = isObject(options) ? options : {};
-    const now = settings.now instanceof Date && !Number.isNaN(settings.now.getTime())
-      ? settings.now
-      : new Date();
+    const now = isValidDate(settings.now) ? settings.now : new Date();
     const totalWeeks = Math.max(1, Math.min(52, Math.round(settings.weeks || DEFAULT_WEEKLY_WEEKS)));
     const anchor = startOfWeek(now);
     const weeks = [];
@@ -538,9 +545,7 @@
   */
   function frequency(records, options) {
     const settings = isObject(options) ? options : {};
-    const now = settings.now instanceof Date && !Number.isNaN(settings.now.getTime())
-      ? settings.now
-      : new Date();
+    const now = isValidDate(settings.now) ? settings.now : new Date();
     const totalWeeks = Math.max(1, Math.min(52, Math.round(settings.weeks || DEFAULT_FREQUENCY_WEEKS)));
     const anchor = startOfWeek(now);
     const first = addDays(anchor, -(totalWeeks - 1) * 7);
@@ -1092,9 +1097,7 @@
       ? F.normalizeGoals(goals)
       : normalizeGoalsFallback(goals);
 
-    const now = settings.now instanceof Date && !Number.isNaN(settings.now.getTime())
-      ? settings.now
-      : new Date();
+    const now = isValidDate(settings.now) ? settings.now : new Date();
     const week = resolvePeriod("week", { now });
     const scoped = (Array.isArray(records) ? records : []).filter(record => {
       if (!isObject(record)) return false;

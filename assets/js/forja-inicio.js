@@ -413,114 +413,35 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Onboarding opcional (usuário realmente novo)                        */
+  /* Convite ao onboarding (usuário realmente novo)                      */
   /* ------------------------------------------------------------------ */
   /*
-    Regras:
+    O cadastro em si vive em onboarding/index.html (`forja-onboarding.js`).
+    Aqui fica só o convite, com duas ações e nenhum campo:
+
     - Só aparece para quem não tem rotinas, nem histórico e nem perfil salvo.
-    - "Pular" dispensa o cartão nesta visita sem criar nem persistir nenhum dado.
-    - A gravação do perfil só acontece no confirm explícito ("Salvar perfil").
-    - O perfil continua configurável a qualquer momento em Perfil.
+    - "Agora não" dispensa o cartão nesta sessão do navegador (sessionStorage)
+      sem criar nem gravar nenhum dado do FORJA.
+    - Nenhuma resposta é coletada na Home: quem salva é o onboarding, no
+      último passo, com confirmação explícita.
   */
   let onboardingDismissed = false;
 
-  function profileIsConfigured() {
-    return Boolean(F.state.profile && F.state.profile.updatedAt);
+  function onboardingFoiDispensado() {
+    if (onboardingDismissed) return true;
+    return typeof F.onboardingSkipped === "function" && F.onboardingSkipped();
   }
 
   function isNewUser() {
     const routines = allRoutines();
     const history = (F.state && Array.isArray(F.state.history)) ? F.state.history : [];
-    return routines.length === 0 && history.length === 0 && !profileIsConfigured();
-  }
-
-  function buildSelectField(name, labelText, options, value, extraClass) {
-    const block = document.createElement("div");
-    block.className = "field-block" + (extraClass ? " " + extraClass : "");
-
-    const label = document.createElement("label");
-    label.className = "field-label";
-    label.textContent = labelText;
-
-    const select = document.createElement("select");
-    select.id = "onb-" + name;
-    select.className = "field-input";
-    options.forEach(option => {
-      const item = document.createElement("option");
-      item.value = option.value;
-      item.textContent = option.label;
-      if (String(option.value) === String(value || "")) item.selected = true;
-      select.appendChild(item);
-    });
-
-    label.htmlFor = select.id;
-    block.append(label, select);
-    return { block, select };
-  }
-
-  function buildNumberField(name, labelText, value, min, max, step) {
-    const block = document.createElement("div");
-    block.className = "field-block";
-
-    const label = document.createElement("label");
-    label.className = "field-label";
-    label.textContent = labelText;
-
-    const input = document.createElement("input");
-    input.type = "number";
-    input.id = "onb-" + name;
-    input.className = "field-input";
-    input.value = String(value || 0);
-    input.min = String(min);
-    input.max = String(max);
-    input.step = String(step);
-    input.inputMode = "numeric";
-    input.autocomplete = "off";
-
-    label.htmlFor = input.id;
-    block.append(label, input);
-    return { block, input };
-  }
-
-  function readOnboardingValues(fields) {
-    return {
-      objetivo: fields.objetivo.select.value,
-      nivel: fields.nivel.select.value,
-      equipamento: fields.equipamento.select.value,
-      diasPorSemana: fields.dias.input.value === ""
-        ? 0
-        : Number(fields.dias.input.value),
-      duracaoMinutos: fields.duracao.input.value === ""
-        ? 0
-        : Number(fields.duracao.input.value)
-    };
-  }
-
-  function validateOnboarding(fields) {
-    const errors = [];
-    const diasRaw = String(fields.dias.input.value || "").trim();
-    const duracaoRaw = String(fields.duracao.input.value || "").trim();
-
-    if (diasRaw !== "" && !/^\d+$/.test(diasRaw)) {
-      errors.push("Use um número inteiro de dias (0 a 7).");
-    } else if (diasRaw !== "" && Number(diasRaw) > F.PERFIL_MAX_DIAS) {
-      errors.push("Use até " + F.PERFIL_MAX_DIAS + " dias por semana.");
-    }
-
-    if (duracaoRaw !== "" && !/^\d+$/.test(duracaoRaw)) {
-      errors.push("Use um número inteiro de minutos.");
-    } else if (duracaoRaw !== "" && Number(duracaoRaw) > F.PERFIL_MAX_MINUTOS) {
-      errors.push("Use até " + F.PERFIL_MAX_MINUTOS + " minutos.");
-    }
-
-    return errors;
+    return routines.length === 0 && history.length === 0 && !F.profileIsConfigured(F.state.profile);
   }
 
   function renderOnboarding(container) {
     container.innerHTML = "";
     container.hidden = false;
 
-    const profile = F.state.profile || {};
     const card = document.createElement("section");
     card.className = "onboarding-panel";
     card.setAttribute("aria-labelledby", "home-onboarding-heading");
@@ -546,49 +467,23 @@
 
     const description = document.createElement("p");
     description.className = "onboarding-meta";
-    description.appendChild(document.createTextNode("Pule agora ou configure depois em "));
+    description.appendChild(document.createTextNode(
+      "Oito etapas curtas para ajustar objetivo, disponibilidade e equipamento. Nada é enviado a servidores."
+    ));
+    head.appendChild(description);
+
+    const hint = document.createElement("p");
+    hint.className = "onboarding-meta onboarding-meta-secondary";
+    hint.appendChild(document.createTextNode("Você também pode editar tudo depois em "));
     const profileLink = document.createElement("a");
     profileLink.className = "onboarding-profile-link";
     profileLink.href = F.url ? F.url("perfil") : "perfil/index.html";
     profileLink.textContent = "Perfil";
-    description.appendChild(profileLink);
-    description.appendChild(document.createTextNode(". Não bloqueia rotinas manuais."));
-    head.appendChild(description);
+    hint.appendChild(profileLink);
+    hint.appendChild(document.createTextNode("."));
+    head.appendChild(hint);
 
     card.appendChild(head);
-
-    const form = document.createElement("form");
-    form.className = "onboarding-form";
-    form.noValidate = true;
-    form.addEventListener("submit", event => event.preventDefault());
-
-    const fields = {
-      objetivo: buildSelectField("objetivo", "Objetivo", F.PERFIL_OPTIONS.objetivo, profile.objetivo, "onboarding-col-half"),
-      nivel: buildSelectField("nivel", "Nível", F.PERFIL_OPTIONS.nivel, profile.nivel, "onboarding-col-half"),
-      equipamento: buildSelectField("equipamento", "Equipamento", F.PERFIL_OPTIONS.equipamento, profile.equipamento, "onboarding-col-equip"),
-      dias: buildNumberField("dias", "Dias/sem.", profile.diasPorSemana, 0, F.PERFIL_MAX_DIAS, 1),
-      duracao: buildNumberField("duracao", "Duração (min)", profile.duracaoMinutos, 0, F.PERFIL_MAX_MINUTOS, 5)
-    };
-    fields.dias.block.classList.add("onboarding-col-days");
-    fields.duracao.block.classList.add("onboarding-col-duration");
-
-    const fieldBox = document.createElement("div");
-    fieldBox.className = "onboarding-fields";
-    fieldBox.append(fields.objetivo.block, fields.nivel.block, fields.equipamento.block, fields.dias.block, fields.duracao.block);
-    form.appendChild(fieldBox);
-
-    const hint = document.createElement("p");
-    hint.className = "field-hint";
-    hint.textContent = "Zero ou vazio desliga o item. Não altera treinos nem histórico.";
-    form.appendChild(hint);
-
-    const error = document.createElement("p");
-    error.className = "field-error";
-    error.setAttribute("role", "status");
-    error.hidden = true;
-    form.appendChild(error);
-
-    card.appendChild(form);
 
     const actions = document.createElement("div");
     actions.className = "onboarding-actions";
@@ -597,15 +492,15 @@
     pular.type = "button";
     pular.className = "secondary-button";
     pular.id = "onboarding-skip";
-    pular.textContent = "Pular";
+    pular.textContent = "Agora não";
 
-    const salvar = document.createElement("button");
-    salvar.type = "button";
-    salvar.className = "primary-button";
-    salvar.id = "onboarding-save";
-    salvar.textContent = "Salvar perfil";
+    const comecar = document.createElement("a");
+    comecar.className = "primary-button";
+    comecar.id = "onboarding-start";
+    comecar.href = F.url ? F.url("onboarding") : "onboarding/index.html";
+    comecar.textContent = "Fazer meu perfil";
 
-    actions.append(pular, salvar);
+    actions.append(pular, comecar);
     card.appendChild(actions);
 
     container.appendChild(card);
@@ -615,42 +510,11 @@
       container.innerHTML = "";
     }
 
-    function focusFirstInvalid(errors) {
-      if (errors.length === 0) return;
-      const message = errors[0];
-      if (message.indexOf("dias") !== -1) fields.dias.input.focus();
-      else fields.duracao.input.focus();
-    }
-
     pular.addEventListener("click", () => {
       onboardingDismissed = true;
+      if (typeof F.setOnboardingSkipped === "function") F.setOnboardingSkipped();
       hide();
-      F.showToast("Você pode configurar seu perfil depois, em Perfil.", "info", 4500);
-    });
-
-    salvar.addEventListener("click", () => {
-      const values = readOnboardingValues(fields);
-      const errors = validateOnboarding(fields);
-
-      if (errors.length > 0) {
-        error.textContent = errors[0];
-        error.hidden = false;
-        focusFirstInvalid(errors);
-        return;
-      }
-
-      error.hidden = true;
-
-      if (!F.saveProfile(values)) {
-        error.textContent = "Não foi possível salvar o perfil. Os dados já salvos foram mantidos.";
-        error.hidden = false;
-        F.showToast("Não foi possível salvar o perfil neste navegador.", "error", 6000);
-        return;
-      }
-
-      hide();
-      F.showToast("Perfil de treino salvo.", "info", 4000);
-      renderHome();
+      F.showToast("Você pode fazer seu perfil depois, em Perfil.", "info", 4500);
     });
   }
 
@@ -658,7 +522,7 @@
     const container = byId("onboarding-root");
     if (!container) return;
 
-    if (!isNewUser() || onboardingDismissed) {
+    if (!isNewUser() || onboardingFoiDispensado()) {
       container.hidden = true;
       container.innerHTML = "";
       return;

@@ -46,6 +46,9 @@
   <section class="preferences-panel" aria-labelledby="perfil-treino-heading">
     <h2 class="section-title" id="perfil-treino-heading">Seu perfil de treino</h2>
     <p class="screen-subtitle">Opcional e editável a qualquer momento. O perfil orienta sugestões futuras, mas nunca impede a criação manual de rotinas.</p>
+    <p class="profile-onboarding-cta">
+      <a class="secondary-button small-button" id="profile-onboarding-link" href="../onboarding/index.html?refazer=1">Refazer o cadastro guiado</a>
+    </p>
     <form id="profile-form" class="goals-form" novalidate>
       <div class="goals-fields">
         <div class="field-block">
@@ -61,6 +64,16 @@
           <select id="prof-equipamento" class="field-input"></select>
         </div>
         <div class="field-block">
+          <label class="field-label" for="prof-sexo">Sexo informado</label>
+          <select id="prof-sexo" class="field-input"></select>
+          <p class="field-hint">Serve apenas para escolher o personagem das demonstrações dos exercícios. Enquanto estiver em "Não informado", nenhum personagem é exibido — e nada no seu treino muda.</p>
+        </div>
+        <div class="field-block">
+          <label class="field-label" for="prof-modalidade">Modalidade preferida</label>
+          <select id="prof-modalidade" class="field-input"></select>
+          <p class="field-hint">Filtro inicial da lista de rotinas. Você troca o filtro quando quiser.</p>
+        </div>
+        <div class="field-block">
           <label class="field-label" for="prof-dias">Dias por semana</label>
           <input id="prof-dias" class="field-input" type="number" min="0" max="7" step="1" inputmode="numeric" autocomplete="off">
         </div>
@@ -69,7 +82,8 @@
           <input id="prof-duracao" class="field-input" type="number" min="0" max="240" step="5" inputmode="numeric" autocomplete="off">
         </div>
       </div>
-      <p class="field-hint">Campo 0 ou vazio desliga o item. Salvar o perfil não altera treinos nem histórico.</p>
+      <p class="field-hint">Campo 0 ou vazio desliga o item. Salvar o perfil não altera treinos, histórico nem cargas.</p>
+      <p class="field-hint">Dias e duração alimentam a sugestão de metas semanais em Progresso. Objetivo, nível e equipamento ficam registrados, mas ainda não mudam a montagem de treinos.</p>
       <p class="field-error" id="profile-error" role="status" hidden></p>
       <div class="goals-actions">
         <button type="submit" id="profile-save" class="primary-button">Salvar perfil</button>

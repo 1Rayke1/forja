@@ -114,9 +114,11 @@
         </div>
       </div>
       <p class="field-hint">Alvo 0 desliga o item. Salvar metas não altera nenhum treino do histórico.</p>
+      <p class="field-hint" id="goals-profile-hint" hidden>Seu perfil tem dias e duração de treino. O botão abaixo preenche os campos como sugestão — nada é salvo até você confirmar.</p>
       <p class="field-error" id="goals-error" hidden></p>
       <div class="goals-actions">
         <button type="submit" id="goals-save" class="primary-button">Salvar metas</button>
+        <button type="button" id="goals-use-profile" class="secondary-button" hidden>Usar meu perfil</button>
         <span class="limit-note" id="goals-status" aria-live="polite"></span>
       </div>
     </form>

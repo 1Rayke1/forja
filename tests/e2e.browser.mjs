@@ -40,7 +40,8 @@ const PAGES = [
   'configuracoes/',
   'perfil/',
   'explorar/',
-  'explorar/atlas.html'
+  'explorar/atlas.html',
+  'onboarding/index.html'
 ];
 
 /* Destino que a barra inferior deve destacar em cada página. */
@@ -56,7 +57,8 @@ const EXPECTED_NAV = {
   'configuracoes/': 'perfil',
   'perfil/': 'perfil',
   'explorar/': 'explorar',
-  'explorar/atlas.html': 'explorar'
+  'explorar/atlas.html': 'explorar',
+  'onboarding/index.html': 'perfil'
 };
 
 let puppeteer;
@@ -1318,7 +1320,7 @@ await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explor
 });
 
 await check('Armazenamento local é informado em todas as páginas', async () => {
-  for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/', 'perfil/']) {
+  for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/', 'perfil/', 'onboarding/index.html']) {
     await go(rel);
     const body = await page.evaluate(() => document.body.textContent);
     assert.match(body, /neste navegador e não são sincronizados/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
@@ -1330,7 +1332,7 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
   shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
   shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
   for (const [index, rel] of PAGES.entries()) {
-    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes','perfil','explorar','atlas'][index];
+    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes','perfil','explorar','atlas','onboarding'][index];
     for (const width of [390, 1280]) {
       await shots.setViewport({ width, height: width === 390 ? 844 : 900 });
       let screenshotUrl = new URL(rel, BASE);
@@ -1450,17 +1452,20 @@ await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #
   }
 });
 
-await check('Home estabilizada: onboarding compacto em 5 larguras, metas com unidades/modalidade, outra aba e pageshow', async () => {
+await check('Home estabilizada: convite ao onboarding em 5 larguras, metas com unidades/modalidade, outra aba e pageshow', async () => {
   const saved = await forjaRaw();
   let otherTab = null;
   try {
     await restoreForjaRaw({});
     await go('');
 
-    /* 1. Onboarding sem duplicação de botões, todos os 5 campos presentes e sem overflow em 320/360/390/768/1280 px. */
+    /* 1. Convite com dois controles, sem coleta na Home e sem overflow em 320/360/390/768/1280 px. */
     const onboardingButtons = await page.$$eval('#onboarding-root button', els => els.map(e => e.textContent.trim()));
-    assert.deepEqual(onboardingButtons, ['Pular', 'Salvar perfil'], 'Onboarding não deve duplicar Pular e Configurar depois');
+    assert.deepEqual(onboardingButtons, ['Agora não'], 'O convite deve ter só a dispensa como botão');
     assert.equal(await text('#home-onboarding-heading'), 'Seu perfil de treino');
+    assert.match(await page.$eval('#onboarding-start', el => el.getAttribute('href')), /onboarding\/index\.html$/);
+    assert.equal(await page.$$eval('#onboarding-root input, #onboarding-root select', els => els.length), 0,
+      'A Home não deve coletar respostas do onboarding');
     assert.equal(await text('#home-action-heading'), 'Monte sua primeira rotina');
     assert.equal(await page.$$eval('.home-action-title', els => els.length), 1, '.home-action-title deve ser único');
 
@@ -1469,16 +1474,16 @@ await check('Home estabilizada: onboarding compacto em 5 larguras, metas com uni
       await sleep(100);
       const metrics = await page.evaluate(() => {
         const panel = document.querySelector('#onboarding-root .onboarding-panel');
-        const buttons = [...document.querySelectorAll('#onboarding-root button')];
+        const controls = [...document.querySelectorAll('#onboarding-root button, #onboarding-root a.primary-button')];
         return {
           overflow: document.documentElement.scrollWidth - window.innerWidth,
           panelHeight: panel ? Math.round(panel.getBoundingClientRect().height) : 0,
-          minButtonHeight: buttons.reduce((min, b) => Math.min(min, Math.round(b.getBoundingClientRect().height)), 999)
+          minButtonHeight: controls.reduce((min, b) => Math.min(min, Math.round(b.getBoundingClientRect().height)), 999)
         };
       });
       assert.ok(metrics.overflow <= 1, 'Overflow horizontal na Home a ' + width + 'px: ' + metrics.overflow);
       assert.ok(metrics.panelHeight > 0 && metrics.panelHeight <= 440, 'Onboarding alto demais a ' + width + 'px: ' + metrics.panelHeight + 'px');
-      assert.ok(metrics.minButtonHeight >= 44, 'Botão do onboarding menor que 44px a ' + width + 'px');
+      assert.ok(metrics.minButtonHeight >= 44, 'Controle do onboarding menor que 44px a ' + width + 'px');
     }
     await page.setViewport(MOBILE);
 
@@ -1537,6 +1542,148 @@ await check('Home estabilizada: onboarding compacto em 5 larguras, metas com uni
     assert.match(await text('#home-goals-content'), /Ainda sem progresso/);
   } finally {
     if (otherTab) await otherTab.close();
+    await go('perfil/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, conclusão e perfil persistente', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('');
+
+    /* Convite → fluxo completo. */
+    await jsClick('#onboarding-start');
+    await expectPath('/onboarding/index.html');
+    await page.setViewport({ width: 320, height: 720 });
+    await sleep(150);
+
+    const etapa = () => page.evaluate(() => ({
+      pergunta: document.getElementById('onboarding-question')?.textContent.trim(),
+      contador: document.getElementById('onboarding-step-count')?.textContent.trim(),
+      acao: document.getElementById('onboarding-next')?.textContent.trim(),
+      valor: document.getElementById('onboarding-progressbar')?.getAttribute('aria-valuenow'),
+      overflow: document.documentElement.scrollWidth - window.innerWidth,
+      opcao: (() => {
+        const el = document.querySelector('#onboarding-step .onboarding-option');
+        return el ? Math.round(el.getBoundingClientRect().height) : 0;
+      })(),
+      botao: (() => {
+        const el = document.getElementById('onboarding-next');
+        return el ? Math.round(el.getBoundingClientRect().height) : 0;
+      })()
+    }));
+
+    const escolher = async valor => {
+      const ok = await page.evaluate(v => {
+        const input = [...document.querySelectorAll('#onboarding-step input[type="radio"]')]
+          .find(node => node.value === String(v));
+        if (!input) return false;
+        input.click();
+        return true;
+      }, valor);
+      assert.ok(ok, 'Opção não encontrada: ' + valor);
+      await sleep(60);
+    };
+
+    const avancar = async () => {
+      await clickCentered('#onboarding-next');
+      await sleep(90);
+    };
+
+    let info = await etapa();
+    assert.equal(info.pergunta, 'Bem-vindo à FORJA');
+    assert.equal(info.contador, 'Comece por aqui');
+    assert.ok(info.overflow <= 1, 'Overflow na apresentação a 320px: ' + info.overflow);
+    assert.ok(info.botao >= 44, 'Botão principal abaixo de 44px a 320px');
+
+    await avancar();
+    info = await etapa();
+    assert.equal(info.pergunta, 'Qual sexo você informa?');
+    assert.equal(info.contador, 'Etapa 1 de 7');
+    assert.equal(info.acao, 'Continuar');
+    assert.equal(info.valor, '1');
+    assert.ok(info.opcao >= 44, 'Opção de resposta abaixo de 44px: ' + info.opcao);
+    assert.ok(info.overflow <= 1, 'Overflow na etapa de sexo a 320px: ' + info.overflow);
+
+    /* Sem escolha não avança: o erro aparece e nada é gravado. */
+    await avancar();
+    assert.equal(await page.$eval('#onboarding-error', el => el.hidden), false, 'Faltou avisar que a escolha é obrigatória');
+    assert.equal(await etapa().then(e => e.pergunta), 'Qual sexo você informa?');
+    assert.equal(await data('forja-perfil-v1'), null);
+
+    /* Responde tudo, com uma volta para corrigir os dias. */
+    await escolher('feminino');
+    await avancar();
+    await escolher('forca');
+    await avancar();
+    await escolher('iniciante');
+    await avancar();
+    await escolher('3');
+    await avancar();
+    assert.equal((await etapa()).pergunta, 'Quanto tempo costuma durar uma sessão?');
+    await jsClick('#onboarding-back');
+    await sleep(120);
+    assert.equal((await etapa()).pergunta, 'Quantos dias por semana você consegue treinar?');
+    assert.equal(await page.$eval('input[name="onboarding-diasPorSemana"][value="3"]', el => el.checked), true,
+      'A resposta anterior deve continuar marcada');
+    await escolher('5');
+    await avancar();
+    await escolher('60');
+    await avancar();
+    await escolher('casa');
+    await avancar();
+    await escolher('calisthenics');
+    await avancar();
+
+    info = await etapa();
+    assert.equal(info.pergunta, 'Confira suas respostas');
+    assert.equal(info.acao, 'Concluir cadastro');
+    assert.equal(info.valor, '8');
+    assert.ok(info.overflow <= 1, 'Overflow na revisão a 320px: ' + info.overflow);
+    assert.equal(await page.$$eval('.onboarding-review-row', els => els.length), 7, 'A revisão deve listar as 7 respostas');
+
+    /* Conclui. */
+    await avancar();
+    await expectPath('/');
+    await sleep(200);
+
+    const perfil = await data('forja-perfil-v1');
+    assert.ok(perfil, 'O perfil deve ser gravado na conclusão');
+    assert.deepEqual(
+      {
+        version: perfil.version, sexo: perfil.sexo, objetivo: perfil.objetivo, nivel: perfil.nivel,
+        diasPorSemana: perfil.diasPorSemana, duracaoMinutos: perfil.duracaoMinutos,
+        equipamento: perfil.equipamento, modalidadePreferida: perfil.modalidadePreferida
+      },
+      {
+        version: 2, sexo: 'feminino', objetivo: 'forca', nivel: 'iniciante',
+        diasPorSemana: 5, duracaoMinutos: 60,
+        equipamento: 'casa', modalidadePreferida: 'calisthenics'
+      }
+    );
+    assert.ok(perfil.onboardingConcluidoEm, 'A conclusão do onboarding deve ficar registrada');
+
+    /* Confirmação na Home e convite encerrado. */
+    assert.match(await text('#toast'), /Cadastro concluído/);
+    assert.equal(await page.$eval('#onboarding-root', el => el.hidden), true, 'O convite deve sumir após concluir');
+
+    /* Reabrir o app (recarregar) não repete o onboarding. */
+    await go('');
+    await page.setViewport(MOBILE);
+    assert.equal(await page.$eval('#onboarding-root', el => el.hidden), true, 'Recarregar não deve trazer o convite');
+
+    /* Perfil mostra o sexo e permite editar; editar não altera o restante. */
+    await go('perfil/');
+    assert.equal(await page.$eval('#prof-sexo', el => el.value), 'feminino');
+    await page.select('#prof-sexo', 'masculino');
+    await jsClick('#profile-save');
+    await sleep(220);
+    assert.equal((await data('forja-perfil-v1')).sexo, 'masculino', 'A edição do sexo não foi gravada');
+    assert.equal((await data('forja-perfil-v1')).objetivo, 'forca', 'A edição do sexo alterou outros campos');
+  } finally {
+    await page.setViewport(MOBILE);
     await go('perfil/');
     await restoreForjaRaw(saved);
   }

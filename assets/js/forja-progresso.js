@@ -323,6 +323,49 @@
     }
   }
 
+  /*
+    Sugestão a partir do perfil (onboarding/Perfil): preenche os campos, sem
+    gravar. Quem decide salvar é o usuário, no botão "Salvar metas". O perfil
+    não tem meta de séries, então esse campo não é tocado.
+  */
+  function profileSuggestion() {
+    if (typeof F.profileGoalSuggestion !== "function") return null;
+    return F.profileGoalSuggestion(F.state.profile);
+  }
+
+  function syncProfileSuggestion() {
+    const button = byId("goals-use-profile");
+    const hint = byId("goals-profile-hint");
+    const sugestao = profileSuggestion();
+
+    if (button) button.hidden = !sugestao;
+    if (hint) hint.hidden = !sugestao;
+  }
+
+  function useProfileSuggestion() {
+    const sugestao = profileSuggestion();
+    if (!sugestao) return;
+
+    const sessions = byId("goal-sessions");
+    const minutes = byId("goal-minutes");
+    const modality = byId("goal-modality");
+
+    if (sessions) sessions.value = String(sugestao.weeklySessions);
+    if (minutes) minutes.value = String(sugestao.weeklyMinutes);
+    if (modality) modality.value = sugestao.modality;
+
+    const error = byId("goals-error");
+    if (error) {
+      error.textContent = "";
+      error.hidden = true;
+    }
+
+    if (typeof F.ui.announce === "function") {
+      F.ui.announce("Campos preenchidos com os dados do perfil. Confira e salve as metas.");
+    }
+    F.showToast("Sugestão do perfil preenchida. Confira e salve as metas.", "info", 4000);
+  }
+
   function readGoalValue(field) {
     const input = byId(field.input);
     if (!input) return { value: 0 };
@@ -1165,6 +1208,9 @@
     const goalsForm = byId("goals-form");
     if (goalsForm) goalsForm.addEventListener("submit", submitGoals);
 
+    const useProfile = byId("goals-use-profile");
+    if (useProfile) useProfile.addEventListener("click", useProfileSuggestion);
+
     const search = byId("history-search");
     if (search) {
       search.addEventListener("input", () => {
@@ -1193,10 +1239,12 @@
     }
 
     fillGoalForm();
+    syncProfileSuggestion();
     renderAll();
 
     F.onDataChanged(() => {
       fillGoalForm();
+      syncProfileSuggestion();
       renderAll();
     });
   };
