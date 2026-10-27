@@ -27,10 +27,11 @@ leva uma legenda com a fonte e o link para os créditos.
 
 - 148 arquivos WebP (2.573.658 bytes ≈ 2,45 MiB), listados com SHA-256,
   tamanho e URL de origem em [`manifest.json`](manifest.json).
-- 121 IDs de demonstração (`repdb:<id>`), com rótulos pt-BR em
-  [`rotulos.json`](rotulos.json), status e revisões em
-  [`mapeamento.json`](mapeamento.json) e créditos em
-  [`creditos.json`](creditos.json).
+- 121 IDs de demonstração (`repdb:<id>`). Os rótulos pt-BR, o registro de
+  revisões e os créditos estruturados (`rotulos.json`, `mapeamento.json` e
+  `creditos.json`) ficam no repositório para auditoria; no site publicado
+  ficam apenas os metadados necessários à exibição e este manifesto com os
+  hashes.
 - Nenhum arquivo de `exercises.json` completo, nenhum arquivo de
   `premium-samples/`, nenhuma imagem de outra fonte.
 

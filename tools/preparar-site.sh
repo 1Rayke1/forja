@@ -69,5 +69,38 @@ if [ "$webp" -ne 148 ]; then
   exit 1
 fi
 
+# Nenhum link publicado pode apontar para um arquivo que ficou de fora.
+python3 - "$OUT" <<'PY'
+import pathlib, re, sys, urllib.parse
+root = pathlib.Path(sys.argv[1])
+attr = re.compile(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', re.I)
+md = re.compile(r'\[[^\]]*\]\(([^)]+)\)')
+css = re.compile(r'url\(["\']?([^)"\']+)')
+broken = []
+for p in root.rglob('*'):
+    if not p.is_file() or p.suffix.lower() not in ('.html', '.md', '.css', '.js'):
+        continue
+    text = p.read_text(encoding='utf-8', errors='replace')
+    refs = md.findall(text) if p.suffix.lower() == '.md' else []
+    if p.suffix.lower() in ('.html', '.js'):
+        refs += attr.findall(text)
+    if p.suffix.lower() == '.css':
+        refs += css.findall(text)
+    for ref in refs:
+        ref = ref.strip()
+        if not ref or ref.startswith(('#', 'data:', 'mailto:', 'http://', 'https://',
+                                      '//', 'javascript:', 'blob:')):
+            continue
+        clean = urllib.parse.unquote(ref.split('#')[0].split('?')[0])
+        if not (p.parent / clean).resolve().exists():
+            broken.append(f'{p.relative_to(root)} -> {ref}')
+if broken:
+    print('ERRO: links quebrados no artefato:', file=sys.stderr)
+    for item in broken:
+        print('  ' + item, file=sys.stderr)
+    sys.exit(1)
+print('Links relativos do artefato: OK.')
+PY
+
 total="$(find "$OUT" -type f | wc -l)"
 echo "Artefato pronto em $OUT: $total arquivos, $webp imagens WebP."
