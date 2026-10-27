@@ -1,0 +1,14 @@
+{
+  "repdb": {
+    "label": "RepDB",
+    "attribution": "Exercise data by RepDB (repdb.co)",
+    "attributionUrl": "https://repdb.co",
+    "author": "© 2026 Sergei Argutin (RepDB)",
+    "license": "RepDB Free Tier License v1.0",
+    "licenseUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/LICENSE-DATA.md",
+    "sourceUrl": "https://github.com/RepDB/exercise-dataset/tree/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat",
+    "licenseFile": "LICENSE-DATA.md",
+    "verifiedAt": "2026-10-27",
+    "notes": "Ilustrações flat 512×512 do free tier, fixadas no commit b407c5951a027a27817fb2a5cee9ec9feffc4dc7. Uso comercial in-app permitido com atribuição visível. Sem premium-samples, sem reestilização por IA generativa, sem republicação como dataset/API."
+  }
+}

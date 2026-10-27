@@ -745,7 +745,18 @@
     if (record.notes) lines.push("Observação salva: " + record.notes);
     if (record.mode === "weights" && record.load) lines.push("Carga de referência digitada: " + record.load);
     if (!options.readOnly) lines.push(historyLine(record));
-    if (!photoFor(record)) lines.push("Fotografia demonstrativa ainda não disponível.");
+
+    /*
+      Demonstração visual (ilustrações RepDB locais). `photoFor` continua
+      sendo o contrato congelado do piloto de FOTOS: nenhuma foto publicada.
+      As ilustrações são resolvidas por identidade (libraryId), nunca por nome.
+    */
+    const demo = F.demos && F.demos.available()
+      ? F.demos.resolve(record, record.mode)
+      : null;
+    if (!demo && !photoFor(record)) {
+      lines.push(F.demos ? F.demos.fallbackText(record) : "Fotografia demonstrativa ainda não disponível.");
+    }
 
     const details = linesNode(lines,
       "Nenhuma instrução salva para este exercício. Ao criar um item personalizado você pode escrever o passo a passo e ele aparece aqui.");
@@ -765,6 +776,12 @@
         figure.appendChild(F.atlas.legendNode(highlights, { compact: true }));
         details.insertBefore(figure, details.firstChild);
       }
+    }
+
+    /* A ilustração vem antes da figura de músculos, quando houver. */
+    if (demo && F.demos) {
+      const media = F.demos.createMedia(record, record.mode, { eager: false });
+      details.insertBefore(media.node, details.firstChild);
     }
 
     const result = await F.showModal({

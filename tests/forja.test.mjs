@@ -212,6 +212,14 @@ await runTest("04. Todas as páginas carregam sem erros de JavaScript e sem recu
   }
 });
 
+/*
+  Proteção original: nenhum link interno pode ser absoluto nem sair de /forja/.
+  A licença RepDB exige um link visível para repdb.co. Em vez de enfraquecer a
+  regra, links externos passam a ser uma EXCEÇÃO auditada: só os hosts abaixo,
+  só com marcação explícita data-external-credit, target=_blank e rel=noopener.
+*/
+const EXTERNAL_CREDIT_HOSTS = new Set(["repdb.co", "github.com"]);
+
 await runTest("05. Links relativos resolvem dentro do caminho /forja/ (GitHub Pages)", async () => {
   for (const page of PAGES) {
     const app = await boot({}, page);
@@ -220,6 +228,20 @@ await runTest("05. Links relativos resolvem dentro do caminho /forja/ (GitHub Pa
     app.$$("a[href]").forEach(anchor => {
       const raw = anchor.getAttribute("href");
       if (raw.startsWith("#")) return;
+
+      if (/^https?:\/\//.test(raw)) {
+        const url = new URL(raw, app.w.location.href);
+        assert.ok(anchor.hasAttribute("data-external-credit"),
+          "Link externo sem marcação explícita em " + page + ": " + raw);
+        assert.ok(EXTERNAL_CREDIT_HOSTS.has(url.hostname),
+          "Host externo não autorizado em " + page + ": " + url.hostname);
+        assert.equal(anchor.getAttribute("target"), "_blank",
+          "Link externo precisa abrir em nova aba: " + raw);
+        assert.match(anchor.getAttribute("rel") || "", /noopener/,
+          "Link externo precisa de rel=noopener: " + raw);
+        return;
+      }
+
       assert.ok(!raw.startsWith("/"), "Link absoluto da raiz em " + page + ": " + raw);
       const url = new URL(raw, app.w.location.href);
       assert.ok(url.pathname.startsWith("/forja/"), "Link fora de /forja/ em " + page + ": " + raw);
@@ -5262,7 +5284,9 @@ await runTest("79. Detalhes e catálogo compartilhados preservam campos, ordem e
   detail.focus();
   app.click(detail);
   assert.equal(app.$$("[data-modal-field]").length, 0, "Consulta não pede destino nem muda a rotina");
-  assert.match(app.text(".modal-details"), /Fotografia demonstrativa ainda não disponível/);
+  /* O detalhe passou a mostrar a ilustração local do catálogo (não uma foto). */
+  assert.ok(app.$(".modal-details .demo-media"), "Detalhe sem ilustração do catálogo");
+  assert.match(app.text(".modal-details .demo-credit"), /RepDB/);
   await app.modal("cancel");
   assert.equal(app.d.activeElement, detail);
   assert.equal(app.$("#exercise-form"), form);
@@ -5308,7 +5332,13 @@ await runTest("80. Instruções na sessão não escrevem nem reiniciam descanso,
   assert.equal(app.$$("[data-modal-field]").length, 0);
   assert.equal(app.d.activeElement.dataset.modalAction, "cancel");
   app.d.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
-  assert.equal(app.d.activeElement.dataset.modalAction, "cancel");
+  /*
+    O detalhe agora contém links de crédito e botões de pose (elementos
+    focáveis). A proteção continua sendo o TRAP: Tab nunca sai do modal.
+    Antes havia um único botão e o teste comparava com "cancel".
+  */
+  assert.ok(app.d.activeElement.closest(".modal-card"),
+    "Tab não pode sair do modal de execução");
   app.advance(5000);
   assert.equal(app.F.state.activeWorkout.restEndAt, 61000);
   await app.modal("cancel");

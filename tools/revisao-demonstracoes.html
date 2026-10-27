@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORJA — revisão visual das demonstrações (ferramenta de desenvolvimento)</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #101010; color: #f5f5f5;
+         font: 14px/1.5 Arial, Helvetica, sans-serif; }
+  h1 { font-size: 24px; margin: 0 0 6px; color: #e7c779; }
+  h2 { font-size: 16px; margin: 0 0 8px; }
+  a { color: #e7c779; }
+  code { background: #222; padding: 1px 4px; border-radius: 3px; }
+  .wrap { max-width: 1320px; margin: auto; }
+  .notice { border: 1px solid #303030; background: #191919; padding: 12px 16px;
+            border-radius: 8px; margin: 12px 0 20px; font-size: 13px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: end;
+         border: 1px solid #303030; background: #191919; padding: 12px; border-radius: 8px; }
+  .bar label { display: grid; gap: 4px; font-size: 12px; color: #a5a5a5; }
+  input, select, button { font: inherit; }
+  input, select { min-height: 40px; padding: 8px 10px; background: #222; color: #f5f5f5;
+                  border: 1px solid #303030; border-radius: 6px; }
+  button { min-height: 40px; padding: 8px 12px; background: #222; color: #f5f5f5;
+           border: 1px solid #303030; border-radius: 6px; cursor: pointer; }
+  button:hover { border-color: #e7c779; }
+  button.primary { background: #e7c779; color: #101010; font-weight: bold; border-color: #e7c779; }
+  button.danger { border-color: #ff8585; color: #ff8585; }
+  .counts { margin: 14px 0; font-size: 13px; color: #a5a5a5; }
+  .exercise { border: 1px solid #303030; border-radius: 10px; padding: 14px; margin: 0 0 18px;
+              background: #161616; }
+  .exercise-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+                   justify-content: space-between; margin-bottom: 10px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+         border: 1px solid #444; }
+  .tag.exact { color: #8bc99a; border-color: #8bc99a; }
+  .tag.review { color: #f0c880; border-color: #d8a657; }
+  .tag.none { color: #ff8585; border-color: #ff8585; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+  .card { border: 1px solid #303030; border-radius: 8px; padding: 8px; background: #1d1d1d;
+          display: grid; gap: 6px; }
+  .card.is-default { border-color: #e7c779; box-shadow: inset 0 0 0 1px #e7c779; }
+  .card img { display: block; width: 100%; aspect-ratio: 1/1; object-fit: contain;
+              background: #d9f1fe; border-radius: 5px; }
+  .card .name { font-weight: bold; font-size: 13px; }
+  .card .en { font-size: 11px; color: #a5a5a5; }
+  .card .reason { font-size: 11px; color: #a5a5a5; min-height: 30px; }
+  .card .state { font-size: 11px; font-weight: bold; }
+  .card .state.confirmed { color: #8bc99a; }
+  .card .state.approximate { color: #f0c880; }
+  .card .state.pending { color: #a5a5a5; }
+  .card .state.rejected { color: #ff8585; }
+  .card .actions { display: flex; flex-wrap: wrap; gap: 4px; }
+  .card .actions button { min-height: 34px; padding: 5px 8px; font-size: 11px; }
+  .hint { font-size: 11px; color: #a5a5a5; margin: 6px 0 0; }
+  #status { margin: 12px 0; font-size: 13px; color: #8bc99a; min-height: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Revisão visual das demonstrações — FORJA</h1>
+  <p class="notice">
+    Ferramenta de <strong>desenvolvimento</strong>: não faz parte do aplicativo publicado.
+    Sirva a raiz do repositório por HTTP (ex.: <code>npm run serve</code>) e abra
+    <code>/tools/revisao-demonstracoes.html</code>. O arquivo é lido de
+    <code>assets/demonstracoes/mapeamento.json</code> e as imagens de
+    <code>assets/demonstracoes/manifest.json</code>. Nenhuma imagem é enviada a
+    serviço externo e nenhuma IA generativa é usada — são apenas <code>&lt;img&gt;</code>
+    locais. A confirmação só vale para candidatos com status <code>exact</code>;
+    <code>review</code> continua com o selo “Precisa de revisão” na interface.
+  </p>
+
+  <div class="bar">
+    <label>Revisor (quem está revisando agora)
+      <input type="text" id="reviewer" placeholder="Obrigatório para confirmar/rejeitar" size="30">
+    </label>
+    <label>Status do exercício
+      <select id="filter-status">
+        <option value="">Todos</option><option value="exact">Exata</option>
+        <option value="review">Precisa de revisão</option><option value="none">Nenhuma</option>
+      </select>
+    </label>
+    <label>Revisão visual
+      <select id="filter-review">
+        <option value="">Todas</option><option value="confirmed">Confirmada</option>
+        <option value="approximate">Aproximada</option><option value="pending">Pendente</option>
+        <option value="rejected">Rejeitada</option>
+      </select>
+    </label>
+    <label>Buscar exercício
+      <input type="search" id="filter-text" placeholder="nome ou id">
+    </label>
+    <button type="button" class="primary" id="download">Baixar mapeamento.json atualizado</button>
+  </div>
+
+  <p id="status"></p>
+  <p class="counts" id="counts"></p>
+  <div id="gallery"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var mapping = null;
+  var manifest = null;
+  var labels = null;
+  var changed = false;
+
+  var $ = id => document.getElementById(id);
+  var esc = text => String(text === undefined || text === null ? "" : text)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  function asset(file) { return "../assets/demonstracoes/" + file; }
+
+  function reviewFor(demoId) {
+    return mapping.reviews[demoId] || {
+      visualCheck: "pending", reviewedAt: null, reviewedBy: null,
+      method: null, evidenceFiles: [], notes: "Sem inspeção visual documentada."
+    };
+  }
+
+  function defaultEntry(exercise) { return exercise.defaultDemoId || null; }
+
+  function candidateById(exercise, demoId) {
+    return exercise.candidates.find(item => item.demoId === demoId) || null;
+  }
+
+  function evidenceFor(demoId) {
+    var demo = manifest.demos[demoId];
+    return demo ? demo.poses.map(pose => pose.file) : [];
+  }
+
+  function labelFor(demoId) {
+    var demo = manifest.demos[demoId];
+    return demo ? demo.label : demoId;
+  }
+
+  function setReview(demoId, state, exercise) {
+    var name = $("reviewer").value.trim();
+    if ((state === "confirmed" || state === "rejected") && !name) {
+      $("status").textContent = "Preencha o campo Revisor antes de confirmar ou rejeitar.";
+      $("status").style.color = "#ff8585";
+      return;
+    }
+    /* Um candidato aproximado nunca vira "confirmação": o selo continua. */
+    var candidate = exercise ? candidateById(exercise, demoId) : null;
+    var downgraded = false;
+    if (state === "confirmed" && candidate && candidate.status !== "exact") {
+      state = "approximate";
+      downgraded = true;
+    }
+    var note = state === "confirmed"
+      ? "Revisão visual documentada por " + name + " em " + new Date().toISOString().slice(0, 10) + "."
+      : state === "rejected"
+        ? "Rejeitada por " + name + " em " + new Date().toISOString().slice(0, 10) + "."
+        : state === "approximate"
+          ? "Movimento diferente ou parcial; mantido com selo Precisa de revisão."
+          : "Sem inspeção visual documentada.";
+
+    mapping.reviews[demoId] = {
+      visualCheck: state,
+      reviewedAt: name ? new Date().toISOString().slice(0, 10) : null,
+      reviewedBy: name || null,
+      method: name ? "Comparação visual na galeria tools/revisao-demonstracoes.html" : null,
+      evidenceFiles: evidenceFor(demoId),
+      notes: note
+    };
+
+    /* Rejeitar ou aprovar o padrão atual rebaixa/ajusta o status do exercício. */
+    if (exercise && exercise.defaultDemoId === demoId) {
+      if (state === "rejected") {
+        exercise.defaultDemoId = null;
+        exercise.status = "none";
+      } else if (exercise.status !== "exact" && state === "confirmed") {
+        /* Só promove quando o candidato é semanticamente exato. */
+        var candidate = candidateById(exercise, demoId);
+        if (candidate && candidate.status === "exact") exercise.status = "exact";
+      }
+    }
+    changed = true;
+    $("status").textContent = "Revisão registrada: " + demoId + " → " + state +
+      (downgraded ? " (candidato aproximado não pode ser confirmação)" : "") +
+      ". Baixe o JSON ao final.";
+    $("status").style.color = "#8bc99a";
+    drawGallery();
+  }
+
+  function setDefault(exercise, demoId) {
+    exercise.defaultDemoId = demoId || null;
+    if (!demoId) {
+      exercise.status = "none";
+    } else {
+      var candidate = candidateById(exercise, demoId);
+      var confirmed = mapping.reviews[demoId] && mapping.reviews[demoId].visualCheck === "confirmed";
+      exercise.status = candidate && candidate.status === "exact" && confirmed ? "exact" : "review";
+    }
+    changed = true;
+    $("status").textContent = "Padrão alterado: " + (demoId || "nenhum") + ". Baixe o JSON ao final.";
+    $("status").style.color = "#8bc99a";
+    drawGallery();
+  }
+
+  function drawGallery() {
+    var host = $("gallery");
+    host.innerHTML = "";
+    var statusFilter = $("filter-status").value;
+    var reviewFilter = $("filter-review").value;
+    var textFilter = $("filter-text").value.trim().toLowerCase();
+    var shown = 0;
+
+    Object.keys(mapping.exercises).sort().forEach(function (key) {
+      var exercise = mapping.exercises[key];
+      if (statusFilter && exercise.status !== statusFilter) return;
+      if (textFilter && (key + " " + exercise.name).toLowerCase().indexOf(textFilter) < 0) return;
+
+      var cards = exercise.candidates.filter(function (candidate) {
+        var review = reviewFor(candidate.demoId);
+        return !reviewFilter || review.visualCheck === reviewFilter;
+      });
+      if (reviewFilter && cards.length === 0) return;
+      shown += 1;
+
+      var section = document.createElement("section");
+      section.className = "exercise";
+      var head = document.createElement("div");
+      head.className = "exercise-head";
+      head.innerHTML = "<div><h2>" + esc(exercise.name) + "</h2>" +
+        "<span class='tag " + exercise.status + "'>" + esc(exercise.status) + "</span> " +
+        "<code>" + esc(key) + "</code> · padrão: <strong>" +
+        esc(defaultEntry(exercise) ? labelFor(defaultEntry(exercise)) : "nenhum") + "</strong></div>";
+
+      var select = document.createElement("select");
+      select.setAttribute("aria-label", "Definir imagem padrão de " + exercise.name);
+      var empty = document.createElement("option");
+      empty.value = ""; empty.textContent = "Sem padrão";
+      select.appendChild(empty);
+      exercise.candidates.forEach(function (candidate) {
+        var option = document.createElement("option");
+        option.value = candidate.demoId;
+        option.textContent = labelFor(candidate.demoId) + " [" + candidate.status + "]";
+        option.selected = candidate.demoId === exercise.defaultDemoId;
+        select.appendChild(option);
+      });
+      select.addEventListener("change", function () { setDefault(exercise, select.value); });
+      head.appendChild(select);
+      section.appendChild(head);
+
+      var grid = document.createElement("div");
+      grid.className = "cards";
+      cards.forEach(function (candidate) {
+        var demo = manifest.demos[candidate.demoId];
+        var review = reviewFor(candidate.demoId);
+        var card = document.createElement("div");
+        card.className = "card" + (candidate.demoId === exercise.defaultDemoId ? " is-default" : "");
+        card.innerHTML =
+          "<img loading='lazy' width='180' height='180' alt='' src='" +
+            esc(asset(demo ? demo.thumb : "")) + "'>" +
+          "<span class='name'>" + esc(demo ? demo.label : candidate.demoId) + "</span>" +
+          "<span class='en'>" + esc(demo ? demo.nameEn : "") + " · <code>" +
+            esc(candidate.demoId) + "</code></span>" +
+          "<span class='tag " + candidate.status + "'>status: " + candidate.status + "</span>" +
+          "<span class='state " + review.visualCheck + "'>revisão: " + review.visualCheck + "</span>" +
+          "<span class='reason'>" + esc(candidate.reason || "") + "</span>";
+
+        if (review.reviewedBy) {
+          var who = document.createElement("span");
+          who.className = "en";
+          who.textContent = "por " + review.reviewedBy + " em " + (review.reviewedAt || "—");
+          card.appendChild(who);
+        }
+
+        var actions = document.createElement("div");
+        actions.className = "actions";
+        [["confirmed", "Confirmar"], ["approximate", "Aproximada"],
+         ["pending", "Em revisão"], ["rejected", "Rejeitar"]].forEach(function (pair) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.textContent = pair[1];
+          if (pair[0] === "rejected") button.className = "danger";
+          button.addEventListener("click", function () {
+            setReview(candidate.demoId, pair[0], exercise);
+          });
+          actions.appendChild(button);
+        });
+        var asDefault = document.createElement("button");
+        asDefault.type = "button";
+        asDefault.textContent = "Definir padrão";
+        asDefault.addEventListener("click", function () {
+          setDefault(exercise, candidate.demoId);
+        });
+        actions.appendChild(asDefault);
+        card.appendChild(actions);
+        grid.appendChild(card);
+      });
+      section.appendChild(grid);
+
+      var hint = document.createElement("p");
+      hint.className = "hint";
+      hint.textContent = exercise.candidates.length + " candidato(s). " +
+        "Confirmar exige revisor; um candidato rejeitado sai do seletor do app.";
+      section.appendChild(hint);
+      host.appendChild(section);
+    });
+
+    $("counts").textContent = shown + " de " + Object.keys(mapping.exercises).length +
+      " exercícios exibidos · " + Object.keys(manifest.demos).length + " demos no manifesto.";
+  }
+
+  function download() {
+    var blob = new Blob([JSON.stringify(mapping, null, 2) + "\n"],
+      { type: "application/json" });
+    var link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "mapeamento.json";
+    link.click();
+    $("status").textContent = "Arquivo baixado. Substitua assets/demonstracoes/mapeamento.json e rode: node tools/sincronizar-repdb.mjs --offline && node tools/sincronizar-repdb.mjs --check";
+    $("status").style.color = "#8bc99a";
+  }
+
+  ["filter-status", "filter-review", "filter-text"].forEach(function (id) {
+    $(id).addEventListener("input", drawGallery);
+    $(id).addEventListener("change", drawGallery);
+  });
+  $("download").addEventListener("click", download);
+
+  Promise.all([
+    fetch("../assets/demonstracoes/mapeamento.json").then(response => response.json()),
+    fetch("../assets/demonstracoes/manifest.json").then(response => response.json()),
+    fetch("../assets/demonstracoes/rotulos.json").then(response => response.json())
+  ]).then(function (values) {
+    mapping = values[0]; manifest = values[1]; labels = values[2];
+    drawGallery();
+  }).catch(function (error) {
+    $("status").textContent = "Não foi possível carregar os JSON. Sirva a raiz do repositório por HTTP: " + error.message;
+    $("status").style.color = "#ff8585";
+  });
+})();
+</script>
+</body>
+</html>

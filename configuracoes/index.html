@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="../assets/css/performance.css">
 <link rel="stylesheet" href="../assets/css/system.css">
 <link rel="stylesheet" href="../assets/css/marca.css">
+<link rel="stylesheet" href="../assets/css/demonstracoes.css">
 </head>
 
 <body data-page="configuracoes" data-root="../">
@@ -81,6 +82,32 @@
     <h2 class="section-title" id="storage-heading">Onde seus dados ficam</h2>
     <p>Os dados do FORJA ficam salvos apenas neste navegador. Eles não são sincronizados entre celular, computador ou outros navegadores. Para levar seus dados para outro aparelho, exporte um backup e importe-o lá.</p>
   </section>
+
+  <section class="storage-panel credits-panel" id="creditos-imagens" aria-labelledby="creditos-imagens-heading">
+    <h2 class="section-title" id="creditos-imagens-heading">Créditos e licenças das ilustrações</h2>
+    <div class="credits-block">
+      <h3>RepDB (free tier)</h3>
+      <p>As demonstrações visuais de exercícios são ilustrações de
+        <strong>Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a></strong>,
+        de autoria de © 2026 Sergei Argutin (RepDB), usadas sob a
+        <strong>RepDB Free Tier License v1.0</strong> com atribuição visível.</p>
+      <ul>
+        <li>Subconjunto local fixado no commit <code>b407c5951a027a27817fb2a5cee9ec9feffc4dc7</code>, sem acesso à rede em runtime.</li>
+        <li><a href="https://github.com/RepDB/exercise-dataset" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">Repositório de origem</a> ·
+          <a href="https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/LICENSE-DATA.md" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">texto da licença (origem)</a></li>
+        <li><a href="../assets/demonstracoes/LICENSE-DATA.md">Cópia da licença neste app</a> ·
+          <a href="../assets/demonstracoes/NOTICE.md">NOTICE e procedência</a> ·
+          <a href="../assets/demonstracoes/manifest.json">manifesto com SHA-256</a></li>
+      </ul>
+      <p>Não usamos amostras pagas (<code>premium-samples</code>), não submetemos as imagens a
+        IA generativa e não republicamos o dataset como tal. As imagens são apenas
+        ilustrações informativas, não orientação médica.</p>
+      <p>Correspondências aproximadas ou ainda não verificadas aparecem com o selo
+        <strong>“Precisa de revisão”</strong>: confirme visualmente se o movimento
+        corresponde ao exercício. A figura anatômica do atlas é um recurso
+        separado e mostra grupos musculares, não a execução do movimento.</p>
+    </div>
+  </section>
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">
@@ -112,6 +139,7 @@
   <div class="container">
     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
     <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+    <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
   </div>
 </footer>
 
@@ -130,6 +158,8 @@
 <script src="../assets/js/forja-ui.js" defer></script>
 <script src="../assets/js/forja-graficos.js" defer></script>
 <script src="../assets/js/forja-catalogo.js" defer></script>
+<script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
+<script src="../assets/js/forja-demonstracoes.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

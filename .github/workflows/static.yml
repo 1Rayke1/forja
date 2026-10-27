@@ -24,9 +24,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      # Publica somente o app: testes, ferramentas, docs internos, protótipos,
+      # capturas e dados de geração continuam no repositório, fora do site.
+      - name: Montar artefato do site
+        run: bash tools/preparar-site.sh site-publicado
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "site-publicado"
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4

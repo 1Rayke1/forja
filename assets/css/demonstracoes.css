@@ -1,0 +1,389 @@
+/*
+  FORJA — demonstrações visuais de exercícios (ilustrações RepDB, free tier).
+
+  As imagens têm fundo azul-claro sólido (#d9f1fe). A moldura usa a mesma cor
+  para não criar uma borda branca falsa, e o bloco é limitado em largura para
+  conviver com o tema escuro sem ofuscar a tela no celular.
+*/
+:root {
+  --demo-surface: #d9f1fe;
+  --demo-frame: #16242c;
+}
+
+/* Rodapé: atribuição exigida pela licença (visível em todas as 13 páginas). */
+.footer-credits {
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.footer-credits a,
+.demo-credit a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footer-credits a:focus-visible,
+.demo-credit a:focus-visible,
+.demo-card:focus-visible,
+.demo-pose-button:focus-visible,
+.demo-picker-more:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mídia (modal de detalhe e tela de execução)                         */
+/* ------------------------------------------------------------------ */
+
+.demo-media {
+  margin: 0 0 14px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 10px);
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.demo-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  aspect-ratio: 1 / 1;
+  background: var(--demo-surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.demo-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--demo-surface);
+}
+
+.demo-frame.is-broken {
+  background: var(--panel2);
+}
+
+.demo-frame-error {
+  position: absolute;
+  inset: auto 8px 8px;
+  display: block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.72);
+  color: var(--text);
+  font-size: 11px;
+  text-align: center;
+}
+
+.demo-poses {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px 0;
+}
+
+.demo-pose-button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.demo-pose-button[aria-pressed="true"] {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(231, 199, 121, 0.1);
+}
+
+.demo-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 10px 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.demo-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border: 1px solid #d8a657;
+  border-radius: 999px;
+  background: rgba(216, 166, 87, 0.12);
+  color: #f0c880;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.demo-note {
+  display: block;
+  flex-basis: 100%;
+  font-size: 11px;
+  color: #e4c58f;
+}
+
+.demo-credit {
+  display: inline;
+}
+
+.demo-credit-sep {
+  opacity: 0.6;
+}
+
+.demo-fallback {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md, 10px);
+  background: var(--panel2);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.execution-demo {
+  margin: 4px 0 10px;
+}
+
+.execution-demo .demo-frame {
+  max-width: 150px;
+}
+
+.execution-demo .demo-caption {
+  font-size: 10px;
+}
+
+.execution-demo .demo-badge {
+  font-size: 9px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Seletor "Buscar outra imagem"                                       */
+/* ------------------------------------------------------------------ */
+
+.demo-picker {
+  display: grid;
+  gap: 10px;
+  max-height: min(58vh, 520px);
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.demo-picker-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+}
+
+.demo-picker-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 84px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+}
+
+.demo-picker-preview-frame {
+  position: relative;
+  flex: 0 0 76px;
+  width: 76px;
+  height: 76px;
+  border-radius: 6px;
+  background: var(--demo-surface);
+  overflow: hidden;
+}
+
+.demo-picker-preview-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.demo-picker-preview-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.demo-picker-preview-label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.demo-picker-preview-empty {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.demo-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(102px, 1fr));
+  gap: 8px;
+}
+
+.demo-card {
+  display: grid;
+  gap: 3px;
+  min-height: 44px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.demo-card[aria-pressed="true"] {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+.demo-card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.demo-card-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 5px;
+  background: var(--demo-surface);
+  overflow: hidden;
+}
+
+.demo-card-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.demo-card-label {
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1.25;
+}
+
+.demo-card-en {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.2;
+}
+
+.demo-card-status {
+  font-size: 9px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.demo-card-status.is-exact { color: var(--green); }
+.demo-card-status.is-review { color: #f0c880; }
+
+.demo-card-source {
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.demo-picker-more {
+  min-height: 44px;
+}
+
+.demo-picker-notice,
+.demo-picker-empty-list,
+.demo-picker-empty .modal-detail-line {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* Créditos (configurações)                                            */
+/* ------------------------------------------------------------------ */
+
+.credits-block {
+  margin: 0 0 18px;
+}
+
+.credits-block h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--gold);
+}
+
+.credits-block p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.credits-block ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.credits-block a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Hash do commit e URLs longas não podem criar rolagem horizontal em 320 px. */
+.credits-panel,
+.credits-block code,
+.footer-credits {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ------------------------------------------------------------------ */
+/* Telas pequenas                                                       */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 430px) {
+  .demo-frame { max-width: 220px; }
+  .execution-demo .demo-frame { max-width: 130px; }
+  .demo-picker-grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
+  .demo-picker { max-height: 54vh; }
+  .demo-picker-preview-frame { flex-basis: 64px; width: 64px; height: 64px; }
+}
+
+@media (max-width: 360px) {
+  .demo-frame { max-width: 190px; }
+  .demo-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .demo-pose-button { padding: 8px 10px; }
+}

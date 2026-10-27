@@ -98,3 +98,10 @@ passaram no código final, inclusive após remover o fallback de conversão para
   mudança de lockfile. Essas dependências não são carregadas pelo aplicativo
   estático no navegador; o tratamento é uma tarefa separada, não uma correção
   de segurança supostamente entregue aqui.
+
+> **Nota de escopo posterior (2026-10-27).** Este documento descreve a primeira
+> evolução web. A frase “não há fotografias aprovadas/publicadas” continua
+> verdadeira para **fotos**. Uma entrega posterior adicionou **ilustrações** do
+> catálogo livre RepDB (contrato separado, sem fotos, sem nova chave de
+> armazenamento, sem service worker). Ver `docs/demonstracoes-revisao.md`,
+> `docs/creditos-repdb.md` e `docs/fotografias-exercicios.md`.

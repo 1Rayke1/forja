@@ -1,0 +1,2957 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-27",
+  "source": {
+    "name": "RepDB exercise-dataset (free tier)",
+    "repository": "https://github.com/RepDB/exercise-dataset",
+    "commit": "b407c5951a027a27817fb2a5cee9ec9feffc4dc7",
+    "license": "RepDB Free Tier License v1.0",
+    "licenseFile": "LICENSE-DATA.md",
+    "attribution": "Exercise data by RepDB (repdb.co)",
+    "attributionUrl": "https://repdb.co",
+    "restrictions": [
+      "Uso apenas dentro do app; sem republicação como dataset/API.",
+      "Sem premium-samples.",
+      "Sem derivação por IA generativa.",
+      "Atribuição visível obrigatória."
+    ]
+  },
+  "totalBytes": 2573658,
+  "totalFiles": 148,
+  "files": {
+    "90-90-hold-main.webp": {
+      "sha256": "60b11ae7bd385d88fb892a412a0a9bc0f73523cd0d390f545a6386af3383c373",
+      "bytes": 20572,
+      "upstreamPath": "images/flat/90-90-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/90-90-hold-main.webp"
+    },
+    "air-bike-main.webp": {
+      "sha256": "df7cdb23508a43f1df2c861d437c61ebedc26c22b343b7aa67ef766a4f384fd7",
+      "bytes": 38044,
+      "upstreamPath": "images/flat/air-bike-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/air-bike-main.webp"
+    },
+    "arnold-press-peak.webp": {
+      "sha256": "8d3404f1fe321b68b120f63195667b76d7af3a8e8dd4b5fa4844c111a88f7ab0",
+      "bytes": 16248,
+      "upstreamPath": "images/flat/arnold-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/arnold-press-peak.webp"
+    },
+    "assisted-dips-peak.webp": {
+      "sha256": "88156b889f0b63400c19900ca8c3a4c39bb5e3f32f6d9dbea30fc708461390cf",
+      "bytes": 18754,
+      "upstreamPath": "images/flat/assisted-dips-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/assisted-dips-peak.webp"
+    },
+    "ball-leg-curl-peak.webp": {
+      "sha256": "abf665c75a8b854bef426b1006b5ec17208bcfd389bb8e8b4753b59134a31364",
+      "bytes": 14694,
+      "upstreamPath": "images/flat/ball-leg-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/ball-leg-curl-peak.webp"
+    },
+    "band-pull-apart-peak.webp": {
+      "sha256": "6877609c4f7ec319bc0152e28402f96411a9073fc70a66e16fb97b2bdab8bd13",
+      "bytes": 12990,
+      "upstreamPath": "images/flat/band-pull-apart-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/band-pull-apart-peak.webp"
+    },
+    "band-pull-apart-start.webp": {
+      "sha256": "468760358fac0e967ef1ac3864ff67cea371d0394c3d29d6c5945efb828191a8",
+      "bytes": 11984,
+      "upstreamPath": "images/flat/band-pull-apart-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/band-pull-apart-start.webp"
+    },
+    "banded-rear-delt-stretch-main.webp": {
+      "sha256": "3ad869daf33367d43762bc38203617ef4ac8d5eab349505754d064b016a659e9",
+      "bytes": 10958,
+      "upstreamPath": "images/flat/banded-rear-delt-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/banded-rear-delt-stretch-main.webp"
+    },
+    "banded-shoulder-stretch-main.webp": {
+      "sha256": "8d18681cde96567ee6d1b357590d51d2e22d926006d35f46b0d95b322816229a",
+      "bytes": 11246,
+      "upstreamPath": "images/flat/banded-shoulder-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/banded-shoulder-stretch-main.webp"
+    },
+    "barbell-curl-peak.webp": {
+      "sha256": "1eef7447817995ae697d976df59605a713ccec8048dd842e07f6dc9b4532d531",
+      "bytes": 14308,
+      "upstreamPath": "images/flat/barbell-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/barbell-curl-peak.webp"
+    },
+    "barbell-curl-start.webp": {
+      "sha256": "46996e2bf0a2269609ac42052af37a211be045ee82dd1fb735c3aeea738ad4dc",
+      "bytes": 15916,
+      "upstreamPath": "images/flat/barbell-curl-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/barbell-curl-start.webp"
+    },
+    "barbell-preacher-curl-peak.webp": {
+      "sha256": "c7b57033fd69fc77d0d537626ae5aaf709cc95167bc2ea3bf7826bcbc3b9c9cb",
+      "bytes": 24938,
+      "upstreamPath": "images/flat/barbell-preacher-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/barbell-preacher-curl-peak.webp"
+    },
+    "barbell-row-peak.webp": {
+      "sha256": "20a9acc8e7f5ef5015efafbf9c6bc9c0fc1731e4a69c795ab64775717e0fe054",
+      "bytes": 18656,
+      "upstreamPath": "images/flat/barbell-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/barbell-row-peak.webp"
+    },
+    "barbell-row-start.webp": {
+      "sha256": "c16991dc8f4ff4cf505237c9236f7fdd13f69911e478ba61ecf02a90ec744d94",
+      "bytes": 19438,
+      "upstreamPath": "images/flat/barbell-row-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/barbell-row-start.webp"
+    },
+    "bench-press-peak.webp": {
+      "sha256": "8d1a88d3e497c87ee3d27840fa496c3e7a19a4f64c52521673073a5f99b8b77f",
+      "bytes": 23314,
+      "upstreamPath": "images/flat/bench-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/bench-press-peak.webp"
+    },
+    "bench-press-start.webp": {
+      "sha256": "a14c6cf3187236330740d9a6ad3bc2cc5170d447f1ca657ad6ac5545d3cb1571",
+      "bytes": 21554,
+      "upstreamPath": "images/flat/bench-press-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/bench-press-start.webp"
+    },
+    "bodyweight-squat-peak.webp": {
+      "sha256": "d06462ba7470ff34695e8dd3fc1a90a1ce4520a407e436433ed45f639d7e7a4d",
+      "bytes": 15316,
+      "upstreamPath": "images/flat/bodyweight-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/bodyweight-squat-peak.webp"
+    },
+    "bodyweight-squat-start.webp": {
+      "sha256": "4a60f7025c29ef528140ce86c74a96202ae5c700b7787cb06e891338081126ca",
+      "bytes": 11734,
+      "upstreamPath": "images/flat/bodyweight-squat-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/bodyweight-squat-start.webp"
+    },
+    "burpees-main.webp": {
+      "sha256": "a890425d2c1f1e3423b4f881a6bc8bdbfe93a1e7c7ab6a22a63bc0a86e897392",
+      "bytes": 14066,
+      "upstreamPath": "images/flat/burpees-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/burpees-main.webp"
+    },
+    "cable-crunch-peak.webp": {
+      "sha256": "36b1aed14723ef8fd67c13c157d63f2484cf0e49d89a19c89670fd729f3e4b88",
+      "bytes": 22650,
+      "upstreamPath": "images/flat/cable-crunch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cable-crunch-peak.webp"
+    },
+    "cable-crunch-start.webp": {
+      "sha256": "af994f7379d9d7115292b102b2f83ffc7e9faf90a4d2667c8450c105d54571d8",
+      "bytes": 21740,
+      "upstreamPath": "images/flat/cable-crunch-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cable-crunch-start.webp"
+    },
+    "cable-external-rotation-peak.webp": {
+      "sha256": "7bac2be24cc270cafe5adf0a23f2e490b84defbbc47d9f95e5ffb7e2d55effa1",
+      "bytes": 18372,
+      "upstreamPath": "images/flat/cable-external-rotation-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cable-external-rotation-peak.webp"
+    },
+    "captains-chair-leg-raise-peak.webp": {
+      "sha256": "c7ca7e9105a546c16ad7c5c6317c3fed8ccb96154610ed43235874fba294ef40",
+      "bytes": 17166,
+      "upstreamPath": "images/flat/captains-chair-leg-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/captains-chair-leg-raise-peak.webp"
+    },
+    "cheat-curl-peak.webp": {
+      "sha256": "1eef7447817995ae697d976df59605a713ccec8048dd842e07f6dc9b4532d531",
+      "bytes": 14308,
+      "upstreamPath": "images/flat/cheat-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cheat-curl-peak.webp"
+    },
+    "close-grip-lat-pulldown-peak.webp": {
+      "sha256": "b91590dd9a5388db7604d3684a3627c7c873fbf70b5804c8aca52e14d086f3e7",
+      "bytes": 17538,
+      "upstreamPath": "images/flat/close-grip-lat-pulldown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/close-grip-lat-pulldown-peak.webp"
+    },
+    "commando-pull-up-peak.webp": {
+      "sha256": "b8a3d3ff794f6b0a8cdf12f23653f2782540cf2a109e33e3aaca541eb4f05cee",
+      "bytes": 11900,
+      "upstreamPath": "images/flat/commando-pull-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/commando-pull-up-peak.webp"
+    },
+    "cross-body-shoulder-stretch-main.webp": {
+      "sha256": "f9f7d67cbcd4906a5942baa75d0128fb440c9c9998ad7bc204c17c16b029d38e",
+      "bytes": 10392,
+      "upstreamPath": "images/flat/cross-body-shoulder-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cross-body-shoulder-stretch-main.webp"
+    },
+    "crunches-peak.webp": {
+      "sha256": "be9f8794c3a9b8a5f7337d09d91a79355cc627ad30605a6a6538990b2d2c20bb",
+      "bytes": 13588,
+      "upstreamPath": "images/flat/crunches-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/crunches-peak.webp"
+    },
+    "crunches-start.webp": {
+      "sha256": "54aafb1a0490f6e6ea8cfbf575e611c3ed033730176f6605b1b981797b8772e4",
+      "bytes": 11014,
+      "upstreamPath": "images/flat/crunches-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/crunches-start.webp"
+    },
+    "cycling-main.webp": {
+      "sha256": "1c03e91886b44e1fcbd3ad46080d1738531694b6d890b5890db68855765d52d8",
+      "bytes": 39332,
+      "upstreamPath": "images/flat/cycling-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cycling-main.webp"
+    },
+    "deadlift-peak.webp": {
+      "sha256": "f0909401d6c8a6c1f681e76c2985f986a675653012e6edb078925547a51a4e73",
+      "bytes": 15070,
+      "upstreamPath": "images/flat/deadlift-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/deadlift-peak.webp"
+    },
+    "deadlift-start.webp": {
+      "sha256": "68a68c1acb151c3f58e54c072cb0693ecc980fe66be5eb285aa1a0b1534dfb6d",
+      "bytes": 20066,
+      "upstreamPath": "images/flat/deadlift-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/deadlift-start.webp"
+    },
+    "decline-crunch-peak.webp": {
+      "sha256": "23e0d6753db7c968a8a087e100573f4a0cc884e1fd31f0be9362ff6d2600e96f",
+      "bytes": 25076,
+      "upstreamPath": "images/flat/decline-crunch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/decline-crunch-peak.webp"
+    },
+    "deficit-deadlift-peak.webp": {
+      "sha256": "3b2b4e7fe846aef77c63dd07f56fc6cdff876a0929bcece4b3c96e01572d97ff",
+      "bytes": 21672,
+      "upstreamPath": "images/flat/deficit-deadlift-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/deficit-deadlift-peak.webp"
+    },
+    "dips-peak.webp": {
+      "sha256": "b09d41d7e694ded942d70d08cb771ee2ce088cf065308ad23caa077ae9c937e7",
+      "bytes": 15988,
+      "upstreamPath": "images/flat/dips-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dips-peak.webp"
+    },
+    "dips-start.webp": {
+      "sha256": "3702e16a23affd7eabc7e0cff8404d42bd42b02c5c89619b65816d8fcfc142e3",
+      "bytes": 13820,
+      "upstreamPath": "images/flat/dips-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dips-start.webp"
+    },
+    "dumbbell-farmers-walk-main.webp": {
+      "sha256": "cdd955d354c705c639bdf0f7bd354e9518893bcb450f893882c8f7e8d0c86ba5",
+      "bytes": 14388,
+      "upstreamPath": "images/flat/dumbbell-farmers-walk-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-farmers-walk-main.webp"
+    },
+    "dumbbell-shoulder-press-peak.webp": {
+      "sha256": "f3586a0a3c0cb9137e15959e125e870399a57727cbf531981c8b1cf6a92b6cfb",
+      "bytes": 12322,
+      "upstreamPath": "images/flat/dumbbell-shoulder-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-shoulder-press-peak.webp"
+    },
+    "dumbbell-shoulder-press-start.webp": {
+      "sha256": "296d2bd82e662d31cf9d87d00be61a5e6707f47216e9a514f59765c61ef9db2d",
+      "bytes": 12610,
+      "upstreamPath": "images/flat/dumbbell-shoulder-press-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-shoulder-press-start.webp"
+    },
+    "dumbbell-snatch-peak.webp": {
+      "sha256": "2dbbf9e4e2b31d80da0c8f1401ae204019cf90059c9210eddb8bc1505881c9d4",
+      "bytes": 7170,
+      "upstreamPath": "images/flat/dumbbell-snatch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-snatch-peak.webp"
+    },
+    "dumbbell-wrist-curl-peak.webp": {
+      "sha256": "9101baa14643890e808a0bc8a749c3f4a3a163091f2b4d53d0b4799966ee3a6d",
+      "bytes": 17498,
+      "upstreamPath": "images/flat/dumbbell-wrist-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-wrist-curl-peak.webp"
+    },
+    "elliptical-trainer-main.webp": {
+      "sha256": "820fb73d24e4c0269cb23183eb0a9e4dab3382ac77fe41cc8505febbd0f91662",
+      "bytes": 21910,
+      "upstreamPath": "images/flat/elliptical-trainer-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/elliptical-trainer-main.webp"
+    },
+    "flutter-kicks-peak.webp": {
+      "sha256": "edcd997e76847da4c5f76eaf0baa79c4ec7e49b8d0c840e69ec46b65572f69c1",
+      "bytes": 13194,
+      "upstreamPath": "images/flat/flutter-kicks-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/flutter-kicks-peak.webp"
+    },
+    "glute-bridge-hold-main.webp": {
+      "sha256": "e0f8f505ed78bb84f866c4d744abd9132795f0fdf7bba4547a85b8dbd24e3f92",
+      "bytes": 12994,
+      "upstreamPath": "images/flat/glute-bridge-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/glute-bridge-hold-main.webp"
+    },
+    "glute-bridge-peak.webp": {
+      "sha256": "e0f8f505ed78bb84f866c4d744abd9132795f0fdf7bba4547a85b8dbd24e3f92",
+      "bytes": 12994,
+      "upstreamPath": "images/flat/glute-bridge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/glute-bridge-peak.webp"
+    },
+    "glute-bridge-start.webp": {
+      "sha256": "34e09155d083bea5bb55e235cd5b9d61a13b302d6bc721fe01540304efc00e3d",
+      "bytes": 11142,
+      "upstreamPath": "images/flat/glute-bridge-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/glute-bridge-start.webp"
+    },
+    "half-kneeling-hip-flexor-rock-peak.webp": {
+      "sha256": "965235ecdf7ec12dec8f762e84dd87c82850016900909f554805450669b4d326",
+      "bytes": 14042,
+      "upstreamPath": "images/flat/half-kneeling-hip-flexor-rock-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/half-kneeling-hip-flexor-rock-peak.webp"
+    },
+    "hanging-knee-raise-peak.webp": {
+      "sha256": "7cf8ccb30aef59f6c95d5761dcc0214f3bfc0591180619a1099b77e78262918a",
+      "bytes": 14914,
+      "upstreamPath": "images/flat/hanging-knee-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/hanging-knee-raise-peak.webp"
+    },
+    "hanging-leg-raise-peak.webp": {
+      "sha256": "b1b1a0cdb5c21b0b9baee9e5d4f5fc51eef8c110a80971c1f2a753272bd8497d",
+      "bytes": 16006,
+      "upstreamPath": "images/flat/hanging-leg-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/hanging-leg-raise-peak.webp"
+    },
+    "hanging-leg-raise-start.webp": {
+      "sha256": "b1f318a2e21d44c666e30eb0898b5c7d808c8e4ff903cc794778f62284ab98e7",
+      "bytes": 11824,
+      "upstreamPath": "images/flat/hanging-leg-raise-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/hanging-leg-raise-start.webp"
+    },
+    "high-foot-leg-press-peak.webp": {
+      "sha256": "ec68d17c007d243ffd314c6b220e225204899080b29751f7c615f6042cc01bea",
+      "bytes": 31876,
+      "upstreamPath": "images/flat/high-foot-leg-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/high-foot-leg-press-peak.webp"
+    },
+    "high-knees-main.webp": {
+      "sha256": "e2442bb754c0a292db31c8b6a83d69024f3ac0cbc133d7bcf46ec5684994dfb4",
+      "bytes": 11430,
+      "upstreamPath": "images/flat/high-knees-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/high-knees-main.webp"
+    },
+    "high-plank-main.webp": {
+      "sha256": "6ff08cbab2cb993aab34ee10af8543ae2e8d96d4386e1c9c3714e178584ad1df",
+      "bytes": 12278,
+      "upstreamPath": "images/flat/high-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/high-plank-main.webp"
+    },
+    "horizontal-leg-press-peak.webp": {
+      "sha256": "2d34fd87648e9e647cf1312733c3e7225fc6beec5e128de13a25346f04c16ea6",
+      "bytes": 29858,
+      "upstreamPath": "images/flat/horizontal-leg-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/horizontal-leg-press-peak.webp"
+    },
+    "incline-treadmill-walk-main.webp": {
+      "sha256": "1fdeebd93050b4834e8578c246d4a0d751cb891b62e231d1a7f7627f9066ea22",
+      "bytes": 24684,
+      "upstreamPath": "images/flat/incline-treadmill-walk-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/incline-treadmill-walk-main.webp"
+    },
+    "inverted-row-peak.webp": {
+      "sha256": "6b4e7b6bec2ec479d354ae6980276c052cbd1639104b45fff47ad9dc7dc96c34",
+      "bytes": 19762,
+      "upstreamPath": "images/flat/inverted-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/inverted-row-peak.webp"
+    },
+    "inverted-row-start.webp": {
+      "sha256": "7f9c309c4a05632ee2a7db58fe39f3665541f2a5194dc1d711012fb85d27b218",
+      "bytes": 18826,
+      "upstreamPath": "images/flat/inverted-row-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/inverted-row-start.webp"
+    },
+    "jumping-jacks-peak.webp": {
+      "sha256": "55568810eb4b52992e774201b2e38b1cebba6af1d025202efd7ce4b7ca4918bc",
+      "bytes": 14150,
+      "upstreamPath": "images/flat/jumping-jacks-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/jumping-jacks-peak.webp"
+    },
+    "jumping-jacks-start.webp": {
+      "sha256": "3f5d49c59ae5ac7dbf9481a3d340fa00f9eb4baea496ba71ab300167ffde8d3b",
+      "bytes": 13428,
+      "upstreamPath": "images/flat/jumping-jacks-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/jumping-jacks-start.webp"
+    },
+    "kettlebell-farmers-walk-main.webp": {
+      "sha256": "0e89790cb7f2d6aae80f4d312c658d3b76c2a9b511ae27fc2fcd7e880adf2732",
+      "bytes": 13664,
+      "upstreamPath": "images/flat/kettlebell-farmers-walk-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/kettlebell-farmers-walk-main.webp"
+    },
+    "kneeling-hip-flexor-stretch-main.webp": {
+      "sha256": "c33369a88402c4c213beff7653180ba1b380f0f4a11467948cf474e71ac95863",
+      "bytes": 13212,
+      "upstreamPath": "images/flat/kneeling-hip-flexor-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/kneeling-hip-flexor-stretch-main.webp"
+    },
+    "lat-pulldown-peak.webp": {
+      "sha256": "5045afd713161db9944719f7168c492ca7d9a822bc54c9cd23b085b3c904810c",
+      "bytes": 16258,
+      "upstreamPath": "images/flat/lat-pulldown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lat-pulldown-peak.webp"
+    },
+    "lat-pulldown-start.webp": {
+      "sha256": "4cb61a49bfacf947b81d86c8f6c51735bcf5e7c073297a3cb67e9a71d59292a6",
+      "bytes": 16552,
+      "upstreamPath": "images/flat/lat-pulldown-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lat-pulldown-start.webp"
+    },
+    "lateral-raise-peak.webp": {
+      "sha256": "65f3e3180a2ff014664e485266032beb75d336af89998ee526941008bb58306b",
+      "bytes": 14494,
+      "upstreamPath": "images/flat/lateral-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lateral-raise-peak.webp"
+    },
+    "lateral-raise-start.webp": {
+      "sha256": "6993bfa0e16b060901792e7500b9e5481f15e93a24c3f7fc7c733316de6b6e2e",
+      "bytes": 13098,
+      "upstreamPath": "images/flat/lateral-raise-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lateral-raise-start.webp"
+    },
+    "lean-back-90-90-hold-main.webp": {
+      "sha256": "55f843ee5c7506abed4904ae9360142693b859d225ee996ec86e1a347b3f91e1",
+      "bytes": 17712,
+      "upstreamPath": "images/flat/lean-back-90-90-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lean-back-90-90-hold-main.webp"
+    },
+    "leg-curl-peak.webp": {
+      "sha256": "e1f4229433709ce48f3c317693a23d6a8e2525497328cad3b8235f3aad9b4911",
+      "bytes": 21096,
+      "upstreamPath": "images/flat/leg-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-curl-peak.webp"
+    },
+    "leg-curl-start.webp": {
+      "sha256": "9eed895562e2a3d7ade074fc59c3b56a07230a3a97ed5a3d35a0fa5eb6ed5e1f",
+      "bytes": 20646,
+      "upstreamPath": "images/flat/leg-curl-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-curl-start.webp"
+    },
+    "leg-extension-peak.webp": {
+      "sha256": "04f79670ee65dd0e3ae710221942c2f3e1b27b696516ce87c8936c32539d4acc",
+      "bytes": 19168,
+      "upstreamPath": "images/flat/leg-extension-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-extension-peak.webp"
+    },
+    "leg-extension-start.webp": {
+      "sha256": "97c34b7bbd7c3278bff9b8fb5e80263f5e9254e567f8068833d611d67318b030",
+      "bytes": 17456,
+      "upstreamPath": "images/flat/leg-extension-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-extension-start.webp"
+    },
+    "leg-press-peak.webp": {
+      "sha256": "2115ffe5c1363ad8de2b4410ef20ce43aa4b4959dcd2fb77de1579772c9c49ae",
+      "bytes": 38040,
+      "upstreamPath": "images/flat/leg-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-press-peak.webp"
+    },
+    "leg-press-start.webp": {
+      "sha256": "68c7769b023cab2ffd3d5fd1877fc7d2b1d102f9a1b0412ae67f9cf412f38dd2",
+      "bytes": 32620,
+      "upstreamPath": "images/flat/leg-press-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-press-start.webp"
+    },
+    "lunge-peak.webp": {
+      "sha256": "5a7e7bce85a3e9b0d8b37288f54c76508c1925d83e87096bfe016f245313671d",
+      "bytes": 12472,
+      "upstreamPath": "images/flat/lunge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lunge-peak.webp"
+    },
+    "lunge-start.webp": {
+      "sha256": "ed90d9f5109d3ddb382534f6d4fd2089e9b57a6d01bafb034fba8f75ee6393af",
+      "bytes": 11776,
+      "upstreamPath": "images/flat/lunge-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lunge-start.webp"
+    },
+    "lying-leg-raise-peak.webp": {
+      "sha256": "5fb535aca720818ebcae85b39889d7c17b507f7460a51e350ae6d201b47680c7",
+      "bytes": 13026,
+      "upstreamPath": "images/flat/lying-leg-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lying-leg-raise-peak.webp"
+    },
+    "lying-leg-raise-start.webp": {
+      "sha256": "85481e15b39c37297795e1f3021119644272fd43af389b78f7e329c686de569a",
+      "bytes": 11056,
+      "upstreamPath": "images/flat/lying-leg-raise-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lying-leg-raise-start.webp"
+    },
+    "machine-seated-crunch-peak.webp": {
+      "sha256": "3620217c5b652fb247dc39757da7cfd46e66069ea6ec346690e7405b15879997",
+      "bytes": 24346,
+      "upstreamPath": "images/flat/machine-seated-crunch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/machine-seated-crunch-peak.webp"
+    },
+    "machine-triceps-extension-peak.webp": {
+      "sha256": "845c2612f2c6d1f10970edd41c4bd0c6ea7239f146158d2f6fa6934c5d23f3a2",
+      "bytes": 31568,
+      "upstreamPath": "images/flat/machine-triceps-extension-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/machine-triceps-extension-peak.webp"
+    },
+    "mountain-climbers-peak.webp": {
+      "sha256": "8dd7f77ab3106dfb0cb1a7f2bac7e663a41342a09efa7bb8082caa733c45f04b",
+      "bytes": 14600,
+      "upstreamPath": "images/flat/mountain-climbers-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/mountain-climbers-peak.webp"
+    },
+    "mountain-climbers-start.webp": {
+      "sha256": "140332bb263e70bfe63157f34fe88f6e4d6d81e6350673f93ccfac96feaf723f",
+      "bytes": 13920,
+      "upstreamPath": "images/flat/mountain-climbers-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/mountain-climbers-start.webp"
+    },
+    "one-arm-dumbbell-shoulder-press-peak.webp": {
+      "sha256": "d30e7f97065f48ea323e4634f97ecbb8504261873fb278f25e72980fa3738171",
+      "bytes": 11330,
+      "upstreamPath": "images/flat/one-arm-dumbbell-shoulder-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/one-arm-dumbbell-shoulder-press-peak.webp"
+    },
+    "pause-deadlift-peak.webp": {
+      "sha256": "f0909401d6c8a6c1f681e76c2985f986a675653012e6edb078925547a51a4e73",
+      "bytes": 15070,
+      "upstreamPath": "images/flat/pause-deadlift-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pause-deadlift-peak.webp"
+    },
+    "pause-pull-up-peak.webp": {
+      "sha256": "a89ac3133828d5e3f20438609b3578c5a686ba224518a18fda0e1cd9bf76c4aa",
+      "bytes": 8812,
+      "upstreamPath": "images/flat/pause-pull-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pause-pull-up-peak.webp"
+    },
+    "pause-squat-peak.webp": {
+      "sha256": "d6913ea6c3df9962f1686e693b6dbe4edc19e26f90fa49c4cb46df400825dba2",
+      "bytes": 17830,
+      "upstreamPath": "images/flat/pause-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pause-squat-peak.webp"
+    },
+    "paused-bench-press-peak.webp": {
+      "sha256": "8d1a88d3e497c87ee3d27840fa496c3e7a19a4f64c52521673073a5f99b8b77f",
+      "bytes": 23314,
+      "upstreamPath": "images/flat/paused-bench-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/paused-bench-press-peak.webp"
+    },
+    "paused-incline-bench-press-peak.webp": {
+      "sha256": "76764916f278d91d043e73ecd2feb00b566b78d76d845b58103edae06b22c4f4",
+      "bytes": 22316,
+      "upstreamPath": "images/flat/paused-incline-bench-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/paused-incline-bench-press-peak.webp"
+    },
+    "pendlay-row-peak.webp": {
+      "sha256": "21a9d2e1e30da406d0855af89d080722a52c46841f99a8cc6c84aec003f9073b",
+      "bytes": 19830,
+      "upstreamPath": "images/flat/pendlay-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pendlay-row-peak.webp"
+    },
+    "pigeon-stretch-main.webp": {
+      "sha256": "2b3cafed93ac8b9e1fd464e03cf538e834e32c5a81a3a09e84f8ba3aef03199e",
+      "bytes": 13292,
+      "upstreamPath": "images/flat/pigeon-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pigeon-stretch-main.webp"
+    },
+    "plank-main.webp": {
+      "sha256": "cfa10a00babd09bce62e5953007fc4b322757fda54d7379c3042acc27676263e",
+      "bytes": 15364,
+      "upstreamPath": "images/flat/plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/plank-main.webp"
+    },
+    "plate-loaded-lateral-raise-peak.webp": {
+      "sha256": "143f9c749cfb6a53f05bc054eeb13c49ca2664820fa3724bc8d11ec038eb44e8",
+      "bytes": 30872,
+      "upstreamPath": "images/flat/plate-loaded-lateral-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/plate-loaded-lateral-raise-peak.webp"
+    },
+    "plyo-push-up-peak.webp": {
+      "sha256": "f5b6d59c42840677a3eb84a9c71bca7f90d9995d6b87db3ce6136844762c8523",
+      "bytes": 16394,
+      "upstreamPath": "images/flat/plyo-push-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/plyo-push-up-peak.webp"
+    },
+    "pull-up-peak.webp": {
+      "sha256": "f4c8c624ba27f8f9efd969cf066f24ef388e3ed68dcd287f55927d8b50a9aace",
+      "bytes": 10124,
+      "upstreamPath": "images/flat/pull-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pull-up-peak.webp"
+    },
+    "pull-up-start.webp": {
+      "sha256": "59f142697771f71a5070e3a357c22b001d6f172e5cb74247f949410513418514",
+      "bytes": 10902,
+      "upstreamPath": "images/flat/pull-up-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pull-up-start.webp"
+    },
+    "push-up-peak.webp": {
+      "sha256": "c11e6746ea723d9e5699f149eb8903172118a44c7d435a0d30551a4732a87ef3",
+      "bytes": 15476,
+      "upstreamPath": "images/flat/push-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/push-up-peak.webp"
+    },
+    "push-up-start.webp": {
+      "sha256": "55e3ebf775129451c97ccfc191e50cfb2c0a51c016bcac401477f504624554e6",
+      "bytes": 14358,
+      "upstreamPath": "images/flat/push-up-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/push-up-start.webp"
+    },
+    "rack-pull-peak.webp": {
+      "sha256": "bdd7f96f7adfcb704eb643ca516aa389ac2a2ad24078f43cf2c17e38f81dfda5",
+      "bytes": 22982,
+      "upstreamPath": "images/flat/rack-pull-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/rack-pull-peak.webp"
+    },
+    "reverse-crunches-peak.webp": {
+      "sha256": "c2420dbfb09f90cbe2a9c636bd523761129643752d0ec977954fbf2281751e77",
+      "bytes": 15652,
+      "upstreamPath": "images/flat/reverse-crunches-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-crunches-peak.webp"
+    },
+    "reverse-crunches-start.webp": {
+      "sha256": "fea37b7542c75ce92c43d40f607593e5d5f97aa92187311e85f9411ffffe86e3",
+      "bytes": 13914,
+      "upstreamPath": "images/flat/reverse-crunches-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-crunches-start.webp"
+    },
+    "reverse-curl-peak.webp": {
+      "sha256": "b0062454f36b8efe64c7ad3c4d6fa760a34854e550745642821b9a7f280843e4",
+      "bytes": 14348,
+      "upstreamPath": "images/flat/reverse-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-curl-peak.webp"
+    },
+    "reverse-grip-bent-over-row-peak.webp": {
+      "sha256": "c2053d414740dad0591e4adbac00783ca4810225c0be6bc05e6011440d9c69c0",
+      "bytes": 20312,
+      "upstreamPath": "images/flat/reverse-grip-bent-over-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-grip-bent-over-row-peak.webp"
+    },
+    "reverse-grip-lat-pulldown-peak.webp": {
+      "sha256": "3e2252ed89fa7d32a8a39feb727d95ec9ea1eeb4dc25567c0f0754ed9183cf80",
+      "bytes": 15690,
+      "upstreamPath": "images/flat/reverse-grip-lat-pulldown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-grip-lat-pulldown-peak.webp"
+    },
+    "reverse-nordic-curl-peak.webp": {
+      "sha256": "3d06d28530ee637c047b91a5ceffcca769cee8965061323b6b5352e1031026a9",
+      "bytes": 14956,
+      "upstreamPath": "images/flat/reverse-nordic-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-nordic-curl-peak.webp"
+    },
+    "ring-dips-peak.webp": {
+      "sha256": "1aad73769cf0dd7edb82b12e5a66cf521e482f6fc2e930a3b5a4805a7b3678ad",
+      "bytes": 14310,
+      "upstreamPath": "images/flat/ring-dips-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/ring-dips-peak.webp"
+    },
+    "ring-plank-main.webp": {
+      "sha256": "b13196f39cb43e95fc30664d30997ee388f47667d475df0d5e88e4a8bdd6f36d",
+      "bytes": 23986,
+      "upstreamPath": "images/flat/ring-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/ring-plank-main.webp"
+    },
+    "ring-push-up-peak.webp": {
+      "sha256": "36a551f8baae408837dfa99ad3aebccaf1a4a6add5a9761d8af8fe05355989ea",
+      "bytes": 17678,
+      "upstreamPath": "images/flat/ring-push-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/ring-push-up-peak.webp"
+    },
+    "rings-inverted-row-peak.webp": {
+      "sha256": "7b2a336597c8c45b010b9aa30cfcdf1683d93c4b9ce458c68304a44eb1b0d0e9",
+      "bytes": 16974,
+      "upstreamPath": "images/flat/rings-inverted-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/rings-inverted-row-peak.webp"
+    },
+    "scissor-kicks-peak.webp": {
+      "sha256": "8d964e36d4600f59de41f2c821d5f902c1f965d4d316ae6a214d0deee8026cc2",
+      "bytes": 12546,
+      "upstreamPath": "images/flat/scissor-kicks-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/scissor-kicks-peak.webp"
+    },
+    "seated-db-press-peak.webp": {
+      "sha256": "7edc80e11acf42ed286bf7d62708ea105b2aea6b3abf90a5eb3ce6551b39b43b",
+      "bytes": 14032,
+      "upstreamPath": "images/flat/seated-db-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/seated-db-press-peak.webp"
+    },
+    "seated-dumbbell-lateral-raise-peak.webp": {
+      "sha256": "c275e518b5588a6f86b8e1d4ecc1169b8ee1492a93a277e5d2482335106853ec",
+      "bytes": 19938,
+      "upstreamPath": "images/flat/seated-dumbbell-lateral-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/seated-dumbbell-lateral-raise-peak.webp"
+    },
+    "seated-leg-curl-peak.webp": {
+      "sha256": "7a493472aa088be76e4ffd1a66a294902b7beb427aa6aad15f2efcb6afbb8619",
+      "bytes": 32804,
+      "upstreamPath": "images/flat/seated-leg-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/seated-leg-curl-peak.webp"
+    },
+    "side-plank-leg-lift-hold-main.webp": {
+      "sha256": "0dffec078046e4585cfc2eefb4a54875968c0bb77f4d72d98a3d7b07905b90d3",
+      "bytes": 13958,
+      "upstreamPath": "images/flat/side-plank-leg-lift-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/side-plank-leg-lift-hold-main.webp"
+    },
+    "side-plank-leg-lift-peak.webp": {
+      "sha256": "0dffec078046e4585cfc2eefb4a54875968c0bb77f4d72d98a3d7b07905b90d3",
+      "bytes": 13958,
+      "upstreamPath": "images/flat/side-plank-leg-lift-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/side-plank-leg-lift-peak.webp"
+    },
+    "side-plank-main.webp": {
+      "sha256": "19f057e2af04d0e5205ba919d6797bc2e722a2b26d4f2afa4e305a2577ac3ac7",
+      "bytes": 14396,
+      "upstreamPath": "images/flat/side-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/side-plank-main.webp"
+    },
+    "single-arm-plate-loaded-lateral-raise-peak.webp": {
+      "sha256": "5a1c67fe7c302a8558dc8e4fc2e6cf937d238e12aa0467fed974e75aaeb64da5",
+      "bytes": 31732,
+      "upstreamPath": "images/flat/single-arm-plate-loaded-lateral-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-arm-plate-loaded-lateral-raise-peak.webp"
+    },
+    "single-arm-tricep-pushdown-peak.webp": {
+      "sha256": "ea7ceb6ff076266b7f4250a501a0dd0fabe703c6d830747e8c6a2c3bcc8c5148",
+      "bytes": 15004,
+      "upstreamPath": "images/flat/single-arm-tricep-pushdown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-arm-tricep-pushdown-peak.webp"
+    },
+    "single-leg-extension-peak.webp": {
+      "sha256": "92f8a10152a0b6ab25ee2ab79bd578511348999392376837be2d49b0f93843f4",
+      "bytes": 29422,
+      "upstreamPath": "images/flat/single-leg-extension-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-extension-peak.webp"
+    },
+    "single-leg-glute-bridge-hold-main.webp": {
+      "sha256": "2bba31c84237c130a4ff69cee5ee338b76e03261db8d3416a60d3f427e6f4b39",
+      "bytes": 13944,
+      "upstreamPath": "images/flat/single-leg-glute-bridge-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-glute-bridge-hold-main.webp"
+    },
+    "single-leg-glute-bridge-peak.webp": {
+      "sha256": "2bba31c84237c130a4ff69cee5ee338b76e03261db8d3416a60d3f427e6f4b39",
+      "bytes": 13944,
+      "upstreamPath": "images/flat/single-leg-glute-bridge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-glute-bridge-peak.webp"
+    },
+    "single-leg-lying-leg-curl-peak.webp": {
+      "sha256": "d3540d202da1cf8d780edf4decf79861becc57a36cd0114ba62ecdc3d31f686b",
+      "bytes": 23002,
+      "upstreamPath": "images/flat/single-leg-lying-leg-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-lying-leg-curl-peak.webp"
+    },
+    "single-leg-press-peak.webp": {
+      "sha256": "bb02dbee935f88d8e5a81db81d06acdf0fad9da624732d80f3e94c5951ab6407",
+      "bytes": 36248,
+      "upstreamPath": "images/flat/single-leg-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-press-peak.webp"
+    },
+    "sit-ups-peak.webp": {
+      "sha256": "1b2b3238d4292e022c35c55962e2c6ff5e40fdbe7a56a840878de189d7cbd69d",
+      "bytes": 17338,
+      "upstreamPath": "images/flat/sit-ups-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/sit-ups-peak.webp"
+    },
+    "smith-machine-reverse-lunge-peak.webp": {
+      "sha256": "5aad31663c363927baee09ffa169979e36cfe77b2ce8d80fd77487a77bb9441f",
+      "bytes": 18606,
+      "upstreamPath": "images/flat/smith-machine-reverse-lunge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/smith-machine-reverse-lunge-peak.webp"
+    },
+    "spiderman-push-up-peak.webp": {
+      "sha256": "242071269eb7d906221b1663ef7007e03f04e6730ca62b082357d89d369843ca",
+      "bytes": 16478,
+      "upstreamPath": "images/flat/spiderman-push-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/spiderman-push-up-peak.webp"
+    },
+    "squat-peak.webp": {
+      "sha256": "d6913ea6c3df9962f1686e693b6dbe4edc19e26f90fa49c4cb46df400825dba2",
+      "bytes": 17830,
+      "upstreamPath": "images/flat/squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/squat-peak.webp"
+    },
+    "squat-start.webp": {
+      "sha256": "e39e3084f50617552f45ccb03753fc618e47c03a2da2b139a34aaf07f9bbe99f",
+      "bytes": 15622,
+      "upstreamPath": "images/flat/squat-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/squat-start.webp"
+    },
+    "stationary-bike-main.webp": {
+      "sha256": "0c3275ababdecb811035c7c8cbe8a98478f1628fdd03f9a504b323842e8cf364",
+      "bytes": 21586,
+      "upstreamPath": "images/flat/stationary-bike-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/stationary-bike-main.webp"
+    },
+    "step-ups-peak.webp": {
+      "sha256": "a696c485ddb70290d16670499724bbf938a812a79988911e31ac85d8aab19ed0",
+      "bytes": 13186,
+      "upstreamPath": "images/flat/step-ups-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/step-ups-peak.webp"
+    },
+    "sumo-squat-peak.webp": {
+      "sha256": "084302526130fea35d8b3ffe4cef3cd24a195bf1afa6710fd9622e77bd014d7d",
+      "bytes": 17480,
+      "upstreamPath": "images/flat/sumo-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/sumo-squat-peak.webp"
+    },
+    "t-bar-row-peak.webp": {
+      "sha256": "4073589844755dd5e80604f4adecf7df6466bd6ce418fc6b26ea482fed667149",
+      "bytes": 21034,
+      "upstreamPath": "images/flat/t-bar-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/t-bar-row-peak.webp"
+    },
+    "treadmill-running-main.webp": {
+      "sha256": "b212a030c4f4a824d7db5f0029ae003a3eefe20c631e8c44285c0ad3fd670764",
+      "bytes": 21244,
+      "upstreamPath": "images/flat/treadmill-running-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/treadmill-running-main.webp"
+    },
+    "tricep-pushdown-peak.webp": {
+      "sha256": "81a2548ce43e8e13a9f50b8cf9f57b5475db6a86efaf2151f7f5e067f03b1f58",
+      "bytes": 14376,
+      "upstreamPath": "images/flat/tricep-pushdown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/tricep-pushdown-peak.webp"
+    },
+    "tricep-pushdown-start.webp": {
+      "sha256": "6a95910acc7e22141b0fb6c71d866251f6b18eb59f10d380acd72e742f14e648",
+      "bytes": 11690,
+      "upstreamPath": "images/flat/tricep-pushdown-start.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/tricep-pushdown-start.webp"
+    },
+    "trx-lunge-peak.webp": {
+      "sha256": "d1722218677cdd9d36e44fa28e24d3f3b1ac443e44d2d6723333c2a3ef6c86f1",
+      "bytes": 14200,
+      "upstreamPath": "images/flat/trx-lunge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-lunge-peak.webp"
+    },
+    "trx-pistol-squat-peak.webp": {
+      "sha256": "dfff2ee2b9d21b4a06c753c755ca7cc574c6a5fd8ad807a42770d3012f63eb72",
+      "bytes": 18602,
+      "upstreamPath": "images/flat/trx-pistol-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-pistol-squat-peak.webp"
+    },
+    "trx-plank-main.webp": {
+      "sha256": "5d9647e41fecc03bc1406c6140b5116fc3bee5f856896fd1bf9deb84781cd39d",
+      "bytes": 16046,
+      "upstreamPath": "images/flat/trx-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-plank-main.webp"
+    },
+    "trx-side-plank-main.webp": {
+      "sha256": "aff4556bbb6856c71c48d0c29085654540cb802cb968aa31d5657c7bdcb31359",
+      "bytes": 17096,
+      "upstreamPath": "images/flat/trx-side-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-side-plank-main.webp"
+    },
+    "trx-squat-peak.webp": {
+      "sha256": "1ac9c860909dcf6ee1e1f66c6ca60a84e602f85c44b7612c047eddb2b91050fe",
+      "bytes": 15858,
+      "upstreamPath": "images/flat/trx-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-squat-peak.webp"
+    },
+    "v-bar-tricep-pushdown-peak.webp": {
+      "sha256": "d052c3367bf0d2128417479ee1b6e3f507c7eb1b093d28d644c8d6602711495b",
+      "bytes": 19242,
+      "upstreamPath": "images/flat/v-bar-tricep-pushdown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/v-bar-tricep-pushdown-peak.webp"
+    },
+    "v-ups-peak.webp": {
+      "sha256": "61131ca3e38e87eb2273e24b43e960b65390f96312de7af1352716177d1fcae5",
+      "bytes": 16426,
+      "upstreamPath": "images/flat/v-ups-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/v-ups-peak.webp"
+    },
+    "walking-lunge-peak.webp": {
+      "sha256": "39c05a49bc5fc6e6a505284d73f20fd9ac79eb7991d0093bba92568f816ed6ee",
+      "bytes": 13502,
+      "upstreamPath": "images/flat/walking-lunge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/walking-lunge-peak.webp"
+    },
+    "walking-main.webp": {
+      "sha256": "3fa1fd7372b06fce3e007d98a789d18f0e3beb97d41211ddad6a7fc99c6462c7",
+      "bytes": 10376,
+      "upstreamPath": "images/flat/walking-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/walking-main.webp"
+    },
+    "wall-ball-main.webp": {
+      "sha256": "44f0261cf8baebd86aa9360f49b382d44ba1e2621426ebdb7ca2c917793e0b63",
+      "bytes": 10178,
+      "upstreamPath": "images/flat/wall-ball-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/wall-ball-main.webp"
+    },
+    "weighted-dips-peak.webp": {
+      "sha256": "43867af26676523fc45fbdc7e360f5447c80b4bbabc045ca72a0535eac1c0876",
+      "bytes": 15424,
+      "upstreamPath": "images/flat/weighted-dips-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/weighted-dips-peak.webp"
+    },
+    "weighted-pull-up-peak.webp": {
+      "sha256": "05790a258bb90600ce3ea89760b94b8ff325a0b886074bac74bf1fcf8bfcf04e",
+      "bytes": 16030,
+      "upstreamPath": "images/flat/weighted-pull-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/weighted-pull-up-peak.webp"
+    },
+    "weighted-wall-crunch-peak.webp": {
+      "sha256": "aa810decec1887957a5a463f544921b8ea8314183f43cb1be1fb7f1880b89295",
+      "bytes": 13286,
+      "upstreamPath": "images/flat/weighted-wall-crunch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/weighted-wall-crunch-peak.webp"
+    },
+    "wide-grip-bench-press-peak.webp": {
+      "sha256": "0334adb948482cdd753a8f34a869b56cbd844d3584db604965172bb1a3c15d4b",
+      "bytes": 22262,
+      "upstreamPath": "images/flat/wide-grip-bench-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/wide-grip-bench-press-peak.webp"
+    },
+    "wide-grip-pull-ups-peak.webp": {
+      "sha256": "708c640b9f21f742c9a25a87681eea1275c3a8af55d33af6c92bf13512be3698",
+      "bytes": 12610,
+      "upstreamPath": "images/flat/wide-grip-pull-ups-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/wide-grip-pull-ups-peak.webp"
+    },
+    "zercher-squat-peak.webp": {
+      "sha256": "cc3b6b30158665c76fec1f4bcc31275d7f8a77bb911f1d4def5d96ca7ec82004",
+      "bytes": 14534,
+      "upstreamPath": "images/flat/zercher-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/zercher-squat-peak.webp"
+    }
+  },
+  "demos": {
+    "repdb:band-pull-apart": {
+      "upstreamId": "band-pull-apart",
+      "nameEn": "Band Pull Apart",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "band-pull-apart-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "band-pull-apart-peak.webp"
+        }
+      ],
+      "thumb": "band-pull-apart-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/band-pull-apart-peak.webp",
+      "label": "Afastamento com elástico",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:cable-external-rotation": {
+      "upstreamId": "cable-external-rotation",
+      "nameEn": "Cable External Rotation",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "cable-external-rotation-peak.webp"
+        }
+      ],
+      "thumb": "cable-external-rotation-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cable-external-rotation-peak.webp",
+      "label": "Rotação externa na polia",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:banded-shoulder-stretch": {
+      "upstreamId": "banded-shoulder-stretch",
+      "nameEn": "Banded Shoulder Stretch",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "banded-shoulder-stretch-main.webp"
+        }
+      ],
+      "thumb": "banded-shoulder-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/banded-shoulder-stretch-main.webp",
+      "label": "Alongamento de ombro com faixa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:cross-body-shoulder-stretch": {
+      "upstreamId": "cross-body-shoulder-stretch",
+      "nameEn": "Cross-Body Shoulder Stretch",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "cross-body-shoulder-stretch-main.webp"
+        }
+      ],
+      "thumb": "cross-body-shoulder-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cross-body-shoulder-stretch-main.webp",
+      "label": "Alongamento cruzado de ombro",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:banded-rear-delt-stretch": {
+      "upstreamId": "banded-rear-delt-stretch",
+      "nameEn": "Banded Rear Delt Stretch",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "banded-rear-delt-stretch-main.webp"
+        }
+      ],
+      "thumb": "banded-rear-delt-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/banded-rear-delt-stretch-main.webp",
+      "label": "Alongamento de deltóide posterior com faixa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:90-90-hold": {
+      "upstreamId": "90-90-hold",
+      "nameEn": "90/90 Hold",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "90-90-hold-main.webp"
+        }
+      ],
+      "thumb": "90-90-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/90-90-hold-main.webp",
+      "label": "Rotação 90/90 de quadril",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:lean-back-90-90-hold": {
+      "upstreamId": "lean-back-90-90-hold",
+      "nameEn": "Lean-Back 90/90 Hold",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "lean-back-90-90-hold-main.webp"
+        }
+      ],
+      "thumb": "lean-back-90-90-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lean-back-90-90-hold-main.webp",
+      "label": "Rotação 90/90 inclinado para trás",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:pigeon-stretch": {
+      "upstreamId": "pigeon-stretch",
+      "nameEn": "Pigeon Stretch",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "pigeon-stretch-main.webp"
+        }
+      ],
+      "thumb": "pigeon-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pigeon-stretch-main.webp",
+      "label": "Alongamento pombo (quadril)",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:half-kneeling-hip-flexor-rock": {
+      "upstreamId": "half-kneeling-hip-flexor-rock",
+      "nameEn": "Half-Kneeling Hip Flexor Rock",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "half-kneeling-hip-flexor-rock-peak.webp"
+        }
+      ],
+      "thumb": "half-kneeling-hip-flexor-rock-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/half-kneeling-hip-flexor-rock-peak.webp",
+      "label": "Mobilidade de quadril ajoelhado",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:kneeling-hip-flexor-stretch": {
+      "upstreamId": "kneeling-hip-flexor-stretch",
+      "nameEn": "Kneeling Hip Flexor Stretch",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "kneeling-hip-flexor-stretch-main.webp"
+        }
+      ],
+      "thumb": "kneeling-hip-flexor-stretch-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/kneeling-hip-flexor-stretch-main.webp",
+      "label": "Alongamento de flexor de quadril ajoelhado",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:jumping-jacks": {
+      "upstreamId": "jumping-jacks",
+      "nameEn": "Jumping Jacks",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "jumping-jacks-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "jumping-jacks-peak.webp"
+        }
+      ],
+      "thumb": "jumping-jacks-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/jumping-jacks-peak.webp",
+      "label": "Polichinelo",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:high-knees": {
+      "upstreamId": "high-knees",
+      "nameEn": "High Knees",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "high-knees-main.webp"
+        }
+      ],
+      "thumb": "high-knees-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/high-knees-main.webp",
+      "label": "Elevação de joelhos",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:step-ups": {
+      "upstreamId": "step-ups",
+      "nameEn": "Step Ups",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "step-ups-peak.webp"
+        }
+      ],
+      "thumb": "step-ups-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/step-ups-peak.webp",
+      "label": "Subida no degrau",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:burpees": {
+      "upstreamId": "burpees",
+      "nameEn": "Burpees",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "burpees-main.webp"
+        }
+      ],
+      "thumb": "burpees-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/burpees-main.webp",
+      "label": "Burpee",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:mountain-climbers": {
+      "upstreamId": "mountain-climbers",
+      "nameEn": "Mountain Climbers",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "mountain-climbers-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "mountain-climbers-peak.webp"
+        }
+      ],
+      "thumb": "mountain-climbers-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/mountain-climbers-peak.webp",
+      "label": "Mountain climber",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:push-up": {
+      "upstreamId": "push-up",
+      "nameEn": "Push-Up",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "push-up-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "push-up-peak.webp"
+        }
+      ],
+      "thumb": "push-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/push-up-peak.webp",
+      "label": "Flexão de braço",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:spiderman-push-up": {
+      "upstreamId": "spiderman-push-up",
+      "nameEn": "Spiderman Push-Up",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "spiderman-push-up-peak.webp"
+        }
+      ],
+      "thumb": "spiderman-push-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/spiderman-push-up-peak.webp",
+      "label": "Flexão aranha",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:ring-push-up": {
+      "upstreamId": "ring-push-up",
+      "nameEn": "Ring Push-Up",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "ring-push-up-peak.webp"
+        }
+      ],
+      "thumb": "ring-push-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/ring-push-up-peak.webp",
+      "label": "Flexão nas argolas",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:plyo-push-up": {
+      "upstreamId": "plyo-push-up",
+      "nameEn": "Plyo Push-Up",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "plyo-push-up-peak.webp"
+        }
+      ],
+      "thumb": "plyo-push-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/plyo-push-up-peak.webp",
+      "label": "Flexão pliométrica",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:bodyweight-squat": {
+      "upstreamId": "bodyweight-squat",
+      "nameEn": "Bodyweight Squat",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "bodyweight-squat-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "bodyweight-squat-peak.webp"
+        }
+      ],
+      "thumb": "bodyweight-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/bodyweight-squat-peak.webp",
+      "label": "Agachamento livre",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:zercher-squat": {
+      "upstreamId": "zercher-squat",
+      "nameEn": "Zercher Squat",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "zercher-squat-peak.webp"
+        }
+      ],
+      "thumb": "zercher-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/zercher-squat-peak.webp",
+      "label": "Agachamento Zercher",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:trx-squat": {
+      "upstreamId": "trx-squat",
+      "nameEn": "TRX Squat",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "trx-squat-peak.webp"
+        }
+      ],
+      "thumb": "trx-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-squat-peak.webp",
+      "label": "Agachamento no TRX",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:trx-pistol-squat": {
+      "upstreamId": "trx-pistol-squat",
+      "nameEn": "TRX Pistol Squat",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "trx-pistol-squat-peak.webp"
+        }
+      ],
+      "thumb": "trx-pistol-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-pistol-squat-peak.webp",
+      "label": "Agachamento pistola no TRX",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:pull-up": {
+      "upstreamId": "pull-up",
+      "nameEn": "Pull-Up",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "pull-up-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "pull-up-peak.webp"
+        }
+      ],
+      "thumb": "pull-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pull-up-peak.webp",
+      "label": "Barra fixa (pegada pronada)",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:weighted-pull-up": {
+      "upstreamId": "weighted-pull-up",
+      "nameEn": "Weighted Pull-Up",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "weighted-pull-up-peak.webp"
+        }
+      ],
+      "thumb": "weighted-pull-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/weighted-pull-up-peak.webp",
+      "label": "Barra fixa com carga",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:pause-pull-up": {
+      "upstreamId": "pause-pull-up",
+      "nameEn": "Pause Pull-Up",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "pause-pull-up-peak.webp"
+        }
+      ],
+      "thumb": "pause-pull-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pause-pull-up-peak.webp",
+      "label": "Barra fixa com pausa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:commando-pull-up": {
+      "upstreamId": "commando-pull-up",
+      "nameEn": "Commando Pull-Up",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "commando-pull-up-peak.webp"
+        }
+      ],
+      "thumb": "commando-pull-up-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/commando-pull-up-peak.webp",
+      "label": "Barra fixa comando",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:inverted-row": {
+      "upstreamId": "inverted-row",
+      "nameEn": "Inverted Row",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "inverted-row-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "inverted-row-peak.webp"
+        }
+      ],
+      "thumb": "inverted-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/inverted-row-peak.webp",
+      "label": "Remada invertida",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:pendlay-row": {
+      "upstreamId": "pendlay-row",
+      "nameEn": "Pendlay Row",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "pendlay-row-peak.webp"
+        }
+      ],
+      "thumb": "pendlay-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pendlay-row-peak.webp",
+      "label": "Remada Pendlay",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:rings-inverted-row": {
+      "upstreamId": "rings-inverted-row",
+      "nameEn": "Rings Inverted Row",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "rings-inverted-row-peak.webp"
+        }
+      ],
+      "thumb": "rings-inverted-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/rings-inverted-row-peak.webp",
+      "label": "Remada invertida nas argolas",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:t-bar-row": {
+      "upstreamId": "t-bar-row",
+      "nameEn": "T-Bar Row",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "t-bar-row-peak.webp"
+        }
+      ],
+      "thumb": "t-bar-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/t-bar-row-peak.webp",
+      "label": "Remada com barra T",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:dips": {
+      "upstreamId": "dips",
+      "nameEn": "Chest Dips",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "dips-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "dips-peak.webp"
+        }
+      ],
+      "thumb": "dips-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dips-peak.webp",
+      "label": "Paralela (mergulho)",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:weighted-dips": {
+      "upstreamId": "weighted-dips",
+      "nameEn": "Weighted Dips",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "weighted-dips-peak.webp"
+        }
+      ],
+      "thumb": "weighted-dips-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/weighted-dips-peak.webp",
+      "label": "Mergulho com carga",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:ring-dips": {
+      "upstreamId": "ring-dips",
+      "nameEn": "Ring Dips",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "ring-dips-peak.webp"
+        }
+      ],
+      "thumb": "ring-dips-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/ring-dips-peak.webp",
+      "label": "Mergulho nas argolas",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:assisted-dips": {
+      "upstreamId": "assisted-dips",
+      "nameEn": "Machine Assisted Dips",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "assisted-dips-peak.webp"
+        }
+      ],
+      "thumb": "assisted-dips-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/assisted-dips-peak.webp",
+      "label": "Mergulho assistido na máquina",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:lunge": {
+      "upstreamId": "lunge",
+      "nameEn": "Lunge",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "lunge-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "lunge-peak.webp"
+        }
+      ],
+      "thumb": "lunge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lunge-peak.webp",
+      "label": "Afundo",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:walking-lunge": {
+      "upstreamId": "walking-lunge",
+      "nameEn": "Walking Lunge",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "walking-lunge-peak.webp"
+        }
+      ],
+      "thumb": "walking-lunge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/walking-lunge-peak.webp",
+      "label": "Afundo caminhando",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:trx-lunge": {
+      "upstreamId": "trx-lunge",
+      "nameEn": "TRX Lunge",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "trx-lunge-peak.webp"
+        }
+      ],
+      "thumb": "trx-lunge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-lunge-peak.webp",
+      "label": "Afundo no TRX",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:smith-machine-reverse-lunge": {
+      "upstreamId": "smith-machine-reverse-lunge",
+      "nameEn": "Smith Machine Reverse Lunge",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "smith-machine-reverse-lunge-peak.webp"
+        }
+      ],
+      "thumb": "smith-machine-reverse-lunge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/smith-machine-reverse-lunge-peak.webp",
+      "label": "Afundo reverso na máquina Smith",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:glute-bridge": {
+      "upstreamId": "glute-bridge",
+      "nameEn": "Glute Bridge",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "glute-bridge-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "glute-bridge-peak.webp"
+        }
+      ],
+      "thumb": "glute-bridge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/glute-bridge-peak.webp",
+      "label": "Ponte de glúteo",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:single-leg-glute-bridge-hold": {
+      "upstreamId": "single-leg-glute-bridge-hold",
+      "nameEn": "Single-Leg Glute Bridge Hold",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "single-leg-glute-bridge-hold-main.webp"
+        }
+      ],
+      "thumb": "single-leg-glute-bridge-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-glute-bridge-hold-main.webp",
+      "label": "Ponte de glúteo unilateral sustentada",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:single-leg-glute-bridge": {
+      "upstreamId": "single-leg-glute-bridge",
+      "nameEn": "Single Leg Glute Bridge",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "single-leg-glute-bridge-peak.webp"
+        }
+      ],
+      "thumb": "single-leg-glute-bridge-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-glute-bridge-peak.webp",
+      "label": "Ponte de glúteo unilateral",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:glute-bridge-hold": {
+      "upstreamId": "glute-bridge-hold",
+      "nameEn": "Glute Bridge Hold",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "glute-bridge-hold-main.webp"
+        }
+      ],
+      "thumb": "glute-bridge-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/glute-bridge-hold-main.webp",
+      "label": "Ponte de glúteo sustentada",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:plank": {
+      "upstreamId": "plank",
+      "nameEn": "Plank",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "plank-main.webp"
+        }
+      ],
+      "thumb": "plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/plank-main.webp",
+      "label": "Prancha frontal",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:trx-plank": {
+      "upstreamId": "trx-plank",
+      "nameEn": "TRX Plank",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "trx-plank-main.webp"
+        }
+      ],
+      "thumb": "trx-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-plank-main.webp",
+      "label": "Prancha no TRX",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:ring-plank": {
+      "upstreamId": "ring-plank",
+      "nameEn": "Ring Plank",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "ring-plank-main.webp"
+        }
+      ],
+      "thumb": "ring-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/ring-plank-main.webp",
+      "label": "Prancha nas argolas",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:high-plank": {
+      "upstreamId": "high-plank",
+      "nameEn": "High Plank",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "high-plank-main.webp"
+        }
+      ],
+      "thumb": "high-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/high-plank-main.webp",
+      "label": "Prancha alta",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:side-plank": {
+      "upstreamId": "side-plank",
+      "nameEn": "Side Plank",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "side-plank-main.webp"
+        }
+      ],
+      "thumb": "side-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/side-plank-main.webp",
+      "label": "Prancha lateral",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:trx-side-plank": {
+      "upstreamId": "trx-side-plank",
+      "nameEn": "TRX Side Plank",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "trx-side-plank-main.webp"
+        }
+      ],
+      "thumb": "trx-side-plank-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/trx-side-plank-main.webp",
+      "label": "Prancha lateral no TRX",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:side-plank-leg-lift-hold": {
+      "upstreamId": "side-plank-leg-lift-hold",
+      "nameEn": "Side Plank Leg Lift Hold",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "side-plank-leg-lift-hold-main.webp"
+        }
+      ],
+      "thumb": "side-plank-leg-lift-hold-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/side-plank-leg-lift-hold-main.webp",
+      "label": "Prancha lateral com perna elevada (sustentado)",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:side-plank-leg-lift": {
+      "upstreamId": "side-plank-leg-lift",
+      "nameEn": "Side Plank with Leg Lift",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "side-plank-leg-lift-peak.webp"
+        }
+      ],
+      "thumb": "side-plank-leg-lift-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/side-plank-leg-lift-peak.webp",
+      "label": "Prancha lateral com elevação de perna",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:crunches": {
+      "upstreamId": "crunches",
+      "nameEn": "Crunches",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "crunches-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "crunches-peak.webp"
+        }
+      ],
+      "thumb": "crunches-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/crunches-peak.webp",
+      "label": "Abdominal supra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:reverse-crunches": {
+      "upstreamId": "reverse-crunches",
+      "nameEn": "Reverse Crunches",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "reverse-crunches-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "reverse-crunches-peak.webp"
+        }
+      ],
+      "thumb": "reverse-crunches-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-crunches-peak.webp",
+      "label": "Abdominal infra (reverso)",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:weighted-wall-crunch": {
+      "upstreamId": "weighted-wall-crunch",
+      "nameEn": "Weighted Wall Crunch",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "weighted-wall-crunch-peak.webp"
+        }
+      ],
+      "thumb": "weighted-wall-crunch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/weighted-wall-crunch-peak.webp",
+      "label": "Abdominal com carga na parede",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:sit-ups": {
+      "upstreamId": "sit-ups",
+      "nameEn": "Sit-Ups",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "sit-ups-peak.webp"
+        }
+      ],
+      "thumb": "sit-ups-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/sit-ups-peak.webp",
+      "label": "Abdominal completo",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:lying-leg-raise": {
+      "upstreamId": "lying-leg-raise",
+      "nameEn": "Lying Leg Raise",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "lying-leg-raise-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "lying-leg-raise-peak.webp"
+        }
+      ],
+      "thumb": "lying-leg-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lying-leg-raise-peak.webp",
+      "label": "Elevação de pernas deitado",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:hanging-leg-raise": {
+      "upstreamId": "hanging-leg-raise",
+      "nameEn": "Hanging Leg Raise",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "hanging-leg-raise-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "hanging-leg-raise-peak.webp"
+        }
+      ],
+      "thumb": "hanging-leg-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/hanging-leg-raise-peak.webp",
+      "label": "Elevação de pernas na barra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:captains-chair-leg-raise": {
+      "upstreamId": "captains-chair-leg-raise",
+      "nameEn": "Captain's Chair Leg Raise",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "captains-chair-leg-raise-peak.webp"
+        }
+      ],
+      "thumb": "captains-chair-leg-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/captains-chair-leg-raise-peak.webp",
+      "label": "Elevação de pernas na cadeira romana",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:hanging-knee-raise": {
+      "upstreamId": "hanging-knee-raise",
+      "nameEn": "Hanging Knee Raise",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "hanging-knee-raise-peak.webp"
+        }
+      ],
+      "thumb": "hanging-knee-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/hanging-knee-raise-peak.webp",
+      "label": "Elevação de joelhos na barra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:incline-treadmill-walk": {
+      "upstreamId": "incline-treadmill-walk",
+      "nameEn": "Incline Treadmill Walk",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "incline-treadmill-walk-main.webp"
+        }
+      ],
+      "thumb": "incline-treadmill-walk-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/incline-treadmill-walk-main.webp",
+      "label": "Caminhada em esteira inclinada",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:elliptical-trainer": {
+      "upstreamId": "elliptical-trainer",
+      "nameEn": "Elliptical Trainer",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "elliptical-trainer-main.webp"
+        }
+      ],
+      "thumb": "elliptical-trainer-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/elliptical-trainer-main.webp",
+      "label": "Elíptico",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:wall-ball": {
+      "upstreamId": "wall-ball",
+      "nameEn": "Wall Ball",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "wall-ball-main.webp"
+        }
+      ],
+      "thumb": "wall-ball-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/wall-ball-main.webp",
+      "label": "Arremesso de bola na parede",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:v-ups": {
+      "upstreamId": "v-ups",
+      "nameEn": "V Ups",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "v-ups-peak.webp"
+        }
+      ],
+      "thumb": "v-ups-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/v-ups-peak.webp",
+      "label": "Abdominal V-ups",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:scissor-kicks": {
+      "upstreamId": "scissor-kicks",
+      "nameEn": "Scissor Kicks",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "scissor-kicks-peak.webp"
+        }
+      ],
+      "thumb": "scissor-kicks-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/scissor-kicks-peak.webp",
+      "label": "Chutes tesoura",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:walking": {
+      "upstreamId": "walking",
+      "nameEn": "Walking",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "walking-main.webp"
+        }
+      ],
+      "thumb": "walking-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/walking-main.webp",
+      "label": "Caminhada",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:treadmill-running": {
+      "upstreamId": "treadmill-running",
+      "nameEn": "Treadmill Running",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "treadmill-running-main.webp"
+        }
+      ],
+      "thumb": "treadmill-running-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/treadmill-running-main.webp",
+      "label": "Corrida na esteira",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:bench-press": {
+      "upstreamId": "bench-press",
+      "nameEn": "Barbell Bench Press",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "bench-press-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "bench-press-peak.webp"
+        }
+      ],
+      "thumb": "bench-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/bench-press-peak.webp",
+      "label": "Supino reto com barra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:wide-grip-bench-press": {
+      "upstreamId": "wide-grip-bench-press",
+      "nameEn": "Wide-Grip Bench Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "wide-grip-bench-press-peak.webp"
+        }
+      ],
+      "thumb": "wide-grip-bench-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/wide-grip-bench-press-peak.webp",
+      "label": "Supino com pegada aberta",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:paused-incline-bench-press": {
+      "upstreamId": "paused-incline-bench-press",
+      "nameEn": "Paused Incline Bench Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "paused-incline-bench-press-peak.webp"
+        }
+      ],
+      "thumb": "paused-incline-bench-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/paused-incline-bench-press-peak.webp",
+      "label": "Supino inclinado com pausa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:paused-bench-press": {
+      "upstreamId": "paused-bench-press",
+      "nameEn": "Paused Bench Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "paused-bench-press-peak.webp"
+        }
+      ],
+      "thumb": "paused-bench-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/paused-bench-press-peak.webp",
+      "label": "Supino com pausa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:squat": {
+      "upstreamId": "squat",
+      "nameEn": "Barbell Back Squat",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "squat-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "squat-peak.webp"
+        }
+      ],
+      "thumb": "squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/squat-peak.webp",
+      "label": "Agachamento com barra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:sumo-squat": {
+      "upstreamId": "sumo-squat",
+      "nameEn": "Sumo Squat",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "sumo-squat-peak.webp"
+        }
+      ],
+      "thumb": "sumo-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/sumo-squat-peak.webp",
+      "label": "Agachamento sumô com barra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:pause-squat": {
+      "upstreamId": "pause-squat",
+      "nameEn": "Pause Squat",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "pause-squat-peak.webp"
+        }
+      ],
+      "thumb": "pause-squat-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pause-squat-peak.webp",
+      "label": "Agachamento com pausa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:deadlift": {
+      "upstreamId": "deadlift",
+      "nameEn": "Barbell Deadlift",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "deadlift-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "deadlift-peak.webp"
+        }
+      ],
+      "thumb": "deadlift-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/deadlift-peak.webp",
+      "label": "Levantamento terra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:pause-deadlift": {
+      "upstreamId": "pause-deadlift",
+      "nameEn": "Pause Deadlift",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "pause-deadlift-peak.webp"
+        }
+      ],
+      "thumb": "pause-deadlift-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/pause-deadlift-peak.webp",
+      "label": "Levantamento terra com pausa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:deficit-deadlift": {
+      "upstreamId": "deficit-deadlift",
+      "nameEn": "Deficit Deadlift",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "deficit-deadlift-peak.webp"
+        }
+      ],
+      "thumb": "deficit-deadlift-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/deficit-deadlift-peak.webp",
+      "label": "Levantamento terra com déficit",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:rack-pull": {
+      "upstreamId": "rack-pull",
+      "nameEn": "Rack Pull",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "rack-pull-peak.webp"
+        }
+      ],
+      "thumb": "rack-pull-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/rack-pull-peak.webp",
+      "label": "Puxada no suporte (rack pull)",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:lat-pulldown": {
+      "upstreamId": "lat-pulldown",
+      "nameEn": "Lat Pulldown",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "lat-pulldown-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "lat-pulldown-peak.webp"
+        }
+      ],
+      "thumb": "lat-pulldown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lat-pulldown-peak.webp",
+      "label": "Puxada frontal",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:reverse-grip-lat-pulldown": {
+      "upstreamId": "reverse-grip-lat-pulldown",
+      "nameEn": "Reverse Grip Lat Pulldown",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "reverse-grip-lat-pulldown-peak.webp"
+        }
+      ],
+      "thumb": "reverse-grip-lat-pulldown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-grip-lat-pulldown-peak.webp",
+      "label": "Puxada com pegada inversa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:close-grip-lat-pulldown": {
+      "upstreamId": "close-grip-lat-pulldown",
+      "nameEn": "Close Grip Lat Pulldown",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "close-grip-lat-pulldown-peak.webp"
+        }
+      ],
+      "thumb": "close-grip-lat-pulldown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/close-grip-lat-pulldown-peak.webp",
+      "label": "Puxada frontal com pegada fechada",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:wide-grip-pull-ups": {
+      "upstreamId": "wide-grip-pull-ups",
+      "nameEn": "Wide Grip Pull Ups",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "wide-grip-pull-ups-peak.webp"
+        }
+      ],
+      "thumb": "wide-grip-pull-ups-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/wide-grip-pull-ups-peak.webp",
+      "label": "Barra fixa com pegada aberta",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:dumbbell-shoulder-press": {
+      "upstreamId": "dumbbell-shoulder-press",
+      "nameEn": "Dumbbell Shoulder Press",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "dumbbell-shoulder-press-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "dumbbell-shoulder-press-peak.webp"
+        }
+      ],
+      "thumb": "dumbbell-shoulder-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-shoulder-press-peak.webp",
+      "label": "Desenvolvimento com halteres",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:seated-db-press": {
+      "upstreamId": "seated-db-press",
+      "nameEn": "Seated Dumbbell Shoulder Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "seated-db-press-peak.webp"
+        }
+      ],
+      "thumb": "seated-db-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/seated-db-press-peak.webp",
+      "label": "Desenvolvimento sentado com halteres",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:one-arm-dumbbell-shoulder-press": {
+      "upstreamId": "one-arm-dumbbell-shoulder-press",
+      "nameEn": "One Arm Dumbbell Shoulder Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "one-arm-dumbbell-shoulder-press-peak.webp"
+        }
+      ],
+      "thumb": "one-arm-dumbbell-shoulder-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/one-arm-dumbbell-shoulder-press-peak.webp",
+      "label": "Desenvolvimento unilateral com halter",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:arnold-press": {
+      "upstreamId": "arnold-press",
+      "nameEn": "Arnold Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "arnold-press-peak.webp"
+        }
+      ],
+      "thumb": "arnold-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/arnold-press-peak.webp",
+      "label": "Desenvolvimento Arnold",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:barbell-row": {
+      "upstreamId": "barbell-row",
+      "nameEn": "Bent-Over Barbell Row",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "barbell-row-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "barbell-row-peak.webp"
+        }
+      ],
+      "thumb": "barbell-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/barbell-row-peak.webp",
+      "label": "Remada curvada com barra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:reverse-grip-bent-over-row": {
+      "upstreamId": "reverse-grip-bent-over-row",
+      "nameEn": "Reverse Grip Bent Over Row",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "reverse-grip-bent-over-row-peak.webp"
+        }
+      ],
+      "thumb": "reverse-grip-bent-over-row-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-grip-bent-over-row-peak.webp",
+      "label": "Remada curvada com pegada inversa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:leg-press": {
+      "upstreamId": "leg-press",
+      "nameEn": "Leg Press",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "leg-press-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "leg-press-peak.webp"
+        }
+      ],
+      "thumb": "leg-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-press-peak.webp",
+      "label": "Leg press 45°",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:single-leg-press": {
+      "upstreamId": "single-leg-press",
+      "nameEn": "Single Leg Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "single-leg-press-peak.webp"
+        }
+      ],
+      "thumb": "single-leg-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-press-peak.webp",
+      "label": "Leg press unilateral",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:horizontal-leg-press": {
+      "upstreamId": "horizontal-leg-press",
+      "nameEn": "Horizontal Leg Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "horizontal-leg-press-peak.webp"
+        }
+      ],
+      "thumb": "horizontal-leg-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/horizontal-leg-press-peak.webp",
+      "label": "Leg press horizontal",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:high-foot-leg-press": {
+      "upstreamId": "high-foot-leg-press",
+      "nameEn": "High-Foot Leg Press",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "high-foot-leg-press-peak.webp"
+        }
+      ],
+      "thumb": "high-foot-leg-press-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/high-foot-leg-press-peak.webp",
+      "label": "Leg press com pés altos",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:barbell-curl": {
+      "upstreamId": "barbell-curl",
+      "nameEn": "Barbell Curl",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "barbell-curl-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "barbell-curl-peak.webp"
+        }
+      ],
+      "thumb": "barbell-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/barbell-curl-peak.webp",
+      "label": "Rosca direta com barra",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:barbell-preacher-curl": {
+      "upstreamId": "barbell-preacher-curl",
+      "nameEn": "Barbell Preacher Curl",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "barbell-preacher-curl-peak.webp"
+        }
+      ],
+      "thumb": "barbell-preacher-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/barbell-preacher-curl-peak.webp",
+      "label": "Rosca no banco Scott",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:cheat-curl": {
+      "upstreamId": "cheat-curl",
+      "nameEn": "Cheat Curl",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "cheat-curl-peak.webp"
+        }
+      ],
+      "thumb": "cheat-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cheat-curl-peak.webp",
+      "label": "Rosca com impulso (cheat curl)",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:reverse-curl": {
+      "upstreamId": "reverse-curl",
+      "nameEn": "Reverse Curl",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "reverse-curl-peak.webp"
+        }
+      ],
+      "thumb": "reverse-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-curl-peak.webp",
+      "label": "Rosca inversa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:tricep-pushdown": {
+      "upstreamId": "tricep-pushdown",
+      "nameEn": "Cable Tricep Pushdown",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "tricep-pushdown-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "tricep-pushdown-peak.webp"
+        }
+      ],
+      "thumb": "tricep-pushdown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/tricep-pushdown-peak.webp",
+      "label": "Tríceps na polia",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:v-bar-tricep-pushdown": {
+      "upstreamId": "v-bar-tricep-pushdown",
+      "nameEn": "V-Bar Tricep Pushdown",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "v-bar-tricep-pushdown-peak.webp"
+        }
+      ],
+      "thumb": "v-bar-tricep-pushdown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/v-bar-tricep-pushdown-peak.webp",
+      "label": "Tríceps na polia com barra V",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:single-arm-tricep-pushdown": {
+      "upstreamId": "single-arm-tricep-pushdown",
+      "nameEn": "Single Arm Tricep Pushdown",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "single-arm-tricep-pushdown-peak.webp"
+        }
+      ],
+      "thumb": "single-arm-tricep-pushdown-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-arm-tricep-pushdown-peak.webp",
+      "label": "Tríceps na polia unilateral",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:machine-triceps-extension": {
+      "upstreamId": "machine-triceps-extension",
+      "nameEn": "Machine Triceps Extension",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "machine-triceps-extension-peak.webp"
+        }
+      ],
+      "thumb": "machine-triceps-extension-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/machine-triceps-extension-peak.webp",
+      "label": "Extensão de tríceps na máquina",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:leg-extension": {
+      "upstreamId": "leg-extension",
+      "nameEn": "Leg Extension",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "leg-extension-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "leg-extension-peak.webp"
+        }
+      ],
+      "thumb": "leg-extension-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-extension-peak.webp",
+      "label": "Cadeira extensora",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:single-leg-extension": {
+      "upstreamId": "single-leg-extension",
+      "nameEn": "Single Leg Extension",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "single-leg-extension-peak.webp"
+        }
+      ],
+      "thumb": "single-leg-extension-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-extension-peak.webp",
+      "label": "Cadeira extensora unilateral",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:reverse-nordic-curl": {
+      "upstreamId": "reverse-nordic-curl",
+      "nameEn": "Reverse Nordic Curl",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "reverse-nordic-curl-peak.webp"
+        }
+      ],
+      "thumb": "reverse-nordic-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/reverse-nordic-curl-peak.webp",
+      "label": "Flexão nórdica reversa",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:leg-curl": {
+      "upstreamId": "leg-curl",
+      "nameEn": "Lying Leg Curl",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "leg-curl-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "leg-curl-peak.webp"
+        }
+      ],
+      "thumb": "leg-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/leg-curl-peak.webp",
+      "label": "Mesa flexora",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:single-leg-lying-leg-curl": {
+      "upstreamId": "single-leg-lying-leg-curl",
+      "nameEn": "Single Leg Lying Leg Curl",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "single-leg-lying-leg-curl-peak.webp"
+        }
+      ],
+      "thumb": "single-leg-lying-leg-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-leg-lying-leg-curl-peak.webp",
+      "label": "Mesa flexora unilateral deitado",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:seated-leg-curl": {
+      "upstreamId": "seated-leg-curl",
+      "nameEn": "Seated Leg Curl",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "seated-leg-curl-peak.webp"
+        }
+      ],
+      "thumb": "seated-leg-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/seated-leg-curl-peak.webp",
+      "label": "Flexora sentado",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:ball-leg-curl": {
+      "upstreamId": "ball-leg-curl",
+      "nameEn": "Stability Ball Leg Curl",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "ball-leg-curl-peak.webp"
+        }
+      ],
+      "thumb": "ball-leg-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/ball-leg-curl-peak.webp",
+      "label": "Flexora com bola de estabilidade",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:lateral-raise": {
+      "upstreamId": "lateral-raise",
+      "nameEn": "Dumbbell Lateral Raise",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "lateral-raise-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "lateral-raise-peak.webp"
+        }
+      ],
+      "thumb": "lateral-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/lateral-raise-peak.webp",
+      "label": "Elevação lateral",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:seated-dumbbell-lateral-raise": {
+      "upstreamId": "seated-dumbbell-lateral-raise",
+      "nameEn": "Seated Dumbbell Lateral Raise",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "seated-dumbbell-lateral-raise-peak.webp"
+        }
+      ],
+      "thumb": "seated-dumbbell-lateral-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/seated-dumbbell-lateral-raise-peak.webp",
+      "label": "Elevação lateral sentado",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:single-arm-plate-loaded-lateral-raise": {
+      "upstreamId": "single-arm-plate-loaded-lateral-raise",
+      "nameEn": "Single-Arm Plate-Loaded Lateral Raise",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "single-arm-plate-loaded-lateral-raise-peak.webp"
+        }
+      ],
+      "thumb": "single-arm-plate-loaded-lateral-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/single-arm-plate-loaded-lateral-raise-peak.webp",
+      "label": "Elevação lateral unilateral com disco",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:plate-loaded-lateral-raise": {
+      "upstreamId": "plate-loaded-lateral-raise",
+      "nameEn": "Plate-Loaded Lateral Raise",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "plate-loaded-lateral-raise-peak.webp"
+        }
+      ],
+      "thumb": "plate-loaded-lateral-raise-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/plate-loaded-lateral-raise-peak.webp",
+      "label": "Elevação lateral com disco",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:cable-crunch": {
+      "upstreamId": "cable-crunch",
+      "nameEn": "Cable Crunch",
+      "poses": [
+        {
+          "kind": "start",
+          "file": "cable-crunch-start.webp"
+        },
+        {
+          "kind": "peak",
+          "file": "cable-crunch-peak.webp"
+        }
+      ],
+      "thumb": "cable-crunch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cable-crunch-peak.webp",
+      "label": "Abdominal na polia",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:machine-seated-crunch": {
+      "upstreamId": "machine-seated-crunch",
+      "nameEn": "Machine Seated Crunch",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "machine-seated-crunch-peak.webp"
+        }
+      ],
+      "thumb": "machine-seated-crunch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/machine-seated-crunch-peak.webp",
+      "label": "Abdominal na máquina sentado",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:decline-crunch": {
+      "upstreamId": "decline-crunch",
+      "nameEn": "Decline Crunch",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "decline-crunch-peak.webp"
+        }
+      ],
+      "thumb": "decline-crunch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/decline-crunch-peak.webp",
+      "label": "Abdominal declinado",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:flutter-kicks": {
+      "upstreamId": "flutter-kicks",
+      "nameEn": "Flutter Kicks",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "flutter-kicks-peak.webp"
+        }
+      ],
+      "thumb": "flutter-kicks-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/flutter-kicks-peak.webp",
+      "label": "Chutes flutter",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:stationary-bike": {
+      "upstreamId": "stationary-bike",
+      "nameEn": "Stationary Bike",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "stationary-bike-main.webp"
+        }
+      ],
+      "thumb": "stationary-bike-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/stationary-bike-main.webp",
+      "label": "Bicicleta ergométrica",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:air-bike": {
+      "upstreamId": "air-bike",
+      "nameEn": "Air Bike",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "air-bike-main.webp"
+        }
+      ],
+      "thumb": "air-bike-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/air-bike-main.webp",
+      "label": "Bike de ar (assault bike)",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:cycling": {
+      "upstreamId": "cycling",
+      "nameEn": "Cycling",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "cycling-main.webp"
+        }
+      ],
+      "thumb": "cycling-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/cycling-main.webp",
+      "label": "Pedalada em bicicleta",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:dumbbell-farmers-walk": {
+      "upstreamId": "dumbbell-farmers-walk",
+      "nameEn": "Dumbbell Farmer's Walk",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "dumbbell-farmers-walk-main.webp"
+        }
+      ],
+      "thumb": "dumbbell-farmers-walk-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-farmers-walk-main.webp",
+      "label": "Farmer walk com halteres",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:kettlebell-farmers-walk": {
+      "upstreamId": "kettlebell-farmers-walk",
+      "nameEn": "Kettlebell Farmer's Walk",
+      "poses": [
+        {
+          "kind": "main",
+          "file": "kettlebell-farmers-walk-main.webp"
+        }
+      ],
+      "thumb": "kettlebell-farmers-walk-main.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/kettlebell-farmers-walk-main.webp",
+      "label": "Farmer walk com kettlebell",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:dumbbell-snatch": {
+      "upstreamId": "dumbbell-snatch",
+      "nameEn": "Dumbbell Snatch",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "dumbbell-snatch-peak.webp"
+        }
+      ],
+      "thumb": "dumbbell-snatch-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-snatch-peak.webp",
+      "label": "Arranque com halter",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    },
+    "repdb:dumbbell-wrist-curl": {
+      "upstreamId": "dumbbell-wrist-curl",
+      "nameEn": "Dumbbell Wrist Curl",
+      "poses": [
+        {
+          "kind": "peak",
+          "file": "dumbbell-wrist-curl-peak.webp"
+        }
+      ],
+      "thumb": "dumbbell-wrist-curl-peak.webp",
+      "sourceUrl": "https://github.com/RepDB/exercise-dataset/blob/b407c5951a027a27817fb2a5cee9ec9feffc4dc7/images/flat/dumbbell-wrist-curl-peak.webp",
+      "label": "Rosca de punho com halter",
+      "creditId": "repdb",
+      "licenseId": "repdb-free-v1.0",
+      "labelVerified": true
+    }
+  }
+}

@@ -193,6 +193,7 @@ function normalizeExercise(raw, fallbackSection) {
 
   const type = raw.type === "duration" ? "duration" : "reps";
   const section = SECTION_NAMES[raw.section] ? raw.section : fallbackSection;
+  const demoId = F.normalizeDemoId(raw.demoId);
 
   return {
     id: typeof raw.id === "string" && raw.id ? raw.id : createId("exercise"),
@@ -218,7 +219,10 @@ function normalizeExercise(raw, fallbackSection) {
       : null,
     distanceUnit: raw.distanceUnit === "km" ? "km" : "m",
     libraryId: typeof raw.libraryId === "string" && raw.libraryId ? raw.libraryId : null,
-    instructions: normalizeOptionalText(raw.instructions, 600)
+    instructions: normalizeOptionalText(raw.instructions, 600),
+    /* Campo aditivo opcional (formato 3): escolha de demonstração visual.
+       Só entra quando presente, para não mudar o formato dos dados antigos. */
+    ...(demoId ? { demoId } : {})
   };
 }
 
@@ -1050,6 +1054,7 @@ function normalizeLibraryItem(raw, mode) {
   if (!name) return null;
 
   const type = raw.type === "duration" ? "duration" : "reps";
+  const demoId = F.normalizeDemoId(raw.demoId);
 
   return {
     id: typeof raw.id === "string" && raw.id ? raw.id : createId("lib-" + mode),
@@ -1075,7 +1080,9 @@ function normalizeLibraryItem(raw, mode) {
     equipment: normalizeStringList(raw.equipment, 6, 28),
     instructions: normalizeOptionalText(raw.instructions, 600),
     createdAt: Number(raw.createdAt) || null,
-    updatedAt: Number(raw.updatedAt) || null
+    updatedAt: Number(raw.updatedAt) || null,
+    /* Mesma escolha opcional de demonstração dos exercícios de rotina. */
+    ...(demoId ? { demoId } : {})
   };
 }
 
@@ -1651,6 +1658,16 @@ function assertExerciseShape(exercise, where) {
       throw new Error("Exercício com \"" + field + "\" inválido em " + where + ".");
     }
   });
+
+  /*
+    `demoId` é opt-in e curto. Validar aqui mantém a regra única de leitura
+    (boot) e de importação de backup: um valor malformado é rejeitado no
+    backup, e silenciosamente descartado na normalização do boot.
+  */
+  if (exercise.demoId !== undefined &&
+      F.normalizeDemoId(exercise.demoId) !== exercise.demoId) {
+    throw new Error("Exercício com demonstração visual inválida em " + where + ".");
+  }
 
   return true;
 }

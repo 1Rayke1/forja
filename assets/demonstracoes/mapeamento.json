@@ -1,0 +1,2189 @@
+{
+  "schemaVersion": 1,
+  "mappingVersion": 1,
+  "generatedAt": "2026-10-27",
+  "source": {
+    "name": "RepDB exercise-dataset (free tier)",
+    "repository": "https://github.com/RepDB/exercise-dataset",
+    "commit": "b407c5951a027a27817fb2a5cee9ec9feffc4dc7",
+    "license": "RepDB Free Tier License v1.0",
+    "licenseFile": "LICENSE-DATA.md",
+    "attribution": "Exercise data by RepDB (repdb.co)",
+    "attributionUrl": "https://repdb.co"
+  },
+  "policy": {
+    "statuses": {
+      "exact": "Mesmo movimento descrito no FORJA.",
+      "review": "Movimento aproximado ou diferente: exige selo Precisa de revisão.",
+      "none": "Sem demonstração fiel no catálogo local."
+    },
+    "confirmationRule": "Um candidato só é \"confirmado\" quando status=exact e reviews[demoId].visualCheck=confirmed com evidência registrada.",
+    "noNameMatching": "Exercícios personalizados não recebem correspondência automática por nome.",
+    "visualCheckValues": {
+      "confirmed": "Imagem inspecionada e compatível com o movimento do FORJA (apenas para status exact).",
+      "approximate": "Imagem inspecionada, mas o movimento é diferente/parcial; continua com selo Precisa de revisão.",
+      "pending": "Sem inspeção visual documentada; continua com selo Precisa de revisão.",
+      "rejected": "Imagem incorreta; removida do seletor."
+    },
+    "reviewerNote": "As revisões registradas neste arquivo foram feitas pelo agente, não pelo usuário do FORJA. Nenhuma confirmação foi atribuída ao usuário."
+  },
+  "reviews": {
+    "repdb:90-90-hold": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "90-90-hold-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:air-bike": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "air-bike-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:arnold-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:assisted-dips": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:ball-leg-curl": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:band-pull-apart": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "band-pull-apart-peak.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:banded-rear-delt-stretch": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "banded-rear-delt-stretch-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:banded-shoulder-stretch": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "banded-shoulder-stretch-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:barbell-curl": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "barbell-curl-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:barbell-preacher-curl": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:barbell-row": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "barbell-row-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:bench-press": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "bench-press-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:bodyweight-squat": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "bodyweight-squat-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:burpees": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "burpees-main.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:cable-crunch": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "cable-crunch-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:cable-external-rotation": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "cable-external-rotation-peak.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:captains-chair-leg-raise": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:cheat-curl": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:close-grip-lat-pulldown": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:commando-pull-up": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:cross-body-shoulder-stretch": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "cross-body-shoulder-stretch-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:crunches": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "crunches-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:cycling": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:deadlift": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "deadlift-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:decline-crunch": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:deficit-deadlift": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:dips": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "dips-peak.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:dumbbell-farmers-walk": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "dumbbell-farmers-walk-main.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:dumbbell-shoulder-press": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "dumbbell-shoulder-press-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:dumbbell-snatch": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:dumbbell-wrist-curl": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:elliptical-trainer": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:flutter-kicks": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:glute-bridge": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "glute-bridge-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:glute-bridge-hold": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:half-kneeling-hip-flexor-rock": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "half-kneeling-hip-flexor-rock-peak.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:hanging-knee-raise": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:hanging-leg-raise": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "hanging-leg-raise-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:high-foot-leg-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:high-knees": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "high-knees-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:high-plank": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:horizontal-leg-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:incline-treadmill-walk": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "incline-treadmill-walk-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:inverted-row": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "inverted-row-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:jumping-jacks": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "jumping-jacks-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:kettlebell-farmers-walk": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:kneeling-hip-flexor-stretch": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "kneeling-hip-flexor-stretch-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:lat-pulldown": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "lat-pulldown-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:lateral-raise": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "lateral-raise-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:lean-back-90-90-hold": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "lean-back-90-90-hold-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:leg-curl": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "leg-curl-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:leg-extension": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "leg-extension-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:leg-press": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "leg-press-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:lunge": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "lunge-peak.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:lying-leg-raise": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "lying-leg-raise-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:machine-seated-crunch": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:machine-triceps-extension": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:mountain-climbers": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "mountain-climbers-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:one-arm-dumbbell-shoulder-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:pause-deadlift": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:pause-pull-up": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:pause-squat": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:paused-bench-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:paused-incline-bench-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:pendlay-row": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:pigeon-stretch": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "pigeon-stretch-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:plank": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "plank-main.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:plate-loaded-lateral-raise": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:plyo-push-up": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:pull-up": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "pull-up-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:push-up": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "push-up-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:rack-pull": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:reverse-crunches": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "reverse-crunches-peak.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:reverse-curl": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:reverse-grip-bent-over-row": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:reverse-grip-lat-pulldown": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:reverse-nordic-curl": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:ring-dips": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:ring-plank": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:ring-push-up": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:rings-inverted-row": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:scissor-kicks": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:seated-db-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:seated-dumbbell-lateral-raise": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:seated-leg-curl": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:side-plank": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "side-plank-main.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:side-plank-leg-lift": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:side-plank-leg-lift-hold": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:single-arm-plate-loaded-lateral-raise": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:single-arm-tricep-pushdown": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:single-leg-extension": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:single-leg-glute-bridge": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:single-leg-glute-bridge-hold": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:single-leg-lying-leg-curl": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:single-leg-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:sit-ups": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:smith-machine-reverse-lunge": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:spiderman-push-up": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:squat": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "squat-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:stationary-bike": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "stationary-bike-main.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:step-ups": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "step-ups-peak.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:sumo-squat": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:t-bar-row": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:treadmill-running": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "treadmill-running-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:tricep-pushdown": {
+      "visualCheck": "confirmed",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "tricep-pushdown-peak.webp"
+      ],
+      "notes": "Still confere com o movimento descrito no FORJA. Hashes em manifest.json."
+    },
+    "repdb:trx-lunge": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:trx-pistol-squat": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:trx-plank": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:trx-side-plank": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:trx-squat": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:v-bar-tricep-pushdown": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:v-ups": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:walking": {
+      "visualCheck": "approximate",
+      "reviewedAt": "2026-10-27",
+      "reviewedBy": "agente Arena (inspeção visual assistida por ferramenta de leitura de imagem)",
+      "method": "Folhas de contato locais geradas com ImageMagick (sem IA generativa) comparando a instrução pt-BR do FORJA com o still RepDB.",
+      "evidenceFiles": [
+        "walking-main.webp"
+      ],
+      "notes": "Inspecionado: imagem mostra movimento diferente ou parcialmente diferente do descrito no FORJA; mantido como Precisa de revisão."
+    },
+    "repdb:walking-lunge": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:wall-ball": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:weighted-dips": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:weighted-pull-up": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:weighted-wall-crunch": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:wide-grip-bench-press": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:wide-grip-pull-ups": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    },
+    "repdb:zercher-squat": {
+      "visualCheck": "pending",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "method": null,
+      "evidenceFiles": [],
+      "notes": "Ainda não inspecionado visualmente; disponível apenas como alternativa no seletor com aviso."
+    }
+  },
+  "exercises": {
+    "calisthenics:cal-rotacao-ombros": {
+      "name": "Rotação de ombros",
+      "mode": "calisthenics",
+      "libraryId": "cal-rotacao-ombros",
+      "status": "none",
+      "defaultDemoId": null,
+      "candidates": [
+        {
+          "demoId": "repdb:band-pull-apart",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:cable-external-rotation",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:banded-shoulder-stretch",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:cross-body-shoulder-stretch",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:banded-rear-delt-stretch",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-mobilidade-quadril": {
+      "name": "Mobilidade de quadril",
+      "mode": "calisthenics",
+      "libraryId": "cal-mobilidade-quadril",
+      "status": "none",
+      "defaultDemoId": null,
+      "candidates": [
+        {
+          "demoId": "repdb:90-90-hold",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:lean-back-90-90-hold",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:pigeon-stretch",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:half-kneeling-hip-flexor-rock",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:kneeling-hip-flexor-stretch",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-polichinelo": {
+      "name": "Polichinelo",
+      "mode": "calisthenics",
+      "libraryId": "cal-polichinelo",
+      "status": "exact",
+      "defaultDemoId": "repdb:jumping-jacks",
+      "candidates": [
+        {
+          "demoId": "repdb:jumping-jacks",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:high-knees",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:step-ups",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:burpees",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:mountain-climbers",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-flexao": {
+      "name": "Flexão de braço",
+      "mode": "calisthenics",
+      "libraryId": "cal-flexao",
+      "status": "exact",
+      "defaultDemoId": "repdb:push-up",
+      "candidates": [
+        {
+          "demoId": "repdb:push-up",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:spiderman-push-up",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:ring-push-up",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:plyo-push-up",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-agachamento": {
+      "name": "Agachamento livre",
+      "mode": "calisthenics",
+      "libraryId": "cal-agachamento",
+      "status": "exact",
+      "defaultDemoId": "repdb:bodyweight-squat",
+      "candidates": [
+        {
+          "demoId": "repdb:bodyweight-squat",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:zercher-squat",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:trx-squat",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:trx-pistol-squat",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-barra-fixa": {
+      "name": "Barra fixa (pegada pronada)",
+      "mode": "calisthenics",
+      "libraryId": "cal-barra-fixa",
+      "status": "exact",
+      "defaultDemoId": "repdb:pull-up",
+      "candidates": [
+        {
+          "demoId": "repdb:pull-up",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:weighted-pull-up",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:pause-pull-up",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:commando-pull-up",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-remada-invertida": {
+      "name": "Remada invertida",
+      "mode": "calisthenics",
+      "libraryId": "cal-remada-invertida",
+      "status": "exact",
+      "defaultDemoId": "repdb:inverted-row",
+      "candidates": [
+        {
+          "demoId": "repdb:inverted-row",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:pendlay-row",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:rings-inverted-row",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:t-bar-row",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-mergulho": {
+      "name": "Paralela (mergulho)",
+      "mode": "calisthenics",
+      "libraryId": "cal-mergulho",
+      "status": "review",
+      "defaultDemoId": "repdb:dips",
+      "candidates": [
+        {
+          "demoId": "repdb:dips",
+          "status": "review",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:weighted-dips",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:ring-dips",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:assisted-dips",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-afundo": {
+      "name": "Afundo alternado",
+      "mode": "calisthenics",
+      "libraryId": "cal-afundo",
+      "status": "review",
+      "defaultDemoId": "repdb:lunge",
+      "candidates": [
+        {
+          "demoId": "repdb:lunge",
+          "status": "review",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:walking-lunge",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:trx-lunge",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:smith-machine-reverse-lunge",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-ponte": {
+      "name": "Ponte de glúteo",
+      "mode": "calisthenics",
+      "libraryId": "cal-ponte",
+      "status": "exact",
+      "defaultDemoId": "repdb:glute-bridge",
+      "candidates": [
+        {
+          "demoId": "repdb:glute-bridge",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:single-leg-glute-bridge-hold",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:single-leg-glute-bridge",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:glute-bridge-hold",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-prancha-frontal": {
+      "name": "Prancha frontal",
+      "mode": "calisthenics",
+      "libraryId": "cal-prancha-frontal",
+      "status": "exact",
+      "defaultDemoId": "repdb:plank",
+      "candidates": [
+        {
+          "demoId": "repdb:plank",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:trx-plank",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:ring-plank",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:high-plank",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-prancha-lateral": {
+      "name": "Prancha lateral",
+      "mode": "calisthenics",
+      "libraryId": "cal-prancha-lateral",
+      "status": "exact",
+      "defaultDemoId": "repdb:side-plank",
+      "candidates": [
+        {
+          "demoId": "repdb:side-plank",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:trx-side-plank",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:side-plank-leg-lift-hold",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:side-plank-leg-lift",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-abdominal-supra": {
+      "name": "Abdominal supra",
+      "mode": "calisthenics",
+      "libraryId": "cal-abdominal-supra",
+      "status": "exact",
+      "defaultDemoId": "repdb:crunches",
+      "candidates": [
+        {
+          "demoId": "repdb:crunches",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:reverse-crunches",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:weighted-wall-crunch",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:sit-ups",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-elevacao-pernas": {
+      "name": "Elevação de pernas",
+      "mode": "calisthenics",
+      "libraryId": "cal-elevacao-pernas",
+      "status": "exact",
+      "defaultDemoId": "repdb:lying-leg-raise",
+      "candidates": [
+        {
+          "demoId": "repdb:lying-leg-raise",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:hanging-leg-raise",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:captains-chair-leg-raise",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:hanging-knee-raise",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-abdominal-infra": {
+      "name": "Abdominal infra",
+      "mode": "calisthenics",
+      "libraryId": "cal-abdominal-infra",
+      "status": "review",
+      "defaultDemoId": "repdb:reverse-crunches",
+      "candidates": [
+        {
+          "demoId": "repdb:reverse-crunches",
+          "status": "review",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:crunches",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:weighted-wall-crunch",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:sit-ups",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-burpee": {
+      "name": "Burpee",
+      "mode": "calisthenics",
+      "libraryId": "cal-burpee",
+      "status": "exact",
+      "defaultDemoId": "repdb:burpees",
+      "candidates": [
+        {
+          "demoId": "repdb:burpees",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:incline-treadmill-walk",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:elliptical-trainer",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:wall-ball",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-mountain-climber": {
+      "name": "Mountain climber",
+      "mode": "calisthenics",
+      "libraryId": "cal-mountain-climber",
+      "status": "exact",
+      "defaultDemoId": "repdb:mountain-climbers",
+      "candidates": [
+        {
+          "demoId": "repdb:mountain-climbers",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:v-ups",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:scissor-kicks",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:hanging-leg-raise",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "calisthenics:cal-corrida-estacionaria": {
+      "name": "Corrida estacionária",
+      "mode": "calisthenics",
+      "libraryId": "cal-corrida-estacionaria",
+      "status": "none",
+      "defaultDemoId": null,
+      "candidates": [
+        {
+          "demoId": "repdb:high-knees",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:walking",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:step-ups",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:incline-treadmill-walk",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:treadmill-running",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-esteira": {
+      "name": "Esteira em ritmo leve",
+      "mode": "weights",
+      "libraryId": "mus-esteira",
+      "status": "review",
+      "defaultDemoId": "repdb:incline-treadmill-walk",
+      "candidates": [
+        {
+          "demoId": "repdb:incline-treadmill-walk",
+          "status": "review",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:treadmill-running",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:elliptical-trainer",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:burpees",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-mobilidade-ombro": {
+      "name": "Mobilidade de ombro com elástico",
+      "mode": "weights",
+      "libraryId": "mus-mobilidade-ombro",
+      "status": "review",
+      "defaultDemoId": "repdb:band-pull-apart",
+      "candidates": [
+        {
+          "demoId": "repdb:band-pull-apart",
+          "status": "review",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:banded-rear-delt-stretch",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:banded-shoulder-stretch",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:cable-external-rotation",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:cross-body-shoulder-stretch",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-supino-reto": {
+      "name": "Supino reto com barra",
+      "mode": "weights",
+      "libraryId": "mus-supino-reto",
+      "status": "exact",
+      "defaultDemoId": "repdb:bench-press",
+      "candidates": [
+        {
+          "demoId": "repdb:bench-press",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:wide-grip-bench-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:paused-incline-bench-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:paused-bench-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-agachamento-barra": {
+      "name": "Agachamento livre com barra",
+      "mode": "weights",
+      "libraryId": "mus-agachamento-barra",
+      "status": "exact",
+      "defaultDemoId": "repdb:squat",
+      "candidates": [
+        {
+          "demoId": "repdb:squat",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:zercher-squat",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:sumo-squat",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:pause-squat",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-terra": {
+      "name": "Levantamento terra",
+      "mode": "weights",
+      "libraryId": "mus-terra",
+      "status": "exact",
+      "defaultDemoId": "repdb:deadlift",
+      "candidates": [
+        {
+          "demoId": "repdb:deadlift",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:pause-deadlift",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:deficit-deadlift",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:rack-pull",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-puxada-frontal": {
+      "name": "Puxada frontal",
+      "mode": "weights",
+      "libraryId": "mus-puxada-frontal",
+      "status": "exact",
+      "defaultDemoId": "repdb:lat-pulldown",
+      "candidates": [
+        {
+          "demoId": "repdb:lat-pulldown",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:reverse-grip-lat-pulldown",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:close-grip-lat-pulldown",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:wide-grip-pull-ups",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-desenvolvimento": {
+      "name": "Desenvolvimento com halteres",
+      "mode": "weights",
+      "libraryId": "mus-desenvolvimento",
+      "status": "exact",
+      "defaultDemoId": "repdb:dumbbell-shoulder-press",
+      "candidates": [
+        {
+          "demoId": "repdb:dumbbell-shoulder-press",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:seated-db-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:one-arm-dumbbell-shoulder-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:arnold-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-remada-curvada": {
+      "name": "Remada curvada com barra",
+      "mode": "weights",
+      "libraryId": "mus-remada-curvada",
+      "status": "exact",
+      "defaultDemoId": "repdb:barbell-row",
+      "candidates": [
+        {
+          "demoId": "repdb:barbell-row",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:t-bar-row",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:reverse-grip-bent-over-row",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:pendlay-row",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-leg-press": {
+      "name": "Leg press 45°",
+      "mode": "weights",
+      "libraryId": "mus-leg-press",
+      "status": "exact",
+      "defaultDemoId": "repdb:leg-press",
+      "candidates": [
+        {
+          "demoId": "repdb:leg-press",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:single-leg-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:horizontal-leg-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:high-foot-leg-press",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-rosca-direta": {
+      "name": "Rosca direta",
+      "mode": "weights",
+      "libraryId": "mus-rosca-direta",
+      "status": "exact",
+      "defaultDemoId": "repdb:barbell-curl",
+      "candidates": [
+        {
+          "demoId": "repdb:barbell-curl",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:barbell-preacher-curl",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:cheat-curl",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:reverse-curl",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-triceps-polia": {
+      "name": "Tríceps na polia",
+      "mode": "weights",
+      "libraryId": "mus-triceps-polia",
+      "status": "exact",
+      "defaultDemoId": "repdb:tricep-pushdown",
+      "candidates": [
+        {
+          "demoId": "repdb:tricep-pushdown",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:v-bar-tricep-pushdown",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:single-arm-tricep-pushdown",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:machine-triceps-extension",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-extensora": {
+      "name": "Cadeira extensora",
+      "mode": "weights",
+      "libraryId": "mus-extensora",
+      "status": "exact",
+      "defaultDemoId": "repdb:leg-extension",
+      "candidates": [
+        {
+          "demoId": "repdb:leg-extension",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:single-leg-extension",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:reverse-nordic-curl",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-flexora": {
+      "name": "Mesa flexora",
+      "mode": "weights",
+      "libraryId": "mus-flexora",
+      "status": "exact",
+      "defaultDemoId": "repdb:leg-curl",
+      "candidates": [
+        {
+          "demoId": "repdb:leg-curl",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:single-leg-lying-leg-curl",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:seated-leg-curl",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:ball-leg-curl",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-elevacao-lateral": {
+      "name": "Elevação lateral",
+      "mode": "weights",
+      "libraryId": "mus-elevacao-lateral",
+      "status": "exact",
+      "defaultDemoId": "repdb:lateral-raise",
+      "candidates": [
+        {
+          "demoId": "repdb:lateral-raise",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:seated-dumbbell-lateral-raise",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:single-arm-plate-loaded-lateral-raise",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:plate-loaded-lateral-raise",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-abdominal-polia": {
+      "name": "Abdominal na polia",
+      "mode": "weights",
+      "libraryId": "mus-abdominal-polia",
+      "status": "exact",
+      "defaultDemoId": "repdb:cable-crunch",
+      "candidates": [
+        {
+          "demoId": "repdb:cable-crunch",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:weighted-wall-crunch",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:machine-seated-crunch",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:decline-crunch",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-prancha": {
+      "name": "Prancha frontal",
+      "mode": "weights",
+      "libraryId": "mus-prancha",
+      "status": "exact",
+      "defaultDemoId": "repdb:plank",
+      "candidates": [
+        {
+          "demoId": "repdb:plank",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:trx-plank",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:ring-plank",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:high-plank",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-elevacao-barra": {
+      "name": "Elevação de pernas na barra",
+      "mode": "weights",
+      "libraryId": "mus-elevacao-barra",
+      "status": "exact",
+      "defaultDemoId": "repdb:hanging-leg-raise",
+      "candidates": [
+        {
+          "demoId": "repdb:hanging-leg-raise",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:v-ups",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:scissor-kicks",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:flutter-kicks",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-bicicleta": {
+      "name": "Bicicleta ergométrica",
+      "mode": "weights",
+      "libraryId": "mus-bicicleta",
+      "status": "exact",
+      "defaultDemoId": "repdb:stationary-bike",
+      "candidates": [
+        {
+          "demoId": "repdb:stationary-bike",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:air-bike",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:cycling",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:elliptical-trainer",
+          "status": "review",
+          "reason": "Alternativa curada manualmente; movimento diferente do descrito no FORJA."
+        }
+      ]
+    },
+    "weights:mus-farmer": {
+      "name": "Farmer walk",
+      "mode": "weights",
+      "libraryId": "mus-farmer",
+      "status": "exact",
+      "defaultDemoId": "repdb:dumbbell-farmers-walk",
+      "candidates": [
+        {
+          "demoId": "repdb:dumbbell-farmers-walk",
+          "status": "exact",
+          "reason": "Movimento-base proposto para este exercício."
+        },
+        {
+          "demoId": "repdb:kettlebell-farmers-walk",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:dumbbell-snatch",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        },
+        {
+          "demoId": "repdb:dumbbell-wrist-curl",
+          "status": "review",
+          "reason": "Variação relacionada no catálogo RepDB; movimento diferente do descrito no FORJA."
+        }
+      ]
+    }
+  }
+}
