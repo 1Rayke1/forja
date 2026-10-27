@@ -64,9 +64,42 @@ Ela é apenas lida para a migração e incluída no backup.
   rest: 60,                   // segundos, 0..3600
   load: "40 kg",              // exibido/aceito na Musculação
   notes: "Descer controlado", // até 300 caracteres
-  section: "warmup" | "main" | "abs" | "finisher"
+  section: "warmup" | "main" | "abs" | "finisher",
+  // Campos aditivos do formato 3 (derivados/optional): measure, distance,
+  // distanceUnit, libraryId, instructions e:
+  demoId: "repdb:push-up"     // OPCIONAL. Ausente = usar padrão do catálogo.
+                              // "none" = escolha explícita "Sem demonstração".
 }
 ```
+
+#### 1.4.1 `demoId` — compatibilidade de armazenamento e backup
+
+`demoId` é um **rótulo curto** (≤ 80 caracteres, `^[a-z0-9][a-z0-9:_-]*$`) que
+aponta para uma entrada do catálogo local de ilustrações. Toda a procedência,
+licença e hash ficam no código/manifesto, nunca nos dados do usuário.
+
+- **Nenhuma chave nova** de armazenamento. O campo vive no objeto `Exercicio`
+  dentro de `forja-treino-rotinas-v1` e viaja para a fila da sessão ativa por
+  `flattenRoutine()` + `cloneData()`.
+- **`F.DATA_VERSION` continua 3 e `F.BACKUP_VERSION` continua 1.** A detecção
+  de esquema é por presença de chaves, não por campos; não há migração e não há
+  escrita no boot.
+- `normalizeExercise()` e `normalizeLibraryItem()` só incluem `demoId` quando o
+  valor é válido — registros antigos mantêm exatamente o mesmo formato.
+- `assertExerciseShape()` valida o campo quando presente; é a mesma regra usada
+  pelo boot e pela importação de backup (`validateRoutinesStore`,
+  `validateActiveSession`, `validateLibraryStore`).
+- **Backup antigo (sem o campo)** → importa normalmente e usa o padrão do
+  catálogo. **Backup novo (com o campo)** → `exportBackup` já varre a chave
+  inteira; `applyRestore` e `forja-backup-seguranca-v1` preservam o valor e o
+  “Desfazer última importação” o devolve.
+- **Versão antiga do app lendo backup novo** descarta o campo desconhecido na
+  normalização e volta ao padrão: sem corrupção, sem exceção.
+- Um `demoId` que deixou de existir no catálogo é ignorado por
+  `F.demos.resolve()`, que volta ao padrão e avisa — nunca imagem quebrada.
+
+A escolha é **por instância**: duas rotinas podem usar ilustrações diferentes
+para o mesmo `libraryId`. Cancelar um rascunho descarta escolhas não salvas.
 
 ### 1.5 Sessão ativa — versão 2
 

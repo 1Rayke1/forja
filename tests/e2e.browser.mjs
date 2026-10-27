@@ -265,7 +265,9 @@ async function clickCentered(selector) {
 
 async function go(rel) {
   currentLabel = rel || 'index';
+  if (process.env.FORJA_E2E_DEBUG) console.log('  [go] -> ' + (rel || 'index'));
   await page.goto(new URL(rel, BASE).href, { waitUntil: 'networkidle0' });
+  if (process.env.FORJA_E2E_DEBUG) console.log('  [go] ok ' + (rel || 'index'));
   // Rolagem suave faz o clique por coordenadas errar o alvo durante a animação.
   await page.addStyleTag({ content: 'html{scroll-behavior:auto !important}' });
   await sleep(120);
@@ -863,10 +865,18 @@ await check('Sessão ativa sobrevive à navegação e ao recarregamento', async 
   assert.ok(await isVisible('#active-session-banner'), 'Banner de sessão ativa ausente em progresso');
   await jsClick('#resume-active-session');
   await expectPath('/treino/executar.html');
+  /* A URL muda antes do primeiro render da execução: esperar o nome evita
+     ler '#current-name' ainda vazio (intermitente em máquina carregada). */
+  const nameReady = () => {
+    const el = document.querySelector('#current-name');
+    return Boolean(el && el.textContent.trim());
+  };
+  assert.ok(await waitFor(nameReady, 6000), 'Nome do exercício não renderizou após retomar');
   assert.equal(await text('#current-name'), name);
 
   await page.reload({ waitUntil: 'networkidle0' });
   assert.ok(await isVisible('#execution-live'), 'Sessão não sobreviveu ao recarregamento');
+  assert.ok(await waitFor(nameReady, 6000), 'Nome do exercício não renderizou após recarregar');
   assert.equal(await text('#current-name'), name);
 });
 
@@ -2070,10 +2080,14 @@ await check('Evolução 1 — consulta e inclusão contextual preservam rascunho
     assert.equal(await page.$$eval('#library-list .ui-exercise-row', els => els.length), count);
     await clickCentered('#library-list .ui-exercise-row button');
     assert.equal(await page.evaluate(() => document.activeElement.dataset.modalAction), 'cancel');
+    /* O detalhe agora tem botões de pose e links de crédito focáveis: a
+       proteção continua sendo o trap — Tab/Shift+Tab não saem do modal. */
     await page.keyboard.press('Tab');
-    assert.equal(await page.evaluate(() => document.activeElement.dataset.modalAction), 'cancel');
+    assert.ok(await page.evaluate(() => !!document.activeElement.closest('.modal-card')),
+      'Tab saiu do modal');
     await page.keyboard.down('Shift'); await page.keyboard.press('Tab'); await page.keyboard.up('Shift');
-    assert.equal(await page.evaluate(() => document.activeElement.dataset.modalAction), 'cancel');
+    assert.ok(await page.evaluate(() => !!document.activeElement.closest('.modal-card')),
+      'Shift+Tab saiu do modal');
     await page.screenshot({ path: artifactPath('evolucao1-editor-detalhes-390.png') });
     await page.keyboard.press('Escape');
     assert.equal(await page.evaluate(() => document.activeElement.getAttribute('aria-label')), 'Ver detalhes de Flexão de braço');
@@ -2135,6 +2149,147 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
     assert.equal(await page.$eval('#log-reps', el => el.value), '12');
     await clickCentered('#resume-session');
     assert.equal(await page.evaluate(() => Forja.state.activeWorkout.running), true);
+  } finally {
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Demonstrações: imagem local decodifica, créditos visíveis e fallback sem rede', async () => {
+  const before = errors.length;
+  await go('treino/biblioteca.html');
+
+  await page.evaluate(() => {
+    const row = [...document.querySelectorAll('#catalog-list .ui-exercise-row')]
+      .find(node => /Flexão de braço/.test(node.textContent));
+    if (!row) throw new Error('exercício Flexão de braço não encontrado');
+    row.querySelector('.ui-exercise-actions button').click();
+  });
+  await page.waitForSelector('.demo-media img', { timeout: 4000 });
+  await page.waitForFunction(() => {
+    const img = document.querySelector('.demo-media img');
+    return img && img.complete && img.naturalWidth > 0;
+  }, { timeout: 5000 });
+  const info = await page.$eval('.demo-media', el => ({
+    id: el.dataset.demoId,
+    confirmation: el.dataset.confirmation,
+    src: el.querySelector('img').getAttribute('src'),
+    width: el.querySelector('img').naturalWidth
+  }));
+  assert.equal(info.id, 'repdb:push-up');
+  assert.equal(info.confirmation, 'confirmed');
+  assert.equal(info.width, 512);
+  assert.ok(info.src.startsWith('../assets/demonstracoes/') || info.src.startsWith('assets/demonstracoes/'),
+    'imagem não é local: ' + info.src);
+  assert.match(await text('.demo-credit'), /RepDB/);
+  assert.equal(await page.$('.demo-badge'), null, 'exata não deve ter selo de revisão');
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('.modal-backdrop'), { timeout: 4000 });
+
+  await page.evaluate(() => {
+    const record = Forja.catalog.items('calisthenics').find(item => item.id === 'cal-rotacao-ombros');
+    Forja.catalog.showDetail(record, { readOnly: true });
+  });
+  await page.waitForSelector('.modal-backdrop .modal-details', { timeout: 4000 });
+  assert.match(await text('.modal-backdrop .modal-details'), /Demonstração visual ainda não disponível/);
+  assert.equal(await page.$('.demo-media'), null, 'exercício sem correspondência ganhou imagem');
+  await page.keyboard.press('Escape');
+
+  /* Nenhuma requisição externa: os créditos são links, não imagens remotas. */
+  const added = errors.slice(before);
+  assert.deepEqual(added.filter(e => /requestfailed|HTTP [45]/.test(e)), [],
+    'falha de recurso ao exibir demonstrações: ' + added.join(' | '));
+  await page.setViewport(MOBILE);
+});
+
+await check('Demonstrações: seletor no editor persiste demoId e chega à execução', async () => {
+  const saved = await forjaRaw();
+  const today = new Date().toISOString().slice(0, 10);
+  const routine = {
+    id: 'r-demo', name: 'Treino Demo', modality: 'calisthenics',
+    createdAt: 1, updatedAt: 1,
+    sections: {
+      warmup: [],
+      main: [{
+        id: 'm-demo', name: 'Flexão de braço', sets: 2, type: 'reps', reps: '10',
+        duration: 45, rest: 10, load: '', notes: '', section: 'main',
+        libraryId: 'cal-flexao'
+      }],
+      abs: [], finisher: []
+    }
+  };
+  try {
+    await restoreForjaRaw({});
+    await page.evaluate(r => localStorage.setItem('forja-treino-rotinas-v1',
+      JSON.stringify({ calisthenics: [r], weights: [] })), routine);
+    await go('treino/rotina.html?id=r-demo&modalidade=calisthenics');
+
+    await clickCentered('.editor-exercise .demo-row-button');
+    await page.waitForSelector('.demo-picker', { timeout: 4000 });
+    await page.waitForFunction(() => {
+      const img = document.querySelector('.demo-card img');
+      return img && img.complete && img.naturalWidth > 0;
+    }, { timeout: 5000 });
+    assert.ok((await page.$$('.demo-card')).length >= 4, 'seletor sem alternativas');
+    assert.match(await text('.demo-picker-notice'), /Precisa de revisão/);
+    assert.ok(await page.$('.demo-card-status.is-review'), 'sem selo de revisão');
+    assert.match(await text('.demo-card-source'), /RepDB/, 'card sem fonte');
+
+    /* Sem overflow em telas pequenas com o seletor aberto. */
+    for (const width of [320, 390, 768]) {
+      await page.setViewport({ width, height: 800 });
+      await sleep(120);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      assert.ok(overflow <= 1, 'Overflow no seletor a ' + width + 'px: ' + overflow);
+    }
+    await page.setViewport(MOBILE);
+
+    await fill('.demo-picker-input', 'aranha');
+    await sleep(80);
+    assert.ok((await page.$$('.demo-card')).length >= 1, 'busca não encontrou alternativa');
+    await jsClick('.demo-card[data-demo-id="repdb:spiderman-push-up"]');
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(200);
+    assert.equal(await page.$('.modal-backdrop'), null, 'seletor não fechou');
+
+    await clickCentered('#save-routine-top');
+    await sleep(160);
+    const stored = await data('forja-treino-rotinas-v1');
+    assert.equal(stored.calisthenics[0].sections.main[0].demoId, 'repdb:spiderman-push-up');
+
+    await go('treino/rotina.html?id=r-demo&modalidade=calisthenics');
+    await jsClick('.editor-exercise .exercise-tools button');
+    await page.waitForSelector('.demo-media', { timeout: 4000 });
+    assert.equal(await page.$eval('.demo-media', el => el.dataset.demoId),
+      'repdb:spiderman-push-up', 'reabrir editor perdeu a escolha');
+    assert.match(await text('.demo-badge'), /Precisa de revisão/);
+    await page.keyboard.press('Escape');
+
+    /* Sessão ativa com a mesma escolha. */
+    await page.evaluate((r, day) => {
+      const exercise = r.sections.main[0];
+      exercise.demoId = 'repdb:spiderman-push-up';
+      const session = {
+        version: 2, id: 's-demo', date: day, modality: 'calisthenics',
+        routineId: r.id, routineName: r.name, startedAt: Date.now() - 1000,
+        elapsedMs: 0, running: true, currentIndex: 0,
+        completedSets: { 'm-demo': 0 }, totalPlannedSets: exercise.sets,
+        queue: [Object.assign({}, exercise)], status: 'active',
+        restEndAt: null, restRemainingMs: 0, restPaused: false,
+        pendingAdvance: false, restPlannedSeconds: 0, setTimer: null,
+        setLogs: {}, logDraft: {}
+      };
+      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify(session));
+    }, routine, today);
+    await go('treino/executar.html');
+    await page.waitForFunction(() => {
+      const img = document.querySelector('#execution-demo .demo-image');
+      return img && img.complete && img.naturalWidth > 0;
+    }, { timeout: 5000 });
+    assert.equal(await page.$eval('#execution-demo .demo-media', el => el.dataset.demoId),
+      'repdb:spiderman-push-up');
+    assert.match(await text('#execution-demo .demo-credit'), /RepDB/);
+    assert.ok(await page.$('#execution-figure'), 'figura do atlas sumiu');
   } finally {
     await go('configuracoes/');
     await restoreForjaRaw(saved);

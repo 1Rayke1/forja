@@ -734,6 +734,9 @@
   let isNewRoutine = false;
   let draftDirty = false;
   let editingRef = null;
+  /* Escolha de demonstração feita no FORMULÁRIO (ainda não aplicada ao draft).
+     undefined = sem alteração pendente; null = remover escolha; string = id. */
+  let formDemoId;
   let librarySearchValue = "";
   /* Base da abertura do editor, para detectar mudanças externas (C3). */
   let editorRoutinesRawAtOpen = null;
@@ -809,6 +812,68 @@
     });
   }
 
+  /*
+    Abre o seletor de ilustrações para um exercício. Para a LINHA da rotina a
+    escolha é aplicada ao draft imediatamente (e marcada como não salva). Para
+    o FORMULÁRIO a escolha fica em `formDemoId` e só entra no exercício quando
+    o usuário confirma "Adicionar/Salvar exercício" — cancelar a edição ou
+    descartar o rascunho nunca grava nada.
+  */
+  function demoPickerRecord(exercise) {
+    if (exercise) {
+      return Object.assign({}, exercise, {
+        demoId: formDemoId !== undefined ? formDemoId : exercise.demoId
+      });
+    }
+    return {
+      id: "novo-exercicio",
+      name: byId("exercise-name").value.trim() || "Novo exercício",
+      demoId: formDemoId
+    };
+  }
+
+  function formExercise() {
+    if (!editingRef || !draft) return null;
+    const list = draft.sections[editingRef.section] || [];
+    return list.find(item => item.id === editingRef.id) || null;
+  }
+
+  function openDemoPickerForRow(section, exerciseId) {
+    if (!draft || !F.demos) return;
+    const list = draft.sections[section] || [];
+    const exercise = list.find(item => item.id === exerciseId);
+    if (!exercise) return;
+
+    F.demos.openPicker({
+      exercise,
+      mode: draftModality,
+      onConfirm(value) {
+        if (value === null) delete exercise.demoId;
+        else exercise.demoId = value;
+        markDirty();
+        renderEditorSections();
+        showToast("Imagem atualizada. Salve a rotina para confirmar.");
+      }
+    });
+  }
+
+  function openDemoPickerForForm() {
+    if (!draft || !F.demos) return;
+    const original = formExercise();
+    F.demos.openPicker({
+      exercise: demoPickerRecord(original),
+      mode: draftModality,
+      onConfirm(value) {
+        formDemoId = value;
+        showToast(value === F.DEMO_NONE
+          ? "Sem demonstração selecionado. Confirme o exercício."
+          : value === null
+            ? "Escolha removida; volta ao padrão do catálogo. Confirme o exercício."
+            : "Imagem selecionada. Confirme o exercício.");
+      }
+    });
+  }
+
   function renderEditorRow(section, exercise, index, count) {
     const row = document.createElement("div");
     row.className = "editor-exercise";
@@ -838,6 +903,13 @@
     });
     details.setAttribute("aria-label", "Ver detalhes de " + exercise.name);
     tools.appendChild(details);
+
+    const images = makeToolButton("Buscar outra imagem", () =>
+      openDemoPickerForRow(section, exercise.id));
+    images.setAttribute("aria-label", "Buscar outra imagem para " + exercise.name);
+    images.classList.add("demo-row-button");
+    tools.appendChild(images);
+
     tools.append(
       makeIconButton("↑", "Mover " + exercise.name + " para cima", index === 0,
         () => moveExercise(section, exercise.id, -1)),
@@ -914,6 +986,7 @@
 
   function resetExerciseForm(section) {
     editingRef = null;
+    formDemoId = undefined;
     byId("exercise-form").reset();
     byId("exercise-section").value = SECTION_NAMES[section] ? section : "main";
     byId("exercise-sets").value = 4;
@@ -1020,10 +1093,16 @@
       const original = draft.sections[editingRef.section]
         .find(item => item.id === editingRef.id);
       if (original) {
-        ["measure", "distance", "distanceUnit", "libraryId", "instructions"]
+        ["measure", "distance", "distanceUnit", "libraryId", "instructions", "demoId"]
           .forEach(field => {
             if (original[field] !== undefined) exercise[field] = original[field];
           });
+      }
+
+      /* A escolha pendente do seletor tem precedência sobre a herdada. */
+      if (formDemoId !== undefined) {
+        if (formDemoId === null) delete exercise.demoId;
+        else exercise.demoId = formDemoId;
       }
 
       const origin = draft.sections[editingRef.section];
@@ -1036,6 +1115,7 @@
         draft.sections[exercise.section].push(exercise);
       }
     } else {
+      if (formDemoId !== undefined && formDemoId !== null) exercise.demoId = formDemoId;
       draft.sections[exercise.section].push(exercise);
     }
 
@@ -1591,6 +1671,7 @@
     }
 
     byId("exercise-form").addEventListener("submit", handleExerciseSubmit);
+    byId("exercise-demo-button").addEventListener("click", openDemoPickerForForm);
     byId("cancel-exercise-edit").addEventListener("click", () => resetExerciseForm("main"));
     ["exercise-type-reps", "exercise-type-duration"].forEach(id => {
       byId(id).addEventListener("change", toggleMeasurementFields);

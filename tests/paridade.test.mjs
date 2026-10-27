@@ -1786,6 +1786,8 @@ await runTest("13a. Exportar/importar/desfazer preserva todas as chaves exatamen
     ])],
     weights: []
   };
+  /* Campo aditivo opcional: o round-trip de backup precisa preservá-lo. */
+  routines.calisthenics[0].sections.main[0].demoId = "repdb:spiderman-push-up";
   const activeSession = {
     version: 2,
     id: "session-roundtrip",
@@ -1838,6 +1840,8 @@ await runTest("13a. Exportar/importar/desfazer preserva todas as chaves exatamen
   const original = parsedStorage(app);
 
   const backup = app.F.buildBackupObject();
+  assert.equal(backup.keys["forja-treino-rotinas-v1"].calisthenics[0].sections.main[0].demoId,
+    "repdb:spiderman-push-up", "round-trip de backup não levou o demoId");
   assert.ok(backup.keys["forja-treino-exercicios-v1"]);
   assert.ok(backup.keys["forja-treino-sessao-ativa-legada-v1"]);
   assert.ok(backup.keys["forja-treino-dados-preservados-v1"]);

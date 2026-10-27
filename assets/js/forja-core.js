@@ -85,6 +85,25 @@
   });
 
   /*
+    Identificador opcional de demonstração visual (formato 3, aditivo).
+
+    Fica no próprio objeto do exercício — nenhuma chave nova de armazenamento.
+    É apenas um rótulo curto: a procedência, a licença e os hashes moram no
+    manifesto do catálogo, nunca nos dados do usuário. O valor "none" é a
+    escolha explícita "Sem demonstração".
+
+    A validação de EXISTÊNCIA do id é feita por F.demos.resolve(): um id
+    antigo ou desconhecido cai no padrão/fallback sem imagem quebrada.
+  */
+  F.DEMO_NONE = "none";
+  F.normalizeDemoId = function normalizeDemoId(value) {
+    if (value === F.DEMO_NONE) return F.DEMO_NONE;
+    if (typeof value !== "string") return null;
+    const clean = value.trim();
+    return /^[a-z0-9][a-z0-9:_-]{0,78}$/.test(clean) ? clean : null;
+  };
+
+  /*
     Como o exercício é medido. É orthogonal a `type` (que diz se a meta é por
     repetição ou por tempo) e define quais campos de registro aparecem durante
     a execução e o que entra no cálculo de volume.

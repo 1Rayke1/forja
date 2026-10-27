@@ -1394,6 +1394,22 @@
     atlas (`F.atlas.attachToExecution`) e some sem drama quando o exercício não
     tem classificação muscular — a sessão continua idêntica.
   */
+  /*
+    Ilustração do movimento (RepDB local). Irmã, não substituta, da figura
+    anatômica: aquela mostra MÚSCULOS, esta mostra o MOVIMENTO. Sem imagem
+    disponível o bloco fica oculto e o fluxo de treino segue intacto.
+  */
+  function renderExerciseDemo(exercise) {
+    const box = byId("execution-demo");
+    if (!box) return;
+    if (!F.demos || !F.demos.available()) {
+      box.hidden = true;
+      return;
+    }
+    const activeSession = session();
+    F.demos.renderMedia(box, exercise, activeSession ? activeSession.modality : null, { eager: true });
+  }
+
   function renderExerciseFigure(exercise) {
     const box = byId("execution-figure");
     const body = byId("execution-figure-body");
@@ -1477,6 +1493,7 @@
       "Exercício " + (s.currentIndex + 1) + " de " + queue.length;
     byId("current-name").textContent = exercise.name;
 
+    renderExerciseDemo(exercise);
     renderExerciseFigure(exercise);
 
     const plan = byId("current-plan");
