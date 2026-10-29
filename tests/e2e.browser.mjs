@@ -1564,7 +1564,7 @@ await check('Home estabilizada: convite ao onboarding em 5 larguras, metas com u
   }
 });
 
-await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, conclusão e perfil persistente', async () => {
+await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, conclusão e perfil persistente', async () => {
   const saved = await forjaRaw();
   try {
     await restoreForjaRaw({});
@@ -1583,7 +1583,7 @@ await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, 
       valor: document.getElementById('onboarding-progressbar')?.getAttribute('aria-valuenow'),
       overflow: document.documentElement.scrollWidth - window.innerWidth,
       opcao: (() => {
-        const el = document.querySelector('#onboarding-step .onboarding-option');
+        const el = document.querySelector('#onboarding-step .onboarding-photo-card, #onboarding-step .onboarding-option');
         return el ? Math.round(el.getBoundingClientRect().height) : 0;
       })(),
       botao: (() => {
@@ -1594,14 +1594,18 @@ await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, 
 
     const escolher = async valor => {
       const ok = await page.evaluate(v => {
-        const input = [...document.querySelectorAll('#onboarding-step input[type="radio"]')]
+        const input = [...document.querySelectorAll('#onboarding-step input[type="radio"], #onboarding-step input[type="checkbox"]')]
           .find(node => node.value === String(v));
         if (!input) return false;
-        input.click();
-        return true;
+        if (!input.checked) input.click();
+        return input.checked;
       }, valor);
       assert.ok(ok, 'Opção não encontrada: ' + valor);
       await sleep(60);
+    };
+
+    const escolherMultipla = async valores => {
+      for (const valor of valores) await escolher(valor);
     };
 
     const avancar = async () => {
@@ -1610,58 +1614,105 @@ await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, 
     };
 
     let info = await etapa();
-    assert.equal(info.pergunta, 'Bem-vindo à FORJA');
-    assert.equal(info.contador, 'Comece por aqui');
-    assert.ok(info.overflow <= 1, 'Overflow na apresentação a 320px: ' + info.overflow);
-    assert.ok(info.botao >= 44, 'Botão principal abaixo de 44px a 320px');
-
-    await avancar();
-    info = await etapa();
-    assert.equal(info.pergunta, 'Qual sexo você informa?');
-    assert.equal(info.contador, 'Etapa 1 de 7');
+    assert.equal(info.pergunta, 'Vamos personalizar seu treino.');
+    assert.equal(info.contador, 'Etapa 1 de 22');
     assert.equal(info.acao, 'Continuar');
-    assert.equal(info.valor, '1');
-    assert.ok(info.opcao >= 44, 'Opção de resposta abaixo de 44px: ' + info.opcao);
-    assert.ok(info.overflow <= 1, 'Overflow na etapa de sexo a 320px: ' + info.overflow);
+    assert.equal(info.valor, '0');
+    assert.ok(info.opcao >= 44, 'Cartão de resposta abaixo de 44px: ' + info.opcao);
+    assert.ok(info.botao >= 44, 'Botão principal abaixo de 44px a 320px');
+    assert.ok(info.overflow <= 1, 'Overflow na primeira etapa a 320px: ' + info.overflow);
+
+    const imagens = await page.$$eval('#onboarding-step img', els => els.map(e => ({
+      sexo: e.dataset.sexo,
+      src: e.getAttribute('src')
+    })));
+    assert.equal(imagens.length, 2, 'A primeira etapa deve mostrar exatamente as duas imagens fornecidas');
+    assert.ok(imagens.find(item => item.sexo === 'masculino')?.src.includes('sexo-masculino.png'),
+      'A imagem masculina deve estar no cartão Masculino');
+    assert.ok(imagens.find(item => item.sexo === 'feminino')?.src.includes('sexo-feminino.jpg'),
+      'A imagem feminina deve estar no cartão Feminino');
 
     /* Sem escolha não avança: o erro aparece e nada é gravado. */
     await avancar();
     assert.equal(await page.$eval('#onboarding-error', el => el.hidden), false, 'Faltou avisar que a escolha é obrigatória');
-    assert.equal(await etapa().then(e => e.pergunta), 'Qual sexo você informa?');
+    assert.equal(await etapa().then(e => e.pergunta), 'Vamos personalizar seu treino.');
     assert.equal(await data('forja-perfil-v1'), null);
 
-    /* Responde tudo, com uma volta para corrigir os dias. */
+    /* Responde as perguntas até os dias, com uma volta para corrigir essa resposta. */
     await escolher('feminino');
+    await avancar();
+    await escolher('corpoTodo');
     await avancar();
     await escolher('forca');
     await avancar();
-    await escolher('iniciante');
+    await escolherMultipla(['forca']);
+    await avancar();
+    await fill('#onboarding-alturaCm', 168);
+    await avancar();
+    await fill('#onboarding-pesoKg', '64,5');
+    await avancar();
+    await jsClick('#onboarding-indefinido');
+    await avancar();
+    await escolher('intermediario');
+    await avancar();
+    await fill('#onboarding-anoNascimento', 1994);
+    await avancar();
+    await escolher('caminha');
+    await avancar();
+    await escolher('casa');
+    await avancar();
+    await escolherMultipla(['calistenia']);
     await avancar();
     await escolher('3');
     await avancar();
-    assert.equal((await etapa()).pergunta, 'Quanto tempo costuma durar uma sessão?');
+    assert.equal((await etapa()).pergunta, 'Qual é o seu nível de experiência?');
     await jsClick('#onboarding-back');
     await sleep(120);
-    assert.equal((await etapa()).pergunta, 'Quantos dias por semana você consegue treinar?');
+    assert.equal((await etapa()).pergunta, 'Quantos dias por semana você quer treinar?');
     assert.equal(await page.$eval('input[name="onboarding-diasPorSemana"][value="3"]', el => el.checked), true,
       'A resposta anterior deve continuar marcada');
     await escolher('5');
     await avancar();
-    await escolher('60');
+
+    /* Responde o restante do fluxo. */
+    await escolher('iniciante');
     await avancar();
-    await escolher('casa');
+    await escolher('basicos');
     await avancar();
-    await escolher('calisthenics');
+    await escolherMultipla(['nenhuma']);
+    await avancar();
+    await escolherMultipla(['halteres']);
+    await avancar();
+    await escolher('1a5');
+    await avancar();
+    await escolher('pernas');
+    await avancar();
+    await escolher('algumTempo');
+    await avancar();
+    await escolher('consistencia');
+    await avancar();
+    await escolher('consistencia');
     await avancar();
 
     info = await etapa();
     assert.equal(info.pergunta, 'Confira suas respostas');
-    assert.equal(info.acao, 'Concluir cadastro');
-    assert.equal(info.valor, '8');
+    assert.equal(info.contador, 'Revisão das respostas');
+    assert.equal(info.acao, 'Continuar');
+    assert.equal(info.valor, '22');
     assert.ok(info.overflow <= 1, 'Overflow na revisão a 320px: ' + info.overflow);
-    assert.equal(await page.$$eval('.onboarding-review-row', els => els.length), 7, 'A revisão deve listar as 7 respostas');
+    assert.equal(await page.$$eval('.onboarding-review-row', els => els.length), 22, 'A revisão deve listar as 22 respostas');
+    assert.equal(await data('forja-perfil-v1'), null, 'A revisão ainda não deve gravar o perfil');
 
-    /* Conclui. */
+    /* A preparação é a última tela; só “Entrar no FORJA” conclui e grava. */
+    await avancar();
+    info = await etapa();
+    assert.equal(info.pergunta, 'Seu perfil está pronto para o próximo passo.');
+    assert.equal(info.contador, 'Último passo');
+    assert.equal(info.acao, 'Entrar no FORJA');
+    assert.equal(info.valor, '23');
+    assert.ok(info.overflow <= 1, 'Overflow na preparação a 320px: ' + info.overflow);
+    assert.equal(await data('forja-perfil-v1'), null, 'A preparação ainda não deve gravar o perfil');
+
     await avancar();
     await expectPath('/');
     await sleep(200);
@@ -1675,8 +1726,8 @@ await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, 
         equipamento: perfil.equipamento, modalidadePreferida: perfil.modalidadePreferida
       },
       {
-        version: 2, sexo: 'feminino', objetivo: 'forca', nivel: 'iniciante',
-        diasPorSemana: 5, duracaoMinutos: 60,
+        version: 3, sexo: 'feminino', objetivo: 'forca', nivel: 'iniciante',
+        diasPorSemana: 5, duracaoMinutos: 0,
         equipamento: 'casa', modalidadePreferida: 'calisthenics'
       }
     );

@@ -3806,26 +3806,86 @@ async function responder(app, campo, valor) {
   await avancarOnboarding(app);
 }
 
-/* Percorre o onboarding inteiro com respostas fixas até a revisão. */
+/* Marca todas as opções de uma etapa múltipla e só então avança. */
+async function responderMultipla(app, campo, valores) {
+  valores.forEach(valor => escolherOpcao(app, campo, valor));
+  await avancarOnboarding(app);
+}
+
+function digitarNumeroOnboarding(app, seletor, valor) {
+  const input = app.$(seletor);
+  assert.ok(input, "Campo numérico não encontrado: " + seletor);
+  input.value = String(valor);
+  input.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  return input;
+}
+
+async function responderNumero(app, seletor, valor) {
+  digitarNumeroOnboarding(app, seletor, valor);
+  await avancarOnboarding(app);
+}
+
+async function responderPesoAlvo(app, valor) {
+  if (valor === "indefinido") {
+    app.click("#onboarding-indefinido");
+    const caixa = app.$("#onboarding-indefinido");
+    caixa.checked = true;
+    caixa.dispatchEvent(new app.w.Event("change", { bubbles: true }));
+  } else {
+    digitarNumeroOnboarding(app, "#onboarding-pesoAlvoKg", valor);
+  }
+  await avancarOnboarding(app);
+}
+
+/* Percorre as 22 perguntas do onboarding inteiro até parar na revisão. */
 async function percorrerOnboarding(app, respostas = {}) {
   const valores = Object.assign({
     sexo: "masculino",
+    areaFoco: "corpoTodo",
     objetivo: "hipertrofia",
-    nivel: "iniciante",
+    motivacoes: ["saude", "forca"],
+    alturaCm: 178,
+    pesoKg: "82,5",
+    pesoAlvoKg: "indefinido",
+    tipoCorpo: "intermediario",
+    anoNascimento: 1996,
+    rotinaDiaria: "sentado",
+    localTreino: "academia",
+    preferenciasTreino: ["musculacao"],
     dias: 4,
-    duracao: 45,
-    equipamento: "academia",
-    modalidade: "weights"
+    nivel: "iniciante",
+    experienciaAtual: "basicos",
+    consideracoes: ["nenhuma"],
+    equipamentos: ["academiaCompleta"],
+    flexoes: "6a10",
+    mobilidade: "pernas",
+    recuperacaoEsforco: "algumTempo",
+    celebracao: "evolucao",
+    acompanhamento: "forca"
   }, respostas);
 
-  await avancarOnboarding(app); /* apresentação -> sexo */
   await responder(app, "sexo", valores.sexo);
+  await responder(app, "areaFoco", valores.areaFoco);
   await responder(app, "objetivo", valores.objetivo);
-  await responder(app, "nivel", valores.nivel);
+  await responderMultipla(app, "motivacoes", valores.motivacoes);
+  await responderNumero(app, "#onboarding-alturaCm", valores.alturaCm);
+  await responderNumero(app, "#onboarding-pesoKg", valores.pesoKg);
+  await responderPesoAlvo(app, valores.pesoAlvoKg);
+  await responder(app, "tipoCorpo", valores.tipoCorpo);
+  await responderNumero(app, "#onboarding-anoNascimento", valores.anoNascimento);
+  await responder(app, "rotinaDiaria", valores.rotinaDiaria);
+  await responder(app, "localTreino", valores.localTreino);
+  await responderMultipla(app, "preferenciasTreino", valores.preferenciasTreino);
   await responder(app, "dias", valores.dias);
-  await responder(app, "duracao", valores.duracao);
-  await responder(app, "equipamento", valores.equipamento);
-  await responder(app, "modalidade", valores.modalidade);
+  await responder(app, "nivel", valores.nivel);
+  await responder(app, "experienciaAtual", valores.experienciaAtual);
+  await responderMultipla(app, "consideracoes", valores.consideracoes);
+  await responderMultipla(app, "equipamentos", valores.equipamentos);
+  await responder(app, "flexoes", valores.flexoes);
+  await responder(app, "mobilidade", valores.mobilidade);
+  await responder(app, "recuperacaoEsforco", valores.recuperacaoEsforco);
+  await responder(app, "celebracao", valores.celebracao);
+  await responder(app, "acompanhamento", valores.acompanhamento);
 }
 
 await runTest("60. Onboarding: aparece só para usuário novo, não bloqueia a home e não grava nada", async () => {
@@ -3880,9 +3940,9 @@ await runTest("62. Convite ao onboarding: não coleta respostas na Home e leva a
   assert.equal(app.raw(PROFILE_KEY), null, "Abrir o onboarding não deve gravar o perfil");
   assert.deepEqual(app.storageWrites, [], "Abrir o onboarding não deve gravar nada: " + JSON.stringify(app.storageWrites));
 
-  /* A primeira tela é a apresentação, com uma única ação principal. */
-  assert.equal(app.text("#onboarding-question"), "Bem-vindo à FORJA");
-  assert.equal(app.text("#onboarding-next"), "Começar");
+  /* A primeira tela já é a primeira pergunta, com a ação principal padrão. */
+  assert.equal(app.text("#onboarding-question"), "Vamos personalizar seu treino.");
+  assert.equal(app.text("#onboarding-next"), "Continuar");
   assert.equal(app.$("#onboarding-back").hidden, true, "A primeira tela não tem Voltar");
   app.close();
 });
@@ -3895,10 +3955,9 @@ await runTest("63. Onboarding: grava só no último passo e não atrapalha criar
   await pageIs(app, "onboarding");
 
   /* Sexo é obrigatório: avançar sem escolher avisa e não grava nada. */
+  assert.equal(app.text("#onboarding-question"), "Vamos personalizar seu treino.");
   await avancarOnboarding(app);
-  assert.equal(app.text("#onboarding-question"), "Qual sexo você informa?");
-  await avancarOnboarding(app);
-  assert.equal(app.d.getElementById("onboarding-question").textContent.trim(), "Qual sexo você informa?",
+  assert.equal(app.d.getElementById("onboarding-question").textContent.trim(), "Vamos personalizar seu treino.",
     "Sem escolha o fluxo não deve avançar");
   assert.equal(app.$("#onboarding-error").hidden, false, "O erro deve ser informado");
   assert.ok(app.text("#onboarding-error").length > 0, "O erro deve ter mensagem");
@@ -3906,9 +3965,16 @@ await runTest("63. Onboarding: grava só no último passo e não atrapalha criar
 
   /* Responde tudo e para na revisão: ainda não gravou. */
   await percorrerOnboarding(app);
-  assert.equal(app.text("#onboarding-next"), "Concluir cadastro");
+  assert.equal(app.text("#onboarding-question"), "Confira suas respostas");
+  assert.equal(app.text("#onboarding-next"), "Continuar");
   assert.match(app.text(".onboarding-review"), /Masculino/);
   assert.equal(app.raw(PROFILE_KEY), null, "A revisão não deve gravar o perfil");
+
+  /* A preparação resume o perfil, mas também só grava na confirmação final. */
+  await avancarOnboarding(app);
+  assert.equal(app.text("#onboarding-question"), "Seu perfil está pronto para o próximo passo.");
+  assert.equal(app.text("#onboarding-next"), "Entrar no FORJA");
+  assert.equal(app.raw(PROFILE_KEY), null, "A preparação não deve gravar o perfil antes da confirmação final");
 
   app.click("#onboarding-next");
   await pageIs(app, "inicio");
@@ -3919,10 +3985,10 @@ await runTest("63. Onboarding: grava só no último passo e não atrapalha criar
   assert.equal(stored.nivel, "iniciante");
   assert.equal(stored.equipamento, "academia");
   assert.equal(stored.diasPorSemana, 4);
-  assert.equal(stored.duracaoMinutos, 45);
+  assert.equal(stored.duracaoMinutos, 0, "O onboarding novo não pergunta nem inventa a duração da sessão");
   assert.equal(stored.sexo, "masculino");
   assert.equal(stored.modalidadePreferida, "weights");
-  assert.equal(stored.version, 2, "O perfil gravado usa o modelo v2");
+  assert.equal(stored.version, 3, "O perfil gravado usa o modelo v3");
   assert.ok(stored.updatedAt, "O perfil gravado tem marcação de hora");
   assert.ok(stored.onboardingConcluidoEm, "O perfil registra a conclusão do onboarding");
 
@@ -3930,7 +3996,7 @@ await runTest("63. Onboarding: grava só no último passo e não atrapalha criar
   const goals = app.data("forja-treino-metas-v1");
   assert.ok(goals, "A meta sugerida deve ser gravada com a confirmação");
   assert.equal(goals.weeklySessions, 4);
-  assert.equal(goals.weeklyMinutes, 180);
+  assert.equal(goals.weeklyMinutes, 0, "Sem duração de sessão respondida, os minutos semanais ficam em 0");
   assert.equal(goals.modality, "weights");
 
   /* A home continua oferecendo criar rotina manualmente e o convite sumiu. */
@@ -4080,12 +4146,12 @@ await runTest("69. Equipamento 'Sem equipamentos' é opção válida no perfil, 
   assert.ok(app.F.PERFIL_EQUIPAMENTOS.indexOf("nenhum") !== -1, "O valor deve constar na lista de equipamentos");
   assert.equal(app.F.PERFIL_LABELS.equipamento.nenhum, "Sem equipamentos", "O rótulo deve ser 'Sem equipamentos'");
 
-  /* O onboarding oferece a opção e ela chega ao perfil pela mesma normalização. */
+  /* O onboarding oferece a opção detalhada e ela chega ao perfil pela mesma normalização. */
   const onboardingPage = await boot({}, "onboarding/index.html");
-  const passoEquipamento = onboardingPage.F.onboarding.PASSOS.find(passo => passo.campo === "equipamento");
-  assert.ok(passoEquipamento, "O onboarding deve ter a pergunta de equipamento");
+  const passoEquipamento = onboardingPage.F.onboarding.PASSOS.find(passo => passo.campo === "equipamentos");
+  assert.ok(passoEquipamento, "O onboarding deve ter a pergunta detalhada de equipamentos");
   assert.ok(passoEquipamento.opcoes.some(opcao => opcao.valor === "nenhum"),
-    "O onboarding deve oferecer 'Sem equipamentos'");
+    "O onboarding deve oferecer 'Nenhum equipamento'");
   onboardingPage.close();
 
   const stored = app.F.normalizeProfile({ equipamento: "nenhum" });
@@ -4116,9 +4182,14 @@ await runTest("70. F.state.profile é inicializado em todas as páginas (ausente
     "progresso/index.html", "perfil/index.html", "configuracoes/index.html", "explorar/index.html"
   ];
   const empty = {
-    version: 2, updatedAt: null, objetivo: "", nivel: "", equipamento: "",
+    version: 3, updatedAt: null, objetivo: "", nivel: "", equipamento: "",
     diasPorSemana: 0, duracaoMinutos: 0,
-    sexo: "", modalidadePreferida: "", onboardingConcluidoEm: null
+    sexo: "", modalidadePreferida: "", onboardingConcluidoEm: null,
+    areaFoco: "", motivacoes: [], alturaCm: 0, pesoKg: 0, pesoAlvoKg: 0,
+    tipoCorpo: "", anoNascimento: 0, rotinaDiaria: "", localTreino: "",
+    preferenciasTreino: [], experienciaAtual: "", consideracoes: [],
+    equipamentos: [], flexoes: "", mobilidade: "", recuperacaoEsforco: "",
+    celebracao: "", acompanhamento: ""
   };
 
   for (const page of pages) {
