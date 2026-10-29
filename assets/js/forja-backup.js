@@ -1040,6 +1040,8 @@ function updateBackupStatus() {
     const duracao = byId("prof-duracao");
     if (duracao) duracao.value = String(profile.duracaoMinutos || 0);
 
+    renderProfileSummary(profile);
+
     const status = byId("profile-status");
     if (status) {
       status.textContent = profile.updatedAt
@@ -1048,6 +1050,39 @@ function updateBackupStatus() {
           }) + "."
         : "Nenhum perfil salvo ainda.";
     }
+  }
+
+  /*
+    Leitura apenas: mostra as respostas do cadastro guiado (campos aditivos do
+    perfil v3) sem criar campos de edição paralelos. A edição continua no
+    cadastro guiado — o formulário acima não sobrescreve esses campos porque
+    `F.saveProfile` parte do que está armazenado e aplica só o patch dele.
+  */
+  function renderProfileSummary(profile) {
+    const lista = byId("profile-onboarding-summary");
+    const painel = byId("perfil-cadastro-panel");
+    if (!lista || !painel) return;
+
+    const linhas = typeof F.profileAnswerRows === "function" ? F.profileAnswerRows(profile) : [];
+    lista.replaceChildren();
+
+    linhas.forEach(linha => {
+      const item = document.createElement("div");
+      item.className = "profile-summary-row";
+
+      const termo = document.createElement("dt");
+      termo.className = "profile-summary-term";
+      termo.textContent = linha.rotulo;
+
+      const valor = document.createElement("dd");
+      valor.className = "profile-summary-value";
+      valor.textContent = linha.valor;
+
+      item.append(termo, valor);
+      lista.appendChild(item);
+    });
+
+    painel.hidden = linhas.length === 0;
   }
 
   function readProfileForm() {

@@ -1242,16 +1242,81 @@ function goalsAreActive(goals) {
 
     1  objetivo, nível, equipamento, diasPorSemana, duracaoMinutos
     2  + sexo, modalidadePreferida, onboardingConcluidoEm (aditivo)
+    3  + focoArea, motivacoes, alturaCm, pesoKg, pesoAlvoKg, tipoCorpo,
+       anoNascimento, rotinaDiaria, localTreino, preferenciasTreino,
+       experienciaFisica, consideracoes, equipamentos, flexoes, mobilidade,
+       recuperacao, recompensa, progressoPercebido (aditivo)
 
-  Um perfil v1 é lido como v2 na primeira leitura: os campos novos ficam
+  Um perfil v1/v2 é lido como v3 na primeira leitura: os campos novos ficam
   vazios (nunca inferidos) e nada é gravado até o usuário salvar de novo. A
   chave `forja-perfil-v1` não muda de nome nem de formato de JSON — o backup
-  continua sendo o mesmo objeto.
+  continua sendo o mesmo objeto. O v3 só acrescenta campos opcionais: nenhum
+  campo antigo mudou de nome, de tipo ou de significado, e nenhum cálculo
+  existente (metas semanais, filtro de rotinas, personagem) passou a depender
+  deles.
 */
-const PERFIL_VERSION = 2;
-const PERFIL_OBJETIVOS = ["forca", "hipertrofia", "resistencia", "calistenia", "recuperacao"];
-const PERFIL_NIVEIS = ["iniciante", "intermediario", "avancado"];
+const PERFIL_VERSION = 3;
+const PERFIL_OBJETIVOS = [
+  "forca",
+  "hipertrofia",
+  "resistencia",
+  "calistenia",
+  "recuperacao",
+  "emagrecimento",
+  "manutencao"
+];
+const PERFIL_NIVEIS = ["iniciante", "intermediario", "avancado", "voltando"];
 const PERFIL_EQUIPAMENTOS = ["nenhum", "casa", "academia", "ambos"];
+
+/*
+  Vocabulários do cadastro guiado (v3). Cada lista é a única fonte de verdade
+  do que é aceito na leitura: valor fora daqui vira vazio, nunca um palpite.
+  Todos são rótulos declarados pelo próprio usuário — nenhum deles é medido,
+  diagnosticado ou usado para prescrever treino.
+*/
+const PERFIL_FOCOS = ["corpo-todo", "bracos", "peito", "abdomen", "pernas"];
+const PERFIL_MOTIVACOES = ["aparencia", "forca", "saude", "confianca", "energia", "estresse"];
+const PERFIL_TIPOS_CORPO = ["mais-magro", "intermediario", "mais-musculoso"];
+const PERFIL_ROTINAS_DIARIAS = ["sentado", "em-pe", "caminho", "esforco-fisico", "varia"];
+const PERFIL_LOCAIS_TREINO = ["casa", "academia", "ar-livre", "casa-academia", "sem-local"];
+const PERFIL_PREFERENCIAS_TREINO = [
+  "musculacao",
+  "calistenia",
+  "funcional",
+  "cardio",
+  "combinacao",
+  "descobrir"
+];
+const PERFIL_EXPERIENCIAS_FISICAS = ["comecando", "basicos", "regulares", "veterano"];
+const PERFIL_CONSIDERACOES = ["desconfortos", "baixo-impacto", "adaptar-nivel", "conversar-depois"];
+const PERFIL_ITENS_EQUIPAMENTO = [
+  "nenhum",
+  "halteres",
+  "barra-anilhas",
+  "elasticos",
+  "maquinas",
+  "academia-completa",
+  "outros"
+];
+const PERFIL_FLEXOES = ["nenhuma", "1-5", "6-10", "11-20", "mais-20"];
+const PERFIL_MOBILIDADE = ["dificuldade", "pouco", "pernas", "pes", "nao-sei"];
+const PERFIL_RECUPERACAO = ["rapida", "algum-tempo", "muito-cansaco", "sem-experiencia"];
+const PERFIL_RECOMPENSAS = ["evolucao", "metas", "desempenho", "rotina", "pequenas-conquistas"];
+const PERFIL_PROGRESSOS = ["forca", "resistencia", "consistencia", "metas", "indicadores"];
+
+/*
+  Limites plausíveis dos números do cadastro. Servem para recusar digitação
+  absurda, não para opinar sobre o corpo de ninguém: qualquer valor fora da
+  faixa é descartado (vira 0 = "não informado"), nunca aproximado para o
+  limite, porque aproximar inventaria uma medida que o usuário não deu.
+*/
+const PERFIL_ALTURA_MIN = 90;
+const PERFIL_ALTURA_MAX = 250;
+const PERFIL_PESO_MIN = 25;
+const PERFIL_PESO_MAX = 350;
+const PERFIL_ANO_MIN = 1900;
+const PERFIL_MEDIDA_MAX_CARACTERES = 6;
+const PERFIL_LISTA_MAX_ITENS = 7;
 
 /*
   Sexo informado pelo usuário. Só dois valores com efeito definido:
@@ -1282,12 +1347,15 @@ const PERFIL_LABELS = {
     hipertrofia: "Hipertrofia",
     resistencia: "Resistência",
     calistenia: "Calistenia",
-    recuperacao: "Recuperação"
+    recuperacao: "Recuperação",
+    emagrecimento: "Perder peso",
+    manutencao: "Manter a forma"
   },
   nivel: {
     iniciante: "Iniciante",
     intermediario: "Intermediário",
-    avancado: "Avançado"
+    avancado: "Avançado",
+    voltando: "Voltando a treinar"
   },
   equipamento: {
     nenhum: "Sem equipamentos",
@@ -1302,6 +1370,103 @@ const PERFIL_LABELS = {
   modalidade: {
     calisthenics: "Calistenia",
     weights: "Musculação"
+  },
+  focoArea: {
+    "corpo-todo": "Corpo todo",
+    bracos: "Braços",
+    peito: "Peito",
+    abdomen: "Abdômen",
+    pernas: "Pernas"
+  },
+  motivacoes: {
+    aparencia: "Parecer mais atraente",
+    forca: "Ficar mais forte",
+    saude: "Melhorar minha saúde",
+    confianca: "Sentir mais confiança",
+    energia: "Ter mais energia",
+    estresse: "Aliviar o estresse"
+  },
+  tipoCorpo: {
+    "mais-magro": "Mais magro",
+    intermediario: "Intermediário",
+    "mais-musculoso": "Mais musculoso"
+  },
+  rotinaDiaria: {
+    sentado: "Principalmente sentado",
+    "em-pe": "Fico em pé boa parte do dia",
+    caminho: "Caminho bastante",
+    "esforco-fisico": "Trabalho com esforço físico",
+    varia: "Minha rotina varia bastante"
+  },
+  localTreino: {
+    casa: "Em casa",
+    academia: "Na academia",
+    "ar-livre": "Ao ar livre",
+    "casa-academia": "Em casa e na academia",
+    "sem-local": "Ainda não tenho um local definido"
+  },
+  preferenciasTreino: {
+    musculacao: "Musculação",
+    calistenia: "Calistenia",
+    funcional: "Treino funcional",
+    cardio: "Cardio",
+    combinacao: "Uma combinação de modalidades",
+    descobrir: "Quero descobrir o que funciona para mim"
+  },
+  experienciaFisica: {
+    comecando: "Estou começando agora",
+    basicos: "Consigo realizar alguns exercícios básicos",
+    regulares: "Tenho experiência com treinos regulares",
+    veterano: "Já treino há bastante tempo"
+  },
+  consideracoes: {
+    desconfortos: "Tenho desconfortos que quero levar em conta",
+    "baixo-impacto": "Preciso de exercícios de baixo impacto",
+    "adaptar-nivel": "Quero adaptar os exercícios ao meu nível atual",
+    "conversar-depois": "Prefiro conversar sobre isso depois"
+  },
+  equipamentos: {
+    nenhum: "Nenhum equipamento",
+    halteres: "Halteres",
+    "barra-anilhas": "Barra e anilhas",
+    elasticos: "Elásticos",
+    maquinas: "Máquinas de musculação",
+    "academia-completa": "Equipamentos de academia completos",
+    outros: "Outros equipamentos"
+  },
+  flexoes: {
+    nenhuma: "Ainda não consigo fazer",
+    "1-5": "1–5",
+    "6-10": "6–10",
+    "11-20": "11–20",
+    "mais-20": "Mais de 20"
+  },
+  mobilidade: {
+    dificuldade: "Tenho bastante dificuldade",
+    pouco: "Consigo me inclinar um pouco",
+    pernas: "Consigo alcançar as pernas",
+    pes: "Consigo alcançar os pés",
+    "nao-sei": "Não sei avaliar"
+  },
+  recuperacao: {
+    rapida: "Consigo recuperar meu fôlego rapidamente",
+    "algum-tempo": "Preciso de algum tempo para recuperar o fôlego",
+    "muito-cansaco": "Costumo ficar muito cansado",
+    "sem-experiencia": "Não tenho experiência suficiente para avaliar"
+  },
+  recompensa: {
+    evolucao: "Perceber minha evolução",
+    metas: "Completar minhas metas",
+    desempenho: "Melhorar meu desempenho",
+    rotina: "Manter uma rotina consistente",
+    "pequenas-conquistas": "Celebrar pequenas conquistas"
+  },
+  progressoPercebido: {
+    forca: "Acompanhar minha força",
+    resistencia: "Acompanhar minha resistência",
+    consistencia: "Acompanhar a consistência dos treinos",
+    metas: "Acompanhar minhas metas pessoais",
+    indicadores: "Acompanhar diferentes indicadores"
   }
 };
 
@@ -1313,13 +1478,16 @@ const PERFIL_OPTIONS = {
     { value: "hipertrofia", label: "Hipertrofia" },
     { value: "resistencia", label: "Resistência" },
     { value: "calistenia", label: "Calistenia" },
-    { value: "recuperacao", label: "Recuperação" }
+    { value: "recuperacao", label: "Recuperação" },
+    { value: "emagrecimento", label: "Perder peso" },
+    { value: "manutencao", label: "Manter a forma" }
   ],
   nivel: [
     { value: "", label: "Não definido" },
     { value: "iniciante", label: "Iniciante" },
     { value: "intermediario", label: "Intermediário" },
-    { value: "avancado", label: "Avançado" }
+    { value: "avancado", label: "Avançado" },
+    { value: "voltando", label: "Voltando a treinar" }
   ],
   equipamento: [
     { value: "", label: "Não definido" },
@@ -1351,7 +1519,26 @@ const PERFIL_KNOWN_KEYS = [
   "duracaoMinutos",
   "sexo",
   "modalidadePreferida",
-  "onboardingConcluidoEm"
+  "onboardingConcluidoEm",
+  /* v3 (aditivo) */
+  "focoArea",
+  "motivacoes",
+  "alturaCm",
+  "pesoKg",
+  "pesoAlvoKg",
+  "tipoCorpo",
+  "anoNascimento",
+  "rotinaDiaria",
+  "localTreino",
+  "preferenciasTreino",
+  "experienciaFisica",
+  "consideracoes",
+  "equipamentos",
+  "flexoes",
+  "mobilidade",
+  "recuperacao",
+  "recompensa",
+  "progressoPercebido"
 ];
 
 /* Data ISO aceita só quando é texto e o navegador consegue interpretar. */
@@ -1373,7 +1560,25 @@ function normalizeProfile(raw) {
     duracaoMinutos: 0,
     sexo: "",
     modalidadePreferida: "",
-    onboardingConcluidoEm: null
+    onboardingConcluidoEm: null,
+    focoArea: "",
+    motivacoes: [],
+    alturaCm: 0,
+    pesoKg: 0,
+    pesoAlvoKg: 0,
+    tipoCorpo: "",
+    anoNascimento: 0,
+    rotinaDiaria: "",
+    localTreino: "",
+    preferenciasTreino: [],
+    experienciaFisica: "",
+    consideracoes: [],
+    equipamentos: [],
+    flexoes: "",
+    mobilidade: "",
+    recuperacao: "",
+    recompensa: "",
+    progressoPercebido: ""
   };
 
   if (!isPlainObject(raw)) return base;
@@ -1391,8 +1596,194 @@ function normalizeProfile(raw) {
     modalidadePreferida: PERFIL_MODALIDADES.indexOf(raw.modalidadePreferida) !== -1
       ? raw.modalidadePreferida
       : "",
-    onboardingConcluidoEm: normalizeIsoText(raw.onboardingConcluidoEm)
+    onboardingConcluidoEm: normalizeIsoText(raw.onboardingConcluidoEm),
+
+    /* v3 — cada resposta é lida contra o próprio vocabulário. */
+    focoArea: normalizeProfileChoice(raw.focoArea, PERFIL_FOCOS),
+    motivacoes: normalizeProfileList(raw.motivacoes, PERFIL_MOTIVACOES),
+    alturaCm: normalizeProfileMeasure(raw.alturaCm, PERFIL_ALTURA_MIN, PERFIL_ALTURA_MAX, 0),
+    pesoKg: normalizeProfileMeasure(raw.pesoKg, PERFIL_PESO_MIN, PERFIL_PESO_MAX, 1),
+    pesoAlvoKg: normalizeProfileMeasure(raw.pesoAlvoKg, PERFIL_PESO_MIN, PERFIL_PESO_MAX, 1),
+    tipoCorpo: normalizeProfileChoice(raw.tipoCorpo, PERFIL_TIPOS_CORPO),
+    anoNascimento: normalizeProfileYear(raw.anoNascimento),
+    rotinaDiaria: normalizeProfileChoice(raw.rotinaDiaria, PERFIL_ROTINAS_DIARIAS),
+    localTreino: normalizeProfileChoice(raw.localTreino, PERFIL_LOCAIS_TREINO),
+    preferenciasTreino: normalizeProfileList(raw.preferenciasTreino, PERFIL_PREFERENCIAS_TREINO),
+    experienciaFisica: normalizeProfileChoice(raw.experienciaFisica, PERFIL_EXPERIENCIAS_FISICAS),
+    consideracoes: normalizeProfileList(raw.consideracoes, PERFIL_CONSIDERACOES),
+    equipamentos: normalizeProfileList(raw.equipamentos, PERFIL_ITENS_EQUIPAMENTO),
+    flexoes: normalizeProfileChoice(raw.flexoes, PERFIL_FLEXOES),
+    mobilidade: normalizeProfileChoice(raw.mobilidade, PERFIL_MOBILIDADE),
+    recuperacao: normalizeProfileChoice(raw.recuperacao, PERFIL_RECUPERACAO),
+    recompensa: normalizeProfileChoice(raw.recompensa, PERFIL_RECOMPENSAS),
+    progressoPercebido: normalizeProfileChoice(raw.progressoPercebido, PERFIL_PROGRESSOS)
   };
+}
+
+/* Escolha única: só entra o valor do vocabulário; o resto vira "não informado". */
+function normalizeProfileChoice(value, allowed) {
+  return typeof value === "string" && allowed.indexOf(value) !== -1 ? value : "";
+}
+
+/*
+  Lista de escolhas: mantém a ordem do vocabulário (não a ordem do clique),
+  remove repetição e descarta o que não é reconhecido. Uma lista vazia é
+  "não informado", não um erro.
+*/
+function normalizeProfileList(value, allowed) {
+  if (!Array.isArray(value)) return [];
+
+  const seen = new Set();
+  value.forEach(item => {
+    if (typeof item === "string" && allowed.indexOf(item) !== -1) seen.add(item);
+  });
+
+  return allowed.filter(item => seen.has(item)).slice(0, PERFIL_LISTA_MAX_ITENS);
+}
+
+/*
+  Medida (altura em cm, peso em kg) em número finito dentro da faixa
+  plausível. Fora da faixa, texto, negativo ou ausente viram 0 = "não
+  informado": aproximar para o limite inventaria uma medida que a pessoa não
+  deu. `decimals` = 0 para altura, 1 para peso.
+*/
+function normalizeProfileMeasure(value, min, max, decimals) {
+  const number = typeof value === "string" && value.trim() === "" ? NaN : Number(value);
+  if (!Number.isFinite(number) || number < min || number > max) return 0;
+
+  const factor = Math.pow(10, decimals);
+  const rounded = Math.round(number * factor) / factor;
+  return rounded > 0 ? rounded : 0;
+}
+
+/* Ano de nascimento: inteiro plausível e nunca no futuro. */
+function normalizeProfileYear(value) {
+  const number = typeof value === "string" && value.trim() === "" ? NaN : Number(value);
+  if (!Number.isFinite(number)) return 0;
+
+  const year = Math.trunc(number);
+  const limit = new Date().getFullYear();
+
+  if (year < PERFIL_ANO_MIN || year > limit) return 0;
+  return year;
+}
+
+/*
+  Equipamento declarado (lista v3) → campo único `equipamento` que já existia
+  e que o resto do app lê. É uma tradução explícita, não um cálculo novo:
+
+    sem itens                 → ""        (não informado)
+    só "nenhum equipamento"   → "nenhum"
+    itens de casa/peso        → "casa"
+    máquinas/academia         → "academia"
+    os dois grupos            → "ambos"
+
+  O campo `equipamento` continua editável em Perfil; se a pessoa mudar por lá
+  sem refazer o cadastro, a lista `equipamentos` fica como está e não é
+  reescrita por inferência.
+*/
+function deriveEquipamento(itens) {
+  const list = normalizeProfileList(itens, PERFIL_ITENS_EQUIPAMENTO);
+  if (list.length === 0) return "";
+  if (list.indexOf("nenhum") !== -1) return "nenhum";
+
+  const academia = list.indexOf("maquinas") !== -1 || list.indexOf("academia-completa") !== -1;
+  const casa = list.some(id => ["halteres", "barra-anilhas", "elasticos", "outros"].indexOf(id) !== -1);
+
+  if (academia && casa) return "ambos";
+  if (academia) return "academia";
+  return "casa";
+}
+
+/*
+  Preferência de treino (lista v3) → `modalidadePreferida`, o campo único que
+  já alimenta o filtro de rotinas. Só há tradução quando a resposta aponta
+  para uma modalidade: musculação ou calistenia isoladas. Qualquer outra
+  combinação (funcional, cardio, "descobrir", as duas juntas) mantém o campo
+  como "sem preferência" em vez de escolher por conta própria.
+*/
+function deriveModalidadePreferida(preferencias, anterior) {
+  const list = normalizeProfileList(preferencias, PERFIL_PREFERENCIAS_TREINO);
+  if (list.length === 0) return normalizeProfileChoice(anterior, PERFIL_MODALIDADES);
+
+  const musculacao = list.indexOf("musculacao") !== -1;
+  const calistenia = list.indexOf("calistenia") !== -1;
+
+  if (musculacao && !calistenia) return "weights";
+  if (calistenia && !musculacao) return "calisthenics";
+  return normalizeProfileChoice(anterior, PERFIL_MODALIDADES);
+}
+
+/* Rótulos legíveis de uma lista de escolhas (revisão, Perfil e resumo). */
+function profileListLabels(list, labels) {
+  return normalizeProfileList(list, Object.keys(labels)).map(id => labels[id]);
+}
+
+/*
+  Linhas de leitura do perfil para a página Perfil (somente exibição). Não
+  grava nada, não infere nada: devolve apenas o que está respondido, na ordem
+  em que o cadastro guiado pergunta. As respostas do cadastro ficam visíveis
+  aqui para não virarem dado invisível, e continuam editáveis pelo onboarding.
+*/
+const PERFIL_SUMARIO = [
+  { campo: "sexo", rotulo: "Sexo informado", labels: PERFIL_LABELS.sexo, vazio: "Não informado" },
+  { campo: "focoArea", rotulo: "Área de foco", labels: PERFIL_LABELS.focoArea },
+  { campo: "objetivo", rotulo: "Objetivo", labels: PERFIL_LABELS.objetivo },
+  { campo: "motivacoes", rotulo: "Motivação", labels: PERFIL_LABELS.motivacoes, lista: true },
+  { campo: "alturaCm", rotulo: "Altura", medida: "cm" },
+  { campo: "pesoKg", rotulo: "Peso atual", medida: "kg" },
+  { campo: "pesoAlvoKg", rotulo: "Peso-alvo", medida: "kg" },
+  { campo: "tipoCorpo", rotulo: "Tipo de corpo", labels: PERFIL_LABELS.tipoCorpo },
+  { campo: "anoNascimento", rotulo: "Ano de nascimento", ano: true },
+  { campo: "rotinaDiaria", rotulo: "Rotina diária", labels: PERFIL_LABELS.rotinaDiaria },
+  { campo: "localTreino", rotulo: "Local de treino", labels: PERFIL_LABELS.localTreino },
+  { campo: "preferenciasTreino", rotulo: "Preferência de treino", labels: PERFIL_LABELS.preferenciasTreino, lista: true },
+  { campo: "diasPorSemana", rotulo: "Dias por semana", dias: true },
+  { campo: "nivel", rotulo: "Nível", labels: PERFIL_LABELS.nivel },
+  { campo: "experienciaFisica", rotulo: "Capacidade física", labels: PERFIL_LABELS.experienciaFisica },
+  { campo: "consideracoes", rotulo: "Considerações", labels: PERFIL_LABELS.consideracoes, lista: true },
+  { campo: "equipamentos", rotulo: "Equipamentos", labels: PERFIL_LABELS.equipamentos, lista: true },
+  { campo: "flexoes", rotulo: "Flexões seguidas", labels: PERFIL_LABELS.flexoes },
+  { campo: "mobilidade", rotulo: "Mobilidade", labels: PERFIL_LABELS.mobilidade },
+  { campo: "recuperacao", rotulo: "Sensação após esforço", labels: PERFIL_LABELS.recuperacao },
+  { campo: "recompensa", rotulo: "Recompensa", labels: PERFIL_LABELS.recompensa },
+  { campo: "progressoPercebido", rotulo: "Progresso", labels: PERFIL_LABELS.progressoPercebido }
+];
+
+function profileAnswerRows(value) {
+  const profile = normalizeProfile(value);
+  const rows = [];
+
+  PERFIL_SUMARIO.forEach(item => {
+    const atual = profile[item.campo];
+    let texto = "";
+
+    if (item.labels) {
+      if (item.lista) {
+        const partes = profileListLabels(atual, item.labels);
+        texto = partes.join(" · ");
+      } else {
+        texto = item.labels[atual] || "";
+      }
+    } else if (item.medida) {
+      /** 0 = "não informado" (inclui "ainda não defini" no peso-alvo). */
+      if (Number(atual) > 0) {
+        texto = (Math.round(Number(atual) * 10) / 10).toString().replace(".", ",") +
+          " " + item.medida;
+      }
+    } else if (item.ano) {
+      if (Number(atual) > 0) texto = String(atual);
+    } else if (item.dias) {
+      if (Number(atual) > 0) {
+        texto = atual + (Number(atual) === 1 ? " dia por semana" : " dias por semana");
+      }
+    }
+
+    if (!texto) return;
+    rows.push({ rotulo: item.rotulo, valor: texto, campo: item.campo });
+  });
+
+  return rows;
 }
 
 /*
@@ -1427,7 +1818,9 @@ function profileHasAnyAnswer(profile) {
 
   return Boolean(
     current.objetivo || current.nivel || current.equipamento || current.sexo ||
-    current.modalidadePreferida || current.diasPorSemana > 0 || current.duracaoMinutos > 0
+    current.modalidadePreferida || current.diasPorSemana > 0 || current.duracaoMinutos > 0 ||
+    current.focoArea || current.tipoCorpo || current.rotinaDiaria || current.localTreino ||
+    current.experienciaFisica || current.pesoKg > 0 || current.alturaCm > 0
   );
 }
 
@@ -1566,6 +1959,63 @@ function validateProfileStore(value) {
     const minutos = Number(value.duracaoMinutos);
     if (!Number.isInteger(minutos) || minutos < 0 || minutos > PERFIL_MAX_MINUTOS) {
       throw new Error("A duração desejada do perfil está fora do intervalo.");
+    }
+  }
+
+  /* v3: escolhas únicas e listas precisam pertencer ao vocabulário. */
+  [
+    ["focoArea", PERFIL_FOCOS, "A área de foco do perfil é inválida."],
+    ["tipoCorpo", PERFIL_TIPOS_CORPO, "O tipo de corpo informado no perfil é inválido."],
+    ["rotinaDiaria", PERFIL_ROTINAS_DIARIAS, "A rotina diária informada no perfil é inválida."],
+    ["localTreino", PERFIL_LOCAIS_TREINO, "O local de treino informado no perfil é inválido."],
+    ["experienciaFisica", PERFIL_EXPERIENCIAS_FISICAS, "A experiência com exercícios do perfil é inválida."],
+    ["flexoes", PERFIL_FLEXOES, "A avaliação de flexões do perfil é inválida."],
+    ["mobilidade", PERFIL_MOBILIDADE, "A avaliação de mobilidade do perfil é inválida."],
+    ["recuperacao", PERFIL_RECUPERACAO, "A recuperação informada no perfil é inválida."],
+    ["recompensa", PERFIL_RECOMPENSAS, "A recompensa informada no perfil é inválida."],
+    ["progressoPercebido", PERFIL_PROGRESSOS, "O indicador de progresso do perfil é inválido."]
+  ].forEach(([field, allowed, message]) => {
+    if (value[field] === undefined || value[field] === "") return;
+    if (typeof value[field] !== "string" || allowed.indexOf(value[field]) === -1) {
+      throw new Error(message);
+    }
+  });
+
+  [
+    ["motivacoes", PERFIL_MOTIVACOES, "As motivações do perfil são inválidas."],
+    ["preferenciasTreino", PERFIL_PREFERENCIAS_TREINO, "As preferências de treino do perfil são inválidas."],
+    ["consideracoes", PERFIL_CONSIDERACOES, "As considerações de treino do perfil são inválidas."],
+    ["equipamentos", PERFIL_ITENS_EQUIPAMENTO, "Os equipamentos do perfil são inválidos."]
+  ].forEach(([field, allowed, message]) => {
+    if (value[field] === undefined) return;
+    if (!Array.isArray(value[field]) || value[field].length > PERFIL_LISTA_MAX_ITENS) {
+      throw new Error(message);
+    }
+    value[field].forEach(item => {
+      if (typeof item !== "string" || allowed.indexOf(item) === -1) throw new Error(message);
+    });
+  });
+
+  [
+    ["alturaCm", PERFIL_ALTURA_MIN, PERFIL_ALTURA_MAX, "A altura informada no perfil está fora do intervalo."],
+    ["pesoKg", PERFIL_PESO_MIN, PERFIL_PESO_MAX, "O peso informado no perfil está fora do intervalo."],
+    ["pesoAlvoKg", PERFIL_PESO_MIN, PERFIL_PESO_MAX, "O peso-alvo informado no perfil está fora do intervalo."]
+  ].forEach(([field, min, max, message]) => {
+    if (value[field] === undefined || value[field] === null || value[field] === "") return;
+    const number = Number(value[field]);
+    /* 0 = "não informado" (inclui "ainda não defini" no peso-alvo). */
+    if (!Number.isFinite(number) || number === 0) {
+      if (number === 0) return;
+      throw new Error(message);
+    }
+    if (number < min || number > max) throw new Error(message);
+  });
+
+  if (value.anoNascimento !== undefined && value.anoNascimento !== null && value.anoNascimento !== "") {
+    const ano = Number(value.anoNascimento);
+    const limite = new Date().getFullYear();
+    if (!Number.isInteger(ano) || (ano !== 0 && (ano < PERFIL_ANO_MIN || ano > limite))) {
+      throw new Error("O ano de nascimento do perfil está fora do intervalo.");
     }
   }
 
@@ -3078,6 +3528,34 @@ Object.assign(F, {
   PERFIL_VERSION,
   PERFIL_MAX_DIAS,
   PERFIL_MAX_MINUTOS,
+  PERFIL_FOCOS,
+  PERFIL_MOTIVACOES,
+  PERFIL_TIPOS_CORPO,
+  PERFIL_ROTINAS_DIARIAS,
+  PERFIL_LOCAIS_TREINO,
+  PERFIL_PREFERENCIAS_TREINO,
+  PERFIL_EXPERIENCIAS_FISICAS,
+  PERFIL_CONSIDERACOES,
+  PERFIL_ITENS_EQUIPAMENTO,
+  PERFIL_FLEXOES,
+  PERFIL_MOBILIDADE,
+  PERFIL_RECUPERACAO,
+  PERFIL_RECOMPENSAS,
+  PERFIL_PROGRESSOS,
+  PERFIL_ALTURA_MIN,
+  PERFIL_ALTURA_MAX,
+  PERFIL_PESO_MIN,
+  PERFIL_PESO_MAX,
+  PERFIL_ANO_MIN,
+  normalizeProfileChoice,
+  normalizeProfileList,
+  normalizeProfileMeasure,
+  normalizeProfileYear,
+  deriveEquipamento,
+  deriveModalidadePreferida,
+  profileListLabels,
+  profileAnswerRows,
+  PERFIL_SUMARIO,
   PERSONAGENS,
   validateRoutinesStore,
   validateHistoryList,

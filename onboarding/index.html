@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101010">
-<title>Seu perfil · FORJA</title>
+<title>Personalize seu treino · FORJA</title>
+<link rel="preload" as="image" href="../assets/imagens/onboarding/perfil-masculino.jpg">
+<link rel="preload" as="image" href="../assets/imagens/onboarding/perfil-feminino.jpg">
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/treino.css">
 <link rel="stylesheet" href="../assets/css/execucao.css">
@@ -28,29 +30,33 @@
 </header>
 
 <main class="container" id="conteudo">
-  <section class="onboarding-shell" id="onboarding-shell" aria-label="Cadastro do perfil">
+  <section class="onboarding-shell" id="onboarding-shell" aria-label="Personalização do perfil">
     <div class="onboarding-progress" id="onboarding-progress"></div>
 
     <form class="onboarding-form" id="onboarding-form" novalidate>
       <div class="onboarding-step" id="onboarding-step"></div>
 
-      <p class="field-error onboarding-error" id="onboarding-error" role="alert" hidden></p>
+      <div class="onboarding-actions" id="onboarding-actions">
+        <p class="field-error onboarding-error" id="onboarding-error" role="alert" hidden></p>
 
-      <div class="onboarding-nav">
-        <button type="button" class="secondary-button" id="onboarding-back">Voltar</button>
-        <button type="submit" class="primary-button" id="onboarding-next">Continuar</button>
-      </div>
+        <button type="button" class="onboarding-skip-step" id="onboarding-skip-step" hidden>Pular esta etapa</button>
 
-      <p class="onboarding-exit-note">
+        <div class="onboarding-nav">
+          <button type="button" class="secondary-button" id="onboarding-back">Voltar</button>
+          <button type="submit" class="primary-button" id="onboarding-next">Continuar</button>
+        </div>
+
         <a class="onboarding-exit" id="onboarding-exit" href="../index.html">Sair e continuar depois</a>
         <span class="onboarding-exit-hint">As respostas ficam guardadas nesta aba até você concluir.</span>
-      </p>
+      </div>
     </form>
   </section>
 
   <p class="onboarding-privacy">
     Nada é enviado a servidores: o perfil fica no armazenamento local deste navegador.
-    Para levar os dados a outro aparelho, use o backup em Perfil.
+    Para levar os dados a outro aparelho, use o backup em Perfil. Nenhuma pergunta
+    aqui pede diagnóstico médico, e as avaliações de flexões e mobilidade são
+    opcionais.
   </p>
 </main>
 
