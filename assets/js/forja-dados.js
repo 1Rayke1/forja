@@ -1242,16 +1242,56 @@ function goalsAreActive(goals) {
 
     1  objetivo, nível, equipamento, diasPorSemana, duracaoMinutos
     2  + sexo, modalidadePreferida, onboardingConcluidoEm (aditivo)
+    3  + respostas do onboarding completo (aditivo): areaFoco, motivacoes,
+       alturaCm, pesoKg, pesoAlvoKg, tipoCorpo, anoNascimento, rotinaDiaria,
+       localTreino, preferenciasTreino, experienciaAtual, consideracoes,
+       equipamentos, flexoes, mobilidade, recuperacaoEsforco, celebracao e
+       acompanhamento. São respostas declaradas pela pessoa para personalizar
+       sugestões futuras: nenhum cálculo (IMC, idade, meta de peso, prescrição)
+       é derivado delas neste modelo.
 
-  Um perfil v1 é lido como v2 na primeira leitura: os campos novos ficam
+  Um perfil v1/v2 é lido como v3 na primeira leitura: os campos novos ficam
   vazios (nunca inferidos) e nada é gravado até o usuário salvar de novo. A
   chave `forja-perfil-v1` não muda de nome nem de formato de JSON — o backup
-  continua sendo o mesmo objeto.
+  continua sendo o mesmo objeto. Versões antigas do app também preservam os
+  campos v3 ao gravar (ver `carryUnknownProfileKeys`).
 */
-const PERFIL_VERSION = 2;
-const PERFIL_OBJETIVOS = ["forca", "hipertrofia", "resistencia", "calistenia", "recuperacao"];
-const PERFIL_NIVEIS = ["iniciante", "intermediario", "avancado"];
+const PERFIL_VERSION = 3;
+/*
+  Vocabulário v3 é só acréscimo: `perderPeso`/`manterForma` (objetivo) e
+  `retornando` (nível) entram sem mudar o significado dos valores antigos.
+*/
+const PERFIL_OBJETIVOS = [
+  "forca", "hipertrofia", "resistencia", "calistenia", "recuperacao",
+  "perderPeso", "manterForma"
+];
+const PERFIL_NIVEIS = ["iniciante", "intermediario", "avancado", "retornando"];
 const PERFIL_EQUIPAMENTOS = ["nenhum", "casa", "academia", "ambos"];
+
+/* Vocabulários das respostas novas do onboarding (v3). */
+const PERFIL_AREAS_FOCO = ["corpoTodo", "bracos", "peito", "abdomen", "pernas"];
+const PERFIL_MOTIVACOES = ["aparencia", "forca", "saude", "confianca", "energia", "estresse"];
+const PERFIL_TIPOS_CORPO = ["magro", "intermediario", "musculoso"];
+const PERFIL_ROTINAS_DIARIAS = ["sentado", "emPe", "caminha", "esforcoFisico", "varia"];
+const PERFIL_LOCAIS_TREINO = ["casa", "academia", "arLivre", "casaEAcademia"];
+const PERFIL_PREFERENCIAS_TREINO = ["musculacao", "calistenia", "funcional", "cardio", "combinacao", "descobrir"];
+const PERFIL_EXPERIENCIAS_ATUAIS = ["comecando", "basicos", "regular", "experiente"];
+const PERFIL_CONSIDERACOES = ["nenhuma", "desconfortos", "baixoImpacto", "adaptarNivel", "depois"];
+const PERFIL_EQUIPAMENTOS_DETALHE = [
+  "nenhum", "halteres", "barraAnilhas", "elasticos", "maquinas", "academiaCompleta", "outros"
+];
+const PERFIL_FLEXOES = ["nenhuma", "1a5", "6a10", "11a20", "mais20"];
+const PERFIL_MOBILIDADES = ["dificuldade", "umPouco", "pernas", "pes", "naoSei"];
+const PERFIL_RECUPERACOES_ESFORCO = ["rapida", "algumTempo", "muitoCansado", "semExperiencia"];
+const PERFIL_CELEBRACOES = ["evolucao", "metas", "desempenho", "consistencia", "pequenas"];
+const PERFIL_ACOMPANHAMENTOS = ["forca", "resistencia", "consistencia", "metasPessoais", "varios"];
+
+/* Limites plausíveis das medidas declaradas (0 = não informado). */
+const PERFIL_ALTURA_MIN_CM = 80;
+const PERFIL_ALTURA_MAX_CM = 250;
+const PERFIL_PESO_MIN_KG = 25;
+const PERFIL_PESO_MAX_KG = 350;
+const PERFIL_ANO_MIN = 1900;
 
 /*
   Sexo informado pelo usuário. Só dois valores com efeito definido:
@@ -1282,12 +1322,112 @@ const PERFIL_LABELS = {
     hipertrofia: "Hipertrofia",
     resistencia: "Resistência",
     calistenia: "Calistenia",
-    recuperacao: "Recuperação"
+    recuperacao: "Recuperação",
+    perderPeso: "Perder peso",
+    manterForma: "Manter a forma"
   },
   nivel: {
     iniciante: "Iniciante",
     intermediario: "Intermediário",
-    avancado: "Avançado"
+    avancado: "Avançado",
+    retornando: "Voltando a treinar"
+  },
+  areaFoco: {
+    corpoTodo: "Corpo todo",
+    bracos: "Braços",
+    peito: "Peito",
+    abdomen: "Abdômen",
+    pernas: "Pernas"
+  },
+  motivacao: {
+    aparencia: "Parecer mais atraente",
+    forca: "Ficar mais forte",
+    saude: "Melhorar minha saúde",
+    confianca: "Sentir mais confiança",
+    energia: "Ter mais energia",
+    estresse: "Aliviar o estresse"
+  },
+  tipoCorpo: {
+    magro: "Mais magro",
+    intermediario: "Intermediário",
+    musculoso: "Mais musculoso"
+  },
+  rotinaDiaria: {
+    sentado: "Principalmente sentado",
+    emPe: "Em pé boa parte do dia",
+    caminha: "Caminho bastante",
+    esforcoFisico: "Trabalho com esforço físico",
+    varia: "Rotina varia bastante"
+  },
+  localTreino: {
+    casa: "Em casa",
+    academia: "Na academia",
+    arLivre: "Ao ar livre",
+    casaEAcademia: "Em casa e na academia"
+  },
+  preferenciaTreino: {
+    musculacao: "Musculação",
+    calistenia: "Calistenia",
+    funcional: "Treino funcional",
+    cardio: "Cardio",
+    combinacao: "Combinação de modalidades",
+    descobrir: "Quero descobrir"
+  },
+  experienciaAtual: {
+    comecando: "Estou começando agora",
+    basicos: "Exercícios básicos",
+    regular: "Treinos regulares",
+    experiente: "Treino há bastante tempo"
+  },
+  consideracao: {
+    nenhuma: "Nenhuma consideração específica",
+    desconfortos: "Desconfortos a levar em conta",
+    baixoImpacto: "Baixo impacto",
+    adaptarNivel: "Adaptar ao meu nível atual",
+    depois: "Conversar sobre isso depois"
+  },
+  equipamentoDetalhe: {
+    nenhum: "Nenhum equipamento",
+    halteres: "Halteres",
+    barraAnilhas: "Barra e anilhas",
+    elasticos: "Elásticos",
+    maquinas: "Máquinas de musculação",
+    academiaCompleta: "Equipamentos de academia completos",
+    outros: "Outros equipamentos"
+  },
+  flexoes: {
+    nenhuma: "Ainda não consigo fazer",
+    "1a5": "1–5 flexões",
+    "6a10": "6–10 flexões",
+    "11a20": "11–20 flexões",
+    mais20: "Mais de 20 flexões"
+  },
+  mobilidade: {
+    dificuldade: "Bastante dificuldade",
+    umPouco: "Inclino um pouco",
+    pernas: "Alcanço as pernas",
+    pes: "Alcanço os pés",
+    naoSei: "Não sei avaliar"
+  },
+  recuperacaoEsforco: {
+    rapida: "Recupero o fôlego rapidamente",
+    algumTempo: "Preciso de algum tempo",
+    muitoCansado: "Fico muito cansado",
+    semExperiencia: "Sem experiência para avaliar"
+  },
+  celebracao: {
+    evolucao: "Perceber minha evolução",
+    metas: "Completar minhas metas",
+    desempenho: "Melhorar meu desempenho",
+    consistencia: "Manter uma rotina consistente",
+    pequenas: "Celebrar pequenas conquistas"
+  },
+  acompanhamento: {
+    forca: "Acompanhar minha força",
+    resistencia: "Acompanhar minha resistência",
+    consistencia: "Acompanhar a consistência",
+    metasPessoais: "Acompanhar metas pessoais",
+    varios: "Diferentes indicadores"
   },
   equipamento: {
     nenhum: "Sem equipamentos",
@@ -1313,13 +1453,16 @@ const PERFIL_OPTIONS = {
     { value: "hipertrofia", label: "Hipertrofia" },
     { value: "resistencia", label: "Resistência" },
     { value: "calistenia", label: "Calistenia" },
-    { value: "recuperacao", label: "Recuperação" }
+    { value: "recuperacao", label: "Recuperação" },
+    { value: "perderPeso", label: "Perder peso" },
+    { value: "manterForma", label: "Manter a forma" }
   ],
   nivel: [
     { value: "", label: "Não definido" },
     { value: "iniciante", label: "Iniciante" },
     { value: "intermediario", label: "Intermediário" },
-    { value: "avancado", label: "Avançado" }
+    { value: "avancado", label: "Avançado" },
+    { value: "retornando", label: "Voltando a treinar" }
   ],
   equipamento: [
     { value: "", label: "Não definido" },
@@ -1351,8 +1494,56 @@ const PERFIL_KNOWN_KEYS = [
   "duracaoMinutos",
   "sexo",
   "modalidadePreferida",
-  "onboardingConcluidoEm"
+  "onboardingConcluidoEm",
+  /* v3 (onboarding completo) */
+  "areaFoco",
+  "motivacoes",
+  "alturaCm",
+  "pesoKg",
+  "pesoAlvoKg",
+  "tipoCorpo",
+  "anoNascimento",
+  "rotinaDiaria",
+  "localTreino",
+  "preferenciasTreino",
+  "experienciaAtual",
+  "consideracoes",
+  "equipamentos",
+  "flexoes",
+  "mobilidade",
+  "recuperacaoEsforco",
+  "celebracao",
+  "acompanhamento"
 ];
+
+/*
+  Mapa campo → vocabulário das respostas de escolha do perfil. É a fonte única
+  usada na normalização (leitura tolerante) e na validação de backup (estrita).
+*/
+const PERFIL_VOCABULARIOS = {
+  objetivo: PERFIL_OBJETIVOS,
+  nivel: PERFIL_NIVEIS,
+  equipamento: PERFIL_EQUIPAMENTOS,
+  sexo: PERFIL_SEXOS,
+  modalidadePreferida: PERFIL_MODALIDADES,
+  areaFoco: PERFIL_AREAS_FOCO,
+  tipoCorpo: PERFIL_TIPOS_CORPO,
+  rotinaDiaria: PERFIL_ROTINAS_DIARIAS,
+  localTreino: PERFIL_LOCAIS_TREINO,
+  experienciaAtual: PERFIL_EXPERIENCIAS_ATUAIS,
+  flexoes: PERFIL_FLEXOES,
+  mobilidade: PERFIL_MOBILIDADES,
+  recuperacaoEsforco: PERFIL_RECUPERACOES_ESFORCO,
+  celebracao: PERFIL_CELEBRACOES,
+  acompanhamento: PERFIL_ACOMPANHAMENTOS
+};
+
+const PERFIL_VOCABULARIOS_LISTA = {
+  motivacoes: PERFIL_MOTIVACOES,
+  preferenciasTreino: PERFIL_PREFERENCIAS_TREINO,
+  consideracoes: PERFIL_CONSIDERACOES,
+  equipamentos: PERFIL_EQUIPAMENTOS_DETALHE
+};
 
 /* Data ISO aceita só quando é texto e o navegador consegue interpretar. */
 function normalizeIsoText(value) {
@@ -1360,6 +1551,32 @@ function normalizeIsoText(value) {
   const text = value.trim();
   if (!text) return null;
   return Number.isNaN(Date.parse(text)) ? null : text;
+}
+
+/* Escolha única: valor fora do vocabulário vira "" (não informado). */
+function normalizeProfileChoice(value, vocabulario) {
+  return vocabulario.indexOf(value) !== -1 ? value : "";
+}
+
+/* Escolha múltipla: mantém só valores do vocabulário, sem repetir. */
+function normalizeProfileList(value, vocabulario) {
+  if (!Array.isArray(value)) return [];
+  const out = [];
+  value.forEach(item => {
+    if (vocabulario.indexOf(item) !== -1 && out.indexOf(item) === -1) out.push(item);
+  });
+  return out;
+}
+
+/*
+  Medida declarada com casa decimal (peso em kg). Ausente/inválida vira 0;
+  fora da faixa plausível é limitada à faixa, como `clampInteger` já fazia
+  com dias e minutos. A tela valida de forma estrita antes de gravar.
+*/
+function normalizeProfileDecimal(value, min, max) {
+  const numero = Number(value);
+  if (!Number.isFinite(numero) || numero <= 0) return 0;
+  return Math.round(Math.min(max, Math.max(min, numero)) * 10) / 10;
 }
 
 function normalizeProfile(raw) {
@@ -1373,12 +1590,30 @@ function normalizeProfile(raw) {
     duracaoMinutos: 0,
     sexo: "",
     modalidadePreferida: "",
-    onboardingConcluidoEm: null
+    onboardingConcluidoEm: null,
+    areaFoco: "",
+    motivacoes: [],
+    alturaCm: 0,
+    pesoKg: 0,
+    pesoAlvoKg: 0,
+    tipoCorpo: "",
+    anoNascimento: 0,
+    rotinaDiaria: "",
+    localTreino: "",
+    preferenciasTreino: [],
+    experienciaAtual: "",
+    consideracoes: [],
+    equipamentos: [],
+    flexoes: "",
+    mobilidade: "",
+    recuperacaoEsforco: "",
+    celebracao: "",
+    acompanhamento: ""
   };
 
   if (!isPlainObject(raw)) return base;
 
-  return {
+  const out = {
     version: PERFIL_VERSION,
     updatedAt: normalizeIsoText(raw.updatedAt),
     objetivo: PERFIL_OBJETIVOS.indexOf(raw.objetivo) !== -1 ? raw.objetivo : "",
@@ -1391,8 +1626,27 @@ function normalizeProfile(raw) {
     modalidadePreferida: PERFIL_MODALIDADES.indexOf(raw.modalidadePreferida) !== -1
       ? raw.modalidadePreferida
       : "",
-    onboardingConcluidoEm: normalizeIsoText(raw.onboardingConcluidoEm)
+    onboardingConcluidoEm: normalizeIsoText(raw.onboardingConcluidoEm),
+    /* Medidas declaradas: guardadas como informadas, sem cálculo derivado. */
+    alturaCm: clampInteger(raw.alturaCm, 0, PERFIL_ALTURA_MAX_CM, 0),
+    pesoKg: normalizeProfileDecimal(raw.pesoKg, PERFIL_PESO_MIN_KG, PERFIL_PESO_MAX_KG),
+    pesoAlvoKg: normalizeProfileDecimal(raw.pesoAlvoKg, PERFIL_PESO_MIN_KG, PERFIL_PESO_MAX_KG),
+    anoNascimento: clampInteger(raw.anoNascimento, 0, new Date().getFullYear(), 0)
   };
+
+  Object.keys(PERFIL_VOCABULARIOS).forEach(campo => {
+    if (out[campo] !== undefined) return;
+    out[campo] = normalizeProfileChoice(raw[campo], PERFIL_VOCABULARIOS[campo]);
+  });
+  Object.keys(PERFIL_VOCABULARIOS_LISTA).forEach(campo => {
+    out[campo] = normalizeProfileList(raw[campo], PERFIL_VOCABULARIOS_LISTA[campo]);
+  });
+
+  /* Ordem estável das chaves (mesma do objeto vazio) para leitura do JSON. */
+  return Object.keys(base).reduce((ordenado, campo) => {
+    ordenado[campo] = out[campo] !== undefined ? out[campo] : base[campo];
+    return ordenado;
+  }, {});
 }
 
 /*
@@ -1427,7 +1681,14 @@ function profileHasAnyAnswer(profile) {
 
   return Boolean(
     current.objetivo || current.nivel || current.equipamento || current.sexo ||
-    current.modalidadePreferida || current.diasPorSemana > 0 || current.duracaoMinutos > 0
+    current.modalidadePreferida || current.diasPorSemana > 0 || current.duracaoMinutos > 0 ||
+    current.areaFoco || current.tipoCorpo || current.rotinaDiaria || current.localTreino ||
+    current.experienciaAtual || current.flexoes || current.mobilidade ||
+    current.recuperacaoEsforco || current.celebracao || current.acompanhamento ||
+    current.alturaCm > 0 || current.pesoKg > 0 || current.pesoAlvoKg > 0 ||
+    current.anoNascimento > 0 || current.motivacoes.length > 0 ||
+    current.preferenciasTreino.length > 0 || current.consideracoes.length > 0 ||
+    current.equipamentos.length > 0
   );
 }
 
@@ -1566,6 +1827,70 @@ function validateProfileStore(value) {
     const minutos = Number(value.duracaoMinutos);
     if (!Number.isInteger(minutos) || minutos < 0 || minutos > PERFIL_MAX_MINUTOS) {
       throw new Error("A duração desejada do perfil está fora do intervalo.");
+    }
+  }
+
+  /* v3: mesmas regras estritas para as respostas novas. Perfis v1/v2 (sem
+     estes campos) continuam válidos — campo ausente nunca é erro. */
+  const nomes = {
+    areaFoco: "A área de foco do perfil é inválida.",
+    tipoCorpo: "O tipo de corpo do perfil é inválido.",
+    rotinaDiaria: "A rotina diária do perfil é inválida.",
+    localTreino: "O local de treino do perfil é inválido.",
+    experienciaAtual: "A experiência atual do perfil é inválida.",
+    flexoes: "A resposta de flexões do perfil é inválida.",
+    mobilidade: "A resposta de mobilidade do perfil é inválida.",
+    recuperacaoEsforco: "A resposta sobre esforço do perfil é inválida.",
+    celebracao: "A forma de celebrar do perfil é inválida.",
+    acompanhamento: "A forma de acompanhar a evolução do perfil é inválida."
+  };
+
+  Object.keys(nomes).forEach(campo => {
+    if (value[campo] !== undefined &&
+      value[campo] !== "" &&
+      PERFIL_VOCABULARIOS[campo].indexOf(value[campo]) === -1) {
+      throw new Error(nomes[campo]);
+    }
+  });
+
+  const nomesLista = {
+    motivacoes: "As motivações do perfil são inválidas.",
+    preferenciasTreino: "As preferências de treino do perfil são inválidas.",
+    consideracoes: "As considerações de treino do perfil são inválidas.",
+    equipamentos: "Os equipamentos do perfil são inválidos."
+  };
+
+  Object.keys(nomesLista).forEach(campo => {
+    if (value[campo] === undefined) return;
+    if (!Array.isArray(value[campo]) ||
+      value[campo].some(item => PERFIL_VOCABULARIOS_LISTA[campo].indexOf(item) === -1)) {
+      throw new Error(nomesLista[campo]);
+    }
+  });
+
+  if (value.alturaCm !== undefined) {
+    const altura = Number(value.alturaCm);
+    if (!Number.isInteger(altura) || altura < 0 ||
+      (altura !== 0 && (altura < PERFIL_ALTURA_MIN_CM || altura > PERFIL_ALTURA_MAX_CM))) {
+      throw new Error("A altura do perfil está fora do intervalo.");
+    }
+  }
+
+  [[ "pesoKg", "O peso atual do perfil está fora do intervalo."],
+   ["pesoAlvoKg", "O peso-alvo do perfil está fora do intervalo."]].forEach(([campo, mensagem]) => {
+    if (value[campo] === undefined) return;
+    const peso = Number(value[campo]);
+    if (!Number.isFinite(peso) || peso < 0 ||
+      (peso !== 0 && (peso < PERFIL_PESO_MIN_KG || peso > PERFIL_PESO_MAX_KG))) {
+      throw new Error(mensagem);
+    }
+  });
+
+  if (value.anoNascimento !== undefined) {
+    const ano = Number(value.anoNascimento);
+    if (!Number.isInteger(ano) || ano < 0 ||
+      (ano !== 0 && (ano < PERFIL_ANO_MIN || ano > new Date().getFullYear()))) {
+      throw new Error("O ano de nascimento do perfil está fora do intervalo.");
     }
   }
 
@@ -3075,9 +3400,16 @@ Object.assign(F, {
   PERFIL_EQUIPAMENTOS,
   PERFIL_SEXOS,
   PERFIL_MODALIDADES,
+  PERFIL_VOCABULARIOS,
+  PERFIL_VOCABULARIOS_LISTA,
   PERFIL_VERSION,
   PERFIL_MAX_DIAS,
   PERFIL_MAX_MINUTOS,
+  PERFIL_ALTURA_MIN_CM,
+  PERFIL_ALTURA_MAX_CM,
+  PERFIL_PESO_MIN_KG,
+  PERFIL_PESO_MAX_KG,
+  PERFIL_ANO_MIN,
   PERSONAGENS,
   validateRoutinesStore,
   validateHistoryList,
