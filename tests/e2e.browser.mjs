@@ -1564,7 +1564,7 @@ await check('Home estabilizada: convite ao onboarding em 5 larguras, metas com u
   }
 });
 
-await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, conclusão e perfil persistente', async () => {
+await check('Onboarding: 24 telas em 320 px, imagens reais, unidades, erro sem escolha, revisão e perfil persistente', async () => {
   const saved = await forjaRaw();
   try {
     await restoreForjaRaw({});
@@ -1574,112 +1574,180 @@ await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, 
     await jsClick('#onboarding-start');
     await expectPath('/onboarding/index.html');
     await page.setViewport({ width: 320, height: 720 });
-    await sleep(150);
+    await sleep(200);
 
-    const etapa = () => page.evaluate(() => ({
-      pergunta: document.getElementById('onboarding-question')?.textContent.trim(),
-      contador: document.getElementById('onboarding-step-count')?.textContent.trim(),
-      acao: document.getElementById('onboarding-next')?.textContent.trim(),
-      valor: document.getElementById('onboarding-progressbar')?.getAttribute('aria-valuenow'),
-      overflow: document.documentElement.scrollWidth - window.innerWidth,
-      opcao: (() => {
-        const el = document.querySelector('#onboarding-step .onboarding-option');
-        return el ? Math.round(el.getBoundingClientRect().height) : 0;
-      })(),
-      botao: (() => {
-        const el = document.getElementById('onboarding-next');
-        return el ? Math.round(el.getBoundingClientRect().height) : 0;
-      })()
-    }));
+    const etapa = () => page.evaluate(() => {
+      const shell = document.getElementById('onboarding-shell');
+      const cards = [...document.querySelectorAll('#onboarding-step .onboarding-option, #onboarding-step .onboarding-image-card')];
+      const button = document.getElementById('onboarding-next');
+      return {
+        id: shell ? shell.getAttribute('data-step') : null,
+        pergunta: document.getElementById('onboarding-question')?.textContent.trim(),
+        contador: document.getElementById('onboarding-step-count')?.textContent.trim(),
+        acao: button?.textContent.trim(),
+        valor: document.getElementById('onboarding-progressbar')?.getAttribute('aria-valuenow'),
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        opcao: cards.length ? Math.round(cards[0].getBoundingClientRect().height) : 0,
+        botao: button ? Math.round(button.getBoundingClientRect().height) : 0,
+        imagens: [...document.querySelectorAll('#onboarding-step .onboarding-image-card img')].map(img => ({
+          src: img.getAttribute('src'), largura: img.naturalWidth
+        }))
+      };
+    });
 
-    const escolher = async valor => {
-      const ok = await page.evaluate(v => {
-        const input = [...document.querySelectorAll('#onboarding-step input[type="radio"]')]
-          .find(node => node.value === String(v));
-        if (!input) return false;
-        input.click();
-        return true;
-      }, valor);
-      assert.ok(ok, 'Opção não encontrada: ' + valor);
-      await sleep(60);
+    /* Responde a etapa atual a partir dos dados do próprio fluxo. */
+    const responder = async (mapa, clique = true) => {
+      const info = await page.evaluate((valores) => {
+        const id = document.getElementById('onboarding-shell').getAttribute('data-step');
+        const passo = Forja.onboarding.PASSOS.find(item => item.id === id);
+        if (!passo || !passo.campo) return { id, tipo: passo ? passo.tipo : null };
+        const valor = valores[passo.campo];
+
+        if (passo.tipo === 'numero') {
+          const input = document.getElementById('onboarding-number');
+          input.value = String(valor);
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        } else if (passo.tipo === 'multipla') {
+          [].concat(valor).forEach(item => {
+            const input = [...document.querySelectorAll('#onboarding-step input[type="checkbox"]')]
+              .find(node => node.value === String(item));
+            if (input && !input.checked) input.click();
+          });
+        } else {
+          const input = [...document.querySelectorAll('#onboarding-step input[type="radio"]')]
+            .find(node => node.value === String(valor));
+          if (input) input.click();
+        }
+
+        return { id, tipo: passo.tipo };
+      }, mapa);
+
+      if (clique) {
+        await clickCentered('#onboarding-next');
+        await sleep(90);
+      }
+      return info;
     };
 
-    const avancar = async () => {
-      await clickCentered('#onboarding-next');
-      await sleep(90);
+    const RESPOSTAS = {
+      sexo: 'feminino', focoArea: 'pernas', objetivo: 'forca', motivacoes: ['saude', 'energia'],
+      alturaCm: 165, pesoKg: 62, pesoAlvoKg: 0, tipoCorpo: 'intermediario', anoNascimento: 1992,
+      rotinaDiaria: 'sentado', localTreino: 'casa', preferenciasTreino: ['calistenia'],
+      diasPorSemana: 3, nivel: 'iniciante', experienciaFisica: 'basicos',
+      consideracoes: ['baixo-impacto'], equipamentos: ['elasticos'], flexoes: '6-10',
+      mobilidade: 'pernas', recuperacao: 'algum-tempo', recompensa: 'metas', progressoPercebido: 'consistencia'
     };
 
     let info = await etapa();
-    assert.equal(info.pergunta, 'Bem-vindo à FORJA');
-    assert.equal(info.contador, 'Comece por aqui');
-    assert.ok(info.overflow <= 1, 'Overflow na apresentação a 320px: ' + info.overflow);
-    assert.ok(info.botao >= 44, 'Botão principal abaixo de 44px a 320px');
-
-    await avancar();
-    info = await etapa();
-    assert.equal(info.pergunta, 'Qual sexo você informa?');
-    assert.equal(info.contador, 'Etapa 1 de 7');
+    assert.equal(info.id, 'sexo');
+    assert.equal(info.pergunta, 'Vamos personalizar seu treino.');
+    assert.equal(info.contador, 'ETAPA 1 DE 24');
     assert.equal(info.acao, 'Continuar');
     assert.equal(info.valor, '1');
-    assert.ok(info.opcao >= 44, 'Opção de resposta abaixo de 44px: ' + info.opcao);
-    assert.ok(info.overflow <= 1, 'Overflow na etapa de sexo a 320px: ' + info.overflow);
+    assert.ok(info.overflow <= 1, 'Overflow na etapa 1 a 320px: ' + info.overflow);
+    assert.ok(info.botao >= 44, 'Botão principal abaixo de 44px a 320px');
+    assert.ok(info.opcao >= 44, 'Cartão de imagem abaixo de 44px: ' + info.opcao);
+
+    /* As duas imagens reais, uma por cartão, e ambas carregadas. */
+    assert.equal(info.imagens.length, 2, 'Dois cartões com imagem');
+    assert.match(info.imagens[0].src, /perfil-masculino\.jpg$/);
+    assert.match(info.imagens[1].src, /perfil-feminino\.jpg$/);
+    assert.ok(info.imagens.every(imagem => imagem.largura > 0), 'As imagens masculina e feminina devem carregar');
 
     /* Sem escolha não avança: o erro aparece e nada é gravado. */
-    await avancar();
+    await clickCentered('#onboarding-next');
+    await sleep(120);
     assert.equal(await page.$eval('#onboarding-error', el => el.hidden), false, 'Faltou avisar que a escolha é obrigatória');
-    assert.equal(await etapa().then(e => e.pergunta), 'Qual sexo você informa?');
+    assert.equal(await etapa().then(e => e.id), 'sexo');
     assert.equal(await data('forja-perfil-v1'), null);
 
-    /* Responde tudo, com uma volta para corrigir os dias. */
-    await escolher('feminino');
-    await avancar();
-    await escolher('forca');
-    await avancar();
-    await escolher('iniciante');
-    await avancar();
-    await escolher('3');
-    await avancar();
-    assert.equal((await etapa()).pergunta, 'Quanto tempo costuma durar uma sessão?');
-    await jsClick('#onboarding-back');
-    await sleep(120);
-    assert.equal((await etapa()).pergunta, 'Quantos dias por semana você consegue treinar?');
-    assert.equal(await page.$eval('input[name="onboarding-diasPorSemana"][value="3"]', el => el.checked), true,
-      'A resposta anterior deve continuar marcada');
-    await escolher('5');
-    await avancar();
-    await escolher('60');
-    await avancar();
-    await escolher('casa');
-    await avancar();
-    await escolher('calisthenics');
-    await avancar();
+    /* Preenche o fluxo inteiro, com uma volta no meio para conferir a resposta. */
+    responder(RESPOSTAS);          /* sexo */
+    await sleep(60);
+    await clickCentered('#onboarding-next');
+    await sleep(110);
 
     info = await etapa();
-    assert.equal(info.pergunta, 'Confira suas respostas');
-    assert.equal(info.acao, 'Concluir cadastro');
-    assert.equal(info.valor, '8');
-    assert.ok(info.overflow <= 1, 'Overflow na revisão a 320px: ' + info.overflow);
-    assert.equal(await page.$$eval('.onboarding-review-row', els => els.length), 7, 'A revisão deve listar as 7 respostas');
+    assert.equal(info.id, 'foco');
+    assert.equal(info.contador, 'ETAPA 2 DE 24');
+    assert.ok(info.overflow <= 1, 'Overflow na área de foco a 320px: ' + info.overflow);
+    assert.ok(info.opcao >= 44, 'Cartão de opção abaixo de 44px: ' + info.opcao);
 
-    /* Conclui. */
-    await avancar();
+    /* Anda pelas etapas restantes até a revisão. */
+    let guarda = 0;
+    while (guarda < 40) {
+      guarda += 1;
+      const atual = await etapa();
+      if (atual.id === 'revisao') break;
+
+      /* Na altura, confere a troca de unidade antes de responder. */
+      if (atual.id === 'altura') {
+        await page.evaluate(() => {
+          document.querySelector('.onboarding-unit[data-unit="imperial"]').click();
+        });
+        await sleep(80);
+        const imperial = await page.evaluate(() => ({
+          pes: document.getElementById('onboarding-number').value,
+          pol: document.getElementById('onboarding-polegadas').value,
+          display: document.getElementById('onboarding-measure-value').textContent.trim()
+        }));
+        assert.ok(imperial.pes !== '' && imperial.pol !== '', 'A unidade imperial deve mostrar pés e polegadas');
+        assert.match(imperial.display, /′/);
+        await page.evaluate(() => {
+          document.querySelector('.onboarding-unit[data-unit="cm"]').click();
+        });
+        await sleep(60);
+      }
+
+      const passoAtual = await responder(RESPOSTAS);
+      assert.ok(!passoAtual || passoAtual.tipo !== 'revisao');
+      const depois = await etapa();
+      assert.notEqual(depois.id, atual.id, 'A etapa ' + atual.id + ' não avançou');
+    }
+
+    info = await etapa();
+    assert.equal(info.id, 'revisao');
+    assert.equal(info.pergunta, 'Revise seu perfil');
+    assert.equal(info.contador, 'ETAPA 23 DE 24');
+    assert.ok(info.overflow <= 1, 'Overflow na revisão a 320px: ' + info.overflow);
+    assert.equal(await page.$$eval('.onboarding-review-row', els => els.length), 22,
+      'A revisão deve listar as 22 respostas preenchidas');
+    assert.equal(await page.$eval('#onboarding-back', el => el.hidden), false, 'A revisão mantém Voltar');
+
+    /* Volta uma etapa e retorna sem perder nada. */
+    await jsClick('#onboarding-back');
+    await sleep(120);
+    assert.equal((await etapa()).id, 'progresso');
+    assert.equal(await page.$eval('input[name="onboarding-progressoPercebido"][value="consistencia"]', el => el.checked), true,
+      'A resposta anterior deve continuar marcada');
+    await clickCentered('#onboarding-next');
+    await sleep(110);
+
+    /* Conclui: a preparação do plano aparece antes de entrar no app. */
+    await clickCentered('#onboarding-next');
+    await sleep(180);
+    info = await etapa();
+    assert.equal(info.id, 'final');
+    assert.equal(info.acao, 'Entrar no FORJA');
+    assert.equal(info.contador, 'ETAPA 24 DE 24');
+    assert.ok(info.overflow <= 1, 'Overflow na preparação a 320px: ' + info.overflow);
+
+    await clickCentered('#onboarding-next');
     await expectPath('/');
-    await sleep(200);
+    await sleep(220);
 
     const perfil = await data('forja-perfil-v1');
     assert.ok(perfil, 'O perfil deve ser gravado na conclusão');
-    assert.deepEqual(
-      {
-        version: perfil.version, sexo: perfil.sexo, objetivo: perfil.objetivo, nivel: perfil.nivel,
-        diasPorSemana: perfil.diasPorSemana, duracaoMinutos: perfil.duracaoMinutos,
-        equipamento: perfil.equipamento, modalidadePreferida: perfil.modalidadePreferida
-      },
-      {
-        version: 2, sexo: 'feminino', objetivo: 'forca', nivel: 'iniciante',
-        diasPorSemana: 5, duracaoMinutos: 60,
-        equipamento: 'casa', modalidadePreferida: 'calisthenics'
-      }
-    );
+    assert.equal(perfil.version, 3);
+    assert.equal(perfil.sexo, 'feminino');
+    assert.equal(perfil.focoArea, 'pernas');
+    assert.equal(perfil.objetivo, 'forca');
+    assert.equal(perfil.alturaCm, 165);
+    assert.equal(perfil.pesoKg, 62);
+    assert.equal(perfil.anoNascimento, 1992);
+    assert.equal(perfil.diasPorSemana, 3);
+    assert.equal(perfil.equipamento, 'casa', 'Elásticos viram equipamento de casa');
+    assert.equal(perfil.modalidadePreferida, 'calisthenics', 'Calistenia vira a modalidade preferida');
     assert.ok(perfil.onboardingConcluidoEm, 'A conclusão do onboarding deve ficar registrada');
 
     /* Confirmação na Home e convite encerrado. */
@@ -1691,14 +1759,18 @@ await check('Onboarding: 9 etapas em 320 px, erro sem escolha, voltar/corrigir, 
     await page.setViewport(MOBILE);
     assert.equal(await page.$eval('#onboarding-root', el => el.hidden), true, 'Recarregar não deve trazer o convite');
 
-    /* Perfil mostra o sexo e permite editar; editar não altera o restante. */
+    /* Perfil mostra o sexo e as respostas do cadastro; editar não altera o restante. */
     await go('perfil/');
     assert.equal(await page.$eval('#prof-sexo', el => el.value), 'feminino');
+    assert.equal(await page.$eval('#perfil-cadastro-panel', el => el.hidden), false,
+      'O Perfil deve mostrar as respostas do cadastro guiado');
+    assert.match(await text('#profile-onboarding-summary'), /Pernas/);
     await page.select('#prof-sexo', 'masculino');
     await jsClick('#profile-save');
     await sleep(220);
     assert.equal((await data('forja-perfil-v1')).sexo, 'masculino', 'A edição do sexo não foi gravada');
     assert.equal((await data('forja-perfil-v1')).objetivo, 'forca', 'A edição do sexo alterou outros campos');
+    assert.equal((await data('forja-perfil-v1')).alturaCm, 165, 'Editar o perfil não apaga as respostas novas');
   } finally {
     await page.setViewport(MOBILE);
     await go('perfil/');
