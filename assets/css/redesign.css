@@ -156,7 +156,21 @@ body[data-page="treino"] .hub-routines { margin-top: 0; }
 body[data-page="treino"] .hub-routines > .home-week-head { align-items: center; padding: 18px 20px; border: 1px solid var(--fj-stroke); border-radius: 16px 16px 0 0; background: var(--fj-surface); margin: 0; }
 body[data-page="treino"] .hub-routines > .home-week-head .section-title { font-size: 20px; }
 body[data-page="treino"] #hub-create-routine { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-body[data-page="treino"] .hub-routines > .field-label { display: none; }
+/* O rótulo "Modalidade" é redundante na tela, mas é ele que dá nome acessível
+   ao <select>. `display: none` removia o texto da árvore de acessibilidade e
+   o seletor ficava sem nome (axe: select-name). Oculto só visualmente. */
+body[data-page="treino"] .hub-routines > .field-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 body[data-page="treino"] #hub-modality { width: 100%; min-height: 48px; padding-inline: 15px; border: 1px solid var(--fj-stroke); border-radius: 0 0 14px 14px; background-color: #0d1416; }
 body[data-page="treino"] .routine-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 16px; }
 body[data-page="treino"] .routine-card { padding: 17px; border-radius: 16px; gap: 13px; }
@@ -237,7 +251,10 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
 .bottom-nav-link.is-active, .bottom-nav-link[aria-current="page"] { color: var(--fj-accent); background: rgba(183,243,74,.075); }
 .bottom-nav-icon { width: 25px; height: 25px; }
 .bottom-nav-icon svg { width: 23px; height: 23px; }
-.site-footer { width: min(100% - 40px,1120px); margin-inline: auto; padding-bottom: 30px; border-color: var(--fj-stroke); }
+/* O padding inferior não pode encolher abaixo da barra fixa: era 30px e os
+   links de crédito do rodapé ficavam atrás da navegação. Mesmo cálculo de
+   marca.css (altura da barra + respiro + safe area). */
+.site-footer { width: min(100% - 40px,1120px); margin-inline: auto; padding-bottom: calc(var(--bottom-nav-height, 69px) + 24px + env(safe-area-inset-bottom, 0px)); border-color: var(--fj-stroke); }
 .footer-motto { color: var(--fj-accent); }
 
 @media (min-width: 900px) {

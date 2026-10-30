@@ -70,3 +70,109 @@ try {
   assert.equal(app.F.state.history[0].id, "historic-session");
   console.log("✅ Plano: fallback local, prévia, persistência, calendário e preservação do histórico");
 } finally { closeAllApps(); }
+
+/*
+  FUNC-01 — a modalidade das rotinas do plano vem do catálogo.
+
+  Causa: routinesForPlan (e o botão "Iniciar sessão") faziam
+  `session.exercises.some(e => e.mode === "weights")`. `mode` existe no registro
+  do catálogo, mas NÃO no exercício normalizado por F.catalog.toExercise — então
+  a comparação era sempre falsa e toda rotina caía em "calisthenics". O plano
+  agora grava a modalidade real (`mode` no exercício, `modality` na sessão) e,
+  para planos antigos, resolve pelo catalogId/libraryId.
+*/
+const planRoutineIds = routines => routines
+  .filter(routine => String(routine.id).startsWith("forja-plan-session-"))
+  .map(routine => routine.id);
+
+const weightsProfile = {
+  version: 3, updatedAt: "2026-10-01T12:00:00.000Z", objetivo: "hipertrofia", nivel: "iniciante",
+  equipamento: "academia", equipamentos: ["academiaCompleta"], localTreino: "academia",
+  diasPorSemana: 3, areaFoco: "corpoTodo", experienciaAtual: "basicos",
+  preferenciasTreino: ["musculacao"], modalidadePreferida: "weights", consideracoes: ["nenhuma"]
+};
+const calisthenicsProfile = Object.assign({}, weightsProfile, {
+  equipamento: "casa", equipamentos: ["nenhum"], localTreino: "casa",
+  preferenciasTreino: ["calistenia"], modalidadePreferida: "calisthenics"
+});
+
+{
+  const app = await boot({ "forja-perfil-v1": weightsProfile }, "treino/index.html");
+  try {
+    const plan = app.F.plan.generateLocal(app.F.state.profile, null);
+    assert.equal(plan.sessions.length, 3, "perfil de musculação deveria gerar 3 sessões");
+    plan.sessions.forEach(session => {
+      assert.equal(session.modality, "weights", "sessão de musculação não declarou a modalidade");
+      session.exercises.forEach(exercise => {
+        assert.equal(exercise.mode, "weights", "exercício do plano perdeu a modalidade do catálogo");
+      });
+    });
+
+    app.F.plan.save(plan);
+    assert.equal(planRoutineIds(app.F.state.routines.weights).length, 3,
+      "três rotinas deveriam ser salvas em weights");
+    assert.equal(planRoutineIds(app.F.state.routines.calisthenics).length, 0,
+      "rotina de musculação foi salva como calistenia");
+    const persisted = app.data("forja-treino-rotinas-v1");
+    assert.equal(planRoutineIds(persisted.weights).length, 3, "a gravação não levou as rotinas para weights");
+    assert.equal(planRoutineIds(persisted.calisthenics).length, 0, "a gravação colocou rotinas em calisthenics");
+    persisted.weights
+      .filter(routine => String(routine.id).startsWith("forja-plan-session-"))
+      .forEach(routine => assert.equal(routine.modality, "weights", "rotina gravada com modalidade errada"));
+
+    /* IDs e dados dos exercícios são os mesmos do plano salvo. */
+    const stored = app.F.state.routines.weights.filter(routine => String(routine.id).startsWith("forja-plan-session-"));
+    stored.forEach((routine, index) => {
+      /* Spread reconstrói os arrays no realm do teste (jsdom devolve arrays próprios). */
+      const flat = [...["warmup", "main", "abs", "finisher"].flatMap(section => [...(routine.sections[section] || [])])];
+      const source = [...plan.sessions[index].exercises];
+      assert.deepEqual(flat.map(exercise => exercise.id), source.map(exercise => exercise.id),
+        "IDs dos exercícios mudaram ao virar rotina");
+      assert.deepEqual(flat.map(exercise => exercise.name), source.map(exercise => exercise.name),
+        "Nomes dos exercícios mudaram ao virar rotina");
+      assert.deepEqual(flat.map(exercise => exercise.sets), source.map(exercise => exercise.sets),
+        "Séries dos exercícios mudaram ao virar rotina");
+      assert.deepEqual(flat.map(exercise => exercise.catalogId), source.map(exercise => exercise.catalogId),
+        "catalogId dos exercícios mudou ao virar rotina");
+    });
+
+    /* Plano salvo antes da correção: sem `mode`/`modality`, resolvido pelo catálogo. */
+    const legacy = JSON.parse(JSON.stringify(plan));
+    delete legacy.calendarTasks;
+    legacy.sessions.forEach(session => {
+      delete session.modality;
+      session.exercises.forEach(exercise => { delete exercise.mode; });
+    });
+    legacy.sessions.forEach(session => {
+      assert.equal(app.F.plan.sessionMode(session), "weights",
+        "plano antigo sem o campo de modalidade deveria ser resolvido pelo catalogId");
+    });
+    app.F.state.routines = { calisthenics: [], weights: [] };
+    app.F.plan.save(legacy);
+    assert.equal(planRoutineIds(app.F.state.routines.weights).length, 3,
+      "plano antigo de musculação foi salvo como calistenia");
+    assert.equal(planRoutineIds(app.F.state.routines.calisthenics).length, 0,
+      "plano antigo de musculação caiu em calisthenics");
+  } finally { closeAllApps(); }
+}
+console.log("✅ FUNC-01: plano de musculação salvo em weights (3 rotinas), IDs e dados preservados, plano antigo resolvido pelo catálogo");
+
+{
+  const app = await boot({ "forja-perfil-v1": calisthenicsProfile }, "treino/index.html");
+  try {
+    const plan = app.F.plan.generateLocal(app.F.state.profile, null);
+    assert.equal(plan.sessions.length, 3);
+    plan.sessions.forEach(session => {
+      assert.equal(session.modality, "calisthenics", "sessão de calistenia não declarou a modalidade");
+      session.exercises.forEach(exercise => {
+        assert.equal(exercise.mode, "calisthenics", "exercício de calistenia perdeu a modalidade");
+      });
+    });
+    app.F.plan.save(plan);
+    assert.equal(planRoutineIds(app.F.state.routines.calisthenics).length, 3,
+      "três rotinas deveriam ser salvas em calisthenics");
+    assert.equal(planRoutineIds(app.F.state.routines.weights).length, 0,
+      "rotina de calistenia foi salva em musculação");
+  } finally { closeAllApps(); }
+}
+console.log("✅ FUNC-01: plano de calistenia salvo em calisthenics (3 rotinas)");

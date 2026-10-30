@@ -112,9 +112,15 @@
 /* Conteúdo nunca coberto pela barra inferior */
 main.container { padding-top: 18px; padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px)); }
 
+/*
+  O rodapé termina ACIMA da barra inferior fixa. Sem esse desconto os créditos
+  (últimos links da página) ficavam atrás da navegação. Vale também para
+  atlas.html, que não carrega marca.css — daí o valor de reserva em
+  var(--bottom-nav-height, 69px), igual ao usado pela barra.
+*/
 .site-footer {
   border-top: 1px solid var(--border);
-  padding: 20px 0 28px;
+  padding: 20px 0 calc(var(--bottom-nav-height, 69px) + 28px + env(safe-area-inset-bottom, 0px));
   color: var(--muted);
   font-size: 13px;
 }
