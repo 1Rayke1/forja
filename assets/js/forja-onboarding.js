@@ -720,15 +720,6 @@
     }
   }
 
-  /*
-    Aviso de dispensa do convite na Home: a implementação é compartilhada
-    (`F.setOnboardingSkipped` em forja-core.js) porque a Home precisa da mesma
-    chave sem carregar este módulo.
-  */
-  const marcarDispensado = F.setOnboardingSkipped;
-  const foiDispensado = F.onboardingSkipped;
-  const limparDispensa = F.clearOnboardingSkipped;
-
   /* ------------------------------------------------------------------ */
   /* Resposta presente, validação e rótulos                              */
   /* ------------------------------------------------------------------ */
@@ -1493,7 +1484,6 @@
     const erro = F.byId("onboarding-error");
     const voltar = F.byId("onboarding-back");
     const avancar = F.byId("onboarding-next");
-    const sair = F.byId("onboarding-exit");
 
     if (!shell || !stepHost || !form || !avancar) return;
 
@@ -1522,9 +1512,10 @@
       return /(\?|&)refazer=1(&|$)/.test(busca);
     }
 
-    /* Quem já configurou o perfil e abre a página direto começa revisando. */
-    if (!rascunho && F.profileIsConfigured(F.state.profile) && !documentoQuerRefazer()) {
-      state.passo = indiceDoPasso("revisao");
+    /* Perfil concluído não repete o onboarding em visitas comuns. */
+    if (F.profileIsConfigured(F.state.profile) && !documentoQuerRefazer()) {
+      F.navigate(F.url("inicio"));
+      return;
     }
 
     function esconderErro() {
@@ -1640,10 +1631,6 @@
       voltar.hidden = state.passo === 0;
       voltar.disabled = state.passo === 0;
 
-      if (sair) {
-        sair.hidden = passo.tipo === "preparacao";
-      }
-
       esconderErro();
       F.ui.announce("Passo " + (state.passo + 1) + " de " + PASSOS.length + ": " + passo.titulo);
     }
@@ -1686,7 +1673,6 @@
         return;
       }
 
-      limparDispensa();
       apagarRascunho();
 
       /* Elemento criado na preparação (não existe no HTML estático). */
@@ -1772,9 +1758,6 @@
   F.onboarding = {
     DRAFT_KEY,
     PASSOS,
-    marcarDispensado,
-    foiDispensado,
-    limparDispensa,
     lerRascunho,
     apagarRascunho,
     conversoes: { cmParaPesPolegadas, pesPolegadasParaCm, kgParaLb, lbParaKg },

@@ -31,6 +31,8 @@ import { installFailingStorage } from "./helpers/legacy-flows.mjs";
 const { JSDOM } = jsdomPkg;
 
 const results = [];
+const PROFILE_KEY = "forja-perfil-v1";
+const profileSeed = obj => Object.assign({ version: 1, updatedAt: "2026-01-01T00:00:00.000Z" }, obj);
 
 const PAGES = [
   "index.html",
@@ -920,7 +922,8 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   await wait(20);
 
   /* Consultar não escreve nada. */
-  assert.deepEqual(app.keys(), [], "A biblioteca gravou dados sem pedido do usuário");
+  assert.deepEqual(app.keys(), [PROFILE_KEY], "A biblioteca deve manter apenas o perfil de autenticação existente");
+  assert.deepEqual(app.storageWrites, [], "Consultar a biblioteca não deve gravar dados");
   assertNoErrors(app, "biblioteca");
   app.close();
 });
@@ -2404,12 +2407,15 @@ await runTest("45. Perfil: usa o controlador de Configurações e os checkboxes 
 
 await runTest("46. Perfil e Configurações: abrir a página não grava nada no localStorage", async () => {
   const scenarios = [
-    { label: "armazenamento vazio", seed: {} },
+    { label: "perfil obrigatório e sem demais dados", seed: { [PROFILE_KEY]: profileSeed() } },
     { label: "dados no formato atual", seed: currentFormatSeed() }
   ];
 
   for (const scenario of scenarios) {
     const expected = seedAsStored(scenario.seed);
+    if (!Object.prototype.hasOwnProperty.call(expected, PROFILE_KEY)) {
+      expected[PROFILE_KEY] = JSON.stringify({ version: 3, updatedAt: "2026-10-01T00:00:00.000Z", objetivo: "manterForma", nivel: "iniciante", equipamento: "casa", diasPorSemana: 3 });
+    }
 
     for (const page of DATA_PAGES) {
       const where = page + " (" + scenario.label + ")";
@@ -2504,13 +2510,13 @@ await runTest("48. Perfil: exportar, rejeitar backup inválido, importar e desfa
   await wait(20);
   assert.equal(app.downloads.length, 1, "Exportar não gerou arquivo no Perfil");
   assert.match(app.downloads[0].download, /^forja-backup-\d{4}-\d{2}-\d{2}\.json$/);
-  assert.match(app.text("#toast"), /Backup exportado com 3 chaves/);
+  assert.match(app.text("#toast"), /Backup exportado com 4 chaves/);
   assert.match(app.text("#backup-status"), /Último backup exportado em/);
   const exported = plain(app.F.buildBackupObject());
   assert.equal(exported.app, "FORJA");
   assert.equal(exported.format, "forja-backup");
   assert.deepEqual(Object.keys(exported.keys).sort(),
-    ["forja-missoes-2025-02-02", PREFS_KEY, "forja-treino-rotinas-v1"].sort());
+    ["forja-missoes-2025-02-02", PREFS_KEY, "forja-treino-rotinas-v1", PROFILE_KEY].sort());
   assert.deepEqual(exported.keys[PREFS_KEY], { soundOnRest: false, vibrateOnRest: true });
   assert.deepEqual(app.storageWrites, [], "Exportar gravou no armazenamento");
   const before = storageSnapshot(app);
@@ -3753,14 +3759,8 @@ await runTest("59g. C7: modais de rotina validam inline, foco cai no campo certo
 });
 
 /* ------------------------------------------------------------------ */
-/* Onboarding e perfil (ETAPA 1: perfil opcional, aditivo)              */
+/* Onboarding e perfil (fluxo obrigatório, aditivo)                    */
 /* ------------------------------------------------------------------ */
-const PROFILE_KEY = "forja-perfil-v1";
-const profileSeed = obj => Object.assign({
-  version: 1,
-  updatedAt: "2026-01-01T00:00:00.000Z"
-}, obj);
-
 function onboardingPanel(app) {
   return app.$("#onboarding-root .onboarding-panel");
 }
@@ -3888,70 +3888,41 @@ async function percorrerOnboarding(app, respostas = {}) {
   await responder(app, "acompanhamento", valores.acompanhamento);
 }
 
-await runTest("60. Onboarding: aparece só para usuário novo, não bloqueia a home e não grava nada", async () => {
-  const app = await boot({}, "index.html");
+await runTest("60. Onboarding: primeiro acesso redireciona antes de inicializar a Home", async () => {
+  const app = await boot({}, "index.html", { noProfile: true });
   assertNoErrors(app);
-
-  assert.ok(onboardingPanel(app), "O onboarding não apareceu para um usuário novo");
-
-  /* A home continua operacional: a ação primária não é bloqueada pelo painel. */
-  const primary = app.$("#home-primary-button");
-  assert.ok(primary, "Ação primária da home ausente");
-  assert.equal(primary.hidden, false, "Ação primária da home invisível");
-
-  assert.deepEqual(app.storageWrites, [], "A inicialização gravou chaves: " + JSON.stringify(app.storageWrites));
-  assert.equal(app.raw(PROFILE_KEY), null, "Nenhum perfil deveria ser gravado");
-  app.close();
-});
-
-await runTest("61. Convite ao onboarding: \"Agora não\" não cria nem persiste nenhum dado", async () => {
-  const app = await boot({}, "index.html");
-  app.click(onboardingButton(app, "Agora não"));
-  await wait(20);
-
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "A dispensa deve ocultar o convite");
-  assert.equal(app.raw(PROFILE_KEY), null, "Dispensar não deve gravar o perfil");
-  assert.deepEqual(app.storageWrites, [], "Dispensar não deve gravar nada: " + JSON.stringify(app.storageWrites));
-  app.close();
-});
-
-await runTest("62. Convite ao onboarding: não coleta respostas na Home e leva ao fluxo completo", async () => {
-  const app = await boot({}, "index.html");
-
-  const buttons = app.$$("#onboarding-root button").map(item => item.textContent.trim());
-  assert.deepEqual(buttons, ["Agora não"], "A Home deve ter só o controle de dispensa");
-
-  /* Nenhum campo no convite: as perguntas moram na página de onboarding. */
-  assert.equal(app.$$("#onboarding-root input, #onboarding-root select, #onboarding-root textarea").length, 0,
-    "A Home não deve coletar respostas do onboarding");
-
-  const start = app.$("#onboarding-start");
-  assert.ok(start, "Link para o cadastro guiado ausente");
-  assert.match(start.getAttribute("href"), /onboarding\/index\.html$/);
-
-  const profileLink = app.$("#onboarding-root .onboarding-profile-link");
-  assert.ok(profileLink, "Link para configurar depois em Perfil ausente");
-  assert.match(profileLink.getAttribute("href"), /perfil\/index\.html$/);
-
-  app.click(start);
-  await until(() => app.pageUrl && app.pageUrl.indexOf("onboarding/") !== -1, "navegação para o onboarding");
-  await pageIs(app, "onboarding");
-
-  assert.equal(app.raw(PROFILE_KEY), null, "Abrir o onboarding não deve gravar o perfil");
-  assert.deepEqual(app.storageWrites, [], "Abrir o onboarding não deve gravar nada: " + JSON.stringify(app.storageWrites));
-
-  /* A primeira tela já é a primeira pergunta, com a ação principal padrão. */
+  assert.equal(app.d.body.dataset.page, "onboarding");
   assert.equal(app.text("#onboarding-question"), "Vamos personalizar seu treino.");
-  assert.equal(app.text("#onboarding-next"), "Continuar");
-  assert.equal(app.$("#onboarding-back").hidden, true, "A primeira tela não tem Voltar");
+  assert.equal(app.$("#onboarding-start"), null, "Não há cadastro opcional na Home");
+  assert.equal(app.$("#onboarding-skip"), null, "Não existe dispensa do cadastro obrigatório");
+  assert.deepEqual(app.storageWrites, [], "O gate não deve gravar nada");
+  assert.equal(app.raw(PROFILE_KEY), null);
   app.close();
 });
 
-await runTest("63. Onboarding: grava só no último passo e não atrapalha criar rotina manualmente", async () => {
-  const app = await boot({}, "index.html");
+await runTest("61. Onboarding: nenhuma ação permite dispensar o cadastro obrigatório", async () => {
+  const app = await boot({}, "index.html", { noProfile: true });
+  assert.equal(app.d.body.dataset.page, "onboarding");
+  assert.equal(app.$("#onboarding-skip"), null);
+  assert.equal(app.$("#onboarding-exit"), null);
+  assert.equal(app.raw(PROFILE_KEY), null);
+  assert.deepEqual(app.storageWrites, []);
+  app.close();
+});
 
-  app.click("#onboarding-start");
-  await until(() => app.pageUrl && app.pageUrl.indexOf("onboarding/") !== -1, "navegação para o onboarding");
+await runTest("62. Onboarding: o novo usuário vê a primeira pergunta sem entrada alternativa", async () => {
+  const app = await boot({}, "index.html", { noProfile: true });
+  assert.equal(app.d.body.dataset.page, "onboarding");
+  assert.equal(app.text("#onboarding-question"), "Vamos personalizar seu treino.");
+  assert.equal(app.$("#onboarding-start"), null);
+  assert.equal(app.$("#onboarding-next").textContent, "Continuar");
+  assert.equal(app.$("#onboarding-back").hidden, true);
+  assert.deepEqual(app.storageWrites, []);
+  app.close();
+});
+
+await runTest("63. Onboarding: salva só na confirmação e libera o app após sucesso", async () => {
+  const app = await boot({}, "index.html", { noProfile: true });
   await pageIs(app, "onboarding");
 
   /* Sexo é obrigatório: avançar sem escolher avisa e não grava nada. */
@@ -4010,7 +3981,7 @@ await runTest("63. Onboarding: grava só no último passo e não atrapalha criar
   app.close();
 });
 
-await runTest("64. Onboarding: usuário com rotina ou histórico existente não é interrompido", async () => {
+await runTest("64. Onboarding obrigatório: rotinas/histórico não substituem um perfil", async () => {
   const routineSeed = {
     "forja-treino-rotinas-v1": routinesStore([makeRoutine("calisthenics", "Treino A", [{ id: "o-1", name: "Flexão", sets: 3, reps: "10", section: "main" }])], [])
   };
@@ -4022,16 +3993,16 @@ await runTest("64. Onboarding: usuário com rotina ou histórico existente não 
     }]
   };
 
-  const withRoutine = await boot(routineSeed, "index.html");
-  assert.equal(onboardingPanel(withRoutine), null, "Usuário com rotina não deve ver o onboarding");
+  const withRoutine = await boot(routineSeed, "index.html", { noProfile: true });
+  assert.equal(withRoutine.d.body.dataset.page, "onboarding", "Rotina não contorna cadastro obrigatório");
   withRoutine.close();
 
-  const withHistory = await boot(historySeed, "index.html");
-  assert.equal(onboardingPanel(withHistory), null, "Usuário com histórico não deve ver o onboarding");
+  const withHistory = await boot(historySeed, "index.html", { noProfile: true });
+  assert.equal(withHistory.d.body.dataset.page, "onboarding", "Histórico não contorna cadastro obrigatório");
   withHistory.close();
 
   const withProfile = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca" }) }, "index.html");
-  assert.equal(onboardingPanel(withProfile), null, "Usuário com perfil não deve ver o onboarding");
+  assert.equal(withProfile.d.body.dataset.page, "inicio", "Perfil concluído permite entrada normal");
   withProfile.close();
 });
 
@@ -4093,15 +4064,15 @@ await runTest("66. Perfil: falha de gravação informa o problema e preserva o e
   app.close();
 });
 
-await runTest("67. Perfil: conteúdo ilegível no armazenamento não grava chave nova e carrega vazio", async () => {
+await runTest("67. Perfil: conteúdo ilegível é preservado e não libera acesso sem conclusão", async () => {
   const app = await boot({ [PROFILE_KEY]: "{ quebrado" }, "perfil/index.html");
   assertNoErrors(app);
 
-  assert.equal(app.d.getElementById("prof-objetivo").value, "", "Perfil ilegível deve carregar vazio");
-  assert.equal(app.d.getElementById("prof-dias").value, "0", "Dias ilegíveis devem carregar 0");
-
+  assert.equal(app.d.body.dataset.page, "onboarding", "Perfil ilegível encaminha para completar o cadastro");
+  assert.equal(app.raw(PROFILE_KEY), "{ quebrado", "Conteúdo ilegível original não pode ser apagado");
+  assert.ok(app.F.state.bootNotices.length > 0, "Deve avisar sobre o perfil ilegível");
   const writes = app.storageWrites.filter(item => item.method === "setItem");
-  assert.deepEqual(writes, [], "A inicialização não deve gravar chave nova: " + JSON.stringify(writes));
+  assert.deepEqual(writes, [], "A inicialização não deve regravar dados: " + JSON.stringify(writes));
   assert.equal(app.raw("forja-treino-dados-preservados-v1"), null, "Não deve criar cópia de preservação no boot");
   app.close();
 });
@@ -4193,7 +4164,7 @@ await runTest("70. F.state.profile é inicializado em todas as páginas (ausente
   };
 
   for (const page of pages) {
-    const app = await boot({}, page);
+    const app = await boot({}, page, { noProfile: true });
     assertNoErrors(app, "perfil ausente em " + page);
     assert.deepEqual(plain(app.F.state.profile), empty, "Perfil ausente não inicializou vazio em " + page);
     app.close();
@@ -4220,24 +4191,13 @@ await runTest("70. F.state.profile é inicializado em todas as páginas (ausente
   validPerfil.close();
 });
 
-await runTest("71. Onboarding: \"Agora não\" vale para a sessão, não reaparece e não grava nada", async () => {
-  const app = await boot({}, "index.html");
-  app.click(onboardingButton(app, "Agora não"));
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "A dispensa deve ocultar o convite");
-
-  /* Redesenhos e re-inicializações da home não trazem o painel de volta. */
-  app.F.pages.inicio();
-  await wait(20);
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "O onboarding não deve reaparecer na mesma sessão");
-  assert.equal(app.$$("#onboarding-root button").length, 0, "Nenhum controle do onboarding deve voltar");
-  assert.equal(app.raw(PROFILE_KEY), null, "Nada deve ser gravado");
-  assert.deepEqual(app.storageWrites, [], "Nada deve ser gravado: " + JSON.stringify(app.storageWrites));
-
-  /* Navegar para outra página e voltar mantém a dispensa (sessionStorage). */
-  await app.go(BASE + "treino/index.html");
-  await app.go(BASE + "index.html");
-  assert.equal(onboardingPanel(app), null, "O convite não deve voltar dentro da mesma sessão");
-  assert.equal(app.raw(PROFILE_KEY), null, "A dispensa não cria perfil");
+await runTest("71. Onboarding: o gate continua ativo em navegação direta sem perfil", async () => {
+  const app = await boot({}, "treino/index.html", { noProfile: true });
+  assert.equal(app.d.body.dataset.page, "onboarding");
+  await app.go(BASE + "progresso/index.html");
+  assert.equal(app.d.body.dataset.page, "onboarding", "URL direta não contorna o gate");
+  assert.equal(app.$("#onboarding-skip"), null);
+  assert.equal(app.raw(PROFILE_KEY), null);
   app.close();
 });
 
@@ -4259,7 +4219,7 @@ await runTest("72. Importação de backup atualiza estado em memória e formulá
   app.close();
 });
 
-await runTest("73. Home: seletores semânticos não ambíguos entre onboarding e ação principal", async () => {
+await runTest("73. Home: seletor da ação principal segue único e não oferece onboarding opcional", async () => {
   const app = await boot({}, "index.html");
   assertNoErrors(app);
 
@@ -4267,13 +4227,8 @@ await runTest("73. Home: seletores semânticos não ambíguos entre onboarding e
   assert.equal(app.text(".home-action-title"), "Monte sua primeira rotina");
   assert.equal(app.$("#home-action-heading").tagName.toLowerCase(), "h2");
   assert.equal(app.$("#home-action").getAttribute("aria-labelledby"), "home-action-heading");
-
-  const panel = onboardingPanel(app);
-  assert.ok(panel, "Onboarding deve estar visível para usuário novo");
-  assert.equal(panel.getAttribute("aria-labelledby"), "home-onboarding-heading");
-  assert.equal(app.text("#home-onboarding-heading"), "Seu perfil de treino");
-  assert.ok(app.$("#home-onboarding-heading").classList.contains("onboarding-title"));
-  assert.equal(app.$("#home-onboarding-heading").classList.contains("home-action-title"), false);
+  assert.equal(app.$("#onboarding-start"), null);
+  assert.equal(app.$("#onboarding-skip"), null);
   app.close();
 });
 
@@ -4324,7 +4279,7 @@ await runTest("74. Home: sincronização via evento storage (metas, histórico, 
   assert.match(app.text("#home-goals-content"), /Faltam 45 min/);
   assert.match(app.text("#home-week-note"), /1 treino/);
   assert.match(app.text("#home-recent-list"), /Superior A/);
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Onboarding deve fechar quando histórico chega de outra aba");
+  assert.equal(app.$("#onboarding-start"), null, "A Home não deve restaurar o convite antigo por eventos storage");
 
   /* 3. Outra aba cria rotinas (formato v2/v3) -> ação principal atualiza. */
   const rA = makeRoutine("weights", "Superior A", [{ id: "w-1", name: "Supino", sets: 3, reps: "8", section: "main" }], "rot-a");
@@ -4367,7 +4322,8 @@ await runTest("74. Home: sincronização via evento storage (metas, histórico, 
 
 await runTest("75. Home: retorno via pageshow (BFCache) sincroniza F.state e interface sem recarregar no boot nem gravar dados", async () => {
   const app = await boot({}, "index.html");
-  assert.ok(onboardingPanel(app), "Onboarding visível antes de sair da Home");
+  assert.equal(app.d.body.dataset.page, "inicio", "Perfil de fixture permite entrar na Home");
+  assert.equal(app.$("#onboarding-start"), null, "A Home não oferece onboarding alternativo");
 
   /* pageshow normal do carregamento inicial (persisted: false) sem mudanças não grava nem duplica trabalho. */
   const bootShow = new app.w.Event("pageshow");
@@ -4405,7 +4361,7 @@ await runTest("75. Home: retorno via pageshow (BFCache) sincroniza F.state e int
   assert.equal(app.F.state.routines.calisthenics.length, 1, "F.state.routines deve atualizar no retorno BFCache");
   assert.equal(app.F.state.goals.weeklySessions, 3, "F.state.goals deve atualizar no retorno BFCache");
   assert.equal(app.F.state.history.length, 1, "F.state.history deve atualizar no retorno BFCache");
-  assert.equal(app.d.getElementById("onboarding-root").hidden, true, "Onboarding deve sumir ao voltar com perfil/rotina/histórico");
+  assert.equal(app.$("#onboarding-start"), null, "Retorno BFCache não restaura cadastro opcional");
   assert.match(app.text("#home-primary-button"), /Iniciar Calistenia Base/);
   assert.match(app.text("#home-goals-period"), /Semana de .* · Calistenia\.$/);
   assert.match(app.text("#home-goals-content"), /Faltam 2 treinos/);
@@ -4902,7 +4858,7 @@ await runTest("77a. D-01: importar 250 registros mantém os mais recentes e não
   const oldest = series[0].date;
 
   const app = await boot({}, "configuracoes/index.html");
-  await app.importFile(backupOf({ "forja-treino-historico-v1": series }));
+  await app.importFile(backupOf({ "forja-treino-historico-v1": series, [PROFILE_KEY]: profileSeed() }));
   await wait(40);
 
   /* O preview avisa o corte antes de confirmar. */
@@ -5210,6 +5166,7 @@ await runTest("77i. D-10: missão sem texto é ignorada com aviso, sem dado invi
 
   const app = await boot({}, "configuracoes/index.html");
   await app.importFile(backupOf({
+    [PROFILE_KEY]: profileSeed(),
     [dayKey]: [{ id: "vazia", text: "", done: false }, { id: "ok", text: "Missão visível", done: false }]
   }));
   await wait(40);

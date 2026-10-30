@@ -129,7 +129,9 @@ function digitarNumero(app, seletor, valor) {
 }
 
 async function irParaOnboarding(app) {
-  app.click("#onboarding-start");
+  if (app.d.body.dataset.page !== "onboarding") {
+    await app.go(BASE + "onboarding/index.html");
+  }
   await until(() => app.d.body.dataset.page === "onboarding", "página de onboarding");
   await wait(30);
 }
@@ -264,17 +266,13 @@ async function concluirDaRevisao(app) {
 /* 1. Primeiro acesso                                                  */
 /* ------------------------------------------------------------------ */
 
-await runTest("1. Primeiro acesso sem perfil: convite na Home e onboarding sem gravar nada", async () => {
-  const home = await boot({}, "index.html");
-  assertNoErrors(home, "home nova");
-
-  const painel = home.$("#onboarding-root .onboarding-panel");
-  assert.ok(painel, "O convite ao onboarding deve aparecer para usuário novo");
-  assert.equal(home.text("#home-onboarding-heading"), "Seu perfil de treino");
-  assert.ok(home.$("#onboarding-start"), "Falta o link para o cadastro guiado");
-  assert.equal(home.$$("#onboarding-root input, #onboarding-root select").length, 0,
-    "A Home não deve coletar respostas");
-  assert.deepEqual(home.storageWrites, [], "A Home não deve gravar nada: " + JSON.stringify(home.storageWrites));
+await runTest("1. Primeiro acesso sem perfil abre diretamente a pergunta inicial", async () => {
+  const home = await boot({}, "index.html", { noProfile: true });
+  assertNoErrors(home, "primeiro acesso");
+  assert.equal(home.d.body.dataset.page, "onboarding", "A Home deve redirecionar diretamente ao onboarding");
+  assert.equal(home.text("#onboarding-question"), "Vamos personalizar seu treino.");
+  assert.equal(home.$("#onboarding-skip"), null, "Não pode haver dispensa ou cadastro opcional");
+  assert.deepEqual(home.storageWrites, [], "Abrir o onboarding não grava perfil nem remove dados");
   assert.equal(home.raw(PROFILE_KEY), null);
 
   await irParaOnboarding(home);
@@ -301,7 +299,7 @@ await runTest("1. Primeiro acesso sem perfil: convite na Home e onboarding sem g
 /* ------------------------------------------------------------------ */
 
 await runTest("2. Conclusão de todas as etapas: confirmação, perfil completo e retorno à Home", async () => {
-  const app = await boot({}, "index.html");
+  const app = await boot({}, "index.html", { noProfile: true });
   await irParaOnboarding(app);
   await responderTudo(app);
 
@@ -365,8 +363,8 @@ await runTest("2. Conclusão de todas as etapas: confirmação, perfil completo 
   assert.ok(toast && !toast.hidden, "A confirmação deve aparecer na Home");
   assert.match(toast.textContent, /Cadastro concluído/);
 
-  /* O convite não volta e a Home segue operacional. */
-  assert.equal(app.$("#onboarding-root").hidden, true);
+  /* A Home antiga não oferece mais um caminho opcional de cadastro. */
+  assert.equal(app.$("#onboarding-start"), null);
   assert.ok(app.$("#home-primary-button"), "A ação principal da Home continua disponível");
 });
 
@@ -439,24 +437,19 @@ await runTest("3. Navegação para trás corrige a resposta e a revisão acompan
 /* 4. Reabertura com perfil salvo                                      */
 /* ------------------------------------------------------------------ */
 
-await runTest("4. Reabertura: perfil salvo não repete o onboarding e a página abre na revisão", async () => {
+await runTest("4. Reabertura: perfil salvo entra no app e onboarding só abre por refazer", async () => {
   const seed = { [PROFILE_KEY]: perfilV1({ sexo: "feminino" }) };
 
   const home = await boot(seed, "index.html");
   assertNoErrors(home, "home com perfil");
-  assert.equal(home.$("#onboarding-root").hidden, true, "Quem já tem perfil não vê o convite");
-  assert.equal(home.$(".onboarding-panel"), null);
+  assert.equal(home.d.body.dataset.page, "inicio", "Perfil existente entra normalmente");
+  assert.equal(home.$("#onboarding-start"), null, "A entrada antiga foi removida");
   assert.deepEqual(home.storageWrites, [], "A Home não deve regravar o perfil");
   home.close();
 
   const pagina = await boot(seed, "onboarding/index.html");
   assertNoErrors(pagina, "onboarding com perfil");
-  assert.equal(pagina.text("#onboarding-question"), "Confira suas respostas",
-    "Quem já tem perfil começa na revisão, sem repetir as perguntas");
-  assert.equal(pagina.text("#onboarding-next"), "Continuar");
-  assert.match(pagina.text(".onboarding-review"), /Feminino/);
-  /* A resposta clássica de equipamento aparece semeada na pergunta detalhada. */
-  assert.match(pagina.text(".onboarding-review"), /Equipamentos de academia completos/);
+  assert.equal(pagina.d.body.dataset.page, "inicio", "Abrir onboarding concluído redireciona ao app");
   assert.deepEqual(pagina.storageWrites, [], "Abrir a página não deve regravar o perfil");
   pagina.close();
 
@@ -485,7 +478,7 @@ await runTest("5. Perfil antigo (v1) sem sexo carrega sem erro, sem personagem e
   assert.deepEqual(perfil.storageWrites, [], "Ler um perfil antigo não deve regravar nada");
 
   const home = await boot(seed, "index.html");
-  assert.equal(home.$("#onboarding-root").hidden, true, "Perfil antigo conta como configurado");
+  assert.equal(home.d.body.dataset.page, "inicio", "Perfil antigo continua compatível e entra no app");
   home.close();
 });
 
@@ -676,7 +669,7 @@ await runTest("8. Sexo persiste entre páginas e resolve o personagem só quando
 /* ------------------------------------------------------------------ */
 
 await runTest("9. 'Prefiro não informar' não seleciona personagem e o app funciona sem ele", async () => {
-  const app = await boot({}, "index.html");
+  const app = await boot({}, "index.html", { noProfile: true });
   await irParaOnboarding(app);
 
   /* A primeira etapa exige uma escolha: avançar sem tocar é bloqueado. */
@@ -729,6 +722,7 @@ await runTest("10. Backup: exporta, importa e restaura perfil v3 e aceita perfil
   /* O destino começa com um histórico: assim a cópia de segurança do "desfazer"
      também tem conteúdo e o teste cobre a ida e a volta. */
   const destino = await boot({
+    [PROFILE_KEY]: perfilV1({ sexo: "feminino" }),
     [HISTORY_KEY]: [{
       id: "h-backup", date: "2026-01-06", modality: "calisthenics", routineName: "Base",
       durationMs: 600_000, completedSets: 1, totalPlannedSets: 1, status: "completed",
@@ -748,16 +742,16 @@ await runTest("10. Backup: exporta, importa e restaura perfil v3 e aceita perfil
   assert.equal(destino.d.getElementById("prof-sexo").value, "masculino",
     "O formulário reflete o perfil importado");
 
-  /* Desfazer a importação volta ao estado anterior (sem perfil). */
+  /* Desfazer a importação volta ao perfil anterior, sem apagar dados existentes. */
   const desfazer = destino.$("#restore-safety-backup");
   assert.ok(desfazer && !desfazer.hidden, "A cópia de segurança deve estar disponível");
   destino.click("#restore-safety-backup");
   await destino.modal("restore");
   await wait(80);
-  assert.equal(destino.raw(PROFILE_KEY), null, "Desfazer remove o perfil importado");
+  assert.equal(destino.data(PROFILE_KEY).sexo, "feminino", "Desfazer restaura o perfil anterior");
 
   /* Backup antigo (v1, sem sexo) continua aceito. */
-  const antigo = await boot({}, "perfil/index.html");
+  const antigo = await boot({ [PROFILE_KEY]: perfilV1({ sexo: "feminino" }) }, "perfil/index.html");
   await antigo.importFile({
     app: "FORJA",
     format: "forja-backup",
@@ -772,7 +766,7 @@ await runTest("10. Backup: exporta, importa e restaura perfil v3 e aceita perfil
   assertNoErrors(antigo, "importação de perfil v1");
 
   /* Backup com sexo inválido é recusado sem tocar nos dados. */
-  const invalido = await boot({}, "perfil/index.html");
+  const invalido = await boot({ [PROFILE_KEY]: perfilV1({ sexo: "feminino" }) }, "perfil/index.html");
   await invalido.importFile({
     app: "FORJA",
     format: "forja-backup",
@@ -782,7 +776,7 @@ await runTest("10. Backup: exporta, importa e restaura perfil v3 e aceita perfil
   });
   await wait(60);
   assert.ok(invalido.$(".modal-backdrop"), "O backup inválido deve abrir um aviso");
-  assert.equal(invalido.raw(PROFILE_KEY), null, "Nada pode ser aplicado de um backup inválido");
+  assert.equal(invalido.data(PROFILE_KEY).sexo, "feminino", "Backup inválido não altera o perfil que já existe");
   invalido.modalAction("close");
   await wait(20);
 });
@@ -910,7 +904,7 @@ await runTest("12. Layout e acessibilidade: alvos de 44px, 320px, foco visível 
 /* ------------------------------------------------------------------ */
 
 await runTest("13. Fluxo interrompido retoma no mesmo passo sem gravar perfil", async () => {
-  const app = await boot({}, "index.html");
+  const app = await boot({}, "index.html", { noProfile: true });
   await irParaOnboarding(app);
 
   const inicio = Object.assign({}, RESPOSTAS_PADRAO, { sexo: "feminino" });
@@ -1340,6 +1334,35 @@ await runTest("20. Derivações clássicas e refazer: derivados só do que foi t
   assert.equal(mantido.equipamento, "academia");
   assert.equal(mantido.duracaoMinutos, 45);
   assert.equal(mantido.version, 3);
+});
+
+/* ------------------------------------------------------------------ */
+/* 21. Gate obrigatório e acesso direto                               */
+/* ------------------------------------------------------------------ */
+
+await runTest("21. Gate obrigatório: URLs internas bloqueadas, rascunho retomado e perfil existente liberado", async () => {
+  for (const route of ["treino/index.html", "progresso/index.html", "explorar/index.html", "perfil/index.html", "treino/executar.html"]) {
+    const app = await boot({}, route, { noProfile: true });
+    assert.equal(app.d.body.dataset.page, "onboarding", "A rota protegida deve encaminhar: " + route);
+    assert.equal(app.text("#onboarding-question"), "Vamos personalizar seu treino.");
+    assert.equal(app.raw(PROFILE_KEY), null, "O gate não deve criar, zerar ou regravar o perfil");
+    app.close();
+  }
+
+  const draft = {
+    versao: 2, passo: 2, respostas: { sexo: "feminino", areaFoco: "bracos", objetivo: "forca" },
+    tocados: { sexo: true, "area-foco": true, objetivo: true }, pulados: {}, indefinidos: {}, unidades: {}
+  };
+  const retomada = await boot({}, "treino/rotina.html", { noProfile: true, session: { "forja-onboarding-rascunho-v1": JSON.stringify(draft) } });
+  assert.equal(retomada.d.body.dataset.page, "onboarding", "A URL de edição de rotina também é protegida");
+  assert.equal(retomada.text("#onboarding-question"), "Qual é o seu principal objetivo?");
+  assert.equal(retomada.$('input[name="onboarding-objetivo"][value="forca"]').checked, true, "Resposta do rascunho recuperada");
+  retomada.close();
+
+  const legado = await boot({ [PROFILE_KEY]: perfilV1({ objetivo: "forca" }) }, "treino/index.html");
+  assert.equal(legado.d.body.dataset.page, "treino", "Perfil legado válido mantém compatibilidade");
+  await legado.go(BASE + "treino/index.html");
+  assert.equal(legado.d.body.dataset.page, "treino", "Atualizar/reabrir URL interna não repete onboarding");
 });
 
 /* ------------------------------------------------------------------ */

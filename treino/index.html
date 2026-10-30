@@ -7,6 +7,7 @@
 <title>Treino · FORJA</title>
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/treino.css">
+<link rel="stylesheet" href="../assets/css/plano.css">
 <link rel="stylesheet" href="../assets/css/execucao.css">
 <link rel="stylesheet" href="../assets/css/configuracoes.css">
 <link rel="stylesheet" href="../assets/css/app.css">
@@ -44,6 +45,23 @@
     <h1 class="screen-title">TREINO</h1>
     <p class="screen-subtitle">Encontre sua rotina e comece. Use a modalidade para filtrar quando precisar.</p>
   </div>
+
+  <section class="hub-routines plan-builder" aria-labelledby="training-plan-heading">
+    <div class="home-week-head">
+      <div>
+        <span class="eyebrow">Planejamento personalizado</span>
+        <h2 class="section-title" id="training-plan-heading">Seu plano semanal</h2>
+      </div>
+      <span class="plan-engine-badge" id="plan-engine-badge">Gerador local por regras</span>
+    </div>
+    <p class="screen-subtitle" id="plan-intro">Gera sessões com exercícios reais da biblioteca. Revise antes de salvar. Se a integração segura com IA estiver ativa, só envia dados de treino não identificáveis e IDs/metadados do catálogo; caso contrário, informa e usa regras locais — nunca chama esse modo de IA generativa.</p>
+    <div class="plan-actions">
+      <button type="button" class="primary-button" id="generate-plan">Gerar meu plano</button>
+      <button type="button" class="secondary-button" id="regenerate-plan" hidden>Regenerar plano</button>
+    </div>
+    <p class="field-error" id="plan-error" role="alert" hidden></p>
+    <div id="training-plan-preview" class="training-plan-preview" aria-live="polite"></div>
+  </section>
 
   <section aria-labelledby="hub-routines-heading" class="hub-routines">
     <div class="home-week-head">
@@ -115,6 +133,7 @@
 <script src="../assets/js/forja-ui.js" defer></script>
 <script src="../assets/js/forja-graficos.js" defer></script>
 <script src="../assets/js/forja-catalogo.js" defer></script>
+<script src="../assets/js/forja-plano.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>

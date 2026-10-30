@@ -253,6 +253,17 @@ export async function boot(seed = {}, page = "index.html", options = {}) {
   Object.entries(seed).forEach(([key, value]) => {
     local[key] = typeof value === "string" ? value : JSON.stringify(value);
   });
+  /*
+    A maioria das suítes testa funcionalidades internas, não primeiro acesso.
+    Dê a esses cenários um perfil legado concluído; testes de gate passam
+    `noProfile: true` explicitamente e exercícios do onboarding usam sua rota.
+  */
+  const profileKey = "forja-perfil-v1";
+  if (!Object.prototype.hasOwnProperty.call(local, profileKey) &&
+      options.noProfile !== true && !String(page).startsWith("onboarding/")) {
+    local[profileKey] = JSON.stringify({ version: 3, updatedAt: "2026-10-01T00:00:00.000Z",
+      objetivo: "manterForma", nivel: "iniciante", equipamento: "casa", diasPorSemana: 3 });
+  }
   if (options.now !== undefined) app.fakeNow = options.now;
   await app.load(BASE + page, {
     local,

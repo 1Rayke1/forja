@@ -1984,18 +1984,17 @@ await runTest("13d. Falha ao criar a cópia de segurança aborta sem alterar dad
   assertNoErrors(app, "falha na cópia de segurança");
 });
 
-await runTest("13e. Exportar sem dados orienta o usuário e não gera arquivo vazio", async () => {
+await runTest("13e. Backup de perfil sem atividade continua exportável", async () => {
   const app = await boot({}, PAGE.config);
 
-  assert.deepEqual(app.keys(), [], "Boot vazio não deve gravar chaves de treino");
-
+  assert.deepEqual(app.keys(), ["forja-perfil-v1"], "Perfil obrigatório permanece como dado exportável");
   app.click("#export-backup");
   await wait(30);
 
-  assert.equal(app.downloads.length, 0);
-  assert.match(app.text("#toast"), /Ainda não há dados do FORJA para exportar/);
-
-  assertNoErrors(app, "exportação vazia");
+  assert.equal(app.downloads.length, 1, "O backup do perfil deve ser exportável mesmo sem histórico de treino");
+  assert.ok(Object.prototype.hasOwnProperty.call(app.F.buildBackupObject().keys, "forja-perfil-v1"));
+  assert.match(app.text("#toast"), /Backup exportado/);
+  assertNoErrors(app, "exportação de perfil sem atividade");
 });
 
 /* ------------------------------------------------------------------ */
@@ -2180,7 +2179,8 @@ await runTest("15a. Carregar só com missões não grava nenhuma chave de treino
     ["forja-missoes-" + today]: [{ id: "m1", text: "Só missão", done: false }]
   };
   const expected = {
-    ["forja-missoes-" + today]: JSON.stringify(seed["forja-missoes-" + today])
+    ["forja-missoes-" + today]: JSON.stringify(seed["forja-missoes-" + today]),
+    "forja-perfil-v1": JSON.stringify({ version: 3, updatedAt: "2026-10-01T00:00:00.000Z", objetivo: "manterForma", nivel: "iniciante", equipamento: "casa", diasPorSemana: 3 })
   };
 
   const app = await boot(seed, PAGE.index);

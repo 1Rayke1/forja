@@ -433,127 +433,6 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Convite ao onboarding (usuário realmente novo)                      */
-  /* ------------------------------------------------------------------ */
-  /*
-    O cadastro em si vive em onboarding/index.html (`forja-onboarding.js`).
-    Aqui fica só o convite, com duas ações e nenhum campo:
-
-    - Só aparece para quem não tem rotinas, nem histórico e nem perfil salvo.
-    - "Agora não" dispensa o cartão nesta sessão do navegador (sessionStorage)
-      sem criar nem gravar nenhum dado do FORJA.
-    - Nenhuma resposta é coletada na Home: quem salva é o onboarding, no
-      último passo, com confirmação explícita.
-  */
-  let onboardingDismissed = false;
-
-  function onboardingFoiDispensado() {
-    if (onboardingDismissed) return true;
-    return typeof F.onboardingSkipped === "function" && F.onboardingSkipped();
-  }
-
-  function isNewUser() {
-    const routines = allRoutines();
-    const history = (F.state && Array.isArray(F.state.history)) ? F.state.history : [];
-    return routines.length === 0 && history.length === 0 && !F.profileIsConfigured(F.state.profile);
-  }
-
-  function renderOnboarding(container) {
-    container.innerHTML = "";
-    container.hidden = false;
-
-    const card = document.createElement("section");
-    card.className = "onboarding-panel";
-    card.setAttribute("aria-labelledby", "home-onboarding-heading");
-
-    const head = document.createElement("div");
-    head.className = "onboarding-head";
-
-    const headRow = document.createElement("div");
-    headRow.className = "onboarding-head-row";
-
-    const title = document.createElement("h2");
-    title.className = "onboarding-title";
-    title.id = "home-onboarding-heading";
-    title.textContent = "Seu perfil de treino";
-    headRow.appendChild(title);
-
-    const eyebrow = document.createElement("span");
-    eyebrow.className = "onboarding-eyebrow";
-    eyebrow.textContent = "Opcional";
-    headRow.appendChild(eyebrow);
-
-    head.appendChild(headRow);
-
-    const description = document.createElement("p");
-    description.className = "onboarding-meta";
-    description.appendChild(document.createTextNode(
-      "Oito etapas curtas para ajustar objetivo, disponibilidade e equipamento. Nada é enviado a servidores."
-    ));
-    head.appendChild(description);
-
-    const hint = document.createElement("p");
-    hint.className = "onboarding-meta onboarding-meta-secondary";
-    hint.appendChild(document.createTextNode("Você também pode editar tudo depois em "));
-    const profileLink = document.createElement("a");
-    profileLink.className = "onboarding-profile-link";
-    profileLink.href = F.url ? F.url("perfil") : "perfil/index.html";
-    profileLink.textContent = "Perfil";
-    hint.appendChild(profileLink);
-    hint.appendChild(document.createTextNode("."));
-    head.appendChild(hint);
-
-    card.appendChild(head);
-
-    const actions = document.createElement("div");
-    actions.className = "onboarding-actions";
-
-    const pular = document.createElement("button");
-    pular.type = "button";
-    pular.className = "secondary-button";
-    pular.id = "onboarding-skip";
-    pular.textContent = "Agora não";
-
-    const comecar = document.createElement("a");
-    comecar.className = "primary-button";
-    comecar.id = "onboarding-start";
-    comecar.href = F.url ? F.url("onboarding") : "onboarding/index.html";
-    comecar.textContent = "Fazer meu perfil";
-
-    actions.append(pular, comecar);
-    card.appendChild(actions);
-
-    container.appendChild(card);
-
-    function hide() {
-      container.hidden = true;
-      container.innerHTML = "";
-    }
-
-    pular.addEventListener("click", () => {
-      onboardingDismissed = true;
-      if (typeof F.setOnboardingSkipped === "function") F.setOnboardingSkipped();
-      hide();
-      F.showToast("Você pode fazer seu perfil depois, em Perfil.", "info", 4500);
-    });
-  }
-
-  function syncOnboardingVisibility() {
-    const container = byId("onboarding-root");
-    if (!container) return;
-
-    if (!isNewUser() || onboardingFoiDispensado()) {
-      container.hidden = true;
-      container.innerHTML = "";
-      return;
-    }
-
-    if (!container.querySelector(".onboarding-panel")) {
-      renderOnboarding(container);
-    }
-  }
-
-  /* ------------------------------------------------------------------ */
   /* Sincronização externa (outras abas e restauração via BFCache)       */
   /* ------------------------------------------------------------------ */
 
@@ -608,7 +487,6 @@
       if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
       if (typeof F.updateActiveBanner === "function") F.updateActiveBanner();
       renderHome();
-      syncOnboardingVisibility();
       refreshHomeSnapshotMeta();
       return;
     }
@@ -648,7 +526,6 @@
       if (typeof F.updateActiveBanner === "function") F.updateActiveBanner();
       renderGreeting();
       renderAction();
-      syncOnboardingVisibility();
       refreshHomeSnapshotMeta();
       return;
     }
@@ -662,7 +539,6 @@
       renderWeek();
       renderGoals();
       renderRecent();
-      syncOnboardingVisibility();
       refreshHomeSnapshotMeta();
       return;
     }
@@ -682,7 +558,6 @@
       if (syncMemory && typeof F.syncStateFromStorage === "function") {
         F.syncStateFromStorage(key);
       }
-      syncOnboardingVisibility();
       refreshHomeSnapshotMeta();
     }
   }
@@ -690,14 +565,12 @@
   F.pages.inicio = function initInicio() {
     if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
     renderHome();
-    syncOnboardingVisibility();
     refreshHomeSnapshotMeta();
   };
 
   F.onDataChanged(function () {
     if (!isHomeActive()) return;
     renderHome();
-    syncOnboardingVisibility();
     refreshHomeSnapshotMeta();
   });
 
@@ -728,7 +601,6 @@
     if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
     if (typeof F.updateActiveBanner === "function") F.updateActiveBanner();
     renderHome();
-    syncOnboardingVisibility();
     lastHomeSignature = currentSig;
     lastHomeDayKey = currentDay;
   });
