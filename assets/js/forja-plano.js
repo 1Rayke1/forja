@@ -333,11 +333,49 @@
     return refs;
   }
 
+  /*
+    Modalidade de um exercício do plano.
+
+    A fonte é o catálogo (`record.mode`): o exercício normalizado não tem campo
+    `mode` — `normalizeExercise` só devolve o que uma rotina guarda, e o vínculo
+    com o item de origem fica em `libraryId` (também copiado para `catalogId`
+    no plano). Ler `exercise.mode`, como era feito antes, avaliava `undefined`
+    em todos os exercícios e salvava qualquer plano como calistenia.
+  */
+  function catalogModes() {
+    const index = new Map();
+
+    F.catalog.items().forEach(record => {
+      if (!F.MODE_NAMES[record.mode]) return;
+      [record.libraryId, record.id].forEach(key => {
+        if (typeof key === "string" && key && !index.has(key)) index.set(key, record.mode);
+      });
+    });
+
+    return index;
+  }
+
+  /*
+    Modalidade da sessão: uma sessão é de musculação quando algum exercício
+    vem do catálogo de musculação; sem exercício de carga (ou sem vínculo
+    conhecido com o catálogo) a sessão é de calistenia. O critério é o mesmo de
+    antes — só passa a usar a modalidade real de cada exercício.
+  */
+  function sessionModality(session, modes) {
+    const index = modes || catalogModes();
+
+    return safeArray(session && session.exercises).some(exercise =>
+      index.get(exercise && (exercise.catalogId || exercise.libraryId)) === "weights")
+      ? "weights"
+      : "calisthenics";
+  }
+
   function routinesForPlan(plan) {
     const state = F.state.routines;
     const next = { calisthenics: state.calisthenics.slice(), weights: state.weights.slice() };
+    const modes = catalogModes();
     plan.sessions.forEach((session, index) => {
-      const mode = session.exercises.some(exercise => exercise.mode === "weights") ? "weights" : "calisthenics";
+      const mode = sessionModality(session, modes);
       const routine = { id: "forja-plan-session-" + plan.id + "-" + index, name: "Plano FORJA · " + session.title,
         modality: mode, createdAt: Date.now(), updatedAt: Date.now(),
         sections: { warmup: [], main: [], abs: [], finisher: [] } };
@@ -402,8 +440,11 @@
         const actions = document.createElement("div"); actions.className = "plan-session-actions";
         const start = document.createElement("button"); start.type = "button"; start.className = "primary-button"; start.textContent = "Iniciar sessão";
         start.addEventListener("click", () => {
-          const mode = session.exercises.some(exercise => exercise.mode === "weights") ? "weights" : "calisthenics";
           const routineId = "forja-plan-session-" + plan.id + "-" + plan.sessions.indexOf(session);
+          /* A rotina salva é a fonte da modalidade: é ela que foi gravada em
+             "Minhas rotinas". Sem ela no estado, deriva do catálogo. */
+          const saved = F.getRoutineById(routineId);
+          const mode = saved ? saved.modality : sessionModality(session);
           F.startRoutine(mode, routineId);
         });
         const rating = document.createElement("select"); rating.className = "field-input plan-feedback"; rating.setAttribute("aria-label", "Dificuldade desta sessão para ajustes futuros");

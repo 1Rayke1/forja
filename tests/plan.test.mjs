@@ -70,3 +70,108 @@ try {
   assert.equal(app.F.state.history[0].id, "historic-session");
   console.log("✅ Plano: fallback local, prévia, persistência, calendário e preservação do histórico");
 } finally { closeAllApps(); }
+
+/*
+  FUNC-01 — modalidade das rotinas geradas pelo plano.
+
+  A modalidade vinha de `exercise.mode`, campo que não existe no exercício
+  normalizado: todo plano era salvo como calistenia, inclusive o de um perfil de
+  musculação. A fonte correta é o catálogo (`record.mode`), alcançado pelo
+  vínculo `libraryId`/`catalogId` que o exercício guarda.
+*/
+const modalityProfile = preferencias => ({
+  version: 3, updatedAt: "2026-10-01T12:00:00.000Z", objetivo: "hipertrofia",
+  nivel: "intermediario", equipamento: "academia", diasPorSemana: 3, areaFoco: "corpoTodo",
+  localTreino: "academia", experienciaAtual: "intermediario", equipamentos: ["academiaCompleta"],
+  preferenciasTreino: preferencias, consideracoes: ["nenhuma"]
+});
+
+async function saveGeneratedPlan(preferencias) {
+  const app = await boot({ "forja-perfil-v1": modalityProfile(preferencias) }, "treino/index.html");
+  try {
+    const profile = app.F.state.profile || {};
+    const candidates = app.F.plan.compatibleCatalog(profile);
+    assert.ok(candidates.length > 0, "perfil sem exercícios compatíveis");
+    /* Perfil de musculação só pode sortear exercício de musculação. */
+    if (preferencias.includes("musculacao") && !preferencias.includes("calistenia")) {
+      assert.ok(candidates.every(record => record.mode === "weights"),
+        "perfil de musculação recebeu exercício de outra modalidade");
+    }
+    /* Fluxo real da tela: gerar a prévia e salvar pelo botão do plano. */
+    app.click("#generate-plan");
+    const started = Date.now();
+    while (!app.$("#training-plan-preview .plan-session-card") && Date.now() - started < 5000) await wait(20);
+    assert.ok(app.$("#training-plan-preview .plan-session-card"), "prévia do plano não apareceu");
+    app.click("#training-plan-preview .plan-save");
+    await wait(60);
+    const plan = app.F.plan.read();
+    assert.ok(plan, "plano não foi salvo");
+    assert.equal(plan.sessions.length, 3, "plano de 3 dias por semana");
+    assert.ok(app.$("#training-plan-preview .plan-session-actions"), "ações da sessão salva não apareceram");
+    assert.equal(app.$("#plan-error").hidden, true, "erro exposto na tela: " + app.text("#plan-error"));
+    return { app, plan, candidates };
+  } catch (error) {
+    app.close();
+    throw error;
+  }
+}
+
+{
+  const { app, plan, candidates } = await saveGeneratedPlan(["musculacao"]);
+  try {
+    const routines = app.F.state.routines;
+    assert.equal(routines.weights.length, 3, "três rotinas de musculação, vieram " + routines.weights.length);
+    assert.equal(routines.calisthenics.length, 0,
+      "nenhuma rotina de calistenia para perfil de musculação, vieram " + routines.calisthenics.length);
+    const stored = app.data("forja-treino-rotinas-v1");
+    assert.equal(stored.weights.length, 3, "o armazenamento guarda as três em musculação");
+    assert.equal(stored.calisthenics.length, 0, "o armazenamento não guardou calistenia");
+
+    const validIds = new Set(candidates.map(item => item.libraryId || item.id));
+    plan.sessions.forEach((session, index) => {
+      const routine = routines.weights.find(item => item.id === "forja-plan-session-" + plan.id + "-" + index);
+      assert.ok(routine, "rotina " + index + " não está em musculação");
+      assert.equal(routine.modality, "weights");
+      const exercises = ["warmup", "main", "abs", "finisher"].flatMap(section => routine.sections[section]);
+      assert.ok(exercises.length > 0, "rotina " + index + " ficou sem exercício");
+      exercises.forEach(exercise => {
+        assert.ok(typeof exercise.id === "string" && exercise.id, "exercício sem identificador válido");
+        assert.ok(validIds.has(exercise.libraryId), "exercício sem vínculo com o catálogo: " + exercise.libraryId);
+        assert.ok(typeof exercise.name === "string" && exercise.name, "exercício sem nome");
+      });
+    });
+
+    /* Depois de recarregar, a rotina continua em musculação e é a fonte da
+       modalidade usada por "Iniciar sessão". */
+    await app.reload();
+    await wait(40);
+    assert.equal(app.F.state.routines.weights.length, 3, "recarregar perdeu as rotinas de musculação");
+    assert.equal(app.F.state.routines.calisthenics.length, 0, "recarregar trouxe rotina de calistenia");
+    assert.ok(app.$("#training-plan-preview .plan-session-actions"), "plano salvo não voltou na prévia");
+
+    const start = app.$("#training-plan-preview .plan-session-actions .primary-button");
+    assert.ok(start, "botão de iniciar sessão do plano não apareceu");
+    app.click(start);
+    await wait(60);
+    const active = app.F.state.activeWorkout;
+    assert.ok(active, "sessão não iniciou");
+    assert.equal(active.modality, "weights", "sessão iniciou em " + active.modality);
+    assert.equal(active.routineId, "forja-plan-session-" + plan.id + "-0");
+    assert.ok(active.queue.length > 0, "sessão sem exercícios");
+  } finally { app.close(); }
+  console.log("✅ FUNC-01: plano de musculação salva três rotinas em weights e inicia a sessão correta");
+}
+
+{
+  const { app } = await saveGeneratedPlan(["calistenia"]);
+  try {
+    const routines = app.F.state.routines;
+    assert.equal(routines.calisthenics.length, 3, "três rotinas de calistenia, vieram " + routines.calisthenics.length);
+    assert.equal(routines.weights.length, 0, "nenhuma rotina de musculação para perfil de calistenia");
+    const start = app.$("#training-plan-preview .plan-session-actions .primary-button");
+    app.click(start);
+    await wait(60);
+    assert.equal(app.F.state.activeWorkout.modality, "calisthenics", "calistenia regrediu");
+  } finally { app.close(); }
+  console.log("✅ FUNC-01: plano de calistenia continua em calisthenics");
+}

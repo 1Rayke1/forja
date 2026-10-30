@@ -694,6 +694,24 @@ function normalizeSetTimer(raw, queue, completedSets, running) {
   };
 }
 
+/*
+  RPE de uma série: valor informado de 1 a 10, ou ausente.
+
+  Campo vazio, `null`, texto e número fora da faixa ficam AUSENTES (`null`) —
+  nunca viram o mínimo da faixa. `clampInteger` não serve aqui: `Number("")`
+  é 0, que é finito, então o clamping devolvia 1 e uma série sem RPE passava a
+  exibir "RPE 1" depois de recarregar a sessão.
+*/
+function normalizeRpe(value) {
+  if (value === undefined || value === null || value === "") return null;
+
+  const number = Number(value);
+  if (!Number.isFinite(number)) return null;
+
+  const rounded = Math.round(number);
+  return rounded >= 1 && rounded <= 10 ? rounded : null;
+}
+
 function normalizeSetLogs(raw, queue) {
   const logs = {};
 
@@ -718,7 +736,7 @@ function normalizeSetLogs(raw, queue) {
         distance: Number.isFinite(Number(entry.distance)) && Number(entry.distance) > 0
           ? Math.min(100000, Math.max(1, Math.round(Number(entry.distance))))
           : null,
-        rpe: clampInteger(entry.rpe, 1, 10, 0) || null,
+        rpe: normalizeRpe(entry.rpe),
         editedAt: Number(entry.editedAt) || null
       }));
   });
@@ -736,13 +754,17 @@ function normalizeLogDraft(raw, queue) {
 
     if (!entry) return;
 
+    /* RPE não informado continua vazio no rascunho: a série foi registrada
+       sem esforço e o campo reabre em "Não registrar". */
+    const rpe = normalizeRpe(entry.rpe);
+
     draft[exercise.id] = {
       reps: typeof entry.reps === "string" ? entry.reps.slice(0, 30) : "",
       load: typeof entry.load === "string" ? entry.load.slice(0, 50) : "",
       distance: Number.isFinite(Number(entry.distance)) && Number(entry.distance) > 0
         ? String(Math.round(Number(entry.distance)))
         : "",
-      rpe: clampInteger(entry.rpe, 1, 10, 0) || ""
+      rpe: rpe === null ? "" : String(rpe)
     };
   });
 
@@ -756,8 +778,7 @@ function normalizeSessionFeedback(raw) {
   const note = typeof raw.note === "string" ? raw.note.trim().slice(0, 300) : "";
 
   /* RPE fora de 1–10 (inclusive "não registrar") vira ausente, nunca 0 ou 1. */
-  const rawRpe = Number(raw.rpe);
-  const rpe = Number.isFinite(rawRpe) && rawRpe >= 1 && rawRpe <= 10 ? Math.round(rawRpe) : null;
+  const rpe = normalizeRpe(raw.rpe);
 
   if (!note && !rpe) return null;
 
@@ -3351,7 +3372,9 @@ Object.assign(F, {
   normalizeGoals,
   normalizeRotation,
   normalizeMeasure,
+  normalizeRpe,
   normalizeSetLogs,
+  normalizeLogDraft,
   normalizeSessionFeedback,
   flattenRoutine,
   countRoutineExercises,
