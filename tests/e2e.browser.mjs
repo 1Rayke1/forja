@@ -2383,6 +2383,145 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
   }
 });
 
+/*
+  FUNC-03 — rodapé atrás da navegação inferior.
+
+  Em cinco páginas (início, treino, explorar, progresso e perfil) o
+  redesign.css sobrescrevia o padding inferior do rodapé com 30 px, e a página
+  do Atlas não carrega marca.css: em ambos os casos os links de crédito ficavam
+  sob a barra fixa. Aqui o teste é o de verdade: rola até o fim da página e
+  verifica, por hit-test, que o toque em cada link cai no próprio link.
+*/
+await check('FUNC-03: nenhum link do rodapé coberto pela navegação inferior (320–1280 px)', async () => {
+  const widths = [320, 360, 390, 430, 768, 1280];
+  const failures = [];
+  for (const rel of PAGES) {
+    for (const width of widths) {
+      await go(rel);
+      await page.setViewport({ width, height: 844 });
+      await sleep(150);
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await sleep(250);
+      const box = await page.evaluate(() => {
+        const nav = document.querySelector('.bottom-nav').getBoundingClientRect();
+        const footer = document.querySelector('.site-footer');
+        const links = [...footer.querySelectorAll('a')].flatMap(a => {
+          const rect = a.getBoundingClientRect();
+          const boxes = [...a.getClientRects()].filter(b => b.width > 0 && b.height > 0);
+          return (boxes.length ? boxes : [rect]).map(b => {
+            const x = Math.min(Math.max(b.left + b.width / 2, 1), window.innerWidth - 1);
+            const y = Math.min(Math.max(b.top + b.height / 2, 1), window.innerHeight - 1);
+            const hit = document.elementFromPoint(x, y);
+            return {
+              text: a.textContent.trim().slice(0, 30),
+              bottom: Math.round(rect.bottom),
+              overlap: Math.round(rect.bottom - nav.top),
+              hit: hit ? hit.tagName + '.' + String(hit.className || '') : 'nenhum',
+              reachable: Boolean(hit && (a === hit || a.contains(hit)))
+            };
+          });
+        });
+        return {
+          path: location.pathname,
+          scrolled: Math.round(window.scrollY + window.innerHeight - document.documentElement.scrollHeight),
+          links
+        };
+      });
+      const where = (rel || 'index') + ' a ' + width + 'px';
+      const wanted = normalizePath('/forja/' + (rel === '' ? 'index.html' : (rel.endsWith('/') ? rel + 'index.html' : rel)));
+      assert.equal(normalizePath(box.path), wanted, 'página inesperada: ' + box.path + ' (esperava ' + wanted + ')');
+      assert.ok(box.scrolled >= -1, 'não rolou até o fim em ' + where);
+      assert.ok(box.links.length > 0, 'rodapé sem link em ' + where);
+      box.links.forEach(link => {
+        if (link.overlap > 0) failures.push('"' + link.text + '" coberto em ' + link.overlap + 'px pela barra em ' + where);
+        if (!link.reachable) failures.push('toque em "' + link.text + '" cai em ' + link.hit + ' em ' + where);
+      });
+    }
+  }
+  assert.deepEqual(failures, [], 'Rodapé inacessível:\n   ' + failures.join('\n   '));
+
+  /* Clique real: o link de créditos abre a tela de licenças. */
+  for (const width of [320, 390, 1280]) {
+    await go('perfil/');
+    await page.setViewport({ width, height: 844 });
+    await sleep(150);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await sleep(250);
+    await page.click('.site-footer a[href*="configuracoes"]');
+    await sleep(700);
+    assert.match(page.url(), /configuracoes/, 'clique no link de créditos não navegou a ' + width + 'px');
+    assert.match(page.url(), /creditos-imagens/, 'clique não chegou à seção de créditos a ' + width + 'px');
+  }
+  await page.setViewport(MOBILE);
+});
+
+/*
+  A11Y-01 — nome acessível do seletor "Modalidade" do hub de treino.
+
+  O rótulo existia no HTML, mas o CSS o escondia com `display: none`, que
+  remove o elemento da árvore de acessibilidade: o seletor ficava sem nome.
+  Agora o rótulo usa `.ui-visually-hidden` (invisível, mas anunciado).
+*/
+await check('A11Y-01: seletor de modalidade tem nome acessível e visual intacto', async () => {
+  await go('treino/');
+  await page.setViewport(MOBILE);
+  await sleep(200);
+
+  const tree = await client.send('Accessibility.getFullAXTree');
+  const combos = tree.nodes.filter(node => /^(combobox|listbox|select)$/i.test(String(node.role && node.role.value)));
+  const modality = combos.find(node => /modalidade/i.test(String(node.name && node.name.value)));
+  assert.ok(modality, 'nenhum seletor chamado "Modalidade" na árvore de acessibilidade: ' +
+    JSON.stringify(combos.map(n => String(n.name && n.name.value))));
+  assert.equal(String(modality.name.value).trim(), 'Modalidade', 'nome acessível diferente do rótulo');
+  assert.equal(modality.ignored, false, 'o seletor está ignorado pela árvore de acessibilidade');
+
+  /* O rótulo continua no DOM, associado ao campo, e invisível na tela. */
+  const label = await page.evaluate(() => {
+    const node = document.querySelector('label[for="hub-modality"]');
+    const select = document.getElementById('hub-modality');
+    const style = getComputedStyle(node);
+    const rect = node.getBoundingClientRect();
+    const geometry = () => {
+      const read = element => {
+        const box = element.getBoundingClientRect();
+        return { width: Math.round(box.width), height: Math.round(box.height), top: Math.round(box.top), left: Math.round(box.left) };
+      };
+      return { select: read(select), list: read(document.getElementById('hub-routine-list')) };
+    };
+    /* Comparação direta: o rótulo escondido para leitores de tela não pode
+       ocupar espaço diferente do `display: none` de antes. */
+    node.style.display = 'none';
+    const hidden = geometry();
+    node.style.display = '';
+    return {
+      text: node.textContent.trim(),
+      forAttribute: node.getAttribute('for'),
+      labels: Array.from(select.labels || []).map(item => item.textContent.trim()),
+      display: style.display,
+      visibility: style.visibility,
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
+      placeholder: select.getAttribute('placeholder'),
+      hidden,
+      shown: geometry()
+    };
+  });
+  assert.equal(label.forAttribute, 'hub-modality', 'rótulo desassociado do seletor');
+  assert.deepEqual(label.labels, ['Modalidade'], 'o seletor não tem mais o rótulo associado');
+  assert.notEqual(label.display, 'none', 'rótulo com display:none: o nome acessível desaparece');
+  assert.notEqual(label.visibility, 'hidden', 'rótulo com visibility:hidden');
+  assert.ok(label.width <= 2 && label.height <= 2, 'rótulo visível na tela: ' + label.width + 'x' + label.height);
+  assert.equal(label.placeholder, null, 'o nome não pode depender de placeholder');
+  /* Sem regressão visual: a geometria é a mesma de quando o rótulo era display:none. */
+  assert.deepEqual(label.shown, label.hidden, 'o rótulo escondido mudou a geometria do seletor/lista');
+
+  /* Trocar o filtro continua funcionando (o rótulo escondido não quebrou o controle). */
+  await page.select('#hub-modality', 'weights');
+  await sleep(150);
+  assert.equal(await page.$eval('#hub-modality', el => el.value), 'weights', 'o filtro não aceita escolha');
+  await page.screenshot({ path: path.join(repoRoot, 'artifacts/forja-visual/hub-modalidade-nome-acessivel-390.png') });
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });

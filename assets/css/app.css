@@ -114,7 +114,10 @@ main.container { padding-top: 18px; padding-bottom: calc(var(--bottom-nav-height
 
 .site-footer {
   border-top: 1px solid var(--border);
-  padding: 20px 0 28px;
+  /* A barra inferior é fixa: o rodapé reserva a altura dela (regra 5.3 de
+     marca.css, que refina este valor nas páginas que a carregam). O fallback
+     vale para a página do Atlas, que não carrega marca.css. */
+  padding: 20px 0 calc(var(--bottom-nav-height, 69px) + 28px);
   color: var(--muted);
   font-size: 13px;
 }

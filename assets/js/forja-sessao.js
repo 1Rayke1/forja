@@ -642,10 +642,13 @@
     saveActiveWorkout();
   }
 
+  /*
+    RPE desta tela: mesma regra do dado persistido (`F.normalizeRpe`), para o
+    valor digitado, o corrigido e o relido do armazenamento nunca divergirem.
+    Campo vazio continua ausente — não vira 1.
+  */
   function clampRpe(value) {
-    const number = Math.round(Number(value));
-    if (!Number.isFinite(number) || number < 1 || number > 10) return null;
-    return number;
+    return F.normalizeRpe(value);
   }
 
   /* ------------------------------------------------------------------ */

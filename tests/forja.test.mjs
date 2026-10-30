@@ -5402,6 +5402,132 @@ await runTest("81. Identidade e preparação de fotos nunca usam correspondênci
   assertNoErrors(app, "fotos sem publicação");
 });
 
+/*
+  FUNC-02 — série sem RPE continua sem RPE.
+
+  A leitura da sessão usava `clampInteger(entry.rpe, 1, 10, 0)`. Como
+  `Number("")` é 0 — finito —, o clamping devolvia o mínimo da faixa: uma série
+  gravada com `rpe: null` voltava como RPE 1 depois de recarregar. Campo vazio
+  agora é ausente, e RPE informado continua validado.
+*/
+await runTest("82. FUNC-02: RPE vazio não vira RPE 1 e RPE informado continua valendo", async () => {
+  /* Unidade do normalizador: ausência, zero e fora da faixa ficam nulos. */
+  const unit = await boot({}, "index.html");
+  try {
+    const F = unit.F;
+    [undefined, null, "", "   ", "0", 0, -1, 10.6, 11, "abc", "on", {}].forEach(value => {
+      assert.ok(F.normalizeRpe(value) === null,
+        "RPE " + JSON.stringify(value) + " não deveria existir");
+    });
+    [1, "1", 6, "8", 10, "10", 7.4].forEach(value => {
+      const rpe = F.normalizeRpe(value);
+      assert.ok(Number.isInteger(rpe) && rpe >= 1 && rpe <= 10,
+        "RPE " + JSON.stringify(value) + " deveria continuar válido");
+    });
+    assert.equal(F.normalizeRpe("8"), 8);
+
+    const queue = [{ id: "bench", sets: 3 }, { id: "row", sets: 1 }, { id: "run", sets: 1 }];
+    const logs = F.normalizeSetLogs({
+      bench: [
+        { set: 1, reps: "10", rpe: "" },
+        { set: 2, reps: "10", rpe: null },
+        { set: 3, reps: "10", rpe: "8" }
+      ],
+      row: [{ set: 1, reps: "10", rpe: "9" }],
+      run: [{ set: 1, reps: "", rpe: 11 }]
+    }, queue);
+    assert.deepEqual(logs.bench.map(entry => entry.rpe), [null, null, 8],
+      "séries sem RPE voltaram com número inventado");
+    assert.deepEqual(logs.row.map(entry => entry.rpe), [9], "RPE informado se perdeu");
+    assert.deepEqual(logs.run.map(entry => entry.rpe), [null], "RPE fora da faixa virou número");
+
+    const draft = F.normalizeLogDraft({
+      bench: { reps: "10", rpe: null }, row: { reps: "8", rpe: "9" }, run: { reps: "", rpe: 0 }
+    }, queue);
+    assert.equal(draft.bench.rpe, "", "rascunho reabriu com RPE que ninguém registrou");
+    assert.equal(draft.row.rpe, "9", "rascunho perdeu o RPE registrado");
+    assert.equal(draft.run.rpe, "", "rascunho aceitou RPE 0");
+  } finally { unit.close(); }
+
+  /* Tela: registrar uma série sem informar RPE. */
+  const app = await bootExecution();
+  try {
+    typeField(app, "#log-reps", "10");
+    typeField(app, "#log-load", "60 kg");
+    assert.equal(app.$("#log-rpe").value, "", "campo de RPE não começa vazio");
+    app.click("#complete-set");
+    app.advance(600);
+
+    assert.equal(app.text("#set-progress-label"), "1 de 3");
+    assert.doesNotMatch(app.text("#log-list"), /RPE/, "RPE apareceu sem ninguém registrar");
+    const stored = app.data("forja-treino-sessao-ativa-v1").setLogs.bench[0];
+    assert.ok(stored.rpe === null, "a série gravou RPE " + JSON.stringify(stored.rpe));
+    assert.ok(app.F.state.activeWorkout.setLogs.bench[0].rpe === null);
+
+    /* Depois de recarregar: mesma ausência, na lista e no editor da série. */
+    await app.reload();
+    await wait(30);
+    assert.doesNotMatch(app.text("#log-list"), /RPE/, "RPE 1 apareceu depois de recarregar");
+    assert.ok(app.F.state.activeWorkout.setLogs.bench[0].rpe === null,
+      "a leitura da sessão inventou RPE " + JSON.stringify(app.F.state.activeWorkout.setLogs.bench[0].rpe));
+    assert.equal(app.$("#log-rpe").value, "", "o campo reabriu com RPE inventado");
+
+    app.click("#log-list .log-entry button");
+    await wait(20);
+    assert.equal(app.modalField("rpe").value, "", "editor da série mostra RPE que não existe");
+    app.modalAction("cancel");
+    await wait(20);
+
+    /* Encerrar e consultar o histórico: RPE ausente continua ausente. */
+    app.click("#end-session");
+    await wait(20);
+    app.modalField("note").value = "esforço não anotado de propósito";
+    app.modalAction("save");
+    await wait(60);
+    const record = app.data("forja-treino-historico-v1")[0];
+    assert.ok(record.exercises[0].logs[0].rpe === null, "histório recebeu RPE inventado");
+    app.click("#summary-history-link");
+    await wait(60);
+    assert.doesNotMatch(app.text(".history-item"), /RPE/, "histórico mostrou RPE que ninguém registrou");
+    assert.match(app.text(".history-item"), /esforço não anotado de propósito/, "a nota não chegou ao histórico");
+    assertNoErrors(app, "RPE ausente");
+  } finally { app.close(); }
+
+  /* Uma segunda sessão com RPE informado mantém o número e a exibição. */
+  const second = await bootExecution({ id: "s-exec-rpe" });
+  try {
+    typeField(second, "#log-rpe", "9", "change");
+    second.click("#complete-set");
+    second.advance(600);
+    assert.match(second.text("#log-list"), /RPE 9/);
+    await second.reload();
+    await wait(30);
+    assert.match(second.text("#log-list"), /RPE 9/, "RPE informado se perdeu ao recarregar");
+    assert.equal(second.$("#log-rpe").value, "9", "rascunho não restaurou o RPE informado");
+    assert.equal(second.data("forja-treino-historico-v1"), null, "sessão em andamento não virou histórico");
+
+    /* Corrigir a série continua permitindo informar (ou limpar) o RPE. */
+    second.click("#log-list .log-entry button");
+    await wait(20);
+    assert.equal(second.modalField("rpe").value, "9", "editor não mostra o RPE registrado");
+    second.modalField("rpe").value = "7";
+    second.modalAction("save");
+    await wait(30);
+    assert.match(second.text("#log-list"), /RPE 7/, "correção do RPE não valeu");
+    assert.equal(second.data("forja-treino-sessao-ativa-v1").setLogs.bench[0].rpe, 7);
+
+    second.click("#log-list .log-entry button");
+    await wait(20);
+    second.modalField("rpe").value = "";
+    second.modalAction("save");
+    await wait(30);
+    assert.doesNotMatch(second.text("#log-list"), /RPE/, "limpar o RPE não voltou a ser ausência");
+    assert.ok(second.data("forja-treino-sessao-ativa-v1").setLogs.bench[0].rpe === null,
+      "limpar o RPE gravou número");
+    assertNoErrors(second, "RPE informado");
+  } finally { second.close(); }
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));
