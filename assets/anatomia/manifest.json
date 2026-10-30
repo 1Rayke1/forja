@@ -1,44 +1,65 @@
 {
-  "source": "fontes/modelo-masculino-original.jpg",
-  "sourceSha256": "4163b0387a1657e5c121864e663e93dbe5bf1f476cce59304b7f197102a7c39b",
-  "canvas": {
-    "width": 350,
-    "height": 690
+  "reference": {
+    "file": "fontes/referencia-muscular.png",
+    "sha256": "da1e8be99d0e0046d441debcee77e905cff7224e7aaf7fd8849ce6ba11c1988e",
+    "bytes": 1691723,
+    "width": 1536,
+    "height": 1024,
+    "background": "preto opaco (#000000)",
+    "views": "anterior à esquerda, posterior à direita, no mesmo arquivo"
   },
-  "method": "Recorte raster direto; flood-fill apenas do fundo externo; sem vetorização ou redesenho.",
-  "plates": {
+  "canvas": {
+    "width": 600,
+    "height": 1024
+  },
+  "method": "Referência exibida sem alteração. Silhueta derivada por limiar de luminância e fechamento morfológico, apenas para limitar a tinta dos destaques. Sem vetorização, recorte, recolorização ou redesenho do corpo.",
+  "mask": {
+    "file": "mascara.png",
+    "threshold": 12,
+    "closeRadius": 8,
+    "pad": 2,
+    "interpretation": "branco opaco = corpo; transparente = fora do corpo",
+    "sha256": "8fb0f4246a73b22ca129123a88088937586a625bf941c5a6bd31bf7dc1201c2c",
+    "bytes": 59397,
+    "bodyPixels": 493619
+  },
+  "ink": {
+    "file": "tinta.png",
+    "ramp": 220,
+    "interpretation": "opaco onde a prancha é escura dentro do corpo; transparente nas linhas claras e fora do corpo",
+    "sha256": "704d4d367c830ded2a0bf7b1fe4ee803f88c88fd15fe96f814622c61f0f3f15b",
+    "bytes": 145992,
+    "paintedPixels": 435030
+  },
+  "views": {
     "front": {
-      "file": "anterior.png",
       "crop": {
-        "x": 40,
-        "y": 16,
-        "width": 350,
-        "height": 690
+        "x": 110,
+        "y": 0,
+        "width": 600,
+        "height": 1024
       },
-      "sha256": "ea3543dc13cad1e82c0a738cb67ef02b84b36d615d89caa770e26d1f5693f03c",
-      "bytes": 240532,
-      "bounds": {
-        "left": 11,
-        "top": 12,
-        "right": 303,
-        "bottom": 673
+      "body": {
+        "left": 20,
+        "top": 2,
+        "right": 579,
+        "bottom": 1010,
+        "coverage": 245311
       }
     },
     "back": {
-      "file": "posterior.png",
       "crop": {
-        "x": 360,
-        "y": 16,
-        "width": 350,
-        "height": 690
+        "x": 770,
+        "y": 0,
+        "width": 600,
+        "height": 1024
       },
-      "sha256": "d00d81443f54f1c3d350e41825dbf8599ccb5a0f4780de36bee9f60cd2d934e4",
-      "bytes": 223407,
-      "bounds": {
-        "left": 42,
-        "top": 12,
-        "right": 333,
-        "bottom": 665
+      "body": {
+        "left": 13,
+        "top": 2,
+        "right": 585,
+        "bottom": 1009,
+        "coverage": 248308
       }
     }
   }

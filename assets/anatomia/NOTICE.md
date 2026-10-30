@@ -1,68 +1,105 @@
 # Origem, atribuição e situação de licença — recursos anatômicos
 
-## 1. Referências efetivamente fornecidas
+## 1. O que é exibido hoje
 
-As referências desta revisão são os dois anexos enviados pelo usuário na conversa. Seus bytes originais foram preservados para auditoria:
+| Item | Valor |
+| --- | --- |
+| Arquivo exibido | `fontes/referencia-muscular.png` |
+| Origem | Imagem anexada pelo usuário na conversa de revisão (30/10/2026) |
+| Dimensões | 1536 × 1024 px |
+| Formato | PNG RGB (sem canal alfa), fundo preto opaco `#000000` |
+| Conteúdo | duas vistas do mesmo corpo: anterior à esquerda, posterior à direita |
+| SHA-256 | `da1e8be99d0e0046d441debcee77e905cff7224e7aaf7fd8849ce6ba11c1988e` |
+| Bytes | 1.691.723 |
 
-| Arquivo recebido | Cópia preservada | Dimensões | SHA-256 | Uso atual |
-| --- | --- | --- | --- | --- |
-| `IMG_532e0a2d-6931-447a-a6eb-c90c9ae2d1e3.jpg` | `fontes/modelo-masculino-original.jpg` | 740 × 740 | `4163b0387a1657e5c121864e663e93dbe5bf1f476cce59304b7f197102a7c39b` | Origem das vistas anterior e posterior |
-| `IMG_c503be6c-c781-4b02-8fd9-fba224589ff5.webp` | `fontes/modelo-feminino-original.webp` | 644 × 644 | `ffe624b890d26420b9e3dfb42526a666325411a9fc62fd2164ed96619a30959a` | Referência preservada; não combinada com o modelo masculino |
-
-A primeira prancha contém as duas vistas do mesmo modelo e na mesma escala. Por isso ela é a única origem das imagens exibidas atualmente. Misturar o segundo modelo com o primeiro romperia a correspondência anatômica entre as vistas.
+O arquivo é exibido **byte a byte**, sem recorte, sem recoloração, sem remoção
+de fundo e sem redesenho. O corpo mostrado no Atlas, na biblioteca e na
+execução do treino é exatamente essa imagem. As duas vistas são janelas do
+mesmo arquivo (ver `manifest.json` e `docs/modelo-anatomico.md`).
 
 ## 2. Licença: pendência real, sem presunção
 
 **Situação da licença de redistribuição: não verificada.**
 
-A inspeção dos arquivos e de seus metadados não encontrou autoria, URL de origem, licença ou autorização de redistribuição. O fato de o usuário ter fornecido os anexos não comprova, por si só, a licença de publicação. Nenhuma licença Creative Commons é atribuída a estes arquivos nesta revisão.
+A inspeção do arquivo não encontrou autoria, URL de origem, licença ou
+autorização de redistribuição. O fato de o usuário ter enviado o anexo não
+comprova, por si só, o direito de publicar. Por isso:
+
+- nenhuma licença Creative Commons é atribuída a esta imagem;
+- a antiga declaração CC BY-SA 4.0 que existia em revisões anteriores foi
+  removida e continua removida — ela nunca foi comprovada para estes arquivos;
+- nenhum projeto de terceiros (BodyParts3D, Z-Anatomy, Open Muscle Map) é
+  apresentado como origem desta prancha.
 
 Antes de merge em `main`, release ou outra publicação, o responsável precisa:
 
-1. informar a origem e o titular das imagens;
-2. confirmar a licença ou autorização de uso e redistribuição, incluindo recortes e remoção do fundo;
+1. informar a origem e o titular da imagem;
+2. confirmar a licença ou a autorização de uso e redistribuição;
 3. acrescentar aqui a atribuição exigida, se houver;
 4. autorizar explicitamente a publicação.
 
-Esta branch é apenas trabalho de revisão. Não houve merge nem release nesta correção.
+Esta branch é trabalho de revisão. Não houve merge nem deploy.
 
-## 3. Como as pranchas atuais foram produzidas
+## 3. O que é derivado da prancha
 
-`tools/gerar-anatomia-referencia.mjs` faz somente operações de imagem:
+Dois arquivos, ambos calculados por máquina a partir da própria prancha, sem
+traço manual:
 
-- recorte anterior: `x=40`, `y=16`, `350 × 690` na referência masculina;
-- recorte posterior: `x=360`, `y=16`, `350 × 690` na mesma referência;
-- remoção por flood-fill apenas do fundo branco conectado às bordas;
-- suavização de um pixel da borda externa, sem apagar fáscias ou tendões internos;
-- gravação em PNG RGBA, sem redesenho, vetorização, alteração de proporções ou substituição por formas geométricas.
+| Arquivo | Papel | Cálculo |
+| --- | --- | --- |
+| `mascara.png` | silhueta do corpo | limiar de luminância (`> 12`), fechamento morfológico de raio 8, margem de 2 px |
+| `tinta.png` | áreas escuras dentro do corpo | silhueta **e** luminância `< 220` |
 
-`manifest.json` registra origem, recortes, dimensões, limites do corpo e hashes dos arquivos gerados. O teste de navegador compara os RGB dos pixels opacos com o recorte original no mesmo pixel; a única tolerância é de 1 nível em 8 bits por canal para diferenças de decodificação entre SwiftShader e software.
+`mascara.png` prende o contorno dos destaques ao corpo. `tinta.png` prende a
+**cor** às fissuras e aos ventres escuros do desenho, para as linhas brancas
+continuarem visíveis. Nenhum dos dois desenha anatomia: se a prancha mudar,
+eles mudam junto. Os dois arquivos são regerados por
+`node tools/gerar-anatomia-referencia.mjs`.
 
 ## 4. Destaques funcionais
 
-Os caminhos de `assets/js/forja-figura.js` não criam o corpo. Eles apenas indicam as regiões musculares do catálogo sobre a prancha raster:
+Os caminhos de `assets/js/forja-figura.js` não criam o corpo. Eles apenas
+indicam as regiões musculares do catálogo sobre a prancha:
 
-- principal: verde-limão `#b7f34a`;
+- principal: verde-lima `#b7f34a`;
 - secundária: âmbar `#f2b84b`;
-- estabilizadora: azul `#8cc0e0`.
+- estabilizadora: azul `#8cc0e0`;
+- informada por você: cinza `#b2bab1`;
+- grupo em foco: lima tracejado.
 
-Os preenchimentos são translúcidos e usam `mix-blend-mode: color`, preservando luminância, fibras e divisões visíveis. Uma máscara referencia o canal alfa do **mesmo PNG** exibido, sem uma segunda silhueta vetorial que possa divergir.
+Os contornos são **projeções funcionais aproximadas** de estruturas
+superficiais que o desenho permite distinguir. Não são segmentação clínica nem
+afirmam mapear limites de músculos profundos. "Quadril" e "Lombar" indicam
+projeção de região, não reconstrução de iliopsoas ou de cada estabilizador
+profundo. A tabela de regiões e essas limitações estão em
+`docs/modelo-anatomico.md`.
 
-Os contornos são projeções funcionais aproximadas de estruturas superficiais visíveis. Não constituem segmentação clínica nem afirmam mapear limites de músculos profundos. Em particular, “Quadril” e “Lombar” indicam projeções de região, não uma reconstrução de iliopsoas ou de cada estabilizador profundo.
+## 5. Seleção de sexo e a versão feminina
 
-## 5. Relação com BodyParts3D e Z-Anatomy
+O FORJA já tinha o campo `sexo` no perfil e ele **continua com o mesmo papel**:
+escolhe o personagem das demonstrações (`resolvePersonagem`). Ele nunca
+selecionou a prancha anatômica, e esta revisão não mudou isso.
 
-Nenhum arquivo BodyParts3D ou Z-Anatomy foi usado para gerar as pranchas desta correção. Esses projetos não devem ser apresentados como origem ou licença das imagens fornecidas pelo usuário.
+A imagem fornecida tem um único corpo e não existe versão feminina deste
+desenho. **Nada foi inventado**: não há prancha feminina em estilo de linha,
+nem mistura de dois desenhos diferentes na mesma vista. O que existe:
 
-`tools/gerar-anatomia-3d.mjs` permanece no histórico como pipeline experimental anterior, mas não participa da renderização atual. As pranchas geométricas autorais do PR #12 foram retiradas do resultado final e continuam preservadas no histórico do Git.
+- `fontes/modelo-feminino-original.webp` (644 × 644, preservada sem alteração)
+  é a referência feminina da revisão anterior, em outro estilo visual;
+- ela permanece no repositório como base documentada, **desligada** da figura
+  atual, para uma integração futura quando houver uma prancha feminina no mesmo
+  desenho.
 
-## 6. Auditoria do PR #12
+Limitação registrada para quem for revisar: enquanto não existir a prancha
+feminina equivalente, a anatomia exibida é a da imagem fornecida para todos os
+perfis.
 
-A revisão das imagens e do código do PR #12 identificou duas causas para o resultado fragmentado:
+## 6. Histórico
 
-1. as pranchas realistas foram substituídas por SVGs autorais compostos por polígonos e curvas genéricas;
-2. `SILHOUETTES` e os recortes aplicados às imagens não correspondiam a esses desenhos, removendo partes do corpo e criando vazios entre os membros.
-
-Os testes do PR verificavam viewBox, quantidade de curvas e ausência de overflow, mas não comparavam a imagem com a referência nem os destaques com o corpo renderizado. Por isso passavam apesar da falha visual.
-
-A correção preserva o commit do PR no histórico e substitui a abordagem em commit separado. Os testes agora cobrem hashes e cabeçalhos PNG, enquadramento, correspondência pixel a pixel com a referência e 24 amostras de borda em cada um dos 41 contornos funcionais.
+- `fontes/modelo-masculino-original.jpg` (740 × 740) é a referência da revisão
+  anterior, sobre fundo branco. Ela não é mais exibida nem referenciada pelo
+  app; fica no histórico do repositório apenas como procedência.
+- As pranchas `anterior.png` e `posterior.png` geradas dela foram removidas,
+  para não manter duas anatomias concorrentes no diretório.
+- `tools/gerar-anatomia-3d.mjs` é pipeline experimental anterior, não participa
+  da renderização atual e não é executado por nenhum teste.

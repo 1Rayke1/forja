@@ -252,56 +252,106 @@ await runTest("ATLAS 2. Flexão de braço destaca peitoral, tríceps, ombros e a
 /* 3. A figura: vistas, leitura e interação                           */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 3. Pranchas originais íntegras, máscaras registradas e leitura por teclado", async () => {
+await runTest("ATLAS 3. Um único arquivo de referência, duas vistas alinhadas e máscaras derivadas", async () => {
   const app = await boot({}, ATLAS + "?exercicio=cal-flexao");
   await wait(20);
 
   const front = app.$(".atlas-figura-cell[data-view=\"front\"] .figura-svg");
   const back = app.$(".atlas-figura-cell[data-view=\"back\"] .figura-svg");
 
-  /* As duas vistas usam recortes raster 350 × 690 da mesma referência. Não
-     existe mais uma silhueta geométrica concorrendo com a imagem. */
+  /* As duas vistas são janelas do MESMO arquivo de referência. Não existe
+     prancha desenhada por código nem um segundo corpo concorrente. */
   const frontPlate = front.querySelector("image.figura-plate");
   const backPlate = back.querySelector("image.figura-plate");
-  assert.ok(frontPlate && backPlate, "Pranchas anatômicas ausentes nas vistas");
-  assert.match(frontPlate.getAttribute("href"), /assets\/anatomia\/anterior\.png$/);
-  assert.match(backPlate.getAttribute("href"), /assets\/anatomia\/posterior\.png$/);
+  assert.ok(frontPlate && backPlate, "Prancha anatômica ausente nas vistas");
+  const referenceHref = "../assets/anatomia/fontes/referencia-muscular.png";
+  assert.equal(frontPlate.getAttribute("href"), referenceHref);
+  assert.equal(backPlate.getAttribute("href"), referenceHref, "As duas vistas devem usar o mesmo arquivo");
   [frontPlate, backPlate].forEach(plate => {
-    assert.equal(plate.getAttribute("width"), "350");
-    assert.equal(plate.getAttribute("height"), "690");
+    assert.equal(plate.getAttribute("width"), "1536", "Largura da referência divergente");
+    assert.equal(plate.getAttribute("height"), "1024", "Altura da referência divergente");
     assert.equal(plate.getAttribute("preserveAspectRatio"), "xMidYMid meet");
   });
-  assert.equal(front.querySelectorAll(".figura-silhouette, clipPath, rect, line").length, 0,
-    "O corpo não pode ser substituído ou recortado por geometria inventada");
-  assert.equal(back.querySelectorAll(".figura-silhouette, clipPath, rect, line").length, 0);
 
-  assert.equal(front.getAttribute("viewBox"), "0 0 350 690");
-  assert.equal(back.getAttribute("viewBox"), "0 0 350 690");
-  assert.match(front.getAttribute("preserveAspectRatio") || "xMidYMid meet", /xMidYMid/);
+  /* A janela de cada vista é um recorte do arquivo único, e as duas janelas
+     têm o mesmo tamanho — daí a mesma escala e o alinhamento. */
+  assert.equal(frontPlate.getAttribute("x"), String(-app.F.figura.CROPS.front.x));
+  assert.equal(backPlate.getAttribute("x"), String(-app.F.figura.CROPS.back.x));
+  assert.equal(frontPlate.getAttribute("y"), "0");
+  assert.equal(backPlate.getAttribute("y"), "0");
+  assert.notEqual(frontPlate.getAttribute("x"), backPlate.getAttribute("x"),
+    "As vistas precisam apontar para metades diferentes do arquivo");
 
-  /* Integridade real dos PNG e do manifesto de procedência. O teste E2E
-     complementa isto comparando pixel a pixel os opacos com a referência. */
+  [front, back].forEach(figure => {
+    assert.equal(figure.getAttribute("viewBox"), "0 0 600 1024");
+    assert.match(figure.getAttribute("preserveAspectRatio") || "xMidYMid meet", /xMidYMid/);
+    /* O corpo não pode ser substituído por geometria inventada. */
+    assert.equal(figure.querySelectorAll(".figura-silhouette, clipPath, rect, line, polygon").length, 0,
+      "A figura não deve desenhar corpo, recorte ou membro por conta própria");
+  });
+
+  /* Integridade real da referência e dos derivados registrados no manifesto. */
   const anatomyDir = path.join(repoRoot, "assets", "anatomia");
   const manifest = JSON.parse(fs.readFileSync(path.join(anatomyDir, "manifest.json"), "utf8"));
   const sha256 = bytes => crypto.createHash("sha256").update(bytes).digest("hex");
-  assert.deepEqual(manifest.canvas, { width: 350, height: 690 });
-  assert.equal(manifest.sourceSha256, "4163b0387a1657e5c121864e663e93dbe5bf1f476cce59304b7f197102a7c39b");
-  assert.equal(sha256(fs.readFileSync(path.join(anatomyDir, manifest.source))), manifest.sourceSha256,
-    "A referência original foi alterada");
+  const pngSize = bytes => ({ width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20), colorType: bytes[25] });
+
+  assert.deepEqual(manifest.canvas, { width: 600, height: 1024 });
+  assert.deepEqual(manifest.reference.width, 1536);
+  assert.deepEqual(manifest.reference.height, 1024);
+  const referenceBytes = fs.readFileSync(path.join(anatomyDir, "fontes", "referencia-muscular.png"));
+  assert.equal(sha256(referenceBytes), manifest.reference.sha256, "A referência exibida foi alterada");
+  assert.equal(manifest.reference.sha256, "da1e8be99d0e0046d441debcee77e905cff7224e7aaf7fd8849ce6ba11c1988e");
+  const referencePng = pngSize(referenceBytes);
+  assert.equal(referencePng.width, 1536);
+  assert.equal(referencePng.height, 1024);
+  assert.equal(referencePng.colorType, 2, "A referência é RGB opaca, com o fundo preto preservado");
+
   for (const view of ["front", "back"]) {
-    const item = manifest.plates[view];
-    const png = fs.readFileSync(path.join(anatomyDir, item.file));
-    assert.equal(png.subarray(1, 4).toString("ascii"), "PNG");
-    assert.equal(png.readUInt32BE(16), 350, "Largura PNG divergente em " + view);
-    assert.equal(png.readUInt32BE(20), 690, "Altura PNG divergente em " + view);
-    assert.equal(png[25], 6, "A prancha precisa de canal alfa RGBA");
-    assert.equal(sha256(png), item.sha256, "Hash da prancha diverge do manifesto");
-    assert.ok(item.bounds.top >= 4 && item.bounds.bottom <= 681, "Cabeça/pés cortados em " + view);
-    assert.ok(item.bounds.left >= 2 && item.bounds.right <= 347, "Mãos cortadas em " + view);
-    assert.ok(item.bounds.bottom >= 650, "Enquadramento não chega aos pés em " + view);
+    const crop = manifest.views[view].crop;
+    assert.deepEqual(crop, Object.assign({}, app.F.figura.CROPS[view]),
+      "O recorte do manifesto diverge da figura em " + view);
+    assert.equal(crop.width, 600);
+    assert.equal(crop.height, 1024);
   }
-  assert.equal(fs.existsSync(path.join(anatomyDir, "anterior.svg")), false,
-    "A prancha geométrica rejeitada não pode voltar como fonte visual");
+
+  /* As máscaras são derivadas da mesma prancha e não podem sair do corpo. */
+  [["mask", "mascara.png"], ["ink", "tinta.png"]].forEach(([key, file]) => {
+    const bytes = fs.readFileSync(path.join(anatomyDir, file));
+    assert.equal(bytes.subarray(1, 4).toString("ascii"), "PNG", file + " não é PNG");
+    assert.equal(sha256(bytes), manifest[key].sha256, "Hash de " + file + " diverge do manifesto");
+    const size = pngSize(bytes);
+    assert.equal(size.width, 1536, file + " precisa acompanhar a largura da referência");
+    assert.equal(size.height, 1024, file + " precisa acompanhar a altura da referência");
+    assert.equal(size.colorType, 6, file + " precisa de canal alfa");
+  });
+  assert.ok(manifest.mask.bodyPixels > 200000, "Silhueta pequena demais para um corpo inteiro");
+  assert.ok(manifest.ink.paintedPixels > 200000, "Tinta insuficiente para pintar as regiões");
+
+  /* Contorno preso à silhueta, cor presa à tinta: nenhuma tinta cai no fundo. */
+  [front, back].forEach(figure => {
+    const plate = figure.querySelector("image.figura-plate");
+    const bodyMask = figure.querySelector("mask.figura-body-mask image.figura-mask-plate");
+    const inkMask = figure.querySelector("mask.figura-ink-mask image.figura-mask-plate");
+    assert.ok(bodyMask && inkMask, "Máscaras derivadas ausentes");
+    assert.match(bodyMask.getAttribute("href"), /assets\/anatomia\/mascara\.png$/);
+    assert.match(inkMask.getAttribute("href"), /assets\/anatomia\/tinta\.png$/);
+    [bodyMask, inkMask].forEach(maskImage => {
+      assert.equal(maskImage.getAttribute("x"), plate.getAttribute("x"),
+        "A máscara precisa usar a mesma janela da prancha");
+      assert.equal(maskImage.getAttribute("y"), plate.getAttribute("y"));
+      assert.equal(maskImage.getAttribute("width"), plate.getAttribute("width"));
+      assert.equal(maskImage.getAttribute("height"), plate.getAttribute("height"));
+    });
+    const inkId = figure.querySelector("mask.figura-ink-mask").getAttribute("id");
+    const bodyId = figure.querySelector("mask.figura-body-mask").getAttribute("id");
+    figure.querySelectorAll(".figura-region-shape").forEach(path => {
+      assert.equal(path.getAttribute("mask"), "url(#" + inkId + ")", "A cor precisa da máscara de tinta");
+    });
+    figure.querySelectorAll(".figura-region-outline").forEach(path => {
+      assert.equal(path.getAttribute("mask"), "url(#" + bodyId + ")", "O contorno precisa da silhueta");
+    });
+  });
 
   /* Texto alternativo lista só as regiões que existem naquela vista. */
   const frontLabel = front.getAttribute("aria-label");
@@ -309,30 +359,18 @@ await runTest("ATLAS 3. Pranchas originais íntegras, máscaras registradas e le
   assert.match(frontLabel, /vista anterior/);
   assert.match(frontLabel, /principal: Peitoral/);
   assert.match(frontLabel, /secundária: Ombros/);
+  assert.match(frontLabel, /estabilizadora: Abdômen/);
   assert.doesNotMatch(frontLabel, /Tríceps/, "A vista anterior não deve anunciar o tríceps");
   assert.match(backLabel, /vista posterior/);
   assert.match(backLabel, /secundária: Tríceps, Ombros/);
   assert.doesNotMatch(backLabel, /Peitoral/, "A vista posterior não deve anunciar o peitoral");
-
-  /* A máscara referencia exatamente o mesmo PNG exibido, sem contorno paralelo.
-     Assim, corpo e destaques não podem divergir por viewBoxes distintos. */
-  [front, back].forEach(figure => {
-    const plate = figure.querySelector("image.figura-plate");
-    const maskImage = figure.querySelector("mask.figura-alpha-mask image.figura-mask-plate");
-    assert.ok(maskImage, "Máscara alfa da prancha ausente");
-    assert.equal(maskImage.getAttribute("href"), plate.getAttribute("href"));
-    assert.equal(maskImage.getAttribute("width"), plate.getAttribute("width"));
-    assert.equal(maskImage.getAttribute("height"), plate.getAttribute("height"));
-    const maskId = figure.querySelector("mask.figura-alpha-mask").getAttribute("id");
-    assert.equal(figure.querySelector(".figura-regions").getAttribute("mask"), "url(#" + maskId + ")");
-  });
 
   /* Regiões interativas opcionais: foco, clique e teclado. */
   const host = app.d.createElement("div");
   const picked = [];
   host.appendChild(app.F.figura.render({
     view: "front",
-    highlights: { peito: "primary" },
+    highlights: { peito: "primary", ombros: "secondary", abdomem: "stabilizer" },
     interactive: true,
     onSelect: id => picked.push(id),
     selected: "peito"
@@ -341,9 +379,22 @@ await runTest("ATLAS 3. Pranchas originais íntegras, máscaras registradas e le
   assert.equal(region.getAttribute("role"), "button");
   assert.equal(region.getAttribute("tabindex"), "0");
   assert.equal(region.getAttribute("aria-pressed"), "true");
+  assert.match(region.getAttribute("aria-label"), /Peitoral, principal, selecionada\. Vista anterior\./,
+    "O nome da região e o papel precisam estar no texto, não só na cor");
   region.dispatchEvent(new app.w.Event("click", { bubbles: true }));
   region.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-  assert.deepEqual(picked, ["peito", "peito"], "Seleção por clique/teclado não funcionou");
+  region.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: " ", bubbles: true }));
+  assert.deepEqual(picked, ["peito", "peito", "peito"], "Seleção por clique/teclado não funcionou");
+
+  /* Os três papéis chegam à figura com classes distintas e nome escrito. */
+  ["peito", "ombros", "abdomem"].forEach(id => {
+    assert.ok(host.querySelector('.figura-region[data-region="' + id + '"] .figura-region-outline'),
+      "Região " + id + " sem contorno");
+  });
+  assert.deepEqual(
+    [...host.querySelectorAll(".figura-region")].map(node => node.getAttribute("data-role")).sort(),
+    ["primary", "secondary", "stabilizer"]
+  );
 
   /* Metadados da figura: vistas e regiões disponíveis. */
   const backRegions = app.F.figura.regionsInView("back");
@@ -351,6 +402,23 @@ await runTest("ATLAS 3. Pranchas originais íntegras, máscaras registradas e le
   assert.equal(backRegions.includes("peito"), false);
   assert.deepEqual([...app.F.figura.regionsInView("front")],
     ["ombros", "peito", "biceps", "antebracos", "abdomem", "obliquos", "quadril", "quadriceps", "pernas"]);
+
+  /* Toda região declarada tem caminhos fechados dentro da janela de desenho. */
+  Object.entries(app.F.figura.REGIONS).forEach(([id, region]) => {
+    ["front", "back"].forEach(view => {
+      (region[view] || []).forEach(d => {
+        assert.match(d, /^M[-\d]/, "Caminho inválido em " + id + "/" + view);
+        assert.match(d, /Z$/, "Região " + id + "/" + view + " precisa ser fechada");
+        const numbers = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+        for (let i = 0; i < numbers.length; i += 2) {
+          const x = numbers[i];
+          const y = numbers[i + 1];
+          assert.ok(x >= 0 && x <= 600, "X fora da janela em " + id + "/" + view + ": " + x);
+          assert.ok(y >= 0 && y <= 1024, "Y fora da janela em " + id + "/" + view + ": " + y);
+        }
+      });
+    });
+  });
 
   assertNoErrors(app, "figura do atlas");
   app.close();
@@ -743,14 +811,24 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
   assert.doesNotMatch(css, /url\(http/);
   assert.doesNotMatch(figureSource(), /https?:\/\/(?!www\.w3\.org\/2000\/svg)/i,
     "A figura não deve buscar imagens remotas na rede");
-  ["anterior.png", "posterior.png", "NOTICE.md"].forEach(file => {
+  ["fontes/referencia-muscular.png", "mascara.png", "tinta.png", "manifest.json", "NOTICE.md"].forEach(file => {
     const full = path.join(repoRoot, "assets", "anatomia", file);
     assert.ok(fs.existsSync(full), "Arquivo anatômico ausente: " + file);
   });
-  assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", "anterior.png")).size < 256 * 1024,
-    "Prancha anterior RGBA de corpo inteiro acima do orçamento de desempenho");
-  assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", "posterior.png")).size < 256 * 1024,
-    "Prancha posterior RGBA de corpo inteiro acima do orçamento de desempenho");
+
+  /* Existe UM arquivo de imagem de anatomia. As pranchas por vista e o antigo
+     modelo branco não podem voltar como duplicata ou sobra. */
+  ["anterior.png", "posterior.png", "anterior.svg", "posterior.svg"].forEach(file => {
+    assert.equal(fs.existsSync(path.join(repoRoot, "assets", "anatomia", file)), false,
+      "Arquivo anatômico obsoleto ainda presente: " + file);
+  });
+  const referenceBytes = fs.statSync(path.join(repoRoot, "assets", "anatomia", "fontes", "referencia-muscular.png")).size;
+  assert.ok(referenceBytes < 2 * 1024 * 1024,
+    "Referência acima de 2 MB: " + Math.round(referenceBytes / 1024) + " KB");
+  ["mascara.png", "tinta.png"].forEach(file => {
+    assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", file)).size < 200 * 1024,
+      file + " grande demais para uma máscara de pintura");
+  });
   assert.match(fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "NOTICE.md"), "utf8"),
     /não verificada/i, "NOTICE.md deve registrar a pendência real de licença, sem presumir CC BY-SA");
 
@@ -767,12 +845,91 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
   assert.match(css, /\.atlas-figuras \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/s,
     "As duas vistas devem dividir a largura sem estourar");
 
-  assert.match(css, /mix-blend-mode:\s*color/i, "Blend color ausente: as fibras precisam permanecer visíveis");
   assert.match(css, /#b7f34a/i, "Cor principal #B7F34A ausente");
   assert.match(css, /#f2b84b/i, "Cor secundária #F2B84B ausente");
   assert.match(css, /#8cc0e0/i, "Cor estabilizadora #8CC0E0 ausente");
 
+  /* Pintura determinística: cor presa à máscara de tinta (linhas brancas
+     continuam visíveis) e contorno preso à silhueta. Sem `mix-blend-mode`,
+     que em Chromium pintava de forma intermitente e apagava regiões. */
+  assert.match(css, /\.figura-region-shape\s*\{[^}]*stroke:\s*none/s, "A cor não deve desenhar contorno");
+  assert.match(css, /\.figura-region-outline\s*\{[^}]*fill:\s*none/s, "O contorno não deve preencher");
+  assert.doesNotMatch(css, /mix-blend-mode:\s*(color|screen|lighten|plus-lighter)/i,
+    "Nenhuma camada de destaque deve depender de mix-blend-mode");
+
+  /* Regressão real: com `overflow: visible` o Chromium pintava a camada de
+     destaques abaixo da prancha opaca em parte das figuras da mesma página. */
+  assert.match(css, /\.figura-svg\s*\{[^}]*overflow:\s*hidden/s,
+    "A raiz do SVG precisa de overflow: hidden para manter os destaques acima da prancha");
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.figura-region-outline/,
+    "Movimento reduzido também precisa desligar a transição do contorno");
+
   assertNoErrors({ errors: [] }, "css");
+});
+
+/* ------------------------------------------------------------------ */
+/* 11b. Seleção de sexo: preservada e sem efeito sobre a prancha       */
+/* ------------------------------------------------------------------ */
+
+await runTest("ATLAS 13. Seleção de sexo continua igual e não muda a prancha anatômica", async () => {
+  const app = await boot({}, ATLAS + "?exercicio=cal-flexao");
+  await wait(20);
+
+  /* O sexo informado já existia no FORJA e escolhe o personagem das
+     demonstrações — não a prancha. Este teste protege os dois lados: o
+     contrato continua valendo e a figura não depende do sexo. */
+  const personagens = {};
+  ["masculino", "feminino", ""].forEach(sexo => {
+    personagens[sexo || "vazio"] = app.F.resolvePersonagem ? app.F.resolvePersonagem({ sexo }) : null;
+  });
+  if (app.F.resolvePersonagem) {
+    assert.equal(personagens.masculino.id, "masculino");
+    assert.equal(personagens.feminino.id, "feminino");
+    assert.equal(personagens.vazio, null, "Sem sexo informado não deve haver personagem");
+  }
+
+  const signature = () => {
+    const figure = app.$(".atlas-figura-cell[data-view=\"front\"] .figura-svg");
+    return {
+      plate: figure.querySelector("image.figura-plate").getAttribute("href"),
+      viewBox: figure.getAttribute("viewBox"),
+      regions: figure.querySelectorAll(".figura-region").length,
+      outline: figure.querySelector(".figura-region-outline").getAttribute("d")
+    };
+  };
+  const semSexo = signature();
+
+  ["feminino", "masculino"].forEach(sexo => {
+    app.w.localStorage.setItem("forja-perfil-v1", JSON.stringify({
+      version: 3,
+      updatedAt: "2026-10-01T00:00:00.000Z",
+      objetivo: "manterForma",
+      nivel: "iniciante",
+      equipamento: "casa",
+      diasPorSemana: 3,
+      sexo
+    }));
+    app.w.dispatchEvent(new app.w.Event("storage"));
+    const after = signature();
+    assert.deepEqual(after, semSexo, "A prancha mudou por causa do sexo informado (" + sexo + ")");
+  });
+
+  /* Não existe versão feminina deste desenho: a alternativa anterior fica
+     preservada no repositório, sem ser misturada com a nova prancha. */
+  const feminine = path.join(repoRoot, "assets", "anatomia", "fontes", "modelo-feminino-original.webp");
+  assert.ok(fs.existsSync(feminine), "A referência feminina anterior foi apagada");
+  const digest = crypto.createHash("sha256").update(fs.readFileSync(feminine)).digest("hex");
+  assert.equal(digest, "ffe624b890d26420b9e3dfb42526a666325411a9fc62fd2164ed96619a30959a",
+    "A referência feminina preservada foi alterada");
+
+  const figureCode = figureSource();
+  assert.equal(/sexo|genero|gênero/i.test(figureCode), false,
+    "A figura não pode escolher anatomia por sexo: não existe versão feminina do novo desenho");
+  assert.match(fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "NOTICE.md"), "utf8"),
+    /feminin/i, "NOTICE.md precisa registrar a ausência da versão feminina");
+
+  assertNoErrors(app, "seleção de sexo");
+  app.close();
 });
 
 /* ------------------------------------------------------------------ */
