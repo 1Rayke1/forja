@@ -70,18 +70,17 @@ em que o campo fica fora do patch final e um valor já salvo é preservado.
   primeira pergunta para não interpretar índices do fluxo de 9 telas.
 - **Retomada:** sair no meio e voltar à página retoma o mesmo passo, com as
   respostas anteriores marcadas e sem gravar o perfil.
-- **Perfil já configurado:** sem rascunho e sem `?refazer=1`, quem já tem
-  perfil configurado abre diretamente a revisão. O link “Refazer o cadastro
-  guiado” em Perfil usa `onboarding/index.html?refazer=1` e começa da primeira
-  pergunta.
-- **Dispensa do convite:** “Agora não” na Home grava apenas a marca de sessão
-  `forja-onboarding-dispensado`. Não cria perfil, não entra em backup e volta
-  a aparecer numa próxima sessão.
-- **Erro de gravação:** se o navegador recusar a escrita final, a pessoa
-  permanece na preparação, vê o erro, mantém as respostas/rascunho e pode
-  tentar de novo.
-- **Confirmação:** após salvar, o app volta à Home com “Cadastro concluído…”,
-  apaga o rascunho e encerra o convite.
+- **Entrada obrigatória:** o boot valida o perfil salvo antes de inicializar
+  qualquer rota protegida. Perfil ausente ou ilegível redireciona diretamente
+  à primeira pergunta, inclusive em URLs internas, refresh e links salvos.
+  Rotinas e histórico não são apagados nem usados para contornar a regra.
+- **Perfil já configurado:** ao abrir a rota de onboarding sem intenção de
+  edição, o app retorna à Home. O link explícito “Refazer o cadastro guiado”
+  em Perfil usa `onboarding/index.html?refazer=1` e começa da primeira pergunta.
+- **Erro de gravação:** se o navegador recusar a escrita final, o app continua
+  bloqueado, mostra o erro, mantém as respostas/rascunho e permite nova tentativa.
+- **Confirmação:** após salvar com sucesso, o app volta à Home, apaga o rascunho
+  e libera as rotas protegidas.
 
 ## 2. Perguntas, controles e campos
 
@@ -137,10 +136,10 @@ quantas foram puladas. Cada linha tem um botão **Editar** que volta à etapa
 correspondente preservando as demais respostas.
 
 A preparação mostra quatro itens — objetivo, área de foco, modalidade inicial
-derivada e disponibilidade — e declara explicitamente que não há plano
-automático escondido. O FORJA atual não possui um gerador automático de plano
-a partir dessas respostas; portanto, nenhum processamento ou prescrição é
-simulado.
+derivada e disponibilidade. Ela não cria um plano escondido: a pessoa acessa
+o hub Treinos e solicita uma prévia do gerador local ou, quando configurado,
+da integração de IA; precisa revisar e salvar antes que sessões apareçam no
+calendário e nas rotinas.
 
 Quando há uma sugestão calculável e ainda não existem metas semanais salvas,
 a preparação também mostra a caixa **“Criar uma meta semanal com estes
@@ -325,7 +324,9 @@ estiver preenchido.
 
 Limites explícitos:
 
-- Não há rotina, plano, carga, volume ou periodização gerados automaticamente.
+- O plano semanal é uma sugestão revisável criada pelo módulo descrito em
+  `docs/planejamento-inteligente.md`; nenhuma sessão começa antes de salvar
+  e iniciar explicitamente.
 - Não há cálculo de IMC, idade, peso ideal, gasto calórico ou prazo para
   atingir o peso-alvo.
 - `consideracoes`, `flexoes`, `mobilidade` e `recuperacaoEsforco` são
@@ -333,12 +334,6 @@ Limites explícitos:
   recomendação médica.
 - `tipoCorpo`, altura, peso e peso-alvo não são associados a saúde, valor
   pessoal ou promessa de resultado.
-- Equipamentos detalhados ainda não filtram automaticamente a biblioteca de
-  exercícios. Uma integração futura precisa mapear explicitamente as listas
-  do perfil para as categorias do catálogo.
-- Objetivo, área de foco, nível e experiência ainda não montam sugestões de
-  rotina. Qualquer uso futuro deve ser uma sugestão editável, não uma
-  prescrição silenciosa.
 
 ## 7. Privacidade e armazenamento
 
@@ -346,14 +341,13 @@ Limites explícitos:
   navegador/aparelho.
 - O rascunho fica em `sessionStorage`, sob
   `forja-onboarding-rascunho-v1`, e é apagado após a conclusão bem-sucedida.
-- A dispensa do convite fica em `sessionStorage`, sob
-  `forja-onboarding-dispensado`.
-- Não há conta, sincronização em nuvem, rastreamento nem envio das respostas
-  a servidores. A página informa isso no rodapé, e revisão/preparação repetem
-  que a gravação é local.
+- Não existe mais dispensa do onboarding. As respostas do onboarding ficam
+  locais até a conclusão e não são enviadas ao provedor de IA.
+- O gerador pode enviar ao backend, quando essa integração estiver configurada,
+  apenas dados de planejamento minimizados e IDs/metadados do catálogo. Consulte
+  `docs/planejamento-inteligente.md` para o contrato, credenciais e bloqueios.
 - Para mover os dados entre aparelhos, o caminho continua sendo exportar e
-  importar o backup JSON em Perfil. Rascunho e dispensa não fazem parte do
-  backup.
+  importar o backup JSON em Perfil. O rascunho não faz parte do backup.
 - Metas semanais continuam em `forja-treino-metas-v1` e preferências gerais
   em `forja-preferencias-v1`; o onboarding só escreve metas na condição
   descrita para a tela de preparação.

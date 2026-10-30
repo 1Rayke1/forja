@@ -20,6 +20,8 @@ import path from 'node:path';
 import http from 'node:http';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { brotliDecompressSync } from 'node:zlib';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = [];
@@ -102,6 +104,32 @@ if (!executablePath) {
     'para um Chrome/Chromium ou instale @sparticuz/chromium (npm install).'
   );
   process.exit(1);
+}
+
+/*
+  O binário Linux empacotado é construído para Amazon Linux; em ambientes
+  Debian/Ubuntu mínimos algumas bibliotecas (NSPR/NSS) não estão no sistema.
+  Reutilizamos o tar.br de dependências que já vem no mesmo pacote (sem rede e
+  sem modificar o repositório) para que `npm run test:e2e` seja autônomo.
+*/
+if (process.platform === 'linux' && chromium && !process.env.LD_LIBRARY_PATH && executablePath.includes('/tmp/')) {
+  try {
+    const modulePath = fileURLToPath(import.meta.resolve('@sparticuz/chromium'));
+    const packageRoot = path.resolve(path.dirname(modulePath), '../..');
+    const archive = path.join(packageRoot, 'bin', 'al2023.tar.br');
+    const libRoot = path.join(os.tmpdir(), 'forja-e2e-al2023');
+    const nspr = path.join(libRoot, 'lib', 'libnspr4.so');
+    if (!fs.existsSync(nspr)) {
+      fs.mkdirSync(libRoot, { recursive: true });
+      const unpacked = path.join(os.tmpdir(), 'forja-e2e-al2023.tar');
+      fs.writeFileSync(unpacked, brotliDecompressSync(fs.readFileSync(archive)));
+      execFileSync('tar', ['-xf', unpacked, '-C', libRoot]);
+      fs.unlinkSync(unpacked);
+    }
+    process.env.LD_LIBRARY_PATH = path.join(libRoot, 'lib');
+  } catch (error) {
+    console.warn('Dependências Linux do Chromium não puderam ser extraídas: ' + error.message);
+  }
 }
 
 /* Servidor estático: o repositório fica sob /forja/, como no GitHub Pages. */
@@ -266,7 +294,19 @@ async function clickCentered(selector) {
 async function go(rel) {
   currentLabel = rel || 'index';
   if (process.env.FORJA_E2E_DEBUG) console.log('  [go] -> ' + (rel || 'index'));
-  await page.goto(new URL(rel, BASE).href, { waitUntil: 'networkidle0' });
+  if (page.url().startsWith(new URL(BASE).origin)) {
+    await page.evaluate(path => {
+      if (!path.includes('onboarding/') && !localStorage.getItem('forja-perfil-v1')) {
+        localStorage.setItem('forja-perfil-v1', JSON.stringify({ version: 3, updatedAt: '2026-10-01T00:00:00.000Z', objetivo: 'manterForma', nivel: 'iniciante', equipamento: 'casa', diasPorSemana: 3 }));
+      }
+    }, String(rel || ''));
+  }
+  let target = rel;
+  if (String(rel) === 'onboarding/index.html' && page.url().startsWith(new URL(BASE).origin)) {
+    const hasProfile = await page.evaluate(() => Boolean(localStorage.getItem('forja-perfil-v1')));
+    if (hasProfile) target = 'onboarding/index.html?refazer=1';
+  }
+  await page.goto(new URL(target, BASE).href, { waitUntil: 'networkidle0' });
   if (process.env.FORJA_E2E_DEBUG) console.log('  [go] ok ' + (rel || 'index'));
   // Rolagem suave faz o clique por coordenadas errar o alvo durante a animação.
   await page.addStyleTag({ content: 'html{scroll-behavior:auto !important}' });
@@ -421,6 +461,12 @@ async function check(name, fn) {
 
 await go('');
 await clearForjaStorage();
+currentLabel = 'onboarding-obrigatorio';
+await page.goto(new URL('treino/index.html', BASE).href, { waitUntil: 'networkidle0' });
+await expectPath('onboarding/index.html');
+assert.equal(await text('#onboarding-question'), 'Vamos personalizar seu treino.');
+await page.setViewport(MOBILE);
+await page.screenshot({ path: path.join(repoRoot, 'artifacts/forja-visual/onboarding-obrigatorio-390.png') });
 await go('');
 
 await check('Calendário e missões funcionam na página inicial', async () => {
@@ -1383,10 +1429,10 @@ await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #
     await page.setViewport({ width: 390, height: 844 });
     await restoreForjaRaw({});
 
-    /* 1. Home sem rotina: zero escrita em localStorage, sem botão Iniciar, CTA leva ao hub de treino. */
+    /* 1. Perfil concluído: Home sem rotina, sem botão Iniciar, CTA leva ao hub de treino. */
     await go('');
     const initialKeys = await page.evaluate(() => Object.keys(localStorage));
-    assert.deepEqual(initialKeys, [], 'Home limpa gravou em localStorage ao abrir');
+    assert.deepEqual(initialKeys, ['forja-perfil-v1'], 'Home deve conter somente o perfil obrigatório já salvo');
     const homeBtn = await page.$eval('#home-primary-button', el => ({
       tag: el.tagName,
       text: el.textContent.trim(),
@@ -1469,38 +1515,29 @@ await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #
   }
 });
 
-await check('Home estabilizada: convite ao onboarding em 5 larguras, metas com unidades/modalidade, outra aba e pageshow', async () => {
+await check('Home e gate: perfil obrigatório, 5 larguras, metas com unidades/modalidade, outra aba e pageshow', async () => {
   const saved = await forjaRaw();
   let otherTab = null;
   try {
     await restoreForjaRaw({});
-    await go('');
+    await page.goto(new URL('treino/index.html', BASE).href, { waitUntil: 'networkidle0' });
+    await expectPath('onboarding/index.html');
+    assert.equal(await text('#onboarding-question'), 'Vamos personalizar seu treino.');
+    assert.equal(await page.$('#onboarding-skip'), null, 'Cadastro não pode ser dispensado');
+    assert.equal(await page.$('#onboarding-start'), null, 'A Home antiga não pode oferecer um atalho');
 
-    /* 1. Convite com dois controles, sem coleta na Home e sem overflow em 320/360/390/768/1280 px. */
-    const onboardingButtons = await page.$$eval('#onboarding-root button', els => els.map(e => e.textContent.trim()));
-    assert.deepEqual(onboardingButtons, ['Agora não'], 'O convite deve ter só a dispensa como botão');
-    assert.equal(await text('#home-onboarding-heading'), 'Seu perfil de treino');
-    assert.match(await page.$eval('#onboarding-start', el => el.getAttribute('href')), /onboarding\/index\.html$/);
-    assert.equal(await page.$$eval('#onboarding-root input, #onboarding-root select', els => els.length), 0,
-      'A Home não deve coletar respostas do onboarding');
+    /* Perfil concluído libera a Home; o CTA antigo de onboarding não existe. */
+    await go('');
+    assert.equal(await page.$('#onboarding-start'), null);
+    assert.equal(await page.$('#onboarding-skip'), null);
     assert.equal(await text('#home-action-heading'), 'Monte sua primeira rotina');
     assert.equal(await page.$$eval('.home-action-title', els => els.length), 1, '.home-action-title deve ser único');
 
     for (const width of [320, 360, 390, 768, 1280]) {
       await page.setViewport({ width, height: 844 });
       await sleep(100);
-      const metrics = await page.evaluate(() => {
-        const panel = document.querySelector('#onboarding-root .onboarding-panel');
-        const controls = [...document.querySelectorAll('#onboarding-root button, #onboarding-root a.primary-button')];
-        return {
-          overflow: document.documentElement.scrollWidth - window.innerWidth,
-          panelHeight: panel ? Math.round(panel.getBoundingClientRect().height) : 0,
-          minButtonHeight: controls.reduce((min, b) => Math.min(min, Math.round(b.getBoundingClientRect().height)), 999)
-        };
-      });
+      const metrics = await page.evaluate(() => ({ overflow: document.documentElement.scrollWidth - window.innerWidth }));
       assert.ok(metrics.overflow <= 1, 'Overflow horizontal na Home a ' + width + 'px: ' + metrics.overflow);
-      assert.ok(metrics.panelHeight > 0 && metrics.panelHeight <= 440, 'Onboarding alto demais a ' + width + 'px: ' + metrics.panelHeight + 'px');
-      assert.ok(metrics.minButtonHeight >= 44, 'Controle do onboarding menor que 44px a ' + width + 'px');
     }
     await page.setViewport(MOBILE);
 
@@ -1540,7 +1577,7 @@ await check('Home estabilizada: convite ao onboarding em 5 larguras, metas com u
     }), 'Home não refletiu metas/histórico gravados em outra aba');
     assert.match(await text('#home-goals-period'), /Semana de .* · Musculação\.$/);
     assert.equal(await text('#home-primary-button'), 'Iniciar Força A');
-    assert.equal(await page.$eval('#onboarding-root', el => el.hidden), true, 'Onboarding deveria fechar ao receber rotina/histórico');
+    assert.equal(await page.$('#onboarding-start'), null, 'Home não restaura convite após evento storage');
 
     /* 3. Simula restauração via BFCache (pageshow persisted: true) após mudança silenciosa no armazenamento. */
     await page.evaluate(() => {
@@ -1568,10 +1605,7 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, 
   const saved = await forjaRaw();
   try {
     await restoreForjaRaw({});
-    await go('');
-
-    /* Convite → fluxo completo. */
-    await jsClick('#onboarding-start');
+    await page.goto(new URL('onboarding/index.html', BASE).href, { waitUntil: 'networkidle0' });
     await expectPath('/onboarding/index.html');
     await page.setViewport({ width: 320, height: 720 });
     await sleep(150);
@@ -1735,12 +1769,12 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, 
 
     /* Confirmação na Home e convite encerrado. */
     assert.match(await text('#toast'), /Cadastro concluído/);
-    assert.equal(await page.$eval('#onboarding-root', el => el.hidden), true, 'O convite deve sumir após concluir');
+    assert.equal(await page.$('#onboarding-start'), null, 'A Home não deve oferecer convite após concluir');
 
     /* Reabrir o app (recarregar) não repete o onboarding. */
     await go('');
     await page.setViewport(MOBILE);
-    assert.equal(await page.$eval('#onboarding-root', el => el.hidden), true, 'Recarregar não deve trazer o convite');
+    assert.equal(await page.$('#onboarding-start'), null, 'Recarregar não deve trazer cadastro opcional');
 
     /* Perfil mostra o sexo e permite editar; editar não altera o restante. */
     await go('perfil/');
@@ -2052,6 +2086,8 @@ await check('Explorar — busca e resultados inline, filtros recolhidos e atlas 
   try {
     await restoreForjaRaw({});
     await go('explorar/');
+    const existingProfile = await forjaRaw();
+    assert.ok(existingProfile['forja-perfil-v1'], 'Rota protegida exige perfil salvo');
     assert.ok(await page.$('#catalog-root'), 'Catálogo inline ausente');
     assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), false,
       'Filtros secundários começam recolhidos');
@@ -2063,7 +2099,7 @@ await check('Explorar — busca e resultados inline, filtros recolhidos e atlas 
     assert.match(await text('#catalog-list'), /flexão/i);
     await page.click('.catalog-filter-disclosure > summary');
     assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), true);
-    assert.deepEqual(await forjaRaw(), {}, 'Consultar catálogo não alterou dados locais');
+    assert.deepEqual(await forjaRaw(), existingProfile, 'Consultar catálogo não alterou dados locais além do perfil existente');
     await page.screenshot({ path: artifactPath('explorar-inline-390.png'), fullPage: true });
   } finally {
     await page.setViewport(MOBILE);

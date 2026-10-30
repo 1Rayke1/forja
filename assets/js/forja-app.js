@@ -46,6 +46,19 @@
     F.bootData();
 
     const name = F.pageName();
+    /*
+      Perfil obrigatório: todas as páginas do aplicativo (inclusive acesso
+      direto, refresh e links salvos) passam pelo mesmo gate. A própria rota de
+      onboarding permanece acessível para iniciar/retomar ou refazer o perfil.
+      Perfil legado com updatedAt continua válido; não migramos nem apagamos
+      dados durante a checagem. A gravação final do onboarding só libera após
+      saveProfile retornar sucesso.
+    */
+    if (name !== "onboarding" && !F.profileIsConfigured(F.state.profile)) {
+      F.navigate(F.url("onboarding"));
+      return;
+    }
+
     const init = F.pages[name];
 
     if (typeof init === "function") {

@@ -1,0 +1,27 @@
+.plan-builder { margin: 0 0 2rem; padding: 1.25rem; border: 1px solid var(--line, #343434); border-radius: 1rem; background: var(--surface, #161616); }
+.plan-builder .home-week-head { align-items: flex-start; gap: 1rem; }
+.plan-builder .section-title { margin: .2rem 0 .5rem; }
+.plan-engine-badge { flex: none; padding: .4rem .65rem; border: 1px solid var(--line, #343434); border-radius: 999px; color: var(--muted, #b6b6b6); font-size: .75rem; }
+.plan-actions, .plan-session-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin: .85rem 0; }
+.training-plan-preview { display: grid; gap: .8rem; }
+.plan-summary { padding: .8rem 0; }
+.plan-summary-text { margin: 0 0 .4rem; line-height: 1.55; }
+.plan-session-card { min-width: 0; padding: 1rem; border: 1px solid var(--line, #343434); border-radius: .85rem; background: rgba(255,255,255,.025); }
+.plan-session-head { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: .25rem .75rem; }
+.plan-session-day { color: var(--accent, #d9a441); font-size: .8rem; font-weight: 700; }
+.plan-session-title { grid-column: 1; margin: 0; font-size: 1.15rem; }
+.plan-rationale { margin: .65rem 0; color: var(--muted, #b6b6b6); font-size: .88rem; line-height: 1.45; }
+.plan-exercise-list { display: grid; gap: .7rem; margin: 0; padding: 0; list-style: none; }
+.plan-exercise-list li { display: grid; gap: .2rem; padding-top: .65rem; border-top: 1px solid var(--line, #343434); }
+.plan-exercise-list li span { color: var(--muted, #b6b6b6); font-size: .82rem; }
+.plan-exercise-list li small { color: var(--muted, #b6b6b6); font-size: .78rem; line-height: 1.4; }
+.plan-feedback { max-width: 12rem; min-height: 44px; }
+.plan-save { justify-self: start; margin-top: .5rem; }
+@media (max-width: 540px) {
+  .plan-builder { padding: 1rem; }
+  .plan-builder .home-week-head { display: grid; }
+  .plan-engine-badge { justify-self: start; }
+  .plan-actions > button, .plan-session-actions > button { width: 100%; }
+  .plan-session-head { grid-template-columns: 1fr; }
+  .plan-session-title { grid-column: 1; }
+}

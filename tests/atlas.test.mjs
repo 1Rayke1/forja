@@ -170,7 +170,7 @@ await runTest("ATLAS 1. Página carrega escolha de exercício, modelo anterior/p
   assert.match(fs.readFileSync(path.join(repoRoot, "explorar/index.html"), "utf8"), /href="atlas\.html"/,
     "O hub Explorar precisa apontar para o atlas");
 
-  assert.deepEqual(app.keys(), [], "Consultar o atlas não deve gravar dados");
+  assert.deepEqual(app.keys(), ["forja-perfil-v1"], "Atlas preserva o perfil exigido e não cria outros dados");
   assertNoErrors(app, "atlas");
   app.close();
 });
@@ -639,7 +639,7 @@ await runTest("ATLAS 9. Link direto (?exercicio/?grupo/?modalidade) e estado de 
   assert.equal(app.$('[role="alert"]'), null, "Retentativa não limpou o erro");
   assert.equal(app.$$(".figura-svg").length, 2, "Retentativa não remontou as figuras");
 
-  assert.deepEqual(app.keys(), [], "O estado de erro gravou dados");
+  assert.deepEqual(app.keys(), ["forja-perfil-v1"], "Falha de atlas não altera o perfil exigido nem cria dados");
   assertNoErrors(app, "erro e retentativa do atlas");
   app.close();
 });
@@ -668,6 +668,7 @@ await runTest("ATLAS 10. Preserva chaves, rotinas e histórico; não escreve nem
   }];
 
   const seed = {
+    "forja-perfil-v1": { version: 3, updatedAt: "2026-10-01T00:00:00.000Z", objetivo: "manterForma", nivel: "iniciante", equipamento: "casa", diasPorSemana: 3 },
     "forja-treino-rotinas-v1": routinesStore([routineA], [routineB]),
     "forja-treino-historico-v1": history,
     "forja-treino-biblioteca-v1": customLibrary,

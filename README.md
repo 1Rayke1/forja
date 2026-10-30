@@ -2,7 +2,7 @@
 
 Aplicativo estático de treinos, calendário e missões. Funciona sem build,
 sem backend e sem conta: os dados ficam no `localStorage` do navegador.
-Publicável diretamente no GitHub Pages (inclusive sob `/forja/`).
+Publicável diretamente no GitHub Pages (inclusive sob `/forja/`). O perfil guiado é obrigatório para entrar nas páginas do app; o onboarding e o plano local não exigem backend. A integração de IA real é opcional e requer uma Function/backend configurado (veja `docs/planejamento-inteligente.md`).
 
 ## Executar
 
