@@ -694,6 +694,22 @@ function normalizeSetTimer(raw, queue, completedSets, running) {
   };
 }
 
+/*
+  RPE de uma série ou da sessão (1–10), ou ausência real.
+
+  `clampInteger(value, 1, 10, 0)` NÃO serve aqui: ele converte null e "" em
+  Number(...) = 0 e depois prende o resultado no mínimo, devolvendo 1. Era
+  assim que uma série sem RPE reaparecia como "RPE 1" ao recarregar. Só entra
+  valor que o usuário escolheu de fato; vazio, nulo e fora da faixa viram null.
+*/
+function normalizeRpe(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "string" && value.trim() === "") return null;
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 1 || number > 10) return null;
+  return Math.round(number);
+}
+
 function normalizeSetLogs(raw, queue) {
   const logs = {};
 
@@ -718,7 +734,7 @@ function normalizeSetLogs(raw, queue) {
         distance: Number.isFinite(Number(entry.distance)) && Number(entry.distance) > 0
           ? Math.min(100000, Math.max(1, Math.round(Number(entry.distance))))
           : null,
-        rpe: clampInteger(entry.rpe, 1, 10, 0) || null,
+        rpe: normalizeRpe(entry.rpe),
         editedAt: Number(entry.editedAt) || null
       }));
   });
@@ -742,7 +758,7 @@ function normalizeLogDraft(raw, queue) {
       distance: Number.isFinite(Number(entry.distance)) && Number(entry.distance) > 0
         ? String(Math.round(Number(entry.distance)))
         : "",
-      rpe: clampInteger(entry.rpe, 1, 10, 0) || ""
+      rpe: normalizeRpe(entry.rpe) || ""
     };
   });
 
@@ -756,8 +772,7 @@ function normalizeSessionFeedback(raw) {
   const note = typeof raw.note === "string" ? raw.note.trim().slice(0, 300) : "";
 
   /* RPE fora de 1–10 (inclusive "não registrar") vira ausente, nunca 0 ou 1. */
-  const rawRpe = Number(raw.rpe);
-  const rpe = Number.isFinite(rawRpe) && rawRpe >= 1 && rawRpe <= 10 ? Math.round(rawRpe) : null;
+  const rpe = normalizeRpe(raw.rpe);
 
   if (!note && !rpe) return null;
 
@@ -3346,6 +3361,7 @@ F.saveRotation = saveRotation;
 
 Object.assign(F, {
   normalizeExercise,
+  normalizeRpe,
   normalizeRoutine,
   normalizeLibraryItem,
   normalizeGoals,

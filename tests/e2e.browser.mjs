@@ -2511,6 +2511,306 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
   }
 });
 
+/* ------------------------------------------------------------------ */
+/* FUNC-01 · FUNC-02 · FUNC-03 · A11Y-01 (correções da auditoria)       */
+/* ------------------------------------------------------------------ */
+
+/*
+  Espera o carregamento terminar antes da próxima navegação.
+  `networkidle0` pode retornar num intervalo entre requisições e a navegação
+  seguinte abortaria os últimos scripts `defer` (net::ERR_ABORTED) — isso não é
+  erro do app, é o navegador cancelando o que ficou pendente.
+*/
+async function settled() {
+  await page.evaluate(() => new Promise(resolve => {
+    const finish = () => requestAnimationFrame(() => resolve());
+    if (document.readyState === 'complete') finish();
+    else window.addEventListener('load', finish, { once: true });
+  }));
+  await sleep(80);
+}
+
+/*
+  Nome acessível real (árvore de acessibilidade do Chromium via CDP): é o que
+  o leitor de tela recebe. Não depende de biblioteca externa.
+*/
+async function accessibleNode(selector) {
+  await client.send('DOM.enable');
+  await client.send('Accessibility.enable');
+  const { root } = await client.send('DOM.getDocument', { depth: 0 });
+  const { nodeId } = await client.send('DOM.querySelector', { nodeId: root.nodeId, selector });
+  assert.ok(nodeId, 'Elemento não encontrado para a árvore de acessibilidade: ' + selector);
+  const { nodes } = await client.send('Accessibility.getPartialAXTree', { nodeId, fetchRelatives: false });
+  return nodes[0];
+}
+
+const WEIGHTS_PROFILE = {
+  version: 3, updatedAt: '2026-10-01T00:00:00.000Z', objetivo: 'hipertrofia', nivel: 'iniciante',
+  equipamento: 'academia', equipamentos: ['academiaCompleta'], localTreino: 'academia',
+  diasPorSemana: 3, areaFoco: 'corpoTodo', experienciaAtual: 'basicos',
+  preferenciasTreino: ['musculacao'], modalidadePreferida: 'weights', consideracoes: ['nenhuma']
+};
+
+await check('FUNC-01: plano de musculação é salvo e iniciado em weights', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('');
+    await settled();
+    await page.evaluate(profile => localStorage.setItem('forja-perfil-v1', JSON.stringify(profile)), WEIGHTS_PROFILE);
+    await go('treino/');
+    await settled();
+
+    /* Sem serviço de IA no ambiente de teste, o app cai no gerador local.
+       O stub evita o 404 esperado de /api/workout-plan no log do navegador. */
+    await page.evaluate(() => { window.fetch = () => Promise.reject(new Error('sem serviço de IA')); });
+    await clickCentered('#generate-plan');
+    assert.ok(await waitFor(() => Boolean(document.querySelector('#training-plan-preview .plan-session-card')), 8000),
+      'A prévia do plano não apareceu');
+    await jsClick('#training-plan-preview .plan-save');
+    await sleep(250);
+
+    const plan = await data('forja-plano-semanal-v1');
+    assert.ok(plan && plan.sessions.length === 3, 'O plano não foi salvo com as 3 sessões');
+    plan.sessions.forEach(session => {
+      assert.equal(session.modality, 'weights', 'Sessão salva sem a modalidade real do catálogo');
+      session.exercises.forEach(exercise => {
+        assert.equal(exercise.mode, 'weights', 'Exercício do plano sem a modalidade do catálogo');
+      });
+    });
+
+    const planRoutines = list => (list || []).filter(r => String(r.id).startsWith('forja-plan-session-'));
+    const routines = await data('forja-treino-rotinas-v1');
+    assert.equal(planRoutines(routines.weights).length, 3, 'As 3 rotinas do plano deveriam estar em weights');
+    assert.equal(planRoutines(routines.calisthenics).length, 0, 'Rotina de musculação foi salva como calistenia');
+    planRoutines(routines.weights).forEach(routine => assert.equal(routine.modality, 'weights'));
+
+    /* IDs dos exercícios do plano chegam intactos às rotinas. */
+    plan.sessions.forEach((session, index) => {
+      const routine = routines.weights.find(r => r.id === 'forja-plan-session-' + plan.id + '-' + index);
+      assert.ok(routine, 'Rotina da sessão ' + index + ' não foi criada em weights');
+      const stored = ['warmup', 'main', 'abs', 'finisher'].flatMap(section => routine.sections[section] || []);
+      assert.deepEqual(stored.map(e => e.id), session.exercises.map(e => e.id),
+        'IDs dos exercícios mudaram entre plano e rotina');
+    });
+
+    /* "Iniciar sessão" abre a rotina na modalidade certa. */
+    await clickCentered('#training-plan-preview .plan-session-actions .primary-button');
+    await expectPath('/treino/executar.html');
+    const started = await page.evaluate(() => ({
+      modality: window.Forja.state.activeWorkout.modality,
+      routineId: window.Forja.state.activeWorkout.routineId,
+      inWeights: (window.Forja.state.routines.weights || []).some(r => r.id === window.Forja.state.activeWorkout.routineId)
+    }));
+    assert.equal(started.modality, 'weights', 'A sessão do plano começou com a modalidade errada');
+    assert.equal(started.inWeights, true, 'A rotina iniciada não existe em weights');
+    assert.match(started.routineId, /^forja-plan-session-/);
+  } finally {
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('FUNC-02: série sem RPE continua sem RPE ao recarregar e no histórico', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await seedRestSession();
+    await go('treino/executar.html');
+    await settled();
+
+    await fill('#log-reps', '12');
+    assert.equal(await page.$eval('#log-rpe', el => el.value), '', 'O seletor já vem com RPE escolhido');
+    await clickCentered('#complete-set');
+    await sleep(200);
+
+    const stored = await data('forja-treino-sessao-ativa-v1');
+    assert.equal(stored.setLogs['e2e-prefs-ex'][0].rpe, null, 'Série sem RPE guardou um número');
+    assert.doesNotMatch(await text('#log-list'), /RPE/, 'A lista mostrou RPE que ninguém informou');
+
+    /* Era aqui que o vazio reaparecia como RPE 1. */
+    await page.reload({ waitUntil: 'networkidle0' });
+    await page.addStyleTag({ content: 'html{scroll-behavior:auto !important}' });
+    await sleep(250);
+    const resumed = await page.evaluate(() => ({
+      logRpe: window.Forja.state.activeWorkout.setLogs['e2e-prefs-ex'][0].rpe,
+      draftRpe: window.Forja.state.activeWorkout.logDraft['e2e-prefs-ex']?.rpe,
+      select: document.getElementById('log-rpe').value,
+      list: document.getElementById('log-list').textContent
+    }));
+    assert.equal(resumed.logRpe, null, 'Recarregar inventou RPE 1 na série');
+    assert.equal(resumed.draftRpe, '', 'O rascunho voltou com RPE inventado');
+    assert.equal(resumed.select, '', 'O seletor voltou com RPE inventado');
+    assert.doesNotMatch(resumed.list, /RPE/, 'A lista de séries inventou RPE após recarregar');
+    assert.equal((await data('forja-treino-sessao-ativa-v1')).setLogs['e2e-prefs-ex'][0].rpe, null,
+      'A retomada regravou RPE 1');
+
+    /* Valor realmente informado continua gravado e validado. */
+    await fill('#log-rpe', '9');
+    await jsClick('#skip-rest');
+    await clickCentered('#complete-set');
+    await sleep(200);
+    const withRpe = await data('forja-treino-sessao-ativa-v1');
+    assert.equal(withRpe.setLogs['e2e-prefs-ex'][1].rpe, 9, 'RPE informado não foi gravado');
+    assert.match(await text('#log-list'), /RPE 9/);
+
+    /* Encerrar a sessão: o histórico recebe null onde ninguém informou RPE.
+       A terceira série é registrada com o campo RPE limpo de novo. */
+    await jsClick('#skip-rest');
+    await fill('#log-rpe', '');
+    await clickCentered('#complete-set');
+    assert.ok(await waitFor(() => Boolean(document.getElementById('execution-summary')) &&
+      !document.getElementById('execution-summary').hidden, 5000), 'O resumo da sessão não apareceu');
+    const history = await data('forja-treino-historico-v1');
+    assert.ok(history && history[0], 'A sessão encerrada não entrou no histórico');
+    assert.deepEqual(history[0].exercises[0].logs.map(entry => entry.rpe), [null, 9, null],
+      'O histórico inventou (ou perdeu) RPE das séries');
+
+    /* Consulta do histórico: "RPE 9" sim, "RPE 1" inventado não. */
+    await go('progresso/');
+    const historyText = await text('#progress-history');
+    assert.match(historyText, /RPE 9/, 'O histórico não mostrou o RPE informado');
+    assert.doesNotMatch(historyText, /RPE 1(?!\d)/, 'O histórico exibiu RPE 1 para série sem RPE');
+  } finally {
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('FUNC-03: nenhum link do rodapé fica sob a barra inferior (6 larguras, todas as páginas)', async () => {
+  const saved = await forjaRaw();
+  const pages = ['', 'treino/', 'treino/calistenia.html', 'treino/musculacao.html', 'treino/rotina.html',
+    'treino/executar.html', 'treino/biblioteca.html', 'progresso/', 'configuracoes/', 'perfil/',
+    'explorar/', 'explorar/atlas.html', 'onboarding/index.html'];
+  const widths = [320, 360, 390, 430, 768, 1280];
+  const problems = [];
+
+  const measure = () => page.evaluate(() => {
+    const footer = document.querySelector('.site-footer');
+    const nav = document.querySelector('.bottom-nav');
+    if (!footer || !nav) return { missing: !footer, missingNav: !nav };
+    const navRect = nav.getBoundingClientRect();
+    const describe = node => node.tagName.toLowerCase() +
+      (typeof node.className === 'string' && node.className ? '.' + node.className.split(/\s+/).slice(0, 2).join('.') : '');
+
+    const hit = link => {
+      const rects = [...link.getClientRects()].filter(rect => rect.width > 0 && rect.height > 0);
+      return rects.map(rect => {
+        const x = Math.round(rect.left + rect.width / 2);
+        const y = Math.round(rect.top + rect.height / 2);
+        const target = document.elementFromPoint(x, y);
+        const insideNav = x >= navRect.left && x <= navRect.right && y >= navRect.top && y <= navRect.bottom;
+        return {
+          reachable: !insideNav && Boolean(target) && (target === link || link.contains(target)),
+          target: target ? describe(target) : null
+        };
+      });
+    };
+
+    const footerLinks = [...footer.querySelectorAll('a')].map(link => ({
+      label: (link.textContent || '').trim().slice(0, 48),
+      samples: hit(link)
+    })).map(item => Object.assign(item, { covered: item.samples.length === 0 || item.samples.every(s => !s.reachable) }));
+
+    const navLinks = [...nav.querySelectorAll('.bottom-nav-link')].map(link => ({
+      label: (link.textContent || '').trim().slice(0, 24),
+      covered: (() => {
+        const rect = link.getBoundingClientRect();
+        const target = document.elementFromPoint(Math.round(rect.left + rect.width / 2), Math.round(rect.top + rect.height / 2));
+        return !target || !(target === link || link.contains(target));
+      })()
+    }));
+
+    return {
+      scrollY: Math.round(window.scrollY),
+      footerPaddingBottom: getComputedStyle(footer).paddingBottom,
+      navPosition: getComputedStyle(nav).position,
+      footerLinks,
+      navLinks,
+      overflow: document.documentElement.scrollWidth - window.innerWidth
+    };
+  });
+
+  try {
+    await restoreForjaRaw({});
+    await go('');
+    await settled();
+    for (const rel of pages) {
+      await go(rel);
+      await settled();
+      for (const width of widths) {
+        await page.setViewport({ width, height: 844 });
+        await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+        await sleep(120);
+        const result = await measure();
+        assert.ok(!result.missing, 'Rodapé ausente em ' + (rel || 'index'));
+        assert.ok(!result.missingNav, 'Barra inferior ausente em ' + (rel || 'index'));
+        assert.equal(result.navPosition, 'fixed', 'A barra inferior deixou de ser fixa em ' + (rel || 'index'));
+        assert.ok(result.footerLinks.length >= 2, 'Rodopé sem os links de crédito em ' + (rel || 'index'));
+        assert.equal(result.overflow <= 1, true, 'A correção do rodapé criou rolagem horizontal em ' + width + 'px (' + rel + ')');
+        result.footerLinks.filter(link => link.covered).forEach(link => {
+          problems.push(width + 'px ' + (rel || 'index') + ' · link "' + link.label + '" inalcançável (padding ' +
+            result.footerPaddingBottom + ', alvo ' + JSON.stringify(link.samples.map(s => s.target)) + ')');
+        });
+        result.navLinks.filter(link => link.covered).forEach(link => {
+          problems.push(width + 'px ' + (rel || 'index') + ' · navegação "' + link.label + '" ficou bloqueada');
+        });
+      }
+    }
+    assert.deepEqual(problems, [], problems.slice(0, 8).join(' | '));
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('A11Y-01: seletor Modalidade do hub tem nome acessível sem mudar a aparência', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('treino/');
+    await settled();
+    await page.setViewport({ width: 320, height: 844 });
+    await sleep(150);
+
+    const node = await accessibleNode('#hub-modality');
+    assert.equal(node.role.value, 'combobox', 'O seletor não é exposto como combobox');
+    assert.equal(node.name.value, 'Modalidade', 'O seletor continua sem nome acessível');
+
+    const layout = await page.evaluate(() => {
+      const label = document.querySelector('label[for="hub-modality"]');
+      const select = document.getElementById('hub-modality');
+      const head = select.parentElement.querySelector('.home-week-head');
+      const labelRect = label.getBoundingClientRect();
+      const selectRect = select.getBoundingClientRect();
+      return {
+        labelText: label.textContent.trim(),
+        labelWidth: labelRect.width,
+        labelHeight: labelRect.height,
+        labelDisplay: getComputedStyle(label).display,
+        labelClip: getComputedStyle(label).clipPath,
+        gap: selectRect.top - head.getBoundingClientRect().bottom,
+        selectWidth: selectRect.width,
+        overflow: document.documentElement.scrollWidth - window.innerWidth
+      };
+    });
+
+    assert.equal(layout.labelText, 'Modalidade', 'O texto do rótulo mudou');
+    assert.notEqual(layout.labelDisplay, 'none', 'O rótulo voltou para display:none (o nome acessível depende dele)');
+    assert.ok(layout.labelWidth <= 1 && layout.labelHeight <= 1,
+      'O rótulo oculto passou a ocupar espaço visual: ' + layout.labelWidth + 'x' + layout.labelHeight);
+    assert.ok(layout.gap <= 1,
+      'O rótulo oculto empurrou o seletor: ' + layout.gap.toFixed(1) + 'px de espaço extra (era 0)');
+    assert.ok(layout.selectWidth > 0, 'O seletor desapareceu do layout');
+    assert.ok(layout.overflow <= 1, 'O rótulo oculto criou rolagem horizontal em 320px');
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });

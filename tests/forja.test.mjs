@@ -5402,6 +5402,100 @@ await runTest("81. Identidade e preparação de fotos nunca usam correspondênci
   assertNoErrors(app, "fotos sem publicação");
 });
 
+/*
+  FUNC-02 — RPE vazio nunca vira 1.
+
+  Causa: normalizeSetLogs/normalizeLogDraft usavam clampInteger(entry.rpe, 1,
+  10, 0). Number(null) e Number("") são 0, então o "fallback" nunca era usado e
+  o valor era preso no mínimo (1). Ao recarregar, uma série sem RPE reaparecia
+  como "RPE 1". A regra agora é normalizeRpe: só passa 1–10 informado.
+*/
+await runTest("82. FUNC-02: série sem RPE continua sem RPE ao recarregar, ao retomar e no histórico", async () => {
+  const app = await bootExecution();
+
+  /* Regra única de RPE: vazio, nulo e fora da faixa são ausência real. */
+  for (const empty of ["", null, undefined, "   ", 0, "0", "abc", 11, -3, NaN]) {
+    assert.equal(app.F.normalizeRpe(empty), null, "RPE ausente/inválido virou número: " + String(empty));
+  }
+  for (const [input, expected] of [[6, 6], ["9", 9], [10, 10], ["7.4", 7], ["8", 8]]) {
+    assert.equal(app.F.normalizeRpe(input), expected, "RPE informado não foi preservado: " + String(input));
+  }
+
+  /* Série registrada sem escolher RPE. */
+  typeField(app, "#log-reps", "10");
+  typeField(app, "#log-load", "40 kg");
+  assert.equal(app.$("#log-rpe").value, "", "o seletor já começa com RPE escolhido");
+  app.click("#complete-set");
+  await wait(60);
+
+  assert.equal(app.data("forja-treino-sessao-ativa-v1").setLogs.bench[0].rpe, null,
+    "série sem RPE guardou um número no armazenamento");
+  assert.doesNotMatch(app.text("#log-list"), /RPE/, "exibiu RPE que ninguém informou");
+
+  /* Recarregar era onde o vazio virava RPE 1. */
+  await app.reload();
+  await wait(30);
+  assert.equal(app.F.state.activeWorkout.setLogs.bench[0].rpe, null, "recarregar inventou RPE na série");
+  assert.equal(app.data("forja-treino-sessao-ativa-v1").setLogs.bench[0].rpe, null,
+    "a retomada regravou RPE 1");
+  assert.equal(app.$("#log-rpe").value, "", "o seletor voltou com RPE inventado");
+  assert.doesNotMatch(app.text("#log-list"), /RPE/, "a lista de séries inventou RPE após recarregar");
+
+  /* Corrigir a série que não tem RPE não deve inventar valor. */
+  app.click("#log-list .log-entry button");
+  await wait(20);
+  assert.equal(app.modalField("rpe").value, "", "a correção da série 1 inventou RPE");
+  app.modalAction("cancel");
+  await wait(20);
+
+  /* Valor realmente informado continua validado e sobrevive ao recarregamento. */
+  app.click("#skip-rest");
+  await wait(20);
+  typeField(app, "#log-rpe", "9", "change");
+  app.click("#complete-set");
+  await wait(60);
+  assert.equal(app.data("forja-treino-sessao-ativa-v1").setLogs.bench[1].rpe, 9,
+    "RPE informado não foi gravado");
+  assert.match(app.text("#log-list"), /Série 2 .*RPE 9/);
+
+  await app.reload();
+  await wait(30);
+  assert.equal(app.F.state.activeWorkout.setLogs.bench[1].rpe, 9, "recarregar perdeu o RPE informado");
+  assert.equal(app.$("#log-rpe").value, "9", "o rascunho não preservou o RPE informado");
+  assertNoErrors(app, "RPE vazio");
+  app.close();
+
+  /*
+    Histórico: a sessão concluída leva às logs exatamente o que foi registrado
+    (null continua null) e o resumo não inventa esforço da sessão.
+  */
+  const finished = await bootExecution({
+    currentIndex: 2,
+    completedSets: { bench: 3, row: 1, run: 0 },
+    setLogs: {
+      bench: [
+        setLog({ set: 1, reps: "10", load: "60 kg" }),
+        setLog({ set: 2, reps: "8", load: "60 kg", rpe: 7 }),
+        setLog({ set: 3, reps: "10", load: "60 kg" })
+      ],
+      row: [setLog({ set: 1, reps: "12", load: "30 kg" })]
+    }
+  });
+
+  typeField(finished, "#log-distance", "420");
+  finished.click("#complete-set");
+  await wait(60);
+
+  const record = finished.data("forja-treino-historico-v1")[0];
+  assert.ok(record, "sessão concluída não entrou no histórico");
+  assert.deepEqual(record.exercises[0].logs.map(log => log.rpe), [null, 7, null],
+    "histórico inventou ou perdeu RPE das séries");
+  assert.equal(record.exercises[1].logs[0].rpe, null, "histórico inventou RPE na remada");
+  assert.equal(finished.$("#summary-feedback").hidden, true, "resumo inventou esforço da sessão");
+  assertNoErrors(finished, "RPE no histórico");
+  finished.close();
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));

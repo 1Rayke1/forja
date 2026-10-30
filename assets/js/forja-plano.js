@@ -18,6 +18,68 @@
   const cleanString = (value, max = 220) => typeof value === "string" ? value.trim().slice(0, max) : "";
   const safeArray = value => Array.isArray(value) ? value : [];
 
+  /*
+    Modalidade real de um exercício.
+
+    A fonte da verdade é o registro do catálogo (`record.mode`). O exercício
+    normalizado por F.catalog.toExercise NÃO carrega `mode` (o normalizador
+    descarta campos que não fazem parte do formato do exercício), então o plano
+    grava a modalidade no próprio exercício e a sessão declara a sua. Planos
+    salvos antes desta correção continuam resolvidos pelo `catalogId`/
+    `libraryId` no catálogo — nunca por um campo que não existe.
+  */
+  function modeOfRecord(record) {
+    return record && (record.mode === "weights" || record.mode === "calisthenics") ? record.mode : null;
+  }
+
+  function catalogModeIndex() {
+    const index = new Map();
+    F.catalog.items().forEach(record => {
+      const key = record.libraryId || record.id;
+      const mode = modeOfRecord(record);
+      if (key && mode) index.set(key, mode);
+    });
+    return index;
+  }
+
+  function exerciseMode(exercise, index) {
+    const declared = modeOfRecord(exercise);
+    if (declared) return declared;
+    if (!exercise) return null;
+    const source = index || catalogModeIndex();
+    return source.get(exercise.catalogId) || source.get(exercise.libraryId) || null;
+  }
+
+  /*
+    Modalidade da sessão: a dos exercícios que existem. Em sessão mista,
+    musculação prevalece (mesma regra de antes), porque a rotina tem um único
+    destino. `fallback` só cobre sessão sem nenhum exercício identificável.
+  */
+  function sessionMode(session, fallback) {
+    /* `session.modality` é a modalidade declarada na geração do plano. */
+    const declared = session && (session.modality === "weights" || session.modality === "calisthenics")
+      ? session.modality
+      : null;
+    const modes = new Set(safeArray(session && session.exercises).map(exercise => exerciseMode(exercise)));
+    if (modes.has("weights")) return "weights";
+    if (modes.has("calisthenics")) return "calisthenics";
+    return declared || fallback || "calisthenics";
+  }
+
+  /* Modalidade de um plano inteiro, deduzida dos exercícios de todas as sessões. */
+  function planMode(plan) {
+    const modes = new Set();
+    safeArray(plan && plan.sessions).forEach(session => {
+      safeArray(session.exercises).forEach(exercise => {
+        const mode = exerciseMode(exercise);
+        if (mode) modes.add(mode);
+      });
+    });
+    if (modes.has("weights")) return "weights";
+    if (modes.has("calisthenics")) return "calisthenics";
+    return null;
+  }
+
   function readPlan() {
     try {
       const value = JSON.parse(global.localStorage.getItem(PLAN_KEY) || "null");
@@ -147,6 +209,9 @@
       const clone = F.catalog.toExercise(record, record.section);
       if (!clone) return null;
       clone.catalogId = record.libraryId || record.id;
+      /* Modalidade do registro do catálogo, gravada no exercício do plano:
+         é dado real, não inferência sobre um campo ausente. */
+      clone.mode = modeOfRecord(record);
       clone.muscles = safeArray(record.muscles).slice();
       clone.equipment = safeArray(record.equipment).slice();
       clone.instructions = cleanString(record.instructions, 600);
@@ -181,14 +246,17 @@
       const dayRecords = selectSessionRecords(records, profile, index, existingFeedback["session-" + index], signals);
       if (!dayRecords.length) throw new Error("Não há exercícios compatíveis disponíveis no catálogo para este perfil.");
       const slot = [0, 2, 4, 1, 3, 5][index % 6];
-      sessions.push({
+      const session = {
         id: "session-" + index,
         day: DAYS[slot],
         title: ["Treino A", "Treino B", "Treino C"][index % 3],
         rationale: "Sessão de corpo inteiro com exercícios disponíveis e foco em recuperação entre dias.",
         exercises: dayRecords,
         scheduleDate: null
-      });
+      };
+      /* Declarada a partir dos exercícios reais da sessão. */
+      session.modality = sessionMode(session);
+      sessions.push(session);
     }
     return {
       version: 1,
@@ -248,6 +316,7 @@
         const exercise = F.catalog.toExercise(record, record.section);
         if (!exercise) throw new Error("Não foi possível materializar um exercício validado.");
         exercise.catalogId = record.libraryId || record.id;
+        exercise.mode = modeOfRecord(record);
         exercise.muscles = safeArray(record.muscles).slice();
         exercise.equipment = safeArray(record.equipment).slice();
         exercise.instructions = cleanString(record.instructions, 600);
@@ -267,8 +336,10 @@
         return exercise;
       });
       const weekday = DAYS.includes(session.day) ? session.day : DAYS[(index * 2) % DAYS.length];
-      return { id: "session-" + index, day: weekday, title: cleanString(session.title, 50) || "Treino " + (index + 1),
+      const parsed = { id: "session-" + index, day: weekday, title: cleanString(session.title, 50) || "Treino " + (index + 1),
         rationale: cleanString(session.rationale, 240) || "Sessão equilibrada com descanso entre grupos musculares.", exercises, scheduleDate: null };
+      parsed.modality = sessionMode(parsed);
+      return parsed;
     });
     return { version: 1, id: previous && previous.id || "plan-" + Date.now().toString(36), engine: "ai",
       createdAt: new Date().toISOString(), summary: cleanString(value.summary, 300) || rationale(profile, sessions.length),
@@ -336,8 +407,11 @@
   function routinesForPlan(plan) {
     const state = F.state.routines;
     const next = { calisthenics: state.calisthenics.slice(), weights: state.weights.slice() };
+    /* Plano sem exercício identificável (dado corrompido) segue a modalidade
+       que o resto do plano comprova, em vez de uma constante por sessão. */
+    const fallbackMode = planMode(plan);
     plan.sessions.forEach((session, index) => {
-      const mode = session.exercises.some(exercise => exercise.mode === "weights") ? "weights" : "calisthenics";
+      const mode = sessionMode(session, fallbackMode);
       const routine = { id: "forja-plan-session-" + plan.id + "-" + index, name: "Plano FORJA · " + session.title,
         modality: mode, createdAt: Date.now(), updatedAt: Date.now(),
         sections: { warmup: [], main: [], abs: [], finisher: [] } };
@@ -402,7 +476,8 @@
         const actions = document.createElement("div"); actions.className = "plan-session-actions";
         const start = document.createElement("button"); start.type = "button"; start.className = "primary-button"; start.textContent = "Iniciar sessão";
         start.addEventListener("click", () => {
-          const mode = session.exercises.some(exercise => exercise.mode === "weights") ? "weights" : "calisthenics";
+          /* Mesma derivação usada ao salvar: a rotina está na modalidade dela. */
+          const mode = sessionMode(session, planMode(plan));
           const routineId = "forja-plan-session-" + plan.id + "-" + plan.sessions.indexOf(session);
           F.startRoutine(mode, routineId);
         });
@@ -469,7 +544,9 @@
     el("regenerate-plan").addEventListener("click", run);
   }
 
-  F.plan = { storageKey: PLAN_KEY, read: readPlan, compatibleCatalog, validateModelOutput, generateLocal: localPlan, save: savePlan };
+  F.plan = { storageKey: PLAN_KEY, read: readPlan, compatibleCatalog, validateModelOutput, generateLocal: localPlan, save: savePlan,
+    /* Derivação de modalidade exposta para teste e para outras telas. */
+    sessionMode: sessionMode, planMode: planMode, exerciseMode: exerciseMode };
   F.pages.treinoPlan = init;
   /* Hub já possui initializer; adicionamos a integração sem substituir a tela. */
   const previousHub = F.pages.treino;

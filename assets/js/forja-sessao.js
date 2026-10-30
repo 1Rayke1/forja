@@ -642,10 +642,10 @@
     saveActiveWorkout();
   }
 
+  /* Uma única regra de RPE para entrada, leitura e exibição (forja-dados.js).
+     Campo vazio continua ausente: nunca vira 1. */
   function clampRpe(value) {
-    const number = Math.round(Number(value));
-    if (!Number.isFinite(number) || number < 1 || number > 10) return null;
-    return number;
+    return F.normalizeRpe(value);
   }
 
   /* ------------------------------------------------------------------ */
