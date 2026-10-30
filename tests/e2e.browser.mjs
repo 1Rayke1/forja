@@ -601,7 +601,7 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   await page.screenshot({ path: artifactPath('atlas-390.png'), fullPage: true });
 });
 
-await check('Atlas: pixels fiéis à referência, corpo completo e destaques registrados na anatomia', async () => {
+await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques sobre o corpo', async () => {
   await go('explorar/atlas.html?exercicio=cal-flexao');
   const audit = await page.evaluate(async base => {
     const loadImage = async relative => {
@@ -614,126 +614,196 @@ await check('Atlas: pixels fiéis à referência, corpo completo e destaques reg
       if (!response.ok) throw new Error('Manifesto anatômico HTTP ' + response.status);
       return response.json();
     });
-    const source = await loadImage('assets/anatomia/' + manifest.source);
-    const plates = {
-      front: await loadImage('assets/anatomia/anterior.png'),
-      back: await loadImage('assets/anatomia/posterior.png')
-    };
-    const pixelFailures = [];
-    const framingFailures = [];
-    const regionFailures = [];
-    const alphaByView = {};
-    const NS = 'http://www.w3.org/2000/svg';
+    const referenceResponse = await fetch(base + 'assets/anatomia/' + manifest.reference.file);
+    const referenceBytes = await referenceResponse.arrayBuffer();
+    const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', referenceBytes)))
+      .map(byte => byte.toString(16).padStart(2, '0')).join('');
 
+    const reference = await loadImage('assets/anatomia/' + manifest.reference.file);
+    const mask = await loadImage('assets/anatomia/' + manifest.mask.file);
+    const ink = await loadImage('assets/anatomia/' + manifest.ink.file);
+
+    const failures = {
+      file: [],
+      framing: [],
+      region: [],
+      window: []
+    };
+
+    if (digest !== manifest.reference.sha256) failures.file.push('sha256 diverge do manifesto: ' + digest);
+    if (reference.naturalWidth !== 1536 || reference.naturalHeight !== 1024) {
+      failures.file.push('referência ' + reference.naturalWidth + '×' + reference.naturalHeight);
+    }
+    [mask, ink].forEach(image => {
+      if (image.naturalWidth !== reference.naturalWidth || image.naturalHeight !== reference.naturalHeight) {
+        failures.file.push('máscara fora do tamanho da referência: ' +
+          image.naturalWidth + '×' + image.naturalHeight);
+      }
+    });
+
+    const pixels = image => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      context.drawImage(image, 0, 0);
+      return context.getImageData(0, 0, canvas.width, canvas.height).data;
+    };
+    const referencePixels = pixels(reference);
+    const maskPixels = pixels(mask);
+    const inkPixels = pixels(ink);
+    const alphaAt = (data, x, y) => {
+      if (x < 0 || y < 0 || x >= 1536 || y >= 1024) return 0;
+      return data[((y | 0) * 1536 + (x | 0)) * 4 + 3];
+    };
+    const luminanceAt = (x, y) => {
+      if (x < 0 || y < 0 || x >= 1536 || y >= 1024) return 0;
+      const offset = ((y | 0) * 1536 + (x | 0)) * 4;
+      return Math.max(referencePixels[offset], referencePixels[offset + 1], referencePixels[offset + 2]);
+    };
+
+    /* A tinta é subconjunto da silhueta: nada pode ser pintado fora do corpo
+       nem sobre as linhas claras do desenho. */
+    let inkOutside = 0;
+    let inkOnLines = 0;
+    let inkTotal = 0;
+    for (let index = 0; index < 1536 * 1024; index += 1) {
+      if (inkPixels[index * 4 + 3] === 0) continue;
+      inkTotal += 1;
+      const x = index % 1536;
+      const y = Math.floor(index / 1536);
+      if (maskPixels[index * 4 + 3] === 0) inkOutside += 1;
+      if (luminanceAt(x, y) >= manifest.ink.ramp) inkOnLines += 1;
+    }
+    if (inkTotal < 200000 || inkOutside !== 0 || inkOnLines !== 0) {
+      failures.file.push('tinta inválida: ' + inkTotal + ' px, ' + inkOutside + ' fora da silhueta, ' +
+        inkOnLines + ' sobre linhas claras');
+    }
+
+    const figures = {};
+    document.querySelectorAll('.figura-svg').forEach(svgEl => {
+      figures[svgEl.dataset.view] = svgEl;
+    });
+
+    /* A prancha é o arquivo único, com a janela de cada vista. */
     for (const view of ['front', 'back']) {
-      const plate = plates[view];
-      const crop = manifest.plates[view].crop;
-      if (plate.naturalWidth !== 350 || plate.naturalHeight !== 690) {
-        pixelFailures.push(view + ': dimensões naturais ' + plate.naturalWidth + '×' + plate.naturalHeight);
+      const figure = figures[view];
+      if (!figure) {
+        failures.window.push('vista ausente: ' + view);
         continue;
       }
-
-      const referenceCanvas = document.createElement('canvas');
-      referenceCanvas.width = crop.width;
-      referenceCanvas.height = crop.height;
-      const referenceContext = referenceCanvas.getContext('2d');
-      referenceContext.drawImage(source, crop.x, crop.y, crop.width, crop.height, 0, 0, crop.width, crop.height);
-      const reference = referenceContext.getImageData(0, 0, crop.width, crop.height).data;
-
-      const plateCanvas = document.createElement('canvas');
-      plateCanvas.width = crop.width;
-      plateCanvas.height = crop.height;
-      const plateContext = plateCanvas.getContext('2d');
-      plateContext.drawImage(plate, 0, 0);
-      const rendered = plateContext.getImageData(0, 0, crop.width, crop.height).data;
-      alphaByView[view] = { pixels: rendered, width: crop.width, height: crop.height };
-
-      let compared = 0;
-      let mismatched = 0;
-      let maxDelta = 0;
-      let top = crop.height;
-      let left = crop.width;
-      let right = -1;
-      let bottom = -1;
-      for (let index = 0; index < crop.width * crop.height; index += 1) {
-        const offset = index * 4;
-        const alpha = rendered[offset + 3];
-        if (alpha >= 128) {
-          const x = index % crop.width;
-          const y = Math.floor(index / crop.width);
-          top = Math.min(top, y);
-          bottom = Math.max(bottom, y);
-          left = Math.min(left, x);
-          right = Math.max(right, x);
+      const plate = figure.querySelector('image.figura-plate');
+      const bodyMaskImage = figure.querySelector('mask.figura-body-mask image.figura-mask-plate');
+      const inkMaskImage = figure.querySelector('mask.figura-ink-mask image.figura-mask-plate');
+      const crop = manifest.views[view].crop;
+      const href = plate.getAttribute('href').split('/').slice(-2).join('/');
+      if (href !== 'fontes/referencia-muscular.png') failures.window.push(view + ': href ' + href);
+      if (plate.getAttribute('x') !== String(-crop.x)) failures.window.push(view + ': x ' + plate.getAttribute('x'));
+      if (plate.getAttribute('y') !== String(-crop.y)) failures.window.push(view + ': y ' + plate.getAttribute('y'));
+      if (plate.getAttribute('width') !== '1536' || plate.getAttribute('height') !== '1024') {
+        failures.window.push(view + ': tamanho da imagem ' + plate.getAttribute('width') + '×' + plate.getAttribute('height'));
+      }
+      [bodyMaskImage, inkMaskImage].forEach(maskImage => {
+        if (!maskImage) {
+          failures.window.push(view + ': máscara ausente');
+          return;
         }
-        if (alpha !== 255) continue;
-        compared += 1;
-        const delta = Math.max(
-          Math.abs(rendered[offset] - reference[offset]),
-          Math.abs(rendered[offset + 1] - reference[offset + 1]),
-          Math.abs(rendered[offset + 2] - reference[offset + 2])
-        );
-        maxDelta = Math.max(maxDelta, delta);
-        /* SwiftShader e o decodificador de software podem variar 1 nível de
-           8 bits. Não há tolerância para deslocamento ou alteração visível. */
-        if (delta > 1) mismatched += 1;
+        ['x', 'y', 'width', 'height'].forEach(attribute => {
+          if (maskImage.getAttribute(attribute) !== plate.getAttribute(attribute)) {
+            failures.window.push(view + ': máscara com ' + attribute + ' diferente da prancha');
+          }
+        });
+      });
+
+      /* Corpo inteiro dentro da janela, com margem em todos os lados. */
+      let left = 1536;
+      let right = -1;
+      let top = 1024;
+      let bottom = -1;
+      for (let y = 0; y < crop.height; y += 1) {
+        for (let x = 0; x < crop.width; x += 1) {
+          if (alphaAt(maskPixels, crop.x + x, crop.y + y) === 0) continue;
+          if (x < left) left = x;
+          if (x > right) right = x;
+          if (y < top) top = y;
+          if (y > bottom) bottom = y;
+        }
       }
-      if (compared < 40000 || mismatched !== 0) {
-        pixelFailures.push(view + ': ' + mismatched + ' pixels com delta > 1 em ' + compared +
-          ' comparados; delta máximo=' + maxDelta);
+      if (top < 2 || bottom > crop.height - 3 || left < 2 || right > crop.width - 3) {
+        failures.framing.push(view + ': corpo em ' + JSON.stringify({ left, top, right, bottom }));
       }
-      if (top < 4 || bottom < 650 || bottom > 681 || left < 2 || right > 347) {
-        framingFailures.push(view + ': limites ' + JSON.stringify({ left, top, right, bottom }));
+      if (Math.abs(left - manifest.views[view].body.left) > 1 ||
+          Math.abs(bottom - manifest.views[view].body.bottom) > 1) {
+        failures.framing.push(view + ': limites divergem do manifesto');
+      }
+
+      /* A silhueta precisa alcançar cabeça e pés: nada cortado. */
+      const columnInk = (x) => {
+        let count = 0;
+        for (let y = crop.y; y < crop.y + crop.height; y += 1) {
+          if (alphaAt(maskPixels, crop.x + x, y) > 0) count += 1;
+        }
+        return count;
+      };
+      if (columnInk(left + 1) < 1 || columnInk(right - 1) < 1) {
+        failures.framing.push(view + ': extremos laterais vazios');
       }
     }
 
-    /* Cada caminho é percorrido de verdade. Amostras de sua borda precisam
-       encontrar corpo opaco num raio de 2 px na prancha correspondente. */
+    /* Cada caminho: fechado, dentro da silhueta e com tinta suficiente para
+       aparecer. A curva é percorrida de verdade, como no navegador. */
+    const NS = 'http://www.w3.org/2000/svg';
     const geometry = document.createElementNS(NS, 'svg');
-    geometry.setAttribute('viewBox', '0 0 350 690');
-    geometry.setAttribute('width', '350');
-    geometry.setAttribute('height', '690');
+    geometry.setAttribute('viewBox', '0 0 600 1024');
+    geometry.setAttribute('width', '600');
+    geometry.setAttribute('height', '1024');
     geometry.style.position = 'fixed';
     geometry.style.left = '-10000px';
     geometry.style.top = '0';
     document.body.appendChild(geometry);
 
-    const opaqueNear = (view, x, y) => {
-      const data = alphaByView[view];
-      if (!data) return false;
-      for (let dy = -2; dy <= 2; dy += 1) {
-        for (let dx = -2; dx <= 2; dx += 1) {
-          const px = Math.round(x) + dx;
-          const py = Math.round(y) + dy;
-          if (px < 0 || py < 0 || px >= data.width || py >= data.height) continue;
-          if (data.pixels[(py * data.width + px) * 4 + 3] >= 128) return true;
-        }
-      }
-      return false;
-    };
-
     for (const view of ['front', 'back']) {
+      const offset = manifest.views[view].crop.x;
       for (const [regionId, region] of Object.entries(window.Forja.figura.REGIONS)) {
         const shapes = window.Forja.figura.shapesFor(regionId, view) || [];
-        for (const shape of shapes) {
+        shapes.forEach((shape, index) => {
           const path = document.createElementNS(NS, 'path');
           path.setAttribute('d', shape);
           geometry.appendChild(path);
           const box = path.getBBox();
           const length = path.getTotalLength();
+          const samples = 40;
           let outside = 0;
-          const samples = 24;
-          for (let index = 0; index < samples; index += 1) {
-            const point = path.getPointAtLength(length * index / samples);
-            if (!opaqueNear(view, point.x, point.y)) outside += 1;
+          for (let step = 0; step < samples; step += 1) {
+            const point = path.getPointAtLength(length * step / samples);
+            let inside = false;
+            for (let dy = -3; dy <= 3 && !inside; dy += 1) {
+              for (let dx = -3; dx <= 3 && !inside; dx += 1) {
+                if (alphaAt(maskPixels, point.x + offset + dx, point.y + dy) > 0) inside = true;
+              }
+            }
+            if (!inside) outside += 1;
           }
-          if (box.x < 0 || box.y < 0 || box.x + box.width > 350 || box.y + box.height > 690 ||
-              !Number.isFinite(length) || length < 20 || outside > 2) {
-            regionFailures.push(view + '/' + regionId + ': ' + outside + '/' + samples +
-              ' amostras fora; bbox=' + JSON.stringify({ x: box.x, y: box.y, width: box.width, height: box.height }));
+
+          let inked = 0;
+          let total = 0;
+          for (let row = 0; row < 12; row += 1) {
+            for (let column = 0; column < 8; column += 1) {
+              const px = box.x + box.width * (column + 0.5) / 8;
+              const py = box.y + box.height * (row + 0.5) / 12;
+              total += 1;
+              if (alphaAt(inkPixels, px + offset, py) > 0) inked += 1;
+            }
+          }
+
+          if (box.x < 0 || box.y < 0 || box.x + box.width > 600 || box.y + box.height > 1024 ||
+              !Number.isFinite(length) || length < 20 || outside > 2 || inked / total < 0.5) {
+            failures.region.push(view + '/' + regionId + '[' + index + ']: ' + outside + '/' + samples +
+              ' amostras fora, ' + inked + '/' + total + ' com tinta; bbox=' +
+              JSON.stringify({ x: box.x, y: box.y, width: box.width, height: box.height }));
           }
           path.remove();
-        }
+        });
       }
     }
     geometry.remove();
@@ -741,24 +811,82 @@ await check('Atlas: pixels fiéis à referência, corpo completo e destaques reg
     const roles = {};
     for (const role of ['primary', 'secondary', 'stabilizer']) {
       const shape = document.querySelector('.figura-region.is-' + role + ' .figura-region-shape');
-      if (!shape) {
+      const outline = document.querySelector('.figura-region.is-' + role + ' .figura-region-outline');
+      if (!shape || !outline) {
         roles[role] = null;
         continue;
       }
-      const style = getComputedStyle(shape);
-      roles[role] = { fill: style.fill, opacity: style.fillOpacity, blend: style.mixBlendMode };
+      const shapeStyle = getComputedStyle(shape);
+      const outlineStyle = getComputedStyle(outline);
+      roles[role] = {
+        fill: shapeStyle.fill,
+        opacity: shapeStyle.fillOpacity,
+        blend: shapeStyle.mixBlendMode,
+        stroke: outlineStyle.stroke,
+        outlineBlend: outlineStyle.mixBlendMode
+      };
     }
-    return { pixelFailures, framingFailures, regionFailures, roles };
+    return { failures, roles };
   }, BASE);
 
-  assert.deepEqual(audit.pixelFailures, [], 'As pranchas devem preservar os RGB opacos da referência (delta máximo 1/255)');
-  assert.deepEqual(audit.framingFailures, [], 'Cabeça, mãos ou pés fora do enquadramento');
-  assert.deepEqual(audit.regionFailures, [], 'Destaques desalinhados da anatomia visível');
+  assert.deepEqual(audit.failures.file, [], 'A referência e as máscaras precisam ser as registradas');
+  assert.deepEqual(audit.failures.window, [], 'Cada vista precisa recortar a metade certa do arquivo único');
+  assert.deepEqual(audit.failures.framing, [], 'Cabeça, mãos ou pés fora do enquadramento');
+  assert.deepEqual(audit.failures.region, [], 'Destaques desalinhados da anatomia visível');
+
+  /* Cor no preenchimento e no contorno, sem blend: o detalhe vem da máscara
+     de tinta, que preserva as linhas claras do desenho. */
   assert.deepEqual(audit.roles, {
-    primary: { fill: 'rgb(183, 243, 74)', opacity: '0.62', blend: 'color' },
-    secondary: { fill: 'rgb(242, 184, 75)', opacity: '0.56', blend: 'color' },
-    stabilizer: { fill: 'rgb(140, 192, 224)', opacity: '0.54', blend: 'color' }
+    primary: { fill: 'rgb(183, 243, 74)', opacity: '0.92', blend: 'normal', stroke: 'rgb(183, 243, 74)', outlineBlend: 'normal' },
+    secondary: { fill: 'rgb(242, 184, 75)', opacity: '0.9', blend: 'normal', stroke: 'rgb(242, 184, 75)', outlineBlend: 'normal' },
+    stabilizer: { fill: 'rgb(140, 192, 224)', opacity: '0.88', blend: 'normal', stroke: 'rgb(140, 192, 224)', outlineBlend: 'normal' }
   });
+
+  /* Redimensionar não pode deslocar as áreas interativas: a razão entre a
+     caixa do destaque e a caixa da prancha precisa ficar constante. */
+  const ratios = [];
+  for (const width of [320, 360, 390, 430, 768, 1280]) {
+    await page.setViewport({ width, height: 900 });
+    await sleep(140);
+    const measured = await page.evaluate(() => {
+      const notHidden = node => node.getClientRects().length > 0;
+      return Array.from(document.querySelectorAll('.figura-svg')).filter(notHidden).map(svgEl => {
+        const plate = svgEl.querySelector('image.figura-plate').getBoundingClientRect();
+        const shape = svgEl.querySelector('.figura-region-shape').getBoundingClientRect();
+        const outline = svgEl.querySelector('.figura-region-outline').getBoundingClientRect();
+        return {
+          view: svgEl.dataset.view,
+          width: Math.round(plate.width),
+          x: (shape.x - plate.x) / plate.width,
+          y: (shape.y - plate.y) / plate.height,
+          w: shape.width / plate.width,
+          h: shape.height / plate.height,
+          outlineMatches: Math.abs(outline.x - shape.x) < 0.6 && Math.abs(outline.width - shape.width) < 0.6
+        };
+      });
+    });
+    assert.equal(measured.length, 2, 'As duas vistas precisam estar visíveis em ' + width + 'px');
+    ratios.push({ width, measured });
+    const canvasWidth = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    assert.equal(canvasWidth, 0, 'Rolagem horizontal em ' + width + 'px');
+  }
+  await page.setViewport(MOBILE);
+  await sleep(120);
+
+  const baseline = ratios[0].measured;
+  ratios.forEach(entry => {
+    entry.measured.forEach((item, index) => {
+      const reference = baseline[index];
+      assert.equal(item.view, reference.view);
+      assert.ok(Math.abs(item.x - reference.x) < 0.01 && Math.abs(item.y - reference.y) < 0.01,
+        'Destaque deslocado ao redimensionar para ' + entry.width + 'px: ' +
+        JSON.stringify({ now: [item.x, item.y], base: [reference.x, reference.y] }));
+      assert.ok(Math.abs(item.w - reference.w) < 0.01 && Math.abs(item.h - reference.h) < 0.01,
+        'Destaque mudou de tamanho relativo em ' + entry.width + 'px');
+      assert.ok(item.outlineMatches, 'Contorno e preenchimento divergiram em ' + entry.width + 'px');
+    });
+  });
+  assert.ok(baseline[0].w > 0.05 && baseline[0].h > 0.02, 'Destaque pequeno demais no layout real');
 });
 
 await check('Alvos de toque principais têm pelo menos 44px de altura', async () => {

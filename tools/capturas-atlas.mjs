@@ -3,7 +3,7 @@
 
   Sobe o repositório num servidor local sob /forja/ (igual ao GitHub Pages),
   abre o Chromium disponível e percorre os estados do atlas de verdade:
-  inicial, exercício selecionado (com a silhueta anterior/posterior), exercício
+  inicial, exercício selecionado (com a prancha anterior/posterior), exercício
   de costas, grupo sem exercícios, filtro de modalidade sem resultados e estado
   de erro.
 
@@ -13,8 +13,9 @@
   marcadores numerados, ficam em artifacts/forja-visual/antigo/atlas-*-antigo.png
   para comparação.
 
-  Nada toca em dados reais: o perfil do navegador é temporário e o atlas não
-  escreve no localStorage.
+  Nada toca em dados reais: o perfil do navegador é temporário, o perfil do
+  FORJA é uma fixture criada aqui só para passar pelo portão de entrada e o
+  atlas não escreve no localStorage.
 
   Uso:
     npm install
@@ -203,6 +204,21 @@ async function shotAt(name, width, fullPage = false) {
 }
 
 try {
+  /* O app só libera as telas com um perfil salvo. A fixture abaixo é local ao
+     navegador descartável desta captura, como nos testes E2E. */
+  await page.goto(BASE, { waitUntil: "networkidle0" });
+  await page.evaluate(() => {
+    window.localStorage.setItem("forja-perfil-v1", JSON.stringify({
+      version: 3,
+      updatedAt: "2026-10-01T00:00:00.000Z",
+      objetivo: "manterForma",
+      nivel: "iniciante",
+      equipamento: "casa",
+      diasPorSemana: 3,
+      onboardingConcluidoEm: "2026-10-01T00:00:00.000Z"
+    }));
+  });
+
   await page.goto(BASE + "explorar/atlas.html", { waitUntil: "networkidle0" });
   /* As páginas usam rolagem suave; para o clique por coordenadas ser exato
      nas capturas, desligamos apenas nesta sessão de navegador. */
@@ -340,6 +356,10 @@ try {
     page.waitForNavigation({ waitUntil: "networkidle0" }),
     clickCentered(".routine-card .routine-start")
   ]);
+  /* O aviso "Treino iniciado" cobre a figura; esperamos ele sair para a
+     captura mostrar o estado real da tela. */
+  await page.waitForFunction(() => !document.querySelector(".flash, .toast, [data-flash]"), { timeout: 6000 })
+    .catch(() => {});
   await sleep(350);
   await measure("execucao-ativa");
   await shotAt("execucao-treino-mobile-390.png", 390, false);
@@ -348,6 +368,36 @@ try {
     await execFig.screenshot({ path: path.join(outDir, "execucao-figura-390.png") });
   }
   await shotAt("execucao-treino-desktop-1280.png", 1280, false);
+
+  /* 10. Prancha de auditoria: cada região isolada em cada vista, para revisão
+     visual do traçado e do preenchimento. */
+  await page.setViewport({ width: 1280, height: 900 });
+  await page.goto(BASE + "explorar/atlas.html", { waitUntil: "networkidle0" });
+  await sleep(250);
+  await page.evaluate(() => {
+    const host = document.createElement("div");
+    host.id = "auditoria-regioes";
+    host.style.cssText = "display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:10px;background:#0b0b0b";
+    document.body.innerHTML = "";
+    document.body.style.background = "#0b0b0b";
+    document.body.appendChild(host);
+    ["front", "back"].forEach(view => {
+      window.Forja.figura.regionsInView(view).forEach(id => {
+        const cell = document.createElement("div");
+        cell.style.cssText = "text-align:center;color:#8a8a8a;font:10px/1.4 monospace";
+        cell.appendChild(window.Forja.figura.render({ view, highlights: { [id]: "primary" } }));
+        const label = document.createElement("div");
+        label.textContent = view + " · " + id;
+        cell.appendChild(label);
+        host.appendChild(cell);
+      });
+    });
+  });
+  await sleep(500);
+  const auditGrid = await page.$("#auditoria-regioes");
+  if (auditGrid) {
+    await auditGrid.screenshot({ path: path.join(outDir, "atlas-regioes-auditoria.png") });
+  }
 
   console.log("atlas — medições por largura:");
   measurements.forEach(line => {
