@@ -1,39 +1,39 @@
 {
   "provedor": "Unsplash",
-  "coletadoEm": "2026-10-31T21:06:05.635Z",
+  "coletadoEm": "2026-10-31T21:08:06.905Z",
   "registros": [],
   "rejeitadas": [
     {
-      "id": "YFeoyqrFsGA",
-      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/YFeoyqrFsGA"
+      "id": "HSUcA9U7bcA",
+      "motivo": "HTTP 401 em https://unsplash.com/photos/man-performing-a-dumbbell-squat-exercise-in-gym-HSUcA9U7bcA"
     },
     {
-      "id": "bWxf0-B_Hao",
-      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/bWxf0-B_Hao"
+      "id": "YFeoyqrFsGA",
+      "motivo": "HTTP 401 em https://unsplash.com/photos/man-performing-a-barbell-squat-in-a-gym-YFeoyqrFsGA"
     },
     {
       "id": "diDnHZkGRsw",
-      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/diDnHZkGRsw"
+      "motivo": "HTTP 401 em https://unsplash.com/photos/a-woman-doing-push-ups-in-a-gym-diDnHZkGRsw"
     },
     {
       "id": "P1WKUiOl7xg",
-      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/P1WKUiOl7xg"
+      "motivo": "HTTP 401 em https://unsplash.com/photos/man-doing-a-lat-pulldown-exercise-at-the-gym-P1WKUiOl7xg"
+    },
+    {
+      "id": "bWxf0-B_Hao",
+      "motivo": "HTTP 401 em https://unsplash.com/photos/man-is-working-out-on-a-leg-press-machine-bWxf0-B_Hao"
     },
     {
       "id": "TNRH-q8N_AA",
-      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/TNRH-q8N_AA"
+      "motivo": "HTTP 401 em https://unsplash.com/photos/a-man-doing-a-pull-up-in-a-gym-TNRH-q8N_AA"
     },
     {
       "id": "06EpjZiMz_E",
-      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/06EpjZiMz_E"
+      "motivo": "HTTP 401 em https://unsplash.com/photos/a-woman-running-on-a-treadmill-in-a-gym-06EpjZiMz_E"
     },
     {
       "id": "3AdUo5OtXxA",
-      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/3AdUo5OtXxA"
-    },
-    {
-      "id": "HSUcA9U7bcA",
-      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/HSUcA9U7bcA"
+      "motivo": "HTTP 401 em https://unsplash.com/photos/man-stretching-quadriceps-on-a-mat-in-gym-3AdUo5OtXxA"
     }
   ]
 }
