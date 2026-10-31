@@ -1,5 +1,5 @@
 {
-  "nota": "Originais das fotografias dos cartões da tela Explorar. O ambiente de edição não acessa images.unsplash.com; as URLs abaixo foram conferidas no endpoint público /napi/photos/<id> (premium=false e plus=false) e baixadas por tools/fotografias/coletar.mjs. Os arquivos em si não são versionados: o repositório guarda só os derivados WebP.",
+  "nota": "Originais das fotografias dos cartões da tela Explorar. O ambiente de edição não acessa images.unsplash.com; as URLs foram conferidas no endpoint público /napi/photos/<id> (premium=false e plus=false) e baixadas por tools/fotografias/coletar.mjs. Os arquivos não são versionados: o repositório guarda só os derivados WebP.",
   "fotos": [
     {
       "id": "supino-barra",
@@ -105,6 +105,11 @@
       "id": "sala-musculacao",
       "url": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f",
       "sourcePage": "https://unsplash.com/photos/20jX9b35r_M"
+    },
+    {
+      "id": "candidata-barra-fixa",
+      "url": "https://images.unsplash.com/photo-1772450014504-1914f8afe985",
+      "sourcePage": "https://unsplash.com/s/photos/pull-up-bar"
     }
   ]
 }
