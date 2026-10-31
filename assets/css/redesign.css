@@ -382,7 +382,7 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
   width: min(92vw, 340px);
 }
 
-/* Cartões com imagem de fundo (planos, populares, rápidos). */
+/* Cartões com fotografia de fundo (planos, populares, rápidos). */
 .plano-card,
 .popular-card,
 .rapido-card {
@@ -398,16 +398,71 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
 .popular-card { height: 250px; }
 .rapido-card { height: 210px; }
 
+/*
+  Fundo fotográfico: o recorte é sempre centralizado e coberto (object-fit:
+  cover) sobre um quadro 16:10 na origem — o mesmo enquadramento em todos os
+  cartões, em qualquer largura de tela. O degradê vertical no overlay garante o
+  contraste do texto, e a leve dessaturação mantém a paleta escura da marca.
+*/
+.cartao-foto,
 .plano-fundo,
 .popular-fundo,
-.rapido-fundo {
+.rapido-fundo,
+.direcionado-fundo {
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.cartao-foto img,
+.plano-fundo img,
+.popular-fundo img,
+.rapido-fundo img,
+.direcionado-fundo img {
+  width: 100%;
+  height: 100%;
+  display: block;
   object-fit: cover;
   object-position: center;
-  opacity: 0.5;
+  filter: saturate(0.92) contrast(1.04) brightness(1.08);
+  opacity: 0.72;
+  transition: opacity 0.25s ease;
+}
+
+/* Reserva de espaço antes do carregamento: evita salto de layout. */
+.cartao-foto img:not([src]),
+.cartao-foto img[loading] {
+  background: linear-gradient(135deg, #1a1e1a, #0f1210);
+}
+
+/* Estado de recurso indisponível: nenhuma imagem quebrada, só o fundo de marca. */
+.cartao-foto.is-indisponivel,
+.sem-foto .cartao-foto {
+  display: none;
+}
+
+.sem-foto.plano-card,
+.sem-foto.popular-card,
+.sem-foto.rapido-card,
+.sem-foto.direcionado-card {
+  background:
+    radial-gradient(120% 120% at 20% 0%, rgba(198, 255, 61, 0.10), transparent 55%),
+    linear-gradient(160deg, #171b17, #0f1210 70%);
+}
+
+/* Legenda de crédito da fotografia, discreta, dentro do cartão. */
+.cartao-credito {
+  display: block;
+  margin-top: var(--space-2);
+  color: rgba(247, 250, 248, 0.62);
+  font-size: 10.5px;
+  letter-spacing: 0.2px;
+  line-height: 1.35;
 }
 
 /* Sobreposição escura para garantir contraste do texto sobre a imagem. */
@@ -422,7 +477,7 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
   flex-direction: column;
   justify-content: flex-end;
   color: #f7faf8;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent 45%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 2%, rgba(0, 0, 0, 0.62) 34%, rgba(0, 0, 0, 0.12) 68%, transparent 92%);
 }
 
 .plano-sobre { padding: var(--space-5); }
@@ -574,12 +629,21 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
   flex: 0 0 auto;
 }
 
+.foco-foto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
 .foco-miniatura {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
   border-radius: 9px;
+  filter: saturate(0.95) contrast(1.02);
 }
 
 .foco-icone {
@@ -625,6 +689,36 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
   border: 1px solid var(--fj-stroke);
   background: var(--fj-surface);
   min-height: 180px;
+}
+
+.recurso-capa {
+  position: relative;
+  margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-bottom: 1px solid var(--fj-stroke);
+  background: var(--fj-surface-raised);
+}
+
+.recurso-capa .recurso-foto,
+.recurso-capa .cartao-foto {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+.recurso-capa img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.9) contrast(1.02);
+  opacity: 0.82;
+}
+
+.recurso-card .cartao-credito {
+  color: var(--fj-muted);
+  margin-top: 0;
 }
 
 .recurso-icone {
@@ -691,6 +785,48 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
   min-width: 0;
 }
 
+/* Treino direcionado: fotografia como fundo, texto por cima. */
+.direcionado-card.com-foto {
+  justify-content: flex-end;
+  min-height: 220px;
+  isolation: isolate;
+}
+
+.direcionado-card.com-foto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: linear-gradient(to top, rgba(8, 10, 8, 0.92) 8%, rgba(8, 10, 8, 0.55) 55%, rgba(8, 10, 8, 0.15));
+  pointer-events: none;
+}
+
+.direcionado-card.com-foto > *:not(.direcionado-fundo) {
+  position: relative;
+  z-index: 2;
+}
+
+.direcionado-card.com-foto .direcionado-descricao,
+.direcionado-card.com-foto .cartao-credito {
+  color: rgba(247, 250, 248, 0.76);
+}
+
+.direcionado-card.com-foto .direcionado-botao {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #f7faf8;
+}
+
+.direcionado-card.com-foto .direcionado-botao:hover {
+  border-color: var(--fj-accent);
+  color: var(--fj-accent);
+}
+
+.direcionado-card.com-foto .direcionado-fundo img {
+  opacity: 0.85;
+}
+
 .direcionado-icone {
   width: 48px;
   height: 48px;
@@ -722,6 +858,9 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
 }
 
 @media (max-width: 380px) {
+  .cartao-credito {
+    font-size: 10px;
+  }
   .recursos-grade {
     grid-template-columns: 1fr;
   }
@@ -735,6 +874,14 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
   .plano-card { height: 270px; }
   .popular-card { height: 230px; }
   .rapido-card { height: 190px; }
+  .direcionado-card.com-foto { min-height: 200px; }
+}
+
+/* Telas médias e grandes: cartões um pouco mais altos, mesmo corte. */
+@media (min-width: 768px) {
+  .plano-card { height: 320px; }
+  .popular-card { height: 260px; }
+  .rapido-card { height: 220px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

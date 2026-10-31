@@ -134,12 +134,49 @@
     return null;
   }
 
-  /* URL da ilustração do RepDB para um exercício, quando disponível. */
-  function urlDaIlustracao(record, mode) {
-    if (!F.demos || !F.demos.available()) return null;
-    const result = F.demos.createMedia(record, mode, { eager: false });
-    const img = result.node && result.node.querySelector("img");
-    return img && img.src ? img.src : null;
+  /*
+    Fotografias: a tela Explorar usa fotografias locais (assets/fotografias) em
+    vez de ícones ou ilustrações como imagem de cartão. O resolvedor é somente
+    leitura e nunca inventa correspondência: exercício só por `mode:libraryId`;
+    quando não há foto do exercício, usa a foto de contexto da categoria, que
+    não é anunciada como execução do movimento.
+  */
+  function fotosDisponiveis() {
+    return Boolean(F.fotos && F.fotos.available());
+  }
+
+  function fotoDoExercicio(record, mode) {
+    return fotosDisponiveis() ? F.fotos.forCard(record, mode) : null;
+  }
+
+  function fotoDaCategoria(categoriaId) {
+    return fotosDisponiveis() ? F.fotos.forCategoria(categoriaId) : null;
+  }
+
+  /* Fundo fotográfico do cartão (posicionado em CSS, cortado em 16:10 na origem). */
+  function anexarFundo(article, photo, className, alt) {
+    if (!photo) {
+      article.classList.add("sem-foto");
+      return null;
+    }
+    const picture = F.fotos.buildPicture(photo, {
+      className: "cartao-foto " + (className || ""),
+      sizes: "(max-width: 520px) 92vw, 340px",
+      alt: alt === undefined ? photo.alt : alt
+    });
+    if (!picture) return null;
+    article.classList.add("com-foto");
+    article.insertBefore(picture, article.firstChild);
+    return photo;
+  }
+
+  /* Linha discreta de crédito: fonte e licença visíveis no próprio cartão. */
+  function anexarCredito(container, photo) {
+    if (!photo) return;
+    const credito = doc.createElement("span");
+    credito.className = "cartao-credito";
+    credito.textContent = F.fotos.creditLine(photo);
+    container.appendChild(credito);
   }
 
   function modoDoRecord(record) {
@@ -201,17 +238,10 @@
     article.setAttribute("aria-label", "Plano " + routine.name);
 
     const exercicio = primeiroExercicioDaRotina(routine);
-    const fundo = exercicio ? urlDaIlustracao(exercicio, routine.modality) : null;
-
-    if (fundo) {
-      const img = doc.createElement("img");
-      img.className = "plano-fundo";
-      img.src = fundo;
-      img.alt = "";
-      img.loading = "lazy";
-      img.decoding = "async";
-      article.appendChild(img);
-    }
+    const photo = fotosDisponiveis()
+      ? (F.fotos.forExercise(exercicio, routine.modality) || F.fotos.forModality(routine.modality))
+      : null;
+    anexarFundo(article, photo, "plano-fundo");
 
     const sobre = doc.createElement("div");
     sobre.className = "plano-sobre";
@@ -239,6 +269,7 @@
       onClick: () => F.startRoutine(routine.modality, routine.id)
     });
     sobre.appendChild(botao);
+    anexarCredito(sobre, photo);
 
     article.appendChild(sobre);
     return article;
@@ -313,19 +344,21 @@
     artigo.className = "foco-card";
     artigo.setAttribute("aria-label", record.name);
 
-    const fundo = urlDaIlustracao(record, mode);
+    const photo = fotoDoExercicio(record, mode);
     const miniatura = doc.createElement("div");
     miniatura.className = "foco-miniatura-wrap";
 
-    if (fundo) {
-      const img = doc.createElement("img");
-      img.className = "foco-miniatura";
-      img.src = fundo;
-      img.alt = "Ilustração de " + record.name;
-      img.loading = "lazy";
-      img.decoding = "async";
-      miniatura.appendChild(img);
+    if (photo) {
+      const picture = F.fotos.buildPicture(photo, {
+        className: "foco-foto",
+        imgClass: "foco-miniatura",
+        sizes: "60px",
+        alt: photo.alt
+      });
+      if (picture) miniatura.appendChild(picture);
     } else {
+      /* Nenhuma foto disponível: marcador neutro de marca, nunca emoji. */
+      miniatura.classList.add("sem-foto");
       miniatura.appendChild(ui.icon("dumbbell", "foco-icone"));
     }
 
@@ -438,6 +471,9 @@
     article.className = "plano-card";
     article.setAttribute("aria-label", exemplo.label);
 
+    const photo = fotosDisponiveis() ? F.fotos.forSeteDias(exemplo.id) : null;
+    anexarFundo(article, photo, "plano-fundo");
+
     const selo = doc.createElement("span");
     selo.className = "selo-exemplo";
     selo.textContent = "Exemplo";
@@ -474,6 +510,7 @@
       className: "plano-botao secundario"
     });
     sobre.appendChild(irTreinos);
+    anexarCredito(sobre, photo);
 
     article.appendChild(sobre);
     return article;
@@ -493,9 +530,23 @@
     article.className = "recurso-card";
     article.setAttribute("aria-label", recurso.label);
 
-    const iconeWrap = doc.createElement("div");
-    iconeWrap.className = "recurso-icone";
-    iconeWrap.appendChild(ui.icon(recurso.icon));
+    const photo = fotosDisponiveis() ? F.fotos.forRecurso(recurso.id) : null;
+    if (photo) {
+      const capa = doc.createElement("div");
+      capa.className = "recurso-capa";
+      const picture = F.fotos.buildPicture(photo, {
+        className: "cartao-foto recurso-foto",
+        sizes: "(max-width: 380px) 92vw, (max-width: 760px) 46vw, 320px",
+        alt: photo.alt
+      });
+      if (picture) capa.appendChild(picture);
+      article.appendChild(capa);
+    } else {
+      const iconeWrap = doc.createElement("div");
+      iconeWrap.className = "recurso-icone";
+      iconeWrap.appendChild(ui.icon(recurso.icon));
+      article.appendChild(iconeWrap);
+    }
 
     const nome = doc.createElement("h3");
     nome.className = "recurso-nome";
@@ -515,7 +566,8 @@
       className: "recurso-botao"
     });
 
-    article.append(iconeWrap, nome, descricao, link);
+    article.append(nome, descricao, link);
+    anexarCredito(article, photo);
     return article;
   }
 
@@ -534,17 +586,10 @@
     article.setAttribute("aria-label", "Treino popular " + routine.name);
 
     const exercicio = primeiroExercicioDaRotina(routine);
-    const fundo = exercicio ? urlDaIlustracao(exercicio, routine.modality) : null;
-
-    if (fundo) {
-      const img = doc.createElement("img");
-      img.className = "popular-fundo";
-      img.src = fundo;
-      img.alt = "";
-      img.loading = "lazy";
-      img.decoding = "async";
-      article.appendChild(img);
-    }
+    const photo = fotosDisponiveis()
+      ? (F.fotos.forExercise(exercicio, routine.modality) || F.fotos.forModality(routine.modality))
+      : null;
+    anexarFundo(article, photo, "popular-fundo");
 
     const sobre = doc.createElement("div");
     sobre.className = "popular-sobre";
@@ -567,6 +612,7 @@
       onClick: () => F.startRoutine(routine.modality, routine.id)
     });
     sobre.appendChild(botao);
+    anexarCredito(sobre, photo);
 
     article.appendChild(sobre);
     return article;
@@ -611,16 +657,8 @@
     article.className = "rapido-card";
     article.setAttribute("aria-label", record.name);
 
-    const fundo = urlDaIlustracao(record, mode);
-    if (fundo) {
-      const img = doc.createElement("img");
-      img.className = "rapido-fundo";
-      img.src = fundo;
-      img.alt = "";
-      img.loading = "lazy";
-      img.decoding = "async";
-      article.appendChild(img);
-    }
+    const photo = fotoDoExercicio(record, mode);
+    anexarFundo(article, photo, "rapido-fundo");
 
     const sobre = doc.createElement("div");
     sobre.className = "rapido-sobre";
@@ -634,6 +672,7 @@
     duracao.className = "rapido-duracao";
     duracao.textContent = record.duration ? "Duração: " + F.formatRestValue(record.duration) + " por série" : "Sem duração definida";
     sobre.appendChild(duracao);
+    anexarCredito(sobre, photo);
 
     const abrir = () => F.catalog.showDetail(record);
     article.addEventListener("click", abrir);
@@ -676,9 +715,15 @@
     article.className = "direcionado-card";
     article.setAttribute("aria-label", item.label);
 
-    const iconeWrap = doc.createElement("div");
-    iconeWrap.className = "direcionado-icone";
-    iconeWrap.appendChild(ui.icon(item.icon));
+    const photo = fotosDisponiveis() ? F.fotos.forDirecionado(item.id) : null;
+    anexarFundo(article, photo, "direcionado-fundo");
+
+    if (!photo) {
+      const iconeWrap = doc.createElement("div");
+      iconeWrap.className = "direcionado-icone";
+      iconeWrap.appendChild(ui.icon(item.icon));
+      article.appendChild(iconeWrap);
+    }
 
     const nome = doc.createElement("h3");
     nome.className = "direcionado-nome";
@@ -698,7 +743,8 @@
       className: "direcionado-botao"
     });
 
-    article.append(iconeWrap, nome, descricao, link);
+    article.append(nome, descricao, link);
+    anexarCredito(article, photo);
     return article;
   }
 

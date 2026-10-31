@@ -220,7 +220,12 @@ await runTest("04. Todas as páginas carregam sem erros de JavaScript e sem recu
   regra, links externos passam a ser uma EXCEÇÃO auditada: só os hosts abaixo,
   só com marcação explícita data-external-credit, target=_blank e rel=noopener.
 */
-const EXTERNAL_CREDIT_HOSTS = new Set(["repdb.co", "github.com"]);
+/*
+  Hosts autorizados para link externo de crédito. `unsplash.com` entra porque
+  as fotografias da tela Explorar são do Unsplash e cada crédito aponta para a
+  página da foto e para o texto da licença (ver assets/fotografias/NOTICE.md).
+*/
+const EXTERNAL_CREDIT_HOSTS = new Set(["repdb.co", "github.com", "unsplash.com"]);
 
 await runTest("05. Links relativos resolvem dentro do caminho /forja/ (GitHub Pages)", async () => {
   for (const page of PAGES) {
@@ -5400,6 +5405,95 @@ await runTest("81. Identidade e preparação de fotos nunca usam correspondênci
   assert.equal(Object.keys(app.F.catalog.PHOTO_MANIFEST).length, 0);
   assert.ok(Object.isFrozen(app.F.catalog.PHOTO_MANIFEST));
   assertNoErrors(app, "fotos sem publicação");
+});
+
+await runTest("82. Fotografias dos cartões: arquivos locais, manifesto íntegro e sem rede", async () => {
+  const manifestPath = path.join(repoRoot, "assets/fotografias/manifest.json");
+  assert.ok(fs.existsSync(manifestPath), "Manifesto de fotografias ausente");
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+
+  assert.equal(manifest.version, 1);
+  assert.ok(manifest.fotos.length >= 10, "Poucas fotografias registradas: " + manifest.fotos.length);
+  assert.match(manifest.provedor.licenca, /Unsplash License/);
+
+  const vistos = new Set();
+  const totalBytes = manifest.fotos.reduce((soma, foto) => {
+    assert.ok(!vistos.has(foto.id), "Foto duplicada no manifesto: " + foto.id);
+    vistos.add(foto.id);
+    assert.ok(foto.alt && foto.alt.length > 15, "Texto alternativo curto em " + foto.id);
+    assert.ok(foto.autor && foto.sourcePage.startsWith("https://unsplash.com/"), "Autoria/origem ausente em " + foto.id);
+    assert.ok(!/plus\.unsplash\.com|premium_photo/.test(foto.origemId || ""), "Amostra paga em " + foto.id);
+    assert.deepEqual(foto.variantes.map(v => v.largura), manifest.larguras);
+
+    return soma + foto.variantes.reduce((sub, variante) => {
+      const arquivo = path.join(repoRoot, "assets/fotografias", variante.arquivo);
+      assert.ok(fs.existsSync(arquivo), "Arquivo ausente: " + variante.arquivo);
+      const bytes = fs.readFileSync(arquivo);
+      const hash = createHash("sha256").update(bytes).digest("hex");
+      assert.equal(hash, variante.sha256, "SHA-256 divergente em " + variante.arquivo);
+      assert.ok(bytes.length > 4 * 1024, "Arquivo pequeno demais: " + variante.arquivo);
+      assert.ok(bytes.length < 220 * 1024, "Arquivo pesado demais: " + variante.arquivo);
+      return sub + bytes.length;
+    }, 0);
+  }, 0);
+
+  /* Todo o conjunto precisa continuar leve para não pesar a tela Explorar. */
+  assert.ok(totalBytes < 3 * 1024 * 1024, "Conjunto de fotografias pesado: " + totalBytes + " bytes");
+
+  /* Cada cartão mapeado precisa apontar para uma foto existente. */
+  Object.keys(manifest.cartoes).forEach(grupo => {
+    Object.keys(manifest.cartoes[grupo]).forEach(chave => {
+      const item = manifest.cartoes[grupo][chave];
+      assert.ok(manifest.fotos.some(foto => foto.id === item.foto),
+        "Cartão " + grupo + "/" + chave + " aponta para foto inexistente: " + item.foto);
+      assert.ok(item.tipo === "exato" || item.tipo === "contexto",
+        "Tipo inválido em " + grupo + "/" + chave);
+    });
+  });
+});
+
+await runTest("83. Explorar usa fotografias locais nos cartões e mantém fallback sem imagem quebrada", async () => {
+  const app = await boot({}, "explorar/index.html");
+
+  const fotos = app.$$("img[src*='assets/fotografias/']");
+  assert.ok(fotos.length >= 8, "Cartões sem fotografia: " + fotos.length);
+
+  fotos.forEach(img => {
+    const src = img.getAttribute("src");
+    assert.ok(!/^https?:/.test(src), "Imagem remota em cartão: " + src);
+    const file = path.join(repoRoot, src.replace(/^(\.\.\/)+/, ""));
+    assert.ok(fs.existsSync(file), "Imagem de cartão inexistente: " + src);
+    assert.ok((img.getAttribute("alt") || "").length > 10, "Imagem sem texto alternativo útil: " + src);
+    assert.ok(img.getAttribute("srcset"), "Imagem sem srcset responsivo: " + src);
+    assert.ok(img.getAttribute("width") && img.getAttribute("height"), "Imagem sem dimensões declaradas: " + src);
+    assert.ok(["lazy", "eager"].includes(img.getAttribute("loading")), "Imagem sem estratégia de carregamento: " + src);
+  });
+
+  /* Sem fotografia, o cartão continua renderizando (nunca um ícone vendido como foto). */
+  assert.ok(app.F.fotos && app.F.fotos.available(), "Camada de fotografias não carregou");
+  assert.equal(app.F.fotos.forExercise({ id: "custom-sem-foto", name: "Flexão de braço" }, "calisthenics"), null,
+    "Correspondência por nome não é permitida");
+  assert.ok(app.F.fotos.forCategoria("peito"), "Fallback de categoria ausente");
+  /* Erros de console da página já são cobertos pelo teste 04 (falha anterior a esta mudança). */
+  app.close();
+});
+
+await runTest("84. Créditos das fotografias aparecem em Configurações com licença e autoria", async () => {
+  const app = await boot({}, "configuracoes/index.html");
+  const secao = app.$("#creditos-fotografias");
+  assert.ok(secao, "Seção de créditos das fotografias ausente");
+
+  const itens = app.$$("#creditos-fotos-lista li");
+  assert.ok(itens.length >= 10, "Lista de créditos incompleta: " + itens.length);
+
+  itens.forEach(item => {
+    const link = item.querySelector("a[data-external-credit]");
+    assert.ok(link, "Crédito sem link marcado: " + item.textContent);
+    assert.equal(link.getAttribute("target"), "_blank");
+    assert.match(link.getAttribute("rel") || "", /noopener/);
+  });
+  assert.match(secao.textContent, /Unsplash License/);
+  assertNoErrors(app, "créditos das fotografias");
 });
 
 const failed = results.filter(result => !result.ok);
