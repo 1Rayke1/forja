@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101010">
-<title>Explorar · FORJA</title>
+<title>Descobrir · FORJA</title>
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/treino.css">
 <link rel="stylesheet" href="../assets/css/execucao.css">
@@ -20,10 +20,13 @@
 
 <body data-page="explorar" data-root="../">
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
 <header class="site-header">
   <div class="container site-header-inner">
     <a class="logo" href="../index.html">FORJA</a>
-    <div class="tagline">DISCIPLINA DIÁRIA</div>
+    <div class="header-actions" id="header-actions">
+      <!-- Indicador de sessão ativa inserido pelo script, quando houver. -->
+    </div>
   </div>
 </header>
 
@@ -37,25 +40,6 @@
       <a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a>
       <a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a>
     </div>
-  </section>
-
-  <div class="page-head">
-    <span class="eyebrow">Explorar</span>
-    <h1 class="screen-title">Explorar</h1>
-    <p class="screen-subtitle">Encontre exercícios na biblioteca ou localize um grupo muscular no atlas. Consultar não altera seus treinos.</p>
-  </div>
-
-  <section class="explore-library section-block" aria-label="Biblioteca de exercícios">
-    <div id="catalog-root"></div>
-  </section>
-
-  <section class="explore-atlas section-block" aria-labelledby="explore-atlas-heading">
-    <div class="explore-atlas-copy">
-      <span class="eyebrow">Consulta visual</span>
-      <h2 class="section-title" id="explore-atlas-heading">Atlas muscular</h2>
-      <p class="section-note">Explore grupos musculares ou confira as regiões trabalhadas por um exercício.</p>
-    </div>
-    <a class="primary-button" href="atlas.html">Abrir atlas</a>
   </section>
 </main>
 
@@ -107,6 +91,9 @@
 <script src="../assets/js/forja-ui.js" defer></script>
 <script src="../assets/js/forja-graficos.js" defer></script>
 <script src="../assets/js/forja-catalogo.js" defer></script>
+<script src="../assets/js/forja-explorar.js" defer></script>
+<script src="../assets/js/forja-calendario.js" defer></script>
+<script src="../assets/js/forja-inicio.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
