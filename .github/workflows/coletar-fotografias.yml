@@ -1,37 +1,46 @@
 name: Coletar fotografias (interno)
 
 # Workflow temporário de apoio: baixa os originais do Unsplash a partir dos ids
-# registrados em tools/fotografias/coleta.json e devolve um artefato com as
-# imagens e os metadados (autor, licença, marcação Unsplash+). Não publica nada
-# e não altera o site.
+# registrados em tools/fotografias/coleta.json, grava os metadados (autor,
+# licença, marcação Unsplash+) e devolve as imagens como commit nesta branch —
+# o ambiente de edição não acessa images.unsplash.com e o download de artefatos
+# do Actions também é bloqueado nesta rede.
+#
+# Não publica nada, não faz deploy e não roda em main. Os originais ficam em
+# fotografias-originais/ apenas durante a coleta; o app usa só os derivados.
 
 on:
   push:
     paths:
       - "tools/fotografias/coleta.json"
+      - "tools/fotografias/coletar.mjs"
       - ".github/workflows/coletar-fotografias.yml"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   coletar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Baixar originais e metadados
-        run: node tools/fotografias/coletar.mjs --saida coletado
+        run: node tools/fotografias/coletar.mjs --saida fotografias-originais
       - name: Resumo
         run: |
           echo "### Coleta de fotografias" >> $GITHUB_STEP_SUMMARY
-          cat coletado/metadados.json >> $GITHUB_STEP_SUMMARY || true
-      - uses: actions/upload-artifact@v4
-        with:
-          name: fotografias-coletadas
-          path: coletado/
-          retention-days: 7
-          if-no-files-found: error
+          node -e "const m=require('./fotografias-originais/metadados.json'); for (const r of m.registros) console.log('- ' + r.id + ' — ' + r.autor + ' — ' + r.alt); for (const r of m.rejeitadas) console.log('- REJEITADA ' + r.id + ' (' + r.motivo + ')');" >> $GITHUB_STEP_SUMMARY
+      - name: Publicar na branch
+        run: |
+          git config user.name "FORJA coleta"
+          git config user.email "coleta@forja.local"
+          git add -A fotografias-originais
+          git diff --cached --quiet && echo "nada novo" && exit 0
+          git commit -m "Coleta de fotografias originais (CI)"
+          git push origin HEAD:${{ github.ref_name }}
