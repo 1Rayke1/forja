@@ -1,0 +1,19 @@
+# Recursos 3D são binários: nunca converter fim de linha nem tentar diff de texto.
+*.glb    binary
+*.gltf   text eol=lf
+*.fbx    binary
+*.obj    text eol=lf
+*.mtl    text eol=lf
+*.blend  binary
+*.dae    text eol=lf
+*.usdz   binary
+*.hdr    binary
+*.exr    binary
+*.png    binary
+*.webp   binary
+*.jpg    binary
+*.jpeg   binary
+*.ktx2   binary
+*.psd    binary
+*.tga    binary
+*.zip    binary
