@@ -223,7 +223,16 @@ function renderMissions() {
   });
 }
 
-document.getElementById("task-form").addEventListener("submit", event => {
+/*
+  Este arquivo é carregado em todas as páginas do app, mas os elementos do
+  calendário só existem na página inicial. Anexar o ouvinte sem checar o
+  elemento lançava exceção nas outras telas (inclusive na tela Explorar) e
+  abortava o restante deste arquivo. O guarda mantém o comportamento igual na
+  Home e não quebra as demais páginas.
+*/
+const taskForm = document.getElementById("task-form");
+
+if (taskForm) taskForm.addEventListener("submit", event => {
   event.preventDefault();
 
   const input = document.getElementById("task-input");
@@ -273,12 +282,19 @@ function changeDisplayedMonth(offset) {
   renderMissions();
 }
 
-document.getElementById("prev-month").addEventListener("click", () => {
-  changeDisplayedMonth(-1);
-});
+const botaoMesAnterior = document.getElementById("prev-month");
+const botaoProximoMes = document.getElementById("next-month");
 
-document.getElementById("next-month").addEventListener("click", () => {
-  changeDisplayedMonth(1);
-});
+if (botaoMesAnterior) {
+  botaoMesAnterior.addEventListener("click", () => {
+    changeDisplayedMonth(-1);
+  });
+}
+
+if (botaoProximoMes) {
+  botaoProximoMes.addEventListener("click", () => {
+    changeDisplayedMonth(1);
+  });
+}
 
 
