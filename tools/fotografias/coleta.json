@@ -1,13 +1,45 @@
 {
-  "nota": "Lista temporária de fotografias a coletar no CI (o ambiente de trabalho não tem acesso direto ao Unsplash). Cada item traz o id público da foto no Unsplash; o script baixa o original, consulta o endpoint público /napi/photos/<id> e registra autor, licença e a marca Unsplash+.",
+  "nota": "Fotos a coletar no CI. O ambiente de edição não acessa images.unsplash.com, então o download dos originais roda no GitHub Actions. Cada entrada traz o id público, a página individual e a URL do arquivo em images.unsplash.com (todas gratuitas: premium=false e plus=false no endpoint /napi/photos/<id>, conferido em 2026-10-31).",
   "fotos": [
-    "YFeoyqrFsGA",
-    "bWxf0-B_Hao",
-    "diDnHZkGRsw",
-    "P1WKUiOl7xg",
-    "TNRH-q8N_AA",
-    "06EpjZiMz_E",
-    "3AdUo5OtXxA",
-    "HSUcA9U7bcA"
+    {
+      "id": "HSUcA9U7bcA",
+      "url": "https://images.unsplash.com/photo-1772450014551-3dae12d905ef",
+      "sourcePage": "https://unsplash.com/photos/man-performing-a-dumbbell-squat-exercise-in-gym-HSUcA9U7bcA"
+    },
+    {
+      "id": "YFeoyqrFsGA",
+      "url": "https://images.unsplash.com/photo-1770664612843-b44e26070024",
+      "sourcePage": "https://unsplash.com/photos/man-performing-a-barbell-squat-in-a-gym-YFeoyqrFsGA"
+    },
+    {
+      "id": "diDnHZkGRsw",
+      "url": "https://images.unsplash.com/photo-1706029831377-bbcb4d15c1a7",
+      "sourcePage": "https://unsplash.com/photos/a-woman-doing-push-ups-in-a-gym-diDnHZkGRsw"
+    },
+    {
+      "id": "P1WKUiOl7xg",
+      "url": "https://images.unsplash.com/photo-1745329532611-03818982ed31",
+      "sourcePage": "https://unsplash.com/photos/man-doing-a-lat-pulldown-exercise-at-the-gym-P1WKUiOl7xg"
+    },
+    {
+      "id": "bWxf0-B_Hao",
+      "url": "https://images.unsplash.com/photo-1744551612249-655d096b9f95",
+      "sourcePage": "https://unsplash.com/photos/man-is-working-out-on-a-leg-press-machine-bWxf0-B_Hao"
+    },
+    {
+      "id": "TNRH-q8N_AA",
+      "url": "https://images.unsplash.com/photo-1728209228735-517d22a6fa6d",
+      "sourcePage": "https://unsplash.com/photos/a-man-doing-a-pull-up-in-a-gym-TNRH-q8N_AA"
+    },
+    {
+      "id": "06EpjZiMz_E",
+      "url": "https://images.unsplash.com/photo-1633394782240-f81aba3f850d",
+      "sourcePage": "https://unsplash.com/photos/a-woman-running-on-a-treadmill-in-a-gym-06EpjZiMz_E"
+    },
+    {
+      "id": "3AdUo5OtXxA",
+      "url": "https://images.unsplash.com/photo-1776710669971-eebdde536700",
+      "sourcePage": "https://unsplash.com/photos/man-stretching-quadriceps-on-a-mat-in-gym-3AdUo5OtXxA"
+    }
   ]
 }
