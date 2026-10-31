@@ -1,0 +1,39 @@
+{
+  "provedor": "Unsplash",
+  "coletadoEm": "2026-10-31T21:06:05.635Z",
+  "registros": [],
+  "rejeitadas": [
+    {
+      "id": "YFeoyqrFsGA",
+      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/YFeoyqrFsGA"
+    },
+    {
+      "id": "bWxf0-B_Hao",
+      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/bWxf0-B_Hao"
+    },
+    {
+      "id": "diDnHZkGRsw",
+      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/diDnHZkGRsw"
+    },
+    {
+      "id": "P1WKUiOl7xg",
+      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/P1WKUiOl7xg"
+    },
+    {
+      "id": "TNRH-q8N_AA",
+      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/TNRH-q8N_AA"
+    },
+    {
+      "id": "06EpjZiMz_E",
+      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/06EpjZiMz_E"
+    },
+    {
+      "id": "3AdUo5OtXxA",
+      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/3AdUo5OtXxA"
+    },
+    {
+      "id": "HSUcA9U7bcA",
+      "motivo": "HTTP 401 em https://unsplash.com/napi/photos/HSUcA9U7bcA"
+    }
+  ]
+}
