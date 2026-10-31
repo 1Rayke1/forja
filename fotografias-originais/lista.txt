@@ -5,8 +5,6 @@
 /home/runner/work/forja/forja/fotografias-originais/levantamento-terra.jpg
 /home/runner/work/forja/forja/fotografias-originais/puxada-frontal.jpg
 /home/runner/work/forja/forja/fotografias-originais/leg-press.jpg
-/home/runner/work/forja/forja/fotografias-originais/barra-fixa.jpg
-/home/runner/work/forja/forja/fotografias-originais/flexao-braco.jpg
 /home/runner/work/forja/forja/fotografias-originais/prancha-frontal.jpg
 /home/runner/work/forja/forja/fotografias-originais/prancha-lateral.jpg
 /home/runner/work/forja/forja/fotografias-originais/abdominal-supra.jpg
@@ -19,4 +17,4 @@
 /home/runner/work/forja/forja/fotografias-originais/halteres-feminino.jpg
 /home/runner/work/forja/forja/fotografias-originais/prateleira-halteres.jpg
 /home/runner/work/forja/forja/fotografias-originais/sala-musculacao.jpg
-/home/runner/work/forja/forja/fotografias-originais/candidata-barra-fixa.jpg
+/home/runner/work/forja/forja/fotografias-originais/flexao-braco.jpg
