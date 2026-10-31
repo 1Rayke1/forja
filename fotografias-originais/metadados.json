@@ -1,6 +1,6 @@
 {
   "provedor": "Unsplash",
-  "coletadoEm": "2026-10-31T21:11:35.237Z",
+  "coletadoEm": "2026-10-31T21:15:38.184Z",
   "registros": [
     {
       "id": "supino-barra",
@@ -395,6 +395,25 @@
       "autorUrl": null,
       "sourcePage": "https://unsplash.com/photos/20jX9b35r_M",
       "urlImagem": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f",
+      "licenca": "Unsplash License",
+      "licencaUrl": "https://unsplash.com/license",
+      "colecaoPaga": false,
+      "evidencia": "URL conferida na página individual; download em images.unsplash.com (fora da coleção paga)",
+      "tags": []
+    },
+    {
+      "id": "candidata-barra-fixa",
+      "arquivoOriginal": "candidata-barra-fixa.jpg",
+      "bytes": 516076,
+      "slug": "candidata-barra-fixa",
+      "alt": "",
+      "largura": null,
+      "altura": null,
+      "autor": null,
+      "usuario": null,
+      "autorUrl": null,
+      "sourcePage": "https://unsplash.com/s/photos/pull-up-bar",
+      "urlImagem": "https://images.unsplash.com/photo-1772450014504-1914f8afe985",
       "licenca": "Unsplash License",
       "licencaUrl": "https://unsplash.com/license",
       "colecaoPaga": false,
