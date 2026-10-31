@@ -37,16 +37,6 @@
       "sourcePage": "https://unsplash.com/photos/man-is-working-out-on-a-leg-press-machine-bWxf0-B_Hao"
     },
     {
-      "id": "barra-fixa",
-      "url": "https://images.unsplash.com/photo-1728209228735-517d22a6fa6d",
-      "sourcePage": "https://unsplash.com/photos/a-man-doing-a-pull-up-in-a-gym-TNRH-q8N_AA"
-    },
-    {
-      "id": "flexao-braco",
-      "url": "https://images.unsplash.com/photo-1706029831377-bbcb4d15c1a7",
-      "sourcePage": "https://unsplash.com/photos/a-woman-doing-push-ups-in-a-gym-diDnHZkGRsw"
-    },
-    {
       "id": "prancha-frontal",
       "url": "https://images.unsplash.com/photo-1674600625236-ad76734fee0d",
       "sourcePage": "https://unsplash.com/photos/2OgqFKHwF5Q"
@@ -107,9 +97,9 @@
       "sourcePage": "https://unsplash.com/photos/20jX9b35r_M"
     },
     {
-      "id": "candidata-barra-fixa",
-      "url": "https://images.unsplash.com/photo-1772450014504-1914f8afe985",
-      "sourcePage": "https://unsplash.com/s/photos/pull-up-bar"
+      "id": "flexao-braco",
+      "url": "https://images.unsplash.com/photo-1631501700640-cfd8663b9bd7",
+      "sourcePage": "https://unsplash.com/photos/-7Gd6up6SHA"
     }
   ]
 }
