@@ -32,6 +32,8 @@ jobs:
           node-version: 22
       - name: Baixar originais e metadados
         run: node tools/fotografias/coletar.mjs --saida fotografias-originais
+      - name: Identificar página da foto candidata (barra fixa)
+        run: node tools/fotografias/identificar.mjs --hash photo-1772450014504-1914f8afe985 --saida fotografias-originais/identificacao.json
       - name: Resumo
         run: |
           echo "### Coleta de fotografias" >> $GITHUB_STEP_SUMMARY
