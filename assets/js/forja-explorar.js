@@ -47,22 +47,23 @@
   ]);
 
   /* Exemplos de planos de 7 dias. Não existem planos desse tipo gravados no
-     FORJA, então cada um traz o selo "Exemplo" e não promete resultado. */
+     FORJA. Cada item é uma referência ilustrativa para montar sua própria
+     rotina; não é um plano funcional nem um calendário semanal implementado. */
   const EXEMPLOS_SETE_DIAS = Object.freeze([
     {
       id: "ex-7d-corpo",
-      label: "Plano de 7 dias · Corpo inteiro",
-      resumo: "Exemplo ilustrativo: um ciclo semanal com foco em corpo inteiro. Não é um plano gravado no FORJA e não promete resultados."
+      label: "Referência: 7 dias · Corpo inteiro",
+      resumo: "Referência ilustrativa para montar sua própria rotina de corpo inteiro ao longo de 7 dias. Não é um plano gravado no FORJA nem um calendário semanal implementado."
     },
     {
       id: "ex-7d-abdomen",
-      label: "Plano de 7 dias · Abdômen e core",
-      resumo: "Exemplo ilustrativo: sete sessões focadas em abdômen e core. Não é um plano gravado no FORJA e não promete resultados."
+      label: "Referência: 7 dias · Abdômen e core",
+      resumo: "Referência ilustrativa para montar sua própria rotina de abdômen e core ao longo de 7 dias. Não é um plano gravado no FORJA nem um calendário semanal implementado."
     },
     {
       id: "ex-7d-mobilidade",
-      label: "Plano de 7 dias · Mobilidade",
-      resumo: "Exemplo ilustrativo: uma semana de exercícios de mobilidade e alongamento. Não é um plano gravado no FORJA e não promete resultados."
+      label: "Referência: 7 dias · Mobilidade",
+      resumo: "Referência ilustrativa para montar sua própria rotina de mobilidade ao longo de 7 dias. Não é um plano gravado no FORJA nem um calendário semanal implementado."
     }
   ]);
 
@@ -74,7 +75,7 @@
       desc: "Organize aquecimento, treino principal, abdômen e finalizador em calistenia ou musculação." },
     { id: "progresso", label: "Histórico e progresso", route: "progresso", icon: "chart",
       desc: "Acompanhe os treinos registrados, séries concluídas e metas semanais." },
-    { id: "atlas", label: "Atlas muscular", route: "explorar", icon: "target",
+    { id: "atlas", label: "Atlas muscular", route: "atlas", icon: "target",
       desc: "Consulte grupos musculares e as regiões trabalhadas por cada exercício." }
   ]);
 
@@ -246,6 +247,7 @@
   function estadoVazioPlanos(host) {
     const card = doc.createElement("article");
     card.className = "plano-card plano-vazio";
+    card.setAttribute("aria-label", "Sem planos para destacar");
 
     const sobre = doc.createElement("div");
     sobre.className = "plano-sobre";
@@ -434,6 +436,7 @@
   function cardSeteDias(exemplo) {
     const article = doc.createElement("article");
     article.className = "plano-card";
+    article.setAttribute("aria-label", exemplo.label);
 
     const selo = doc.createElement("span");
     selo.className = "selo-exemplo";
@@ -488,6 +491,7 @@
   function cardRecurso(recurso) {
     const article = doc.createElement("article");
     article.className = "recurso-card";
+    article.setAttribute("aria-label", recurso.label);
 
     const iconeWrap = doc.createElement("div");
     iconeWrap.className = "recurso-icone";
@@ -527,6 +531,7 @@
   function cardPopular(routine) {
     const article = doc.createElement("article");
     article.className = "popular-card";
+    article.setAttribute("aria-label", "Treino popular " + routine.name);
 
     const exercicio = primeiroExercicioDaRotina(routine);
     const fundo = exercicio ? urlDaIlustracao(exercicio, routine.modality) : null;
@@ -669,6 +674,7 @@
   function cardDirecionado(item) {
     const article = doc.createElement("article");
     article.className = "direcionado-card";
+    article.setAttribute("aria-label", item.label);
 
     const iconeWrap = doc.createElement("div");
     iconeWrap.className = "direcionado-icone";
@@ -716,7 +722,7 @@
   function seção(id, classe, eyebrow, título, nota) {
     const section = doc.createElement("section");
     section.className = "explore-section " + classe;
-    section.id = id;
+    if (id) section.id = id;
 
     const cabeça = doc.createElement("div");
     cabeça.className = "section-head";
@@ -754,14 +760,14 @@
     conteudo.appendChild(s1);
 
     /* 2. Foco do treino */
-    const s2 = seção("foco-treino", "foco-treino", "Foco do treino", "Escolha um foco", "Filtre os exercícios por região do corpo ou tipo de treino.");
+    const s2 = seção(null, "foco-treino", "Foco do treino", "Escolha um foco", "Filtre os exercícios por região do corpo ou tipo de treino.");
     const focoHost = doc.createElement("div");
     focoHost.id = "foco-treino";
     s2.appendChild(focoHost);
     conteudo.appendChild(s2);
 
     /* 3. Planos de 7 dias */
-    const s3 = seção("planos-sete-dias", "planos-sete-dias", "Planos de 7 dias", "Ciclos de uma semana", "Exemplos ilustrativos para você montar suas rotinas. Não são planos gravados no FORJA.");
+    const s3 = seção("planos-sete-dias", "planos-sete-dias", "Planos de 7 dias", "Referências para montar sua rotina", "Exemplos ilustrativos de como organizar 7 dias de treino. Não são planos gravados no FORJA nem um calendário semanal implementado.");
     const carrousel3 = doc.createElement("div");
     carrousel3.className = "carousel";
     carrousel3.id = "carousel-sete-dias";
