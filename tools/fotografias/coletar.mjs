@@ -62,15 +62,16 @@ const registros = [];
 const rejeitadas = [];
 
 for (const item of config.fotos || []) {
-  /* Aceita tanto "id" simples quanto { id, url, sourcePage }. */
+  /* Aceita "id" simples ou { id, url, sourcePage }. */
   const id = typeof item === "string" ? item : item.id;
   const urlConhecida = typeof item === "string" ? null : item.url;
   const paginaConhecida = typeof item === "string" ? null : item.sourcePage;
+
   try {
     const pagina = paginaConhecida || "https://unsplash.com/photos/" + encodeURIComponent(id);
     let meta = null;
 
-    /* URL já conferida na página individual: baixa direto, sem depender da API. */
+    /* URL conferida na página individual: baixa direto, sem depender da API. */
     if (urlConhecida) {
       meta = {
         slug: id,
@@ -85,56 +86,54 @@ for (const item of config.fotos || []) {
         tags: [],
         evidencia: "URL conferida na página individual; download em images.unsplash.com (fora da coleção paga)"
       };
-    }
-
-    try {
-      if (meta) throw new Error("api ignorada: URL já conhecida");
-      const api = await requisitar("https://unsplash.com/napi/photos/" + encodeURIComponent(id), "json");
-      if (api.premium || api.plus) {
-        rejeitadas.push({ id, motivo: "coleção paga (Unsplash+)" });
-        continue;
+    } else {
+      try {
+        const api = await requisitar("https://unsplash.com/napi/photos/" + encodeURIComponent(id), "json");
+        if (api.premium || api.plus) {
+          rejeitadas.push({ id, motivo: "coleção paga (Unsplash+)" });
+          continue;
+        }
+        meta = {
+          slug: api.slug,
+          alt: api.alt_description || api.description || "",
+          largura: api.width,
+          altura: api.height,
+          autor: api.user && api.user.name,
+          usuario: api.user && api.user.username,
+          autorUrl: api.user && api.user.links ? api.user.links.html : null,
+          sourcePage: api.links ? api.links.html : pagina,
+          imagem: api.urls && api.urls.raw ? api.urls.raw.split("?")[0] : null,
+          tags: (api.tags || []).map(t => t.title).slice(0, 12),
+          evidencia: "endpoint público /napi/photos (premium=false, plus=false)"
+        };
+      } catch (erroApi) {
+        const resposta = await requisitar(pagina, "texto");
+        const html = await resposta.text();
+        const tags = tagsDe(html);
+        if (tags.imagemPaga) {
+          rejeitadas.push({ id, motivo: "página hospeda a imagem em plus.unsplash.com (coleção paga)" });
+          continue;
+        }
+        if (!tags.imagem) {
+          rejeitadas.push({ id, motivo: "página sem imagem gratuita identificável" });
+          continue;
+        }
+        const autorDoTexto = (tags.ogDescricao || "").match(/by ([^(]+) \(@([A-Za-z0-9_.-]+)\)/);
+        meta = {
+          slug: id,
+          alt: tags.ogTitulo || tags.titulo || "",
+          largura: null,
+          altura: null,
+          autor: autorDoTexto ? autorDoTexto[1].trim() : null,
+          usuario: autorDoTexto ? autorDoTexto[2] : null,
+          autorUrl: autorDoTexto ? "https://unsplash.com/@" + autorDoTexto[2] : null,
+          sourcePage: tags.canonical || pagina,
+          imagem: tags.imagem,
+          tags: [],
+          evidencia: "página individual: " + (tags.licencaGratuita ? "'Free to use under the Unsplash License'" : "licença a conferir") +
+            " e imagem em images.unsplash.com (fora da coleção paga)"
+        };
       }
-      meta = {
-        slug: api.slug,
-        alt: api.alt_description || api.description || "",
-        largura: api.width,
-        altura: api.height,
-        autor: api.user && api.user.name,
-        usuario: api.user && api.user.username,
-        autorUrl: api.user && api.user.links ? api.user.links.html : null,
-        sourcePage: api.links ? api.links.html : pagina,
-        imagem: api.urls && api.urls.raw ? api.urls.raw.split("?")[0] : null,
-        tags: (api.tags || []).map(t => t.title).slice(0, 12),
-        evidencia: "endpoint público /napi/photos (premium=false, plus=false)"
-      };
-    } catch (erroApi) {
-      const resposta = await requisitar(pagina, "texto");
-      const html = await resposta.text();
-      const tags = tagsDe(html);
-      if (tags.imagemPaga) {
-        rejeitadas.push({ id, motivo: "página hospeda a imagem em plus.unsplash.com (coleção paga)" });
-        continue;
-      }
-      if (!tags.imagem) {
-        rejeitadas.push({ id, motivo: "página sem imagem gratuita identificável" });
-        continue;
-      }
-      const nome = tags.ogTitulo || tags.titulo || "";
-      const autorDoTexto = (tags.ogDescricao || "").match(/by ([^(]+) \(@([A-Za-z0-9_.-]+)\)/);
-      meta = {
-        slug: id,
-        alt: nome,
-        largura: null,
-        altura: null,
-        autor: autorDoTexto ? autorDoTexto[1].trim() : tags.autor,
-        usuario: autorDoTexto ? autorDoTexto[2] : null,
-        autorUrl: autorDoTexto ? "https://unsplash.com/@" + autorDoTexto[2] : null,
-        sourcePage: tags.canonical || pagina,
-        imagem: tags.imagem,
-        tags: [],
-        evidencia: "página individual: " + (tags.licencaGratuita ? "'Free to use under the Unsplash License'" : "licença a conferir") +
-          " e imagem em images.unsplash.com (fora da coleção paga)"
-      };
     }
 
     if (!meta.imagem) {
@@ -168,7 +167,7 @@ for (const item of config.fotos || []) {
       evidencia: meta.evidencia,
       tags: meta.tags
     });
-    console.log("ok " + id + " — " + meta.autor + " — " + String(meta.alt).slice(0, 70));
+    console.log("ok " + id + " — " + (meta.autor || "?") + " — " + String(meta.alt).slice(0, 70));
   } catch (erro) {
     rejeitadas.push({ id, motivo: erro.message });
     console.log("falha " + id + " — " + erro.message);
