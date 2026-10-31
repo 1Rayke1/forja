@@ -1,0 +1,255 @@
+{
+  "nota": "Liga cada cartão da tela Explorar a uma fotografia do registro em fontes.json. tipo=exato significa que a foto mostra o próprio exercício; tipo=contexto significa que a foto mostra a categoria/ambiente (equipamento, movimento próximo) e nunca é anunciada como execução daquele exercício.",
+  "categorias": {
+    "corpo-todo": {
+      "foto": "sala-musculacao",
+      "tipo": "contexto"
+    },
+    "abdomen-core": {
+      "foto": "abdominal-supra",
+      "tipo": "contexto"
+    },
+    "braços": {
+      "foto": "halteres-feminino",
+      "tipo": "contexto"
+    },
+    "peito": {
+      "foto": "supino-barra",
+      "tipo": "contexto"
+    },
+    "costas": {
+      "foto": "puxada-frontal",
+      "tipo": "contexto"
+    },
+    "ombros": {
+      "foto": "prateleira-halteres",
+      "tipo": "contexto"
+    },
+    "pernas": {
+      "foto": "leg-press",
+      "tipo": "contexto"
+    },
+    "mobilidade": {
+      "foto": "mobilidade",
+      "tipo": "contexto"
+    },
+    "condicionamento": {
+      "foto": "funcional",
+      "tipo": "contexto"
+    }
+  },
+  "exercicios": {
+    "calisthenics:cal-rotacao-ombros": {
+      "foto": "mobilidade",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-mobilidade-quadril": {
+      "foto": "mobilidade",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-polichinelo": {
+      "foto": "funcional",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-flexao": {
+      "foto": "flexao-braco",
+      "tipo": "exato"
+    },
+    "calisthenics:cal-agachamento": {
+      "foto": "agachamento-barra",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-barra-fixa": {
+      "foto": "barra-fixa",
+      "tipo": "exato"
+    },
+    "calisthenics:cal-remada-invertida": {
+      "foto": "barra-fixa",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-mergulho": {
+      "foto": "flexao-braco",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-afundo": {
+      "foto": "agachamento-barra",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-ponte": {
+      "foto": "abdominal-supra",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-prancha-frontal": {
+      "foto": "prancha-frontal",
+      "tipo": "exato"
+    },
+    "calisthenics:cal-prancha-lateral": {
+      "foto": "prancha-lateral",
+      "tipo": "exato"
+    },
+    "calisthenics:cal-abdominal-supra": {
+      "foto": "abdominal-supra",
+      "tipo": "exato"
+    },
+    "calisthenics:cal-elevacao-pernas": {
+      "foto": "abdominal-supra",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-abdominal-infra": {
+      "foto": "abdominal-supra",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-burpee": {
+      "foto": "funcional",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-mountain-climber": {
+      "foto": "funcional",
+      "tipo": "contexto"
+    },
+    "calisthenics:cal-corrida-estacionaria": {
+      "foto": "corrida-ritmo",
+      "tipo": "contexto"
+    },
+    "weights:mus-esteira": {
+      "foto": "esteira",
+      "tipo": "exato"
+    },
+    "weights:mus-mobilidade-ombro": {
+      "foto": "mobilidade",
+      "tipo": "contexto"
+    },
+    "weights:mus-supino-reto": {
+      "foto": "supino-barra",
+      "tipo": "exato"
+    },
+    "weights:mus-agachamento-barra": {
+      "foto": "agachamento-barra",
+      "tipo": "exato"
+    },
+    "weights:mus-terra": {
+      "foto": "levantamento-terra",
+      "tipo": "exato"
+    },
+    "weights:mus-puxada-frontal": {
+      "foto": "puxada-frontal",
+      "tipo": "exato"
+    },
+    "weights:mus-desenvolvimento": {
+      "foto": "halteres-feminino",
+      "tipo": "contexto"
+    },
+    "weights:mus-remada-curvada": {
+      "foto": "levantamento-terra",
+      "tipo": "contexto"
+    },
+    "weights:mus-leg-press": {
+      "foto": "leg-press",
+      "tipo": "exato"
+    },
+    "weights:mus-rosca-direta": {
+      "foto": "halteres-feminino",
+      "tipo": "contexto"
+    },
+    "weights:mus-triceps-polia": {
+      "foto": "puxada-frontal",
+      "tipo": "contexto"
+    },
+    "weights:mus-extensora": {
+      "foto": "leg-press",
+      "tipo": "contexto"
+    },
+    "weights:mus-flexora": {
+      "foto": "leg-press",
+      "tipo": "contexto"
+    },
+    "weights:mus-elevacao-lateral": {
+      "foto": "halteres-feminino",
+      "tipo": "contexto"
+    },
+    "weights:mus-abdominal-polia": {
+      "foto": "abdominal-supra",
+      "tipo": "contexto"
+    },
+    "weights:mus-prancha": {
+      "foto": "prancha-frontal",
+      "tipo": "exato"
+    },
+    "weights:mus-elevacao-barra": {
+      "foto": "barra-fixa",
+      "tipo": "contexto"
+    },
+    "weights:mus-bicicleta": {
+      "foto": "esteira",
+      "tipo": "contexto"
+    },
+    "weights:mus-farmer": {
+      "foto": "halteres-feminino",
+      "tipo": "contexto"
+    }
+  },
+  "recursos": {
+    "biblioteca": {
+      "foto": "prateleira-halteres",
+      "tipo": "contexto"
+    },
+    "rotinas": {
+      "foto": "agachamento-barra",
+      "tipo": "contexto"
+    },
+    "progresso": {
+      "foto": "corrida-ritmo",
+      "tipo": "contexto"
+    },
+    "atlas": {
+      "foto": "mobilidade",
+      "tipo": "contexto"
+    }
+  },
+  "direcionado": {
+    "geral": {
+      "foto": "sala-musculacao",
+      "tipo": "contexto"
+    },
+    "mobilidade": {
+      "foto": "mobilidade",
+      "tipo": "contexto"
+    },
+    "resistencia": {
+      "foto": "funcional",
+      "tipo": "contexto"
+    },
+    "condicionamento": {
+      "foto": "corrida-ritmo",
+      "tipo": "contexto"
+    },
+    "estabilidade": {
+      "foto": "prancha-lateral",
+      "tipo": "contexto"
+    }
+  },
+  "seteDias": {
+    "ex-7d-corpo": {
+      "foto": "sala-musculacao",
+      "tipo": "contexto"
+    },
+    "ex-7d-abdomen": {
+      "foto": "abdominal-supra",
+      "tipo": "contexto"
+    },
+    "ex-7d-mobilidade": {
+      "foto": "mobilidade",
+      "tipo": "contexto"
+    }
+  },
+  "porModalidade": {
+    "weights": {
+      "foto": "levantamento-terra",
+      "tipo": "contexto"
+    },
+    "calisthenics": {
+      "foto": "funcional",
+      "tipo": "contexto"
+    }
+  }
+}

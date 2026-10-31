@@ -1,5 +1,12 @@
 # Fotografias demonstrativas — contrato (fotos) e ilustrações (RepDB)
 
+> **Atualização de escopo (2026-10-31).** A tela Explorar passou a usar
+> fotografias reais do Unsplash em um recurso **separado** deste contrato:
+> `F.fotos` / `assets/fotografias/manifest.json`, documentado em
+> `docs/fotografias-explorar.md`. O contrato abaixo continua valendo para fotos
+> do catálogo de exercícios: `F.catalog.PHOTO_MANIFEST` permanece vazio e
+> congelado e `F.catalog.photoFor()` continua retornando `null` (teste 81).
+>
 > **Atualização de escopo (2026-10-27).** Este documento continua sendo o
 > contrato de **FOTOS**. A partir desta entrega o FORJA também exibe
 > **ilustrações** do catálogo livre RepDB, que são um recurso diferente e

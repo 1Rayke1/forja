@@ -98,6 +98,8 @@
         <li><a href="../assets/demonstracoes/LICENSE-DATA.md">Cópia da licença neste app</a> ·
           <a href="../assets/demonstracoes/NOTICE.md">NOTICE e procedência</a> ·
           <a href="../assets/demonstracoes/manifest.json">manifesto com SHA-256</a></li>
+        <li>As fotografias dos cartões da tela Explorar são um recurso separado,
+          com créditos e licença próprios em <a href="#creditos-fotografias">Créditos e licenças das fotografias</a>.</li>
       </ul>
       <p>Não usamos amostras pagas (<code>premium-samples</code>), não submetemos as imagens a
         IA generativa e não republicamos o dataset como tal. As imagens são apenas
@@ -106,6 +108,36 @@
         <strong>“Precisa de revisão”</strong>: confirme visualmente se o movimento
         corresponde ao exercício. A figura anatômica do atlas é um recurso
         separado e mostra grupos musculares, não a execução do movimento.</p>
+    </div>
+  </section>
+
+  <section class="storage-panel credits-panel" id="creditos-fotografias" aria-labelledby="creditos-fotografias-heading">
+    <h2 class="section-title" id="creditos-fotografias-heading">Créditos e licenças das fotografias</h2>
+    <div class="credits-block">
+      <h3>Unsplash (Unsplash License)</h3>
+      <p>As fotografias dos cartões da tela Explorar vêm do
+        <strong><a href="https://unsplash.com" target="_blank" rel="noopener noreferrer" data-external-credit="unsplash">Unsplash</a></strong>
+        e são usadas sob a <strong>Unsplash License</strong>, que permite uso comercial
+        e não comercial sem exigência de atribuição. A atribuição é mantida de forma
+        visível por transparência, com autor e página de origem de cada foto.</p>
+      <ul>
+        <li><a href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer" data-external-credit="unsplash">Texto da licença</a> ·
+          <a href="../assets/fotografias/NOTICE.md">NOTICE e procedência neste app</a> ·
+          <a href="../assets/fotografias/manifest.json">manifesto com SHA-256</a></li>
+        <li>Nenhuma imagem da coleção paga (Unsplash+) foi baixada ou usada. Nenhuma
+          fotografia passa por geração artificial: são registros reais de treino.</li>
+        <li>Os arquivos originais não são publicados; o app distribui apenas derivados
+          WebP em dois tamanhos, cortados em 16:10.</li>
+      </ul>
+      <h3>Fotografias usadas</h3>
+      <p class="credits-hint">Cada item traz autor, licença e a página de origem da imagem.</p>
+      <ul class="credits-fotos" id="creditos-fotos-lista">
+        <li class="credits-fallback">Consulte <a href="../assets/fotografias/NOTICE.md">assets/fotografias/NOTICE.md</a> para a lista completa com autoria e licença.</li>
+      </ul>
+      <p>O vínculo entre cada fotografia e o cartão que ela ilustra está descrito em
+        <code>tools/fotografias/cartoes.json</code>. Quando não existe fotografia do
+        exercício exato, o cartão mostra uma foto de contexto da mesma categoria e
+        nunca a apresenta como execução do movimento.</p>
     </div>
   </section>
 </main>
@@ -160,6 +192,8 @@
 <script src="../assets/js/forja-catalogo.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
+<script src="../assets/js/forja-fotografias-dados.js" defer></script>
+<script src="../assets/js/forja-fotografias.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

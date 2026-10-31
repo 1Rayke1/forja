@@ -44,6 +44,7 @@ A figura anatômica do atlas é um recurso separado, com aviso próprio em
 ## Documentação
 
 - `docs/forja-rotinas-e-backup.md` — formato de dados, migração e backup JSON.
-- `docs/fotografias-exercicios.md` — contrato de fotos (nenhuma publicada).
+- `docs/fotografias-exercicios.md` — contrato de fotos do catálogo (nenhuma publicada).
+- `docs/fotografias-explorar.md` — fotografias reais da tela Explorar: procedência, licença, contrato e validação.
 - `docs/atlas-anatomico.md` — classificação muscular e figuras.
 - `docs/testes-paridade.md` — suíte de paridade.

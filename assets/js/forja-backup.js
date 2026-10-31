@@ -1006,6 +1006,59 @@ function updateBackupStatus() {
   }
 
   /* ------------------------------------------------------------------ */
+  /* Créditos das fotografias (somente leitura, sem rede)                */
+  /* ------------------------------------------------------------------ */
+
+  /*
+    Lista de autoria e licença das fotografias usadas na tela Explorar. A fonte
+    é assets/js/forja-fotografias-dados.js; a lista estática do HTML permanece
+    como reserva caso o módulo não carregue.
+  */
+  function renderPhotoCredits() {
+    const lista = byId("creditos-fotos-lista");
+    if (!lista || !F.fotos || !F.fotos.available()) return;
+
+    const fotos = F.fotos.credits();
+    if (!fotos.length) return;
+
+    const fragment = document.createDocumentFragment();
+    fotos.forEach(foto => {
+      const item = document.createElement("li");
+      const nome = document.createElement("strong");
+      nome.textContent = foto.titulo;
+
+      const autor = document.createElement("a");
+      autor.href = foto.autorUrl;
+      autor.target = "_blank";
+      autor.rel = "noopener noreferrer";
+      autor.setAttribute("data-external-credit", "unsplash");
+      autor.textContent = foto.autor;
+
+      const origem = document.createElement("a");
+      origem.href = foto.sourcePage;
+      origem.target = "_blank";
+      origem.rel = "noopener noreferrer";
+      origem.setAttribute("data-external-credit", "unsplash");
+      origem.textContent = "página da foto";
+
+      const licenca = document.createElement("a");
+      licenca.href = foto.licencaUrl;
+      licenca.target = "_blank";
+      licenca.rel = "noopener noreferrer";
+      licenca.setAttribute("data-external-credit", "unsplash");
+      licenca.textContent = foto.licenca;
+
+      item.append(nome, document.createTextNode(" — foto de "), autor,
+        document.createTextNode(", "), licenca,
+        document.createTextNode(" · "), origem);
+      fragment.appendChild(item);
+    });
+
+    lista.innerHTML = "";
+    lista.appendChild(fragment);
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Perfil de treino (página Perfil; configurações mantêm a rota antiga)*/
   /* ------------------------------------------------------------------ */
   /*
@@ -1190,6 +1243,7 @@ function updateBackupStatus() {
     renderPreferences();
     renderProfileForm();
     updateBackupStatus();
+    renderPhotoCredits();
   }
 
   F.pages.perfil = initDadosEPreferencias;
