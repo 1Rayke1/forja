@@ -294,3 +294,451 @@ body[data-page="perfil"] .check-row input { accent-color: var(--fj-accent); }
     scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important;
   }
 }
+
+/* ===== DESCobrir — tela Explorar reformulada =====
+   Identidade FORJA (grafite/preto, destaque verde), sem copiar a referência. */
+
+/* Cabeçalho fixo da tela Descobrir. */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.sessao-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1px solid var(--fj-stroke);
+  border-radius: 999px;
+  background: var(--fj-surface-raised);
+  color: var(--fj-muted);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sessao-chip:hover {
+  border-color: var(--fj-accent);
+  color: var(--fj-accent);
+}
+
+/* Espaçamento das seções. */
+.explore-section {
+  margin: 0 0 var(--space-6) 0;
+}
+.explore-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.section-head .eyebrow {
+  color: var(--fj-accent);
+}
+
+.section-head h2 {
+  margin: 0;
+  color: #f7faf8;
+  font-size: var(--font-xl);
+  letter-spacing: -0.2px;
+}
+
+.section-note {
+  margin: 4px 0 0;
+  color: var(--fj-muted);
+  font-size: var(--font-sm);
+}
+
+/* Carrosséis horizontais (planos em destaque, 7 dias, rápidos). */
+.carousel {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 10px;
+  margin-bottom: calc(var(--space-3) * -1);
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel > article {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: min(92vw, 340px);
+}
+
+/* Cartões com imagem de fundo (planos, populares, rápidos). */
+.plano-card,
+.popular-card,
+.rapido-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid var(--fj-stroke);
+  background: var(--fj-surface);
+  box-shadow: var(--fj-glow);
+}
+
+.plano-card { height: 300px; }
+.popular-card { height: 250px; }
+.rapido-card { height: 210px; }
+
+.plano-fundo,
+.popular-fundo,
+.rapido-fundo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.5;
+}
+
+/* Sobreposição escura para garantir contraste do texto sobre a imagem. */
+.plano-sobre,
+.popular-sobre,
+.rapido-sobre {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-4);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: #f7faf8;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent 45%);
+}
+
+.plano-sobre { padding: var(--space-5); }
+
+.plano-etiqueta,
+.selo-exemplo {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: var(--font-xs);
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.plano-etiqueta {
+  border: 1px solid var(--accent-line);
+  background: var(--accent-soft);
+  color: #10100a;
+}
+
+.selo-exemplo {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f7faf8;
+}
+
+.plano-nome,
+.popular-nome,
+.rapido-nome {
+  margin: 8px 0 4px 0;
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+  overflow-wrap: anywhere;
+}
+
+.plano-descricao,
+.popular-descricao {
+  color: var(--fj-muted);
+  font-size: 14px;
+  margin: 0 0 var(--space-4) 0;
+}
+
+.rapido-duracao {
+  color: var(--fj-muted);
+  font-size: var(--font-sm);
+  margin: 0;
+}
+
+.plano-botao,
+.popular-botao,
+.rapido-card .plano-botao {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* Segundo botão dos cartões de exemplo (7 dias). */
+.plano-botao.secundario {
+  margin-top: var(--space-2);
+  background: transparent;
+  border: 1px solid var(--fj-stroke);
+  color: var(--fj-muted);
+}
+
+.plano-botao.secundario:hover {
+  border-color: var(--fj-accent);
+  color: var(--fj-accent);
+}
+
+/* Estado vazio dos planos em destaque. */
+.plano-vazio { height: auto; min-height: 300px; }
+.plano-vazio .plano-sobre { justify-content: center; text-align: center; }
+.plano-vazio .plano-botao { width: auto; }
+
+/* Foco do treino — barras de categoria. */
+.foco-barra {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 8px;
+  margin-bottom: var(--space-4);
+}
+
+.foco-barra::-webkit-scrollbar {
+  display: none;
+}
+
+.foco-tab {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--fj-stroke);
+  border-radius: 999px;
+  background: var(--fj-surface-raised);
+  color: var(--fj-muted);
+  font-size: var(--font-sm);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.foco-tab:hover {
+  border-color: var(--fj-accent);
+  color: var(--fj-accent);
+}
+
+.foco-tab[aria-pressed="true"] {
+  background: var(--fj-accent);
+  color: #10100a;
+  border-color: var(--fj-accent);
+}
+
+.foco-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.foco-card {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3);
+  border-radius: 14px;
+  border: 1px solid var(--fj-stroke);
+  background: var(--fj-surface);
+  min-width: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.foco-card:focus-visible {
+  outline: 3px solid var(--fj-accent);
+  outline-offset: 3px;
+}
+
+.foco-miniatura-wrap {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background: var(--fj-surface-raised);
+  border: 1px solid var(--fj-stroke);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.foco-miniatura {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 9px;
+}
+
+.foco-icone {
+  font-size: 24px;
+}
+
+.foco-corpo {
+  min-width: 0;
+}
+
+.foco-nome {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.foco-meta {
+  margin: 0 0 var(--space-2) 0;
+  color: var(--fj-muted);
+  font-size: var(--font-sm);
+  overflow-wrap: anywhere;
+}
+
+.foco-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Descubra recursos — grade de cartões. */
+.recursos-grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.recurso-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: 16px;
+  border: 1px solid var(--fj-stroke);
+  background: var(--fj-surface);
+  min-height: 180px;
+}
+
+.recurso-icone {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  background: var(--fj-surface-raised);
+  border: 1px solid var(--fj-stroke);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.recurso-nome {
+  margin: 0;
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
+.recurso-descricao {
+  color: var(--fj-muted);
+  font-size: 14px;
+  margin: 0 0 auto 0;
+  overflow-wrap: anywhere;
+}
+
+.recurso-botao {
+  margin-top: auto;
+  align-self: start;
+  min-height: 44px;
+}
+
+/* Treinos populares — grade de 2 colunas. */
+.grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+/* Treino direcionado — linha horizontal rolável. */
+.linha {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 10px;
+  margin-bottom: calc(var(--space-3) * -1);
+}
+
+.linha::-webkit-scrollbar {
+  display: none;
+}
+
+.direcionado-card {
+  flex: 0 0 auto;
+  width: min(92vw, 250px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: 16px;
+  border: 1px solid var(--fj-stroke);
+  background: var(--fj-surface);
+  min-width: 0;
+}
+
+.direcionado-icone {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--fj-surface-raised);
+  border: 1px solid var(--fj-stroke);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.direcionado-nome {
+  margin: 0 0 4px 0;
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
+.direcionado-descricao {
+  color: var(--fj-muted);
+  font-size: 14px;
+  margin: 0 0 auto 0;
+  overflow-wrap: anywhere;
+}
+
+.direcionado-botao {
+  margin-top: auto;
+  align-self: start;
+  min-height: 44px;
+}
+
+@media (max-width: 380px) {
+  .recursos-grade {
+    grid-template-columns: 1fr;
+  }
+  .grade {
+    grid-template-columns: 1fr;
+  }
+  .carousel > article,
+  .direcionado-card {
+    width: min(100vw, 340px);
+  }
+  .plano-card { height: 270px; }
+  .popular-card { height: 230px; }
+  .rapido-card { height: 190px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plano-card, .popular-card, .rapido-card, .foco-card, .recurso-card, .direcionado-card {
+    transition: none !important;
+  }
+}
