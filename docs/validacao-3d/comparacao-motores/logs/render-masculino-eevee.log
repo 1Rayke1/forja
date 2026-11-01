@@ -1,0 +1,9 @@
+$ /opt/blender-4.2.1/blender --background --factory-startup --python /home/runner/work/forja/forja/tools/blender/comparar-motores-3d.py -- --modo renderizar --personagem masculino --modelo /tmp/comparacao-3d/preparados/DOC-20261031-WA0008.sem-meshopt.glb --motor EEVEE --saida-png /home/runner/work/forja/forja/docs/validacao-3d/comparacao-motores/masculino-eevee.png --saida-json /home/runner/work/forja/forja/docs/validacao-3d/comparacao-motores/.metrica-masculino-eevee.json --largura 720 --altura 960 --amostras 64 --sinal-frente 1.0
+exit_code=0 wall_s=154.1904
+
+=== STDOUT ===
+[render-motor] {"personagem": "masculino", "motor": "EEVEE", "sucesso": true, "tempos_s": {"importacao": 4.4367, "preparacao_cena": 0.5111, "render_frio": 77.0063, "render_quente": 71.8243, "cpu_frio_total": 185.9607, "cpu_frio_user": 181.2653, "cpu_frio_sys": 4.6954, "cpu_quente_total": 180.1539, "processo_total": 153.8117}, "memoria_mb": {"rss_inicio": 245.25, "rss_pos_importacao": 642.41, "rss_pos_render_frio": 1830.04, "pico_rss_hwm_pos_frio": 2907.8, "pico_rss_hwm_processo": 3070.55, "pico_virtual_vmpeak": 5714.27, "pico_interno_blender": null}, "erro": null}
+
+
+=== STDERR ===
+

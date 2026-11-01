@@ -1,0 +1,9 @@
+$ /opt/blender-4.2.1/blender --background --factory-startup --python /home/runner/work/forja/forja/tools/blender/comparar-motores-3d.py -- --modo renderizar --personagem feminino --modelo /tmp/comparacao-3d/preparados/DOC-20261031-WA0009.sem-meshopt.glb --motor CYCLES --saida-png /home/runner/work/forja/forja/docs/validacao-3d/comparacao-motores/feminino-cycles.png --saida-json /home/runner/work/forja/forja/docs/validacao-3d/comparacao-motores/.metrica-feminino-cycles.json --largura 720 --altura 960 --amostras 64 --sinal-frente 1.0
+exit_code=0 wall_s=45.7419
+
+=== STDOUT ===
+[render-motor] {"personagem": "feminino", "motor": "CYCLES", "sucesso": true, "tempos_s": {"importacao": 4.5186, "preparacao_cena": 0.5094, "render_frio": 20.2016, "render_quente": 20.1424, "cpu_frio_total": 78.1328, "cpu_frio_user": 77.6537, "cpu_frio_sys": 0.4791, "cpu_quente_total": 78.2159, "processo_total": 45.4066}, "memoria_mb": {"rss_inicio": 245.32, "rss_pos_importacao": 638.98, "rss_pos_render_frio": 710.66, "pico_rss_hwm_pos_frio": 1624.95, "pico_rss_hwm_processo": 1624.95, "pico_virtual_vmpeak": 3584.29, "pico_interno_blender": null}, "erro": null}
+
+
+=== STDERR ===
+

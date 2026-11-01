@@ -1,0 +1,27 @@
+=== AUDITORIA BINÁRIA E TESTE REAL DE MESHOPT ===
+Data UTC: 2026-11-01T19:03:51.760Z
+Ferramentas Meshopt carregadas: SIM (/tmp/meshopt-tools)
+
+--- Arquivo: DOC-20261031-WA0008.bin ---
+Bytes: 19.52 MiB (20465552 B)
+SHA-256 medido: ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1
+SHA-256 esperado na release: ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1 (confere=true)
+Cabeçalho (16B): 67 6c 54 46 02 00 00 00 90 47 38 01 c8 46 00 00 → GLB binário (glTF v2, header=20465552 B)
+GLB generator: gltfpack 1.2
+extensionsUsed: KHR_mesh_quantization, EXT_meshopt_compression
+extensionsRequired: KHR_mesh_quantization, EXT_meshopt_compression
+Contagens GLB: malhas=1, skins=1, materiais=1, imagens=3, animações=0, bufferViewsMeshopt=7
+Teste GLTFLoader atual do app (sem setMeshoptDecoder): sucesso=false | erro="THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files"
+Decodificação Meshopt concluída em 1226 ms: 19.52 MiB (20465552 B) → 62.27 MiB (65294796 B) (KTX2→PNG=0)
+
+--- Arquivo: DOC-20261031-WA0009.bin ---
+Bytes: 19.69 MiB (20650336 B)
+SHA-256 medido: 7f294533acd9a278cf53332170ffcdb4bbed26aacbee66a7d9b5ea3d67966077
+SHA-256 esperado na release: 7f294533acd9a278cf53332170ffcdb4bbed26aacbee66a7d9b5ea3d67966077 (confere=true)
+Cabeçalho (16B): 67 6c 54 46 02 00 00 00 60 19 3b 01 b4 46 00 00 → GLB binário (glTF v2, header=20650336 B)
+GLB generator: gltfpack 1.2
+extensionsUsed: KHR_mesh_quantization, EXT_meshopt_compression
+extensionsRequired: KHR_mesh_quantization, EXT_meshopt_compression
+Contagens GLB: malhas=1, skins=1, materiais=1, imagens=3, animações=0, bufferViewsMeshopt=7
+Teste GLTFLoader atual do app (sem setMeshoptDecoder): sucesso=false | erro="THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files"
+Decodificação Meshopt concluída em 1219 ms: 19.69 MiB (20650336 B) → 62.19 MiB (65208348 B) (KTX2→PNG=0)

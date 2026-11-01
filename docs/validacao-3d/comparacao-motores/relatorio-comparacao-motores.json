@@ -1,0 +1,1766 @@
+{
+  "gerado_em_utc": "2026-11-01T19:10:49.026Z",
+  "decisao_motor": "aguardando_aprovacao_humana",
+  "nota_governanca": "Comparação concluída sem aprovação automática de motor, sem alteração nos recursos publicados do aplicativo e sem avanço para produção de vídeos.",
+  "parametros_comparacao": {
+    "largura_px": 720,
+    "altura_px": 960,
+    "amostras_cycles": 64,
+    "amostras_eevee": 64,
+    "usar_xvfb": false
+  },
+  "ambiente": {
+    "sistema": {
+      "os": "Ubuntu 24.04.5 LTS",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "vcpus": 4,
+      "ram_total_mb": 15984,
+      "node": "v22.23.4"
+    },
+    "blender": {
+      "versao": "4.2.1 LTS",
+      "versao_tupla": [
+        4,
+        2,
+        1
+      ],
+      "build_hash": "396f546c9d82",
+      "binario": "/opt/blender-4.2.1/blender",
+      "motores_disponiveis": [
+        "BLENDER_EEVEE_NEXT"
+      ],
+      "io_scene_gltf2_versao": [
+        4,
+        2,
+        60
+      ]
+    },
+    "ferramentas_meshopt": {
+      "disponivel": true,
+      "diretorio": "/tmp/meshopt-tools",
+      "dependencias": {
+        "@gltf-transform/cli": "^4.5.1",
+        "@gltf-transform/core": "^4.5.1",
+        "@gltf-transform/extensions": "^4.5.1",
+        "@gltf-transform/functions": "^4.5.1",
+        "draco3dgltf": "^1.5.9",
+        "meshoptimizer": "^1.3.0"
+      }
+    }
+  },
+  "opengl": {
+    "resumo_contexto": "Mesa | llvmpipe (LLVM 20.1.2, 256 bits) | 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4 (OPENGL)",
+    "detalhes_ambiente": {
+      "egl_headless_sucesso": true,
+      "xvfb_sucesso": true,
+      "modo_escolhido": "headless_egl",
+      "sonda_blender": {
+        "engine": "BLENDER_EEVEE_NEXT",
+        "vendor": "Mesa",
+        "renderer": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "version": "4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4",
+        "backend": "OPENGL"
+      },
+      "resumo": "Mesa | llvmpipe (LLVM 20.1.2, 256 bits) | 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4 (headless_egl)"
+    },
+    "gpu_blender_eevee": {
+      "disponivel": true,
+      "vendor": "Mesa",
+      "renderer": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "version": "4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4",
+      "device_type": "SOFTWARE",
+      "backend": "OPENGL"
+    }
+  },
+  "criterio_classificacao_personagens": "razão geométrica cintura/quadril do tronco (0.5962 vs 0.5555)",
+  "modelos_auditados": [
+    {
+      "personagem": "masculino",
+      "criterio_classificacao": "razão geométrica cintura/quadril do tronco (0.5962 vs 0.5555)",
+      "nome_arquivo_original": "DOC-20261031-WA0008.bin",
+      "bytes_original": 20465552,
+      "sha256_original": "ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1",
+      "sha256_confere_release": true,
+      "formato_binario_detectado": "GLB",
+      "usa_meshopt_no_original": true,
+      "extensoes_gltf_usadas": [
+        "KHR_mesh_quantization",
+        "EXT_meshopt_compression"
+      ],
+      "extensoes_gltf_obrigatorias": [
+        "KHR_mesh_quantization",
+        "EXT_meshopt_compression"
+      ],
+      "glb_json_resumo": {
+        "assetVersion": "2.0",
+        "generator": "gltfpack 1.2",
+        "copyright": null,
+        "extensionsUsed": [
+          "KHR_mesh_quantization",
+          "EXT_meshopt_compression"
+        ],
+        "extensionsRequired": [
+          "KHR_mesh_quantization",
+          "EXT_meshopt_compression"
+        ],
+        "contagens": {
+          "scenes": 1,
+          "nodes": 80,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "images": 3,
+          "skins": 1,
+          "animations": 0,
+          "accessors": 7,
+          "bufferViews": 10,
+          "bufferViewsMeshopt": 7,
+          "primitivasDraco": 0
+        },
+        "meshoptDetalhes": {
+          "bufferViewsComprimidos": 7,
+          "bytesComprimidosDeclarados": 11423218,
+          "modos": {
+            "ATTRIBUTES": 6,
+            "TRIANGLES": 1
+          },
+          "filtros": {
+            "EXPONENTIAL": 2,
+            "NONE": 5
+          }
+        },
+        "nomes_cenas": [
+          "Scene"
+        ],
+        "nomes_nos": [
+          "L_ToeBase",
+          "L_Foot",
+          "L_CalfTwist02",
+          "L_CalfTwist01",
+          "L_KneeShareBone",
+          "L_Calf",
+          "L_ThighTwist02",
+          "L_ThighTwist01",
+          "L_Thigh",
+          "R_KneeShareBone",
+          "R_ToeBase",
+          "R_Foot",
+          "R_CalfTwist02",
+          "R_CalfTwist01",
+          "R_Calf",
+          "R_ThighTwist02",
+          "R_ThighTwist01",
+          "R_Thigh",
+          "Pelvis",
+          "R_Eye",
+          "L_Eye",
+          "FacialBone",
+          "Head",
+          "NeckTwist02",
+          "NeckTwist01",
+          "L_ForearmTwist02",
+          "L_ForearmTwist01",
+          "L_ElbowShareBone",
+          "L_Pinky3",
+          "L_Pinky2",
+          "L_Pinky1",
+          "L_Ring3",
+          "L_Ring2",
+          "L_Ring1",
+          "L_Mid3",
+          "L_Mid2",
+          "L_Mid1",
+          "L_Index3",
+          "L_Index2",
+          "L_Index1",
+          "L_Thumb3",
+          "L_Thumb2",
+          "L_Thumb1",
+          "L_Hand",
+          "L_Forearm",
+          "L_UpperarmTwist02",
+          "L_UpperarmTwist01",
+          "L_Upperarm",
+          "L_Clavicle",
+          "R_ElbowShareBone",
+          "R_ForearmTwist02",
+          "R_ForearmTwist01",
+          "R_Ring3",
+          "R_Ring2",
+          "R_Ring1",
+          "R_Mid3",
+          "R_Mid2",
+          "R_Mid1",
+          "R_Thumb3",
+          "R_Thumb2"
+        ],
+        "nomes_malhas": [],
+        "nomes_materiais": [
+          "tripo_material_0694c9ab-acba-4f85-a65d-ae6e0f38d8e2"
+        ],
+        "nomes_imagens": [
+          "NormalGL_0694c9ab-acba-4f85-a65d-ae6e0f38d8e2",
+          "Color_0694c9ab-acba-4f85-a65d-ae6e0f38d8e2",
+          "ORM_0694c9ab-acba-4f85-a65d-ae6e0f38d8e2"
+        ],
+        "nomes_skins": [
+          "Armature"
+        ],
+        "nomes_animacoes": [],
+        "mimeTypesImagens": [
+          "image/png",
+          "image/jpeg"
+        ]
+      },
+      "meshopt_operacao": {
+        "modo": "decodificacao_original",
+        "sucesso": true,
+        "tempo_ms": 1226,
+        "bytes_antes": 20465552,
+        "bytes_depois_sem_meshopt": 65294796,
+        "bytes_depois_desquantizado": 85577432,
+        "texturas_ktx2_convertidas_png": 0,
+        "extensoes_restantes": []
+      },
+      "teste_three_gltfloader_sem_meshopt": {
+        "sucesso_sem_decoder_meshopt": false,
+        "erro": "THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files"
+      },
+      "compatibilidade_importacao": {
+        "bin_direto": {
+          "sucesso": false,
+          "tempo_s": 0.065,
+          "erro": "RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version\n"
+        },
+        "glb_intacto_direto": {
+          "sucesso": false,
+          "tempo_s": 0.0043,
+          "erro": "RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version\n"
+        },
+        "sonda_meshopt_blender_4_2_1": null,
+        "modelo_preparado_render": {
+          "sucesso": true,
+          "tempo_s": 4.3637,
+          "erro": null
+        }
+      },
+      "origem_modelo_render": "glb_meshopt_decodificado",
+      "geometria_mundo": {
+        "vazio": false,
+        "bbox_min": [
+          -0.9511,
+          -1,
+          -1
+        ],
+        "bbox_max": [
+          0.9511,
+          1,
+          1
+        ],
+        "dimensoes": [
+          1.9021,
+          2,
+          2
+        ],
+        "largura_x_m": 1.9021,
+        "profundidade_y_m": 2,
+        "altura_z_m": 2,
+        "centro": [
+          0,
+          0,
+          0
+        ],
+        "anatomia_tronco": {
+          "largura_quadril_central_m": 0.1768,
+          "largura_cintura_central_m": 0.1054,
+          "largura_peito_central_m": 0.5393,
+          "profundidade_peito_central_m": 1.7013,
+          "razao_cintura_quadril": 0.5962
+        }
+      },
+      "totais_cena": {
+        "malhas": 2,
+        "vertices": 1014180,
+        "poligonos": 1983423,
+        "triangulos": 1983423,
+        "materiais": 1,
+        "imagens_sem_dados": [],
+        "armaduras": 1,
+        "ossos": 78,
+        "acoes": 0
+      },
+      "materiais": [
+        {
+          "nome": "tripo_material_0694c9ab-acba-4f85-a65d-ae6e0f38d8e2",
+          "use_nodes": true,
+          "surface_render_method": "DITHERED",
+          "principled": {
+            "Base Color": [
+              0.8,
+              0.8,
+              0.8,
+              1
+            ],
+            "Metallic": 0,
+            "Roughness": 0.5,
+            "Alpha": 1
+          },
+          "texturas": [
+            {
+              "nome": "Color_0694c9ab-acba-4f85-a65d-ae6e0f38d8e2",
+              "resolucao": [
+                4096,
+                4096
+              ],
+              "colorspace": "sRGB",
+              "empacotada": true,
+              "tem_dados": true
+            },
+            {
+              "nome": "ORM_0694c9ab-acba-4f85-a65d-ae6e0f38d8e2",
+              "resolucao": [
+                4096,
+                4096
+              ],
+              "colorspace": "Non-Color",
+              "empacotada": true,
+              "tem_dados": true
+            },
+            {
+              "nome": "NormalGL_0694c9ab-acba-4f85-a65d-ae6e0f38d8e2",
+              "resolucao": [
+                4096,
+                4096
+              ],
+              "colorspace": "Non-Color",
+              "empacotada": true,
+              "tem_dados": true
+            }
+          ]
+        }
+      ],
+      "armaduras": [
+        {
+          "nome": "Armature",
+          "ossos": 78,
+          "raizes": [
+            "BoneRoot"
+          ],
+          "amostra_ossos": [
+            "BoneRoot",
+            "Hip",
+            "Pelvis",
+            "L_Thigh",
+            "L_Calf",
+            "L_Foot",
+            "L_ToeBase",
+            "L_CalfTwist01",
+            "L_CalfTwist02",
+            "L_KneeShareBone",
+            "L_ThighTwist01",
+            "L_ThighTwist02",
+            "R_Thigh",
+            "R_Calf",
+            "R_KneeShareBone",
+            "R_Foot",
+            "R_ToeBase",
+            "R_CalfTwist01",
+            "R_CalfTwist02",
+            "R_ThighTwist01",
+            "R_ThighTwist02",
+            "Waist",
+            "Spine01",
+            "Spine02",
+            "NeckTwist01",
+            "NeckTwist02",
+            "Head",
+            "FacialBone",
+            "R_Eye",
+            "L_Eye",
+            "L_Clavicle",
+            "L_Upperarm",
+            "L_Forearm",
+            "L_ForearmTwist01",
+            "L_ForearmTwist02",
+            "L_ElbowShareBone",
+            "L_Hand",
+            "L_Pinky1",
+            "L_Pinky2",
+            "L_Pinky3"
+          ],
+          "vao_ombros_m": 0.2067,
+          "vao_quadril_m": null,
+          "razao_ombro_quadril_ossos": null
+        }
+      ],
+      "acoes": [],
+      "pose_compatibilidade": {
+        "tem_armadura": true,
+        "tem_skin_ativo": true,
+        "compativel_direto_forja_16_ossos": false,
+        "ossos_forja_exatos": [],
+        "ossos_forja_faltantes": [
+          "hips",
+          "spine",
+          "neck",
+          "armL",
+          "elbowL",
+          "handL",
+          "armR",
+          "elbowR",
+          "handR",
+          "legL",
+          "kneeL",
+          "footL",
+          "legR",
+          "kneeR",
+          "footR",
+          "prop"
+        ],
+        "ossos_humanoides_mapeaveis": {
+          "hips": "Pelvis",
+          "spine": "Spine02",
+          "neck": "Head",
+          "armL": "L_Upperarm",
+          "elbowL": "L_Forearm",
+          "handL": "L_Hand",
+          "armR": "R_Upperarm",
+          "elbowR": "R_Forearm",
+          "handR": "R_Hand",
+          "footL": "L_Foot",
+          "footR": "R_Foot"
+        },
+        "teste_deformacao_skin": {
+          "osso_testado": "L_Upperarm",
+          "amostras_comparadas": 2043,
+          "vertices_movidos": 305,
+          "deslocamento_max_m": 0.1516,
+          "deforma_malha": true
+        },
+        "teste_aplicacao_clipe_forja": {
+          "clipe": "postura-base.glb",
+          "acoes_importadas": 16,
+          "curvas_casadas_no_modelo": 0,
+          "curvas_sem_osso_no_modelo": 0,
+          "aplicavel_sem_retarget": false
+        },
+        "erros_pose": [
+          "Incompatibilidade direta com os clipes atuais de 16 ossos do FORJA: apenas 0/16 nomes exatos presentes (mapeáveis por normalização humanoide: 11/15)."
+        ]
+      },
+      "evidencias_genero": {
+        "hits_nominais_feminino": [],
+        "hits_nominais_masculino": [],
+        "razao_ombro_quadril_ossos": null,
+        "razao_cintura_quadril_tronco": 0.5962,
+        "altura_z_m": 2
+      }
+    },
+    {
+      "personagem": "feminino",
+      "criterio_classificacao": "razão geométrica cintura/quadril do tronco (0.5962 vs 0.5555)",
+      "nome_arquivo_original": "DOC-20261031-WA0009.bin",
+      "bytes_original": 20650336,
+      "sha256_original": "7f294533acd9a278cf53332170ffcdb4bbed26aacbee66a7d9b5ea3d67966077",
+      "sha256_confere_release": true,
+      "formato_binario_detectado": "GLB",
+      "usa_meshopt_no_original": true,
+      "extensoes_gltf_usadas": [
+        "KHR_mesh_quantization",
+        "EXT_meshopt_compression"
+      ],
+      "extensoes_gltf_obrigatorias": [
+        "KHR_mesh_quantization",
+        "EXT_meshopt_compression"
+      ],
+      "glb_json_resumo": {
+        "assetVersion": "2.0",
+        "generator": "gltfpack 1.2",
+        "copyright": null,
+        "extensionsUsed": [
+          "KHR_mesh_quantization",
+          "EXT_meshopt_compression"
+        ],
+        "extensionsRequired": [
+          "KHR_mesh_quantization",
+          "EXT_meshopt_compression"
+        ],
+        "contagens": {
+          "scenes": 1,
+          "nodes": 80,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "images": 3,
+          "skins": 1,
+          "animations": 0,
+          "accessors": 7,
+          "bufferViews": 10,
+          "bufferViewsMeshopt": 7,
+          "primitivasDraco": 0
+        },
+        "meshoptDetalhes": {
+          "bufferViewsComprimidos": 7,
+          "bytesComprimidosDeclarados": 11590832,
+          "modos": {
+            "ATTRIBUTES": 6,
+            "TRIANGLES": 1
+          },
+          "filtros": {
+            "EXPONENTIAL": 2,
+            "NONE": 5
+          }
+        },
+        "nomes_cenas": [
+          "Scene"
+        ],
+        "nomes_nos": [
+          "L_ToeBase",
+          "L_Foot",
+          "L_CalfTwist02",
+          "L_CalfTwist01",
+          "L_KneeShareBone",
+          "L_Calf",
+          "L_ThighTwist02",
+          "L_ThighTwist01",
+          "L_Thigh",
+          "R_KneeShareBone",
+          "R_ToeBase",
+          "R_Foot",
+          "R_CalfTwist02",
+          "R_CalfTwist01",
+          "R_Calf",
+          "R_ThighTwist02",
+          "R_ThighTwist01",
+          "R_Thigh",
+          "Pelvis",
+          "R_Eye",
+          "L_Eye",
+          "FacialBone",
+          "Head",
+          "NeckTwist02",
+          "NeckTwist01",
+          "L_ForearmTwist02",
+          "L_ForearmTwist01",
+          "L_ElbowShareBone",
+          "L_Pinky3",
+          "L_Pinky2",
+          "L_Pinky1",
+          "L_Ring3",
+          "L_Ring2",
+          "L_Ring1",
+          "L_Mid3",
+          "L_Mid2",
+          "L_Mid1",
+          "L_Index3",
+          "L_Index2",
+          "L_Index1",
+          "L_Thumb3",
+          "L_Thumb2",
+          "L_Thumb1",
+          "L_Hand",
+          "L_Forearm",
+          "L_UpperarmTwist02",
+          "L_UpperarmTwist01",
+          "L_Upperarm",
+          "L_Clavicle",
+          "R_ElbowShareBone",
+          "R_ForearmTwist02",
+          "R_ForearmTwist01",
+          "R_Ring3",
+          "R_Ring2",
+          "R_Ring1",
+          "R_Mid3",
+          "R_Mid2",
+          "R_Mid1",
+          "R_Thumb3",
+          "R_Thumb2"
+        ],
+        "nomes_malhas": [],
+        "nomes_materiais": [
+          "tripo_material_f463103e-e45c-4e29-9c5e-5d31bab2da4b"
+        ],
+        "nomes_imagens": [
+          "NormalGL_f463103e-e45c-4e29-9c5e-5d31bab2da4b",
+          "Color_f463103e-e45c-4e29-9c5e-5d31bab2da4b",
+          "ORM_f463103e-e45c-4e29-9c5e-5d31bab2da4b"
+        ],
+        "nomes_skins": [
+          "Armature"
+        ],
+        "nomes_animacoes": [],
+        "mimeTypesImagens": [
+          "image/png",
+          "image/jpeg"
+        ]
+      },
+      "meshopt_operacao": {
+        "modo": "decodificacao_original",
+        "sucesso": true,
+        "tempo_ms": 1219,
+        "bytes_antes": 20650336,
+        "bytes_depois_sem_meshopt": 65208348,
+        "bytes_depois_desquantizado": 85505020,
+        "texturas_ktx2_convertidas_png": 0,
+        "extensoes_restantes": []
+      },
+      "teste_three_gltfloader_sem_meshopt": {
+        "sucesso_sem_decoder_meshopt": false,
+        "erro": "THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files"
+      },
+      "compatibilidade_importacao": {
+        "bin_direto": {
+          "sucesso": false,
+          "tempo_s": 0.0054,
+          "erro": "RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version\n"
+        },
+        "glb_intacto_direto": {
+          "sucesso": false,
+          "tempo_s": 0.0047,
+          "erro": "RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version\n"
+        },
+        "sonda_meshopt_blender_4_2_1": null,
+        "modelo_preparado_render": {
+          "sucesso": true,
+          "tempo_s": 4.4149,
+          "erro": null
+        }
+      },
+      "origem_modelo_render": "glb_meshopt_decodificado",
+      "geometria_mundo": {
+        "vazio": false,
+        "bbox_min": [
+          -0.9511,
+          -1,
+          -1
+        ],
+        "bbox_max": [
+          0.9511,
+          1,
+          1
+        ],
+        "dimensoes": [
+          1.9021,
+          2,
+          2
+        ],
+        "largura_x_m": 1.9021,
+        "profundidade_y_m": 2,
+        "altura_z_m": 2,
+        "centro": [
+          0,
+          0,
+          0
+        ],
+        "anatomia_tronco": {
+          "largura_quadril_central_m": 0.1784,
+          "largura_cintura_central_m": 0.0991,
+          "largura_peito_central_m": 0.5393,
+          "profundidade_peito_central_m": 1.7013,
+          "razao_cintura_quadril": 0.5555
+        }
+      },
+      "totais_cena": {
+        "malhas": 2,
+        "vertices": 1014882,
+        "poligonos": 1972907,
+        "triangulos": 1972907,
+        "materiais": 1,
+        "imagens_sem_dados": [],
+        "armaduras": 1,
+        "ossos": 78,
+        "acoes": 0
+      },
+      "materiais": [
+        {
+          "nome": "tripo_material_f463103e-e45c-4e29-9c5e-5d31bab2da4b",
+          "use_nodes": true,
+          "surface_render_method": "DITHERED",
+          "principled": {
+            "Base Color": [
+              0.8,
+              0.8,
+              0.8,
+              1
+            ],
+            "Metallic": 0,
+            "Roughness": 0.5,
+            "Alpha": 1
+          },
+          "texturas": [
+            {
+              "nome": "Color_f463103e-e45c-4e29-9c5e-5d31bab2da4b",
+              "resolucao": [
+                4096,
+                4096
+              ],
+              "colorspace": "sRGB",
+              "empacotada": true,
+              "tem_dados": true
+            },
+            {
+              "nome": "ORM_f463103e-e45c-4e29-9c5e-5d31bab2da4b",
+              "resolucao": [
+                4096,
+                4096
+              ],
+              "colorspace": "Non-Color",
+              "empacotada": true,
+              "tem_dados": true
+            },
+            {
+              "nome": "NormalGL_f463103e-e45c-4e29-9c5e-5d31bab2da4b",
+              "resolucao": [
+                4096,
+                4096
+              ],
+              "colorspace": "Non-Color",
+              "empacotada": true,
+              "tem_dados": true
+            }
+          ]
+        }
+      ],
+      "armaduras": [
+        {
+          "nome": "Armature",
+          "ossos": 78,
+          "raizes": [
+            "BoneRoot"
+          ],
+          "amostra_ossos": [
+            "BoneRoot",
+            "Hip",
+            "Pelvis",
+            "L_Thigh",
+            "L_Calf",
+            "L_Foot",
+            "L_ToeBase",
+            "L_CalfTwist01",
+            "L_CalfTwist02",
+            "L_KneeShareBone",
+            "L_ThighTwist01",
+            "L_ThighTwist02",
+            "R_Thigh",
+            "R_Calf",
+            "R_KneeShareBone",
+            "R_Foot",
+            "R_ToeBase",
+            "R_CalfTwist01",
+            "R_CalfTwist02",
+            "R_ThighTwist01",
+            "R_ThighTwist02",
+            "Waist",
+            "Spine01",
+            "Spine02",
+            "NeckTwist01",
+            "NeckTwist02",
+            "Head",
+            "FacialBone",
+            "R_Eye",
+            "L_Eye",
+            "L_Clavicle",
+            "L_Upperarm",
+            "L_Forearm",
+            "L_ForearmTwist01",
+            "L_ForearmTwist02",
+            "L_ElbowShareBone",
+            "L_Hand",
+            "L_Pinky1",
+            "L_Pinky2",
+            "L_Pinky3"
+          ],
+          "vao_ombros_m": 0.1759,
+          "vao_quadril_m": null,
+          "razao_ombro_quadril_ossos": null
+        }
+      ],
+      "acoes": [],
+      "pose_compatibilidade": {
+        "tem_armadura": true,
+        "tem_skin_ativo": true,
+        "compativel_direto_forja_16_ossos": false,
+        "ossos_forja_exatos": [],
+        "ossos_forja_faltantes": [
+          "hips",
+          "spine",
+          "neck",
+          "armL",
+          "elbowL",
+          "handL",
+          "armR",
+          "elbowR",
+          "handR",
+          "legL",
+          "kneeL",
+          "footL",
+          "legR",
+          "kneeR",
+          "footR",
+          "prop"
+        ],
+        "ossos_humanoides_mapeaveis": {
+          "hips": "Pelvis",
+          "spine": "Spine02",
+          "neck": "Head",
+          "armL": "L_Upperarm",
+          "elbowL": "L_Forearm",
+          "handL": "L_Hand",
+          "armR": "R_Upperarm",
+          "elbowR": "R_Forearm",
+          "handR": "R_Hand",
+          "footL": "L_Foot",
+          "footR": "R_Foot"
+        },
+        "teste_deformacao_skin": {
+          "osso_testado": "L_Upperarm",
+          "amostras_comparadas": 2044,
+          "vertices_movidos": 247,
+          "deslocamento_max_m": 0.153,
+          "deforma_malha": true
+        },
+        "teste_aplicacao_clipe_forja": {
+          "clipe": "postura-base.glb",
+          "acoes_importadas": 16,
+          "curvas_casadas_no_modelo": 0,
+          "curvas_sem_osso_no_modelo": 0,
+          "aplicavel_sem_retarget": false
+        },
+        "erros_pose": [
+          "Incompatibilidade direta com os clipes atuais de 16 ossos do FORJA: apenas 0/16 nomes exatos presentes (mapeáveis por normalização humanoide: 11/15)."
+        ]
+      },
+      "evidencias_genero": {
+        "hits_nominais_feminino": [],
+        "hits_nominais_masculino": [],
+        "razao_ombro_quadril_ossos": null,
+        "razao_cintura_quadril_tronco": 0.5555,
+        "altura_z_m": 2
+      }
+    }
+  ],
+  "execucoes_render": [
+    {
+      "personagem": "masculino",
+      "motor": "CYCLES",
+      "engine_id_blender": "CYCLES",
+      "sucesso": true,
+      "arquivo_png": "masculino-cycles.png",
+      "png_bytes": 675610,
+      "arquivo_log": "logs/render-masculino-cycles.log",
+      "tempos_s": {
+        "importacao": 4.5196,
+        "preparacao_cena": 0.504,
+        "render_frio": 20.1274,
+        "render_quente": 20.0454,
+        "cpu_frio_total": 78.126,
+        "cpu_frio_user": 77.6596,
+        "cpu_frio_sys": 0.4664,
+        "cpu_quente_total": 78.0582,
+        "processo_total": 45.2301
+      },
+      "tempo_parede_subprocesso_s": 45.5742,
+      "memoria_mb": {
+        "rss_inicio": 247.39,
+        "rss_pos_importacao": 635.33,
+        "rss_pos_render_frio": 706.75,
+        "pico_rss_hwm_pos_frio": 1621.34,
+        "pico_rss_hwm_processo": 1621.34,
+        "pico_virtual_vmpeak": 3658.61,
+        "pico_interno_blender": null
+      },
+      "configuracao_motor": {
+        "motor_solicitado": "CYCLES",
+        "engine_id_blender": "CYCLES",
+        "dispositivo": "CPU",
+        "amostras": 64,
+        "adaptive_sampling": true,
+        "denoiser": null,
+        "threads_modo": "AUTO",
+        "threads": 4,
+        "avisos_configuracao": [
+          "OPENIMAGEDENOISE indisponível ([]); denoising desativado."
+        ]
+      },
+      "cena": {
+        "resolucao_px": [
+          720,
+          960
+        ],
+        "geometria_enquadrada": {
+          "vazio": false,
+          "bbox_min": [
+            -0.9511,
+            -1,
+            -1
+          ],
+          "bbox_max": [
+            0.9511,
+            1,
+            1
+          ],
+          "dimensoes": [
+            1.9021,
+            2,
+            2
+          ],
+          "largura_x_m": 1.9021,
+          "profundidade_y_m": 2,
+          "altura_z_m": 2,
+          "centro": [
+            0,
+            0,
+            0
+          ],
+          "anatomia_tronco": {
+            "largura_quadril_central_m": 0.1768,
+            "largura_cintura_central_m": 0.1054,
+            "largura_peito_central_m": 0.5393,
+            "profundidade_peito_central_m": 1.7013,
+            "razao_cintura_quadril": 0.5962
+          }
+        },
+        "frente_usada": {
+          "sinal_y": 1,
+          "origem": "vetor pé→dedo (L_Foot→L_ToeBase, dy=0.0153)"
+        },
+        "piso_z_m": -1,
+        "camera": {
+          "lente_mm": 50,
+          "sensor_mm": 36,
+          "posicao": [
+            -1.8784,
+            4.7029,
+            0.5281
+          ],
+          "alvo": [
+            0,
+            0,
+            0.02
+          ],
+          "distancia_m": 5.0896
+        },
+        "luzes": [
+          {
+            "nome": "forja_luz_principal",
+            "tipo": "AREA",
+            "energia_w": 496.33,
+            "tamanho_m": 3.429,
+            "cor_rgb": [
+              1,
+              0.96,
+              0.9
+            ],
+            "posicao": [
+              -2.7429,
+              3.2,
+              2.2571
+            ]
+          },
+          {
+            "nome": "forja_luz_preenchimento",
+            "tipo": "AREA",
+            "energia_w": 235.1,
+            "tamanho_m": 3.657,
+            "cor_rgb": [
+              0.82,
+              0.89,
+              1
+            ],
+            "posicao": [
+              2.9714,
+              2.5143,
+              1.3429
+            ]
+          },
+          {
+            "nome": "forja_luz_recorte",
+            "tipo": "AREA",
+            "energia_w": 313.47,
+            "tamanho_m": 3.2,
+            "cor_rgb": [
+              1,
+              0.84,
+              0.64
+            ],
+            "posicao": [
+              2.6286,
+              -2.9714,
+              2.2
+            ]
+          },
+          {
+            "nome": "forja_luz_topo",
+            "tipo": "AREA",
+            "energia_w": 156.73,
+            "tamanho_m": 2.743,
+            "cor_rgb": [
+              1,
+              1,
+              1
+            ],
+            "posicao": [
+              0,
+              -0.3429,
+              3.0571
+            ]
+          }
+        ],
+        "gerenciamento_cor": {
+          "display_device": "sRGB",
+          "view_transform": "AgX",
+          "look": "None",
+          "exposure": 0,
+          "gamma": 1
+        }
+      },
+      "gpu_opengl": {
+        "disponivel": false,
+        "erro": "SystemError: GPU functions for drawing are not available in background mode"
+      },
+      "metricas_imagem": {
+        "largura": 720,
+        "altura": 960,
+        "bytes": 675610,
+        "sha256": "4db48770aa01eb277e7838a95bc9c3ca024fa44642cccd3be3c4b0ce99d2fd41",
+        "luminancia_media_0_255": 82.13,
+        "luminancia_desvio_0_255": 53.95,
+        "luminancia_p01": 33,
+        "luminancia_p50": 34,
+        "luminancia_p99": 152,
+        "cobertura_silhueta_pct": 32.57,
+        "pixels_magenta_textura_ausente": 0
+      },
+      "avisos_render": [
+        "Fra:1 Mem:780.94M (Peak 1037.56M) | Time:00:01.58 | Mem:192.00M, Peak:192.00M | Scene, ViewLayer | Updating Shaders"
+      ],
+      "erro": null
+    },
+    {
+      "personagem": "masculino",
+      "motor": "EEVEE",
+      "engine_id_blender": "BLENDER_EEVEE_NEXT",
+      "sucesso": true,
+      "arquivo_png": "masculino-eevee.png",
+      "png_bytes": 555345,
+      "arquivo_log": "logs/render-masculino-eevee.log",
+      "tempos_s": {
+        "importacao": 4.4367,
+        "preparacao_cena": 0.5111,
+        "render_frio": 77.0063,
+        "render_quente": 71.8243,
+        "cpu_frio_total": 185.9607,
+        "cpu_frio_user": 181.2653,
+        "cpu_frio_sys": 4.6954,
+        "cpu_quente_total": 180.1539,
+        "processo_total": 153.8117
+      },
+      "tempo_parede_subprocesso_s": 154.1904,
+      "memoria_mb": {
+        "rss_inicio": 245.25,
+        "rss_pos_importacao": 642.41,
+        "rss_pos_render_frio": 1830.04,
+        "pico_rss_hwm_pos_frio": 2907.8,
+        "pico_rss_hwm_processo": 3070.55,
+        "pico_virtual_vmpeak": 5714.27,
+        "pico_interno_blender": null
+      },
+      "configuracao_motor": {
+        "motor_solicitado": "EEVEE",
+        "engine_id_blender": "BLENDER_EEVEE_NEXT",
+        "amostras": 64,
+        "use_shadows": true,
+        "use_raytracing": false,
+        "avisos_configuracao": []
+      },
+      "cena": {
+        "resolucao_px": [
+          720,
+          960
+        ],
+        "geometria_enquadrada": {
+          "vazio": false,
+          "bbox_min": [
+            -0.9511,
+            -1,
+            -1
+          ],
+          "bbox_max": [
+            0.9511,
+            1,
+            1
+          ],
+          "dimensoes": [
+            1.9021,
+            2,
+            2
+          ],
+          "largura_x_m": 1.9021,
+          "profundidade_y_m": 2,
+          "altura_z_m": 2,
+          "centro": [
+            0,
+            0,
+            0
+          ],
+          "anatomia_tronco": {
+            "largura_quadril_central_m": 0.1768,
+            "largura_cintura_central_m": 0.1054,
+            "largura_peito_central_m": 0.5393,
+            "profundidade_peito_central_m": 1.7013,
+            "razao_cintura_quadril": 0.5962
+          }
+        },
+        "frente_usada": {
+          "sinal_y": 1,
+          "origem": "vetor pé→dedo (L_Foot→L_ToeBase, dy=0.0153)"
+        },
+        "piso_z_m": -1,
+        "camera": {
+          "lente_mm": 50,
+          "sensor_mm": 36,
+          "posicao": [
+            -1.8784,
+            4.7029,
+            0.5281
+          ],
+          "alvo": [
+            0,
+            0,
+            0.02
+          ],
+          "distancia_m": 5.0896
+        },
+        "luzes": [
+          {
+            "nome": "forja_luz_principal",
+            "tipo": "AREA",
+            "energia_w": 496.33,
+            "tamanho_m": 3.429,
+            "cor_rgb": [
+              1,
+              0.96,
+              0.9
+            ],
+            "posicao": [
+              -2.7429,
+              3.2,
+              2.2571
+            ]
+          },
+          {
+            "nome": "forja_luz_preenchimento",
+            "tipo": "AREA",
+            "energia_w": 235.1,
+            "tamanho_m": 3.657,
+            "cor_rgb": [
+              0.82,
+              0.89,
+              1
+            ],
+            "posicao": [
+              2.9714,
+              2.5143,
+              1.3429
+            ]
+          },
+          {
+            "nome": "forja_luz_recorte",
+            "tipo": "AREA",
+            "energia_w": 313.47,
+            "tamanho_m": 3.2,
+            "cor_rgb": [
+              1,
+              0.84,
+              0.64
+            ],
+            "posicao": [
+              2.6286,
+              -2.9714,
+              2.2
+            ]
+          },
+          {
+            "nome": "forja_luz_topo",
+            "tipo": "AREA",
+            "energia_w": 156.73,
+            "tamanho_m": 2.743,
+            "cor_rgb": [
+              1,
+              1,
+              1
+            ],
+            "posicao": [
+              0,
+              -0.3429,
+              3.0571
+            ]
+          }
+        ],
+        "gerenciamento_cor": {
+          "display_device": "sRGB",
+          "view_transform": "AgX",
+          "look": "None",
+          "exposure": 0,
+          "gamma": 1
+        }
+      },
+      "gpu_opengl": {
+        "disponivel": true,
+        "vendor": "Mesa",
+        "renderer": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "version": "4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4",
+        "device_type": "SOFTWARE",
+        "backend": "OPENGL"
+      },
+      "metricas_imagem": {
+        "largura": 720,
+        "altura": 960,
+        "bytes": 555345,
+        "sha256": "c19fefa6f283a45d3c810630366b8a0a1d10216c1af142a14497f039266f6330",
+        "luminancia_media_0_255": 81.15,
+        "luminancia_desvio_0_255": 53.15,
+        "luminancia_p01": 28,
+        "luminancia_p50": 34,
+        "luminancia_p99": 146,
+        "cobertura_silhueta_pct": 32.65,
+        "pixels_magenta_textura_ausente": 0
+      },
+      "avisos_render": [
+        "EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface)."
+      ],
+      "erro": null
+    },
+    {
+      "personagem": "feminino",
+      "motor": "CYCLES",
+      "engine_id_blender": "CYCLES",
+      "sucesso": true,
+      "arquivo_png": "feminino-cycles.png",
+      "png_bytes": 675927,
+      "arquivo_log": "logs/render-feminino-cycles.log",
+      "tempos_s": {
+        "importacao": 4.5186,
+        "preparacao_cena": 0.5094,
+        "render_frio": 20.2016,
+        "render_quente": 20.1424,
+        "cpu_frio_total": 78.1328,
+        "cpu_frio_user": 77.6537,
+        "cpu_frio_sys": 0.4791,
+        "cpu_quente_total": 78.2159,
+        "processo_total": 45.4066
+      },
+      "tempo_parede_subprocesso_s": 45.7419,
+      "memoria_mb": {
+        "rss_inicio": 245.32,
+        "rss_pos_importacao": 638.98,
+        "rss_pos_render_frio": 710.66,
+        "pico_rss_hwm_pos_frio": 1624.95,
+        "pico_rss_hwm_processo": 1624.95,
+        "pico_virtual_vmpeak": 3584.29,
+        "pico_interno_blender": null
+      },
+      "configuracao_motor": {
+        "motor_solicitado": "CYCLES",
+        "engine_id_blender": "CYCLES",
+        "dispositivo": "CPU",
+        "amostras": 64,
+        "adaptive_sampling": true,
+        "denoiser": null,
+        "threads_modo": "AUTO",
+        "threads": 4,
+        "avisos_configuracao": [
+          "OPENIMAGEDENOISE indisponível ([]); denoising desativado."
+        ]
+      },
+      "cena": {
+        "resolucao_px": [
+          720,
+          960
+        ],
+        "geometria_enquadrada": {
+          "vazio": false,
+          "bbox_min": [
+            -0.9511,
+            -1,
+            -1
+          ],
+          "bbox_max": [
+            0.9511,
+            1,
+            1
+          ],
+          "dimensoes": [
+            1.9021,
+            2,
+            2
+          ],
+          "largura_x_m": 1.9021,
+          "profundidade_y_m": 2,
+          "altura_z_m": 2,
+          "centro": [
+            0,
+            0,
+            0
+          ],
+          "anatomia_tronco": {
+            "largura_quadril_central_m": 0.1784,
+            "largura_cintura_central_m": 0.0991,
+            "largura_peito_central_m": 0.5393,
+            "profundidade_peito_central_m": 1.7013,
+            "razao_cintura_quadril": 0.5555
+          }
+        },
+        "frente_usada": {
+          "sinal_y": 1,
+          "origem": "vetor pé→dedo (L_Foot→L_ToeBase, dy=0.0115)"
+        },
+        "piso_z_m": -1,
+        "camera": {
+          "lente_mm": 50,
+          "sensor_mm": 36,
+          "posicao": [
+            -1.8784,
+            4.7029,
+            0.5281
+          ],
+          "alvo": [
+            0,
+            0,
+            0.02
+          ],
+          "distancia_m": 5.0896
+        },
+        "luzes": [
+          {
+            "nome": "forja_luz_principal",
+            "tipo": "AREA",
+            "energia_w": 496.33,
+            "tamanho_m": 3.429,
+            "cor_rgb": [
+              1,
+              0.96,
+              0.9
+            ],
+            "posicao": [
+              -2.7429,
+              3.2,
+              2.2571
+            ]
+          },
+          {
+            "nome": "forja_luz_preenchimento",
+            "tipo": "AREA",
+            "energia_w": 235.1,
+            "tamanho_m": 3.657,
+            "cor_rgb": [
+              0.82,
+              0.89,
+              1
+            ],
+            "posicao": [
+              2.9714,
+              2.5143,
+              1.3429
+            ]
+          },
+          {
+            "nome": "forja_luz_recorte",
+            "tipo": "AREA",
+            "energia_w": 313.47,
+            "tamanho_m": 3.2,
+            "cor_rgb": [
+              1,
+              0.84,
+              0.64
+            ],
+            "posicao": [
+              2.6286,
+              -2.9714,
+              2.2
+            ]
+          },
+          {
+            "nome": "forja_luz_topo",
+            "tipo": "AREA",
+            "energia_w": 156.73,
+            "tamanho_m": 2.743,
+            "cor_rgb": [
+              1,
+              1,
+              1
+            ],
+            "posicao": [
+              0,
+              -0.3429,
+              3.0571
+            ]
+          }
+        ],
+        "gerenciamento_cor": {
+          "display_device": "sRGB",
+          "view_transform": "AgX",
+          "look": "None",
+          "exposure": 0,
+          "gamma": 1
+        }
+      },
+      "gpu_opengl": {
+        "disponivel": false,
+        "erro": "SystemError: GPU functions for drawing are not available in background mode"
+      },
+      "metricas_imagem": {
+        "largura": 720,
+        "altura": 960,
+        "bytes": 675927,
+        "sha256": "f05ab8937374c112fb235f3c51041fa336097c592d5adc4f0bfd2c4690613a00",
+        "luminancia_media_0_255": 82.13,
+        "luminancia_desvio_0_255": 53.95,
+        "luminancia_p01": 33,
+        "luminancia_p50": 34,
+        "luminancia_p99": 152,
+        "cobertura_silhueta_pct": 32.53,
+        "pixels_magenta_textura_ausente": 0
+      },
+      "avisos_render": [
+        "Fra:1 Mem:779.84M (Peak 1036.46M) | Time:00:01.57 | Mem:192.00M, Peak:192.00M | Scene, ViewLayer | Updating Shaders"
+      ],
+      "erro": null
+    },
+    {
+      "personagem": "feminino",
+      "motor": "EEVEE",
+      "engine_id_blender": "BLENDER_EEVEE_NEXT",
+      "sucesso": true,
+      "arquivo_png": "feminino-eevee.png",
+      "png_bytes": 555634,
+      "arquivo_log": "logs/render-feminino-eevee.log",
+      "tempos_s": {
+        "importacao": 4.4949,
+        "preparacao_cena": 0.5163,
+        "render_frio": 75.0713,
+        "render_quente": 71.8292,
+        "cpu_frio_total": 183.0062,
+        "cpu_frio_user": 176.6179,
+        "cpu_frio_sys": 6.3883,
+        "cpu_quente_total": 180.2864,
+        "processo_total": 151.9726
+      },
+      "tempo_parede_subprocesso_s": 152.3271,
+      "memoria_mb": {
+        "rss_inicio": 243.38,
+        "rss_pos_importacao": 650.98,
+        "rss_pos_render_frio": 1725.35,
+        "pico_rss_hwm_pos_frio": 2808.34,
+        "pico_rss_hwm_processo": 2963.66,
+        "pico_virtual_vmpeak": 5599.77,
+        "pico_interno_blender": null
+      },
+      "configuracao_motor": {
+        "motor_solicitado": "EEVEE",
+        "engine_id_blender": "BLENDER_EEVEE_NEXT",
+        "amostras": 64,
+        "use_shadows": true,
+        "use_raytracing": false,
+        "avisos_configuracao": []
+      },
+      "cena": {
+        "resolucao_px": [
+          720,
+          960
+        ],
+        "geometria_enquadrada": {
+          "vazio": false,
+          "bbox_min": [
+            -0.9511,
+            -1,
+            -1
+          ],
+          "bbox_max": [
+            0.9511,
+            1,
+            1
+          ],
+          "dimensoes": [
+            1.9021,
+            2,
+            2
+          ],
+          "largura_x_m": 1.9021,
+          "profundidade_y_m": 2,
+          "altura_z_m": 2,
+          "centro": [
+            0,
+            0,
+            0
+          ],
+          "anatomia_tronco": {
+            "largura_quadril_central_m": 0.1784,
+            "largura_cintura_central_m": 0.0991,
+            "largura_peito_central_m": 0.5393,
+            "profundidade_peito_central_m": 1.7013,
+            "razao_cintura_quadril": 0.5555
+          }
+        },
+        "frente_usada": {
+          "sinal_y": 1,
+          "origem": "vetor pé→dedo (L_Foot→L_ToeBase, dy=0.0115)"
+        },
+        "piso_z_m": -1,
+        "camera": {
+          "lente_mm": 50,
+          "sensor_mm": 36,
+          "posicao": [
+            -1.8784,
+            4.7029,
+            0.5281
+          ],
+          "alvo": [
+            0,
+            0,
+            0.02
+          ],
+          "distancia_m": 5.0896
+        },
+        "luzes": [
+          {
+            "nome": "forja_luz_principal",
+            "tipo": "AREA",
+            "energia_w": 496.33,
+            "tamanho_m": 3.429,
+            "cor_rgb": [
+              1,
+              0.96,
+              0.9
+            ],
+            "posicao": [
+              -2.7429,
+              3.2,
+              2.2571
+            ]
+          },
+          {
+            "nome": "forja_luz_preenchimento",
+            "tipo": "AREA",
+            "energia_w": 235.1,
+            "tamanho_m": 3.657,
+            "cor_rgb": [
+              0.82,
+              0.89,
+              1
+            ],
+            "posicao": [
+              2.9714,
+              2.5143,
+              1.3429
+            ]
+          },
+          {
+            "nome": "forja_luz_recorte",
+            "tipo": "AREA",
+            "energia_w": 313.47,
+            "tamanho_m": 3.2,
+            "cor_rgb": [
+              1,
+              0.84,
+              0.64
+            ],
+            "posicao": [
+              2.6286,
+              -2.9714,
+              2.2
+            ]
+          },
+          {
+            "nome": "forja_luz_topo",
+            "tipo": "AREA",
+            "energia_w": 156.73,
+            "tamanho_m": 2.743,
+            "cor_rgb": [
+              1,
+              1,
+              1
+            ],
+            "posicao": [
+              0,
+              -0.3429,
+              3.0571
+            ]
+          }
+        ],
+        "gerenciamento_cor": {
+          "display_device": "sRGB",
+          "view_transform": "AgX",
+          "look": "None",
+          "exposure": 0,
+          "gamma": 1
+        }
+      },
+      "gpu_opengl": {
+        "disponivel": true,
+        "vendor": "Mesa",
+        "renderer": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "version": "4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4",
+        "device_type": "SOFTWARE",
+        "backend": "OPENGL"
+      },
+      "metricas_imagem": {
+        "largura": 720,
+        "altura": 960,
+        "bytes": 555634,
+        "sha256": "853caf13c47abf0558fa5dfba5d4cfdd5d4ad3192938f0399f43ad5e3e25d1cd",
+        "luminancia_media_0_255": 81.15,
+        "luminancia_desvio_0_255": 53.14,
+        "luminancia_p01": 28,
+        "luminancia_p50": 34,
+        "luminancia_p99": 146,
+        "cobertura_silhueta_pct": 32.63,
+        "pixels_magenta_textura_ausente": 0
+      },
+      "avisos_render": [
+        "EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface)."
+      ],
+      "erro": null
+    }
+  ],
+  "comparativo_por_personagem": [
+    {
+      "personagem": "masculino",
+      "paridade_cena_verificada": true,
+      "razao_tempo_frio_cycles_sobre_eevee": 0.26,
+      "razao_tempo_quente_cycles_sobre_eevee": 0.28,
+      "razao_memoria_pico_cycles_sobre_eevee": 0.53,
+      "metricas_imagem_cycles": {
+        "largura": 720,
+        "altura": 960,
+        "bytes": 675610,
+        "sha256": "4db48770aa01eb277e7838a95bc9c3ca024fa44642cccd3be3c4b0ce99d2fd41",
+        "luminancia_media_0_255": 82.13,
+        "luminancia_desvio_0_255": 53.95,
+        "luminancia_p01": 33,
+        "luminancia_p50": 34,
+        "luminancia_p99": 152,
+        "cobertura_silhueta_pct": 32.57,
+        "pixels_magenta_textura_ausente": 0
+      },
+      "metricas_imagem_eevee": {
+        "largura": 720,
+        "altura": 960,
+        "bytes": 555345,
+        "sha256": "c19fefa6f283a45d3c810630366b8a0a1d10216c1af142a14497f039266f6330",
+        "luminancia_media_0_255": 81.15,
+        "luminancia_desvio_0_255": 53.15,
+        "luminancia_p01": 28,
+        "luminancia_p50": 34,
+        "luminancia_p99": 146,
+        "cobertura_silhueta_pct": 32.65,
+        "pixels_magenta_textura_ausente": 0
+      },
+      "diferenca_pixels": {
+        "mae_rgb_0_255": 1.45,
+        "mae_pct": 0.57,
+        "rmse_rgb_0_255": 2.64,
+        "psnr_db": 39.7,
+        "iou_silhueta": 0.9796,
+        "delta_luminancia_media_eevee_menos_cycles": -0.98,
+        "prancha_lado_a_lado": "comparativo-masculino-cycles-vs-eevee.png"
+      }
+    },
+    {
+      "personagem": "feminino",
+      "paridade_cena_verificada": true,
+      "razao_tempo_frio_cycles_sobre_eevee": 0.27,
+      "razao_tempo_quente_cycles_sobre_eevee": 0.28,
+      "razao_memoria_pico_cycles_sobre_eevee": 0.55,
+      "metricas_imagem_cycles": {
+        "largura": 720,
+        "altura": 960,
+        "bytes": 675927,
+        "sha256": "f05ab8937374c112fb235f3c51041fa336097c592d5adc4f0bfd2c4690613a00",
+        "luminancia_media_0_255": 82.13,
+        "luminancia_desvio_0_255": 53.95,
+        "luminancia_p01": 33,
+        "luminancia_p50": 34,
+        "luminancia_p99": 152,
+        "cobertura_silhueta_pct": 32.53,
+        "pixels_magenta_textura_ausente": 0
+      },
+      "metricas_imagem_eevee": {
+        "largura": 720,
+        "altura": 960,
+        "bytes": 555634,
+        "sha256": "853caf13c47abf0558fa5dfba5d4cfdd5d4ad3192938f0399f43ad5e3e25d1cd",
+        "luminancia_media_0_255": 81.15,
+        "luminancia_desvio_0_255": 53.14,
+        "luminancia_p01": 28,
+        "luminancia_p50": 34,
+        "luminancia_p99": 146,
+        "cobertura_silhueta_pct": 32.63,
+        "pixels_magenta_textura_ausente": 0
+      },
+      "diferenca_pixels": {
+        "mae_rgb_0_255": 1.45,
+        "mae_pct": 0.57,
+        "rmse_rgb_0_255": 2.66,
+        "psnr_db": 39.65,
+        "iou_silhueta": 0.9791,
+        "delta_luminancia_media_eevee_menos_cycles": -0.98,
+        "prancha_lado_a_lado": "comparativo-feminino-cycles-vs-eevee.png"
+      }
+    }
+  ],
+  "erros_e_limitacoes": [
+    {
+      "categoria": "importacao_bin_direta",
+      "personagem": "masculino",
+      "arquivo": "DOC-20261031-WA0008.bin",
+      "mensagem": "Importação direta de 'DOC-20261031-WA0008.bin' falhou no Blender 4.2.1: RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version\n"
+    },
+    {
+      "categoria": "importacao_glb_direta",
+      "personagem": "masculino",
+      "arquivo": "DOC-20261031-WA0008.bin",
+      "mensagem": "Importação direta do GLB original no Blender 4.2.1 falhou sem pré-decodificação: RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version\n"
+    },
+    {
+      "categoria": "three_gltfloader_meshopt",
+      "personagem": "masculino",
+      "arquivo": "DOC-20261031-WA0008.bin",
+      "mensagem": "GLTFLoader atual do app sem MeshoptDecoder rejeitou o arquivo original: THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files"
+    },
+    {
+      "categoria": "pose_esqueleto",
+      "personagem": "masculino",
+      "arquivo": "DOC-20261031-WA0008.bin",
+      "mensagem": "Incompatibilidade direta com os clipes atuais de 16 ossos do FORJA: apenas 0/16 nomes exatos presentes (mapeáveis por normalização humanoide: 11/15)."
+    },
+    {
+      "categoria": "importacao_bin_direta",
+      "personagem": "feminino",
+      "arquivo": "DOC-20261031-WA0009.bin",
+      "mensagem": "Importação direta de 'DOC-20261031-WA0009.bin' falhou no Blender 4.2.1: RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version\n"
+    },
+    {
+      "categoria": "importacao_glb_direta",
+      "personagem": "feminino",
+      "arquivo": "DOC-20261031-WA0009.bin",
+      "mensagem": "Importação direta do GLB original no Blender 4.2.1 falhou sem pré-decodificação: RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version\n"
+    },
+    {
+      "categoria": "three_gltfloader_meshopt",
+      "personagem": "feminino",
+      "arquivo": "DOC-20261031-WA0009.bin",
+      "mensagem": "GLTFLoader atual do app sem MeshoptDecoder rejeitou o arquivo original: THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files"
+    },
+    {
+      "categoria": "pose_esqueleto",
+      "personagem": "feminino",
+      "arquivo": "DOC-20261031-WA0009.bin",
+      "mensagem": "Incompatibilidade direta com os clipes atuais de 16 ossos do FORJA: apenas 0/16 nomes exatos presentes (mapeáveis por normalização humanoide: 11/15)."
+    },
+    {
+      "categoria": "ambiente_opengl_software",
+      "mensagem": "No runner GitHub Actions sem GPU dedicada, o EEVEE (4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4) executou sobre rasterizador OpenGL por software (llvmpipe (LLVM 20.1.2, 256 bits)). Em hardware com GPU física dedicada, o tempo do EEVEE tende a cair significativamente, enquanto artefatos de sombra/iluminação indireta permanecem característicos do motor."
+    }
+  ]
+}
