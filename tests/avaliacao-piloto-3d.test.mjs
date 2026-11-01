@@ -23,7 +23,10 @@ import puppeteer from "puppeteer-core";
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const dirCapturas = path.join(repoRoot, "docs", "validacao-3d", "piloto-abdominal-masculino", "capturas-app");
+const dirCapturas =
+  process.env.ATUALIZAR_CAPTURAS === "1"
+    ? path.join(repoRoot, "docs", "validacao-3d", "piloto-abdominal-masculino", "capturas-app")
+    : fs.mkdtempSync(path.join(os.tmpdir(), "forja-piloto-capturas-"));
 fs.mkdirSync(dirCapturas, { recursive: true });
 
 let chromium = null;
