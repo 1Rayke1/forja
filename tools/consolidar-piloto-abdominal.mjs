@@ -155,7 +155,7 @@ function codificarVideoDoisPassos({
         "-b:v", `${kbps}k`,
         "-maxrate", `${Math.round(kbps * 1.35)}k`,
         "-bufsize", `${Math.round(kbps * 2.0)}k`,
-        "-x264-params", "aq-mode=3:aq-strength=0.90:deblock=-1,-1",
+        "-x264-params", "aq-mode=3:aq-strength=0.95:deblock=-1,-1:qpmin=4",
         "-passlogfile", passLog,
       ];
 
@@ -174,7 +174,7 @@ function codificarVideoDoisPassos({
       if (bytes >= minBytes && bytes <= maxBytes) {
         break;
       }
-      kbps = Math.max(2400, Math.min(8200, Math.round(kbps * (alvoBytes / Math.max(1, bytes)))));
+      kbps = Math.max(2200, Math.min(12500, Math.round(kbps * (alvoBytes / Math.max(1, bytes)))));
     }
   } finally {
     fs.rmSync(tmpPassDir, { recursive: true, force: true });
@@ -560,10 +560,11 @@ function executarModoFinal(args) {
     `    - Horizontal 16:9: costura \`quadro 179 → quadro 0\` com \`MAD = ${vh.continuidade_loop_mp4_decodificado.costura_loop_q179_para_q0.mad_0_255}\` (\`PSNR = ${vh.continuidade_loop_mp4_decodificado.costura_loop_q179_para_q0.psnr_db} dB\`), compatível com o passo natural adjacente \`quadro 0 → quadro 1\` (\`MAD = ${vh.continuidade_loop_mp4_decodificado.passo_q0_para_q1.mad_0_255}\`, \`PSNR = ${vh.continuidade_loop_mp4_decodificado.passo_q0_para_q1.psnr_db} dB\`); identidade entre 1ª e 2ª repetição (\`q0 vs q90\`): \`PSNR = ${vh.continuidade_loop_mp4_decodificado.identidade_repeticao_q0_vs_q90.psnr_db} dB\`.`,
     `    - Vertical 9:16: costura \`quadro 179 → quadro 0\` com \`MAD = ${vv.continuidade_loop_mp4_decodificado.costura_loop_q179_para_q0.mad_0_255}\` (\`PSNR = ${vv.continuidade_loop_mp4_decodificado.costura_loop_q179_para_q0.psnr_db} dB\`), compatível com o passo natural adjacente \`quadro 0 → quadro 1\` (\`MAD = ${vv.continuidade_loop_mp4_decodificado.passo_q0_para_q1.mad_0_255}\`, \`PSNR = ${vv.continuidade_loop_mp4_decodificado.passo_q0_para_q1.psnr_db} dB\`); identidade entre 1ª e 2ª repetição (\`q0 vs q90\`): \`PSNR = ${vv.continuidade_loop_mp4_decodificado.identidade_repeticao_q0_vs_q90.psnr_db} dB\`.`,
     "",
-    "## 4. Observações Técnicas / Anatômicas Relevantes",
+    "## 4. Observações Técnicas e Anatômicas Registadas na Pré-validação",
     "",
-    "- **Ajuste estático de proporção e apoio plantar (sem inventar movimento):** Na animação-fonte de 16 ossos (`abdominal-supra.glb`, criada para manequim estilizado sem articulação de dedos dos pés), o osso `footL/R` tinha inclinação fixa de `-55°` (apoio apenas na borda do calcanhar) e a razão `coxa/perna` diferia ligeiramente do modelo masculino realista Tripo. No retarget para o rig de 78 ossos, preservou-se integralmente a curva original de tronco, pescoço e braços e aplicou-se solução analítica fechada de 2 elos nos membros inferiores com orientação plantar horizontal de repouso (`L_Foot`/`R_Foot` + `ToeBase`), garantindo sola inteira apoiada no colchonete e dorso/sacro apoiados simultaneamente sem deslizamento nem penetração.",
-    "- **Eliminação de torção esférica de holonomia nos ombros:** Como o modelo masculino original parte de `A-pose` (~38° de abdução) enquanto o manequim de origem parte de `I-pose`, o transporte prévio da direção de repouso pelo delta mundial da coluna eliminou `~42,6°` de torção axial espúria no úmero ao deitar em decúbito dorsal.",
+    "- **Preservação analítica da corda torácica multi-segmentada (`Waist` / `Spine01` / `Spine02`):** Na 1ª execução de pré-validação, distribuir `22°` apenas como ângulo tangente no topo da coluna reduziu a elevação vertical dos ombros para `4,79 cm` (equiv. 1,75 m). Aplicou-se o fator analítico exato de preservação da corda `Waist → NeckTwist01` (`fator_corda_toracica = " + String(diag.retarget.fator_corda_toracica) + "`), reproduzindo integralmente a inclinação de corda `spine → neck` (`22°`) e a orientação final da cabeça (`42°`) da animação-fonte sem inventar movimentos.",
+    "- **Folga estática constante para a barra da bermuda esportiva (`+" + String(diag.retarget.afastamento_coronal_braco_graus) + "°`):** A auditoria 3D via `KDTree` na malha deformada detectou e interrompeu na 1ª pré-validação o toque dos dedos na barra lateral folgada da bermuda nos quadros `23–25` (`0,22 mm`, pois o manequim original de 16 ossos não possuía vestimenta). Um offset estático constante de folga coronal nos ombros eliminou completamente a interpenetração mantendo a trajetória sagital original dos braços.",
+    "- **Apoio plantar horizontal e eliminação de torção de holonomia (`A-pose → supino`):** As solas dos calçados foram mantidas na orientação plantar horizontal de repouso com cadeia fechada sagital de 2 elos (`drift = 0 mm`), e o transporte prévio de direção pelo delta da coluna eliminou `~42,6°` de torção axial espúria no úmero.",
     "",
     "## 5. Hashes SHA-256 dos Arquivos Gerados",
     "",

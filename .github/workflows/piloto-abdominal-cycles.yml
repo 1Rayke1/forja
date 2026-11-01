@@ -27,8 +27,8 @@ concurrency:
 
 env:
   # "prevalidar" executa a auditoria completa de ossos/loop/colchonete + 6 provas Cycles;
-  # "completo" executa a pré-validação seguida das 12 fatias paralelas Cycles + MP4 H.264.
-  MODO_EXECUCAO: "prevalidar"
+  # "completo" executa a pré-validação seguida das 18 fatias paralelas Cycles + MP4 H.264.
+  MODO_EXECUCAO: "completo"
   AMOSTRAS_CYCLES: "32"
   SAIDA_PILOTO: "docs/validacao-3d/piloto-abdominal-masculino"
   SHA256_MASCULINO_ESPERADO: "ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1"
@@ -206,21 +206,27 @@ jobs:
     timeout-minutes: 35
     strategy:
       fail-fast: true
-      max-parallel: 12
+      max-parallel: 18
       matrix:
         include:
-          - { formato: "horizontal", inicio: 1, fim: 15 }
-          - { formato: "horizontal", inicio: 16, fim: 30 }
-          - { formato: "horizontal", inicio: 31, fim: 45 }
-          - { formato: "horizontal", inicio: 46, fim: 60 }
-          - { formato: "horizontal", inicio: 61, fim: 75 }
-          - { formato: "horizontal", inicio: 76, fim: 90 }
-          - { formato: "vertical", inicio: 1, fim: 15 }
-          - { formato: "vertical", inicio: 16, fim: 30 }
-          - { formato: "vertical", inicio: 31, fim: 45 }
-          - { formato: "vertical", inicio: 46, fim: 60 }
-          - { formato: "vertical", inicio: 61, fim: 75 }
-          - { formato: "vertical", inicio: 76, fim: 90 }
+          - { formato: "horizontal", inicio: 1, fim: 10 }
+          - { formato: "horizontal", inicio: 11, fim: 20 }
+          - { formato: "horizontal", inicio: 21, fim: 30 }
+          - { formato: "horizontal", inicio: 31, fim: 40 }
+          - { formato: "horizontal", inicio: 41, fim: 50 }
+          - { formato: "horizontal", inicio: 51, fim: 60 }
+          - { formato: "horizontal", inicio: 61, fim: 70 }
+          - { formato: "horizontal", inicio: 71, fim: 80 }
+          - { formato: "horizontal", inicio: 81, fim: 90 }
+          - { formato: "vertical", inicio: 1, fim: 10 }
+          - { formato: "vertical", inicio: 11, fim: 20 }
+          - { formato: "vertical", inicio: 21, fim: 30 }
+          - { formato: "vertical", inicio: 31, fim: 40 }
+          - { formato: "vertical", inicio: 41, fim: 50 }
+          - { formato: "vertical", inicio: 51, fim: 60 }
+          - { formato: "vertical", inicio: 61, fim: 70 }
+          - { formato: "vertical", inicio: 71, fim: 80 }
+          - { formato: "vertical", inicio: 81, fim: 90 }
     steps:
       - name: Checkout da branch de trabalho
         uses: actions/checkout@v4

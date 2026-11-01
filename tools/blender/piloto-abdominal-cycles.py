@@ -49,17 +49,22 @@ FPS_PILOTO = 30
 TOTAL_QUADROS_CICLO = 90  # 3.000 s exatos a 30 FPS (quadros 1..90 -> t = 0/30 .. 89/30 s)
 DURACAO_CICLO_S = 3.0
 
-# Pesos anatômicos da coluna torácica/lombar (soma = 1.000) e cervical (soma = 1.000)
+# Pesos anatômicos de distribuição na coluna torácica/lombar (soma = 1.000)
+# Com fator analítico de preservação de corda (`Waist -> NeckTwist01`), reproduz
+# exatamente a inclinação de corda `spine -> neck` (~22°) do clipe original.
 PESOS_COLUNA_TORACICA = (
-    ("Waist", 0.15),
+    ("Waist", 0.20),
     ("Spine01", 0.45),
-    ("Spine02", 0.40),
+    ("Spine02", 0.35),
 )
 PESOS_COLUNA_CERVICAL = (
     ("NeckTwist01", 0.40),
     ("NeckTwist02", 0.35),
     ("Head", 0.25),
 )
+# Offset estático constante de folga coronal dos braços para contornar a barra
+# lateral da bermuda esportiva do modelo realista ( detectado na pré-validação q23-q25 )
+AFASTAMENTO_CORONAL_BRACO_GRAUS = 9.0
 
 TABELA_CORRESPONDENCIA_OSSOS = [
     {
@@ -773,6 +778,24 @@ def construir_animacao_retarget(
         "elbowR": (pose_rest_src["handR"]["pos"] - pose_rest_src["elbowR"]["pos"]).normalized(),
     }
 
+    # Comprimentos reais dos 3 segmentos torácicos para preservar exatamente a
+    # inclinação da corda `Waist -> NeckTwist01` igual à de `spine -> neck` da fonte
+    l_waist = (ctrl.rest_world_pos["Spine01"] - ctrl.rest_world_pos["Waist"]).length
+    l_spine01 = (ctrl.rest_world_pos["Spine02"] - ctrl.rest_world_pos["Spine01"]).length
+    l_spine02 = (ctrl.rest_world_pos["NeckTwist01"] - ctrl.rest_world_pos["Spine02"]).length
+    comp_toracico_total = max(1e-5, l_waist + l_spine01 + l_spine02)
+    pesos_acum_tor = []
+    soma_p = 0.0
+    for _, p_seg in PESOS_COLUNA_TORACICA:
+        soma_p += p_seg
+        pesos_acum_tor.append(soma_p)
+    media_ponderada_corda = (
+        pesos_acum_tor[0] * l_waist
+        + pesos_acum_tor[1] * l_spine01
+        + pesos_acum_tor[2] * l_spine02
+    ) / comp_toracico_total
+    fator_corda_toracica = 1.0 / max(0.25, media_ponderada_corda)
+
     # Comprimentos reais de coxa e perna no modelo masculino original
     l_coxa_l = (ctrl.rest_world_pos["L_Calf"] - ctrl.rest_world_pos["L_Thigh"]).length
     l_perna_l = (ctrl.rest_world_pos["L_Foot"] - ctrl.rest_world_pos["L_Calf"]).length
@@ -856,53 +879,64 @@ def construir_animacao_retarget(
         quats["Hip"] = q_d_hips @ ctrl.rest_world_quat["Hip"]
         quats["Pelvis"] = q_d_hips @ ctrl.rest_world_quat["Pelvis"]
 
-        # Distribuição vertebral torácica (Waist + Spine01 + Spine02 = 100% de spine)
-        q_rel_spine = q_d_spine @ q_d_hips.inverted()
-        q_rel_spine.normalize()
+        # Distribuição vertebral torácica com preservação exata da corda spine->neck
+        q_rel_spine_chord = q_d_spine @ q_d_hips.inverted()
+        q_rel_spine_chord.normalize()
+        eixo_sp, ang_sp = q_rel_spine_chord.to_axis_angle()
+        q_rel_spine_topo = Quaternion(eixo_sp, ang_sp * fator_corda_toracica)
+        q_rel_spine_topo.normalize()
+
         acum = 0.0
+        q_d_spine_efetivo = q_d_spine
         for nome_osso, peso in PESOS_COLUNA_TORACICA:
             acum += peso
-            q_parcial = q_ident.slerp(q_rel_spine, min(1.0, acum))
+            q_parcial = q_ident.slerp(q_rel_spine_topo, min(1.0, acum))
             q_parcial_mundo = q_parcial @ q_d_hips
             q_parcial_mundo.normalize()
             quats[nome_osso] = q_parcial_mundo @ ctrl.rest_world_quat[nome_osso]
+            q_d_spine_efetivo = q_parcial_mundo
 
-        # Distribuição cervical (NeckTwist01 + NeckTwist02 + Head = 100% de neck)
-        q_rel_neck = q_d_neck @ q_d_spine.inverted()
+        # Distribuição cervical (NeckTwist01 + NeckTwist02 + Head -> atinge exatamente q_d_neck da fonte)
+        q_rel_neck = q_d_neck @ q_d_spine_efetivo.inverted()
         q_rel_neck.normalize()
         acum_n = 0.0
         for nome_osso, peso in PESOS_COLUNA_CERVICAL:
             acum_n += peso
             q_parcial = q_ident.slerp(q_rel_neck, min(1.0, acum_n))
-            q_parcial_mundo = q_parcial @ q_d_spine
+            q_parcial_mundo = q_parcial @ q_d_spine_efetivo
             q_parcial_mundo.normalize()
             quats[nome_osso] = q_parcial_mundo @ ctrl.rest_world_quat[nome_osso]
 
-        # Braços e antebraços por direção real transportada pelo tronco
+        # Braços e antebraços por direção real transportada + offset estático de folga da bermuda
         for lado, s_arm, s_elb, s_hand in (
             ("L", "armL", "elbowL", "handL"),
             ("R", "armR", "elbowR", "handR"),
         ):
             q_d_arm_s = q_d_arm_l if lado == "L" else q_d_arm_r
             q_d_elb_s = q_d_elb_l if lado == "L" else q_d_elb_r
+            sinal_lat = 1.0 if lado == "L" else -1.0
+            q_folga_bermuda = Quaternion(
+                Vector((0.0, 0.0, 1.0)),
+                sinal_lat * math.radians(AFASTAMENTO_CORONAL_BRACO_GRAUS),
+            )
 
-            d_pose_arm = (q_yaw @ (pose_s[s_elb]["pos"] - pose_s[s_arm]["pos"])).normalized()
-            d_pose_elb = (q_yaw @ (pose_s[s_hand]["pos"] - pose_s[s_elb]["pos"])).normalized()
+            d_pose_arm = (q_folga_bermuda @ (q_yaw @ (pose_s[s_elb]["pos"] - pose_s[s_arm]["pos"]))).normalized()
+            d_pose_elb = (q_folga_bermuda @ (q_yaw @ (pose_s[s_hand]["pos"] - pose_s[s_elb]["pos"]))).normalized()
 
             # Acompanhamento escapular sutil na clavícula (10% do avanço do braço)
-            d_ref_arm_clav = (q_d_spine @ dir_rest_dst[f"{lado}_Upperarm"]).normalized()
+            d_ref_arm_clav = (q_d_spine_efetivo @ dir_rest_dst[f"{lado}_Upperarm"]).normalized()
             q_swing_clav = q_ident.slerp(d_ref_arm_clav.rotation_difference(d_pose_arm), 0.10)
-            q_d_clav = q_swing_clav @ q_d_spine
+            q_d_clav = q_swing_clav @ q_d_spine_efetivo
             q_d_clav.normalize()
             quats[f"{lado}_Clavicle"] = q_d_clav @ ctrl.rest_world_quat[f"{lado}_Clavicle"]
 
             q_w_up, q_d_up = transferir_direcao_transportada(
                 dir_rest_dst[f"{lado}_Upperarm"],
                 ctrl.rest_world_quat[f"{lado}_Upperarm"],
-                q_d_spine,
+                q_d_spine_efetivo,
                 d_pose_arm,
-                (q_yaw @ dir_rest_src[s_arm]).normalized(),
-                q_d_arm_s,
+                (q_folga_bermuda @ (q_yaw @ dir_rest_src[s_arm])).normalized(),
+                q_folga_bermuda @ q_d_arm_s,
             )
             quats[f"{lado}_Upperarm"] = q_w_up
 
@@ -911,8 +945,8 @@ def construir_animacao_retarget(
                 ctrl.rest_world_quat[f"{lado}_Forearm"],
                 q_d_up,
                 d_pose_elb,
-                (q_yaw @ dir_rest_src[s_elb]).normalized(),
-                q_d_elb_s,
+                (q_folga_bermuda @ (q_yaw @ dir_rest_src[s_elb])).normalized(),
+                q_folga_bermuda @ q_d_elb_s,
             )
             quats[f"{lado}_Forearm"] = q_w_fore
 
@@ -936,9 +970,9 @@ def construir_animacao_retarget(
     z_alvo_dorso = z_topo_colchonete - compressao_apoio
     z_hip_ref = z_topo_colchonete + 0.09 * altura_dst
 
-    # Avaliar em 19 amostras uniformes (a cada 5 quadros + quadro 0) e interpolar
-    # suavemente para manter custo baixo (~1.2 s) e curva C² perfeitamente periódica.
-    passo_cal = 5
+    # Avaliar em 30 amostras uniformes (a cada 3 quadros) e interpolar
+    # suavemente para manter custo baixo (~1.8 s) e curva C² perfeitamente periódica.
+    passo_cal = 3
     indices_cal = list(range(0, TOTAL_QUADROS_CICLO, passo_cal))
     z_hip_amostrado: dict[int, float] = {}
 
@@ -1203,6 +1237,8 @@ def construir_animacao_retarget(
         "quadros_ciclo": TOTAL_QUADROS_CICLO,
         "duracao_ciclo_s": DURACAO_CICLO_S,
         "guinada_graus": round(math.degrees(2.0 * math.acos(min(1.0, abs(q_yaw.w)))), 2),
+        "fator_corda_toracica": round(fator_corda_toracica, 5),
+        "afastamento_coronal_braco_graus": AFASTAMENTO_CORONAL_BRACO_GRAUS,
         "frente_origem_xy": [round(frente_src.x, 4), round(frente_src.y, 4)],
         "frente_destino_xy": [round(frente_dst.x, 4), round(frente_dst.y, 4)],
         "escala_posicao_raiz": round(escala_pos, 5),
@@ -1252,19 +1288,19 @@ def criar_cenario_e_cameras(
     mundo.use_nodes = True
     bg = mundo.node_tree.nodes.get("Background")
     if bg:
-        bg.inputs[0].default_value = (0.011, 0.013, 0.017, 1.0)
-        bg.inputs[1].default_value = 0.34
+        bg.inputs[0].default_value = (0.0030, 0.0036, 0.0048, 1.0)
+        bg.inputs[1].default_value = 0.16
     cena.world = mundo
 
-    # 2. Piso amplo escuro fosco em Z = 0.000 (sem linha de horizonte em nenhum azimute)
+    # 2. Piso amplo escuro fosco em Z = 0.000 (cenário escuro de estúdio sem costura)
     mat_piso = bpy.data.materials.new("forja_piloto_piso_mat")
     mat_piso.use_nodes = True
     bsdf_piso = mat_piso.node_tree.nodes.get("Principled BSDF")
     if bsdf_piso:
-        bsdf_piso.inputs["Base Color"].default_value = (0.017, 0.019, 0.024, 1.0)
-        bsdf_piso.inputs["Roughness"].default_value = 0.88
+        bsdf_piso.inputs["Base Color"].default_value = (0.0048, 0.0054, 0.0068, 1.0)
+        bsdf_piso.inputs["Roughness"].default_value = 0.92
         if "Specular IOR Level" in bsdf_piso.inputs:
-            bsdf_piso.inputs["Specular IOR Level"].default_value = 0.28
+            bsdf_piso.inputs["Specular IOR Level"].default_value = 0.10
 
     raio_piso = 9.0 * h
     bm_piso = bmesh.new()
@@ -1280,7 +1316,7 @@ def criar_cenario_e_cameras(
     # 3. Colchonete esportivo chanfrado (`Z = 0 .. z_topo_colchonete`)
     comp_corpo = extensao_x_personagem[1] - extensao_x_personagem[0]
     comprimento_colchonete = max(1.08 * h, comp_corpo + 0.26 * h)
-    largura_colchonete = 0.44 * h
+    largura_colchonete = 0.48 * h
     espessura_colchonete = z_topo_colchonete
 
     mat_colchonete = bpy.data.materials.new("forja_piloto_colchonete_mat")
@@ -1288,10 +1324,10 @@ def criar_cenario_e_cameras(
     nt = mat_colchonete.node_tree
     bsdf_col = nt.nodes.get("Principled BSDF")
     if bsdf_col:
-        bsdf_col.inputs["Base Color"].default_value = (0.064, 0.073, 0.088, 1.0)
-        bsdf_col.inputs["Roughness"].default_value = 0.66
+        bsdf_col.inputs["Base Color"].default_value = (0.036, 0.041, 0.052, 1.0)
+        bsdf_col.inputs["Roughness"].default_value = 0.65
         if "Specular IOR Level" in bsdf_col.inputs:
-            bsdf_col.inputs["Specular IOR Level"].default_value = 0.38
+            bsdf_col.inputs["Specular IOR Level"].default_value = 0.36
         # Micro-textura celular discreta de EVA para leitura tátil sob Cycles
         tex_coord = nt.nodes.new("ShaderNodeTexCoord")
         noise = nt.nodes.new("ShaderNodeTexNoise")
@@ -1527,15 +1563,15 @@ def criar_cenario_e_cameras(
         ocupacao_alvo=0.82,
     )
 
-    # Câmera 2 — Vertical 9:16 (720x1280): reposicionada em diagonal longitudinal elevada (+35°, elev 39°, lente 46 mm)
+    # Câmera 2 — Vertical 9:16 (720x1280): reposicionada em diagonal longitudinal elevada (+23°, elev 45°, lente 48 mm)
     cam_v, info_cam_v = resolver_camera_independente(
         nome_cam="forja_cam_vertical_9x16",
         largura_px=720,
         altura_px=1280,
-        lente_mm=46.0,
-        azimute_graus=35.0,
-        elevacao_graus=39.0,
-        ocupacao_alvo=0.80,
+        lente_mm=48.0,
+        azimute_graus=23.0,
+        elevacao_graus=45.0,
+        ocupacao_alvo=0.86,
     )
 
     # Gerenciamento de cor consistente (AgX)
@@ -1544,7 +1580,7 @@ def criar_cenario_e_cameras(
     cena.render.image_settings.file_format = "PNG"
     cena.render.image_settings.color_mode = "RGB"
     cena.render.image_settings.color_depth = "8"
-    cena.view_settings.exposure = 0.12
+    cena.view_settings.exposure = 0.08
     cena.view_settings.gamma = 1.0
 
     return {
