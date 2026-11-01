@@ -123,6 +123,44 @@ jobs:
           [ "$recebido" = "$original" ]
           [ "$bytes" -eq 31457280 ]
 
+      - name: "Teste 3 — arquivo enviado como blob comum e normalizado para LFS"
+        run: |
+          set -euo pipefail
+          git switch -c "bruto-${{ github.run_id }}"
+          python3 tools/gerar-glb-teste.py /tmp/bruto.glb --tamanho 8192
+          sha256sum /tmp/bruto.glb | awk '{print $1}' > /tmp/bruto.sha256
+          mkdir -p FORJA_ASSETS_3D/exemplo
+          cp /tmp/bruto.glb FORJA_ASSETS_3D/exemplo/bruto.glb
+          # simula o envio pelo navegador: grava o binário direto no Git, sem LFS
+          git -c filter.lfs.process= -c filter.lfs.clean=cat -c filter.lfs.required=false \
+            add FORJA_ASSETS_3D/exemplo/bruto.glb
+          git cat-file -p ":FORJA_ASSETS_3D/exemplo/bruto.glb" | head -n 1 > /tmp/bruto-antes.txt
+          git commit -q -m "Teste: modelo enviado como blob comum (simula navegador)"
+          git push -q origin "HEAD:refs/heads/bruto-${{ github.run_id }}"
+          bash tools/normalizar-assets-3d.sh --branch "bruto-${{ github.run_id }}" 2>&1 | tee /tmp/log-3.txt
+          git cat-file -p "HEAD:FORJA_ASSETS_3D/exemplo/bruto.glb" > /tmp/bruto-depois.txt
+          head -n 3 /tmp/bruto-depois.txt
+          grep -q '^version https://git-lfs.github.com/spec/v1' /tmp/bruto-depois.txt
+          rm -rf /tmp/clone3
+          git clone --quiet --branch "bruto-${{ github.run_id }}" \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/clone3
+          cd /tmp/clone3
+          git lfs install --local >/dev/null 2>&1
+          git lfs pull
+          recebido="$(sha256sum FORJA_ASSETS_3D/exemplo/bruto.glb | awk '{print $1}')"
+          {
+            echo "## Teste 3 — normalização (envio pelo navegador)"
+            echo
+            echo "- antes: $(cat /tmp/bruto-antes.txt)"
+            echo "- depois: ponteiro do Git LFS"
+            echo "- sha256 original: $(cat /tmp/bruto.sha256)"
+            echo "- sha256 após clone: ${recebido}"
+            echo "- conferência: $([ "$recebido" = "$(cat /tmp/bruto.sha256)" ] && echo IGUAL || echo DIFERENTE)"
+          } > /tmp/relatorio-teste3.md
+          [ "$recebido" = "$(cat /tmp/bruto.sha256)" ]
+          cd "$GITHUB_WORKSPACE"
+          git switch "$BRANCH_SESSAO"
+
       - name: Relatório (sempre)
         if: always()
         run: |
@@ -152,6 +190,13 @@ jobs:
             echo
             cat /tmp/relatorio-teste2.md 2>/dev/null
             echo
+            cat /tmp/relatorio-teste3.md 2>/dev/null
+            echo
+            echo "## Log do Teste 3"
+            echo '```'
+            tail -n 30 /tmp/log-3.txt 2>/dev/null
+            echo '```' 
+            echo
             echo "## Saída do validador de assets 3D"
             echo '```'
             cat /tmp/validar.txt 2>/dev/null
@@ -179,5 +224,6 @@ jobs:
         run: |
           set +e
           git push origin --delete "$BRANCH_TESTE"
+          git push origin --delete "bruto-${{ github.run_id }}"
           gh release delete "$TAG_TESTE" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
           exit 0

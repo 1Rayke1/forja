@@ -1,0 +1,37 @@
+name: Normalizar assets 3D (fora do LFS → LFS)
+
+# Conserta modelos que entraram em FORJA_ASSETS_3D/ como Git comum — o que
+# acontece quando o arquivo é enviado direto pela pasta no navegador (limite de
+# 25 MB, sem passar pelo LFS). O workflow troca cada binário pelo ponteiro do
+# LFS em um commit novo, sem reescrever histórico e sem force-push.
+#
+# Use em: Actions → "Normalizar assets 3D" → Run workflow.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: assets-3d-normalizar
+  cancel-in-progress: false
+
+jobs:
+  normalizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Confirmar Git LFS no runner
+        run: git lfs version
+
+      - name: Normalizar arquivos fora do LFS
+        run: bash tools/normalizar-assets-3d.sh --branch main
+
+      - name: Validar a pasta depois da normalização
+        run: bash tools/validar-assets-3d.sh
