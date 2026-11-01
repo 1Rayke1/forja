@@ -1310,7 +1310,14 @@ await runTest("9. Base responsiva presente (viewport e media queries)", async ()
 function allModuleIds() {
   const dir = path.join(repoRoot, "assets", "js");
   const referenced = new Map();
+  const created = new Set();
   const patterns = [/byId\("([^"]+)"\)/g, /getElementById\("([^"]+)"\)/g, /bindEvent\("([^"]+)",/g];
+  /*
+    Alguns módulos montam a própria seção e só então procuram por ela (o hub
+    Explorar cria `#foco-treino`, `#recursos-grade` etc. via JS). Esses ids não
+    vivem no HTML das páginas: são criados pelo módulo antes do `getElementById`.
+  */
+  const creation = [/\.id\s*=\s*"([^"]+)"/g, /setAttribute\("id",\s*"([^"]+)"\)/g];
   for (const file of fs.readdirSync(dir).filter(f => f.endsWith(".js"))) {
     const code = fs.readFileSync(path.join(dir, file), "utf8");
     for (const pattern of patterns) {
@@ -1318,8 +1325,11 @@ function allModuleIds() {
         if (!referenced.has(match[1])) referenced.set(match[1], file);
       }
     }
+    for (const pattern of creation) {
+      for (const match of code.matchAll(pattern)) created.add(match[1]);
+    }
   }
-  return referenced;
+  return { referenced, created };
 }
 
 function idsInAllPages() {
@@ -1379,9 +1389,9 @@ await runTest("9b. Ação TREINO compacta, destacada e acessível (mobile)", asy
 
 await runTest("10. Integridade: ids referenciados existem e nenhum erro de console", async () => {
   const pages = [PAGE.index, PAGE.hub, PAGE.calistenia, PAGE.musculacao, PAGE.rotina, PAGE.executar, PAGE.progresso, PAGE.perfil, PAGE.onboarding, PAGE.config];
-  const referenced = allModuleIds();
+  const { referenced, created } = allModuleIds();
   const existing = idsInAllPages();
-  const missing = Array.from(referenced.keys()).filter(id => !existing.has(id));
+  const missing = Array.from(referenced.keys()).filter(id => !existing.has(id) && !created.has(id));
   assert.deepEqual(missing, [], "Ids referenciados nos módulos não existem em nenhuma página: " + missing.join(", ") +
     " (" + Array.from(referenced.entries()).filter(([id]) => missing.includes(id)).map(([, file]) => file).join(", ") + ")");
   assert.ok(referenced.size > 40, "Verificação de ids deve cobrir a aplicação (" + referenced.size + ")");

@@ -82,6 +82,12 @@ jobs:
               .map(c=>[c.id,c.fbx,String(c.quadros||144),String(c.deslocamento||0)].join("\t"));
             fs.writeFileSync("/tmp/fila.tsv",linhas.join("\n")+"\n");
             console.log("[fila] "+linhas.length+" clipes de mocap");'
+          if [ ! -s /tmp/fila.tsv ]; then
+            echo "[fila] o mapa não tem clipes de mocap (fontes em DeskBreak): nada a fazer."
+            { date -u; echo "fila vazia: todos os clipes do mapa vêm do DeskBreak (mesmo rig)."; } \
+              > docs/validacao-3d/ci-mocap.txt
+            exit 0
+          fi
           ok=0; faltando=0; erro=0
           : > /tmp/relatorio.txt
           while IFS=$'\t' read -r id fbx quadros desloc; do

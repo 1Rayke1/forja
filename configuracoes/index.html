@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="../assets/css/system.css">
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
+<link rel="stylesheet" href="../assets/css/personagens-3d.css">
 </head>
 
 <body data-page="configuracoes" data-root="../">
@@ -76,6 +77,12 @@
       <input type="checkbox" id="pref-vibrate">
       <span>Vibrar quando o descanso terminar (se o aparelho permitir)</span>
     </label>
+  </section>
+
+  <section class="storage-panel perfil-personagem" id="personagem-3d" aria-labelledby="personagem-3d-heading">
+    <h2 class="section-title" id="personagem-3d-heading">Personagem das demonstrações 3D</h2>
+    <p class="credits-hint">A escolha vale só para as demonstrações 3D dos exercícios. Ela não altera treinos, cargas, metas, histórico nem progresso — e pode ser trocada a qualquer momento.</p>
+    <div class="seletor-personagem" data-seletor-personagem></div>
   </section>
 
   <section class="storage-panel" aria-labelledby="storage-heading">
@@ -140,6 +147,36 @@
         nunca a apresenta como execução do movimento.</p>
     </div>
   </section>
+
+  <section class="storage-panel credits-panel" id="creditos-3d" aria-labelledby="creditos-3d-heading">
+    <h2 class="section-title" id="creditos-3d-heading">Créditos e licenças dos modelos 3D</h2>
+    <div class="credits-block">
+      <h3>DeskBreak — manequim de madeira (MIT)</h3>
+      <p>Os personagens masculino e feminino foram construídos a partir do manequim
+        de madeira e do rig de 16 ossos do projeto
+        <strong><a href="https://github.com/shlomorsh/desk-break" target="_blank" rel="noopener noreferrer" data-external-credit="deskbreak">DeskBreak</a></strong>,
+        de autoria de Shlomy Reshef, usado sob a <strong>licença MIT</strong>. A malha foi
+        reescalada em duas proporções (1,83 m e 1,69 m), manteve os materiais originais
+        e recebeu as animações de execução próprias do pacote.</p>
+      <ul>
+        <li><a href="../assets/vendor/three/LICENSE">Licença MIT do three.js neste app</a> ·
+          <a href="../assets/3d/catalogo.json">catálogo com o arquivo e o tamanho de cada peça</a></li>
+        <li>As animações de execução dos 16 ossos são do próprio DeskBreak (MIT) e foram
+          exportadas uma a uma para <code>assets/3d/animacoes/</code>.</li>
+      </ul>
+      <h3>Mocap Pack — Fitness and Workout</h3>
+      <p>Os clipes retargetados do pacote de captura de movimento aparecem com o selo
+        <strong>“Movimento aproximado”</strong>. O pacote não declara licença no arquivo
+        distribuído: a publicação desses clipes fica condicionada à confirmação do
+        titular. Enquanto isso, eles são tratados como demonstração aproximada — a
+        ilustração do exercício continua sendo a referência visual principal.</p>
+      <h3>three.js (MIT)</h3>
+      <p>O visualizador 3D usa <strong>three.js r180</strong>, distribuído sob licença MIT,
+        servido do próprio app em <code>assets/vendor/three/</code> — sem CDN, sem
+        rastreamento e sem dependência de rede além do próprio FORJA.</p>
+      <p>Nenhuma animação 3D é orientação médica. Se algum movimento causar dor, pare.</p>
+    </div>
+  </section>
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">
@@ -192,6 +229,7 @@
 <script src="../assets/js/forja-catalogo.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
+<script src="../assets/js/forja-personagens.js" defer></script>
 <script src="../assets/js/forja-fotografias-dados.js" defer></script>
 <script src="../assets/js/forja-fotografias.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>

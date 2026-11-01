@@ -1,0 +1,451 @@
+{
+  "_comentario": "Fontes: manequim DeskBreak (MIT), mesmo rig de 16 ossos dos personagens, para TODOS os clipes. O pacote de mocap (Mocap_Pack_06) continua no pipeline (tools/blender/retarget-mocap.py + workflow), mas os clipes retargetados reprovaram na validação de pose (o boneco colapsa depois de ~2 s) e por isso não são publicados.",
+  "personagens": {
+    "masculino": {
+      "modelo": "assets/3d/personagens/masculino.glb"
+    },
+    "feminino": {
+      "modelo": "assets/3d/personagens/feminino.glb"
+    }
+  },
+  "clipes": [
+    {
+      "id": "postura-base",
+      "fonte": "deskbreak",
+      "acao": "posture-reset_rig",
+      "nome": "Postura base",
+      "grupo": "corpo inteiro",
+      "status": "exact",
+      "exercicios": []
+    },
+    {
+      "id": "rotacao-ombros",
+      "fonte": "deskbreak",
+      "acao": "shoulder-rolls-back_rig",
+      "nome": "Rotação de ombros",
+      "grupo": "ombros",
+      "status": "exact",
+      "exercicios": [
+        "cal-rotacao-ombros"
+      ]
+    },
+    {
+      "id": "circulos-braco",
+      "fonte": "deskbreak",
+      "acao": "arm-circles-small_rig",
+      "nome": "Círculos de braço",
+      "grupo": "ombros",
+      "status": "exact",
+      "exercicios": [
+        "mus-mobilidade-ombro"
+      ]
+    },
+    {
+      "id": "mobilidade-quadril",
+      "fonte": "deskbreak",
+      "acao": "standing-hip-circles_rig",
+      "nome": "Mobilidade de quadril",
+      "grupo": "quadril",
+      "status": "exact",
+      "exercicios": [
+        "cal-mobilidade-quadril"
+      ]
+    },
+    {
+      "id": "polichinelo",
+      "fonte": "deskbreak",
+      "nome": "Polichinelo",
+      "grupo": "corpo inteiro",
+      "status": "review",
+      "exercicios": [
+        "cal-polichinelo"
+      ],
+      "acao": "step-jack_rig"
+    },
+    {
+      "id": "flexao",
+      "fonte": "deskbreak",
+      "acao": "plank-to-down-dog-flow_rig",
+      "nome": "Flexão de braço",
+      "grupo": "peito",
+      "status": "review",
+      "exercicios": [
+        "cal-flexao"
+      ]
+    },
+    {
+      "id": "agachamento",
+      "fonte": "deskbreak",
+      "acao": "sit-back-squat_rig",
+      "nome": "Agachamento livre",
+      "grupo": "pernas",
+      "status": "exact",
+      "exercicios": [
+        "cal-agachamento"
+      ]
+    },
+    {
+      "id": "remada-invertida",
+      "fonte": "deskbreak",
+      "acao": "hinge-row-no-weight_rig",
+      "nome": "Remada",
+      "grupo": "costas",
+      "status": "review",
+      "exercicios": [
+        "cal-remada-invertida"
+      ]
+    },
+    {
+      "id": "afundo",
+      "fonte": "deskbreak",
+      "acao": "reverse-lunge-knee-drive_rig",
+      "nome": "Afundo",
+      "grupo": "pernas",
+      "status": "review",
+      "exercicios": [
+        "cal-afundo"
+      ]
+    },
+    {
+      "id": "ponte-gluteo",
+      "fonte": "deskbreak",
+      "acao": "glute-bridge_rig",
+      "nome": "Ponte de glúteo",
+      "grupo": "glúteos",
+      "status": "exact",
+      "exercicios": [
+        "cal-ponte"
+      ]
+    },
+    {
+      "id": "prancha",
+      "fonte": "deskbreak",
+      "acao": "plank-full_rig",
+      "nome": "Prancha frontal",
+      "grupo": "core",
+      "status": "exact",
+      "exercicios": [
+        "cal-prancha-frontal",
+        "mus-prancha"
+      ]
+    },
+    {
+      "id": "abdominal-supra",
+      "fonte": "deskbreak",
+      "acao": "gentle-curl-up_rig",
+      "nome": "Abdominal supra",
+      "grupo": "abdômen",
+      "status": "exact",
+      "exercicios": [
+        "cal-abdominal-supra"
+      ]
+    },
+    {
+      "id": "elevacao-pernas",
+      "fonte": "deskbreak",
+      "acao": "straight-leg-raise_rig",
+      "nome": "Elevação de pernas",
+      "grupo": "abdômen",
+      "status": "exact",
+      "exercicios": [
+        "cal-elevacao-pernas",
+        "mus-elevacao-barra"
+      ]
+    },
+    {
+      "id": "abdominal-infra",
+      "fonte": "deskbreak",
+      "acao": "leg-lowers_rig",
+      "nome": "Abdominal infra",
+      "grupo": "abdômen",
+      "status": "review",
+      "exercicios": [
+        "cal-abdominal-infra"
+      ]
+    },
+    {
+      "id": "mountain-climber",
+      "fonte": "deskbreak",
+      "acao": "standing-climber_rig",
+      "nome": "Mountain climber",
+      "grupo": "corpo inteiro",
+      "status": "review",
+      "exercicios": [
+        "cal-mountain-climber"
+      ]
+    },
+    {
+      "id": "corrida-estacionaria",
+      "fonte": "deskbreak",
+      "nome": "Corrida estacionária",
+      "grupo": "cardio",
+      "status": "review",
+      "exercicios": [
+        "cal-corrida-estacionaria"
+      ],
+      "acao": "fast-feet-small_rig"
+    },
+    {
+      "id": "caminhada",
+      "fonte": "deskbreak",
+      "acao": "power-walk-arms-up_rig",
+      "nome": "Caminhada",
+      "grupo": "cardio",
+      "status": "review",
+      "exercicios": [
+        "mus-esteira",
+        "mus-farmer"
+      ]
+    },
+    {
+      "id": "abre-e-fecha",
+      "fonte": "deskbreak",
+      "acao": "pull-aparts_rig",
+      "nome": "Abre e fecha com elástico",
+      "grupo": "costas",
+      "status": "exact",
+      "exercicios": []
+    },
+    {
+      "id": "dobradiça-quadril",
+      "fonte": "deskbreak",
+      "acao": "hip-hinge_rig",
+      "nome": "Dobradiça de quadril",
+      "grupo": "posterior",
+      "status": "review",
+      "exercicios": [
+        "mus-terra"
+      ]
+    },
+    {
+      "id": "supino",
+      "fonte": "deskbreak",
+      "nome": "Supino reto",
+      "grupo": "peito",
+      "status": "review",
+      "exercicios": [
+        "mus-supino-reto"
+      ],
+      "acao": "plank-to-down-dog-flow_rig"
+    },
+    {
+      "id": "agachamento-halteres",
+      "fonte": "deskbreak",
+      "nome": "Agachamento com halteres",
+      "grupo": "pernas",
+      "status": "review",
+      "exercicios": [
+        "mus-agachamento-barra"
+      ],
+      "acao": "wide-mini-squat_rig"
+    },
+    {
+      "id": "puxada",
+      "fonte": "deskbreak",
+      "acao": "knee-lift-pull-down_rig",
+      "nome": "Puxada",
+      "grupo": "costas",
+      "status": "review",
+      "exercicios": [
+        "mus-puxada-frontal"
+      ]
+    },
+    {
+      "id": "desenvolvimento",
+      "fonte": "deskbreak",
+      "acao": "chair-shoulder-press_rig",
+      "nome": "Desenvolvimento",
+      "grupo": "ombros",
+      "status": "review",
+      "exercicios": [
+        "mus-desenvolvimento"
+      ]
+    },
+    {
+      "id": "remada-sentada",
+      "fonte": "deskbreak",
+      "nome": "Remada sentada",
+      "grupo": "costas",
+      "status": "review",
+      "exercicios": [
+        "mus-remada-curvada"
+      ],
+      "acao": "chair-rowing_rig"
+    },
+    {
+      "id": "rosca-direta",
+      "fonte": "deskbreak",
+      "nome": "Rosca direta",
+      "grupo": "bíceps",
+      "status": "exact",
+      "exercicios": [
+        "mus-rosca-direta"
+      ],
+      "acao": "biceps-curl_rig"
+    },
+    {
+      "id": "rosca-rotacao",
+      "fonte": "deskbreak",
+      "nome": "Rosca com rotação",
+      "grupo": "bíceps",
+      "status": "review",
+      "exercicios": [],
+      "acao": "biceps-curl_rig"
+    },
+    {
+      "id": "triceps",
+      "fonte": "deskbreak",
+      "acao": "triceps-kickback_rig",
+      "nome": "Tríceps",
+      "grupo": "tríceps",
+      "status": "exact",
+      "exercicios": [
+        "mus-triceps-polia"
+      ]
+    },
+    {
+      "id": "extensao-joelho",
+      "fonte": "deskbreak",
+      "acao": "chair-knee-extension_rig",
+      "nome": "Extensão de joelho",
+      "grupo": "quadríceps",
+      "status": "review",
+      "exercicios": [
+        "mus-extensora"
+      ]
+    },
+    {
+      "id": "flexao-joelho",
+      "fonte": "deskbreak",
+      "acao": "standing-hamstring-curl_rig",
+      "nome": "Flexão de joelho",
+      "grupo": "posterior",
+      "status": "exact",
+      "exercicios": [
+        "mus-flexora"
+      ]
+    },
+    {
+      "id": "elevacao-lateral",
+      "fonte": "deskbreak",
+      "nome": "Elevação lateral",
+      "grupo": "ombros",
+      "status": "exact",
+      "exercicios": [
+        "mus-elevacao-lateral"
+      ],
+      "acao": "lateral-raise_rig"
+    },
+    {
+      "id": "abdominal-cruzado",
+      "fonte": "deskbreak",
+      "acao": "standing-cross-crunch_rig",
+      "nome": "Abdominal cruzado",
+      "grupo": "abdômen",
+      "status": "review",
+      "exercicios": [
+        "mus-abdominal-polia"
+      ]
+    },
+    {
+      "id": "pedalar",
+      "fonte": "deskbreak",
+      "acao": "chair-leg-pedal_rig",
+      "nome": "Pedalar",
+      "grupo": "cardio",
+      "status": "review",
+      "exercicios": [
+        "mus-bicicleta"
+      ]
+    },
+    {
+      "id": "panturrilha",
+      "fonte": "deskbreak",
+      "nome": "Elevação de panturrilha",
+      "grupo": "panturrilha",
+      "status": "exact",
+      "exercicios": [],
+      "acao": "calf-raise_rig"
+    },
+    {
+      "id": "remada-alta",
+      "fonte": "deskbreak",
+      "nome": "Remada alta",
+      "grupo": "ombros",
+      "status": "review",
+      "exercicios": [],
+      "acao": "pull-aparts_rig"
+    },
+    {
+      "id": "peck-deck",
+      "fonte": "deskbreak",
+      "nome": "Pec deck",
+      "grupo": "peito",
+      "status": "review",
+      "exercicios": [],
+      "acao": "self-hug_rig"
+    },
+    {
+      "id": "step-up",
+      "fonte": "deskbreak",
+      "nome": "Subida no caixote",
+      "grupo": "pernas",
+      "status": "review",
+      "exercicios": [],
+      "acao": "side-step-and-hold_rig"
+    },
+    {
+      "id": "salto",
+      "fonte": "deskbreak",
+      "nome": "Salto vertical",
+      "grupo": "pernas",
+      "status": "review",
+      "exercicios": [],
+      "acao": "squat-to-calf-raise_rig"
+    },
+    {
+      "id": "alongamento-1",
+      "fonte": "deskbreak",
+      "nome": "Alongamento 1",
+      "grupo": "mobilidade",
+      "status": "exact",
+      "exercicios": [],
+      "acao": "overhead-side-stretch-clasped_rig"
+    },
+    {
+      "id": "alongamento-2",
+      "fonte": "deskbreak",
+      "nome": "Alongamento 2",
+      "grupo": "mobilidade",
+      "status": "exact",
+      "exercicios": [],
+      "acao": "standing-hamstring-stretch_rig"
+    },
+    {
+      "id": "pose-biceps",
+      "fonte": "deskbreak",
+      "nome": "Pose de bíceps",
+      "grupo": "bíceps",
+      "status": "exact",
+      "exercicios": [],
+      "acao": "funny-muscle-flex_rig"
+    }
+  ],
+  "fallbackPorGrupo": {
+    "pernas": "agachamento",
+    "quadríceps": "extensao-joelho",
+    "posterior": "flexao-joelho",
+    "glúteos": "ponte-gluteo",
+    "panturrilha": "panturrilha",
+    "peito": "peck-deck",
+    "costas": "remada-sentada",
+    "bíceps": "rosca-direta",
+    "tríceps": "triceps",
+    "ombros": "elevacao-lateral",
+    "abdômen": "abdominal-supra",
+    "core": "prancha",
+    "cardio": "polichinelo",
+    "mobilidade": "alongamento-1",
+    "corpo inteiro": "postura-base"
+  }
+}
