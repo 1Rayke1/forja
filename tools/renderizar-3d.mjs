@@ -55,12 +55,23 @@ function argumentos(lista) {
 const opcoes = argumentos(process.argv.slice(2));
 const personagem = opcoes.personagem || "masculino";
 const clipeId = opcoes.clipe || "flexao";
+const arquivoClipe = typeof opcoes.arquivo === "string" ? opcoes.arquivo : null;
 const destino = opcoes.saida || path.join(raiz, "docs", "validacao-3d", `${personagem}-${clipeId}.png`);
 const fases = Number(opcoes.fases || 1);
 const tempoFracao = Number(opcoes.tempo === undefined ? 0.35 : opcoes.tempo);
 const larguraCelula = Number(opcoes.largura || 340);
 const alturaCelula = Math.round(larguraCelula * 1.4);
 const escala = 2; /* supersampling: renderiza 2× e reduz para suavizar */
+
+/*
+  Vista do render. O padrão continua sendo o 3/4 usado na validação publicada;
+  `--vista frente` e `--vista lado` existem para a inspeção de anatomia e para
+  comparar pose de perfil (que é onde joelho e quadril mentem).
+*/
+const VISTAS = { "tres-quartos": 0.42, frente: 0, lado: Math.PI / 2, costas: Math.PI };
+const vista = opcoes.vista || "tres-quartos";
+const azimuteVista = opcoes.azimute !== undefined ? Number(opcoes.azimute) : VISTAS[vista];
+if (!Number.isFinite(azimuteVista)) throw new Error("vista desconhecida: " + vista);
 
 const THREE = await import(path.join(raiz, "assets/vendor/three/three.module.min.js"));
 const { GLTFLoader } = await import(
@@ -70,7 +81,7 @@ const cenaMod = await import(path.join(raiz, "assets/js/forja-3d-cena.js"));
 
 function carregarGLB(relativo) {
   return new Promise((resolve, reject) => {
-    const buffer = fs.readFileSync(path.join(raiz, relativo));
+    const buffer = fs.readFileSync(path.isAbsolute(relativo) ? relativo : path.join(raiz, relativo));
     const bytes = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
     new GLTFLoader().parse(bytes, "", resolve, reject);
   });
@@ -207,10 +218,14 @@ const catalogo = JSON.parse(fs.readFileSync(path.join(raiz, "assets/3d/catalogo.
 const dadosPersonagem = catalogo.personagens[personagem];
 const clipeInfo = catalogo.clipes.find(clipe => clipe.id === clipeId);
 if (!dadosPersonagem) throw new Error("personagem não publicado: " + personagem);
-if (!clipeInfo) throw new Error("clipe não publicado: " + clipeId);
+if (!clipeInfo && !arquivoClipe) throw new Error("clipe não publicado: " + clipeId);
 
 const gltfPersonagem = await carregarGLB(dadosPersonagem.arquivo);
-const gltfClipe = await carregarGLB(clipeInfo.arquivo);
+/*
+  `--arquivo` renderiza um clipe qualquer do disco (candidato ainda não
+  publicado). É assim que um retarget é olhado antes de entrar no catálogo.
+*/
+const gltfClipe = await carregarGLB(arquivoClipe || clipeInfo.arquivo);
 
 const raizPersonagem = gltfPersonagem.scene;
 const clipe = cenaMod.reamarrarFaixas(gltfClipe.animations[0], raizPersonagem);
@@ -287,7 +302,7 @@ const camera = new THREE.PerspectiveCamera(32, larguraCelula / alturaCelula, 0.0
 const fovRad = (camera.fov * Math.PI) / 180;
 const distanciaVertical = (Math.max(tamanho.y, tamanho.x * (alturaCelula / larguraCelula)) * 0.54) / Math.tan(fovRad / 2);
 const distancia = Math.max(1.4, distanciaVertical + tamanho.z * 0.6);
-const azimute = 0.42;
+const azimute = azimuteVista;
 const elevacao = 0.12;
 camera.position.set(
   centro.x + Math.sin(azimute) * Math.cos(elevacao) * distancia,
@@ -391,7 +406,7 @@ escreverPNG(destino, composta);
 const alturaMedida = tamanho.y;
 console.log(JSON.stringify({
   personagem,
-  clipe: clipeId,
+  clipe: arquivoClipe ? path.basename(arquivoClipe) : clipeId,
   arquivo: path.relative(raiz, destino),
   quadros: fases,
   duracaoS: Number(clipe.duration.toFixed(2)),

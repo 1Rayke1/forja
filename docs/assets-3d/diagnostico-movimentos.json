@@ -1,0 +1,3009 @@
+{
+ "geradoEm": "2026-11-01T04:43:23.397Z",
+ "personagem": "masculino",
+ "amostras": 48,
+ "total": 40,
+ "divergentes": [
+  "polichinelo",
+  "flexao",
+  "afundo",
+  "prancha",
+  "mountain-climber",
+  "corrida-estacionaria",
+  "supino",
+  "agachamento-halteres",
+  "puxada",
+  "desenvolvimento",
+  "remada-alta"
+ ],
+ "problemasDeHigiene": [],
+ "clipes": [
+  {
+   "id": "postura-base",
+   "nome": "Postura base",
+   "status": "exact",
+   "grupo": "corpo inteiro",
+   "arquivo": "assets/3d/animacoes/postura-base.glb",
+   "duracao": 3.92,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Posture reset",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.789,
+     "max": 166.789,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 150.406,
+     "max": 150.406,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 35.778,
+     "max": 38.544,
+     "amp": 2.767
+    },
+    "punhoY": {
+     "min": 0.854,
+     "max": 0.882,
+     "amp": 0.029
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0.138,
+     "max": 0.138,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.389,
+     "max": 1.416,
+     "amp": 0.027
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.009,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "rotacao-ombros",
+   "nome": "Rotação de ombros",
+   "status": "exact",
+   "grupo": "ombros",
+   "arquivo": "assets/3d/animacoes/rotacao-ombros.glb",
+   "duracao": 2.42,
+   "loop": true,
+   "exercicios": [
+    "cal-rotacao-ombros"
+   ],
+   "referencia": "Shoulder rolls backward",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 32.565,
+     "max": 36.316,
+     "amp": 3.751
+    },
+    "punhoY": {
+     "min": 0.873,
+     "max": 0.932,
+     "amp": 0.059
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.409,
+     "max": 1.468,
+     "amp": 0.059
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.005,
+    "descontinuidadeLaco": 0.002,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "circulos-braco",
+   "nome": "Círculos de braço",
+   "status": "exact",
+   "grupo": "ombros",
+   "arquivo": "assets/3d/animacoes/circulos-braco.glb",
+   "duracao": 1.79,
+   "loop": true,
+   "exercicios": [
+    "mus-mobilidade-ombro"
+   ],
+   "referencia": "Small arm circles",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 107.954,
+     "max": 131.659,
+     "amp": 23.705
+    },
+    "punhoY": {
+     "min": 1.308,
+     "max": 1.53,
+     "amp": 0.221
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.418,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.015,
+    "descontinuidadeLaco": 0.002,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "mobilidade-quadril",
+   "nome": "Mobilidade de quadril",
+   "status": "exact",
+   "grupo": "quadril",
+   "arquivo": "assets/3d/animacoes/mobilidade-quadril.glb",
+   "duracao": 1.83,
+   "loop": true,
+   "exercicios": [
+    "cal-mobilidade-quadril"
+   ],
+   "referencia": "Standing hip circles",
+   "medido": {
+    "quadrilY": {
+     "min": 0.944,
+     "max": 0.956,
+     "amp": 0.012
+    },
+    "joelho": {
+     "min": 166.292,
+     "max": 166.637,
+     "amp": 0.345
+    },
+    "cotovelo": {
+     "min": 100,
+     "max": 100,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 150.317,
+     "max": 150.642,
+     "amp": 0.325
+    },
+    "ombroAbd": {
+     "min": 71.659,
+     "max": 71.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 1.008,
+     "max": 1.066,
+     "amp": 0.058
+    },
+    "peMin": {
+     "min": 0.089,
+     "max": 0.089,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0.116,
+     "max": 0.116,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.366,
+     "max": 1.415,
+     "amp": 0.049
+    },
+    "derivaXZ": 0.33,
+    "saltoMax": 0.01,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "polichinelo",
+   "nome": "Polichinelo",
+   "status": "review",
+   "grupo": "corpo inteiro",
+   "arquivo": "assets/3d/animacoes/polichinelo.glb",
+   "duracao": 2,
+   "loop": true,
+   "exercicios": [
+    "cal-polichinelo"
+   ],
+   "referencia": "Step jack",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 153.414,
+     "max": 168.716,
+     "amp": 15.302
+    },
+    "cotovelo": {
+     "min": 170.022,
+     "max": 174,
+     "amp": 3.978
+    },
+    "quadrilFlex": {
+     "min": 150.406,
+     "max": 161.141,
+     "amp": 10.735
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 179.063,
+     "amp": 143.404
+    },
+    "punhoY": {
+     "min": 0.882,
+     "max": 1.88,
+     "amp": 0.997
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.418,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.194,
+    "descontinuidadeLaco": 0.016,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "punhoY",
+     "texto": "mãos precisam subir acima da cabeça"
+    },
+    {
+     "chave": "aberturaPes",
+     "texto": "as pernas precisam abrir e fechar de lado"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "aberturaPes",
+     "texto": "as pernas precisam abrir e fechar de lado"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "flexao",
+   "nome": "Flexão de braço",
+   "status": "review",
+   "grupo": "peito",
+   "arquivo": "assets/3d/animacoes/flexao.glb",
+   "duracao": 4.21,
+   "loop": true,
+   "exercicios": [
+    "cal-flexao"
+   ],
+   "referencia": "Plank to downward dog flow",
+   "medido": {
+    "quadrilY": {
+     "min": 0.547,
+     "max": 0.911,
+     "amp": 0.365
+    },
+    "joelho": {
+     "min": 122.533,
+     "max": 168.035,
+     "amp": 45.501
+    },
+    "cotovelo": {
+     "min": 132.711,
+     "max": 179.993,
+     "amp": 47.283
+    },
+    "quadrilFlex": {
+     "min": 84.983,
+     "max": 127.017,
+     "amp": 42.034
+    },
+    "ombroAbd": {
+     "min": 65.726,
+     "max": 140.21,
+     "amp": 74.483
+    },
+    "punhoY": {
+     "min": 0.264,
+     "max": 0.403,
+     "amp": 0.139
+    },
+    "peMin": {
+     "min": 0.165,
+     "max": 0.182,
+     "amp": 0.017
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0.246,
+     "amp": 0.246
+    },
+    "ombroY": {
+     "min": 0.491,
+     "max": 0.672,
+     "amp": 0.182
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.049,
+    "descontinuidadeLaco": 0.004,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 110°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "o corpo precisa estar baixo, no chão"
+    },
+    {
+     "chave": "punhoY",
+     "texto": "mãos precisam ficar perto do chão"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 110°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "o corpo precisa estar baixo, no chão"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "agachamento",
+   "nome": "Agachamento livre",
+   "status": "exact",
+   "grupo": "pernas",
+   "arquivo": "assets/3d/animacoes/agachamento.glb",
+   "duracao": 3.21,
+   "loop": true,
+   "exercicios": [
+    "cal-agachamento"
+   ],
+   "referencia": "Sit-back squat",
+   "medido": {
+    "quadrilY": {
+     "min": 0.695,
+     "max": 0.948,
+     "amp": 0.253
+    },
+    "joelho": {
+     "min": 93.569,
+     "max": 166.801,
+     "amp": 73.231
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 123.097,
+     "max": 150.407,
+     "amp": 27.31
+    },
+    "ombroAbd": {
+     "min": 35.609,
+     "max": 90,
+     "amp": 54.391
+    },
+    "punhoY": {
+     "min": 0.847,
+     "max": 0.885,
+     "amp": 0.038
+    },
+    "peMin": {
+     "min": 0.074,
+     "max": 0.08,
+     "amp": 0.006
+    },
+    "aberturaPes": {
+     "min": 0.169,
+     "max": 0.169,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.11,
+     "max": 1.418,
+     "amp": 0.308
+    },
+    "derivaXZ": 0.432,
+    "saltoMax": 0.047,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa dobrar até ≤ 110°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "quadril precisa descer ≥ 15 cm"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "remada-invertida",
+   "nome": "Remada",
+   "status": "review",
+   "grupo": "costas",
+   "arquivo": "assets/3d/animacoes/remada-invertida.glb",
+   "duracao": 2.42,
+   "loop": true,
+   "exercicios": [
+    "cal-remada-invertida"
+   ],
+   "referencia": "Hinged bodyweight row",
+   "medido": {
+    "quadrilY": {
+     "min": 0.957,
+     "max": 0.957,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 159.793,
+     "max": 159.793,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 85,
+     "max": 174,
+     "amp": 89
+    },
+    "quadrilFlex": {
+     "min": 149.666,
+     "max": 149.666,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 36.047,
+     "max": 54.658,
+     "amp": 18.611
+    },
+    "punhoY": {
+     "min": 0.784,
+     "max": 1.018,
+     "amp": 0.234
+    },
+    "peMin": {
+     "min": 0.097,
+     "max": 0.097,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0.138,
+     "max": 0.138,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.322,
+     "max": 1.343,
+     "amp": 0.021
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.027,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 100°"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "afundo",
+   "nome": "Afundo",
+   "status": "review",
+   "grupo": "pernas",
+   "arquivo": "assets/3d/animacoes/afundo.glb",
+   "duracao": 1.33,
+   "loop": true,
+   "exercicios": [
+    "cal-afundo"
+   ],
+   "referencia": "Back step to knee drive",
+   "medido": {
+    "quadrilY": {
+     "min": 0.936,
+     "max": 0.961,
+     "amp": 0.025
+    },
+    "joelho": {
+     "min": 127.261,
+     "max": 150.105,
+     "amp": 22.844
+    },
+    "cotovelo": {
+     "min": 90.047,
+     "max": 110,
+     "amp": 19.953
+    },
+    "quadrilFlex": {
+     "min": 119.517,
+     "max": 149.494,
+     "amp": 29.977
+    },
+    "ombroAbd": {
+     "min": 36.958,
+     "max": 56.182,
+     "amp": 19.225
+    },
+    "punhoY": {
+     "min": 1.118,
+     "max": 1.458,
+     "amp": 0.34
+    },
+    "peMin": {
+     "min": 0.095,
+     "max": 0.097,
+     "amp": 0.002
+    },
+    "aberturaPes": {
+     "min": 0.005,
+     "max": 0.612,
+     "amp": 0.607
+    },
+    "ombroY": {
+     "min": 1.4,
+     "max": 1.429,
+     "amp": 0.028
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.083,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa dobrar até ≤ 115°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "quadril precisa descer ≥ 8 cm"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa dobrar até ≤ 115°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "quadril precisa descer ≥ 8 cm"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "ponte-gluteo",
+   "nome": "Ponte de glúteo",
+   "status": "exact",
+   "grupo": "glúteos",
+   "arquivo": "assets/3d/animacoes/ponte-gluteo.glb",
+   "duracao": 4.13,
+   "loop": true,
+   "exercicios": [
+    "cal-ponte"
+   ],
+   "referencia": "Glute bridge",
+   "medido": {
+    "quadrilY": {
+     "min": 0.108,
+     "max": 0.447,
+     "amp": 0.339
+    },
+    "joelho": {
+     "min": 35.608,
+     "max": 58.503,
+     "amp": 22.895
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 110.323,
+     "max": 150.614,
+     "amp": 40.291
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 52.388,
+     "amp": 16.729
+    },
+    "punhoY": {
+     "min": 0.134,
+     "max": 0.146,
+     "amp": 0.012
+    },
+    "peMin": {
+     "min": 0.1,
+     "max": 0.135,
+     "amp": 0.034
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 0.108,
+     "max": 0.226,
+     "amp": 0.118
+    },
+    "derivaXZ": 0.229,
+    "saltoMax": 0.026,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "quadrilFlex",
+     "texto": "corpo precisa ficar apoiado/deitado"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "prancha",
+   "nome": "Prancha frontal",
+   "status": "exact",
+   "grupo": "core",
+   "arquivo": "assets/3d/animacoes/prancha.glb",
+   "duracao": 5.63,
+   "loop": true,
+   "exercicios": [
+    "cal-prancha-frontal",
+    "mus-prancha"
+   ],
+   "referencia": "Plank",
+   "medido": {
+    "quadrilY": {
+     "min": 0.527,
+     "max": 0.7,
+     "amp": 0.173
+    },
+    "joelho": {
+     "min": 115.799,
+     "max": 168.627,
+     "amp": 52.828
+    },
+    "cotovelo": {
+     "min": 163.713,
+     "max": 180,
+     "amp": 16.287
+    },
+    "quadrilFlex": {
+     "min": 99.278,
+     "max": 150.499,
+     "amp": 51.22
+    },
+    "ombroAbd": {
+     "min": 60.041,
+     "max": 91.806,
+     "amp": 31.764
+    },
+    "punhoY": {
+     "min": 0.163,
+     "max": 0.24,
+     "amp": 0.076
+    },
+    "peMin": {
+     "min": 0.154,
+     "max": 0.183,
+     "amp": 0.03
+    },
+    "aberturaPes": {
+     "min": 0.09,
+     "max": 0.272,
+     "amp": 0.182
+    },
+    "ombroY": {
+     "min": 0.652,
+     "max": 0.7,
+     "amp": 0.048
+    },
+    "derivaXZ": 0.687,
+    "saltoMax": 0.053,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "quadrilY",
+     "texto": "o corpo precisa ficar baixo, alinhado com o chão"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "prancha é isométrica: quadril não pode subir e descer"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "quadrilY",
+     "texto": "o corpo precisa ficar baixo, alinhado com o chão"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "prancha é isométrica: quadril não pode subir e descer"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "abdominal-supra",
+   "nome": "Abdominal supra",
+   "status": "exact",
+   "grupo": "abdômen",
+   "arquivo": "assets/3d/animacoes/abdominal-supra.glb",
+   "duracao": 3,
+   "loop": true,
+   "exercicios": [
+    "cal-abdominal-supra"
+   ],
+   "referencia": "Gentle curl-up",
+   "medido": {
+    "quadrilY": {
+     "min": 0.093,
+     "max": 0.108,
+     "amp": 0.015
+    },
+    "joelho": {
+     "min": 89.405,
+     "max": 90.208,
+     "amp": 0.803
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 128.757,
+     "max": 130.273,
+     "amp": 1.515
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 55.987,
+     "amp": 20.328
+    },
+    "punhoY": {
+     "min": 0.134,
+     "max": 0.461,
+     "amp": 0.327
+    },
+    "peMin": {
+     "min": 0.075,
+     "max": 0.075,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 0.108,
+     "max": 0.228,
+     "amp": 0.12
+    },
+    "derivaXZ": 0.083,
+    "saltoMax": 0.029,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "elevacao-pernas",
+   "nome": "Elevação de pernas",
+   "status": "exact",
+   "grupo": "abdômen",
+   "arquivo": "assets/3d/animacoes/elevacao-pernas.glb",
+   "duracao": 2.71,
+   "loop": true,
+   "exercicios": [
+    "cal-elevacao-pernas",
+    "mus-elevacao-barra"
+   ],
+   "referencia": "Straight leg raise",
+   "medido": {
+    "quadrilY": {
+     "min": 0.108,
+     "max": 0.108,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 128.731,
+     "max": 129.305,
+     "amp": 0.574
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 128.046,
+     "max": 139.344,
+     "amp": 11.298
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 35.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 0.134,
+     "max": 0.134,
+     "amp": 0
+    },
+    "peMin": {
+     "min": 0.098,
+     "max": 0.098,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0.026,
+     "max": 0.266,
+     "amp": 0.24
+    },
+    "ombroY": {
+     "min": 0.108,
+     "max": 0.108,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.051,
+    "descontinuidadeLaco": 0.002,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "abdominal-infra",
+   "nome": "Abdominal infra",
+   "status": "review",
+   "grupo": "abdômen",
+   "arquivo": "assets/3d/animacoes/abdominal-infra.glb",
+   "duracao": 2.63,
+   "loop": true,
+   "exercicios": [
+    "cal-abdominal-infra"
+   ],
+   "referencia": "Single leg lowers",
+   "medido": {
+    "quadrilY": {
+     "min": 0.108,
+     "max": 0.108,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 127.838,
+     "max": 129.106,
+     "amp": 1.268
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 109.023,
+     "max": 135.101,
+     "amp": 26.078
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 35.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 0.134,
+     "max": 0.134,
+     "amp": 0
+    },
+    "peMin": {
+     "min": 0.098,
+     "max": 0.098,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0.006,
+     "max": 0.554,
+     "amp": 0.548
+    },
+    "ombroY": {
+     "min": 0.108,
+     "max": 0.108,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.061,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "mountain-climber",
+   "nome": "Mountain climber",
+   "status": "review",
+   "grupo": "corpo inteiro",
+   "arquivo": "assets/3d/animacoes/mountain-climber.glb",
+   "duracao": 0.92,
+   "loop": true,
+   "exercicios": [
+    "cal-mountain-climber"
+   ],
+   "referencia": "Standing mountain climber",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.95,
+     "amp": 0.002
+    },
+    "joelho": {
+     "min": 129.139,
+     "max": 142.566,
+     "amp": 13.428
+    },
+    "cotovelo": {
+     "min": 122,
+     "max": 122,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 126.722,
+     "max": 135.458,
+     "amp": 8.736
+    },
+    "ombroAbd": {
+     "min": 108.737,
+     "max": 109.486,
+     "amp": 0.749
+    },
+    "punhoY": {
+     "min": 1.732,
+     "max": 1.938,
+     "amp": 0.206
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.168,
+     "amp": 0.088
+    },
+    "aberturaPes": {
+     "min": 0.01,
+     "max": 0.336,
+     "amp": 0.326
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.42,
+     "amp": 0.002
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.066,
+    "descontinuidadeLaco": 0.011,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa vir em direção ao peito"
+    },
+    {
+     "chave": "quadrilFlex",
+     "texto": "corpo precisa ficar baixo, apoiado"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa vir em direção ao peito"
+    },
+    {
+     "chave": "quadrilFlex",
+     "texto": "corpo precisa ficar baixo, apoiado"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "corrida-estacionaria",
+   "nome": "Corrida estacionária",
+   "status": "review",
+   "grupo": "cardio",
+   "arquivo": "assets/3d/animacoes/corrida-estacionaria.glb",
+   "duracao": 0.5,
+   "loop": true,
+   "exercicios": [
+    "cal-corrida-estacionaria"
+   ],
+   "referencia": "Fast feet",
+   "medido": {
+    "quadrilY": {
+     "min": 0.969,
+     "max": 0.969,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 154.243,
+     "max": 158.849,
+     "amp": 4.606
+    },
+    "cotovelo": {
+     "min": 90,
+     "max": 90,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 150.527,
+     "max": 152.751,
+     "amp": 2.224
+    },
+    "ombroAbd": {
+     "min": 49.066,
+     "max": 50.465,
+     "amp": 1.4
+    },
+    "punhoY": {
+     "min": 1.239,
+     "max": 1.328,
+     "amp": 0.089
+    },
+    "peMin": {
+     "min": 0.119,
+     "max": 0.12,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0.03,
+     "amp": 0.03
+    },
+    "ombroY": {
+     "min": 1.431,
+     "max": 1.431,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.013,
+    "descontinuidadeLaco": 0.012,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa subir (flexão ≤ 120°)"
+    },
+    {
+     "chave": "derivaXZ",
+     "texto": "corrida estacionária não pode sair do lugar"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa subir (flexão ≤ 120°)"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "caminhada",
+   "nome": "Caminhada",
+   "status": "review",
+   "grupo": "cardio",
+   "arquivo": "assets/3d/animacoes/caminhada.glb",
+   "duracao": 1,
+   "loop": true,
+   "exercicios": [
+    "mus-esteira",
+    "mus-farmer"
+   ],
+   "referencia": "March with overhead press",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.95,
+     "amp": 0.002
+    },
+    "joelho": {
+     "min": 140.544,
+     "max": 152.955,
+     "amp": 12.411
+    },
+    "cotovelo": {
+     "min": 40,
+     "max": 174.421,
+     "amp": 134.421
+    },
+    "quadrilFlex": {
+     "min": 137.239,
+     "max": 143.546,
+     "amp": 6.307
+    },
+    "ombroAbd": {
+     "min": 64.238,
+     "max": 156.21,
+     "amp": 91.972
+    },
+    "punhoY": {
+     "min": 1.409,
+     "max": 1.948,
+     "amp": 0.539
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.144,
+     "amp": 0.064
+    },
+    "aberturaPes": {
+     "min": 0.002,
+     "max": 0.252,
+     "amp": 0.251
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.42,
+     "amp": 0.002
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.054,
+    "descontinuidadeLaco": 0.009,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "abre-e-fecha",
+   "nome": "Abre e fecha com elástico",
+   "status": "exact",
+   "grupo": "costas",
+   "arquivo": "assets/3d/animacoes/abre-e-fecha.glb",
+   "duracao": 2.42,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Pull-aparts",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 90,
+     "max": 119.639,
+     "amp": 29.639
+    },
+    "punhoY": {
+     "min": 1.444,
+     "max": 1.444,
+     "amp": 0
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.418,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.067,
+    "descontinuidadeLaco": 0.002,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "dobradiça-quadril",
+   "nome": "Dobradiça de quadril",
+   "status": "review",
+   "grupo": "posterior",
+   "arquivo": "assets/3d/animacoes/dobradiça-quadril.glb",
+   "duracao": 2.83,
+   "loop": true,
+   "exercicios": [
+    "mus-terra"
+   ],
+   "referencia": "Hip hinge",
+   "medido": {
+    "quadrilY": {
+     "min": 0.946,
+     "max": 0.948,
+     "amp": 0.002
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 167.007,
+     "amp": 0.217
+    },
+    "cotovelo": {
+     "min": 100,
+     "max": 100,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 149.742,
+     "max": 150.407,
+     "amp": 0.664
+    },
+    "ombroAbd": {
+     "min": 71.659,
+     "max": 71.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 1.005,
+     "max": 1.019,
+     "amp": 0.014
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0.169,
+     "max": 0.169,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.311,
+     "max": 1.418,
+     "amp": 0.107
+    },
+    "derivaXZ": 0.19,
+    "saltoMax": 0.007,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "supino",
+   "nome": "Supino reto",
+   "status": "review",
+   "grupo": "peito",
+   "arquivo": "assets/3d/animacoes/supino.glb",
+   "duracao": 4.21,
+   "loop": true,
+   "exercicios": [
+    "mus-supino-reto"
+   ],
+   "referencia": "Plank to downward dog flow",
+   "medido": {
+    "quadrilY": {
+     "min": 0.547,
+     "max": 0.911,
+     "amp": 0.365
+    },
+    "joelho": {
+     "min": 122.533,
+     "max": 168.035,
+     "amp": 45.501
+    },
+    "cotovelo": {
+     "min": 132.711,
+     "max": 179.993,
+     "amp": 47.283
+    },
+    "quadrilFlex": {
+     "min": 84.983,
+     "max": 127.017,
+     "amp": 42.034
+    },
+    "ombroAbd": {
+     "min": 65.726,
+     "max": 140.21,
+     "amp": 74.483
+    },
+    "punhoY": {
+     "min": 0.264,
+     "max": 0.403,
+     "amp": 0.139
+    },
+    "peMin": {
+     "min": 0.165,
+     "max": 0.182,
+     "amp": 0.017
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0.246,
+     "amp": 0.246
+    },
+    "ombroY": {
+     "min": 0.491,
+     "max": 0.672,
+     "amp": 0.182
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.049,
+    "descontinuidadeLaco": 0.004,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 110°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "o corpo precisa estar deitado, no banco/chão"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 110°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "o corpo precisa estar deitado, no banco/chão"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "agachamento-halteres",
+   "nome": "Agachamento com halteres",
+   "status": "review",
+   "grupo": "pernas",
+   "arquivo": "assets/3d/animacoes/agachamento-halteres.glb",
+   "duracao": 2.42,
+   "loop": true,
+   "exercicios": [
+    "mus-agachamento-barra"
+   ],
+   "referencia": "Wide mini squat",
+   "medido": {
+    "quadrilY": {
+     "min": 0.853,
+     "max": 0.893,
+     "amp": 0.039
+    },
+    "joelho": {
+     "min": 140.227,
+     "max": 165.186,
+     "amp": 24.958
+    },
+    "cotovelo": {
+     "min": 100,
+     "max": 100,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 171.083,
+     "max": 179.631,
+     "amp": 8.548
+    },
+    "ombroAbd": {
+     "min": 71.659,
+     "max": 71.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 0.911,
+     "max": 0.95,
+     "amp": 0.039
+    },
+    "peMin": {
+     "min": 0.074,
+     "max": 0.074,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.323,
+     "max": 1.363,
+     "amp": 0.039
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.004,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa dobrar até ≤ 115°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "quadril precisa descer ≥ 10 cm"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa dobrar até ≤ 115°"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "quadril precisa descer ≥ 10 cm"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "puxada",
+   "nome": "Puxada",
+   "status": "review",
+   "grupo": "costas",
+   "arquivo": "assets/3d/animacoes/puxada.glb",
+   "duracao": 2.21,
+   "loop": true,
+   "exercicios": [
+    "mus-puxada-frontal"
+   ],
+   "referencia": "Knee lift with pull-down",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 131.822,
+     "max": 166.789,
+     "amp": 34.968
+    },
+    "cotovelo": {
+     "min": 165.051,
+     "max": 174,
+     "amp": 8.949
+    },
+    "quadrilFlex": {
+     "min": 124.739,
+     "max": 150.406,
+     "amp": 25.668
+    },
+    "ombroAbd": {
+     "min": 57.764,
+     "max": 159.859,
+     "amp": 102.095
+    },
+    "punhoY": {
+     "min": 0.993,
+     "max": 1.927,
+     "amp": 0.934
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0.344,
+     "amp": 0.344
+    },
+    "ombroY": {
+     "min": 1.407,
+     "max": 1.418,
+     "amp": 0.011
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.174,
+    "descontinuidadeLaco": 0.018,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 100°"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 100°"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "desenvolvimento",
+   "nome": "Desenvolvimento",
+   "status": "review",
+   "grupo": "ombros",
+   "arquivo": "assets/3d/animacoes/desenvolvimento.glb",
+   "duracao": 2,
+   "loop": true,
+   "exercicios": [
+    "mus-desenvolvimento"
+   ],
+   "referencia": "Seated shoulder press",
+   "medido": {
+    "quadrilY": {
+     "min": 0.545,
+     "max": 0.545,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 96.548,
+     "max": 96.548,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 90,
+     "max": 169.852,
+     "amp": 79.852
+    },
+    "quadrilFlex": {
+     "min": 91.96,
+     "max": 91.96,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 117.659,
+     "max": 163.336,
+     "amp": 45.677
+    },
+    "punhoY": {
+     "min": 1.255,
+     "max": 1.513,
+     "amp": 0.258
+    },
+    "peMin": {
+     "min": 0.095,
+     "max": 0.095,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.015,
+     "max": 1.015,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.024,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "punhoY",
+     "texto": "mãos precisam terminar acima da cabeça"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "o desenvolvimento é em pé, não sentado"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "punhoY",
+     "texto": "mãos precisam terminar acima da cabeça"
+    },
+    {
+     "chave": "quadrilY",
+     "texto": "o desenvolvimento é em pé, não sentado"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "remada-sentada",
+   "nome": "Remada sentada",
+   "status": "review",
+   "grupo": "costas",
+   "arquivo": "assets/3d/animacoes/remada-sentada.glb",
+   "duracao": 1.83,
+   "loop": true,
+   "exercicios": [
+    "mus-remada-curvada"
+   ],
+   "referencia": "Seated rowing",
+   "medido": {
+    "quadrilY": {
+     "min": 0.545,
+     "max": 0.545,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 96.548,
+     "max": 96.548,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 80.209,
+     "max": 175,
+     "amp": 94.79
+    },
+    "quadrilFlex": {
+     "min": 91.96,
+     "max": 91.96,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 38.759,
+     "max": 85.656,
+     "amp": 46.897
+    },
+    "punhoY": {
+     "min": 0.682,
+     "max": 0.911,
+     "amp": 0.23
+    },
+    "peMin": {
+     "min": 0.095,
+     "max": 0.095,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.011,
+     "max": 1.015,
+     "amp": 0.004
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.042,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 100°"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "rosca-direta",
+   "nome": "Rosca direta",
+   "status": "exact",
+   "grupo": "bíceps",
+   "arquivo": "assets/3d/animacoes/rosca-direta.glb",
+   "duracao": 2.33,
+   "loop": true,
+   "exercicios": [
+    "mus-rosca-direta"
+   ],
+   "referencia": "Elbow curls",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 40,
+     "max": 174,
+     "amp": 134
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 35.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 0.882,
+     "max": 1.32,
+     "amp": 0.438
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.418,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.049,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 80°"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "rosca-rotacao",
+   "nome": "Rosca com rotação",
+   "status": "review",
+   "grupo": "bíceps",
+   "arquivo": "assets/3d/animacoes/rosca-rotacao.glb",
+   "duracao": 2.33,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Elbow curls",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 40,
+     "max": 174,
+     "amp": 134
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 35.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 0.882,
+     "max": 1.32,
+     "amp": 0.438
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.418,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.049,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 80°"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "triceps",
+   "nome": "Tríceps",
+   "status": "exact",
+   "grupo": "tríceps",
+   "arquivo": "assets/3d/animacoes/triceps.glb",
+   "duracao": 1.83,
+   "loop": true,
+   "exercicios": [
+    "mus-triceps-polia"
+   ],
+   "referencia": "Triceps kickback",
+   "medido": {
+    "quadrilY": {
+     "min": 0.924,
+     "max": 0.924,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 154.04,
+     "max": 154.04,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 80,
+     "max": 179.782,
+     "amp": 99.782
+    },
+    "quadrilFlex": {
+     "min": 143.912,
+     "max": 143.912,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 62.439,
+     "max": 62.439,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 1.079,
+     "max": 1.328,
+     "amp": 0.249
+    },
+    "peMin": {
+     "min": 0.086,
+     "max": 0.086,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.329,
+     "max": 1.329,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.03,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 100°"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "extensao-joelho",
+   "nome": "Extensão de joelho",
+   "status": "review",
+   "grupo": "quadríceps",
+   "arquivo": "assets/3d/animacoes/extensao-joelho.glb",
+   "duracao": 6,
+   "loop": true,
+   "exercicios": [
+    "mus-extensora"
+   ],
+   "referencia": "Seated knee extension",
+   "medido": {
+    "quadrilY": {
+     "min": 0.545,
+     "max": 0.545,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 96.548,
+     "max": 132.328,
+     "amp": 35.781
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 91.96,
+     "max": 91.96,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 35.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 0.479,
+     "max": 0.479,
+     "amp": 0
+    },
+    "peMin": {
+     "min": 0.095,
+     "max": 0.095,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0.398,
+     "amp": 0.398
+    },
+    "ombroY": {
+     "min": 1.015,
+     "max": 1.015,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.119,
+    "descontinuidadeLaco": 0.003,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "flexao-joelho",
+   "nome": "Flexão de joelho",
+   "status": "exact",
+   "grupo": "posterior",
+   "arquivo": "assets/3d/animacoes/flexao-joelho.glb",
+   "duracao": 2.13,
+   "loop": true,
+   "exercicios": [
+    "mus-flexora"
+   ],
+   "referencia": "Standing hamstring curl",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 123.068,
+     "max": 166.789,
+     "amp": 43.72
+    },
+    "cotovelo": {
+     "min": 160,
+     "max": 160,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 148.668,
+     "max": 150.524,
+     "amp": 1.856
+    },
+    "ombroAbd": {
+     "min": 79.056,
+     "max": 79.056,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 1.365,
+     "max": 1.365,
+     "amp": 0
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0.015,
+     "max": 0.169,
+     "amp": 0.154
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.418,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.098,
+    "descontinuidadeLaco": 0.004,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "elevacao-lateral",
+   "nome": "Elevação lateral",
+   "status": "exact",
+   "grupo": "ombros",
+   "arquivo": "assets/3d/animacoes/elevacao-lateral.glb",
+   "duracao": 2.63,
+   "loop": true,
+   "exercicios": [
+    "mus-elevacao-lateral"
+   ],
+   "referencia": "Lateral raise",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 168,
+     "max": 174,
+     "amp": 6
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 114.659,
+     "amp": 79
+    },
+    "punhoY": {
+     "min": 0.882,
+     "max": 1.371,
+     "amp": 0.489
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.418,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.059,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "ombroAbd",
+     "texto": "braços precisam abrir até a linha do ombro"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "abdominal-cruzado",
+   "nome": "Abdominal cruzado",
+   "status": "review",
+   "grupo": "abdômen",
+   "arquivo": "assets/3d/animacoes/abdominal-cruzado.glb",
+   "duracao": 3.63,
+   "loop": true,
+   "exercicios": [
+    "mus-abdominal-polia"
+   ],
+   "referencia": "Standing cross crunch",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 131.756,
+     "max": 166.789,
+     "amp": 35.033
+    },
+    "cotovelo": {
+     "min": 35,
+     "max": 35,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 122.456,
+     "max": 150.406,
+     "amp": 27.95
+    },
+    "ombroAbd": {
+     "min": 129.659,
+     "max": 129.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 1.574,
+     "max": 1.59,
+     "amp": 0.016
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0.023,
+     "max": 0.417,
+     "amp": 0.395
+    },
+    "ombroY": {
+     "min": 1.361,
+     "max": 1.418,
+     "amp": 0.057
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.146,
+    "descontinuidadeLaco": 0.004,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "pedalar",
+   "nome": "Pedalar",
+   "status": "review",
+   "grupo": "cardio",
+   "arquivo": "assets/3d/animacoes/pedalar.glb",
+   "duracao": 0.83,
+   "loop": true,
+   "exercicios": [
+    "mus-bicicleta"
+   ],
+   "referencia": "Seated pedaling",
+   "medido": {
+    "quadrilY": {
+     "min": 0.545,
+     "max": 0.545,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 106.108,
+     "max": 106.323,
+     "amp": 0.215
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 81.2,
+     "max": 83.376,
+     "amp": 2.176
+    },
+    "ombroAbd": {
+     "min": 43.659,
+     "max": 43.659,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 0.492,
+     "max": 0.492,
+     "amp": 0
+    },
+    "peMin": {
+     "min": 0.165,
+     "max": 0.237,
+     "amp": 0.072
+    },
+    "aberturaPes": {
+     "min": 0.012,
+     "max": 0.3,
+     "amp": 0.288
+    },
+    "ombroY": {
+     "min": 1.015,
+     "max": 1.015,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.021,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "joelho",
+     "texto": "joelho precisa dobrar até ≤ 110°"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "panturrilha",
+   "nome": "Elevação de panturrilha",
+   "status": "exact",
+   "grupo": "panturrilha",
+   "arquivo": "assets/3d/animacoes/panturrilha.glb",
+   "duracao": 2.63,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Calf raise",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 1.017,
+     "amp": 0.069
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 167.078,
+     "amp": 0.288
+    },
+    "cotovelo": {
+     "min": 160,
+     "max": 160,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 149.462,
+     "max": 150.406,
+     "amp": 0.945
+    },
+    "ombroAbd": {
+     "min": 79.056,
+     "max": 79.056,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 1.365,
+     "max": 1.434,
+     "amp": 0.069
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.152,
+     "amp": 0.072
+    },
+    "aberturaPes": {
+     "min": 0.169,
+     "max": 0.169,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.487,
+     "amp": 0.069
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.009,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "peMin",
+     "texto": "calcanhar precisa sair do chão"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "remada-alta",
+   "nome": "Remada alta",
+   "status": "review",
+   "grupo": "ombros",
+   "arquivo": "assets/3d/animacoes/remada-alta.glb",
+   "duracao": 2.42,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Pull-aparts",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 90,
+     "max": 119.639,
+     "amp": 29.639
+    },
+    "punhoY": {
+     "min": 1.444,
+     "max": 1.444,
+     "amp": 0
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.418,
+     "max": 1.418,
+     "amp": 0
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.067,
+    "descontinuidadeLaco": 0.002,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 120°"
+    },
+    {
+     "chave": "punhoY",
+     "texto": "mãos precisam subir até a linha do ombro"
+    }
+   ],
+   "falhasAssinatura": [
+    {
+     "chave": "cotovelo",
+     "texto": "cotovelo precisa dobrar até ≤ 120°"
+    }
+   ],
+   "problemaHigiene": [],
+   "veredito": "divergente"
+  },
+  {
+   "id": "peck-deck",
+   "nome": "Pec deck",
+   "status": "review",
+   "grupo": "peito",
+   "arquivo": "assets/3d/animacoes/peck-deck.glb",
+   "duracao": 3.92,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Self hug upper-back stretch",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 110,
+     "max": 174,
+     "amp": 64
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 32.442,
+     "max": 74.816,
+     "amp": 42.374
+    },
+    "punhoY": {
+     "min": 0.882,
+     "max": 1.574,
+     "amp": 0.692
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.404,
+     "max": 1.418,
+     "amp": 0.014
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.117,
+    "descontinuidadeLaco": 0.002,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "ombroAbd",
+     "texto": "braços precisam abrir e fechar na frente do peito"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "step-up",
+   "nome": "Subida no caixote",
+   "status": "review",
+   "grupo": "pernas",
+   "arquivo": "assets/3d/animacoes/step-up.glb",
+   "duracao": 10.42,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Side step and balance",
+   "medido": {
+    "quadrilY": {
+     "min": 0.93,
+     "max": 0.949,
+     "amp": 0.018
+    },
+    "joelho": {
+     "min": 138.797,
+     "max": 166.522,
+     "amp": 27.725
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 142.47,
+     "max": 152.342,
+     "amp": 9.872
+    },
+    "ombroAbd": {
+     "min": 35.659,
+     "max": 59.659,
+     "amp": 24
+    },
+    "punhoY": {
+     "min": 0.883,
+     "max": 0.934,
+     "amp": 0.051
+    },
+    "peMin": {
+     "min": 0.081,
+     "max": 0.082,
+     "amp": 0.002
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0.105,
+     "amp": 0.105
+    },
+    "ombroY": {
+     "min": 1.4,
+     "max": 1.419,
+     "amp": 0.018
+    },
+    "derivaXZ": 1.326,
+    "saltoMax": 0.194,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "salto",
+   "nome": "Salto vertical",
+   "status": "review",
+   "grupo": "pernas",
+   "arquivo": "assets/3d/animacoes/salto.glb",
+   "duracao": 3.92,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Squat to calf raise",
+   "medido": {
+    "quadrilY": {
+     "min": 0.849,
+     "max": 1.017,
+     "amp": 0.168
+    },
+    "joelho": {
+     "min": 125.781,
+     "max": 167.077,
+     "amp": 41.296
+    },
+    "cotovelo": {
+     "min": 174,
+     "max": 174,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 140.046,
+     "max": 150.45,
+     "amp": 10.404
+    },
+    "ombroAbd": {
+     "min": 35.587,
+     "max": 156.394,
+     "amp": 120.807
+    },
+    "punhoY": {
+     "min": 0.88,
+     "max": 2.017,
+     "amp": 1.137
+    },
+    "peMin": {
+     "min": 0.075,
+     "max": 0.152,
+     "amp": 0.077
+    },
+    "aberturaPes": {
+     "min": 0.169,
+     "max": 0.169,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.301,
+     "max": 1.487,
+     "amp": 0.186
+    },
+    "derivaXZ": 0.35,
+    "saltoMax": 0.275,
+    "descontinuidadeLaco": 0.003,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [
+    {
+     "chave": "quadrilY",
+     "texto": "precisa haver impulso vertical do quadril"
+    }
+   ],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "alongamento-1",
+   "nome": "Alongamento 1",
+   "status": "exact",
+   "grupo": "mobilidade",
+   "arquivo": "assets/3d/animacoes/alongamento-1.glb",
+   "duracao": 8.21,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Clasped overhead side stretch",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 155,
+     "max": 155,
+     "amp": 0
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 129.012,
+     "max": 129.012,
+     "amp": 0
+    },
+    "punhoY": {
+     "min": 1.873,
+     "max": 1.915,
+     "amp": 0.042
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.326,
+     "max": 1.418,
+     "amp": 0.092
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.06,
+    "descontinuidadeLaco": 0.001,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "alongamento-2",
+   "nome": "Alongamento 2",
+   "status": "exact",
+   "grupo": "mobilidade",
+   "arquivo": "assets/3d/animacoes/alongamento-2.glb",
+   "duracao": 4.63,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Standing hamstring stretch",
+   "medido": {
+    "quadrilY": {
+     "min": 0.901,
+     "max": 0.948,
+     "amp": 0.047
+    },
+    "joelho": {
+     "min": 155.661,
+     "max": 167.712,
+     "amp": 12.05
+    },
+    "cotovelo": {
+     "min": 170,
+     "max": 174,
+     "amp": 4
+    },
+    "quadrilFlex": {
+     "min": 141.803,
+     "max": 144.707,
+     "amp": 2.905
+    },
+    "ombroAbd": {
+     "min": 32.926,
+     "max": 56.81,
+     "amp": 23.884
+    },
+    "punhoY": {
+     "min": 0.819,
+     "max": 0.904,
+     "amp": 0.085
+    },
+    "peMin": {
+     "min": 0.075,
+     "max": 0.08,
+     "amp": 0.005
+    },
+    "aberturaPes": {
+     "min": 0.298,
+     "max": 0.309,
+     "amp": 0.011
+    },
+    "ombroY": {
+     "min": 1.305,
+     "max": 1.418,
+     "amp": 0.113
+    },
+    "derivaXZ": 0.286,
+    "saltoMax": 0.027,
+    "descontinuidadeLaco": 0,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  },
+  {
+   "id": "pose-biceps",
+   "nome": "Pose de bíceps",
+   "status": "exact",
+   "grupo": "bíceps",
+   "arquivo": "assets/3d/animacoes/pose-biceps.glb",
+   "duracao": 4,
+   "loop": true,
+   "exercicios": [],
+   "referencia": "Bodybuilder flex",
+   "medido": {
+    "quadrilY": {
+     "min": 0.948,
+     "max": 0.948,
+     "amp": 0
+    },
+    "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "cotovelo": {
+     "min": 60,
+     "max": 80,
+     "amp": 20
+    },
+    "quadrilFlex": {
+     "min": 150.407,
+     "max": 150.407,
+     "amp": 0
+    },
+    "ombroAbd": {
+     "min": 61.776,
+     "max": 117.659,
+     "amp": 55.884
+    },
+    "punhoY": {
+     "min": 1.254,
+     "max": 1.629,
+     "amp": 0.375
+    },
+    "peMin": {
+     "min": 0.08,
+     "max": 0.08,
+     "amp": 0
+    },
+    "aberturaPes": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "ombroY": {
+     "min": 1.406,
+     "max": 1.418,
+     "amp": 0.012
+    },
+    "derivaXZ": 0,
+    "saltoMax": 0.132,
+    "descontinuidadeLaco": 0.006,
+    "escalaMax": 0,
+    "quadrosNaN": 0
+   },
+   "assinatura": [],
+   "falhasAssinatura": [],
+   "problemaHigiene": [],
+   "veredito": "ok"
+  }
+ ]
+}
