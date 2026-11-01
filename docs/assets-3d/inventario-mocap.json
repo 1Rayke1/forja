@@ -1,0 +1,158 @@
+[
+  {
+    "arquivo": "01_Box_Step_Up_And_Down_01.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/01_Box_Step_Up_And_Down_01.fbx",
+    "bytes": 11923888,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "02_Box_Step_Up_And_Down_02.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/02_Box_Step_Up_And_Down_02.fbx",
+    "bytes": 14122768,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "03_Box_Step_Up_And_Down_03.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/03_Box_Step_Up_And_Down_03.fbx",
+    "bytes": 16050896,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "04_Box_Step_Up_And_Down_04.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/04_Box_Step_Up_And_Down_04.fbx",
+    "bytes": 14904320,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "05_Forward_Backward_Run.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/05_Forward_Backward_Run.fbx",
+    "bytes": 7481184,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "06_Jumping_Jacks.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/06_Jumping_Jacks.fbx",
+    "bytes": 5429248,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "07_Standing_Jump.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/07_Standing_Jump.fbx",
+    "bytes": 6236400,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "08_Stretching_01.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/08_Stretching_01.fbx",
+    "bytes": 6908736,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "09_Stretching_02.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/09_Stretching_02.fbx",
+    "bytes": 7191664,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "10_Stretching_03.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/10_Stretching_03.fbx",
+    "bytes": 8699072,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "11_Stretching_04.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/11_Stretching_04.fbx",
+    "bytes": 7847632,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "12_Weighted_Forward_Lunge.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/12_Weighted_Forward_Lunge.fbx",
+    "bytes": 12998864,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "13_Dumbbell_Squat.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/13_Dumbbell_Squat.fbx",
+    "bytes": 15004912,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "14_Calf_Raise.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/14_Calf_Raise.fbx",
+    "bytes": 11004192,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "15_Barbell_Upright_Row.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/15_Barbell_Upright_Row.fbx",
+    "bytes": 10760496,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "16_Barbell_Curl.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/16_Barbell_Curl.fbx",
+    "bytes": 11429136,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "17_Dumbbell_Curl_Rotation.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/17_Dumbbell_Curl_Rotation.fbx",
+    "bytes": 11759632,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "18_Dumbbell_Lateral_Raise.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/18_Dumbbell_Lateral_Raise.fbx",
+    "bytes": 10852544,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "19_Seated_Row.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/19_Seated_Row.fbx",
+    "bytes": 11389136,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "20_Pec_Deck.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/20_Pec_Deck.fbx",
+    "bytes": 12968992,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "21_Bench_Press.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/21_Bench_Press.fbx",
+    "bytes": 11466816,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "22_Biceps_Pose.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/22_Biceps_Pose.fbx",
+    "bytes": 5055232,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "01_Box_Step_Up_And_Down_01_ue5.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/UE5/01_Box_Step_Up_And_Down_01_ue5.fbx",
+    "bytes": 11967984,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "02_Box_Step_Up_And_Down_02_ue5.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/UE5/02_Box_Step_Up_And_Down_02_ue5.fbx",
+    "bytes": 14318656,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "01_Box_Step_Up_And_Down_01_iclone.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/iClone/01_Box_Step_Up_And_Down_01_iclone.fbx",
+    "bytes": 10338800,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  },
+  {
+    "arquivo": "02_Box_Step_Up_And_Down_02_iclone.fbx",
+    "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/iClone/02_Box_Step_Up_And_Down_02_iclone.fbx",
+    "bytes": 12325648,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  }
+]

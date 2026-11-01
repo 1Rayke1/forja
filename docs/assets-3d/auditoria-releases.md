@@ -1,6 +1,6 @@
 # Auditoria dos anexos 3D das releases
 
-Gerado por `tools/auditar-assets-3d-releases.sh` em 2026-11-01 02:42 UTC.
+Gerado por `tools/auditar-assets-3d-releases.sh` em 2026-11-01 02:44 UTC.
 Diretório auditado: `assets-3d`. Nenhum arquivo foi alterado.
 
 | Arquivo | Tamanho | Formato real (cabeçalho) | SHA-256 |
@@ -243,4 +243,300 @@ Archive:  /tmp/assets-3d/Mocap_Pack_06_Fitness_and_Workout.zip
 ## Resumo
 
 - Anexos auditados: 2
-- Ferramentas: `UnZip 6.00 of 20 April 2009, by Debian. `, `7z`: sim, `blender`: não.
+- Ferramentas: `UnZip 6.00 of 20 April 2009, by Debian. `, `7z`: sim, `blender`: Blender 4.0.2.
+
+## Inspeção profunda (Blender)
+
+### DeskBreak — arquivos de mídia/3D dentro do app
+
+```
+  12798555 /tmp/deskbreak/app/resources/app.asar
+    742200 /tmp/deskbreak/app/v8_context_snapshot.bin
+    368768 /tmp/deskbreak/app/snapshot_blob.bin
+   9760072 /tmp/deskbreak/asar/library/exercises.glb
+   1518699 /tmp/deskbreak/asar/vendor/three/three.core.js
+    682491 /tmp/deskbreak/asar/vendor/three/three.module.js
+    322094 /tmp/deskbreak/asar/library/exercises.json
+    239588 /tmp/deskbreak/asar/library/wood.png
+    122495 /tmp/deskbreak/asar/vendor/three/addons/loaders/GLTFLoader.js
+     39213 /tmp/deskbreak/asar/vendor/three/addons/utils/BufferGeometryUtils.js
+     31288 /tmp/deskbreak/asar/app/icon.png
+     22765 /tmp/deskbreak/asar/app/settings.html
+     17165 /tmp/deskbreak/asar/app/index.html
+     12031 /tmp/deskbreak/asar/vendor/three/addons/utils/SkeletonUtils.js
+      8563 /tmp/deskbreak/asar/app/i18n.js
+      8447 /tmp/deskbreak/asar/main.js
+      2638 /tmp/deskbreak/asar/app/store.js
+      1933 /tmp/deskbreak/asar/app/wood.css
+      1436 /tmp/deskbreak/asar/library/player.js
+      1102 /tmp/deskbreak/asar/vendor/three/LICENSE
+       692 /tmp/deskbreak/asar/preload.js
+       332 /tmp/deskbreak/asar/package.json
+       111 /tmp/deskbreak/asar/vendor/README.txt
+```
+
+### Pacote de mocap — esqueleto e animações
+
+#### docs/assets-3d/inventario-mocap.json
+
+- **01_Box_Step_Up_And_Down_01.fbx** (11923888 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **02_Box_Step_Up_And_Down_02.fbx** (14122768 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **03_Box_Step_Up_And_Down_03.fbx** (16050896 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **04_Box_Step_Up_And_Down_04.fbx** (14904320 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **05_Forward_Backward_Run.fbx** (7481184 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **06_Jumping_Jacks.fbx** (5429248 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **07_Standing_Jump.fbx** (6236400 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **08_Stretching_01.fbx** (6908736 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **09_Stretching_02.fbx** (7191664 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **10_Stretching_03.fbx** (8699072 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **11_Stretching_04.fbx** (7847632 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **12_Weighted_Forward_Lunge.fbx** (12998864 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **13_Dumbbell_Squat.fbx** (15004912 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **14_Calf_Raise.fbx** (11004192 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **15_Barbell_Upright_Row.fbx** (10760496 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **16_Barbell_Curl.fbx** (11429136 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **17_Dumbbell_Curl_Rotation.fbx** (11759632 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **18_Dumbbell_Lateral_Raise.fbx** (10852544 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **19_Seated_Row.fbx** (11389136 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **20_Pec_Deck.fbx** (12968992 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **21_Bench_Press.fbx** (11466816 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **22_Biceps_Pose.fbx** (5055232 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **01_Box_Step_Up_And_Down_01_ue5.fbx** (11967984 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **02_Box_Step_Up_And_Down_02_ue5.fbx** (14318656 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **01_Box_Step_Up_And_Down_01_iclone.fbx** (10338800 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+- **02_Box_Step_Up_And_Down_02_iclone.fbx** (12325648 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py", line 201, in execute
+    from . import import_fbx
+  File "/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py", line 22, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+
+### DeskBreak — modelos 3D
+
+#### docs/assets-3d/inventario-deskbreak.json
+
+- **exercises.glb** (9760072 bytes)
+  - ERRO: RuntimeError: Error: Python: Traceback (most recent call last):
+  File "/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py", line 1709, in execute
+    return self.import_gltf2(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py", line 1742, in import_gltf2
+    return self.unit_import(self.filepath, import_settings)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py", line 1747, in unit_import
+    from .blender.imp.gltf2_blender_gltf import BlenderGlTF
+  File "/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_gltf.py", line 8, in <module>
+    from .gltf2_blender_scene import BlenderScene
+  File "/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_scene.py", line 7, in <module>
+    from .gltf2_blender_node import BlenderNode
+  File "/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_node.py", line 10, in <module>
+    from .gltf2_blender_mesh import BlenderMesh
+  File "/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_mesh.py", line 7, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+Location: /usr/share/blender/scripts/modules/bpy/ops.py:109
+
+

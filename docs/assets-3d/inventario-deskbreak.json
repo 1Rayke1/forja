@@ -1,0 +1,8 @@
+[
+  {
+    "arquivo": "exercises.glb",
+    "caminho": "/tmp/deskbreak/asar/library/exercises.glb",
+    "bytes": 9760072,
+    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py\", line 1709, in execute\n    return self.import_gltf2(context)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py\", line 1742, in import_gltf2\n    return self.unit_import(self.filepath, import_settings)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py\", line 1747, in unit_import\n    from .blender.imp.gltf2_blender_gltf import BlenderGlTF\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_gltf.py\", line 8, in <module>\n    from .gltf2_blender_scene import BlenderScene\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_scene.py\", line 7, in <module>\n    from .gltf2_blender_node import BlenderNode\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_node.py\", line 10, in <module>\n    from .gltf2_blender_mesh import BlenderMesh\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_mesh.py\", line 7, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+  }
+]
