@@ -3,6 +3,3122 @@
     "arquivo": "exercises.glb",
     "caminho": "/tmp/deskbreak/asar/library/exercises.glb",
     "bytes": 9760072,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py\", line 1709, in execute\n    return self.import_gltf2(context)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py\", line 1742, in import_gltf2\n    return self.unit_import(self.filepath, import_settings)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/__init__.py\", line 1747, in unit_import\n    from .blender.imp.gltf2_blender_gltf import BlenderGlTF\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_gltf.py\", line 8, in <module>\n    from .gltf2_blender_scene import BlenderScene\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_scene.py\", line 7, in <module>\n    from .gltf2_blender_node import BlenderNode\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_node.py\", line 10, in <module>\n    from .gltf2_blender_mesh import BlenderMesh\n  File \"/usr/share/blender/scripts/addons/io_scene_gltf2/blender/imp/gltf2_blender_mesh.py\", line 7, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 24.0,
+    "armaduras": [
+      {
+        "nome": "rig",
+        "ossos": 16,
+        "nomes_de_ossos": [
+          "hips",
+          "legL",
+          "kneeL",
+          "footL",
+          "legR",
+          "kneeR",
+          "footR",
+          "spine",
+          "armL",
+          "elbowL",
+          "handL",
+          "armR",
+          "elbowR",
+          "handR",
+          "neck",
+          "prop"
+        ],
+        "ossos_raiz": [
+          "hips",
+          "prop"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Icosphere",
+        "vertices": 42,
+        "poligonos": 80,
+        "materiais": [],
+        "grupos_de_vertices": 0,
+        "armature_modifier": false,
+        "dimensoes": [
+          1.902,
+          2.0,
+          2.0
+        ]
+      },
+      {
+        "nome": "mannequin",
+        "vertices": 12960,
+        "poligonos": 21772,
+        "materiais": [
+          "wood",
+          "wood_joint",
+          "plastic"
+        ],
+        "grupos_de_vertices": 16,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.603,
+          0.885,
+          1.751
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "alternating-reach-forward_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 44.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "ankle-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 43.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "ankle-pumps-standing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "arm-circles-small_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 43.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "arm-pendulum_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 27.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "arms-back-chest-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 99.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "baby-cobra_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 99.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "back-leg-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 60.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "back-toe-taps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-airplane-mild_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 197.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-back-leg-raise-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 192.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-foot-behind-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 216.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-heel-raise-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 118.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-knee-raise-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 192.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-leg-swing-front-back_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-leg-swing-side_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-side-leg-raise-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 192.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-single-leg-stand_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 216.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-slow-march_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 135.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-toe-heel-rock_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 125.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "balance-weight-shift-side_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 135.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "biceps-curl_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 56.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "bird-dog-easy_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "bird-dog_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 164.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "boxer-shuffle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 17.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "bridge-pose-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "butt-kick-walk_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "butterfly-seated-lean_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "calf-raise-arm-swing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 27.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "calf-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "cat-cow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-ankle-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-ankle-pumps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-arm-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 21.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-back-extension_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 82.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-biceps-curl_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 51.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-breathing-arms_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-cat-cow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-chest-opener_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 94.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-chin-tuck_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 72.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-cross-body-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-fast-feet_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 12.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-figure-four_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 197.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-forward-fold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-front-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-hamstring-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-hands-to-shoulders_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-heel-raises_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-heel-taps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-heel-toe-rock_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-hip-hinge_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-jacks_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-knee-drive-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 77.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-knee-extension_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-knee-hug_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-knee-lift-arms-up_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-knees-open-close_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-lateral-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-lean-back-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-leg-out-side_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-leg-pedal_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 20.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-march_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-neck-nod_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-neck-tilt_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-neck-turn_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-overhead-punches_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 22.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-overhead-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-pose-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-pose-prayer-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-punches_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 22.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-reach-across_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-reach-up-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-rowing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 44.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-scapular-squeeze_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 84.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-shoulder-press_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-shoulder-rolls_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-shoulder-shrugs_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-side-bend_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-star-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 77.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-straight-leg-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 77.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-toe-raises_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-torso-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-upper-back-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 94.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-w-squeeze_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-windmill_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 106.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-wrist-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chair-wrist-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chest-opener-clasp_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 94.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "child-pose_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 125.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "chin-tuck_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 72.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "clam-shell_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "clock-reach-arm_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 132.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "clock-reach-foot_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 123.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "cobra-to-child-flow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "cross-body-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "cross-knee-tap_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "cross-leg-side-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-arm-wave_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 32.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-bboy-stance-bounce_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 32.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-body-roll_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 66.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-bounce-groove_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 31.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-brush-shoulders_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 32.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-cabbage-patch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-carlton_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 28.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-chest-pop_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 16.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-dab_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 60.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-disco-point_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 28.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-drop-the-mouse_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 123.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-floss-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-hands-up-sway_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 32.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-head-bob_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 32.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-heel-tap_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-hitchhike_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-macarena_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 56.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-overhead-clap_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-pump-it_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 28.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-raise-the-roof_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 16.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-rap-swag-nod_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 32.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-robot-arms_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-rolling-hands_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-running-man-step_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 60.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-shopping-cart_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 60.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-shoulder-bounce_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 31.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-shoulder-shimmy_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 15.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-side-sway_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 32.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-small-front-kick_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-sprinkler_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 31.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-step-touch-clap_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-the-swim_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 31.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-twist-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 28.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-two-step_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dance-ymca_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "dead-bug_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "diagonal-wood-chop_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "donkey-kick_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "downward-dog-pedal_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "easy-seat-breath-arms_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 168.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "easy-tree-pose_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "elbow-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "extended-side-angle-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 255.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "external-rotation_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "fast-feet-small_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 12.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "figure-four-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 149.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "fire-hydrant_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-alternate-toe-point-flex_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-ankle-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-ankle-pumps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-bent-knee-spinal-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-boat-one-leg-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-butterfly-forward-lean_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-butterfly-knee-flaps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-butterfly-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-butterfly-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-cross-legged-arm-breath_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-cross-legged-cat-cow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-cross-legged-forward-walk_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 120.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-cross-legged-knee-folds_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-cross-legged-side-bend_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-cross-legged-torso-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-cross-legged-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-easy-boat-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-flexed-foot-hamstring_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 231.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-gentle-v-sit_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 99.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-head-to-knee-easy_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 231.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-heel-slides_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-hug-knees-side-sway_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-knee-hug-to-chest_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 197.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-knee-windshield-wipers_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-knees-to-chest-rock-back_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-lean-back-leg-lift_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 125.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-lean-back-marching_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-lean-back-open-close-scissors_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-lean-back-scissors_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 22.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-leg-roll-in-out_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-long-sit-forward-fold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 120.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-long-sit-side-bend_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-seated-chest-opener_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-seated-figure-four_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 231.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-soft-knee-forward-fold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 120.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-staff-pose_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 120.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-straddle-forward-lean_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 120.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-straddle-reach-to-foot_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 106.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-straddle-side-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "floor-straddle-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "forearm-rotation_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "forward-toe-taps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "fours-rock-back_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "fours-tail-wag_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "front-leg-swing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "front-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-air-guitar_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-air-swim_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-backflip_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 71.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-banana-slip_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 65.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-big-sneeze_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 92.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-cartwheel_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-chicken-dance_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-code-works-victory_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 39.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-dab_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 77.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-disco-point_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-dramatic-faint_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 123.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-facepalm_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 113.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-flamingo_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-floor-tantrum_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 12.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-floss_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-grand-bow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 70.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-hot-floor_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 9.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-it-compiles-fist-pump_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 51.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-keyboard-smash_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-monkey_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 17.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-moonwalk_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 84.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-mosquito-clap_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 72.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-mouse-drop_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 135.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-muscle-flex_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-peekaboo_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 56.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-penguin-waddle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 17.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-robot-dance_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 56.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-sleepy-nod-off_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 123.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-slow-motion-run_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-sneaky-tiptoe_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-stage-dive_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 99.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-sumo-stomp_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 72.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-superhero-landing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 70.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-surrender-to-bug_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-t-rex-arms_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-walk-like-egyptian_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-wet-dog-shake_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 6.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-whatever-shrug_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 99.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "funny-zombie-walk_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 39.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "gate-pose-kneeling_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 240.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "gentle-cobra_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 92.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "gentle-curl-up_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 72.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "glute-bridge_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 99.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "goalpost-rotation_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "goddess-pose-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "good-morning-bodyweight_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 77.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "grapevine_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "half-jack-arms_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 22.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "half-sun-salute_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 135.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hamstring-curl-arm-pull_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hands-on-hips-side-bend_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 106.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hands-to-shoulders_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 44.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "happy-baby_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 149.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "head-to-knee-soft_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 288.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "heel-dig-punch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "heel-kicks_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "heel-slides_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 106.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "heel-to-toe-stand_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 216.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "heel-to-toe-walk-in-place_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "high-knee-march_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 27.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hinge-reach-forward_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 82.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hinge-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hinge-reverse-fly_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hinge-row-no-weight_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hinge-swimmer_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 39.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hinge-y-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 70.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hip-gate-close_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hip-gate-open_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hip-hinge-arms-crossed_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 72.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hip-hinge_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hip-shift-side-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 164.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "hip-side-shift_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 39.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "inner-thigh-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 221.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "jab-cross-step_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 20.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "knee-lift-march_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "knee-lift-pull-down_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "knee-plank_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 120.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "knee-raise-open-gate_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "knee-sways_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 44.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "knee-to-chest-hip-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 106.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "knee-to-chest-single_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "knees-to-chest-hug_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 149.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lateral-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lateral-shuffle-low_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 39.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "leg-lowers_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "legs-up-pose_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "levator-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "locust-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 92.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "loose-twist-arm-swings_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "low-front-kick_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "low-lunge-kneeling_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 288.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lunge-hip-flexor-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lunge-stretch-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 99.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lying-ankle-pumps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lying-arm-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 106.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lying-full-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 99.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lying-hamstring-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 231.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "lying-snow-angel_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "march-arm-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 39.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "march-in-place_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "mini-squat-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 130.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "mini-squat_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "mountain-pose-breath_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 168.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "neck-half-circle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 106.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "neck-nod_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "neck-rotation_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "neck-side-tilt_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "open-book_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 104.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "open-close-swings_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 29.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "overhead-punches_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 22.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "overhead-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "overhead-side-stretch-clasped_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 197.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "overhead-triceps-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "pelvic-tilt-lying_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 72.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "plank-full_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 135.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "plank-on-knees_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 135.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "plank-to-down-dog-flow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 101.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "posture-reset_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 94.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "power-walk-arms-up_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 24.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "prone-heel-to-seat_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "prone-leg-lift_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "prone-opposite-lift_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "prone-superman_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "prone-swimmers_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 20.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "prone-w-squeeze_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 72.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "prone-y-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "protraction-retraction_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 44.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "pull-aparts_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "punches_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 20.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "pyramid-pose-soft_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 264.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "reclined-butterfly_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "reclined-pigeon_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 180.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "reverse-lunge-knee-drive_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 32.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "reverse-toe-tap-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "reverse-warrior-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 231.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "round-and-open_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "savasana-rest_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 168.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "scapular-squeeze_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 84.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "seated-back-extension_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "seated-cat-cow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "seated-forward-fold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 113.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "seated-side-bend-cross_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 240.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "seated-side-bend_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "seated-side-reach-down_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "seated-spinal-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 197.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "seated-twist-easy_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 231.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "self-hug_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 94.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "shallow-split-squat_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "shoulder-rolls-back_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "shoulder-rolls-forward_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "shoulder-shrugs_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-leg-raise-arms_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-leg-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 60.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-leg-swing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-lying-inner-thigh_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-lying-leg-lift_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-lying-quad-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-step-and-hold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 250.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-step-arm-swing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "side-step-taps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "single-calf-raise-supported_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 60.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "single-leg-arms-overhead_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "single-leg-balance_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "single-leg-cross-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 135.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "single-leg-head-turns_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 120.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "single-leg-mini-hinge_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 77.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "sit-back-squat_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 77.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "skater-step-no-hop_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "skier-swing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "slow-bicycle-legs_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "small-leg-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "sphinx_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "squat-to-calf-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 94.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "staff-pose-yoga_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-back-extension_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-bicycle-crunch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-bird-dog_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 135.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-c-curve_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-cat-cow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-climber_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 22.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-crescent-side-bend_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-cross-crunch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-fire-hydrant_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 60.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-forward-fold-soft_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 149.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-hamstring-curl_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 51.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-hamstring-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-hip-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 44.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-knee-hug_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-knee-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-pelvic-tilt_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-quad-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-roll-down_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 197.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-side-bend-reach_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-side-crunch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-side-leg-swing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 34.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-snow-angel_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-trunk-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-uppercuts_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 22.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "standing-windmill-rotation_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "step-jack_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "step-touch-clap_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 48.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "straight-leg-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 65.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "sun-salutation-floor_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 269.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "sun-salutation-standing_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 216.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "supine-knee-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 298.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "supine-marching_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "supine-twist_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "sword-draw_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 53.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "t-arms-trunk-rotation_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 116.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "t-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 65.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "table-to-downward-dog_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 149.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "tall-reach-tiptoes_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 82.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "tandem-arm-swings_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 39.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "thoracic-reach-up_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 87.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "thread-the-needle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 207.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "toe-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 60.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "toe-taps_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "torso-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 96.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "trap-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "tree-pose-arms-up_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 226.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "tree-pose-calf_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 226.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "tree-pose-hands-heart_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 260.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "tree-pose-kickstand_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 226.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "triangle-pose_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 264.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "triceps-kickback_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 44.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "twist-march_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 27.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "upward-salute-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 104.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "w-squeeze_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 63.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "wall-calf-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 111.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "warrior-1-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 279.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "warrior-2_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 279.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "warrior-3-gentle_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 240.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "wide-leg-seated-fold_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 149.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "wide-mini-squat_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 58.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "wrist-circles_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 39.2,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "wrist-extensor-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "wrist-flexor-stretch_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 188.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "y-raise_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 70.4,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "yoga-cat-cow_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 68.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "yoga-child-pose_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 173.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "yoga-easy-boat_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 144.8,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "yoga-happy-baby_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 140.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "yoga-seated-fold-soft_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 149.6,
+        "curvas": 160,
+        "ossos_animados": 16
+      },
+      {
+        "nome": "yoga-tree-kickstand_rig",
+        "quadro_inicial": 0.8,
+        "quadro_final": 260.0,
+        "curvas": 160,
+        "ossos_animados": 16
+      }
+    ],
+    "total_objetos": 3,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   }
 ]

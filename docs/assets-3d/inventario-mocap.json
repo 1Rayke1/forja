@@ -3,156 +3,6018 @@
     "arquivo": "01_Box_Step_Up_And_Down_01.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/01_Box_Step_Up_And_Down_01.fbx",
     "bytes": 11923888,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2920.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "02_Box_Step_Up_And_Down_02.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/02_Box_Step_Up_And_Down_02.fbx",
     "bytes": 14122768,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 3623.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "03_Box_Step_Up_And_Down_03.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/03_Box_Step_Up_And_Down_03.fbx",
     "bytes": 16050896,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 4244.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 4244.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "04_Box_Step_Up_And_Down_04.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/04_Box_Step_Up_And_Down_04.fbx",
     "bytes": 14904320,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 3887.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3887.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "05_Forward_Backward_Run.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/05_Forward_Backward_Run.fbx",
     "bytes": 7481184,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 1484.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1484.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "06_Jumping_Jacks.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/06_Jumping_Jacks.fbx",
     "bytes": 5429248,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 821.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 821.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "07_Standing_Jump.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/07_Standing_Jump.fbx",
     "bytes": 6236400,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 1081.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1081.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "08_Stretching_01.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/08_Stretching_01.fbx",
     "bytes": 6908736,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 1299.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1299.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "09_Stretching_02.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/09_Stretching_02.fbx",
     "bytes": 7191664,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 1399.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1399.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "10_Stretching_03.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/10_Stretching_03.fbx",
     "bytes": 8699072,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 1882.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1882.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "11_Stretching_04.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/11_Stretching_04.fbx",
     "bytes": 7847632,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 1610.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 1610.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "12_Weighted_Forward_Lunge.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/12_Weighted_Forward_Lunge.fbx",
     "bytes": 12998864,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 3266.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3266.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "13_Dumbbell_Squat.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/13_Dumbbell_Squat.fbx",
     "bytes": 15004912,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 3932.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3932.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "14_Calf_Raise.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/14_Calf_Raise.fbx",
     "bytes": 11004192,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2632.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2632.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "15_Barbell_Upright_Row.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/15_Barbell_Upright_Row.fbx",
     "bytes": 10760496,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2553.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2553.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "16_Barbell_Curl.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/16_Barbell_Curl.fbx",
     "bytes": 11429136,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2765.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2765.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "17_Dumbbell_Curl_Rotation.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/17_Dumbbell_Curl_Rotation.fbx",
     "bytes": 11759632,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2874.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2874.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "18_Dumbbell_Lateral_Raise.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/18_Dumbbell_Lateral_Raise.fbx",
     "bytes": 10852544,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2586.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2586.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "19_Seated_Row.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/19_Seated_Row.fbx",
     "bytes": 11389136,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2750.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2750.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "20_Pec_Deck.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/20_Pec_Deck.fbx",
     "bytes": 12968992,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 3264.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3264.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "21_Bench_Press.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/21_Bench_Press.fbx",
     "bytes": 11466816,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2791.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2791.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "22_Biceps_Pose.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/22_Biceps_Pose.fbx",
     "bytes": 5055232,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "Root",
+        "ossos": 61,
+        "nomes_de_ossos": [
+          "Hips",
+          "Spine1",
+          "Spine2",
+          "Spine3",
+          "Spine4",
+          "Neck",
+          "Head",
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm",
+          "RightHand",
+          "RightFinger1Metacarpal",
+          "RightFinger1Proximal",
+          "RightFinger1Distal",
+          "RightFinger5Metacarpal",
+          "RightFinger5Proximal",
+          "RightFinger5Medial",
+          "RightFinger5Distal",
+          "RightFinger4Metacarpal",
+          "RightFinger4Proximal",
+          "RightFinger4Medial",
+          "RightFinger4Distal",
+          "RightFinger3Metacarpal",
+          "RightFinger3Proximal",
+          "RightFinger3Medial",
+          "RightFinger3Distal",
+          "RightFinger2Metacarpal",
+          "RightFinger2Proximal",
+          "RightFinger2Medial",
+          "RightFinger2Distal",
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand",
+          "LeftFinger5Metacarpal",
+          "LeftFinger5Proximal",
+          "LeftFinger5Medial",
+          "LeftFinger5Distal",
+          "LeftFinger4Metacarpal",
+          "LeftFinger4Proximal",
+          "LeftFinger4Medial",
+          "LeftFinger4Distal",
+          "LeftFinger3Metacarpal",
+          "LeftFinger3Proximal",
+          "LeftFinger3Medial",
+          "LeftFinger3Distal",
+          "LeftFinger2Metacarpal",
+          "LeftFinger2Proximal",
+          "LeftFinger2Medial",
+          "LeftFinger2Distal",
+          "LeftFinger1Metacarpal",
+          "LeftFinger1Proximal",
+          "LeftFinger1Distal",
+          "RightThigh",
+          "RightShin",
+          "RightFoot",
+          "RightToe",
+          "LeftThigh",
+          "LeftShin",
+          "LeftFoot",
+          "LeftToe"
+        ],
+        "ossos_raiz": [
+          "Hips"
+        ],
+        "escala": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Newton_HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [
+          "Material #22",
+          "Head1.001",
+          "Material #21",
+          "Pupil",
+          "Lens",
+          "sclera",
+          "Iris"
+        ],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      },
+      {
+        "nome": "Newton_Headless",
+        "vertices": 10628,
+        "poligonos": 20988,
+        "materiais": [
+          "Head1",
+          "RKK_Joint"
+        ],
+        "grupos_de_vertices": 60,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.89,
+          1.648,
+          0.337
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "And default|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "HeadTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 704.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "LeftToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger1Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger2Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger3Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger4Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightFinger5Tip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "RightToeTip|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 704.0,
+        "curvas": 619,
+        "ossos_animados": 62
+      }
+    ],
+    "total_objetos": 17,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "01_Box_Step_Up_And_Down_01_ue5.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/UE5/01_Box_Step_Up_And_Down_01_ue5.fbx",
     "bytes": 11967984,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "root",
+        "ossos": 79,
+        "nomes_de_ossos": [
+          "pelvis",
+          "spine_01",
+          "spine_02",
+          "spine_03",
+          "spine_04",
+          "spine_05",
+          "neck_01",
+          "neck_02",
+          "head",
+          "clavicle_l",
+          "upperarm_l",
+          "lowerarm_l",
+          "lowerarm_twist_02_l",
+          "lowerarm_twist_01_l",
+          "hand_l",
+          "index_metacarpal_l",
+          "index_01_l",
+          "index_02_l",
+          "index_03_l",
+          "middle_metacarpal_l",
+          "middle_01_l",
+          "middle_02_l",
+          "middle_03_l",
+          "thumb_01_l",
+          "thumb_02_l",
+          "thumb_03_l",
+          "pinky_metacarpal_l",
+          "pinky_01_l",
+          "pinky_02_l",
+          "pinky_03_l",
+          "ring_metacarpal_l",
+          "ring_01_l",
+          "ring_02_l",
+          "ring_03_l",
+          "upperarm_twist_01_l",
+          "upperarm_twist_02_l",
+          "clavicle_r",
+          "upperarm_r",
+          "lowerarm_r",
+          "lowerarm_twist_02_r",
+          "lowerarm_twist_01_r",
+          "hand_r",
+          "pinky_metacarpal_r",
+          "pinky_01_r",
+          "pinky_02_r",
+          "pinky_03_r",
+          "ring_metacarpal_r",
+          "ring_01_r",
+          "ring_02_r",
+          "ring_03_r",
+          "middle_metacarpal_r",
+          "middle_01_r",
+          "middle_02_r",
+          "middle_03_r",
+          "index_metacarpal_r",
+          "index_01_r",
+          "index_02_r",
+          "index_03_r",
+          "thumb_01_r",
+          "thumb_02_r",
+          "thumb_03_r",
+          "upperarm_twist_01_r",
+          "upperarm_twist_02_r",
+          "thigh_r",
+          "calf_r",
+          "foot_r",
+          "ball_r",
+          "calf_twist_02_r",
+          "calf_twist_01_r",
+          "thigh_twist_01_r",
+          "thigh_twist_02_r",
+          "thigh_l",
+          "calf_l",
+          "foot_l",
+          "ball_l",
+          "calf_twist_02_l",
+          "calf_twist_01_l",
+          "thigh_twist_01_l",
+          "thigh_twist_02_l"
+        ],
+        "ossos_raiz": [
+          "pelvis"
+        ],
+        "escala": [
+          0.01,
+          0.01,
+          0.01
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Body",
+        "vertices": 330,
+        "poligonos": 454,
+        "materiais": [],
+        "grupos_de_vertices": 63,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.106,
+          1.637,
+          0.329
+        ]
+      },
+      {
+        "nome": "HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.16,
+          0.231,
+          0.228
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "HeadFaceless|clip|Base_Layer",
+        "quadro_inicial": 0.0,
+        "quadro_final": 0.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2920.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 799,
+        "ossos_animados": 80
+      }
+    ],
+    "total_objetos": 4,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "02_Box_Step_Up_And_Down_02_ue5.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/UE5/02_Box_Step_Up_And_Down_02_ue5.fbx",
     "bytes": 14318656,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "root",
+        "ossos": 79,
+        "nomes_de_ossos": [
+          "pelvis",
+          "spine_01",
+          "spine_02",
+          "spine_03",
+          "spine_04",
+          "spine_05",
+          "neck_01",
+          "neck_02",
+          "head",
+          "clavicle_l",
+          "upperarm_l",
+          "lowerarm_l",
+          "lowerarm_twist_02_l",
+          "lowerarm_twist_01_l",
+          "hand_l",
+          "index_metacarpal_l",
+          "index_01_l",
+          "index_02_l",
+          "index_03_l",
+          "middle_metacarpal_l",
+          "middle_01_l",
+          "middle_02_l",
+          "middle_03_l",
+          "thumb_01_l",
+          "thumb_02_l",
+          "thumb_03_l",
+          "pinky_metacarpal_l",
+          "pinky_01_l",
+          "pinky_02_l",
+          "pinky_03_l",
+          "ring_metacarpal_l",
+          "ring_01_l",
+          "ring_02_l",
+          "ring_03_l",
+          "upperarm_twist_01_l",
+          "upperarm_twist_02_l",
+          "clavicle_r",
+          "upperarm_r",
+          "lowerarm_r",
+          "lowerarm_twist_02_r",
+          "lowerarm_twist_01_r",
+          "hand_r",
+          "pinky_metacarpal_r",
+          "pinky_01_r",
+          "pinky_02_r",
+          "pinky_03_r",
+          "ring_metacarpal_r",
+          "ring_01_r",
+          "ring_02_r",
+          "ring_03_r",
+          "middle_metacarpal_r",
+          "middle_01_r",
+          "middle_02_r",
+          "middle_03_r",
+          "index_metacarpal_r",
+          "index_01_r",
+          "index_02_r",
+          "index_03_r",
+          "thumb_01_r",
+          "thumb_02_r",
+          "thumb_03_r",
+          "upperarm_twist_01_r",
+          "upperarm_twist_02_r",
+          "thigh_r",
+          "calf_r",
+          "foot_r",
+          "ball_r",
+          "calf_twist_02_r",
+          "calf_twist_01_r",
+          "thigh_twist_01_r",
+          "thigh_twist_02_r",
+          "thigh_l",
+          "calf_l",
+          "foot_l",
+          "ball_l",
+          "calf_twist_02_l",
+          "calf_twist_01_l",
+          "thigh_twist_01_l",
+          "thigh_twist_02_l"
+        ],
+        "ossos_raiz": [
+          "pelvis"
+        ],
+        "escala": [
+          0.01,
+          0.01,
+          0.01
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "Body",
+        "vertices": 330,
+        "poligonos": 454,
+        "materiais": [],
+        "grupos_de_vertices": 63,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.106,
+          1.637,
+          0.329
+        ]
+      },
+      {
+        "nome": "HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.16,
+          0.231,
+          0.228
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "HeadFaceless|clip|Base_Layer",
+        "quadro_inicial": 0.0,
+        "quadro_final": 0.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 3623.0,
+        "curvas": 52,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "root|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 799,
+        "ossos_animados": 80
+      }
+    ],
+    "total_objetos": 4,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "01_Box_Step_Up_And_Down_01_iclone.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/iClone/01_Box_Step_Up_And_Down_01_iclone.fbx",
     "bytes": 10338800,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "mixamorig:Reference",
+        "ossos": 52,
+        "nomes_de_ossos": [
+          "mixamorig:Hips",
+          "mixamorig:Spine",
+          "mixamorig:Spine1",
+          "mixamorig:Spine2",
+          "mixamorig:LeftShoulder",
+          "mixamorig:LeftArm",
+          "mixamorig:LeftForeArm",
+          "mixamorig:LeftHand",
+          "mixamorig:LeftHandIndex1",
+          "mixamorig:LeftHandIndex2",
+          "mixamorig:LeftHandIndex3",
+          "mixamorig:LeftHandMiddle1",
+          "mixamorig:LeftHandMiddle2",
+          "mixamorig:LeftHandMiddle3",
+          "mixamorig:LeftHandPinky1",
+          "mixamorig:LeftHandPinky2",
+          "mixamorig:LeftHandPinky3",
+          "mixamorig:LeftHandRing1",
+          "mixamorig:LeftHandRing2",
+          "mixamorig:LeftHandRing3",
+          "mixamorig:LeftHandThumb1",
+          "mixamorig:LeftHandThumb2",
+          "mixamorig:LeftHandThumb3",
+          "mixamorig:Neck",
+          "mixamorig:Head",
+          "mixamorig:RightShoulder",
+          "mixamorig:RightArm",
+          "mixamorig:RightForeArm",
+          "mixamorig:RightHand",
+          "mixamorig:RightHandIndex1",
+          "mixamorig:RightHandIndex2",
+          "mixamorig:RightHandIndex3",
+          "mixamorig:RightHandMiddle1",
+          "mixamorig:RightHandMiddle2",
+          "mixamorig:RightHandMiddle3",
+          "mixamorig:RightHandPinky1",
+          "mixamorig:RightHandPinky2",
+          "mixamorig:RightHandPinky3",
+          "mixamorig:RightHandRing1",
+          "mixamorig:RightHandRing2",
+          "mixamorig:RightHandRing3",
+          "mixamorig:RightHandThumb1",
+          "mixamorig:RightHandThumb2",
+          "mixamorig:RightHandThumb3",
+          "mixamorig:LeftUpLeg",
+          "mixamorig:LeftLeg",
+          "mixamorig:LeftFoot",
+          "mixamorig:LeftToeBase",
+          "mixamorig:RightUpLeg",
+          "mixamorig:RightLeg",
+          "mixamorig:RightFoot",
+          "mixamorig:RightToeBase"
+        ],
+        "ossos_raiz": [
+          "mixamorig:Hips"
+        ],
+        "escala": [
+          0.01,
+          0.01,
+          0.01
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "mixamorig:Body",
+        "vertices": 300,
+        "poligonos": 414,
+        "materiais": [],
+        "grupos_de_vertices": 50,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.88,
+          1.613,
+          0.267
+        ]
+      },
+      {
+        "nome": "mixamorig:HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 2920.0,
+        "curvas": 54,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:HeadTop_End|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandIndex4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandMiddle4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandPinky4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandRing4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandThumb4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftToe_End|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:Reference|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 529,
+        "ossos_animados": 53
+      },
+      {
+        "nome": "mixamorig:RightHandIndex4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightHandMiddle4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightHandPinky4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightHandRing4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightHandThumb4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightToe_End|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 2920.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      }
+    ],
+    "total_objetos": 16,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   },
   {
     "arquivo": "02_Box_Step_Up_And_Down_02_iclone.fbx",
     "caminho": "/tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/iClone/02_Box_Step_Up_And_Down_02_iclone.fbx",
     "bytes": 12325648,
-    "erro": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/__init__.py\", line 201, in execute\n    from . import import_fbx\n  File \"/usr/share/blender/scripts/addons/io_scene_fbx/import_fbx.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\nLocation: /usr/share/blender/scripts/modules/bpy/ops.py:109\n"
+    "fps": 60.0,
+    "armaduras": [
+      {
+        "nome": "mixamorig:Reference",
+        "ossos": 52,
+        "nomes_de_ossos": [
+          "mixamorig:Hips",
+          "mixamorig:Spine",
+          "mixamorig:Spine1",
+          "mixamorig:Spine2",
+          "mixamorig:LeftShoulder",
+          "mixamorig:LeftArm",
+          "mixamorig:LeftForeArm",
+          "mixamorig:LeftHand",
+          "mixamorig:LeftHandIndex1",
+          "mixamorig:LeftHandIndex2",
+          "mixamorig:LeftHandIndex3",
+          "mixamorig:LeftHandMiddle1",
+          "mixamorig:LeftHandMiddle2",
+          "mixamorig:LeftHandMiddle3",
+          "mixamorig:LeftHandPinky1",
+          "mixamorig:LeftHandPinky2",
+          "mixamorig:LeftHandPinky3",
+          "mixamorig:LeftHandRing1",
+          "mixamorig:LeftHandRing2",
+          "mixamorig:LeftHandRing3",
+          "mixamorig:LeftHandThumb1",
+          "mixamorig:LeftHandThumb2",
+          "mixamorig:LeftHandThumb3",
+          "mixamorig:Neck",
+          "mixamorig:Head",
+          "mixamorig:RightShoulder",
+          "mixamorig:RightArm",
+          "mixamorig:RightForeArm",
+          "mixamorig:RightHand",
+          "mixamorig:RightHandIndex1",
+          "mixamorig:RightHandIndex2",
+          "mixamorig:RightHandIndex3",
+          "mixamorig:RightHandMiddle1",
+          "mixamorig:RightHandMiddle2",
+          "mixamorig:RightHandMiddle3",
+          "mixamorig:RightHandPinky1",
+          "mixamorig:RightHandPinky2",
+          "mixamorig:RightHandPinky3",
+          "mixamorig:RightHandRing1",
+          "mixamorig:RightHandRing2",
+          "mixamorig:RightHandRing3",
+          "mixamorig:RightHandThumb1",
+          "mixamorig:RightHandThumb2",
+          "mixamorig:RightHandThumb3",
+          "mixamorig:LeftUpLeg",
+          "mixamorig:LeftLeg",
+          "mixamorig:LeftFoot",
+          "mixamorig:LeftToeBase",
+          "mixamorig:RightUpLeg",
+          "mixamorig:RightLeg",
+          "mixamorig:RightFoot",
+          "mixamorig:RightToeBase"
+        ],
+        "ossos_raiz": [
+          "mixamorig:Hips"
+        ],
+        "escala": [
+          0.01,
+          0.01,
+          0.01
+        ]
+      }
+    ],
+    "malhas": [
+      {
+        "nome": "mixamorig:Body",
+        "vertices": 300,
+        "poligonos": 414,
+        "materiais": [],
+        "grupos_de_vertices": 50,
+        "armature_modifier": true,
+        "dimensoes": [
+          1.88,
+          1.613,
+          0.267
+        ]
+      },
+      {
+        "nome": "mixamorig:HeadFace",
+        "vertices": 6321,
+        "poligonos": 12256,
+        "materiais": [],
+        "grupos_de_vertices": 1,
+        "armature_modifier": true,
+        "dimensoes": [
+          0.158,
+          0.23,
+          0.225
+        ]
+      }
+    ],
+    "acoes": [
+      {
+        "nome": "Key|clip|Base_Layer",
+        "quadro_inicial": 2.0,
+        "quadro_final": 3623.0,
+        "curvas": 54,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:HeadTop_End|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandIndex4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandMiddle4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandPinky4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandRing4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftHandThumb4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:LeftToe_End|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:Reference|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 529,
+        "ossos_animados": 53
+      },
+      {
+        "nome": "mixamorig:RightHandIndex4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightHandMiddle4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightHandPinky4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightHandRing4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightHandThumb4|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      },
+      {
+        "nome": "mixamorig:RightToe_End|clip|Base_Layer",
+        "quadro_inicial": 1.0,
+        "quadro_final": 3623.0,
+        "curvas": 9,
+        "ossos_animados": 1
+      }
+    ],
+    "total_objetos": 16,
+    "tem_esqueleto": true,
+    "tem_malha_com_pele": true,
+    "tem_animacao": true
   }
 ]
