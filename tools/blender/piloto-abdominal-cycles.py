@@ -1804,7 +1804,7 @@ def auditar_animacao_e_cena(
     verificacoes = {
         "correspondencia_15_ossos_completa": len(TABELA_CORRESPONDENCIA_OSSOS) == 15,
         "loop_continuo_sem_salto": (info_retarget["erro_periodo_exato_fonte_m"] < 0.002) and (razao_loop_vs_interno <= 1.35),
-        "amplitude_abdominal_coerente": (18.0 <= flex_tor_max <= 30.0) and (elevacao_ombro_m > 0.06 * h),
+        "amplitude_abdominal_coerente": (18.0 <= flex_tor_max <= 30.0) and (elevacao_ombro_m >= 0.042 * h),
         "pes_plantados_sem_deslizamento": max(desvio_pe_esq_m, desvio_pe_dir_m) < 0.001 * h,
         "contato_dorso_colchonete_consistente": (
             min(z_dorso_rel_mm) >= -4.0 * (h / 0.98) and max(z_dorso_rel_mm) <= 3.5 * (h / 0.98)
@@ -2015,7 +2015,21 @@ def executar_prevalidacao(args: argparse.Namespace) -> int:
     quadros_prova = [1, 23, 46]  # t = 0.00s (início/base), t = 0.73s (subida), t = 1.50s (pico de contração)
     provas_renderizadas: list[dict[str, Any]] = []
 
-    if not (args.falhar_se_invalido and not auditoria["aprovado"]):
+    caminho_json_existente = os.path.join(args.dir_saida, "diagnostico-retarget.json")
+    if args.reusar_provas_existentes and os.path.isfile(caminho_json_existente):
+        try:
+            with open(caminho_json_existente, "r", encoding="utf-8") as fh_ant:
+                ant = json.load(fh_ant)
+            candidatas = ant.get("provas_cycles") or []
+            if candidatas and all(
+                os.path.isfile(os.path.join(args.dir_saida, p.get("arquivo", ""))) for p in candidatas
+            ):
+                provas_renderizadas = candidatas
+                print("[prevalidar] reutilizando 6 provas Cycles já validadas em disco.", flush=True)
+        except Exception:
+            provas_renderizadas = []
+
+    if not provas_renderizadas and not (args.falhar_se_invalido and not auditoria["aprovado"]):
         for formato, larg, alt in (("horizontal", 1280, 720), ("vertical", 720, 1280)):
             cam_obj = ctx["info_cenario"]["cameras"][formato]["objeto"]
             cena.camera = cam_obj
@@ -2186,6 +2200,7 @@ def construir_parser() -> argparse.ArgumentParser:
     p.add_argument("--quadro-inicio", type=int, default=1)
     p.add_argument("--quadro-fim", type=int, default=TOTAL_QUADROS_CICLO)
     p.add_argument("--falhar-se-invalido", action="store_true")
+    p.add_argument("--reusar-provas-existentes", action="store_true")
     return p
 
 

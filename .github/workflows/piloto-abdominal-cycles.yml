@@ -142,6 +142,11 @@ jobs:
           DIR_DIAG="${SAIDA_PILOTO}/diagnostico"
           mkdir -p "$DIR_DIAG"
 
+          FLAG_REUSO=""
+          if [ "${MODO_EXECUCAO}" = "completo" ]; then
+            FLAG_REUSO="--reusar-provas-existentes"
+          fi
+
           xvfb-run -a -s "-screen 0 1920x1080x24 +iglx" \
             blender --background --factory-startup \
             --python tools/blender/piloto-abdominal-cycles.py -- \
@@ -149,7 +154,8 @@ jobs:
             --modelo /tmp/piloto-cache/masculino-original-decodificado.glb \
             --clipe assets/3d/animacoes/abdominal-supra.glb \
             --dir-saida "$DIR_DIAG" \
-            --amostras "${AMOSTRAS_CYCLES}"
+            --amostras "${AMOSTRAS_CYCLES}" \
+            $FLAG_REUSO
 
           node tools/consolidar-piloto-abdominal.mjs \
             --modo diagnostico \
