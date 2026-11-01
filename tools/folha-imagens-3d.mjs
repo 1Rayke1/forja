@@ -13,6 +13,9 @@
     node tools/folha-imagens-3d.mjs --clipe prancha --saida docs/validacao-3d/fase2/antes/prancha.png
     node tools/folha-imagens-3d.mjs --arquivo docs/.../candidatos/x.glb --clipe x --saida .../depois/x.png
     [--personagem masculino|feminino] [--fases 6] [--largura 240]
+    [--enquadrar clipe]   emoldura o movimento inteiro (não só o repouso)
+    [--chao]              desenha a linha do chão (y=0) e o eixo do personagem
+    [--tempos 0,0.6,1.2]  fases em segundos (senão divide a duração em partes iguais)
 */
 import fs from "node:fs";
 import path from "node:path";
@@ -40,8 +43,11 @@ const argumentos = lista => {
 const opcoes = argumentos(process.argv.slice(2));
 const PERSONAGEM = opcoes.personagem || "masculino";
 const FASES = Number(opcoes.fases || 6);
+const TEMPOS = typeof opcoes.tempos === "string"
+  ? opcoes.tempos.split(",").map(Number).filter(n => Number.isFinite(n))
+  : null;
 const LARGURA = Number(opcoes.largura || 240);
-const ALTURA = Math.round(LARGURA * 1.35);
+const ALTURA = Math.round(Number(opcoes.altura || 0) || LARGURA * 1.35);
 const ESCALA = 2;
 const fundo = [30, 38, 34];
 const luzCor = [0.95, 0.92, 0.86];
@@ -63,11 +69,14 @@ const mixer = new THREE.AnimationMixer(cena);
 const acao = mixer.clipAction(clipeCasado);
 acao.play();
 
+const ENQUADRAR = opcoes.enquadrar === "clipe" || opcoes.enquadrar === true;
+const DESENHAR_CHAO = Boolean(opcoes.chao);
+
 /* câmera: emoldura o personagem inteiro, com margem */
 const caixa = new THREE.Box3();
 cena.updateMatrixWorld(true);
 cena.traverse(objeto => {
-  if (!objeto.isSkinnedMesh) return;
+  if (!objeto.isSkinnedMesh || ENQUADRAR) return; /* enquadrar o clipe: repouso atrapalha */
   objeto.skeleton.bones.forEach(osso => caixa.expandByPoint(osso.getWorldPosition(new THREE.Vector3())));
   const posicao = objeto.geometry.attributes.position;
   const v = new THREE.Vector3();
@@ -76,10 +85,33 @@ cena.traverse(objeto => {
     caixa.expandByPoint(objeto.localToWorld(v.clone()));
   }
 });
+/* com `--enquadrar clipe` a caixa cresce por todo o movimento (deitado, em pé,
+   prancha), senão um clipe no chão sai fora do quadro */
+if (ENQUADRAR) {
+  const caixaMovimento = new THREE.Box3();
+  const centroX = caixa.getCenter(new THREE.Vector3()).x;
+  const centroZ = caixa.getCenter(new THREE.Vector3()).z;
+  for (let i = 0; i < 16; i += 1) {
+    mixer.setTime((clipe.duration * i) / 16);
+    cena.updateMatrixWorld(true);
+    cena.traverse(objeto => {
+      if (!objeto.isBone) return;
+      caixaMovimento.expandByPoint(objeto.getWorldPosition(new THREE.Vector3()));
+    });
+  }
+  /* +0,26 cobre cabeça e mãos, que passam dos ossos; inclui o chão (y=0) */
+  caixaMovimento.expandByScalar(0.26);
+  caixaMovimento.expandByPoint(new THREE.Vector3(centroX, 0, centroZ));
+  caixa.copy(caixaMovimento);
+  mixer.setTime(0);
+  cena.updateMatrixWorld(true);
+}
 const centro = caixa.getCenter(new THREE.Vector3());
 const tamanho = caixa.getSize(new THREE.Vector3());
 /* margem extra: o clipe pode erguer braços/pernas além da pose de repouso */
-const raio = Math.max(tamanho.y * 0.62, tamanho.x * 0.6);
+const raio = ENQUADRAR
+  ? Math.max(tamanho.x, tamanho.y, tamanho.z) * 0.5
+  : Math.max(tamanho.y * 0.62, tamanho.x * 0.6);
 
 /* ------------------------------------------------------------------ */
 /* Rasterizador simples (CPU)                                          */
@@ -126,8 +158,23 @@ function renderizarFase(azimute) {
   const fovV = (camera.fov * Math.PI) / 180;
   const fovH = 2 * Math.atan(Math.tan(fovV / 2) * (LARGURA / ALTURA));
   const fovEfetivo = Math.min(fovV, fovH);
-  /* enquadra a esfera envolvente: nada de cortar cabeça ou pé */
-  const distancia = raio / Math.sin(fovEfetivo / 2) + tamanho.z * 0.5;
+  /* enquadra a esfera envolvente: nada de cortar cabeça ou pé.
+     Com `--enquadrar clipe` o encaixe é justo na caixa do movimento, medido na
+     direção da câmera (senão um clipe deitado fica minúsculo no quadro). */
+  let distancia;
+  if (ENQUADRAR) {
+    const direita = new THREE.Vector3(Math.cos(azimute), 0, -Math.sin(azimute));
+    const meiaLargura = 0.5 * (
+      tamanho.x * Math.abs(direita.x) + tamanho.z * Math.abs(direita.z)
+    );
+    const meiaAltura = 0.5 * tamanho.y;
+    distancia = Math.max(
+      meiaAltura / Math.tan(fovV / 2),
+      meiaLargura / Math.tan(fovH / 2)
+    ) * 1.10 + Math.max(meiaLargura, meiaAltura) * 0.5;
+  } else {
+    distancia = raio / Math.sin(fovEfetivo / 2) + tamanho.z * 0.5;
+  }
   camera.position.set(
     centro.x + Math.sin(azimute) * distancia,
     centro.y + 0.03 * distancia,
@@ -179,6 +226,38 @@ function renderizarFase(azimute) {
       desenharTriangulo(img, pontos[ia], pontos[ib], pontos[ic], cor, zbuf);
     }
   });
+
+  /* linha do chão: sem ela não dá para julgar contato de pé e mão */
+  if (DESENHAR_CHAO) {
+    const projetar = p => {
+      const q = p.clone().project(camera);
+      return { x: ((q.x + 1) / 2) * img.largura, y: ((1 - q.y) / 2) * img.altura };
+    };
+    const traço = (a, b, cor) => {
+      const n = 900;
+      for (let i = 0; i <= n; i += 1) {
+        const t = i / n;
+        const x = a.x + (b.x - a.x) * t;
+        const y = a.y + (b.y - a.y) * t;
+        for (let dy = 0; dy < 3; dy += 1) {
+          for (let dx = 0; dx < 3; dx += 1) {
+            const px = Math.round(x) + dx - 1;
+            const py = Math.round(y) + dy - 1;
+            if (px < 0 || py < 0 || px >= img.largura || py >= img.altura) continue;
+            const idx = (py * img.largura + px) * 3;
+            img.px[idx] = cor[0];
+            img.px[idx + 1] = cor[1];
+            img.px[idx + 2] = cor[2];
+          }
+        }
+      }
+    };
+    const cinza = [0.55, 0.62, 0.58];
+    const escuro = [0.30, 0.36, 0.33];
+    /* z=0 é o plano onde o personagem está em pé; x=0 é o eixo lateral */
+    traço(projetar(new THREE.Vector3(-2.4, 0, 0)), projetar(new THREE.Vector3(2.4, 0, 0)), cinza);
+    traço(projetar(new THREE.Vector3(0, 0, -2.4)), projetar(new THREE.Vector3(0, 0, 2.4)), escuro);
+  }
   return img;
 }
 
@@ -239,13 +318,14 @@ function escreverPNG(arquivo, largura, altura, cor) {
 /* Composição da folha                                                 */
 /* ------------------------------------------------------------------ */
 
-const larguraFinal = LARGURA * FASES;
+const larguraFinal = LARGURA * (TEMPOS ? TEMPOS.length : FASES);
 const alturaFinal = ALTURA * 2;
 const folha = new Float32Array(larguraFinal * alturaFinal * 3).fill(0.12);
 
-for (const [linha, azimute] of [[0, Math.PI / 2], [1, Math.PI]]) {
-  for (let fase = 0; fase < FASES; fase += 1) {
-    const t = (clipe.duration * fase) / FASES;
+const totalColunas = TEMPOS ? TEMPOS.length : FASES;
+for (const [linha, azimute] of [[0, Math.PI / 2], [1, opcoes.vista === "costas" ? Math.PI : 0]]) {
+  for (let fase = 0; fase < totalColunas; fase += 1) {
+    const t = TEMPOS ? TEMPOS[fase] : (clipe.duration * fase) / FASES;
     mixer.setTime(t);
     cena.updateMatrixWorld(true);
     const celula = renderizarFase(azimute);
@@ -276,7 +356,11 @@ console.log("[folha]", JSON.stringify({
   clipe: clipeInformado,
   arquivo: opcoes.arquivo || (info && info.arquivo),
   personagem: PERSONAGEM,
-  fases: FASES,
+  fases: totalColunas,
+  tempos: TEMPOS || undefined,
+  linhas: ["perfil", opcoes.vista === "costas" ? "costas" : "frente"],
+  enquadrar: ENQUADRAR ? "clipe" : "repouso",
+  chao: DESENHAR_CHAO,
   duracao: +clipe.duration.toFixed(2),
   png: path.relative(raiz, path.resolve(destino))
 }));

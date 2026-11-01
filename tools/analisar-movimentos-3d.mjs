@@ -139,7 +139,12 @@ const ASSINATURAS = {
     ["derivaXZ", d => d <= 0.25, "corrida estacionária não pode sair do lugar"]
   ],
   "mountain-climber": [
-    ["joelho", joelho => joelho.min <= 100, "joelho precisa vir em direção ao peito"],
+    /*
+      Medido na perna que dobra, não na média: o mountain climber alterna as
+      pernas de propósito, então a média fica em ~113° mesmo quando uma perna
+      está com o joelho no peito (48°) e a outra esticada (180°).
+    */
+    ["joelhoDobrado", joelho => joelho.min <= 100, "joelho precisa vir em direção ao peito"],
     ["quadrilFlex", q => q.min <= 120, "corpo precisa ficar baixo, apoiado"]
   ],
   pedalar: [
@@ -185,6 +190,9 @@ export function medir(clipe, cena, ossos, amostras = 48) {
       joelhoR,
       assimetriaJoelho: Math.abs(joelhoL - joelhoR),
       joelho: (joelhoL + joelhoR) / 2,
+      /* a perna que mais dobrou: em exercício alternado (mountain climber) a
+         média das duas pernas esconde justamente o joelho que sobe */
+      joelhoDobrado: Math.min(joelhoL, joelhoR),
       cotovelo: (graus(P.armL, P.elbowL, P.handL) + graus(P.armR, P.elbowR, P.handR)) / 2,
       quadrilFlex: (graus(P.spine, P.legL, P.kneeL) + graus(P.spine, P.legR, P.kneeR)) / 2,
       ombroAbd: (graus(P.spine, P.armL, P.elbowL) + graus(P.spine, P.armR, P.elbowR)) / 2,
@@ -271,6 +279,7 @@ export function medir(clipe, cena, ossos, amostras = 48) {
   const medido = {
     quadrilY: faixa("quadrilY"),
     joelho: faixa("joelho"),
+    joelhoDobrado: faixa("joelhoDobrado"),
     cotovelo: faixa("cotovelo"),
     quadrilFlex: faixa("quadrilFlex"),
     ombroAbd: faixa("ombroAbd"),
@@ -385,7 +394,26 @@ export async function analisarArquivo(arquivo, opcoes = {}) {
   if (medido.peMin.min !== null && medido.peMin.min < -0.02) higiene.push("pé abaixo do chão (" + medido.peMin.min + " m)");
   if (medido.saltoDescontinuo) higiene.push("salto de pose entre quadros (" + medido.saltoMax + " m, " + medido.saltoRazao + "× a mediana)");
   if (medido.escalaMax > 0.01) higiene.push("escala de osso animada (" + medido.escalaMax + ")");
-  return { arquivo: path.isAbsolute(arquivo) ? arquivo : path.join(raiz, arquivo), duracao: +clipe.duration.toFixed(2), medido, higiene };
+
+  /*
+    `--exercicio` aplica no candidato a MESMA assinatura que o catálogo exige do
+    clipe publicado. Sem isso um candidato só poderia ser julgado "higiene ok",
+    que diz que a pose é válida — não que o movimento é o exercício pedido.
+  */
+  const assinatura = opcoes.exercicio ? (ASSINATURAS[opcoes.exercicio] || []) : [];
+  const falhasAssinatura = assinatura
+    .filter(([chave, teste]) => medido[chave] && medido[chave].min !== null && !teste(medido[chave]))
+    .map(([chave, , texto]) => ({ chave, texto }));
+
+  return {
+    arquivo: path.isAbsolute(arquivo) ? arquivo : path.join(raiz, arquivo),
+    duracao: +clipe.duration.toFixed(2),
+    exercicio: opcoes.exercicio || null,
+    medido,
+    higiene,
+    falhasAssinatura,
+    veredito: falhasAssinatura.length ? "divergente" : (higiene.length ? "higiene" : "ok")
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -417,7 +445,8 @@ if (ehPrincipal) {
   if (opcoes.arquivo) {
     const r = await analisarArquivo(opcoes.arquivo, {
       amostras: opcoes.amostras ? Number(opcoes.amostras) : 48,
-      personagem: opcoes.personagem || "masculino"
+      personagem: opcoes.personagem || "masculino",
+      exercicio: opcoes.exercicio
     });
     if (opcoes.json) {
       console.log(JSON.stringify(r, null, 1));
@@ -428,6 +457,11 @@ if (ehPrincipal) {
       console.log(`  joelho ${m.joelho.min}–${m.joelho.max}° · cotovelo ${m.cotovelo.min}–${m.cotovelo.max}° · ombro ${m.ombroAbd.min}–${m.ombroAbd.max}°`);
       console.log(`  punho máx ${m.punhoY.max} m · abertura dos pés ${m.aberturaPes.amp} m · deriva ${m.derivaXZ} m`);
       console.log(`  higiene: ${r.higiene.length ? r.higiene.join("; ") : "ok"}`);
+      if (r.exercicio) {
+        console.log(`  assinatura de "${r.exercicio}": ${r.falhasAssinatura.length
+          ? r.falhasAssinatura.map(f => f.texto).join("; ")
+          : "ok"} (veredito: ${r.veredito})`);
+      }
     }
     process.exit(0);
   }
