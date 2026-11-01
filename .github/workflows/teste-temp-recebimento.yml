@@ -41,10 +41,10 @@ jobs:
           set -euo pipefail
           mkdir -p /tmp/exemplo
           python3 tools/gerar-glb-teste.py /tmp/exemplo/teste-recebimento.glb --tamanho 4096
-          python3 tools/gerar-glb-teste.py /tmp/modelo-grande.glb --tamanho $(( 30 * 1024 * 1024 ))
-          sha256sum /tmp/modelo-grande.glb | awk '{print $1}' > /tmp/grande.sha256
+          python3 tools/gerar-glb-teste.py "/tmp/modelo-grande-${{ github.run_id }}.glb" --tamanho $(( 30 * 1024 * 1024 ))
+          sha256sum "/tmp/modelo-grande-${{ github.run_id }}.glb" | awk '{print $1}' > /tmp/grande.sha256
           sha256sum /tmp/exemplo/teste-recebimento.glb | awk '{print $1}' > /tmp/pequeno.sha256
-          echo "grande: $(cat /tmp/grande.sha256) $(wc -c < /tmp/modelo-grande.glb) B"
+          echo "grande: $(cat /tmp/grande.sha256) $(wc -c < "/tmp/modelo-grande-${{ github.run_id }}.glb") B"
           echo "pequeno: $(cat /tmp/pequeno.sha256) $(wc -c < /tmp/exemplo/teste-recebimento.glb) B"
 
       - name: "Teste 1 — importar pasta local para o branch da sessão (arquivo exemplo permanente)"
@@ -55,10 +55,18 @@ jobs:
             --branch "$BRANCH_SESSAO" \
             --destino FORJA_ASSETS_3D/exemplo
 
+      - name: Diagnóstico do validador (não falha)
+        if: always()
+        run: |
+          echo "TAG_TESTE=${TAG_TESTE} BRANCH_TESTE=${BRANCH_TESTE}"
+          bash tools/validar-assets-3d.sh > /tmp/validar.txt 2>&1
+          echo "validar_status=$?" >> /tmp/validar.txt
+          cat /tmp/validar.txt
+
       - name: "Teste 2 — publicar release com modelo de 30 MB (o que o Android faz pelo navegador)"
         run: |
           set -euo pipefail
-          gh release create "$TAG_TESTE" /tmp/modelo-grande.glb \
+          gh release create "$TAG_TESTE" "/tmp/modelo-grande-${{ github.run_id }}.glb" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Teste de recebimento LFS (run ${{ github.run_id }})" \
             --notes "Release temporária do teste de recebimento. Pode ser apagada."
@@ -85,7 +93,7 @@ jobs:
       - name: "Teste 2c — clonar do zero e conferir o recebimento"
         run: |
           set -euo pipefail
-          alvo="FORJA_ASSETS_3D/exemplo/modelo-grande.glb"
+          alvo="FORJA_ASSETS_3D/exemplo/modelo-grande-${{ github.run_id }}.glb"
           rm -rf /tmp/clone
           git clone --quiet --branch "$BRANCH_TESTE" \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/clone
@@ -143,6 +151,11 @@ jobs:
             echo '```'
             echo
             cat /tmp/relatorio-teste2.md 2>/dev/null
+            echo
+            echo "## Saída do validador de assets 3D"
+            echo '```'
+            cat /tmp/validar.txt 2>/dev/null
+            echo '```'
             echo
             echo "## Log do Teste 2b (sanitizado)"
             echo '```'
