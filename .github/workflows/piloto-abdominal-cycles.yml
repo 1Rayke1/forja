@@ -20,15 +20,18 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: forja-piloto-abdominal-cycles-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  # "prevalidar" executa a auditoria completa de ossos/loop/colchonete + 6 provas Cycles;
-  # "completo" executa a pré-validação seguida das 18 fatias paralelas Cycles + MP4 H.264.
-  MODO_EXECUCAO: "completo"
+  # "prevalidar": auditoria completa + 6 provas Cycles;
+  # "completo": pré-validação + 18 fatias paralelas Cycles + MP4 H.264;
+  # "empacotar_run": reempacota/valida deterministicamente as 18 fatias Cycles já renderizadas em RUN_FATIAS_ID.
+  MODO_EXECUCAO: "empacotar_run"
+  RUN_FATIAS_ID: "41351864991"
   AMOSTRAS_CYCLES: "32"
   SAIDA_PILOTO: "docs/validacao-3d/piloto-abdominal-masculino"
   SHA256_MASCULINO_ESPERADO: "ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1"
@@ -36,6 +39,7 @@ env:
 jobs:
   prevalidar:
     name: Pré-validação de Retarget e Provas Cycles
+    if: github.event_name != 'never'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     outputs:
@@ -143,7 +147,7 @@ jobs:
           mkdir -p "$DIR_DIAG"
 
           FLAG_REUSO=""
-          if [ "${MODO_EXECUCAO}" = "completo" ]; then
+          if [ "${MODO_EXECUCAO}" = "completo" ] || [ "${MODO_EXECUCAO}" = "empacotar_run" ]; then
             FLAG_REUSO="--reusar-provas-existentes"
           fi
 
@@ -299,7 +303,11 @@ jobs:
   empacotar-e-validar:
     name: Codificar MP4 H.264, Validar Loop e Registrar Entregáveis
     needs: [prevalidar, renderizar-cycles]
-    if: needs.prevalidar.outputs.modo_execucao == 'completo' && needs.prevalidar.outputs.aprovado == 'true'
+    if: |
+      always() && (
+        (needs.prevalidar.outputs.modo_execucao == 'completo' && needs.prevalidar.outputs.aprovado == 'true' && needs.renderizar-cycles.result == 'success') ||
+        (needs.prevalidar.outputs.modo_execucao == 'empacotar_run' && needs.prevalidar.outputs.aprovado == 'true')
+      )
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -320,10 +328,21 @@ jobs:
           sudo apt-get install -y -qq ffmpeg >/dev/null
           ffmpeg -version | head -n 2
 
-      - name: Baixar diagnóstico pré-validado e todas as 12 fatias Cycles
+      - name: Baixar diagnóstico pré-validado e todas as 18 fatias Cycles (da run atual)
+        if: env.MODO_EXECUCAO == 'completo'
         uses: actions/download-artifact@v4
         with:
           path: /tmp/artefatos-brutos
+
+      - name: Baixar diagnóstico e as 18 fatias Cycles já renderizadas em RUN_FATIAS_ID
+        if: env.MODO_EXECUCAO == 'empacotar_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/artefatos-brutos
+          gh run download "${RUN_FATIAS_ID}" -p "fatia-*" -D /tmp/artefatos-brutos
+          gh run download "${RUN_FATIAS_ID}" -n "piloto-abdominal-insumos-prevalidados" -D /tmp/artefatos-brutos/piloto-abdominal-insumos-prevalidados
 
       - name: Reunir os 90 quadros horizontais e 90 quadros verticais e codificar vídeos finais
         run: |
@@ -373,9 +392,9 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin "${GITHUB_REF_NAME}"
           git add "${SAIDA_PILOTO}"
           if ! git diff --cached --quiet; then
             git commit -m "chore(validacao-3d): entregar piloto abdominal masculino com Blender Cycles"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
