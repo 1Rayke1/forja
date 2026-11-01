@@ -1,0 +1,369 @@
+name: Piloto Abdominal Masculino (Blender Cycles)
+
+# Piloto controlado de vídeo do exercício `abdominal tradicional (crunch abdominal)`
+# com o modelo 3D masculino original (`DOC-20261031-WA0008.bin`) e Blender Cycles.
+#
+# Regras rígidas desta etapa:
+#   - Trabalha exclusivamente na branch da sessão (`arena/**`), sem merge na `main`.
+#   - Não modifica nenhum asset publicado em `assets/` nem código do aplicativo.
+#   - Executa pré-validação biomecânica e de retarget antes da renderização final;
+#     se houver problemas no retargeting, documenta-os e interrompe a renderização.
+
+on:
+  push:
+    branches:
+      - "arena/**"
+    paths:
+      - ".github/workflows/piloto-abdominal-cycles.yml"
+      - "tools/blender/piloto-abdominal-cycles.py"
+      - "tools/consolidar-piloto-abdominal.mjs"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: forja-piloto-abdominal-cycles-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # "prevalidar" executa a auditoria completa de ossos/loop/colchonete + 6 provas Cycles;
+  # "completo" executa a pré-validação seguida das 12 fatias paralelas Cycles + MP4 H.264.
+  MODO_EXECUCAO: "prevalidar"
+  AMOSTRAS_CYCLES: "32"
+  SAIDA_PILOTO: "docs/validacao-3d/piloto-abdominal-masculino"
+  SHA256_MASCULINO_ESPERADO: "ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1"
+
+jobs:
+  prevalidar:
+    name: Pré-validação de Retarget e Provas Cycles
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    outputs:
+      aprovado: ${{ steps.auditar.outputs.aprovado }}
+      modo_execucao: ${{ steps.auditar.outputs.modo_execucao }}
+      bytes_original: ${{ steps.preparar_modelo.outputs.bytes_original }}
+      sha256_original: ${{ steps.preparar_modelo.outputs.sha256_original }}
+    steps:
+      - name: Checkout da branch de trabalho
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Instalar bibliotecas de sistema para Blender headless e FFmpeg
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            ffmpeg xvfb xauth \
+            libegl1 libgl1 libgl1-mesa-dri libglx-mesa0 libgbm1 \
+            libxi6 libxrender1 libxxf86vm1 libxfixes3 libxkbcommon0 libsm6 libice6 >/dev/null
+
+      - name: Cachear binário oficial do Blender 4.2.1 LTS
+        id: cache_blender
+        uses: actions/cache@v4
+        with:
+          path: /tmp/blender-cache
+          key: forja-blender-4.2.1-linux-x64-v1
+
+      - name: Instalar Blender 4.2.1 LTS
+        run: |
+          set -euo pipefail
+          if [ ! -f /tmp/blender-cache/blender-4.2.1-linux-x64.tar.xz ]; then
+            mkdir -p /tmp/blender-cache
+            curl -sSL -o /tmp/blender-cache/blender-4.2.1-linux-x64.tar.xz \
+              https://download.blender.org/release/Blender4.2/blender-4.2.1-linux-x64.tar.xz
+          fi
+          sudo mkdir -p /opt/blender-4.2.1
+          sudo tar -xJf /tmp/blender-cache/blender-4.2.1-linux-x64.tar.xz -C /opt/blender-4.2.1 --strip-components=1
+          sudo ln -sf /opt/blender-4.2.1/blender /usr/local/bin/blender
+          blender --version
+
+      - name: Baixar modelo masculino original e decodificar EXT_meshopt_compression
+        id: preparar_modelo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/piloto-cache /tmp/meshopt-tools
+          gh release download "modelos-3d-originais" -p "DOC-20261031-WA0008.bin" -D /tmp/piloto-cache --clobber
+
+          ARQ_ORIG="/tmp/piloto-cache/DOC-20261031-WA0008.bin"
+          SHA_ATUAL="$(sha256sum "$ARQ_ORIG" | awk '{print $1}')"
+          BYTES_ATUAL="$(stat -c%s "$ARQ_ORIG")"
+          echo "Modelo baixado: bytes=${BYTES_ATUAL} sha256=${SHA_ATUAL}"
+          if [ "$SHA_ATUAL" != "$SHA256_MASCULINO_ESPERADO" ]; then
+            echo "ERRO: SHA-256 divergente do modelo masculino original!" >&2
+            exit 1
+          fi
+          echo "bytes_original=${BYTES_ATUAL}" >> "$GITHUB_OUTPUT"
+          echo "sha256_original=${SHA_ATUAL}" >> "$GITHUB_OUTPUT"
+
+          cd /tmp/meshopt-tools
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund \
+            @gltf-transform/core@4.5.1 \
+            @gltf-transform/extensions@4.5.1 \
+            meshoptimizer@1.3.0 >/dev/null
+
+          node -e '
+            const fs = require("fs");
+            const { createRequire } = require("module");
+            const { pathToFileURL } = require("url");
+            (async () => {
+              const req = createRequire("/tmp/meshopt-tools/package.json");
+              const core = await import(pathToFileURL(req.resolve("@gltf-transform/core")).href);
+              const extMod = await import(pathToFileURL(req.resolve("@gltf-transform/extensions")).href);
+              const meshopt = await import(pathToFileURL(req.resolve("meshoptimizer")).href);
+              const decoder = meshopt.MeshoptDecoder || meshopt.default.MeshoptDecoder;
+              await decoder.ready;
+              const io = new core.NodeIO()
+                .registerExtensions(extMod.ALL_EXTENSIONS)
+                .registerDependencies({ "meshopt.decoder": decoder });
+              const doc = await io.read("/tmp/piloto-cache/DOC-20261031-WA0008.bin");
+              for (const ext of doc.getRoot().listExtensionsUsed()) {
+                if (ext.extensionName === "EXT_meshopt_compression") ext.dispose();
+              }
+              await io.write("/tmp/piloto-cache/masculino-original-decodificado.glb", doc);
+              const st = fs.statSync("/tmp/piloto-cache/masculino-original-decodificado.glb");
+              console.log("GLB decodificado com sucesso:", st.size, "bytes; skins=", doc.getRoot().listSkins().length);
+            })().catch((e) => { console.error(e); process.exit(1); });
+          '
+
+      - name: Executar pré-validação biomecânica e provas Cycles nos 2 formatos independentes
+        id: auditar
+        run: |
+          set -euo pipefail
+          DIR_DIAG="${SAIDA_PILOTO}/diagnostico"
+          mkdir -p "$DIR_DIAG"
+
+          xvfb-run -a -s "-screen 0 1920x1080x24 +iglx" \
+            blender --background --factory-startup \
+            --python tools/blender/piloto-abdominal-cycles.py -- \
+            --modo prevalidar \
+            --modelo /tmp/piloto-cache/masculino-original-decodificado.glb \
+            --clipe assets/3d/animacoes/abdominal-supra.glb \
+            --dir-saida "$DIR_DIAG" \
+            --amostras "${AMOSTRAS_CYCLES}"
+
+          node tools/consolidar-piloto-abdominal.mjs \
+            --modo diagnostico \
+            --dir-diagnostico "$DIR_DIAG"
+
+          APROVADO="$(node -e '
+            const fs = require("fs");
+            const j = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            process.stdout.write(j.auditoria && j.auditoria.aprovado ? "true" : "false");
+          ' "${DIR_DIAG}/diagnostico-retarget.json")"
+          echo "aprovado=${APROVADO}" >> "$GITHUB_OUTPUT"
+          echo "modo_execucao=${MODO_EXECUCAO}" >> "$GITHUB_OUTPUT"
+          echo "Status da pré-validação: aprovado=${APROVADO} modo=${MODO_EXECUCAO}"
+
+      - name: Publicar cache interno do modelo e diagnóstico para as fatias Cycles
+        uses: actions/upload-artifact@v4
+        with:
+          name: piloto-abdominal-insumos-prevalidados
+          path: |
+            /tmp/piloto-cache/masculino-original-decodificado.glb
+            ${{ env.SAIDA_PILOTO }}/diagnostico/
+          retention-days: 3
+
+      - name: Registrar resultados da pré-validação na branch (modo prevalidar ou falha de retarget)
+        if: env.MODO_EXECUCAO == 'prevalidar' || steps.auditar.outputs.aprovado != 'true'
+        run: |
+          set -euo pipefail
+          # Verificar que nenhum arquivo publicado em assets/ ou app foi tocado
+          ALTERADOS_FORA="$(git status --porcelain | awk '{print $2}' | grep -v '^docs/validacao-3d/piloto-abdominal-masculino/' || true)"
+          if [ -n "$ALTERADOS_FORA" ]; then
+            echo "ERRO: arquivos fora do diretório isolado foram alterados:" >&2
+            echo "$ALTERADOS_FORA" >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${SAIDA_PILOTO}/diagnostico"
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(validacao-3d): registrar pre-validacao do piloto abdominal masculino (Cycles)"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+          if [ "${{ steps.auditar.outputs.aprovado }}" != "true" ]; then
+            echo "Pré-validação detectou incompatibilidades; interrompendo renderização final conforme regra da Seção 3." >&2
+            exit 2
+          fi
+
+  renderizar-cycles:
+    name: Render Cycles (${{ matrix.formato }} q${{ matrix.inicio }}-${{ matrix.fim }})
+    needs: prevalidar
+    if: needs.prevalidar.outputs.modo_execucao == 'completo' && needs.prevalidar.outputs.aprovado == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: true
+      max-parallel: 12
+      matrix:
+        include:
+          - { formato: "horizontal", inicio: 1, fim: 15 }
+          - { formato: "horizontal", inicio: 16, fim: 30 }
+          - { formato: "horizontal", inicio: 31, fim: 45 }
+          - { formato: "horizontal", inicio: 46, fim: 60 }
+          - { formato: "horizontal", inicio: 61, fim: 75 }
+          - { formato: "horizontal", inicio: 76, fim: 90 }
+          - { formato: "vertical", inicio: 1, fim: 15 }
+          - { formato: "vertical", inicio: 16, fim: 30 }
+          - { formato: "vertical", inicio: 31, fim: 45 }
+          - { formato: "vertical", inicio: 46, fim: 60 }
+          - { formato: "vertical", inicio: 61, fim: 75 }
+          - { formato: "vertical", inicio: 76, fim: 90 }
+    steps:
+      - name: Checkout da branch de trabalho
+        uses: actions/checkout@v4
+
+      - name: Instalar bibliotecas de sistema para Blender headless
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            xvfb xauth \
+            libegl1 libgl1 libgl1-mesa-dri libglx-mesa0 libgbm1 \
+            libxi6 libxrender1 libxxf86vm1 libxfixes3 libxkbcommon0 libsm6 libice6 >/dev/null
+
+      - name: Restaurar binário do Blender 4.2.1 LTS do cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/blender-cache
+          key: forja-blender-4.2.1-linux-x64-v1
+
+      - name: Preparar Blender 4.2.1 LTS
+        run: |
+          set -euo pipefail
+          if [ ! -f /tmp/blender-cache/blender-4.2.1-linux-x64.tar.xz ]; then
+            mkdir -p /tmp/blender-cache
+            curl -sSL -o /tmp/blender-cache/blender-4.2.1-linux-x64.tar.xz \
+              https://download.blender.org/release/Blender4.2/blender-4.2.1-linux-x64.tar.xz
+          fi
+          sudo mkdir -p /opt/blender-4.2.1
+          sudo tar -xJf /tmp/blender-cache/blender-4.2.1-linux-x64.tar.xz -C /opt/blender-4.2.1 --strip-components=1
+          sudo ln -sf /opt/blender-4.2.1/blender /usr/local/bin/blender
+
+      - name: Baixar modelo masculino pré-validado
+        uses: actions/download-artifact@v4
+        with:
+          name: piloto-abdominal-insumos-prevalidados
+          path: /tmp/insumos
+
+      - name: Renderizar fatia Cycles (${{ matrix.formato }} ${{ matrix.inicio }}..${{ matrix.fim }})
+        run: |
+          set -euo pipefail
+          MODELO_GLB="$(find /tmp/insumos -name 'masculino-original-decodificado.glb' | head -n 1)"
+          OUT_FATIA="/tmp/fatia-${{ matrix.formato }}"
+          mkdir -p "$OUT_FATIA"
+
+          xvfb-run -a -s "-screen 0 1920x1080x24 +iglx" \
+            blender --background --factory-startup \
+            --python tools/blender/piloto-abdominal-cycles.py -- \
+            --modo render \
+            --modelo "$MODELO_GLB" \
+            --clipe assets/3d/animacoes/abdominal-supra.glb \
+            --formato "${{ matrix.formato }}" \
+            --quadro-inicio "${{ matrix.inicio }}" \
+            --quadro-fim "${{ matrix.fim }}" \
+            --amostras "${AMOSTRAS_CYCLES}" \
+            --dir-saida "$OUT_FATIA"
+
+      - name: Publicar fatia renderizada
+        uses: actions/upload-artifact@v4
+        with:
+          name: fatia-${{ matrix.formato }}-${{ matrix.inicio }}-${{ matrix.fim }}
+          path: /tmp/fatia-${{ matrix.formato }}/
+          retention-days: 3
+
+  empacotar-e-validar:
+    name: Codificar MP4 H.264, Validar Loop e Registrar Entregáveis
+    needs: [prevalidar, renderizar-cycles]
+    if: needs.prevalidar.outputs.modo_execucao == 'completo' && needs.prevalidar.outputs.aprovado == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout atualizado da branch de trabalho
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Node.js 22 e FFmpeg
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Garantir FFmpeg/FFprobe instalados
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg >/dev/null
+          ffmpeg -version | head -n 2
+
+      - name: Baixar diagnóstico pré-validado e todas as 12 fatias Cycles
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artefatos-brutos
+
+      - name: Reunir os 90 quadros horizontais e 90 quadros verticais e codificar vídeos finais
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/quadros-unificados/horizontal /tmp/quadros-unificados/vertical "${SAIDA_PILOTO}/diagnostico"
+
+          # Copiar diagnóstico pré-validado
+          DIAG_JSON="$(find /tmp/artefatos-brutos/piloto-abdominal-insumos-prevalidados -name 'diagnostico-retarget.json' | head -n 1)"
+          DIAG_DIR="$(dirname "$DIAG_JSON")"
+          cp -a "${DIAG_DIR}/." "${SAIDA_PILOTO}/diagnostico/"
+
+          # Reunir quadros e telemetrias de cada formato
+          for d in /tmp/artefatos-brutos/fatia-horizontal-*; do
+            cp -a "${d}/." /tmp/quadros-unificados/horizontal/
+          done
+          for d in /tmp/artefatos-brutos/fatia-vertical-*; do
+            cp -a "${d}/." /tmp/quadros-unificados/vertical/
+          done
+
+          ls -1 /tmp/quadros-unificados/horizontal/quadro_*.png | wc -l
+          ls -1 /tmp/quadros-unificados/vertical/quadro_*.png | wc -l
+
+          node tools/consolidar-piloto-abdominal.mjs \
+            --modo final \
+            --dir-quadros /tmp/quadros-unificados \
+            --dir-diagnostico "${SAIDA_PILOTO}/diagnostico" \
+            --dir-saida "${SAIDA_PILOTO}" \
+            --bytes-modelo-original "${{ needs.prevalidar.outputs.bytes_original }}" \
+            --sha256-modelo-original "${{ needs.prevalidar.outputs.sha256_original }}"
+
+      - name: Publicar artefato completo do piloto para download direto
+        uses: actions/upload-artifact@v4
+        with:
+          name: piloto-abdominal-masculino-cycles
+          path: ${{ env.SAIDA_PILOTO }}/
+          retention-days: 30
+
+      - name: Verificar integridade do repositório e gravar entregáveis isolados na branch
+        run: |
+          set -euo pipefail
+          ALTERADOS_FORA="$(git status --porcelain | awk '{print $2}' | grep -v '^docs/validacao-3d/piloto-abdominal-masculino/' || true)"
+          if [ -n "$ALTERADOS_FORA" ]; then
+            echo "ERRO: arquivos fora do diretório isolado foram alterados:" >&2
+            echo "$ALTERADOS_FORA" >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git add "${SAIDA_PILOTO}"
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(validacao-3d): entregar piloto abdominal masculino com Blender Cycles"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
