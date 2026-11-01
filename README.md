@@ -41,6 +41,20 @@ generativa.
 A figura anatômica do atlas é um recurso separado, com aviso próprio em
 `assets/anatomia/NOTICE.md`.
 
+## Modelos 3D (Git LFS)
+
+Modelos `.glb`, `.gltf`, `.fbx` e `.blend` ficam em [`FORJA_ASSETS_3D/`](FORJA_ASSETS_3D/README.md)
+e são versionados com **Git LFS** — até 2 GB por arquivo, em vez do limite de
+25 MB do envio de arquivos pelo navegador. O envio pelo celular é feito anexando
+os modelos a uma release; o workflow `Importar assets 3D (Release → LFS)` move
+tudo para a pasta já em LFS.
+
+- Passo a passo (Android, sem programar), limites e diagnóstico:
+  [`docs/assets-3d-git-lfs.md`](docs/assets-3d-git-lfs.md)
+- Conferência local: `bash tools/validar-assets-3d.sh`
+- A pasta **não** é publicada no GitHub Pages (o Pages não entrega conteúdo de
+  LFS), então o app publicado segue exatamente como está.
+
 ## Documentação
 
 - `docs/forja-rotinas-e-backup.md` — formato de dados, migração e backup JSON.

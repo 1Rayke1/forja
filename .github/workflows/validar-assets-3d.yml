@@ -1,0 +1,36 @@
+name: Validar assets 3D (LFS)
+
+# Garante que todo modelo em FORJA_ASSETS_3D/ está no Git LFS (ponteiro, não
+# binário no histórico), com formato permitido e dentro do limite de 2 GB.
+# Roda a cada mudança na pasta ou nas regras de atributos.
+
+on:
+  push:
+    paths:
+      - "FORJA_ASSETS_3D/**"
+      - ".gitattributes"
+      - "tools/validar-assets-3d.sh"
+      - ".github/workflows/validar-assets-3d.yml"
+  pull_request:
+    paths:
+      - "FORJA_ASSETS_3D/**"
+      - ".gitattributes"
+      - "tools/validar-assets-3d.sh"
+      - ".github/workflows/validar-assets-3d.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Confirmar Git LFS no runner
+        run: git lfs version
+
+      - name: Validar modelos 3D
+        run: bash tools/validar-assets-3d.sh
