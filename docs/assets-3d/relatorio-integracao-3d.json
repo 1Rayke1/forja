@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-11-01T03:44:20.230Z",
+  "geradoEm": "2026-11-01T04:03:47.157Z",
   "formatoCatalogo": "forja-catalogo-3d",
   "personagens": [
     {
@@ -87,25 +87,25 @@
       },
       {
         "arquivo": "assets/js/forja-3d-cena.js",
-        "bytes": 16353
+        "bytes": 16355
       },
       {
         "arquivo": "assets/js/forja-personagens.js",
-        "bytes": 28280
+        "bytes": 28667
       },
       {
         "arquivo": "assets/css/personagens-3d.css",
         "bytes": 8839
       }
     ],
-    "totalBytes": 923822,
+    "totalBytes": 924211,
     "threeGzipBytes": 79328
   },
   "primeiraAbertura": {
     "tres": 870350,
-    "ponte": 44633,
+    "ponte": 45022,
     "personagem": 880944,
     "clipeTipico": 22953,
-    "total": 1818880
+    "total": 1819269
   }
 }
