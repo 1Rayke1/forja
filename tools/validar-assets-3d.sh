@@ -97,7 +97,7 @@ for caminho in "${ARQUIVOS[@]}"; do
   fi
 
   ponteiro="$(git -C "$ROOT" cat-file -p ":$caminho" 2>/dev/null)"
-  oid="$(printf '%s\n' "$ponteiro" | awk '/^oid sha256:/ {print $2}')"
+  oid="$(printf '%s\n' "$ponteiro" | awk '/^oid sha256:/ {sub(/^sha256:/, "", $2); print $2}')"
   tamanho="$(printf '%s\n' "$ponteiro" | awk '/^size / {print $2}')"
 
   if ! printf '%s' "$oid" | grep -Eq '^[0-9a-f]{64}$'; then

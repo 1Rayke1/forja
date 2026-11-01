@@ -59,8 +59,8 @@ jobs:
         if: always()
         run: |
           echo "TAG_TESTE=${TAG_TESTE} BRANCH_TESTE=${BRANCH_TESTE}"
-          bash tools/validar-assets-3d.sh > /tmp/validar.txt 2>&1
-          echo "validar_status=$?" >> /tmp/validar.txt
+          bash tools/validar-assets-3d.sh > /tmp/validar.txt 2>&1 || true
+          echo "validar_status=$(tail -n 1 /tmp/validar.txt)" >> /tmp/validar.txt
           cat /tmp/validar.txt
 
       - name: "Teste 2 — publicar release com modelo de 30 MB (o que o Android faz pelo navegador)"
@@ -141,7 +141,7 @@ jobs:
             echo
             echo "## Modelos gerados"
             echo '```'
-            echo "grande  : $(cat /tmp/grande.sha256 2>/dev/null) ($(wc -c < /tmp/modelo-grande.glb 2>/dev/null) B)"
+            echo "grande  : $(cat /tmp/grande.sha256 2>/dev/null) ($(wc -c < /tmp/modelo-grande-*.glb 2>/dev/null) B)"
             echo "pequeno : $(cat /tmp/pequeno.sha256 2>/dev/null) ($(wc -c < /tmp/exemplo/teste-recebimento.glb 2>/dev/null) B)"
             echo '```'
             echo
