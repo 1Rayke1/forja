@@ -1,0 +1,62 @@
+name: Importar assets 3D (Release → LFS)
+
+# Caminho sem programação para enviar modelos grandes (GLB/GLTF/FBX/BLEND) de
+# qualquer lugar, inclusive do navegador do Android:
+#
+#   1. no GitHub (navegador do celular): aba "Releases" → "Draft a new release"
+#   2. anexe os modelos à release (até 2 GB por arquivo — o limite de 25 MB do
+#      upload direto de arquivos não se aplica a anexos de release)
+#   3. publique a release
+#   4. este workflow baixa os anexos e faz o commit em FORJA_ASSETS_3D/ via LFS
+#
+# Também pode ser disparado à mão (Actions → este workflow → Run workflow)
+# informando a tag de uma release já publicada.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da release que tem os modelos 3D anexados"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: assets-3d-release
+  cancel-in-progress: false
+
+jobs:
+  importar:
+    # Releases criadas pelo workflow de teste ("teste-lfs-*") não entram na pasta.
+    if: ${{ !startsWith(github.event.release.tag_name || inputs.tag || '', 'teste-lfs-') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do branch principal
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Confirmar Git LFS no runner
+        run: git lfs version
+
+      - name: Identidade do commit automático
+        run: |
+          git config user.name "forja-assets-3d[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Importar anexos da release para FORJA_ASSETS_3D
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          set -euo pipefail
+          echo "Release: ${TAG}"
+          bash tools/importar-assets-3d.sh "$TAG" --branch main
+
+      - name: Validar a pasta depois da importação
+        run: bash tools/validar-assets-3d.sh

@@ -1,0 +1,118 @@
+name: Teste de recebimento (LFS)
+
+# Teste ponta a ponta do caminho usado no envio pelo Android:
+#   1. gera um GLB válido (30 MB por padrão, acima do limite de 25 MB do navegador);
+#   2. publica uma release temporária e anexa o modelo — exatamente o que o
+#      celular faz pelo navegador;
+#   3. importa a release para FORJA_ASSETS_3D/ (mesmo script do workflow de importação);
+#   4. clona o repositório do zero, baixa o objeto do LFS e confere o SHA-256;
+#   5. apaga a release e o branch temporários.
+#
+# Nada é gravado no branch principal: o teste vive em um branch descartável.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tamanho_mb:
+        description: "Tamanho do modelo de teste em MB (use acima de 25 para provar o limite)"
+        required: false
+        default: "30"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  teste:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAMANHO_MB: ${{ inputs.tamanho_mb }}
+      TAG_TESTE: teste-lfs-${{ github.run_id }}
+      BRANCH_TESTE: teste-branch-lfs-${{ github.run_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Confirmar Git LFS no runner
+        run: git lfs version
+
+      - name: Identidade do commit automático
+        run: |
+          git config user.name "forja-assets-3d[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Gerar modelo 3D de teste
+        run: |
+          set -euo pipefail
+          MB="${TAMANHO_MB:-30}"
+          python3 tools/gerar-glb-teste.py /tmp/modelo-teste.glb --tamanho $(( MB * 1024 * 1024 ))
+          sha256sum /tmp/modelo-teste.glb | awk '{print $1}' > /tmp/original.sha256
+          echo "Original: $(cat /tmp/original.sha256) / $(wc -c < /tmp/modelo-teste.glb) bytes"
+
+      - name: Publicar release temporária com o modelo anexado
+        run: |
+          set -euo pipefail
+          gh release create "$TAG_TESTE" /tmp/modelo-teste.glb \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Teste de recebimento LFS (run ${{ github.run_id }})" \
+            --notes "Release temporária criada pelo workflow de teste. Pode ser apagada."
+
+      - name: Importar pela via da release (o mesmo caminho do envio pelo Android)
+        run: |
+          set -euo pipefail
+          bash tools/importar-assets-3d.sh "$TAG_TESTE" \
+            --repo "$GITHUB_REPOSITORY" \
+            --branch "$BRANCH_TESTE" \
+            --destino FORJA_ASSETS_3D/exemplo
+
+      - name: Clonar de novo e conferir o arquivo recebido
+        run: |
+          set -euo pipefail
+          alvo="FORJA_ASSETS_3D/exemplo/modelo-teste.glb"
+          rm -rf /tmp/clone
+          git clone --quiet --branch "$BRANCH_TESTE" \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/clone
+          cd /tmp/clone
+          git lfs install --local >/dev/null 2>&1
+
+          primeira="$(git cat-file -p "HEAD:${alvo}" | head -n 1)"
+          echo "Primeira linha do blob versionado: ${primeira}"
+          [ "$primeira" = "version https://git-lfs.github.com/spec/v1" ] || {
+            echo "ERRO: o arquivo não entrou como ponteiro do LFS." >&2; exit 1; }
+
+          git lfs pull
+          recebido="$(sha256sum "$alvo" | awk '{print $1}')"
+          original="$(cat /tmp/original.sha256)"
+          bytes="$(wc -c < "$alvo")"
+          limite=$(( 25 * 1024 * 1024 ))
+
+          echo "Recebido: ${recebido} / ${bytes} bytes"
+          echo "Original: ${original}"
+          [ "$recebido" = "$original" ] || { echo "ERRO: SHA-256 diferente do original." >&2; exit 1; }
+          [ "$bytes" -gt "$limite" ] || { echo "ERRO: o teste precisa passar de 25 MB." >&2; exit 1; }
+
+          {
+            echo "## Recebimento de modelo 3D via LFS: OK"
+            echo
+            echo "| Item | Valor |"
+            echo "| --- | --- |"
+            echo "| Arquivo | \`${alvo}\` |"
+            echo "| Tamanho | ${bytes} bytes ($(awk -v b="$bytes" 'BEGIN {printf "%.2f", b/1024/1024}') MiB) |"
+            echo "| SHA-256 | \`${recebido}\` |"
+            echo "| Armazenamento | ponteiro do Git LFS |"
+            echo "| Conferência | clone do zero + \`git lfs pull\` |"
+            echo
+            git lfs ls-files --long
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Limpar branch e release temporários
+        if: always()
+        run: |
+          set +e
+          git push origin --delete "$BRANCH_TESTE"
+          gh release delete "$TAG_TESTE" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
+          exit 0

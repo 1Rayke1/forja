@@ -1,0 +1,24 @@
+# Git LFS — modelos 3D de FORJA_ASSETS_3D/
+#
+# Escopo intencional: SOMENTE FORJA_ASSETS_3D/. Os demais binários do site
+# (assets/, docs/, screenshots) continuam em Git normal, porque o GitHub Pages
+# não entrega conteúdo de Git LFS e o app publicado precisa continuar igual.
+#
+# Formatos combinados: GLB, GLTF, FBX e BLEND (e as variantes em maiúsculas,
+# comuns em exportadores de Android/Blender).
+#
+# Para acrescentar um formato novo (ex.: .usdz ou .bin de um .gltf separado):
+#   git lfs track "FORJA_ASSETS_3D/**/*.usdz"
+#   git add .gitattributes && git commit -m "LFS: acompanhar .usdz"
+#
+# Teste rápido de um caminho:
+#   git check-attr filter -- FORJA_ASSETS_3D/modelo.glb
+
+FORJA_ASSETS_3D/**/*.glb   filter=lfs diff=lfs merge=lfs -text
+FORJA_ASSETS_3D/**/*.GLB   filter=lfs diff=lfs merge=lfs -text
+FORJA_ASSETS_3D/**/*.gltf  filter=lfs diff=lfs merge=lfs -text
+FORJA_ASSETS_3D/**/*.GLTF  filter=lfs diff=lfs merge=lfs -text
+FORJA_ASSETS_3D/**/*.fbx   filter=lfs diff=lfs merge=lfs -text
+FORJA_ASSETS_3D/**/*.FBX   filter=lfs diff=lfs merge=lfs -text
+FORJA_ASSETS_3D/**/*.blend filter=lfs diff=lfs merge=lfs -text
+FORJA_ASSETS_3D/**/*.BLEND filter=lfs diff=lfs merge=lfs -text
