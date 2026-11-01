@@ -15,6 +15,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import http from "node:http";
+import crypto from "node:crypto";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
@@ -28,6 +29,31 @@ const dirCapturas =
     ? path.join(repoRoot, "docs", "validacao-3d", "piloto-abdominal-masculino", "capturas-app")
     : fs.mkdtempSync(path.join(os.tmpdir(), "forja-piloto-capturas-"));
 fs.mkdirSync(dirCapturas, { recursive: true });
+
+// Monta o mesmo artefato de produção gerado pelo workflow static.yml (GitHub Pages)
+// para garantir que /forja/avaliacao-piloto-3d/ funciona sem depender de docs/.
+const sitePublicadoDir = fs.mkdtempSync(path.join(os.tmpdir(), "forja-site-publicado-"));
+execFileSync("bash", [path.join(repoRoot, "tools", "preparar-site.sh"), sitePublicadoDir], {
+  cwd: repoRoot,
+  stdio: "pipe"
+});
+
+function sha256Arquivo(caminho) {
+  return crypto.createHash("sha256").update(fs.readFileSync(caminho)).digest("hex");
+}
+
+for (const nomeMp4 of [
+  "abdominal-masculino-horizontal-16x9.mp4",
+  "abdominal-masculino-vertical-9x16.mp4"
+]) {
+  const hashOriginal = sha256Arquivo(
+    path.join(repoRoot, "docs", "validacao-3d", "piloto-abdominal-masculino", nomeMp4)
+  );
+  const hashPublicado = sha256Arquivo(
+    path.join(sitePublicadoDir, "avaliacao-piloto-3d", "midia", nomeMp4)
+  );
+  assert.equal(hashPublicado, hashOriginal, `SHA-256 divergente no artefato publicado para ${nomeMp4}`);
+}
 
 let chromium = null;
 try {
@@ -91,8 +117,8 @@ function iniciarServidorLocal() {
       else if (rel === "/forja") rel = "/";
       if (rel === "" || rel.endsWith("/")) rel += "index.html";
 
-      const full = path.resolve(repoRoot, "." + rel);
-      if (!full.startsWith(repoRoot + path.sep) && full !== path.join(repoRoot, "index.html")) {
+      const full = path.resolve(sitePublicadoDir, "." + rel);
+      if (!full.startsWith(sitePublicadoDir + path.sep) && full !== path.join(sitePublicadoDir, "index.html")) {
         res.writeHead(403);
         res.end();
         return;
@@ -173,7 +199,32 @@ try {
     }
   });
 
-  // 1. Navegar pela aba Perfil do FORJA até AVALIAÇÃO DO PILOTO 3D
+  // 1a. Verificar acesso em produção pelo Onboarding (sem perfil configurado)
+  const pageOnboarding = await browser.newPage();
+  await pageOnboarding.setViewport(ANDROID_PORTRAIT);
+  await pageOnboarding.goto(new URL("onboarding/index.html", baseUrl).href, { waitUntil: "networkidle0" });
+  await pageOnboarding.evaluate(() =>
+    document.getElementById("onboarding-open-avaliacao-piloto-3d").scrollIntoView({ behavior: "instant", block: "center" })
+  );
+  await Promise.all([
+    pageOnboarding.waitForNavigation({ waitUntil: "networkidle0" }),
+    pageOnboarding.click("#onboarding-open-avaliacao-piloto-3d")
+  ]);
+  assert.match(pageOnboarding.url(), /\/forja\/avaliacao-piloto-3d\/$/);
+  await pageOnboarding.close();
+
+  // 1b. Verificar acesso em produção por Configurações
+  await page.goto(new URL("configuracoes/index.html", baseUrl).href, { waitUntil: "networkidle0" });
+  await page.evaluate(() =>
+    document.getElementById("config-open-avaliacao-piloto-3d").scrollIntoView({ behavior: "instant", block: "center" })
+  );
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: "networkidle0" }),
+    page.click("#config-open-avaliacao-piloto-3d")
+  ]);
+  assert.match(page.url(), /\/forja\/avaliacao-piloto-3d\/$/);
+
+  // 1c. Navegar pela aba Perfil do FORJA até /forja/avaliacao-piloto-3d/
   await page.goto(new URL("perfil/index.html", baseUrl).href, { waitUntil: "networkidle0" });
   await page.screenshot({ path: path.join(dirCapturas, "captura-01-acesso-perfil-android.png") });
 
@@ -182,7 +233,7 @@ try {
     page.click("#open-avaliacao-piloto-3d-top")
   ]);
 
-  assert.match(page.url(), /\/forja\/avaliacao-piloto-3d\/index\.html$/);
+  assert.match(page.url(), /\/forja\/avaliacao-piloto-3d\/$/);
 
   // Aguarda verificação sequencial HEAD dos dois vídeos
   await page.waitForFunction(() => {
@@ -421,7 +472,7 @@ try {
   // 6b. Testar tratamento explícito de ausência/erro de arquivo (sem tela preta e sem exceções)
   const pageErro = await browser.newPage();
   await pageErro.setViewport(ANDROID_PORTRAIT);
-  await pageErro.goto(new URL("avaliacao-piloto-3d/index.html", baseUrl).href, { waitUntil: "networkidle0" });
+  await pageErro.goto(new URL("avaliacao-piloto-3d/", baseUrl).href, { waitUntil: "networkidle0" });
   const resultadoAusente = await pageErro.evaluate(async () => {
     const cs = window.__forjaPiloto3d.estado.cartoes.horizontal;
     cs.src = "./arquivo-inexistente-teste.mp4";
@@ -445,4 +496,5 @@ try {
 } finally {
   await browser.close();
   server.close();
+  fs.rmSync(sitePublicadoDir, { recursive: true, force: true });
 }
