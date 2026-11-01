@@ -1,0 +1,549 @@
+{
+  "piloto": "abdominal_tradicional_masculino_cycles",
+  "data_utc": "2026-11-01T21:38:20.409Z",
+  "personagem": {
+    "arquivo_release_original": "DOC-20261031-WA0008.bin",
+    "release_tag": "modelos-3d-originais",
+    "bytes_original": 20465552,
+    "sha256_original": "ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1",
+    "ossos": 78,
+    "vertices": 1014138,
+    "triangulos": 1983343
+  },
+  "animacao_fonte": {
+    "arquivo": "assets/3d/animacoes/abdominal-supra.glb",
+    "acao_origem": "gentle-curl-up (DeskBreak / abdominal-supra)",
+    "quadros_por_repeticao": 90,
+    "repeticoes_no_video": 2,
+    "quadros_totais_video": 180,
+    "fps": 30,
+    "duracao_repeticao_s": 3,
+    "duracao_video_s": 6
+  },
+  "parametros_cycles": {
+    "engine": "CYCLES",
+    "device": "CPU",
+    "samples": 32,
+    "adaptive_threshold": 0.018,
+    "adaptive_min_samples": 12,
+    "max_bounces": 4,
+    "diffuse_bounces": 2,
+    "glossy_bounces": 2,
+    "seed_fixa": 42,
+    "use_persistent_data": true,
+    "denoiser": "OPENIMAGEDENOISE",
+    "erro_denoiser": null,
+    "threads": 4
+  },
+  "cenario_e_cameras": {
+    "colchonete": {
+      "comprimento_m": 1.14812,
+      "largura_m": 0.47024,
+      "espessura_m": 0.01567,
+      "z_base_m": 0,
+      "z_topo_m": 0.01567
+    },
+    "luzes": [
+      {
+        "nome": "forja_piloto_luz_key",
+        "energia_w": 131.625,
+        "tamanho_m": 1.5675,
+        "cor_rgb": [
+          1,
+          0.97,
+          0.92
+        ],
+        "posicao": [
+          0.9307,
+          -1.6165,
+          1.9104
+        ]
+      },
+      {
+        "nome": "forja_piloto_luz_fill",
+        "energia_w": 75.214,
+        "tamanho_m": 1.7354,
+        "cor_rgb": [
+          0.88,
+          0.93,
+          1
+        ],
+        "posicao": [
+          1.6165,
+          1.4205,
+          1.7144
+        ]
+      },
+      {
+        "nome": "forja_piloto_luz_rim",
+        "energia_w": 81.482,
+        "tamanho_m": 1.3995,
+        "cor_rgb": [
+          1,
+          0.9,
+          0.78
+        ],
+        "posicao": [
+          -1.5185,
+          1.2736,
+          1.7634
+        ]
+      },
+      {
+        "nome": "forja_piloto_luz_top",
+        "energia_w": 47.009,
+        "tamanho_m": 1.4555,
+        "cor_rgb": [
+          0.98,
+          0.99,
+          1
+        ],
+        "posicao": [
+          -0.098,
+          -0.147,
+          2.4982
+        ]
+      }
+    ],
+    "cameras": {
+      "horizontal": {
+        "nome": "forja_cam_horizontal_16x9",
+        "resolucao_px": [
+          1280,
+          720
+        ],
+        "proporcao": "1280:720",
+        "lente_mm": 52,
+        "azimute_graus": -58,
+        "elevacao_graus": 22,
+        "distancia_m": 2.08672,
+        "posicao_mundo": [
+          1.0613,
+          -1.64305,
+          0.85312
+        ],
+        "alvo_mundo": [
+          0.03603,
+          -0.00227,
+          0.07142
+        ],
+        "ndc_u_intervalo": [
+          0.09,
+          0.91
+        ],
+        "ndc_v_intervalo": [
+          0.1256,
+          0.8544
+        ],
+        "margem_minima_borda_pct": 9
+      },
+      "vertical": {
+        "nome": "forja_cam_vertical_9x16",
+        "resolucao_px": [
+          720,
+          1280
+        ],
+        "proporcao": "720:1280",
+        "lente_mm": 48,
+        "azimute_graus": 23,
+        "elevacao_graus": 45,
+        "distancia_m": 2.31554,
+        "posicao_mundo": [
+          1.60234,
+          0.62088,
+          1.68056
+        ],
+        "alvo_mundo": [
+          0.09516,
+          -0.01888,
+          0.04322
+        ],
+        "ndc_u_intervalo": [
+          0.07,
+          0.93
+        ],
+        "ndc_v_intervalo": [
+          0.2239,
+          0.7561
+        ],
+        "margem_minima_borda_pct": 7
+      }
+    },
+    "gerenciamento_cor": {
+      "display_device": "sRGB",
+      "view_transform": "AgX",
+      "look": "None",
+      "exposure": 0.08,
+      "gamma": 1
+    }
+  },
+  "auditoria_pre_render": {
+    "aprovado": true,
+    "problemas_detectados": [],
+    "verificacoes": {
+      "correspondencia_15_ossos_completa": true,
+      "loop_continuo_sem_salto": true,
+      "amplitude_abdominal_coerente": true,
+      "pes_plantados_sem_deslizamento": true,
+      "contato_dorso_colchonete_consistente": true,
+      "contato_pes_colchonete_consistente": true,
+      "sem_penetracao_abaixo_do_piso": true,
+      "sem_interpenetracao_mao_tronco_coxa": true,
+      "visibilidade_integral_horizontal_16x9": true,
+      "visibilidade_integral_vertical_9x16": true
+    },
+    "metricas": {
+      "altura_nativa_modelo_m": 0.97968,
+      "fator_equivalente_1m75": 1.7863,
+      "maior_salto_osso_entre_quadros_m": 0.007535,
+      "salto_osso_fechamento_loop_q90_q1_m": 0.001468,
+      "razao_passo_loop_vs_interno": 0.1948,
+      "salto_malha_fechamento_loop_q90_q1_m": 0.001996,
+      "erro_periodo_exato_fonte_t0_t3_m": 0.00089,
+      "flexao_toracica_max_graus": 22,
+      "flexao_cervical_max_graus": 20,
+      "inclinacao_cabeca_max_graus": 42,
+      "flexao_joelho_intervalo_graus": [
+        93.99,
+        95.01
+      ],
+      "elevacao_ombro_nativa_m": 0.04871,
+      "elevacao_ombro_equiv_1m75_cm": 8.7,
+      "elevacao_cabeca_equiv_1m75_cm": 16.45,
+      "elevacao_mao_equiv_1m75_cm": 27.19,
+      "desvio_horizontal_pe_esq_mm": 0,
+      "desvio_horizontal_pe_dir_mm": 0,
+      "dorso_rel_colchonete_mm": [
+        -3.278,
+        -1.011
+      ],
+      "pe_esq_rel_colchonete_mm": [
+        -0.583,
+        -0.583
+      ],
+      "pe_dir_rel_colchonete_mm": [
+        -0.583,
+        -0.583
+      ],
+      "bracos_rel_colchonete_mm": [
+        1.461,
+        40.503
+      ],
+      "z_min_global_acima_piso_mm": 12.392,
+      "distancia_min_mao_antebraco_vs_corpo_mm_nativo": 19.49,
+      "distancia_min_mao_antebraco_vs_corpo_mm_equiv_1m75": 34.82,
+      "quadro_menor_distancia_mao_corpo": 10,
+      "ndc_global_horizontal_16x9": [
+        0.09,
+        0.91,
+        0.1256,
+        0.8546
+      ],
+      "ndc_global_vertical_9x16": [
+        0.07,
+        0.93,
+        0.2239,
+        0.7557
+      ],
+      "violacoes_frustum_horizontal": 0,
+      "violacoes_frustum_vertical": 0
+    }
+  },
+  "desempenho_render_cycles": {
+    "fatias_paralelas": 18,
+    "tempo_cpu_acumulado_horizontal_s": 3188.5,
+    "tempo_cpu_acumulado_vertical_s": 3021.68,
+    "tempo_medio_por_quadro_horizontal_s": 35.43,
+    "tempo_medio_por_quadro_vertical_s": 33.57,
+    "pico_ram_vmhwm_mb": {
+      "horizontal": 2592.64,
+      "vertical": 2596.57
+    }
+  },
+  "videos": {
+    "horizontal": {
+      "arquivo_video": "abdominal-masculino-horizontal-16x9.mp4",
+      "arquivo_poster": "poster-horizontal-16x9.png",
+      "mosaico_fases": "quadros-representativos/horizontal-mosaico-5-fases.png",
+      "quadros_representativos": [
+        "quadros-representativos/horizontal-q0001-inicio.png",
+        "quadros-representativos/horizontal-q0023-subida.png",
+        "quadros-representativos/horizontal-q0046-pico.png",
+        "quadros-representativos/horizontal-q0068-descida.png",
+        "quadros-representativos/horizontal-q0090-fim-loop.png"
+      ],
+      "ffprobe": {
+        "codec_name": "h264",
+        "profile": "Main",
+        "level": 31,
+        "pix_fmt": "yuv420p",
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "nb_frames": 180,
+        "duration_s": 6,
+        "bit_rate_bps": 4717278,
+        "size_bytes": 3537959,
+        "video_streams": 1,
+        "audio_streams": 0,
+        "format_name": "mov,mp4,m4a,3gp,3g2,mj2"
+      },
+      "tamanho_humano": "3.37 MB",
+      "dentro_faixa_2_a_6_mb": true,
+      "sem_audio": true,
+      "fps_exato_30": true,
+      "compatibilidade_android": {
+        "container_mp4": true,
+        "codec_h264": true,
+        "pix_fmt_yuv420p": true,
+        "perfil": "Main",
+        "nivel": 31,
+        "faststart_ativo": true
+      },
+      "continuidade_loop_mp4_decodificado": {
+        "passo_q0_para_q1": {
+          "mad_0_255": 0.0134,
+          "rmse_0_255": 0.1775,
+          "psnr_db": 63.15
+        },
+        "identidade_repeticao_q0_vs_q90": {
+          "mad_0_255": 0.2076,
+          "rmse_0_255": 0.5963,
+          "psnr_db": 52.62
+        },
+        "costura_loop_q179_para_q0": {
+          "mad_0_255": 0.6904,
+          "rmse_0_255": 3.457,
+          "psnr_db": 37.36
+        }
+      },
+      "tentativas_encode": [
+        {
+          "tentativa": 1,
+          "bitrate_kbps": 4700,
+          "bytes": 3537959,
+          "tamanho_mb": 3.374
+        }
+      ]
+    },
+    "vertical": {
+      "arquivo_video": "abdominal-masculino-vertical-9x16.mp4",
+      "arquivo_poster": "poster-vertical-9x16.png",
+      "mosaico_fases": "quadros-representativos/vertical-mosaico-5-fases.png",
+      "quadros_representativos": [
+        "quadros-representativos/vertical-q0001-inicio.png",
+        "quadros-representativos/vertical-q0023-subida.png",
+        "quadros-representativos/vertical-q0046-pico.png",
+        "quadros-representativos/vertical-q0068-descida.png",
+        "quadros-representativos/vertical-q0090-fim-loop.png"
+      ],
+      "ffprobe": {
+        "codec_name": "h264",
+        "profile": "Main",
+        "level": 31,
+        "pix_fmt": "yuv420p",
+        "width": 720,
+        "height": 1280,
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "nb_frames": 180,
+        "duration_s": 6,
+        "bit_rate_bps": 4705788,
+        "size_bytes": 3529341,
+        "video_streams": 1,
+        "audio_streams": 0,
+        "format_name": "mov,mp4,m4a,3gp,3g2,mj2"
+      },
+      "tamanho_humano": "3.37 MB",
+      "dentro_faixa_2_a_6_mb": true,
+      "sem_audio": true,
+      "fps_exato_30": true,
+      "compatibilidade_android": {
+        "container_mp4": true,
+        "codec_h264": true,
+        "pix_fmt_yuv420p": true,
+        "perfil": "Main",
+        "nivel": 31,
+        "faststart_ativo": true
+      },
+      "continuidade_loop_mp4_decodificado": {
+        "passo_q0_para_q1": {
+          "mad_0_255": 0.0094,
+          "rmse_0_255": 0.1255,
+          "psnr_db": 66.16
+        },
+        "identidade_repeticao_q0_vs_q90": {
+          "mad_0_255": 0.1324,
+          "rmse_0_255": 0.4524,
+          "psnr_db": 55.02
+        },
+        "costura_loop_q179_para_q0": {
+          "mad_0_255": 0.3775,
+          "rmse_0_255": 1.5042,
+          "psnr_db": 44.58
+        }
+      },
+      "tentativas_encode": [
+        {
+          "tentativa": 1,
+          "bitrate_kbps": 4700,
+          "bytes": 3529341,
+          "tamanho_mb": 3.366
+        }
+      ]
+    }
+  },
+  "arquivos_gerados": [
+    {
+      "arquivo": "abdominal-masculino-horizontal-16x9.mp4",
+      "bytes": 3537959,
+      "tamanho_mb": 3.374,
+      "sha256": "785aaf534e7ec95ae31c9070823c0b5c6440e5c31b68f86a54cdbd8f2b515828"
+    },
+    {
+      "arquivo": "abdominal-masculino-vertical-9x16.mp4",
+      "bytes": 3529341,
+      "tamanho_mb": 3.366,
+      "sha256": "1e3b12e1f163bcb58d13e5892e358bf823a3cf3b0c53505aca724e8e470e541a"
+    },
+    {
+      "arquivo": "diagnostico/diagnostico-retarget.json",
+      "bytes": 30840,
+      "tamanho_mb": 0.029,
+      "sha256": "3a92369bfc4e78c2770a010d588a07dc82faf9e1e86bc79b72d23ce336aea0ed"
+    },
+    {
+      "arquivo": "diagnostico/prova-horizontal-q0001.png",
+      "bytes": 874468,
+      "tamanho_mb": 0.834,
+      "sha256": "f2ce218e16e7847992e6d7d7ff613c8b0d92abbe13778f02ac29bb686ba93b5a"
+    },
+    {
+      "arquivo": "diagnostico/prova-horizontal-q0023.png",
+      "bytes": 876453,
+      "tamanho_mb": 0.836,
+      "sha256": "4e6919bcf9737baa118c110077f89734c2e2f7c7d752d95a10f8f1295707236b"
+    },
+    {
+      "arquivo": "diagnostico/prova-horizontal-q0046.png",
+      "bytes": 885778,
+      "tamanho_mb": 0.845,
+      "sha256": "ec814eb54e437597b335b4cb76131d409b4a8935afd58d46fcc9309d245a7bbc"
+    },
+    {
+      "arquivo": "diagnostico/prova-vertical-q0001.png",
+      "bytes": 839917,
+      "tamanho_mb": 0.801,
+      "sha256": "cb7a77a4554931fa2c976486461f7cd2dbb318a58920b35c82b6bb883b832332"
+    },
+    {
+      "arquivo": "diagnostico/prova-vertical-q0023.png",
+      "bytes": 842410,
+      "tamanho_mb": 0.803,
+      "sha256": "254aa30ae03db0acdb8172fa544782f62c8e68aa27757ed3c8a8b3acf94df0a5"
+    },
+    {
+      "arquivo": "diagnostico/prova-vertical-q0046.png",
+      "bytes": 842574,
+      "tamanho_mb": 0.804,
+      "sha256": "eb722d763011fc5ebcece5f9bf1d77f0d06d95bb130782455e543442720d7df6"
+    },
+    {
+      "arquivo": "diagnostico/resumo-prevalidacao.md",
+      "bytes": 3096,
+      "tamanho_mb": 0.003,
+      "sha256": "920456a993d6da7bfa88dd296300d845872a9b4f96447844467d2b9ece9d05c4"
+    },
+    {
+      "arquivo": "diagnostico-retarget.json",
+      "bytes": 30840,
+      "tamanho_mb": 0.029,
+      "sha256": "3a92369bfc4e78c2770a010d588a07dc82faf9e1e86bc79b72d23ce336aea0ed"
+    },
+    {
+      "arquivo": "poster-horizontal-16x9.png",
+      "bytes": 778302,
+      "tamanho_mb": 0.742,
+      "sha256": "59cac628bc4008310b75b1a1c02123fac5cb316e3822a29e24361fb6026748cd"
+    },
+    {
+      "arquivo": "poster-vertical-9x16.png",
+      "bytes": 643170,
+      "tamanho_mb": 0.613,
+      "sha256": "afb54266947c5371c7c12c893ef9badc9f76fc9971e1fccca73dd8c7cf00c1c0"
+    },
+    {
+      "arquivo": "quadros-representativos/horizontal-mosaico-5-fases.png",
+      "bytes": 218138,
+      "tamanho_mb": 0.208,
+      "sha256": "a535fcc3e353308f25ece6abb91f45ec3a1e23a643354a53c917b4ef4ce9e49c"
+    },
+    {
+      "arquivo": "quadros-representativos/horizontal-q0001-inicio.png",
+      "bytes": 760507,
+      "tamanho_mb": 0.725,
+      "sha256": "60cfd600e61afc1bd8bc3901bc8c7c75ff29205bd77e42905590dff21faffd7f"
+    },
+    {
+      "arquivo": "quadros-representativos/horizontal-q0023-subida.png",
+      "bytes": 763047,
+      "tamanho_mb": 0.728,
+      "sha256": "b24fee77ae2c5b1b22c75e1821515338842e2bad81d5246e20d4d8b68bbbbe5f"
+    },
+    {
+      "arquivo": "quadros-representativos/horizontal-q0046-pico.png",
+      "bytes": 778302,
+      "tamanho_mb": 0.742,
+      "sha256": "59cac628bc4008310b75b1a1c02123fac5cb316e3822a29e24361fb6026748cd"
+    },
+    {
+      "arquivo": "quadros-representativos/horizontal-q0068-descida.png",
+      "bytes": 771883,
+      "tamanho_mb": 0.736,
+      "sha256": "f65e059814d3896036d462f78cbc80bfc552ce3379ebe93fb93e940f89dad764"
+    },
+    {
+      "arquivo": "quadros-representativos/horizontal-q0090-fim-loop.png",
+      "bytes": 759991,
+      "tamanho_mb": 0.725,
+      "sha256": "c2cd0aa141f63991564d66816671d99fcce3b2bd2c053afc687cf1d652945ae3"
+    },
+    {
+      "arquivo": "quadros-representativos/vertical-mosaico-5-fases.png",
+      "bytes": 233595,
+      "tamanho_mb": 0.223,
+      "sha256": "4efe54b2ee2bcf80eb02e4b72b1804d197ea693a5c413c2106bf66e34172c62a"
+    },
+    {
+      "arquivo": "quadros-representativos/vertical-q0001-inicio.png",
+      "bytes": 635054,
+      "tamanho_mb": 0.606,
+      "sha256": "f12d5730c3ff14fbb3456e551bfab74dd58e22b302e47962481070e64ca2c7cc"
+    },
+    {
+      "arquivo": "quadros-representativos/vertical-q0023-subida.png",
+      "bytes": 642215,
+      "tamanho_mb": 0.612,
+      "sha256": "39eec8a06c6fb1169427889ab07cfbe933e708670381be037fba6dd49f48fbf3"
+    },
+    {
+      "arquivo": "quadros-representativos/vertical-q0046-pico.png",
+      "bytes": 643170,
+      "tamanho_mb": 0.613,
+      "sha256": "afb54266947c5371c7c12c893ef9badc9f76fc9971e1fccca73dd8c7cf00c1c0"
+    },
+    {
+      "arquivo": "quadros-representativos/vertical-q0068-descida.png",
+      "bytes": 642854,
+      "tamanho_mb": 0.613,
+      "sha256": "ceba582848a01b5cfd8fc1f3de1fe7dfbba6fb3d9a5e30cb405b3853500089b3"
+    },
+    {
+      "arquivo": "quadros-representativos/vertical-q0090-fim-loop.png",
+      "bytes": 634971,
+      "tamanho_mb": 0.606,
+      "sha256": "df869697193600bc3140b785c73308c6667e9c36241e36ac0353cf61fdf3549c"
+    }
+  ]
+}

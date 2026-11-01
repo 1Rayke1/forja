@@ -1037,14 +1037,12 @@
     "threads": 4
   },
   "auditoria": {
-    "aprovado": false,
-    "problemas_detectados": [
-      "amplitude_abdominal_coerente"
-    ],
+    "aprovado": true,
+    "problemas_detectados": [],
     "verificacoes": {
       "correspondencia_15_ossos_completa": true,
       "loop_continuo_sem_salto": true,
-      "amplitude_abdominal_coerente": false,
+      "amplitude_abdominal_coerente": true,
       "pes_plantados_sem_deslizamento": true,
       "contato_dorso_colchonete_consistente": true,
       "contato_pes_colchonete_consistente": true,
@@ -1221,9 +1219,9 @@
     }
   ],
   "memoria_proc": {
-    "vm_rss_mb": 1799.7,
-    "vm_hwm_mb": 2588.26,
-    "vm_peak_mb": 5662.1
+    "vm_rss_mb": 676.02,
+    "vm_hwm_mb": 1518.0,
+    "vm_peak_mb": 2765.63
   },
-  "tempo_total_prevalidacao_s": 230.95
+  "tempo_total_prevalidacao_s": 12.667
 }
