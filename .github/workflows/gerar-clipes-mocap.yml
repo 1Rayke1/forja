@@ -16,6 +16,14 @@ on:
         description: "Ids separados por vírgula (vazio = todos os pendentes)"
         required: false
         default: ""
+  # `workflow_dispatch` só aparece na lista de workflows quando o arquivo está no
+  # branch padrão. Enquanto este arquivo vive num branch de trabalho, o gatilho
+  # confiável é o push que mexe no mapa, no retarget ou neste próprio arquivo.
+  push:
+    paths:
+      - "tools/animacoes-mapa.json"
+      - "tools/blender/retarget-mocap.py"
+      - ".github/workflows/gerar-clipes-mocap.yml"
 
 permissions:
   contents: write
