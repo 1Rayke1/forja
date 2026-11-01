@@ -34,6 +34,35 @@ const metaPorId = new Map((metaDeskbreak.exercises || []).map(e => [e.id, e]));
 
 const ID_PERSONAGENS = ["masculino", "feminino"];
 
+/*
+  Clipe autorado por geometria não tem metadado de build: o arquivo é a medida.
+  Lê do GLB quantas chaves e quantos segundos a animação tem, direto do JSON do
+  binário — nada de número digitado à mão.
+*/
+function medirGlbAnimacao(arquivo) {
+  const buf = fs.readFileSync(arquivo);
+  const tamanhoJson = buf.readUInt32LE(12);
+  const json = JSON.parse(buf.subarray(20, 20 + tamanhoJson).toString("utf8"));
+  const animacao = (json.animations || [])[0];
+  if (!animacao) return { nome: null, quadros: 0, duracaoS: 0 };
+  /* o chunk BIN começa depois do JSON (cabeçalho de 8 bytes do chunk) */
+  const inicioBin = 20 + tamanhoJson + 8;
+  const ultimoTempo = acesso => {
+    const view = json.bufferViews[acesso.bufferView];
+    const inicio = inicioBin + (view.byteOffset || 0) + (acesso.byteOffset || 0);
+    return buf.readFloatLE(inicio + (acesso.count - 1) * 4);
+  };
+  let duracaoS = 0;
+  let quadros = 0;
+  for (const sampler of animacao.samplers || []) {
+    const acesso = json.accessors[sampler.input];
+    if (!acesso || !acesso.count) continue;
+    duracaoS = Math.max(duracaoS, ultimoTempo(acesso));
+    quadros = Math.max(quadros, acesso.count);
+  }
+  return { nome: animacao.name || null, quadros, duracaoS };
+}
+
 function medirPersonagem(slug) {
   const relativo = `assets/3d/personagens/${slug}.glb`;
   const absoluto = path.join(assetsDir, "personagens", `${slug}.glb`);
@@ -70,6 +99,59 @@ for (const entrada of mapa.clipes) {
     continue;
   }
   const bytes = fs.statSync(arquivo).size;
+
+  if (entrada.fonte === "autoral") {
+    /*
+      Animação autorada por geometria (tools/autorar-exercicios-3d.mjs). O
+      arquivo principal serve o masculino; cada outro personagem tem o seu, com
+      a mesma pose resolvida para o comprimento de braço e perna dele. `arquivo`
+      continua sendo o caminho padrão, então nada que leia só ele quebra.
+    */
+    const medida = medirGlbAnimacao(arquivo);
+    const arquivos = { masculino: { arquivo: `assets/3d/animacoes/${entrada.id}.glb`, bytes } };
+    for (const slug of ID_PERSONAGENS) {
+      if (slug === "masculino") continue;
+      const variante = path.join(assetsDir, "animacoes", `${entrada.id}-${slug}.glb`);
+      if (fs.existsSync(variante)) {
+        arquivos[slug] = {
+          arquivo: `assets/3d/animacoes/${entrada.id}-${slug}.glb`,
+          bytes: fs.statSync(variante).size
+        };
+      }
+    }
+    const clipeAutoral = {
+      id: entrada.id,
+      nome: entrada.nome,
+      grupo: entrada.grupo,
+      status: entrada.status,
+      arquivo: arquivos.masculino.arquivo,
+      bytes,
+      quadros: medida.quadros,
+      fps: entrada.fps || 24,
+      duracaoS: Number(medida.duracaoS.toFixed(2)),
+      loop: true,
+      movimentoCompleto: true,
+      personagens: Object.keys(arquivos),
+      arquivos,
+      rigOrigem: "rig-16-ossos (autoral, por geometria)",
+      rigDestino: "rig-16-ossos",
+      retarget: false,
+      fonte: {
+        pacote: "FORJA — animação autorada por geometria",
+        release: null,
+        arquivo: "tools/lib/pose-autoral-3d.mjs",
+        rig: "rig-16-ossos",
+        retarget: false
+      },
+      exercicios: entrada.exercicios || []
+    };
+    clipes.push(clipeAutoral);
+    for (const exercicio of entrada.exercicios || []) {
+      if (!exercicioParaClipe[exercicio]) exercicioParaClipe[exercicio] = entrada.id;
+    }
+    continue;
+  }
+
   const meta = porIdDeskbreak.get(entrada.id);
   const fonte = entrada.fonte === "mocap"
     ? {

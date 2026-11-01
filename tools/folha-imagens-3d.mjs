@@ -16,6 +16,8 @@
     [--enquadrar clipe]   emoldura o movimento inteiro (não só o repouso)
     [--chao]              desenha a linha do chão (y=0) e o eixo do personagem
     [--tempos 0,0.6,1.2]  fases em segundos (senão divide a duração em partes iguais)
+    [--linhas ambas|perfil|frente]  linhas da folha (padrão: perfil + frente)
+    [--azimute 35]         vista livre em graus (0 = frente, 90 = perfil)
 */
 import fs from "node:fs";
 import path from "node:path";
@@ -71,6 +73,28 @@ acao.play();
 
 const ENQUADRAR = opcoes.enquadrar === "clipe" || opcoes.enquadrar === true;
 const DESENHAR_CHAO = Boolean(opcoes.chao);
+
+/*
+  Linhas da folha. O padrão é perfil em cima e frente embaixo — as duas vistas
+  que a revisão pede. `--linhas frente` serve para olhar só a frente (é onde a
+  abdução e o alinhamento lateral aparecem); `--linhas perfil` para o contato
+  com o chão. `--vista costas` mantém o comportamento antigo.
+*/
+const VISTA_COSTAS = opcoes.vista === "costas";
+const AZIMUTE_PERFIL = Math.PI / 2;
+const AZIMUTE_FRENTE = VISTA_COSTAS ? Math.PI : 0;
+const pedido = String(opcoes.linhas || "ambas");
+/* `--azimute` em graus: vista livre (3/4 é onde se vê se a perna abre para fora) */
+const LISTA = opcoes.azimute !== undefined
+  ? [{ azimute: (Number(opcoes.azimute) * Math.PI) / 180, rotulo: `azimute ${opcoes.azimute}°` }]
+  : pedido === "frente"
+  ? [{ azimute: AZIMUTE_FRENTE, rotulo: VISTA_COSTAS ? "costas" : "frente" }]
+  : pedido === "perfil" || pedido === "costas"
+    ? [{ azimute: AZIMUTE_PERFIL, rotulo: "perfil" }]
+    : [
+        { azimute: AZIMUTE_PERFIL, rotulo: "perfil" },
+        { azimute: AZIMUTE_FRENTE, rotulo: VISTA_COSTAS ? "costas" : "frente" }
+      ];
 
 /* câmera: emoldura o personagem inteiro, com margem */
 const caixa = new THREE.Box3();
@@ -319,11 +343,11 @@ function escreverPNG(arquivo, largura, altura, cor) {
 /* ------------------------------------------------------------------ */
 
 const larguraFinal = LARGURA * (TEMPOS ? TEMPOS.length : FASES);
-const alturaFinal = ALTURA * 2;
+const alturaFinal = ALTURA * LISTA.length;
 const folha = new Float32Array(larguraFinal * alturaFinal * 3).fill(0.12);
 
 const totalColunas = TEMPOS ? TEMPOS.length : FASES;
-for (const [linha, azimute] of [[0, Math.PI / 2], [1, opcoes.vista === "costas" ? Math.PI : 0]]) {
+for (const [linha, { azimute }] of LISTA.entries()) {
   for (let fase = 0; fase < totalColunas; fase += 1) {
     const t = TEMPOS ? TEMPOS[fase] : (clipe.duration * fase) / FASES;
     mixer.setTime(t);
@@ -358,7 +382,7 @@ console.log("[folha]", JSON.stringify({
   personagem: PERSONAGEM,
   fases: totalColunas,
   tempos: TEMPOS || undefined,
-  linhas: ["perfil", opcoes.vista === "costas" ? "costas" : "frente"],
+  linhas: LISTA.map(l => l.rotulo),
   enquadrar: ENQUADRAR ? "clipe" : "repouso",
   chao: DESENHAR_CHAO,
   duracao: +clipe.duration.toFixed(2),

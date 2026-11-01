@@ -64,11 +64,10 @@
     },
     {
       "id": "flexao",
-      "fonte": "deskbreak",
-      "acao": "plank-to-down-dog-flow_rig",
+      "fonte": "autoral",
       "nome": "Flexão de braço",
       "grupo": "peito",
-      "status": "review",
+      "status": "exact",
       "exercicios": [
         "cal-flexao"
       ]
@@ -119,8 +118,7 @@
     },
     {
       "id": "prancha",
-      "fonte": "deskbreak",
-      "acao": "plank-full_rig",
+      "fonte": "autoral",
       "nome": "Prancha frontal",
       "grupo": "core",
       "status": "exact",
@@ -165,11 +163,10 @@
     },
     {
       "id": "mountain-climber",
-      "fonte": "deskbreak",
-      "acao": "standing-climber_rig",
+      "fonte": "autoral",
       "nome": "Mountain climber",
       "grupo": "corpo inteiro",
-      "status": "review",
+      "status": "exact",
       "exercicios": [
         "cal-mountain-climber"
       ]

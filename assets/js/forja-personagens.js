@@ -144,6 +144,18 @@
     return catalogo.personagens[id];
   }
 
+  /*
+    Arquivo do clipe para um personagem. A maioria dos clipes é um só arquivo
+    retargetado para os dois corpos; os autorados por geometria têm um arquivo
+    por personagem (a mão e o pé precisam cair exatamente no chão nos dois
+    corpos, e o comprimento de braço e perna é diferente). Sem variante, cai no
+    arquivo único de sempre.
+  */
+  function arquivoDoClipe(clipe, personagem) {
+    const variante = clipe && clipe.arquivos ? clipe.arquivos[personagem] : null;
+    return (variante && variante.arquivo) || (clipe && clipe.arquivo) || "";
+  }
+
   /* ------------------------------------------------------------------ */
   /* Exercício → clipe                                                   */
   /* ------------------------------------------------------------------ */
@@ -331,7 +343,7 @@
     aplicarSelo(painel, resolvido);
     painel.aviso.hidden = true;
     painel.controles.hidden = false;
-    await painel.api.trocarClipe(url(resolvido.clipe.arquivo), resolvido.clipe.id);
+    await painel.api.trocarClipe(url(arquivoDoClipe(resolvido.clipe, painel.personagem)), resolvido.clipe.id);
     montarControles(painel.controles, painel.api, resolvido.clipe);
     return true;
   }
@@ -455,7 +467,7 @@
       const api = await modulo.criarCena(palco, {
         personagemId: personagem,
         personagemUrl: url(dadosPersonagem.arquivo),
-        clipeUrl: url(clipe.arquivo),
+        clipeUrl: url(arquivoDoClipe(clipe, personagem)),
         clipeId: clipe.id,
         aoCarregar: info => {
           if (info.fase === "personagem" && info.progresso) {

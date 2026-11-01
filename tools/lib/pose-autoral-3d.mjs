@@ -440,8 +440,10 @@ export function configurar(rig, exercicio, ajustes = {}) {
     const ombroBaixo = ombroAlto - (ajustes.profundidade || 0.28);
     return {
       nome: exercicio,
-      periodo: ajustes.periodo || 3.2,
-      duracao: ajustes.duracao || 6.4,
+      /* duração = múltiplo exato do período e de 1/24 s: o clipe fecha no
+         primeiro quadro (laço sem salto quando o app repete a animação) */
+      periodo: ajustes.periodo || 3,
+      duracao: ajustes.duracao || 6,
       fps: ajustes.fps || 24,
       ombroAlto, ombroBaixo, tornozelo, punho: punhoAlto, poloBraco,
       inclinacaoPe: INCLINACAO_PE,
@@ -456,7 +458,7 @@ export function configurar(rig, exercicio, ajustes = {}) {
     const beta = inclinacaoParaOmbro(rig, { alturaOmbro, tornozelo });
     return {
       nome: exercicio,
-      periodoRespiracao: ajustes.periodoRespiracao || 4.2,
+      periodoRespiracao: ajustes.periodoRespiracao || 3,
       duracao: ajustes.duracao || 6,
       fps: ajustes.fps || 24,
       beta, alturaOmbro, tornozelo, inclinacaoPe: INCLINACAO_PE,
@@ -468,7 +470,7 @@ export function configurar(rig, exercicio, ajustes = {}) {
     return {
       nome: exercicio,
       periodo: ajustes.periodo || 1.5,
-      duracao: ajustes.duracao || 4.4,
+      duracao: ajustes.duracao || 4.5,
       fps: ajustes.fps || 24,
       beta: betaAlto, tornozelo,
       punho: punhoAlto, poloBraco,
@@ -477,7 +479,7 @@ export function configurar(rig, exercicio, ajustes = {}) {
       curvaFlexao: ajustes.curvaFlexao
         || [[0, 0], [0.08, 40], [0.2, 88], [0.35, 132], [0.5, 150], [0.7, 148], [1, 125]],
       solaNeutra: new THREE.Vector3(0, 0.25, 0.97).normalize(),
-      abducao: ajustes.abducao || 36,
+      abducao: ajustes.abducao ?? 36,
       construir: (t, cfg) => mountainClimber(rig, t, cfg)
     };
   }
@@ -502,7 +504,12 @@ export function autorarExercicio(rig, exercicio, ajustes = {}) {
   const amostras = [];
   const anterior = {};
 
-  for (let i = 0; i < total; i += 1) {
+  /*
+    `i <= total`: o último quadro é amostrado em t = duração, que coincide com o
+    primeiro. Sem ele o laço não fecha — o app repete a animação e o salto
+    aparece na emenda (o analisador reprovava o mountain climber por isso).
+  */
+  for (let i = 0; i <= total; i += 1) {
     const t = i / cfg.fps;
     const pose = cfg.construir(t, cfg);
     const montada = montarPose(rig, pose);

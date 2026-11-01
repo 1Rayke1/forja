@@ -220,6 +220,25 @@ await runTest("5. catálogo publicado não aponta para arquivo inexistente", asy
     assert.ok(fs.existsSync(arquivo), "clipe anunciado sem arquivo: " + clipe.arquivo);
     assert.equal(fs.statSync(arquivo).size, clipe.bytes, "bytes divergentes em " + clipe.arquivo);
     assert.ok(clipe.duracaoS >= 0 && clipe.fps > 0);
+    /*
+      Clipes autorados por geometria têm um arquivo por personagem (mão e pé
+      caem no chão nos dois corpos). Se o catálogo anuncia variante, o arquivo
+      tem de existir com o tamanho anunciado — e o `arquivo` principal é o do
+      masculino, para quem lê só esse campo continuar vendo o mesmo GLB.
+    */
+    const variantes = clipe.arquivos || {};
+    Object.entries(variantes).forEach(([personagem, variante]) => {
+      assert.ok(catalogo.personagens[personagem], "variante de personagem desconhecido: " + personagem);
+      const caminho = path.join(repoRoot, variante.arquivo);
+      assert.ok(fs.existsSync(caminho), "variante anunciada sem arquivo: " + variante.arquivo);
+      assert.equal(fs.statSync(caminho).size, variante.bytes,
+        "bytes divergentes na variante " + variante.arquivo);
+    });
+    if (variantes.masculino) {
+      assert.equal(clipe.arquivo, variantes.masculino.arquivo,
+        "o arquivo principal deve ser o da variante masculina");
+      assert.deepEqual(clipe.personagens.slice().sort(), Object.keys(variantes).sort());
+    }
   });
 
   catalogo.clipesIndisponiveis.forEach(item => {

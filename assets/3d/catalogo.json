@@ -1,7 +1,7 @@
 {
   "formato": "forja-catalogo-3d",
   "versao": 1,
-  "geradoEm": "2026-11-01T03:40:18.450Z",
+  "geradoEm": "2026-11-01T15:18:14.311Z",
   "personagens": {
     "masculino": {
       "id": "masculino",
@@ -214,36 +214,41 @@
       "id": "flexao",
       "nome": "Flexão de braço",
       "grupo": "peito",
-      "status": "review",
+      "status": "exact",
       "arquivo": "assets/3d/animacoes/flexao.glb",
-      "bytes": 32680,
-      "quadros": 101,
+      "bytes": 42556,
+      "quadros": 145,
       "fps": 24,
-      "duracaoS": 4.21,
+      "duracaoS": 6,
       "loop": true,
       "movimentoCompleto": true,
       "personagens": [
         "masculino",
         "feminino"
       ],
-      "rigOrigem": "manequim 16 ossos",
+      "arquivos": {
+        "masculino": {
+          "arquivo": "assets/3d/animacoes/flexao.glb",
+          "bytes": 42556
+        },
+        "feminino": {
+          "arquivo": "assets/3d/animacoes/flexao-feminino.glb",
+          "bytes": 42560
+        }
+      },
+      "rigOrigem": "rig-16-ossos (autoral, por geometria)",
       "rigDestino": "rig-16-ossos",
       "retarget": false,
       "fonte": {
-        "pacote": "DeskBreak — library/exercises.glb",
-        "release": "assets-3d-v1",
-        "arquivo": "library/exercises.glb#plank-to-down-dog-flow_rig",
-        "rig": "manequim 16 ossos",
+        "pacote": "FORJA — animação autorada por geometria",
+        "release": null,
+        "arquivo": "tools/lib/pose-autoral-3d.mjs",
+        "rig": "rig-16-ossos",
         "retarget": false
       },
       "exercicios": [
         "cal-flexao"
-      ],
-      "referencia": {
-        "nomeEn": "Plank to downward dog flow",
-        "categoria": "yoga",
-        "vista": "floor"
-      }
+      ]
     },
     {
       "id": "agachamento",
@@ -391,35 +396,40 @@
       "grupo": "core",
       "status": "exact",
       "arquivo": "assets/3d/animacoes/prancha.glb",
-      "bytes": 42944,
-      "quadros": 134,
+      "bytes": 42552,
+      "quadros": 145,
       "fps": 24,
-      "duracaoS": 5.58,
+      "duracaoS": 6,
       "loop": true,
       "movimentoCompleto": true,
       "personagens": [
         "masculino",
         "feminino"
       ],
-      "rigOrigem": "manequim 16 ossos",
+      "arquivos": {
+        "masculino": {
+          "arquivo": "assets/3d/animacoes/prancha.glb",
+          "bytes": 42552
+        },
+        "feminino": {
+          "arquivo": "assets/3d/animacoes/prancha-feminino.glb",
+          "bytes": 42556
+        }
+      },
+      "rigOrigem": "rig-16-ossos (autoral, por geometria)",
       "rigDestino": "rig-16-ossos",
       "retarget": false,
       "fonte": {
-        "pacote": "DeskBreak — library/exercises.glb",
-        "release": "assets-3d-v1",
-        "arquivo": "library/exercises.glb#plank-full_rig",
-        "rig": "manequim 16 ossos",
+        "pacote": "FORJA — animação autorada por geometria",
+        "release": null,
+        "arquivo": "tools/lib/pose-autoral-3d.mjs",
+        "rig": "rig-16-ossos",
         "retarget": false
       },
       "exercicios": [
         "cal-prancha-frontal",
         "mus-prancha"
-      ],
-      "referencia": {
-        "nomeEn": "Plank",
-        "categoria": "yoga",
-        "vista": "floor"
-      }
+      ]
     },
     {
       "id": "abdominal-supra",
@@ -531,36 +541,41 @@
       "id": "mountain-climber",
       "nome": "Mountain climber",
       "grupo": "corpo inteiro",
-      "status": "review",
+      "status": "exact",
       "arquivo": "assets/3d/animacoes/mountain-climber.glb",
-      "bytes": 18348,
-      "quadros": 22,
+      "bytes": 33348,
+      "quadros": 109,
       "fps": 24,
-      "duracaoS": 0.92,
+      "duracaoS": 4.5,
       "loop": true,
       "movimentoCompleto": true,
       "personagens": [
         "masculino",
         "feminino"
       ],
-      "rigOrigem": "manequim 16 ossos",
+      "arquivos": {
+        "masculino": {
+          "arquivo": "assets/3d/animacoes/mountain-climber.glb",
+          "bytes": 33348
+        },
+        "feminino": {
+          "arquivo": "assets/3d/animacoes/mountain-climber-feminino.glb",
+          "bytes": 33352
+        }
+      },
+      "rigOrigem": "rig-16-ossos (autoral, por geometria)",
       "rigDestino": "rig-16-ossos",
       "retarget": false,
       "fonte": {
-        "pacote": "DeskBreak — library/exercises.glb",
-        "release": "assets-3d-v1",
-        "arquivo": "library/exercises.glb#standing-climber_rig",
-        "rig": "manequim 16 ossos",
+        "pacote": "FORJA — animação autorada por geometria",
+        "release": null,
+        "arquivo": "tools/lib/pose-autoral-3d.mjs",
+        "rig": "rig-16-ossos",
         "retarget": false
       },
       "exercicios": [
         "cal-mountain-climber"
-      ],
-      "referencia": {
-        "nomeEn": "Standing mountain climber",
-        "categoria": "cardio-low-impact",
-        "vista": null
-      }
+      ]
     },
     {
       "id": "corrida-estacionaria",

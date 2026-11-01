@@ -1,14 +1,11 @@
 {
- "geradoEm": "2026-11-01T04:43:23.397Z",
+ "geradoEm": "2026-11-01T15:21:21.508Z",
  "personagem": "masculino",
  "amostras": 48,
  "total": 40,
  "divergentes": [
   "polichinelo",
-  "flexao",
   "afundo",
-  "prancha",
-  "mountain-climber",
   "corrida-estacionaria",
   "supino",
   "agachamento-halteres",
@@ -16,7 +13,9 @@
   "desenvolvimento",
   "remada-alta"
  ],
- "problemasDeHigiene": [],
+ "problemasDeHigiene": [
+  "step-up"
+ ],
  "clipes": [
   {
    "id": "postura-base",
@@ -35,6 +34,11 @@
      "amp": 0
     },
     "joelho": {
+     "min": 166.789,
+     "max": 166.789,
+     "amp": 0
+    },
+    "joelhoDobrado": {
      "min": 166.789,
      "max": 166.789,
      "amp": 0
@@ -69,13 +73,23 @@
      "max": 0.138,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0.001,
+     "max": 0.001,
+     "amp": 0
+    },
+    "movimentoGraus": 2.8,
     "ombroY": {
      "min": 1.389,
      "max": 1.416,
      "amp": 0.027
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.009,
+    "saltoMediana": 0.003,
+    "saltoRazao": 3.1,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -104,6 +118,11 @@
      "amp": 0
     },
     "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "joelhoDobrado": {
      "min": 166.79,
      "max": 166.79,
      "amp": 0
@@ -138,13 +157,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 3.8,
     "ombroY": {
      "min": 1.409,
      "max": 1.468,
      "amp": 0.059
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.005,
+    "saltoMediana": 0.004,
+    "saltoRazao": 1.2,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.002,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -173,6 +202,11 @@
      "amp": 0
     },
     "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "joelhoDobrado": {
      "min": 166.79,
      "max": 166.79,
      "amp": 0
@@ -207,13 +241,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 23.7,
     "ombroY": {
      "min": 1.418,
      "max": 1.418,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.015,
+    "saltoMediana": 0.009,
+    "saltoRazao": 1.6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.002,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -246,6 +290,11 @@
      "max": 166.637,
      "amp": 0.345
     },
+    "joelhoDobrado": {
+     "min": 165.625,
+     "max": 166.615,
+     "amp": 0.99
+    },
     "cotovelo": {
      "min": 100,
      "max": 100,
@@ -276,13 +325,23 @@
      "max": 0.116,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 1.431,
+     "amp": 1.431
+    },
+    "movimentoGraus": 0.3,
     "ombroY": {
      "min": 1.366,
      "max": 1.415,
      "amp": 0.049
     },
     "derivaXZ": 0.33,
+    "deslocamentoXZ": 0.152,
     "saltoMax": 0.01,
+    "saltoMediana": 0.009,
+    "saltoRazao": 1.1,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -315,6 +374,11 @@
      "max": 168.716,
      "amp": 15.302
     },
+    "joelhoDobrado": {
+     "min": 140.038,
+     "max": 166.79,
+     "amp": 26.752
+    },
     "cotovelo": {
      "min": 170.022,
      "max": 174,
@@ -345,13 +409,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 26.752,
+     "amp": 26.752
+    },
+    "movimentoGraus": 162.7,
     "ombroY": {
      "min": 1.418,
      "max": 1.418,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.194,
+    "saltoMediana": 0.119,
+    "saltoRazao": 1.6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.016,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -378,64 +452,79 @@
   {
    "id": "flexao",
    "nome": "Flexão de braço",
-   "status": "review",
+   "status": "exact",
    "grupo": "peito",
    "arquivo": "assets/3d/animacoes/flexao.glb",
-   "duracao": 4.21,
+   "duracao": 6,
    "loop": true,
    "exercicios": [
     "cal-flexao"
    ],
-   "referencia": "Plank to downward dog flow",
+   "referencia": null,
    "medido": {
     "quadrilY": {
-     "min": 0.547,
-     "max": 0.911,
-     "amp": 0.365
+     "min": 0.268,
+     "max": 0.449,
+     "amp": 0.182
     },
     "joelho": {
-     "min": 122.533,
-     "max": 168.035,
-     "amp": 45.501
+     "min": 170.227,
+     "max": 170.227,
+     "amp": 0
+    },
+    "joelhoDobrado": {
+     "min": 170.227,
+     "max": 170.227,
+     "amp": 0
     },
     "cotovelo": {
-     "min": 132.711,
-     "max": 179.993,
-     "amp": 47.283
+     "min": 61.263,
+     "max": 177.837,
+     "amp": 116.574
     },
     "quadrilFlex": {
-     "min": 84.983,
-     "max": 127.017,
-     "amp": 42.034
+     "min": 153.161,
+     "max": 153.161,
+     "amp": 0
     },
     "ombroAbd": {
-     "min": 65.726,
-     "max": 140.21,
-     "amp": 74.483
+     "min": 62.519,
+     "max": 75.322,
+     "amp": 12.803
     },
     "punhoY": {
-     "min": 0.264,
-     "max": 0.403,
-     "amp": 0.139
+     "min": 0.03,
+     "max": 0.03,
+     "amp": 0
     },
     "peMin": {
-     "min": 0.165,
-     "max": 0.182,
-     "amp": 0.017
+     "min": 0.181,
+     "max": 0.181,
+     "amp": 0
     },
     "aberturaPes": {
      "min": 0,
-     "max": 0.246,
-     "amp": 0.246
+     "max": 0,
+     "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 129.4,
     "ombroY": {
-     "min": 0.491,
-     "max": 0.672,
-     "amp": 0.182
+     "min": 0.314,
+     "max": 0.594,
+     "amp": 0.28
     },
-    "derivaXZ": 0,
-    "saltoMax": 0.049,
-    "descontinuidadeLaco": 0.004,
+    "derivaXZ": 0.275,
+    "deslocamentoXZ": 0.036,
+    "saltoMax": 0,
+    "saltoMediana": 0,
+    "saltoRazao": 0,
+    "saltoDescontinuo": false,
+    "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
    },
@@ -453,18 +542,9 @@
      "texto": "mãos precisam ficar perto do chão"
     }
    ],
-   "falhasAssinatura": [
-    {
-     "chave": "cotovelo",
-     "texto": "cotovelo precisa dobrar até ≤ 110°"
-    },
-    {
-     "chave": "quadrilY",
-     "texto": "o corpo precisa estar baixo, no chão"
-    }
-   ],
+   "falhasAssinatura": [],
    "problemaHigiene": [],
-   "veredito": "divergente"
+   "veredito": "ok"
   },
   {
    "id": "agachamento",
@@ -488,6 +568,11 @@
      "min": 93.569,
      "max": 166.801,
      "amp": 73.231
+    },
+    "joelhoDobrado": {
+     "min": 93.569,
+     "max": 166.801,
+     "amp": 73.232
     },
     "cotovelo": {
      "min": 174,
@@ -519,13 +604,23 @@
      "max": 0.169,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0.001,
+     "amp": 0.001
+    },
+    "movimentoGraus": 127.6,
     "ombroY": {
      "min": 1.11,
      "max": 1.418,
      "amp": 0.308
     },
     "derivaXZ": 0.432,
+    "deslocamentoXZ": 0.117,
     "saltoMax": 0.047,
+    "saltoMediana": 0.023,
+    "saltoRazao": 2.1,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -567,6 +662,11 @@
      "max": 159.793,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 159.793,
+     "max": 159.793,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 85,
      "max": 174,
@@ -597,13 +697,23 @@
      "max": 0.138,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 107.6,
     "ombroY": {
      "min": 1.322,
      "max": 1.343,
      "amp": 0.021
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.027,
+    "saltoMediana": 0.017,
+    "saltoRazao": 1.6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -641,6 +751,11 @@
      "max": 150.105,
      "amp": 22.844
     },
+    "joelhoDobrado": {
+     "min": 96.749,
+     "max": 150.006,
+     "amp": 53.257
+    },
     "cotovelo": {
      "min": 90.047,
      "max": 110,
@@ -671,13 +786,23 @@
      "max": 0.612,
      "amp": 0.607
     },
+    "assimetriaJoelho": {
+     "min": 0.198,
+     "max": 61.024,
+     "amp": 60.827
+    },
+    "movimentoGraus": 62,
     "ombroY": {
      "min": 1.4,
      "max": 1.429,
      "amp": 0.028
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.083,
+    "saltoMediana": 0.049,
+    "saltoRazao": 1.7,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -728,6 +853,11 @@
      "max": 58.503,
      "amp": 22.895
     },
+    "joelhoDobrado": {
+     "min": 35.608,
+     "max": 58.503,
+     "amp": 22.895
+    },
     "cotovelo": {
      "min": 174,
      "max": 174,
@@ -758,13 +888,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 39.6,
     "ombroY": {
      "min": 0.108,
      "max": 0.226,
      "amp": 0.118
     },
     "derivaXZ": 0.229,
+    "deslocamentoXZ": 0.012,
     "saltoMax": 0.026,
+    "saltoMediana": 0.004,
+    "saltoRazao": 6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -785,62 +925,77 @@
    "status": "exact",
    "grupo": "core",
    "arquivo": "assets/3d/animacoes/prancha.glb",
-   "duracao": 5.63,
+   "duracao": 6,
    "loop": true,
    "exercicios": [
     "cal-prancha-frontal",
     "mus-prancha"
    ],
-   "referencia": "Plank",
+   "referencia": null,
    "medido": {
     "quadrilY": {
-     "min": 0.527,
-     "max": 0.7,
-     "amp": 0.173
+     "min": 0.29,
+     "max": 0.29,
+     "amp": 0
     },
     "joelho": {
-     "min": 115.799,
-     "max": 168.627,
-     "amp": 52.828
+     "min": 170.227,
+     "max": 170.227,
+     "amp": 0
+    },
+    "joelhoDobrado": {
+     "min": 170.227,
+     "max": 170.227,
+     "amp": 0
     },
     "cotovelo": {
-     "min": 163.713,
-     "max": 180,
-     "amp": 16.287
+     "min": 90,
+     "max": 90,
+     "amp": 0
     },
     "quadrilFlex": {
-     "min": 99.278,
-     "max": 150.499,
-     "amp": 51.22
+     "min": 153.161,
+     "max": 153.161,
+     "amp": 0
     },
     "ombroAbd": {
-     "min": 60.041,
-     "max": 91.806,
-     "amp": 31.764
+     "min": 84.3,
+     "max": 84.3,
+     "amp": 0
     },
     "punhoY": {
-     "min": 0.163,
-     "max": 0.24,
-     "amp": 0.076
+     "min": 0.045,
+     "max": 0.045,
+     "amp": 0
     },
     "peMin": {
-     "min": 0.154,
-     "max": 0.183,
-     "amp": 0.03
+     "min": 0.181,
+     "max": 0.181,
+     "amp": 0
     },
     "aberturaPes": {
-     "min": 0.09,
-     "max": 0.272,
-     "amp": 0.182
+     "min": 0,
+     "max": 0,
+     "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 0,
     "ombroY": {
-     "min": 0.652,
-     "max": 0.7,
-     "amp": 0.048
+     "min": 0.348,
+     "max": 0.348,
+     "amp": 0
     },
-    "derivaXZ": 0.687,
-    "saltoMax": 0.053,
-    "descontinuidadeLaco": 0.001,
+    "derivaXZ": 0,
+    "deslocamentoXZ": 0,
+    "saltoMax": 0,
+    "saltoMediana": 0,
+    "saltoRazao": 0,
+    "saltoDescontinuo": false,
+    "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
    },
@@ -854,18 +1009,9 @@
      "texto": "prancha é isométrica: quadril não pode subir e descer"
     }
    ],
-   "falhasAssinatura": [
-    {
-     "chave": "quadrilY",
-     "texto": "o corpo precisa ficar baixo, alinhado com o chão"
-    },
-    {
-     "chave": "quadrilY",
-     "texto": "prancha é isométrica: quadril não pode subir e descer"
-    }
-   ],
+   "falhasAssinatura": [],
    "problemaHigiene": [],
-   "veredito": "divergente"
+   "veredito": "ok"
   },
   {
    "id": "abdominal-supra",
@@ -886,6 +1032,11 @@
      "amp": 0.015
     },
     "joelho": {
+     "min": 89.405,
+     "max": 90.208,
+     "amp": 0.803
+    },
+    "joelhoDobrado": {
      "min": 89.405,
      "max": 90.208,
      "amp": 0.803
@@ -920,13 +1071,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 21.1,
     "ombroY": {
      "min": 0.108,
      "max": 0.228,
      "amp": 0.12
     },
     "derivaXZ": 0.083,
+    "deslocamentoXZ": 0.004,
     "saltoMax": 0.029,
+    "saltoMediana": 0.016,
+    "saltoRazao": 1.8,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -960,6 +1121,11 @@
      "max": 129.305,
      "amp": 0.574
     },
+    "joelhoDobrado": {
+     "min": 89.45,
+     "max": 89.45,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 174,
      "max": 174,
@@ -990,13 +1156,23 @@
      "max": 0.266,
      "amp": 0.24
     },
+    "assimetriaJoelho": {
+     "min": 78.561,
+     "max": 79.709,
+     "amp": 1.148
+    },
+    "movimentoGraus": 0.6,
     "ombroY": {
      "min": 0.108,
      "max": 0.108,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.051,
+    "saltoMediana": 0.032,
+    "saltoRazao": 1.6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.002,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1029,6 +1205,11 @@
      "max": 129.106,
      "amp": 1.268
     },
+    "joelhoDobrado": {
+     "min": 89.45,
+     "max": 89.45,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 174,
      "max": 174,
@@ -1059,13 +1240,23 @@
      "max": 0.554,
      "amp": 0.548
     },
+    "assimetriaJoelho": {
+     "min": 76.776,
+     "max": 79.312,
+     "amp": 2.535
+    },
+    "movimentoGraus": 1.3,
     "ombroY": {
      "min": 0.108,
      "max": 0.108,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.061,
+    "saltoMediana": 0.043,
+    "saltoRazao": 1.4,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1078,70 +1269,85 @@
   {
    "id": "mountain-climber",
    "nome": "Mountain climber",
-   "status": "review",
+   "status": "exact",
    "grupo": "corpo inteiro",
    "arquivo": "assets/3d/animacoes/mountain-climber.glb",
-   "duracao": 0.92,
+   "duracao": 4.5,
    "loop": true,
    "exercicios": [
     "cal-mountain-climber"
    ],
-   "referencia": "Standing mountain climber",
+   "referencia": null,
    "medido": {
     "quadrilY": {
-     "min": 0.948,
-     "max": 0.95,
-     "amp": 0.002
+     "min": 0.449,
+     "max": 0.449,
+     "amp": 0
     },
     "joelho": {
-     "min": 129.139,
-     "max": 142.566,
-     "amp": 13.428
+     "min": 112.825,
+     "max": 170.227,
+     "amp": 57.402
+    },
+    "joelhoDobrado": {
+     "min": 55.423,
+     "max": 170.227,
+     "amp": 114.804
     },
     "cotovelo": {
-     "min": 122,
-     "max": 122,
+     "min": 177.837,
+     "max": 177.837,
      "amp": 0
     },
     "quadrilFlex": {
-     "min": 126.722,
-     "max": 135.458,
-     "amp": 8.736
+     "min": 90.525,
+     "max": 155.065,
+     "amp": 64.54
     },
     "ombroAbd": {
-     "min": 108.737,
-     "max": 109.486,
-     "amp": 0.749
+     "min": 75.322,
+     "max": 75.322,
+     "amp": 0
     },
     "punhoY": {
-     "min": 1.732,
-     "max": 1.938,
-     "amp": 0.206
+     "min": 0.03,
+     "max": 0.03,
+     "amp": 0
     },
     "peMin": {
-     "min": 0.08,
-     "max": 0.168,
-     "amp": 0.088
+     "min": 0.134,
+     "max": 0.181,
+     "amp": 0.047
     },
     "aberturaPes": {
-     "min": 0.01,
-     "max": 0.336,
-     "amp": 0.326
+     "min": 0,
+     "max": 1.13,
+     "amp": 1.13
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 114.804,
+     "amp": 114.804
+    },
+    "movimentoGraus": 57.4,
     "ombroY": {
-     "min": 1.418,
-     "max": 1.42,
-     "amp": 0.002
+     "min": 0.594,
+     "max": 0.594,
+     "amp": 0
     },
     "derivaXZ": 0,
-    "saltoMax": 0.066,
-    "descontinuidadeLaco": 0.011,
+    "deslocamentoXZ": 0,
+    "saltoMax": 0.551,
+    "saltoMediana": 0.363,
+    "saltoRazao": 1.5,
+    "saltoDescontinuo": false,
+    "descontinuidadeLaco": 0.006,
     "escalaMax": 0,
     "quadrosNaN": 0
    },
    "assinatura": [
     {
-     "chave": "joelho",
+     "chave": "joelhoDobrado",
      "texto": "joelho precisa vir em direção ao peito"
     },
     {
@@ -1149,18 +1355,9 @@
      "texto": "corpo precisa ficar baixo, apoiado"
     }
    ],
-   "falhasAssinatura": [
-    {
-     "chave": "joelho",
-     "texto": "joelho precisa vir em direção ao peito"
-    },
-    {
-     "chave": "quadrilFlex",
-     "texto": "corpo precisa ficar baixo, apoiado"
-    }
-   ],
+   "falhasAssinatura": [],
    "problemaHigiene": [],
-   "veredito": "divergente"
+   "veredito": "ok"
   },
   {
    "id": "corrida-estacionaria",
@@ -1184,6 +1381,11 @@
      "min": 154.243,
      "max": 158.849,
      "amp": 4.606
+    },
+    "joelhoDobrado": {
+     "min": 149.399,
+     "max": 158.758,
+     "amp": 9.359
     },
     "cotovelo": {
      "min": 90,
@@ -1215,13 +1417,23 @@
      "max": 0.03,
      "amp": 0.03
     },
+    "assimetriaJoelho": {
+     "min": 0.117,
+     "max": 9.687,
+     "amp": 9.57
+    },
+    "movimentoGraus": 6,
     "ombroY": {
      "min": 1.431,
      "max": 1.431,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.013,
+    "saltoMediana": 0.009,
+    "saltoRazao": 1.4,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.012,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1269,6 +1481,11 @@
      "max": 152.955,
      "amp": 12.411
     },
+    "joelhoDobrado": {
+     "min": 124.084,
+     "max": 140.963,
+     "amp": 16.88
+    },
     "cotovelo": {
      "min": 40,
      "max": 174.421,
@@ -1299,13 +1516,23 @@
      "max": 0.252,
      "amp": 0.251
     },
+    "assimetriaJoelho": {
+     "min": 0.715,
+     "max": 42.706,
+     "amp": 41.991
+    },
+    "movimentoGraus": 238.8,
     "ombroY": {
      "min": 1.418,
      "max": 1.42,
      "amp": 0.002
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.054,
+    "saltoMediana": 0.03,
+    "saltoRazao": 1.8,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.009,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1332,6 +1559,11 @@
      "amp": 0
     },
     "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "joelhoDobrado": {
      "min": 166.79,
      "max": 166.79,
      "amp": 0
@@ -1366,13 +1598,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 29.6,
     "ombroY": {
      "min": 1.418,
      "max": 1.418,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.067,
+    "saltoMediana": 0.038,
+    "saltoRazao": 1.8,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.002,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1405,6 +1647,11 @@
      "max": 167.007,
      "amp": 0.217
     },
+    "joelhoDobrado": {
+     "min": 166.79,
+     "max": 166.993,
+     "amp": 0.203
+    },
     "cotovelo": {
      "min": 100,
      "max": 100,
@@ -1435,13 +1682,23 @@
      "max": 0.169,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0.028,
+     "amp": 0.028
+    },
+    "movimentoGraus": 0.2,
     "ombroY": {
      "min": 1.311,
      "max": 1.418,
      "amp": 0.107
     },
     "derivaXZ": 0.19,
+    "deslocamentoXZ": 0.054,
     "saltoMax": 0.007,
+    "saltoMediana": 0.005,
+    "saltoRazao": 1.6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1474,6 +1731,11 @@
      "max": 168.035,
      "amp": 45.501
     },
+    "joelhoDobrado": {
+     "min": 75.907,
+     "max": 166.553,
+     "amp": 90.646
+    },
     "cotovelo": {
      "min": 132.711,
      "max": 179.993,
@@ -1504,13 +1766,23 @@
      "max": 0.246,
      "amp": 0.246
     },
+    "assimetriaJoelho": {
+     "min": 1.385,
+     "max": 93.253,
+     "amp": 91.868
+    },
+    "movimentoGraus": 167.3,
     "ombroY": {
      "min": 0.491,
      "max": 0.672,
      "amp": 0.182
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.049,
+    "saltoMediana": 0.025,
+    "saltoRazao": 2,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.004,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1561,6 +1833,11 @@
      "max": 165.186,
      "amp": 24.958
     },
+    "joelhoDobrado": {
+     "min": 140.227,
+     "max": 165.185,
+     "amp": 24.958
+    },
     "cotovelo": {
      "min": 100,
      "max": 100,
@@ -1591,13 +1868,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0.001,
+     "amp": 0.001
+    },
+    "movimentoGraus": 25,
     "ombroY": {
      "min": 1.323,
      "max": 1.363,
      "amp": 0.039
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.004,
+    "saltoMediana": 0.001,
+    "saltoRazao": 2.8,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1648,6 +1935,11 @@
      "max": 166.789,
      "amp": 34.968
     },
+    "joelhoDobrado": {
+     "min": 96.854,
+     "max": 166.789,
+     "amp": 69.935
+    },
     "cotovelo": {
      "min": 165.051,
      "max": 174,
@@ -1678,13 +1970,23 @@
      "max": 0.344,
      "amp": 0.344
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 69.936,
+     "amp": 69.935
+    },
+    "movimentoGraus": 146,
     "ombroY": {
      "min": 1.407,
      "max": 1.418,
      "amp": 0.011
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.174,
+    "saltoMediana": 0.116,
+    "saltoRazao": 1.5,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.018,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1727,6 +2029,11 @@
      "max": 96.548,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 96.548,
+     "max": 96.548,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 90,
      "max": 169.852,
@@ -1757,13 +2064,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 125.5,
     "ombroY": {
      "min": 1.015,
      "max": 1.015,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.024,
+    "saltoMediana": 0.016,
+    "saltoRazao": 1.6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1814,6 +2131,11 @@
      "max": 96.548,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 96.548,
+     "max": 96.548,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 80.209,
      "max": 175,
@@ -1844,13 +2166,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 141.7,
     "ombroY": {
      "min": 1.011,
      "max": 1.015,
      "amp": 0.004
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.042,
+    "saltoMediana": 0.026,
+    "saltoRazao": 1.6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1888,6 +2220,11 @@
      "max": 166.79,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 40,
      "max": 174,
@@ -1918,13 +2255,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 134,
     "ombroY": {
      "min": 1.418,
      "max": 1.418,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.049,
+    "saltoMediana": 0.026,
+    "saltoRazao": 1.9,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -1960,6 +2307,11 @@
      "max": 166.79,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 40,
      "max": 174,
@@ -1990,13 +2342,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 134,
     "ombroY": {
      "min": 1.418,
      "max": 1.418,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.049,
+    "saltoMediana": 0.026,
+    "saltoRazao": 1.9,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2034,6 +2396,11 @@
      "max": 154.04,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 154.04,
+     "max": 154.04,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 80,
      "max": 179.782,
@@ -2064,13 +2431,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 99.8,
     "ombroY": {
      "min": 1.329,
      "max": 1.329,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.03,
+    "saltoMediana": 0.02,
+    "saltoRazao": 1.5,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2108,6 +2485,11 @@
      "max": 132.328,
      "amp": 35.781
     },
+    "joelhoDobrado": {
+     "min": 96.548,
+     "max": 96.548,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 174,
      "max": 174,
@@ -2138,13 +2520,23 @@
      "max": 0.398,
      "amp": 0.398
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 71.562,
+     "amp": 71.562
+    },
+    "movimentoGraus": 35.8,
     "ombroY": {
      "min": 1.015,
      "max": 1.015,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.119,
+    "saltoMediana": 0.05,
+    "saltoRazao": 2.4,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.003,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2177,6 +2569,11 @@
      "max": 166.789,
      "amp": 43.72
     },
+    "joelhoDobrado": {
+     "min": 79.347,
+     "max": 166.788,
+     "amp": 87.441
+    },
     "cotovelo": {
      "min": 160,
      "max": 160,
@@ -2207,13 +2604,23 @@
      "max": 0.169,
      "amp": 0.154
     },
+    "assimetriaJoelho": {
+     "min": 0.002,
+     "max": 87.443,
+     "amp": 87.441
+    },
+    "movimentoGraus": 43.7,
     "ombroY": {
      "min": 1.418,
      "max": 1.418,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.098,
+    "saltoMediana": 0.035,
+    "saltoRazao": 2.8,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.004,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2242,6 +2649,11 @@
      "amp": 0
     },
     "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "joelhoDobrado": {
      "min": 166.79,
      "max": 166.79,
      "amp": 0
@@ -2276,13 +2688,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 85,
     "ombroY": {
      "min": 1.418,
      "max": 1.418,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.059,
+    "saltoMediana": 0.034,
+    "saltoRazao": 1.7,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2320,6 +2742,11 @@
      "max": 166.789,
      "amp": 35.033
     },
+    "joelhoDobrado": {
+     "min": 96.722,
+     "max": 166.789,
+     "amp": 70.067
+    },
     "cotovelo": {
      "min": 35,
      "max": 35,
@@ -2350,13 +2777,23 @@
      "max": 0.417,
      "amp": 0.395
     },
+    "assimetriaJoelho": {
+     "min": 0.001,
+     "max": 70.067,
+     "amp": 70.067
+    },
+    "movimentoGraus": 35,
     "ombroY": {
      "min": 1.361,
      "max": 1.418,
      "amp": 0.057
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.146,
+    "saltoMediana": 0.056,
+    "saltoRazao": 2.6,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.004,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2389,6 +2826,11 @@
      "max": 106.323,
      "amp": 0.215
     },
+    "joelhoDobrado": {
+     "min": 76.816,
+     "max": 105.664,
+     "amp": 28.848
+    },
     "cotovelo": {
      "min": 174,
      "max": 174,
@@ -2419,13 +2861,23 @@
      "max": 0.3,
      "amp": 0.288
     },
+    "assimetriaJoelho": {
+     "min": 1.317,
+     "max": 58.585,
+     "amp": 57.268
+    },
+    "movimentoGraus": 0.2,
     "ombroY": {
      "min": 1.015,
      "max": 1.015,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.021,
+    "saltoMediana": 0.017,
+    "saltoRazao": 1.2,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2461,6 +2913,11 @@
      "max": 167.078,
      "amp": 0.288
     },
+    "joelhoDobrado": {
+     "min": 166.79,
+     "max": 167.077,
+     "amp": 0.288
+    },
     "cotovelo": {
      "min": 160,
      "max": 160,
@@ -2491,13 +2948,23 @@
      "max": 0.169,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0.001,
+     "amp": 0.001
+    },
+    "movimentoGraus": 0.3,
     "ombroY": {
      "min": 1.418,
      "max": 1.487,
      "amp": 0.069
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.009,
+    "saltoMediana": 0.004,
+    "saltoRazao": 2.1,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2533,6 +3000,11 @@
      "max": 166.79,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 174,
      "max": 174,
@@ -2563,13 +3035,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 29.6,
     "ombroY": {
      "min": 1.418,
      "max": 1.418,
      "amp": 0
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.067,
+    "saltoMediana": 0.038,
+    "saltoRazao": 1.8,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.002,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2614,6 +3096,11 @@
      "max": 166.79,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 110,
      "max": 174,
@@ -2644,13 +3131,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 106.4,
     "ombroY": {
      "min": 1.404,
      "max": 1.418,
      "amp": 0.014
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.117,
+    "saltoMediana": 0.03,
+    "saltoRazao": 3.9,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.002,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2686,6 +3183,11 @@
      "max": 166.522,
      "amp": 27.725
     },
+    "joelhoDobrado": {
+     "min": 112.18,
+     "max": 165.979,
+     "amp": 53.799
+    },
     "cotovelo": {
      "min": 174,
      "max": 174,
@@ -2716,21 +3218,33 @@
      "max": 0.105,
      "amp": 0.105
     },
+    "assimetriaJoelho": {
+     "min": 0.188,
+     "max": 53.259,
+     "amp": 53.071
+    },
+    "movimentoGraus": 51.7,
     "ombroY": {
      "min": 1.4,
      "max": 1.419,
      "amp": 0.018
     },
     "derivaXZ": 1.326,
+    "deslocamentoXZ": 0.34,
     "saltoMax": 0.194,
+    "saltoMediana": 0.047,
+    "saltoRazao": 4.2,
+    "saltoDescontinuo": true,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
    },
    "assinatura": [],
    "falhasAssinatura": [],
-   "problemaHigiene": [],
-   "veredito": "ok"
+   "problemaHigiene": [
+    "salto de pose entre quadros (0.194 m, 4.2× a mediana)"
+   ],
+   "veredito": "higiene"
   },
   {
    "id": "salto",
@@ -2752,6 +3266,11 @@
      "min": 125.781,
      "max": 167.077,
      "amp": 41.296
+    },
+    "joelhoDobrado": {
+     "min": 125.769,
+     "max": 167.077,
+     "amp": 41.308
     },
     "cotovelo": {
      "min": 174,
@@ -2783,13 +3302,23 @@
      "max": 0.169,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0.025,
+     "amp": 0.025
+    },
+    "movimentoGraus": 162.1,
     "ombroY": {
      "min": 1.301,
      "max": 1.487,
      "amp": 0.186
     },
     "derivaXZ": 0.35,
+    "deslocamentoXZ": 0.054,
     "saltoMax": 0.275,
+    "saltoMediana": 0.071,
+    "saltoRazao": 3.9,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.003,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2825,6 +3354,11 @@
      "max": 166.79,
      "amp": 0
     },
+    "joelhoDobrado": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
     "cotovelo": {
      "min": 155,
      "max": 155,
@@ -2855,13 +3389,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 0,
     "ombroY": {
      "min": 1.326,
      "max": 1.418,
      "amp": 0.092
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.06,
+    "saltoMediana": 0.023,
+    "saltoRazao": 2.7,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.001,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2891,6 +3435,11 @@
      "min": 155.661,
      "max": 167.712,
      "amp": 12.05
+    },
+    "joelhoDobrado": {
+     "min": 142.721,
+     "max": 166.822,
+     "amp": 24.101
     },
     "cotovelo": {
      "min": 170,
@@ -2922,13 +3471,23 @@
      "max": 0.309,
      "amp": 0.011
     },
+    "assimetriaJoelho": {
+     "min": 1.779,
+     "max": 25.88,
+     "amp": 24.101
+    },
+    "movimentoGraus": 39.9,
     "ombroY": {
      "min": 1.305,
      "max": 1.418,
      "amp": 0.113
     },
     "derivaXZ": 0.286,
+    "deslocamentoXZ": 0.054,
     "saltoMax": 0.027,
+    "saltoMediana": 0.005,
+    "saltoRazao": 5.1,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0,
     "escalaMax": 0,
     "quadrosNaN": 0
@@ -2955,6 +3514,11 @@
      "amp": 0
     },
     "joelho": {
+     "min": 166.79,
+     "max": 166.79,
+     "amp": 0
+    },
+    "joelhoDobrado": {
      "min": 166.79,
      "max": 166.79,
      "amp": 0
@@ -2989,13 +3553,23 @@
      "max": 0,
      "amp": 0
     },
+    "assimetriaJoelho": {
+     "min": 0,
+     "max": 0,
+     "amp": 0
+    },
+    "movimentoGraus": 75.9,
     "ombroY": {
      "min": 1.406,
      "max": 1.418,
      "amp": 0.012
     },
     "derivaXZ": 0,
+    "deslocamentoXZ": 0,
     "saltoMax": 0.132,
+    "saltoMediana": 0,
+    "saltoRazao": 0,
+    "saltoDescontinuo": false,
     "descontinuidadeLaco": 0.006,
     "escalaMax": 0,
     "quadrosNaN": 0

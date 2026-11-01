@@ -430,13 +430,28 @@ await ok("continuidade: nenhum teletransporte de osso entre quadros", async () =
 });
 
 await ok("laço: o último quadro fecha com o primeiro", async () => {
+  /*
+    Conferido nas PRÓPRIAS chaves do clipe, não no quadril: foi assim que o
+    mountain climber passou com 0,475 m de salto na perna (o quadril fica parado
+    e escondia a emenda). O app repete a animação, então o salto aparece.
+  */
   for (const chave of Object.keys(CLIPES)) {
-    const { quadros, autoral } = CLIPES[chave];
-    if (autoral.nome === "prancha") continue; /* prancha é estática, o laço é trivial */
-    const primeiro = quadros[0];
-    const ultimo = quadros[quadros.length - 1];
-    const passo = primeiro.P.hips.distanceTo(ultimo.P.hips);
-    assert.ok(passo < 0.12, `${chave}: emenda com salto de ${passo.toFixed(3)} m`);
+    const { arquivo } = CLIPES[chave];
+    const gltf = await carregarGLB(arquivo);
+    const clipe = gltf.animations[0];
+    assert.ok(clipe, `${chave}: clipe vazio`);
+    for (const trilha of clipe.tracks) {
+      const largura = trilha.getValueSize();
+      const ultimo = (trilha.times.length - 1) * largura;
+      let salto = 0;
+      for (let k = 0; k < largura; k += 1) {
+        salto = Math.max(salto, Math.abs(trilha.values[ultimo + k] - trilha.values[k]));
+      }
+      assert.ok(salto < 1e-4, `${chave}: ${trilha.name} emenda com salto de ${salto.toFixed(4)}`);
+    }
+    /* a última chave tem de estar na duração declarada (sem quadro perdido) */
+    assert.ok(Math.abs(clipe.duration * 24 - Math.round(clipe.duration * 24)) < 1e-6,
+      `${chave}: duração ${clipe.duration} não é múltiplo de 1/24 s`);
   }
 });
 
