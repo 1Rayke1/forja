@@ -176,10 +176,15 @@ export function medir(clipe, cena, ossos, amostras = 48) {
     const pos = nome => ossos.get(nome).getWorldPosition(new THREE.Vector3());
     const P = {};
     for (const nome of ossos.keys()) P[nome] = pos(nome);
+    const joelhoL = graus(P.hips, P.kneeL, P.footL);
+    const joelhoR = graus(P.hips, P.kneeR, P.footR);
     quadros.push({
       t,
       P,
-      joelho: (graus(P.hips, P.kneeL, P.footL) + graus(P.hips, P.kneeR, P.footR)) / 2,
+      joelhoL,
+      joelhoR,
+      assimetriaJoelho: Math.abs(joelhoL - joelhoR),
+      joelho: (joelhoL + joelhoR) / 2,
       cotovelo: (graus(P.armL, P.elbowL, P.handL) + graus(P.armR, P.elbowR, P.handR)) / 2,
       quadrilFlex: (graus(P.spine, P.legL, P.kneeL) + graus(P.spine, P.legR, P.kneeR)) / 2,
       ombroAbd: (graus(P.spine, P.armL, P.elbowL) + graus(P.spine, P.armR, P.elbowR)) / 2,
@@ -257,6 +262,8 @@ export function medir(clipe, cena, ossos, amostras = 48) {
     punhoY: faixa("punhoY"),
     peMin: faixa("peMin"),
     aberturaPes: faixa("aberturaPes"),
+    assimetriaJoelho: faixa("assimetriaJoelho"),
+    movimentoGraus: +(faixa("joelho").amp + faixa("cotovelo").amp + faixa("ombroAbd").amp).toFixed(1),
     ombroY: faixa("ombroY"),
     derivaXZ: +deriva.toFixed(3),
     saltoMax: +salto.toFixed(3),

@@ -80,34 +80,13 @@ const MODO = opcoes.modo || "direcao";
 /* Mapa de ossos — origem → destino                                    */
 /* ------------------------------------------------------------------ */
 
-const MAPA = {
-  hips: ["Hips", "mixamorig:Hips", "pelvis", "root"],
-  spine: ["Spine2", "Spine1", "Spine", "mixamorig:Spine1", "mixamorig:Spine", "spine_03", "spine_02"],
-  neck: ["Neck", "mixamorig:Neck", "neck_01", "Head", "mixamorig:Head", "head"],
-  armL: ["LeftArm", "mixamorig:LeftArm", "upperarm_l", "LeftShoulder"],
-  elbowL: ["LeftForeArm", "mixamorig:LeftForeArm", "lowerarm_l"],
-  handL: ["LeftHand", "mixamorig:LeftHand", "hand_l"],
-  armR: ["RightArm", "mixamorig:RightArm", "upperarm_r", "RightShoulder"],
-  elbowR: ["RightForeArm", "mixamorig:RightForeArm", "lowerarm_r"],
-  handR: ["RightHand", "mixamorig:RightHand", "hand_r"],
-  legL: ["LeftThigh", "LeftUpLeg", "mixamorig:LeftUpLeg", "thigh_l"],
-  kneeL: ["LeftShin", "LeftLeg", "mixamorig:LeftLeg", "calf_l"],
-  footL: ["LeftFoot", "mixamorig:LeftFoot", "foot_l"],
-  legR: ["RightThigh", "RightUpLeg", "mixamorig:RightUpLeg", "thigh_r"],
-  kneeR: ["RightShin", "RightLeg", "mixamorig:RightLeg", "calf_r"],
-  footR: ["RightFoot", "mixamorig:RightFoot", "foot_r"]
-};
-
-/* Ordem de hierarquia do rig do FORJA (pai antes de filho). */
-const HIERARQUIA = [
-  ["hips", null],
-  ["spine", "hips"],
-  ["neck", "spine"],
-  ["armL", "spine"], ["elbowL", "armL"], ["handL", "elbowL"],
-  ["armR", "spine"], ["elbowR", "armR"], ["handR", "elbowR"],
-  ["legL", "hips"], ["kneeL", "legL"], ["footL", "kneeL"],
-  ["legR", "hips"], ["kneeR", "legR"], ["footR", "kneeR"]
-];
+/*
+  O mapa vive em `tools/lib/mapeamento-ossos.mjs` para ser testado isolado
+  (tests/mapeamento3d.test.mjs) e casar os três vocabulários de rig em uso:
+  Rokoko, Mixamo (com e sem dois-pontos) e iClone/UE5.
+*/
+const { HIERARQUIA_FORJA: HIERARQUIA, mapearOssos } =
+  await import(path.join(raiz, "tools/lib/mapeamento-ossos.mjs"));
 
 /* ------------------------------------------------------------------ */
 /* Carregamento                                                        */
@@ -182,13 +161,11 @@ async function transferir() {
   /* ossos da origem por nome, e o primeiro candidato que existe */
   const ossosOrigem = new Map();
   origem.cena.traverse(objeto => { if (objeto.isBone) ossosOrigem.set(objeto.name, objeto); });
-  const mapa = {};
-  for (const [destino, candidatos] of Object.entries(MAPA)) {
-    const achado = candidatos.find(nome => ossosOrigem.has(nome));
-    if (achado) mapa[destino] = achado;
+  const { mapa, faltando, passadas } = mapearOssos(ossosOrigem.keys());
+  if (faltando.length) {
+    throw new Error("mapeamento incompleto, faltam: " + faltando.join(", ") +
+      " (a origem tem " + ossosOrigem.size + " ossos; veja tools/lib/mapeamento-ossos.mjs)");
   }
-  const faltando = HIERARQUIA.map(([nome]) => nome).filter(nome => !mapa[nome]);
-  if (faltando.length) throw new Error("mapeamento incompleto, faltam: " + faltando.join(", "));
 
   /*
     Repouso de mundo das duas pontas. Importante: isto é lido ANTES de o mixer
@@ -226,6 +203,32 @@ async function transferir() {
   const restQuatOrigemPorNome = {};
   for (const [nome, nomeOrigem] of Object.entries(mapa)) {
     restQuatOrigemPorNome[nome] = ossosOrigem.get(nomeOrigem).getWorldQuaternion(new THREE.Quaternion());
+  }
+
+  /*
+    Correção de repouso por osso, calculada UMA vez: leva o eixo do osso de
+    repouso do destino para o eixo do osso de repouso da origem (nas molduras
+    dos respectivos pais). Com ela constante, o balanço por quadro é sempre
+    pequeno — era o `setFromUnitVectors` do repouso do destino direto na pose da
+    origem que estourava (eixo indefinido perto de 180°) e produzia o salto de
+    0,8 m entre dois quadros.
+  */
+  const Y = new THREE.Vector3(0, 1, 0);
+  const correcaoRepouso = {};
+  const restLocalSrc = {};
+  for (const [nome, pai] of HIERARQUIA) {
+    const localSrcRest = pai
+      ? restQuatOrigemPorNome[pai].clone().invert().multiply(restQuatOrigemPorNome[nome])
+      : restQuatOrigemPorNome[nome].clone();
+    restLocalSrc[nome] = localSrcRest;
+    if (!pai) {
+      correcaoRepouso[nome] = new THREE.Quaternion();
+      continue;
+    }
+    const localTgtRest = restQuatDestino[pai].clone().invert().multiply(restQuatDestino[nome]);
+    const dRestSrc = Y.clone().applyQuaternion(localSrcRest).normalize();
+    const dRestTgt = Y.clone().applyQuaternion(localTgtRest).normalize();
+    correcaoRepouso[nome] = new THREE.Quaternion().setFromUnitVectors(dRestTgt, dRestSrc);
   }
 
   const G = guinada(ossosOrigem, mapa, restOrigem, restDestino);
@@ -278,26 +281,23 @@ async function transferir() {
         const localSrcPose = qPaiSrcPose.clone().invert().multiply(qPose);
         const localTgtRest = restQuatDestino[pai].clone().invert().multiply(restQuatDestino[nome]);
 
-        const direcaoSrc = Y.clone().applyQuaternion(localSrcPose).normalize();
-        const direcaoRestTgt = Y.clone().applyQuaternion(localTgtRest).normalize();
-        const alinhamento = new THREE.Quaternion().setFromUnitVectors(direcaoRestTgt, direcaoSrc);
+        const dRestSrc = Y.clone().applyQuaternion(restLocalSrc[nome]).normalize();
+        const dSrcPose = Y.clone().applyQuaternion(localSrcPose).normalize();
 
-        /*
-          Torção: alinhar só a direção deixa o antebraço dobrando no plano errado
-          (o cotovelo "abre para o lado"). Aqui a torção que a origem aplica em
-          torno do próprio eixo é extraída e reaplicada no osso do destino.
-        */
-        const localSrcRest = restQuatOrigemPorNome[pai].clone().invert()
-          .multiply(restQuatOrigemPorNome[nome]);
-        const direcaoRestSrc = Y.clone().applyQuaternion(localSrcRest).normalize();
-        const deltaSrc = localSrcPose.clone().multiply(localSrcRest.clone().invert());
-        const balanco = new THREE.Quaternion().setFromUnitVectors(direcaoRestSrc, direcaoSrc);
-        const torcao = balanco.clone().invert().multiply(deltaSrc);
-        const anguloTorcao = 2 * Math.acos(Math.min(1, Math.abs(torcao.w)));
-        const sinalTorcao = torcao.w >= 0 ? 1 : -1;
-        const qTorcao = new THREE.Quaternion().setFromAxisAngle(direcaoSrc, anguloTorcao * sinalTorcao);
+        /* balanço relativo ao repouso da origem: pequeno e contínuo */
+        const balanco = new THREE.Quaternion().setFromUnitVectors(dRestSrc, dSrcPose);
 
-        const localTgtPose = qTorcao.clone().multiply(alinhamento).multiply(localTgtRest);
+        /* torção em torno do próprio eixo, extraída do delta de origem */
+        const deltaSrc = localSrcPose.clone().multiply(restLocalSrc[nome].clone().invert());
+        const torcaoResidual = balanco.clone().invert().multiply(deltaSrc);
+        const anguloTorcao = 2 * Math.acos(Math.min(1, Math.abs(torcaoResidual.w)));
+        const sinalTorcao = torcaoResidual.w >= 0 ? 1 : -1;
+        const qTorcao = new THREE.Quaternion().setFromAxisAngle(dSrcPose, anguloTorcao * sinalTorcao);
+
+        const localTgtPose = qTorcao.clone()
+          .multiply(balanco)
+          .multiply(correcaoRepouso[nome])
+          .multiply(localTgtRest);
 
         quats[nome] = quats[pai].clone().multiply(localTgtPose);
       }
@@ -367,6 +367,7 @@ async function transferir() {
     fps: FPS,
     totalAmostras: total,
     mapeados: Object.keys(mapa).length,
+    passadasDoMapa: passadas,
     tempos,
     trilhas,
     ossosDestino: Object.fromEntries(
@@ -384,120 +385,13 @@ async function transferir() {
 /* Escritor GLB (só hierarquia de ossos + animação)                    */
 /* ------------------------------------------------------------------ */
 
-function escreverGLB(dados, destino) {
-  const nomes = Object.keys(dados.ossosDestino);
-  const ordem = [];
-  const visitar = nome => {
-    ordem.push(nome);
-    for (const outro of nomes) {
-      if (dados.ossosDestino[outro].pai === nome) visitar(outro);
-    }
-  };
-  visitar("hips");
-  for (const nome of nomes) if (!ordem.includes(nome)) ordem.push(nome);
-
-  const raizIdx = ordem.length;
-  const indice = new Map(ordem.map((nome, i) => [nome, i]));
-
-  const nodes = ordem.map((nome, i) => {
-    const info = dados.ossosDestino[nome];
-    const filhos = ordem.filter(outro => dados.ossosDestino[outro].pai === nome).map(outro => indice.get(outro));
-    const node = {
-      name: nome,
-      translation: i === indice.get("hips") ? [0, 0, 0] : info.posicao,
-      rotation: info.rotacao,
-      scale: info.escala
-    };
-    if (filhos.length) node.children = filhos;
-    return node;
-  });
-  nodes.push({ name: "rig", children: [indice.get("hips")] });
-
-  /* animação */
-  const bufferPartes = [];
-  let offset = 0;
-  const views = [];
-  const accessors = [];
-  const adicionar = (array, tipo, componentes) => {
-    const dadosBin = new Float32Array(array);
-    const bytes = Buffer.from(dadosBin.buffer, dadosBin.byteOffset, dadosBin.byteLength);
-    const pad = (4 - (bytes.length % 4)) % 4;
-    views.push({ buffer: 0, byteOffset: offset, byteLength: bytes.length });
-    bufferPartes.push(Buffer.concat([bytes, Buffer.alloc(pad)]));
-    offset += bytes.length + pad;
-    accessors.push({
-      bufferView: views.length - 1,
-      componentType: 5126,
-      count: array.length / componentes,
-      type: tipo,
-      min: tipo === "VEC3" ? [
-        Math.min(...array.filter((_, i) => i % 3 === 0)),
-        Math.min(...array.filter((_, i) => i % 3 === 1)),
-        Math.min(...array.filter((_, i) => i % 3 === 2))
-      ] : undefined,
-      max: tipo === "VEC3" ? [
-        Math.max(...array.filter((_, i) => i % 3 === 0)),
-        Math.max(...array.filter((_, i) => i % 3 === 1)),
-        Math.max(...array.filter((_, i) => i % 3 === 2))
-      ] : undefined
-    });
-    return accessors.length - 1;
-  };
-
-  const tempoAcessor = adicionar(dados.tempos, "SCALAR", 1);
-  const canais = [];
-  const samplers = [];
-  for (const trilha of dados.trilhas) {
-    const node = indice.get(trilha.osso);
-    if (node === undefined) continue;
-    const tipo = trilha.caminho === "rotation" ? "VEC4" : "VEC3";
-    const acessor = adicionar(trilha.valores, tipo, trilha.componentes);
-    samplers.push({ input: tempoAcessor, output: acessor, interpolation: "LINEAR" });
-    canais.push({ sampler: samplers.length - 1, target: { node, path: trilha.caminho } });
-  }
-
-  const gltf = {
-    asset: { version: "2.0", generator: "FORJA retransferir-mocap" },
-    scene: 0,
-    scenes: [{ nodes: [raizIdx] }],
-    nodes,
-    animations: [{
-      name: dados.clipe,
-      channels: canais,
-      samplers
-    }],
-    buffers: [{ byteLength: offset }],
-    bufferViews: views,
-    accessors
-  };
-
-  const bin = Buffer.concat(bufferPartes);
-  let json = Buffer.from(JSON.stringify(gltf), "utf8");
-  const padJson = (4 - (json.length % 4)) % 4;
-  if (padJson) json = Buffer.concat([json, Buffer.from(" ".repeat(padJson))]);
-  const total = 12 + 8 + json.length + 8 + bin.length;
-  const cabecalho = Buffer.alloc(12);
-  cabecalho.write("glTF", 0, "ascii");
-  cabecalho.writeUInt32LE(2, 4);
-  cabecalho.writeUInt32LE(total, 8);
-  const jsonCabecalho = Buffer.alloc(8);
-  jsonCabecalho.writeUInt32LE(json.length, 0);
-  jsonCabecalho.writeUInt32LE(0x4e4f534a, 4);
-  const binCabecalho = Buffer.alloc(8);
-  binCabecalho.writeUInt32LE(bin.length, 0);
-  binCabecalho.writeUInt32LE(0x004e4942, 4);
-
-  fs.mkdirSync(path.dirname(path.resolve(destino)), { recursive: true });
-  fs.writeFileSync(destino, Buffer.concat([cabecalho, jsonCabecalho, json, binCabecalho, bin]));
-  return total;
-}
-
+import { escreverClipeGLB } from "./lib/clipe-3d.mjs";
 /* ------------------------------------------------------------------ */
 /* Execução                                                            */
 /* ------------------------------------------------------------------ */
 
 const dados = await transferir();
-const bytes = escreverGLB(dados, opcoes.saida);
+const bytes = escreverClipeGLB(dados, opcoes.saida);
 console.log("[retransferir]", JSON.stringify({
   clipe: dados.clipe,
   origem: dados.origem,
