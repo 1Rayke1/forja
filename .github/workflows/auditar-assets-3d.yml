@@ -22,6 +22,7 @@ on:
       - ".github/workflows/auditar-assets-3d.yml"
       - "tools/auditar-assets-3d-releases.sh"
       - "tools/inspecionar-3d-blender.py"
+      - "tools/resumir-inventario-3d.py"
   workflow_dispatch:
 
 permissions:
@@ -164,35 +165,10 @@ jobs:
             echo ""
             echo "### Pacote de mocap — esqueleto e animações"
             echo ""
-            echo '```'
-            python3 - <<'PY'
-import json
-data = json.load(open("docs/assets-3d/inventario-mocap.json"))
-for item in data:
-    if item.get("erro"):
-        print(f'{item["arquivo"]}: ERRO {item["erro"]}')
-        continue
-    arms = item.get("armaduras", [])
-    meshes = item.get("malhas", [])
-    print(f'{item["arquivo"]}: fps={item.get("fps")} armaduras={[(a["nome"], a["ossos"], a["ossos_raiz"]) for a in arms]}')
-    print(f'    malhas={[(m["nome"], m["vertices"], m["poligonos"], m["armature_modifier"]) for m in meshes]}')
-    print(f'    acoes={[(a["nome"], a["quadro_inicial"], a["quadro_final"], a["curvas"]) for a in item.get("acoes", [])]}')
-PY
-            echo '```'
-            echo ""
+            python3 tools/resumir-inventario-3d.py docs/assets-3d/inventario-mocap.json
             echo "### DeskBreak — modelos 3D"
             echo ""
-            echo '```'
-            python3 - <<'PY'
-import json
-data = json.load(open("docs/assets-3d/inventario-deskbreak.json"))
-if isinstance(data, dict):
-    print("nenhum modelo 3D no app")
-else:
-    for item in data:
-        print(f'{item["arquivo"]}: erro={item.get("erro")} armaduras={len(item.get("armaduras", []))} malhas={len(item.get("malhas", []))} acoes={len(item.get("acoes", []))}')
-PY
-            echo '```'
+            python3 tools/resumir-inventario-3d.py docs/assets-3d/inventario-deskbreak.json
           } >> docs/assets-3d/auditoria-releases.md
 
       - name: Publicar o relatório no branch
