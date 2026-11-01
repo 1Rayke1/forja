@@ -1,6 +1,6 @@
 # Auditoria dos anexos 3D das releases
 
-Gerado por `tools/auditar-assets-3d-releases.sh` em 2026-11-01 02:46 UTC.
+Gerado por `tools/auditar-assets-3d-releases.sh` em 2026-11-01 02:48 UTC.
 Diretório auditado: `assets-3d`. Nenhum arquivo foi alterado.
 
 | Arquivo | Tamanho | Formato real (cabeçalho) | SHA-256 |
