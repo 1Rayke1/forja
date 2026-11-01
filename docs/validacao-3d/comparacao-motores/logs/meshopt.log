@@ -1,5 +1,5 @@
 === AUDITORIA BINÁRIA E TESTE REAL DE MESHOPT ===
-Data UTC: 2026-11-01T19:03:51.760Z
+Data UTC: 2026-11-01T19:24:26.925Z
 Ferramentas Meshopt carregadas: SIM (/tmp/meshopt-tools)
 
 --- Arquivo: DOC-20261031-WA0008.bin ---
@@ -12,7 +12,7 @@ extensionsUsed: KHR_mesh_quantization, EXT_meshopt_compression
 extensionsRequired: KHR_mesh_quantization, EXT_meshopt_compression
 Contagens GLB: malhas=1, skins=1, materiais=1, imagens=3, animações=0, bufferViewsMeshopt=7
 Teste GLTFLoader atual do app (sem setMeshoptDecoder): sucesso=false | erro="THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files"
-Decodificação Meshopt concluída em 1226 ms: 19.52 MiB (20465552 B) → 62.27 MiB (65294796 B) (KTX2→PNG=0)
+Decodificação Meshopt concluída em 1597 ms: 19.52 MiB (20465552 B) → 62.27 MiB (65294796 B) (KTX2→PNG=0)
 
 --- Arquivo: DOC-20261031-WA0009.bin ---
 Bytes: 19.69 MiB (20650336 B)
@@ -24,4 +24,4 @@ extensionsUsed: KHR_mesh_quantization, EXT_meshopt_compression
 extensionsRequired: KHR_mesh_quantization, EXT_meshopt_compression
 Contagens GLB: malhas=1, skins=1, materiais=1, imagens=3, animações=0, bufferViewsMeshopt=7
 Teste GLTFLoader atual do app (sem setMeshoptDecoder): sucesso=false | erro="THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files"
-Decodificação Meshopt concluída em 1219 ms: 19.69 MiB (20650336 B) → 62.19 MiB (65208348 B) (KTX2→PNG=0)
+Decodificação Meshopt concluída em 1553 ms: 19.69 MiB (20650336 B) → 62.19 MiB (65208348 B) (KTX2→PNG=0)

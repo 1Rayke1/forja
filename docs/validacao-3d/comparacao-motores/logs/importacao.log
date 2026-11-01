@@ -1,48 +1,48 @@
 === AUDITORIA DE IMPORTAÇÃO NO BLENDER 4.2.1 LTS ===
-Motores disponíveis: BLENDER_EEVEE_NEXT
+Motores disponíveis: BLENDER_EEVEE_NEXT, CYCLES
 io_scene_gltf2: [4, 2, 60]
 
 --- Modelo original: DOC-20261031-WA0008.bin (SHA-256: ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1) ---
-[1] Importação direta (.bin): sucesso=False tempo=0.065s erro=RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version
+[1] Importação direta (.bin): sucesso=False tempo=0.0867s erro=RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version
 
 Error: Extension EXT_meshopt_compression is not available on this addon version
-[2] Importação direta (.glb intacto, sem decodificar Meshopt): sucesso=False tempo=0.0043s erro=RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version
+[2] Importação direta (.glb intacto, sem decodificar Meshopt): sucesso=False tempo=0.005s erro=RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version
 
 Error: Extension EXT_meshopt_compression is not available on this addon version
-[4] Candidato para render (glb_meshopt_decodificado: DOC-20261031-WA0008.sem-meshopt.glb): sucesso=True malhas=2 vertices=1014180 erro=None
-19:03:55 | INFO: Data are loaded, start creating Blender stuff
-19:03:55 | INFO: Data are loaded, start creating Blender stuff
-19:03:55 | INFO: Data are loaded, start creating Blender stuff
-19:03:55 | INFO: Blender create Mesh node 0
-19:03:55 | INFO: Blender create Mesh node 0
-19:03:55 | INFO: Blender create Mesh node 0
-19:03:59 | INFO: glTF import finished in 4.35s
-19:03:59 | INFO: glTF import finished in 4.35s
-19:03:59 | INFO: glTF import finished in 4.35s
+[4] Candidato para render (glb_meshopt_decodificado: DOC-20261031-WA0008.sem-meshopt.glb): sucesso=True malhas=1 vertices=1014138 erro=None
+19:24:30 | INFO: Data are loaded, start creating Blender stuff
+19:24:30 | INFO: Data are loaded, start creating Blender stuff
+19:24:30 | INFO: Data are loaded, start creating Blender stuff
+19:24:30 | INFO: Blender create Mesh node 0
+19:24:30 | INFO: Blender create Mesh node 0
+19:24:30 | INFO: Blender create Mesh node 0
+19:24:36 | INFO: glTF import finished in 5.61s
+19:24:36 | INFO: glTF import finished in 5.61s
+19:24:36 | INFO: glTF import finished in 5.61s
 
 --- Modelo original: DOC-20261031-WA0009.bin (SHA-256: 7f294533acd9a278cf53332170ffcdb4bbed26aacbee66a7d9b5ea3d67966077) ---
-[1] Importação direta (.bin): sucesso=False tempo=0.0054s erro=RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version
+[1] Importação direta (.bin): sucesso=False tempo=0.0067s erro=RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version
 
 Error: Extension EXT_meshopt_compression is not available on this addon version
-[2] Importação direta (.glb intacto, sem decodificar Meshopt): sucesso=False tempo=0.0047s erro=RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version
+[2] Importação direta (.glb intacto, sem decodificar Meshopt): sucesso=False tempo=0.0067s erro=RuntimeError: Error: Extension EXT_meshopt_compression is not available on this addon version
 
 Error: Extension EXT_meshopt_compression is not available on this addon version
-[4] Candidato para render (glb_meshopt_decodificado: DOC-20261031-WA0009.sem-meshopt.glb): sucesso=True malhas=2 vertices=1014882 erro=None
-19:04:00 | INFO: Data are loaded, start creating Blender stuff
-19:04:00 | INFO: Data are loaded, start creating Blender stuff
-19:04:00 | INFO: Data are loaded, start creating Blender stuff
-19:04:00 | INFO: Data are loaded, start creating Blender stuff
-19:04:00 | INFO: Data are loaded, start creating Blender stuff
-19:04:00 | INFO: Blender create Mesh node 0
-19:04:00 | INFO: Blender create Mesh node 0
-19:04:00 | INFO: Blender create Mesh node 0
-19:04:00 | INFO: Blender create Mesh node 0
-19:04:00 | INFO: Blender create Mesh node 0
-19:04:04 | INFO: glTF import finished in 4.40s
-19:04:04 | INFO: glTF import finished in 4.40s
-19:04:04 | INFO: glTF import finished in 4.40s
-19:04:04 | INFO: glTF import finished in 4.40s
-19:04:04 | INFO: glTF import finished in 4.40s
+[4] Candidato para render (glb_meshopt_decodificado: DOC-20261031-WA0009.sem-meshopt.glb): sucesso=True malhas=1 vertices=1014840 erro=None
+19:24:38 | INFO: Data are loaded, start creating Blender stuff
+19:24:38 | INFO: Data are loaded, start creating Blender stuff
+19:24:38 | INFO: Data are loaded, start creating Blender stuff
+19:24:38 | INFO: Data are loaded, start creating Blender stuff
+19:24:38 | INFO: Data are loaded, start creating Blender stuff
+19:24:38 | INFO: Blender create Mesh node 0
+19:24:38 | INFO: Blender create Mesh node 0
+19:24:38 | INFO: Blender create Mesh node 0
+19:24:38 | INFO: Blender create Mesh node 0
+19:24:38 | INFO: Blender create Mesh node 0
+19:24:43 | INFO: glTF import finished in 5.51s
+19:24:43 | INFO: glTF import finished in 5.51s
+19:24:43 | INFO: glTF import finished in 5.51s
+19:24:43 | INFO: glTF import finished in 5.51s
+19:24:43 | INFO: glTF import finished in 5.51s
 
-[classificacao] DOC-20261031-WA0008.bin → masculino (razão geométrica cintura/quadril do tronco (0.5962 vs 0.5555))
-[classificacao] DOC-20261031-WA0009.bin → feminino (razão geométrica cintura/quadril do tronco (0.5962 vs 0.5555))
+[classificacao] DOC-20261031-WA0008.bin → masculino (razão articular ombro/quadril do esqueleto (1.7428 vs 1.2774))
+[classificacao] DOC-20261031-WA0009.bin → feminino (razão articular ombro/quadril do esqueleto (1.7428 vs 1.2774))

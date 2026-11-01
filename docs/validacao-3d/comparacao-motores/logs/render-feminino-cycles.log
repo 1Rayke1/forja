@@ -1,8 +1,8 @@
-$ /opt/blender-4.2.1/blender --background --factory-startup --python /home/runner/work/forja/forja/tools/blender/comparar-motores-3d.py -- --modo renderizar --personagem feminino --modelo /tmp/comparacao-3d/preparados/DOC-20261031-WA0009.sem-meshopt.glb --motor CYCLES --saida-png /home/runner/work/forja/forja/docs/validacao-3d/comparacao-motores/feminino-cycles.png --saida-json /home/runner/work/forja/forja/docs/validacao-3d/comparacao-motores/.metrica-feminino-cycles.json --largura 720 --altura 960 --amostras 64 --sinal-frente 1.0
-exit_code=0 wall_s=45.7419
+$ xvfb-run -a -s -screen 0 1920x1080x24 +iglx /opt/blender-4.2.1/blender --background --factory-startup --python /home/runner/work/forja/forja/tools/blender/comparar-motores-3d.py -- --modo renderizar --personagem feminino --modelo /tmp/comparacao-3d/preparados/DOC-20261031-WA0009.sem-meshopt.glb --motor CYCLES --saida-png /home/runner/work/forja/forja/docs/validacao-3d/comparacao-motores/feminino-cycles.png --saida-json /home/runner/work/forja/forja/docs/validacao-3d/comparacao-motores/.metrica-feminino-cycles.json --largura 720 --altura 960 --amostras 64 --frente-x 1.0 --frente-y 0.0
+exit_code=0 wall_s=141.7719
 
 === STDOUT ===
-[render-motor] {"personagem": "feminino", "motor": "CYCLES", "sucesso": true, "tempos_s": {"importacao": 4.5186, "preparacao_cena": 0.5094, "render_frio": 20.2016, "render_quente": 20.1424, "cpu_frio_total": 78.1328, "cpu_frio_user": 77.6537, "cpu_frio_sys": 0.4791, "cpu_quente_total": 78.2159, "processo_total": 45.4066}, "memoria_mb": {"rss_inicio": 245.32, "rss_pos_importacao": 638.98, "rss_pos_render_frio": 710.66, "pico_rss_hwm_pos_frio": 1624.95, "pico_rss_hwm_processo": 1624.95, "pico_virtual_vmpeak": 3584.29, "pico_interno_blender": null}, "erro": null}
+[render-motor] {"personagem": "feminino", "motor": "CYCLES", "sucesso": true, "tempos_s": {"importacao": 5.7405, "preparacao_cena": 1.0254, "render_frio": 67.2802, "render_quente": 67.201, "cpu_frio_total": 265.6098, "cpu_frio_user": 265.0764, "cpu_frio_sys": 0.5334, "cpu_quente_total": 265.7145, "processo_total": 141.288}, "memoria_mb": {"rss_inicio": 247.29, "rss_pos_importacao": 640.12, "rss_pos_render_frio": 708.62, "pico_rss_hwm_pos_frio": 1613.47, "pico_rss_hwm_processo": 1613.47, "pico_virtual_vmpeak": 3556.29, "pico_interno_blender": 1081.22}, "erro": null}
 
 
 === STDERR ===

@@ -1,6 +1,6 @@
 === AMBIENTE DO RUNNER ===
 OS: Ubuntu 24.04.5 LTS
-CPU: AMD EPYC 9V74 80-Core Processor (4 vCPUs)
+CPU: AMD EPYC 7763 64-Core Processor (4 vCPUs)
 RAM Total: 15984 MiB
 
 === EGLINFO (-B) ===
@@ -71,16 +71,16 @@ Extended renderer info (GLX_MESA_query_renderer):
     Max GLES1 profile version: 1.1
     Max GLES[23] profile version: 3.2
 Memory info (GL_ATI_meminfo):
-    VBO free memory - total: 1069136 MB, largest block: 1069136 MB
-    VBO free aux. memory - total: 14858 MB, largest block: 14858 MB
-    Texture free memory - total: 1069136 MB, largest block: 1069136 MB
-    Texture free aux. memory - total: 14858 MB, largest block: 14858 MB
-    Renderbuffer free memory - total: 1069136 MB, largest block: 1069136 MB
-    Renderbuffer free aux. memory - total: 14858 MB, largest block: 14858 MB
+    VBO free memory - total: 31 MB, largest block: 31 MB
+    VBO free aux. memory - total: 14835 MB, largest block: 14835 MB
+    Texture free memory - total: 31 MB, largest block: 31 MB
+    Texture free aux. memory - total: 14835 MB, largest block: 14835 MB
+    Renderbuffer free memory - total: 31 MB, largest block: 31 MB
+    Renderbuffer free aux. memory - total: 14835 MB, largest block: 14835 MB
 Memory info (GL_NVX_gpu_memory_info):
-    Dedicated video memory: 1069136 MB
-    Total available memory: 1085120 MB
-    Currently available dedicated video memory: 1069136 MB
+    Dedicated video memory: 4294428468 MB
+    Total available memory: 4294444452 MB
+    Currently available dedicated video memory: 31 MB
 OpenGL vendor string: Mesa
 OpenGL renderer string: llvmpipe (LLVM 20.1.2, 256 bits)
 OpenGL core profile version string: 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
@@ -100,9 +100,9 @@ OpenGL ES profile shading language version string: OpenGL ES GLSL ES 3.20
 === SONDA BLENDER EEVEE HEADLESS PURO (EGL) ===
 EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
 Blender 4.2.1 LTS (hash 396f546c9d82 built 2024-08-19 23:32:23)
-Fra:1 Mem:41.43M (Peak 41.43M) | Time:00:10.62 | Rendering 1 / 1 samples
+Fra:1 Mem:41.43M (Peak 41.43M) | Time:00:21.15 | Rendering 1 / 1 samples
 Saved: '/tmp/comparacao-3d/sonda_gl.png'
-Time: 00:10.68 (Saving: 00:00.05)
+Time: 00:21.23 (Saving: 00:00.07)
 
 [SONDA_GL_JSON] {"engine": "BLENDER_EEVEE_NEXT", "vendor": "Mesa", "renderer": "llvmpipe (LLVM 20.1.2, 256 bits)", "version": "4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4", "backend": "OPENGL"}
 
@@ -110,9 +110,9 @@ Blender quit
 
 === SONDA BLENDER EEVEE COM XVFB (GLX/EGL) ===
 Blender 4.2.1 LTS (hash 396f546c9d82 built 2024-08-19 23:32:23)
-Fra:1 Mem:41.43M (Peak 41.43M) | Time:00:01.63 | Rendering 1 / 1 samples
+Fra:1 Mem:41.43M (Peak 41.43M) | Time:00:01.93 | Rendering 1 / 1 samples
 Saved: '/tmp/comparacao-3d/sonda_gl.png'
-Time: 00:01.69 (Saving: 00:00.05)
+Time: 00:02.01 (Saving: 00:00.07)
 
 [SONDA_GL_JSON] {"engine": "BLENDER_EEVEE_NEXT", "vendor": "Mesa", "renderer": "llvmpipe (LLVM 20.1.2, 256 bits)", "version": "4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4", "backend": "OPENGL"}
 
