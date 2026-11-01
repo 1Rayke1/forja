@@ -51,17 +51,14 @@ jobs:
           which blender || echo "blender ausente (instalando)"
           blender --version 2>/dev/null | head -2 || true
 
-      - name: Instalar Blender
+      - name: Instalar Blender oficial (traz numpy e io_scene_fbx completo)
         run: |
-          if ! command -v blender >/dev/null; then
-            sudo apt-get install -y -qq blender >/dev/null 2>&1 || {
-              echo "apt falhou; baixando do blender.org";
-              curl -sSL -o /tmp/blender.tar.xz https://download.blender.org/release/Blender4.2/blender-4.2.1-linux-x64.tar.xz;
-              sudo tar -xf /tmp/blender.tar.xz -C /opt;
-              sudo ln -sf /opt/blender-4.2.1-linux-x64/blender /usr/local/bin/blender;
-            }
-          fi
+          set -euo pipefail
+          curl -sSL -o /tmp/blender.tar.xz https://download.blender.org/release/Blender4.2/blender-4.2.1-linux-x64.tar.xz
+          sudo tar -xf /tmp/blender.tar.xz -C /opt
+          sudo ln -sf /opt/blender-4.2.1-linux-x64/blender /usr/local/bin/blender
           blender --version | head -2
+          blender --background --factory-startup --python-expr "import numpy, sys; print('[blender] numpy', numpy.__version__)" 2>&1 | grep '\[blender\]'
 
       - name: Baixar os anexos das duas releases
         env:
@@ -98,7 +95,7 @@ jobs:
                -o -iname '*.jpg' -o -iname '*.ktx2' -o -iname '*.hdr' \) \
             -printf '%10s %p\n' | sort -rn | head -60 > /tmp/deskbreak/3d.txt || true
 
-      - name: Extrair o app.asar (se for Electron) e listar o que há dentro
+      - name: Extrair o app.asar (Electron) e guardar os metadados do modelo
         run: |
           set -euo pipefail
           ASAR="$(find /tmp/deskbreak/app -name '*.asar' | head -1 || true)"
@@ -110,7 +107,19 @@ jobs:
           else
             echo "nenhum app.asar" >> /tmp/deskbreak/3d.txt
           fi
-          cat /tmp/deskbreak/3d.txt
+          cat /tmp/deskbreak/3d.txt || true
+          mkdir -p docs/assets-3d
+          # Evidência textual: biblioteca de exercícios, licenças do app e do three.js
+          for f in library/exercises.json library/player.js vendor/README.txt package.json vendor/three/LICENSE; do
+            if [ -f "/tmp/deskbreak/asar/$f" ]; then
+              cp "/tmp/deskbreak/asar/$f" "docs/assets-3d/deskbreak-$(basename "$f")"
+            fi
+          done
+          ls -la docs/assets-3d
+          if [ -f /tmp/deskbreak/asar/library/exercises.json ]; then
+            echo "== resumo de exercises.json"
+            python3 tools/resumir-exercises-deskbreak.py /tmp/deskbreak/asar/library/exercises.json
+          fi
 
       - name: Descompactar o pacote de mocap
         run: |
