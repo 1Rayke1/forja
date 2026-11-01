@@ -1,0 +1,1228 @@
+{
+  "etapa": "prevalidacao_piloto_abdominal_masculino_cycles",
+  "blender_versao": "4.2.1 LTS",
+  "modelo_entrada": "masculino-original-decodificado.glb",
+  "clipe_entrada": "assets/3d/animacoes/abdominal-supra.glb",
+  "ossos_totais_personagem": 78,
+  "vertices_personagem": 1014138,
+  "triangulos_personagem": 1983343,
+  "malhas_auxiliares_ignoradas": [
+    "Icosphere"
+  ],
+  "retarget": {
+    "acao_nome": "ForjaPilotoAbdominalCrunch",
+    "fps": 30,
+    "quadros_ciclo": 90,
+    "duracao_ciclo_s": 3.0,
+    "guinada_graus": 90.0,
+    "frente_origem_xy": [
+      -0.0,
+      -1.0
+    ],
+    "frente_destino_xy": [
+      1.0,
+      0.0
+    ],
+    "escala_posicao_raiz": 0.56462,
+    "comprimentos_membros_m": {
+      "coxa_esq": 0.21947,
+      "perna_esq": 0.21228,
+      "coxa_dir": 0.21947,
+      "perna_dir": 0.21221,
+      "altura_sola_esq": 0.07459,
+      "altura_sola_dir": 0.07462
+    },
+    "x_tornozelo_plantado_m": 0.32376,
+    "extensao_x_personagem_q1_m": [
+      -0.4467,
+      0.4467
+    ],
+    "erro_periodo_exato_fonte_m": 0.00089,
+    "correspondencia_ossos": [
+      {
+        "origem_clipe": "hips",
+        "destino_rig_78": [
+          "Hip",
+          "Pelvis"
+        ],
+        "papel_anatomico": "Raiz corporal e pelve em decúbito dorsal sobre o colchonete",
+        "metodo": "Delta de mundo guinado + calibração fechada de contato sacral no colchonete"
+      },
+      {
+        "origem_clipe": "spine",
+        "destino_rig_78": [
+          "Waist (15%)",
+          "Spine01 (45%)",
+          "Spine02 (40%)"
+        ],
+        "papel_anatomico": "Flexão torácica progressiva do crunch abdominal (~0° → 22° → 0°)",
+        "metodo": "Distribuição vertebral contínua com soma exata = 100% da curva original"
+      },
+      {
+        "origem_clipe": "neck",
+        "destino_rig_78": [
+          "NeckTwist01 (40%)",
+          "NeckTwist02 (35%)",
+          "Head (25%)"
+        ],
+        "papel_anatomico": "Estabilização e flexão cervical neutra acompanhando o tronco (~0° → 20° → 0°)",
+        "metodo": "Distribuição cervical contínua com soma exata = 100% (+ FacialBone/Eyes solidários)"
+      },
+      {
+        "origem_clipe": "armL",
+        "destino_rig_78": [
+          "L_Clavicle (10%)",
+          "L_Upperarm",
+          "L_UpperarmTwist01",
+          "L_UpperarmTwist02"
+        ],
+        "papel_anatomico": "Braço esquerdo estendido acompanhando a elevação do tronco sem cruzar a coxa",
+        "metodo": "Direção real (armL→elbowL) transportada pelo referencial da coluna (zero torção de holonomia)"
+      },
+      {
+        "origem_clipe": "elbowL",
+        "destino_rig_78": [
+          "L_Forearm",
+          "L_ForearmTwist01",
+          "L_ForearmTwist02",
+          "L_ElbowShareBone (50%)"
+        ],
+        "papel_anatomico": "Antebraço esquerdo com leve flexão fisiológica constante (~6°)",
+        "metodo": "Direção real (elbowL→handL) transportada pelo braço + bissetriz no ShareBone"
+      },
+      {
+        "origem_clipe": "handL",
+        "destino_rig_78": [
+          "L_Hand",
+          "L_Thumb1..3",
+          "L_Index1..3",
+          "L_Mid1..3",
+          "L_Ring1..3",
+          "L_Pinky1..3"
+        ],
+        "papel_anatomico": "Punho e mão esquerda neutros com palma voltada medialmente",
+        "metodo": "Continuidade do delta do antebraço mantendo repouso anatômico dos dedos"
+      },
+      {
+        "origem_clipe": "armR",
+        "destino_rig_78": [
+          "R_Clavicle (10%)",
+          "R_Upperarm",
+          "R_UpperarmTwist01",
+          "R_UpperarmTwist02"
+        ],
+        "papel_anatomico": "Braço direito simétrico acompanhando a elevação do tronco",
+        "metodo": "Direção real (armR→elbowR) transportada pelo referencial da coluna"
+      },
+      {
+        "origem_clipe": "elbowR",
+        "destino_rig_78": [
+          "R_Forearm",
+          "R_ForearmTwist01",
+          "R_ForearmTwist02",
+          "R_ElbowShareBone (50%)"
+        ],
+        "papel_anatomico": "Antebraço direito com leve flexão fisiológica constante (~6°)",
+        "metodo": "Direção real (elbowR→handR) transportada pelo braço + bissetriz no ShareBone"
+      },
+      {
+        "origem_clipe": "handR",
+        "destino_rig_78": [
+          "R_Hand",
+          "R_Thumb1..3",
+          "R_Index1..3",
+          "R_Mid1..3",
+          "R_Ring1..3",
+          "R_Pinky1..3"
+        ],
+        "papel_anatomico": "Punho e mão direita neutros com palma voltada medialmente",
+        "metodo": "Continuidade do delta do antebraço mantendo repouso anatômico dos dedos"
+      },
+      {
+        "origem_clipe": "legL",
+        "destino_rig_78": [
+          "L_Thigh",
+          "L_ThighTwist01",
+          "L_ThighTwist02"
+        ],
+        "papel_anatomico": "Coxa esquerda flexionada (~42°–44°) mantendo joelho elevado",
+        "metodo": "Cadeia fechada sagital de 2 elos preservando ângulo de joelho (~94°) e pé fixo"
+      },
+      {
+        "origem_clipe": "kneeL",
+        "destino_rig_78": [
+          "L_Calf",
+          "L_CalfTwist01",
+          "L_CalfTwist02",
+          "L_KneeShareBone (50%)"
+        ],
+        "papel_anatomico": "Perna esquerda flexionada (~94°) conectando joelho ao pé plantado",
+        "metodo": "Direção exata joelho→tornozelo + bissetriz patelar 50% em L_KneeShareBone"
+      },
+      {
+        "origem_clipe": "footL",
+        "destino_rig_78": [
+          "L_Foot",
+          "L_ToeBase"
+        ],
+        "papel_anatomico": "Pé esquerdo plantado com sola inteira apoiada sobre o colchonete",
+        "metodo": "Orientação plantar horizontal de repouso travada sem deslizamento (drift = 0 mm)"
+      },
+      {
+        "origem_clipe": "legR",
+        "destino_rig_78": [
+          "R_Thigh",
+          "R_ThighTwist01",
+          "R_ThighTwist02"
+        ],
+        "papel_anatomico": "Coxa direita flexionada (~42°–44°) mantendo joelho elevado",
+        "metodo": "Cadeia fechada sagital de 2 elos preservando ângulo de joelho (~94°) e pé fixo"
+      },
+      {
+        "origem_clipe": "kneeR",
+        "destino_rig_78": [
+          "R_Calf",
+          "R_CalfTwist01",
+          "R_CalfTwist02",
+          "R_KneeShareBone (50%)"
+        ],
+        "papel_anatomico": "Perna direita flexionada (~94°) conectando joelho ao pé plantado",
+        "metodo": "Direção exata joelho→tornozelo + bissetriz patelar 50% em R_KneeShareBone"
+      },
+      {
+        "origem_clipe": "footR",
+        "destino_rig_78": [
+          "R_Foot",
+          "R_ToeBase"
+        ],
+        "papel_anatomico": "Pé direito plantado com sola inteira apoiada sobre o colchonete",
+        "metodo": "Orientação plantar horizontal de repouso travada sem deslizamento (drift = 0 mm)"
+      }
+    ]
+  },
+  "amostras_cinematicas_chave": [
+    {
+      "quadro": 1,
+      "tempo_s": 0.0,
+      "hip_pos": [
+        -0.00359,
+        0.00145,
+        0.09679
+      ],
+      "head_pos": [
+        -0.32251,
+        0.00129,
+        0.09198
+      ],
+      "ombro_l_pos": [
+        -0.23237,
+        0.10339,
+        0.0805
+      ],
+      "mao_l_pos": [
+        0.03535,
+        0.13153,
+        0.09384
+      ],
+      "joelho_l_pos": [
+        0.18931,
+        0.06252,
+        0.25395
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 0.056,
+      "flexao_cervical_graus": 0.0,
+      "inclinacao_cabeca_total_graus": 0.056,
+      "flexao_joelho_graus": 93.993,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.02956,
+          0.06252,
+          0.10346
+        ],
+        "p_knee_l": [
+          0.18931,
+          0.06252,
+          0.25395
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.02956,
+          -0.05611,
+          0.10346
+        ],
+        "p_knee_r": [
+          0.18934,
+          -0.05611,
+          0.25392
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    },
+    {
+      "quadro": 16,
+      "tempo_s": 0.5,
+      "hip_pos": [
+        -0.00108,
+        0.00145,
+        0.08749
+      ],
+      "head_pos": [
+        -0.31634,
+        0.00129,
+        0.11068
+      ],
+      "ombro_l_pos": [
+        -0.23005,
+        0.10344,
+        0.08576
+      ],
+      "mao_l_pos": [
+        0.03242,
+        0.13158,
+        0.14013
+      ],
+      "joelho_l_pos": [
+        0.18568,
+        0.06252,
+        0.25091
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 8.512,
+      "flexao_cervical_graus": 7.739,
+      "inclinacao_cabeca_total_graus": 16.251,
+      "flexao_joelho_graus": 95.003,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.03207,
+          0.06252,
+          0.09415
+        ],
+        "p_knee_l": [
+          0.18568,
+          0.06252,
+          0.25091
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.03207,
+          -0.05611,
+          0.09415
+        ],
+        "p_knee_r": [
+          0.18571,
+          -0.05611,
+          0.25088
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    },
+    {
+      "quadro": 23,
+      "tempo_s": 0.73333,
+      "hip_pos": [
+        -0.00108,
+        0.00145,
+        0.08635
+      ],
+      "head_pos": [
+        -0.31047,
+        0.00129,
+        0.13135
+      ],
+      "ombro_l_pos": [
+        -0.22904,
+        0.10355,
+        0.09637
+      ],
+      "mao_l_pos": [
+        0.02438,
+        0.13169,
+        0.18371
+      ],
+      "joelho_l_pos": [
+        0.18506,
+        0.06252,
+        0.25038
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 15.39,
+      "flexao_cervical_graus": 13.989,
+      "inclinacao_cabeca_total_graus": 29.379,
+      "flexao_joelho_graus": 95.009,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.03207,
+          0.06252,
+          0.09302
+        ],
+        "p_knee_l": [
+          0.18506,
+          0.06252,
+          0.25038
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.03207,
+          -0.05611,
+          0.09302
+        ],
+        "p_knee_r": [
+          0.18509,
+          -0.05611,
+          0.25035
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    },
+    {
+      "quadro": 31,
+      "tempo_s": 1.0,
+      "hip_pos": [
+        -0.00108,
+        0.00145,
+        0.08605
+      ],
+      "head_pos": [
+        -0.30371,
+        0.00129,
+        0.14837
+      ],
+      "ombro_l_pos": [
+        -0.22742,
+        0.10369,
+        0.10572
+      ],
+      "mao_l_pos": [
+        0.0156,
+        0.13183,
+        0.21882
+      ],
+      "joelho_l_pos": [
+        0.18489,
+        0.06252,
+        0.25024
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 21.114,
+      "flexao_cervical_graus": 19.193,
+      "inclinacao_cabeca_total_graus": 40.307,
+      "flexao_joelho_graus": 95.01,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.03207,
+          0.06252,
+          0.09272
+        ],
+        "p_knee_l": [
+          0.18489,
+          0.06252,
+          0.25024
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.03207,
+          -0.05611,
+          0.09272
+        ],
+        "p_knee_r": [
+          0.18493,
+          -0.05611,
+          0.2502
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    },
+    {
+      "quadro": 46,
+      "tempo_s": 1.5,
+      "hip_pos": [
+        -0.00108,
+        0.00145,
+        0.08599
+      ],
+      "head_pos": [
+        -0.30252,
+        0.00129,
+        0.15092
+      ],
+      "ombro_l_pos": [
+        -0.22711,
+        0.10372,
+        0.10714
+      ],
+      "mao_l_pos": [
+        0.01411,
+        0.13185,
+        0.22404
+      ],
+      "joelho_l_pos": [
+        0.18486,
+        0.06252,
+        0.25021
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 22.0,
+      "flexao_cervical_graus": 20.0,
+      "inclinacao_cabeca_total_graus": 42.0,
+      "flexao_joelho_graus": 95.01,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.03207,
+          0.06252,
+          0.09266
+        ],
+        "p_knee_l": [
+          0.18486,
+          0.06252,
+          0.25021
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.03207,
+          -0.05611,
+          0.09266
+        ],
+        "p_knee_r": [
+          0.1849,
+          -0.05611,
+          0.25018
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    },
+    {
+      "quadro": 61,
+      "tempo_s": 2.0,
+      "hip_pos": [
+        -0.00108,
+        0.00145,
+        0.08601
+      ],
+      "head_pos": [
+        -0.30284,
+        0.00129,
+        0.15026
+      ],
+      "ombro_l_pos": [
+        -0.22719,
+        0.10371,
+        0.10677
+      ],
+      "mao_l_pos": [
+        0.0145,
+        0.13185,
+        0.22268
+      ],
+      "joelho_l_pos": [
+        0.18487,
+        0.06252,
+        0.25022
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 21.769,
+      "flexao_cervical_graus": 19.79,
+      "inclinacao_cabeca_total_graus": 41.558,
+      "flexao_joelho_graus": 95.01,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.03207,
+          0.06252,
+          0.09268
+        ],
+        "p_knee_l": [
+          0.18487,
+          0.06252,
+          0.25022
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.03207,
+          -0.05611,
+          0.09268
+        ],
+        "p_knee_r": [
+          0.18491,
+          -0.05611,
+          0.25019
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    },
+    {
+      "quadro": 68,
+      "tempo_s": 2.23333,
+      "hip_pos": [
+        -0.00108,
+        0.00145,
+        0.08621
+      ],
+      "head_pos": [
+        -0.30761,
+        0.00129,
+        0.13916
+      ],
+      "ombro_l_pos": [
+        -0.2284,
+        0.10361,
+        0.10061
+      ],
+      "mao_l_pos": [
+        0.0206,
+        0.13174,
+        0.19987
+      ],
+      "joelho_l_pos": [
+        0.18498,
+        0.06252,
+        0.25031
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 17.98,
+      "flexao_cervical_graus": 16.343,
+      "inclinacao_cabeca_total_graus": 34.323,
+      "flexao_joelho_graus": 95.009,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.03207,
+          0.06252,
+          0.09288
+        ],
+        "p_knee_l": [
+          0.18498,
+          0.06252,
+          0.25031
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.03207,
+          -0.05611,
+          0.09288
+        ],
+        "p_knee_r": [
+          0.18501,
+          -0.05611,
+          0.25028
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    },
+    {
+      "quadro": 76,
+      "tempo_s": 2.5,
+      "hip_pos": [
+        -0.00108,
+        0.00145,
+        0.08664
+      ],
+      "head_pos": [
+        -0.3149,
+        0.00129,
+        0.11623
+      ],
+      "ombro_l_pos": [
+        -0.22987,
+        0.10346,
+        0.08831
+      ],
+      "mao_l_pos": [
+        0.03042,
+        0.1316,
+        0.15234
+      ],
+      "joelho_l_pos": [
+        0.18522,
+        0.06252,
+        0.25052
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 10.499,
+      "flexao_cervical_graus": 9.544,
+      "inclinacao_cabeca_total_graus": 20.043,
+      "flexao_joelho_graus": 95.008,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.03207,
+          0.06252,
+          0.09331
+        ],
+        "p_knee_l": [
+          0.18522,
+          0.06252,
+          0.25052
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.03207,
+          -0.05611,
+          0.09331
+        ],
+        "p_knee_r": [
+          0.18525,
+          -0.05611,
+          0.25048
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    },
+    {
+      "quadro": 90,
+      "tempo_s": 2.96667,
+      "hip_pos": [
+        -0.00333,
+        0.00145,
+        0.09657
+      ],
+      "head_pos": [
+        -0.3222,
+        0.00129,
+        0.0926
+      ],
+      "ombro_l_pos": [
+        -0.23214,
+        0.10339,
+        0.08071
+      ],
+      "mao_l_pos": [
+        0.03552,
+        0.13153,
+        0.09524
+      ],
+      "joelho_l_pos": [
+        0.18934,
+        0.06252,
+        0.25397
+      ],
+      "pe_l_pos": [
+        0.32376,
+        0.06252,
+        0.08968
+      ],
+      "pe_r_pos": [
+        0.32376,
+        -0.05611,
+        0.08971
+      ],
+      "flexao_toracica_graus": 0.25,
+      "flexao_cervical_graus": 0.234,
+      "inclinacao_cabeca_total_graus": 0.484,
+      "flexao_joelho_graus": 94.089,
+      "alvos_perna": {
+        "p_thigh_l": [
+          0.02982,
+          0.06252,
+          0.10324
+        ],
+        "p_knee_l": [
+          0.18934,
+          0.06252,
+          0.25397
+        ],
+        "p_ankle_l": [
+          0.32376,
+          0.06252,
+          0.08968
+        ],
+        "p_thigh_r": [
+          0.02982,
+          -0.05611,
+          0.10324
+        ],
+        "p_knee_r": [
+          0.18937,
+          -0.05611,
+          0.25394
+        ],
+        "p_ankle_r": [
+          0.32376,
+          -0.05611,
+          0.08971
+        ]
+      }
+    }
+  ],
+  "cenario_e_cameras": {
+    "colchonete": {
+      "comprimento_m": 1.14812,
+      "largura_m": 0.43106,
+      "espessura_m": 0.01567,
+      "z_base_m": 0.0,
+      "z_topo_m": 0.01567
+    },
+    "luzes": [
+      {
+        "nome": "forja_piloto_luz_key",
+        "energia_w": 131.625,
+        "tamanho_m": 1.5675,
+        "cor_rgb": [
+          1.0,
+          0.97,
+          0.92
+        ],
+        "posicao": [
+          0.9307,
+          -1.6165,
+          1.9104
+        ]
+      },
+      {
+        "nome": "forja_piloto_luz_fill",
+        "energia_w": 75.214,
+        "tamanho_m": 1.7354,
+        "cor_rgb": [
+          0.88,
+          0.93,
+          1.0
+        ],
+        "posicao": [
+          1.6165,
+          1.4205,
+          1.7144
+        ]
+      },
+      {
+        "nome": "forja_piloto_luz_rim",
+        "energia_w": 81.482,
+        "tamanho_m": 1.3995,
+        "cor_rgb": [
+          1.0,
+          0.9,
+          0.78
+        ],
+        "posicao": [
+          -1.5185,
+          1.2736,
+          1.7634
+        ]
+      },
+      {
+        "nome": "forja_piloto_luz_top",
+        "energia_w": 47.009,
+        "tamanho_m": 1.4555,
+        "cor_rgb": [
+          0.98,
+          0.99,
+          1.0
+        ],
+        "posicao": [
+          -0.098,
+          -0.147,
+          2.4982
+        ]
+      }
+    ],
+    "cameras": {
+      "horizontal": {
+        "nome": "forja_cam_horizontal_16x9",
+        "resolucao_px": [
+          1280,
+          720
+        ],
+        "proporcao": "1280:720",
+        "lente_mm": 52.0,
+        "azimute_graus": -58.0,
+        "elevacao_graus": 22.0,
+        "distancia_m": 2.05228,
+        "posicao_mundo": [
+          1.04983,
+          -1.61671,
+          0.83153
+        ],
+        "alvo_mundo": [
+          0.04147,
+          -0.00301,
+          0.06273
+        ],
+        "ndc_u_intervalo": [
+          0.09,
+          0.91
+        ],
+        "ndc_v_intervalo": [
+          0.145,
+          0.835
+        ],
+        "margem_minima_borda_pct": 9.0
+      },
+      "vertical": {
+        "nome": "forja_cam_vertical_9x16",
+        "resolucao_px": [
+          720,
+          1280
+        ],
+        "proporcao": "720:1280",
+        "lente_mm": 46.0,
+        "azimute_graus": 35.0,
+        "elevacao_graus": 39.0,
+        "distancia_m": 2.76021,
+        "posicao_mundo": [
+          1.83563,
+          1.2282,
+          1.78264
+        ],
+        "alvo_mundo": [
+          0.07848,
+          -0.00217,
+          0.04559
+        ],
+        "ndc_u_intervalo": [
+          0.1,
+          0.9
+        ],
+        "ndc_v_intervalo": [
+          0.3044,
+          0.6756
+        ],
+        "margem_minima_borda_pct": 10.0
+      }
+    },
+    "gerenciamento_cor": {
+      "display_device": "sRGB",
+      "view_transform": "AgX",
+      "look": "None",
+      "exposure": 0.12,
+      "gamma": 1.0
+    }
+  },
+  "cycles_config": {
+    "engine": "CYCLES",
+    "device": "CPU",
+    "samples": 32,
+    "adaptive_threshold": 0.018,
+    "adaptive_min_samples": 12,
+    "max_bounces": 4,
+    "diffuse_bounces": 2,
+    "glossy_bounces": 2,
+    "seed_fixa": 42,
+    "use_persistent_data": true,
+    "denoiser": "OPENIMAGEDENOISE",
+    "erro_denoiser": null,
+    "threads": 4
+  },
+  "auditoria": {
+    "aprovado": false,
+    "problemas_detectados": [
+      "amplitude_abdominal_coerente",
+      "sem_interpenetracao_mao_tronco_coxa"
+    ],
+    "verificacoes": {
+      "correspondencia_15_ossos_completa": true,
+      "loop_continuo_sem_salto": true,
+      "amplitude_abdominal_coerente": false,
+      "pes_plantados_sem_deslizamento": true,
+      "contato_dorso_colchonete_consistente": true,
+      "contato_pes_colchonete_consistente": true,
+      "sem_penetracao_abaixo_do_piso": true,
+      "sem_interpenetracao_mao_tronco_coxa": false,
+      "visibilidade_integral_horizontal_16x9": true,
+      "visibilidade_integral_vertical_9x16": true
+    },
+    "metricas": {
+      "altura_nativa_modelo_m": 0.97968,
+      "fator_equivalente_1m75": 1.7863,
+      "maior_salto_osso_entre_quadros_m": 0.006545,
+      "salto_osso_fechamento_loop_q90_q1_m": 0.00141,
+      "razao_passo_loop_vs_interno": 0.2155,
+      "salto_malha_fechamento_loop_q90_q1_m": 0.001826,
+      "erro_periodo_exato_fonte_t0_t3_m": 0.00089,
+      "flexao_toracica_max_graus": 22.0,
+      "flexao_cervical_max_graus": 20.0,
+      "inclinacao_cabeca_max_graus": 42.0,
+      "flexao_joelho_intervalo_graus": [
+        93.99,
+        95.01
+      ],
+      "elevacao_ombro_nativa_m": 0.02679,
+      "elevacao_ombro_equiv_1m75_cm": 4.79,
+      "elevacao_cabeca_equiv_1m75_cm": 10.53,
+      "elevacao_mao_equiv_1m75_cm": 23.26,
+      "desvio_horizontal_pe_esq_mm": 0.0,
+      "desvio_horizontal_pe_dir_mm": 0.0,
+      "dorso_rel_colchonete_mm": [
+        -2.8,
+        -0.367
+      ],
+      "pe_esq_rel_colchonete_mm": [
+        -0.583,
+        -0.583
+      ],
+      "pe_dir_rel_colchonete_mm": [
+        -0.583,
+        -0.583
+      ],
+      "bracos_rel_colchonete_mm": [
+        1.327,
+        22.313
+      ],
+      "z_min_global_acima_piso_mm": 12.87,
+      "distancia_min_mao_antebraco_vs_corpo_mm_nativo": 0.125,
+      "distancia_min_mao_antebraco_vs_corpo_mm_equiv_1m75": 0.22,
+      "quadro_menor_distancia_mao_corpo": 25,
+      "ndc_global_horizontal_16x9": [
+        0.09,
+        0.91,
+        0.145,
+        0.8353
+      ],
+      "ndc_global_vertical_9x16": [
+        0.1,
+        0.9,
+        0.3044,
+        0.6751
+      ],
+      "violacoes_frustum_horizontal": 0,
+      "violacoes_frustum_vertical": 0
+    }
+  },
+  "provas_cycles": [
+    {
+      "formato": "horizontal",
+      "quadro": 1,
+      "tempo_animacao_s": 0.0,
+      "arquivo": "prova-horizontal-q0001.png",
+      "tempo_render_s": 37.78,
+      "imagem": {
+        "existe": true,
+        "bytes": 886831,
+        "resolucao": [
+          1280,
+          720
+        ],
+        "luminancia_media": 0.36561,
+        "fracao_pixels_visiveis": 0.99671
+      },
+      "log_cauda": "Fra:1 Mem:1181.81M (Peak 1181.81M) | Time:00:03.46 | Remaining:00:35.65 | Mem:605.49M, Peak:605.49M | Scene, ViewLayer | Sample 1/32\nFra:1 Mem:1181.81M (Peak 1181.81M) | Time:00:20.30 | Remaining:00:17.99 | Mem:605.49M, Peak:605.49M | Scene, ViewLayer | Sample 16/32\nFra:1 Mem:1209.94M (Peak 1252.13M) | Time:00:37.55 | Mem:605.49M, Peak:605.49M | Scene, ViewLayer | Sample 32/32\nFra:1 Mem:1209.94M (Peak 1252.13M) | Time:00:37.55 | Mem:605.49M, Peak:605.49M | Scene, ViewLayer | Finished\nSaved: 'docs/validacao-3d/piloto-abdominal-masculino/diagnostico/prova-horizontal-q0001.png'\nTime: 00:37.75 (Saving: 00:00.19)"
+    },
+    {
+      "formato": "horizontal",
+      "quadro": 23,
+      "tempo_animacao_s": 0.7333,
+      "arquivo": "prova-horizontal-q0023.png",
+      "tempo_render_s": 37.634,
+      "imagem": {
+        "existe": true,
+        "bytes": 886292,
+        "resolucao": [
+          1280,
+          720
+        ],
+        "luminancia_media": 0.36518,
+        "fracao_pixels_visiveis": 0.99591
+      },
+      "log_cauda": "Fra:23 Mem:1181.81M (Peak 1699.97M) | Time:00:03.07 | Remaining:00:35.88 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 1/32\nFra:23 Mem:1181.81M (Peak 1699.97M) | Time:00:20.04 | Remaining:00:18.12 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 16/32\nFra:23 Mem:1209.94M (Peak 1699.97M) | Time:00:37.48 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 32/32\nFra:23 Mem:1209.94M (Peak 1699.97M) | Time:00:37.48 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Finished\nSaved: 'docs/validacao-3d/piloto-abdominal-masculino/diagnostico/prova-horizontal-q0023.png'\nTime: 00:37.60 (Saving: 00:00.12)"
+    },
+    {
+      "formato": "horizontal",
+      "quadro": 46,
+      "tempo_animacao_s": 1.5,
+      "arquivo": "prova-horizontal-q0046.png",
+      "tempo_render_s": 38.363,
+      "imagem": {
+        "existe": true,
+        "bytes": 897820,
+        "resolucao": [
+          1280,
+          720
+        ],
+        "luminancia_media": 0.36407,
+        "fracao_pixels_visiveis": 0.99646
+      },
+      "log_cauda": "Fra:46 Mem:1181.81M (Peak 1699.97M) | Time:00:03.08 | Remaining:00:36.34 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 1/32\nFra:46 Mem:1181.81M (Peak 1699.97M) | Time:00:20.30 | Remaining:00:18.39 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 16/32\nFra:46 Mem:1209.94M (Peak 1699.97M) | Time:00:38.21 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 32/32\nFra:46 Mem:1209.94M (Peak 1699.97M) | Time:00:38.21 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Finished\nSaved: 'docs/validacao-3d/piloto-abdominal-masculino/diagnostico/prova-horizontal-q0046.png'\nTime: 00:38.33 (Saving: 00:00.12)"
+    },
+    {
+      "formato": "vertical",
+      "quadro": 1,
+      "tempo_animacao_s": 0.0,
+      "arquivo": "prova-vertical-q0001.png",
+      "tempo_render_s": 31.558,
+      "imagem": {
+        "existe": true,
+        "bytes": 823051,
+        "resolucao": [
+          720,
+          1280
+        ],
+        "luminancia_media": 0.31374,
+        "fracao_pixels_visiveis": 0.99965
+      },
+      "log_cauda": "Fra:1 Mem:1181.81M (Peak 1699.97M) | Time:00:02.92 | Remaining:00:30.96 | Mem:605.49M, Peak:607.49M | Scene, ViewLayer | Sample 1/32\nFra:1 Mem:1181.81M (Peak 1699.97M) | Time:00:17.86 | Remaining:00:15.93 | Mem:605.49M, Peak:607.49M | Scene, ViewLayer | Sample 16/32\nFra:1 Mem:1209.94M (Peak 1699.97M) | Time:00:31.41 | Mem:605.49M, Peak:607.49M | Scene, ViewLayer | Sample 32/32\nFra:1 Mem:1209.94M (Peak 1699.97M) | Time:00:31.41 | Mem:605.49M, Peak:607.49M | Scene, ViewLayer | Finished\nSaved: 'docs/validacao-3d/piloto-abdominal-masculino/diagnostico/prova-vertical-q0001.png'\nTime: 00:31.53 (Saving: 00:00.11)"
+    },
+    {
+      "formato": "vertical",
+      "quadro": 23,
+      "tempo_animacao_s": 0.7333,
+      "arquivo": "prova-vertical-q0023.png",
+      "tempo_render_s": 31.85,
+      "imagem": {
+        "existe": true,
+        "bytes": 821477,
+        "resolucao": [
+          720,
+          1280
+        ],
+        "luminancia_media": 0.31395,
+        "fracao_pixels_visiveis": 0.9998
+      },
+      "log_cauda": "Fra:23 Mem:1181.81M (Peak 1699.97M) | Time:00:02.91 | Remaining:00:31.43 | Mem:605.49M, Peak:605.49M | Scene, ViewLayer | Sample 1/32\nFra:23 Mem:1181.81M (Peak 1699.97M) | Time:00:17.92 | Remaining:00:16.02 | Mem:605.49M, Peak:605.49M | Scene, ViewLayer | Sample 16/32\nFra:23 Mem:1209.94M (Peak 1699.97M) | Time:00:31.69 | Mem:605.49M, Peak:605.49M | Scene, ViewLayer | Sample 32/32\nFra:23 Mem:1209.94M (Peak 1699.97M) | Time:00:31.69 | Mem:605.49M, Peak:605.49M | Scene, ViewLayer | Finished\nSaved: 'docs/validacao-3d/piloto-abdominal-masculino/diagnostico/prova-vertical-q0023.png'\nTime: 00:31.82 (Saving: 00:00.12)"
+    },
+    {
+      "formato": "vertical",
+      "quadro": 46,
+      "tempo_animacao_s": 1.5,
+      "arquivo": "prova-vertical-q0046.png",
+      "tempo_render_s": 32.112,
+      "imagem": {
+        "existe": true,
+        "bytes": 824691,
+        "resolucao": [
+          720,
+          1280
+        ],
+        "luminancia_media": 0.31354,
+        "fracao_pixels_visiveis": 0.9998
+      },
+      "log_cauda": "Fra:46 Mem:1181.81M (Peak 1699.97M) | Time:00:02.95 | Remaining:00:31.63 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 1/32\nFra:46 Mem:1181.81M (Peak 1699.97M) | Time:00:18.08 | Remaining:00:16.15 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 16/32\nFra:46 Mem:1209.94M (Peak 1699.97M) | Time:00:31.96 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Sample 32/32\nFra:46 Mem:1209.94M (Peak 1699.97M) | Time:00:31.96 | Mem:607.49M, Peak:607.49M | Scene, ViewLayer | Finished\nSaved: 'docs/validacao-3d/piloto-abdominal-masculino/diagnostico/prova-vertical-q0046.png'\nTime: 00:32.08 (Saving: 00:00.12)"
+    }
+  ],
+  "memoria_proc": {
+    "vm_rss_mb": 1786.07,
+    "vm_hwm_mb": 2571.57,
+    "vm_peak_mb": 5635.1
+  },
+  "tempo_total_prevalidacao_s": 225.19
+}
