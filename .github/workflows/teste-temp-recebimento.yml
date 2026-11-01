@@ -1,0 +1,154 @@
+name: Teste de recebimento (temporário, via push)
+
+# Workflow descartável usado para validar o caminho de envio pelo Android antes
+# do merge. É disparado por push no arquivo de gatilho e escreve um relatório
+# no branch da sessão para conferência.
+
+on:
+  push:
+    paths:
+      - "FORJA_ASSETS_3D/.teste-disparo"
+
+permissions:
+  contents: write
+
+jobs:
+  teste:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BRANCH_SESSAO: arena/1c5f56b5-forja
+      TAG_TESTE: teste-lfs-${{ github.run_id }}
+      BRANCH_TESTE: teste-lfs-${{ github.run_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: arena/1c5f56b5-forja
+          fetch-depth: 0
+
+      - name: Ambiente
+        run: |
+          set -euo pipefail
+          git lfs version
+          gh --version | head -n 1
+          python3 --version
+          git config user.name "forja-assets-3d[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Gerar modelos de teste
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/exemplo
+          python3 tools/gerar-glb-teste.py /tmp/exemplo/teste-recebimento.glb --tamanho 4096
+          python3 tools/gerar-glb-teste.py /tmp/modelo-grande.glb --tamanho $(( 30 * 1024 * 1024 ))
+          sha256sum /tmp/modelo-grande.glb | awk '{print $1}' > /tmp/grande.sha256
+          sha256sum /tmp/exemplo/teste-recebimento.glb | awk '{print $1}' > /tmp/pequeno.sha256
+          echo "grande: $(cat /tmp/grande.sha256) $(wc -c < /tmp/modelo-grande.glb) B"
+          echo "pequeno: $(cat /tmp/pequeno.sha256) $(wc -c < /tmp/exemplo/teste-recebimento.glb) B"
+
+      - name: "Teste 1 — importar pasta local para o branch da sessão (arquivo exemplo permanente)"
+        run: |
+          set -euo pipefail
+          bash tools/importar-assets-3d.sh "exemplo-local-${{ github.run_id }}" \
+            --origem-local /tmp/exemplo \
+            --branch "$BRANCH_SESSAO" \
+            --destino FORJA_ASSETS_3D/exemplo
+
+      - name: "Teste 2 — publicar release com modelo de 30 MB (o que o Android faz pelo navegador)"
+        run: |
+          set -euo pipefail
+          gh release create "$TAG_TESTE" /tmp/modelo-grande.glb \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Teste de recebimento LFS (run ${{ github.run_id }})" \
+            --notes "Release temporária do teste de recebimento. Pode ser apagada."
+
+      - name: "Teste 2b — importar a release para um branch temporário via LFS"
+        run: |
+          set -euo pipefail
+          bash tools/importar-assets-3d.sh "$TAG_TESTE" \
+            --repo "$GITHUB_REPOSITORY" \
+            --branch "$BRANCH_TESTE" \
+            --destino FORJA_ASSETS_3D/exemplo
+
+      - name: "Teste 2c — clonar do zero e conferir o recebimento"
+        run: |
+          set -euo pipefail
+          alvo="FORJA_ASSETS_3D/exemplo/modelo-grande.glb"
+          rm -rf /tmp/clone
+          git clone --quiet --branch "$BRANCH_TESTE" \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/clone
+          cd /tmp/clone
+          git lfs install --local >/dev/null 2>&1
+          git cat-file -p "HEAD:${alvo}" > /tmp/ponteiro.txt
+          head -n 3 /tmp/ponteiro.txt
+          grep -q '^version https://git-lfs.github.com/spec/v1' /tmp/ponteiro.txt || {
+            echo "FALHA: não é ponteiro LFS" | tee /tmp/falha.txt; exit 1; }
+          git lfs pull
+          recebido="$(sha256sum "$alvo" | awk '{print $1}')"
+          original="$(cat /tmp/grande.sha256)"
+          bytes="$(wc -c < "$alvo")"
+          {
+            echo "## Teste 2c — recebimento do arquivo grande"
+            echo
+            echo "- ponteiro LFS: OK"
+            echo "- sha256 recebido: ${recebido}"
+            echo "- sha256 original: ${original}"
+            echo "- bytes: ${bytes}"
+            echo "- conferência: $([ "$recebido" = "$original" ] && echo IGUAL || echo DIFERENTE)"
+            echo
+            echo '```'
+            git lfs ls-files --long
+            echo '```'
+          } > /tmp/relatorio-teste2.md
+          [ "$recebido" = "$original" ]
+          [ "$bytes" -eq 31457280 ]
+
+      - name: Relatório (sempre)
+        if: always()
+        run: |
+          set +e
+          mkdir -p .teste-lfs
+          {
+            echo "# Relatório do teste de recebimento (run ${{ github.run_id }})"
+            echo
+            echo "Gerado em $(date -u '+%Y-%m-%d %H:%M:%SZ')."
+            echo
+            echo "## Ambiente"
+            echo '```'
+            git lfs version
+            gh --version | head -n 1
+            echo '```'
+            echo
+            echo "## Modelos gerados"
+            echo '```'
+            echo "grande  : $(cat /tmp/grande.sha256 2>/dev/null) ($(wc -c < /tmp/modelo-grande.glb 2>/dev/null) B)"
+            echo "pequeno : $(cat /tmp/pequeno.sha256 2>/dev/null) ($(wc -c < /tmp/exemplo/teste-recebimento.glb 2>/dev/null) B)"
+            echo '```'
+            echo
+            echo "## Ponteiro versionado do arquivo grande"
+            echo '```'
+            cat /tmp/ponteiro.txt 2>/dev/null
+            echo '```'
+            echo
+            cat /tmp/relatorio-teste2.md 2>/dev/null
+            echo
+            echo "## Estado da pasta FORJA_ASSETS_3D no branch da sessão"
+            echo '```'
+            git lfs ls-files --long 2>&1
+            echo '```'
+          } > .teste-lfs/relatorio.md
+          git add .teste-lfs/relatorio.md
+          git commit -m "Teste: relatório de recebimento LFS (run ${{ github.run_id }})"
+          for i in 1 2 3; do
+            git push origin "HEAD:${BRANCH_SESSAO}" && break
+            git pull --rebase --autostash origin "$BRANCH_SESSAO"
+          done
+
+      - name: Limpar release e branch temporários
+        if: always()
+        run: |
+          set +e
+          git push origin --delete "$BRANCH_TESTE"
+          gh release delete "$TAG_TESTE" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
+          exit 0
