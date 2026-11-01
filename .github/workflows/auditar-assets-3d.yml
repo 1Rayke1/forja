@@ -180,12 +180,24 @@ jobs:
             python3 tools/resumir-inventario-3d.py docs/assets-3d/inventario-deskbreak.json
           } >> docs/assets-3d/auditoria-releases.md
 
+      - name: Guardar fontes 3D reais para o build local (MIT, release v1)
+        run: |
+          set -euo pipefail
+          mkdir -p tools/fontes-3d
+          cp /tmp/deskbreak/asar/library/exercises.glb tools/fontes-3d/exercises.glb
+          cp /tmp/deskbreak/asar/library/wood.png tools/fontes-3d/wood.png 2>/dev/null || true
+          cp /tmp/deskbreak/asar/library/exercises.json tools/fontes-3d/exercises.json
+          # Uma amostra de cada rig do pacote de mocap, para desenvolver o retargeting.
+          cp /tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/06_Jumping_Jacks.fbx tools/fontes-3d/ 2>/dev/null || true
+          cp /tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/iClone/16_Barbell_Curl_iclone.fbx tools/fontes-3d/ 2>/dev/null || true
+          ls -la tools/fontes-3d
+
       - name: Publicar o relatório no branch
         run: |
           set -euo pipefail
           git config user.name "forja-auditoria-3d[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/assets-3d
+          git add docs/assets-3d tools/fontes-3d
           if git diff --cached --quiet; then
             echo "Relatório sem mudanças."
           else
