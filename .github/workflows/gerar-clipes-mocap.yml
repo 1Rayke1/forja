@@ -69,72 +69,76 @@ jobs:
           find /tmp/mocap -type f -path '*/iClone/*.fbx' -printf '%f\n' | sort | head -25
 
       - name: Retarget dos clipes do mapa
+        continue-on-error: true
         env:
           APENAS: ${{ inputs.apenas }}
         run: |
-          set -euo pipefail
-          mkdir -p assets/3d/animacoes /tmp/mocap-trab
-          python3 - <<'PY' > /tmp/fila.tsv
-          import json, os, sys
-          mapa = json.load(open("tools/animacoes-mapa.json", encoding="utf-8"))
-          apenas = {x.strip() for x in os.environ.get("APENAS", "").split(",") if x.strip()}
-          for clipe in mapa["clipes"]:
-              if clipe.get("fonte") != "mocap":
-                  continue
-              if apenas and clipe["id"] not in apenas:
-                  continue
-              print("\t".join([
-                  clipe["id"], clipe["fbx"],
-                  str(clipe.get("quadros") or 144),
-                  str(clipe.get("deslocamento") or 0),
-              ]))
-          PY
-          wc -l /tmp/fila.tsv
+          set -uo pipefail
+          mkdir -p assets/3d/animacoes /tmp/mocap-trab docs/validacao-3d
+          node -e 'const fs=require("fs");
+            const mapa=JSON.parse(fs.readFileSync("tools/animacoes-mapa.json","utf8"));
+            const apenas=new Set(String(process.env.APENAS||"").split(",").map(s=>s.trim()).filter(Boolean));
+            const linhas=mapa.clipes.filter(c=>c.fonte==="mocap"&&(!apenas.size||apenas.has(c.id)))
+              .map(c=>[c.id,c.fbx,String(c.quadros||144),String(c.deslocamento||0)].join("\t"));
+            fs.writeFileSync("/tmp/fila.tsv",linhas.join("\n")+"\n");
+            console.log("[fila] "+linhas.length+" clipes de mocap");'
           ok=0; faltando=0; erro=0
+          : > /tmp/relatorio.txt
           while IFS=$'\t' read -r id fbx quadros desloc; do
             [ -z "$id" ] && continue
             origem="$(find /tmp/mocap -type f -name "$fbx" | head -1)"
             if [ -z "$origem" ]; then
-              echo "::warning::FBX não encontrado no pacote: $fbx ($id)"
+              echo "[falta] $id: $fbx não existe no pacote" | tee -a /tmp/relatorio.txt
               faltando=$((faltando+1)); continue
             fi
-            echo "== $id ← $fbx"
+            echo "[clipe] $id ← $fbx" | tee -a /tmp/relatorio.txt
             if blender --background --factory-startup \
-              --python tools/blender/retarget-mocap.py -- \
-              tools/fontes-3d/exercises.glb "$origem" "$id" \
-              "assets/3d/animacoes/$id.glb" "$quadros" "$desloc" 2>&1 \
-              | tee "/tmp/log-$id.txt" | grep -E '^\[retarget\]'; then
+                --python tools/blender/retarget-mocap.py -- \
+                tools/fontes-3d/exercises.glb "$origem" "$id" \
+                "assets/3d/animacoes/$id.glb" "$quadros" "$desloc" \
+                > "/tmp/log-$id.txt" 2>&1; then
+              grep -E '^\[retarget\]' "/tmp/log-$id.txt" | tee -a /tmp/relatorio.txt
               ok=$((ok+1))
             else
-              echo "::error::falhou o retarget de $id"
+              echo "[erro] $id" | tee -a /tmp/relatorio.txt
+              tail -20 "/tmp/log-$id.txt" >> /tmp/relatorio.txt
               erro=$((erro+1))
             fi
           done < /tmp/fila.tsv
-          echo "== resumo: $ok gerados, $faltando sem fonte, $erro com erro"
-          ls -la assets/3d/animacoes | tail -20
-          { echo "gerados=$ok"; echo "sem_fonte=$faltando"; echo "erros=$erro"; } > /tmp/resumo.txt
+          echo "== resumo: $ok gerados, $faltando sem fonte, $erro com erro" | tee -a /tmp/relatorio.txt
+          { date -u; cat /tmp/relatorio.txt; } > docs/validacao-3d/ci-mocap.txt
+          ls -la assets/3d/animacoes | tail -25 | tee -a docs/validacao-3d/ci-mocap.txt
+          if [ "$erro" -gt 0 ] || [ "$ok" -eq 0 ]; then
+            echo "::error::retarget com problema ($ok ok, $erro erro)"
+            exit 1
+          fi
 
       - name: Conferir os GLB gerados
+        continue-on-error: true
         run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import json, os
-          mapa = json.load(open("tools/animacoes-mapa.json", encoding="utf-8"))
-          esperados = [c["id"] for c in mapa["clipes"] if c.get("fonte") == "mocap"]
-          presentes = [i for i in esperados if os.path.exists(f"assets/3d/animacoes/{i}.glb")]
-          print(f"clipes de mocap no mapa: {len(esperados)}")
-          print(f"GLB presentes depois do retarget: {len(presentes)}")
-          for i in esperados:
-              p = f"assets/3d/animacoes/{i}.glb"
-              print(f"  {'OK ' if os.path.exists(p) else 'FALTA'} {i} {os.path.getsize(p) if os.path.exists(p) else '-'} B")
-          PY
+          set -uo pipefail
+          node -e 'const fs=require("fs"),path=require("path");
+            const mapa=JSON.parse(fs.readFileSync("tools/animacoes-mapa.json","utf8"));
+            const esperados=mapa.clipes.filter(c=>c.fonte==="mocap").map(c=>c.id);
+            const linhas=[];
+            let presentes=0;
+            for (const id of esperados) {
+              const p="assets/3d/animacoes/"+id+".glb";
+              const existe=fs.existsSync(p);
+              if (existe) presentes+=1;
+              linhas.push((existe?"OK    ":"FALTA ")+id+" "+(existe?fs.statSync(p).size+" B":"-"));
+            }
+            const texto="clipes de mocap no mapa: "+esperados.length+
+              "\nGLB presentes: "+presentes+"\n"+linhas.join("\n")+"\n";
+            fs.appendFileSync("docs/validacao-3d/ci-mocap.txt",texto);
+            console.log(texto);'
 
       - name: Publicar os clipes no branch
         run: |
           set -euo pipefail
           git config user.name "forja-mocap-ci[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/3d/animacoes
+          git add assets/3d/animacoes docs/validacao-3d
           if git diff --cached --quiet; then
             echo "Nenhum clipe novo."
             exit 0
