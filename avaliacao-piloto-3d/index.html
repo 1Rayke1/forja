@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>AVALIAÇÃO DO PILOTO 3D · FORJA</title>
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/treino.css">
+<link rel="stylesheet" href="../assets/css/execucao.css">
+<link rel="stylesheet" href="../assets/css/configuracoes.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+<link rel="stylesheet" href="../assets/css/performance.css">
+<link rel="stylesheet" href="../assets/css/system.css">
+<link rel="stylesheet" href="../assets/css/marca.css">
+<link rel="stylesheet" href="../assets/css/redesign.css">
+<link rel="stylesheet" href="../assets/css/demonstracoes.css">
+<link rel="stylesheet" href="./avaliacao-piloto-3d.css">
+</head>
+
+<body data-page="avaliacao-piloto-3d" data-root="../">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="logo" href="../index.html">FORJA</a>
+    <div class="tagline">DISCIPLINA DIÁRIA</div>
+  </div>
+</header>
+
+<main class="container piloto-container" id="conteudo">
+  <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
+    <div class="active-session-text">
+      <strong>Treino em andamento</strong>
+      <span id="active-session-summary"></span>
+    </div>
+    <div class="active-session-actions">
+      <a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a>
+      <a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a>
+    </div>
+  </section>
+
+  <nav class="screen-toolbar" aria-label="Voltar">
+    <a class="back-link" id="piloto-voltar-perfil" href="../perfil/index.html">← Perfil</a>
+    <span class="piloto-temp-pill">Tela temporária de revisão</span>
+  </nav>
+
+  <div class="piloto-head">
+    <h1 class="piloto-screen-name" id="piloto-screen-title">AVALIAÇÃO DO PILOTO 3D</h1>
+    <h2 class="piloto-exercise-title" id="piloto-exercise-title">Abdominal tradicional — Modelo masculino</h2>
+    <p class="piloto-lead">
+      Inspeção visual dos dois formatos independentes renderizados com Blender Cycles. Para preservar memória no Android, apenas um vídeo é carregado por vez e os recursos são liberados ao sair da tela.
+    </p>
+  </div>
+
+  <div class="piloto-view-bar" role="region" aria-label="Modo de comparação">
+    <span class="piloto-view-label">Exibição dos formatos</span>
+    <div class="piloto-view-tabs" role="group" aria-label="Filtrar formatos de vídeo">
+      <button type="button" class="piloto-tab-btn" data-view-filter="ambos" aria-pressed="true">Ambos (16:9 e 9:16)</button>
+      <button type="button" class="piloto-tab-btn" data-view-filter="horizontal" aria-pressed="false">Horizontal (16:9)</button>
+      <button type="button" class="piloto-tab-btn" data-view-filter="vertical" aria-pressed="false">Vertical (9:16)</button>
+    </div>
+  </div>
+
+  <div class="piloto-cards-grid" id="piloto-cards-grid" data-view-mode="ambos">
+    <!-- CARTÃO 1: HORIZONTAL (16:9) -->
+    <article class="piloto-card" id="card-horizontal" data-piloto-card="horizontal" aria-labelledby="heading-horizontal">
+      <div class="piloto-card-head">
+        <div class="piloto-card-title-wrap">
+          <h3 id="heading-horizontal">Horizontal (16:9)</h3>
+          <p class="piloto-card-sub">1280 × 720 · 30 FPS · Câmera horizontal dedicada · Loop contínuo</p>
+        </div>
+        <span class="piloto-status-badge" data-piloto-status data-tone="idle" aria-live="polite">Verificando arquivo…</span>
+      </div>
+
+      <div class="piloto-stage piloto-stage-horizontal" data-piloto-stage>
+        <div class="piloto-video-frame">
+          <video
+            class="piloto-video"
+            id="piloto-video-horizontal"
+            data-piloto-video
+            data-video-src="./midia/abdominal-masculino-horizontal-16x9.mp4"
+            poster="./midia/poster-horizontal-16x9.png"
+            preload="none"
+            muted
+            loop
+            playsinline
+            webkit-playsinline
+            aria-label="Vídeo Horizontal 16:9 — Abdominal tradicional — Modelo masculino"
+          ></video>
+
+          <div class="piloto-poster-layer" data-piloto-poster-layer title="Toque para reproduzir o vídeo horizontal">
+            <img
+              class="piloto-poster-img"
+              data-piloto-poster-img
+              src="./midia/poster-horizontal-16x9.png"
+              alt="Poster de pré-visualização Horizontal (16:9) — Abdominal tradicional masculino"
+            >
+            <span class="piloto-poster-cta">▶ Toque para reproduzir (16:9)</span>
+          </div>
+
+          <div class="piloto-loading-overlay" data-piloto-loading hidden>
+            <span class="piloto-loading-pill">Carregando vídeo…</span>
+          </div>
+
+          <div class="piloto-error-overlay" data-piloto-error role="alert" hidden>
+            <p class="piloto-error-title" data-piloto-error-title>Falha ao carregar o vídeo.</p>
+            <p class="piloto-error-detail" data-piloto-error-detail></p>
+            <button type="button" class="piloto-ctrl-btn is-primary" data-piloto-retry>Tentar novamente</button>
+          </div>
+        </div>
+
+        <div class="piloto-fs-toolbar" aria-label="Controles em tela cheia (Horizontal)">
+          <button type="button" class="piloto-ctrl-btn is-primary" data-action="play">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            <span>Reproduzir</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" data-action="pause" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            <span>Pausar</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" data-action="restart">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            <span>Reiniciar</span>
+          </button>
+          <button type="button" class="piloto-speed-btn" data-speed="0.25" aria-pressed="false">0,25×</button>
+          <button type="button" class="piloto-speed-btn" data-speed="0.5" aria-pressed="false">0,5×</button>
+          <button type="button" class="piloto-speed-btn" data-speed="1" aria-pressed="true">1×</button>
+          <span class="piloto-time-main" data-piloto-fs-time>0,00 s / 6,00 s</span>
+          <button type="button" class="piloto-ctrl-btn" data-action="exit-fullscreen">✕ Sair da tela cheia</button>
+        </div>
+      </div>
+
+      <div class="piloto-progress-block">
+        <div class="piloto-time-row">
+          <span class="piloto-time-main" data-piloto-time>0,00 s / 6,00 s</span>
+          <span class="piloto-time-meta" data-piloto-meta>0% · Quadro 1 / 180</span>
+        </div>
+        <input
+          type="range"
+          class="piloto-range"
+          data-piloto-range
+          min="0"
+          max="1000"
+          step="1"
+          value="0"
+          aria-label="Progresso do vídeo Horizontal (16:9)"
+        >
+      </div>
+
+      <div class="piloto-controls">
+        <div class="piloto-btn-row">
+          <button type="button" class="piloto-ctrl-btn is-primary" id="btn-play-horizontal" data-action="play">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            <span>Reproduzir</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" id="btn-pause-horizontal" data-action="pause" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            <span>Pausar</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" id="btn-restart-horizontal" data-action="restart">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            <span>Reiniciar</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" id="btn-fs-horizontal" data-action="fullscreen" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <span>Tela cheia</span>
+          </button>
+        </div>
+
+        <div class="piloto-speed-row">
+          <span class="piloto-speed-label">Velocidade</span>
+          <div class="piloto-speed-group" role="group" aria-label="Velocidade do vídeo Horizontal">
+            <button type="button" class="piloto-speed-btn" id="speed-h-025" data-speed="0.25" aria-pressed="false">0,25×</button>
+            <button type="button" class="piloto-speed-btn" id="speed-h-050" data-speed="0.5" aria-pressed="false">0,5×</button>
+            <button type="button" class="piloto-speed-btn" id="speed-h-100" data-speed="1" aria-pressed="true">1×</button>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- CARTÃO 2: VERTICAL (9:16) -->
+    <article class="piloto-card" id="card-vertical" data-piloto-card="vertical" aria-labelledby="heading-vertical">
+      <div class="piloto-card-head">
+        <div class="piloto-card-title-wrap">
+          <h3 id="heading-vertical">Vertical (9:16)</h3>
+          <p class="piloto-card-sub">720 × 1280 · 30 FPS · Câmera vertical independente · Loop contínuo</p>
+        </div>
+        <span class="piloto-status-badge" data-piloto-status data-tone="idle" aria-live="polite">Verificando arquivo…</span>
+      </div>
+
+      <div class="piloto-stage piloto-stage-vertical" data-piloto-stage>
+        <div class="piloto-video-frame">
+          <video
+            class="piloto-video"
+            id="piloto-video-vertical"
+            data-piloto-video
+            data-video-src="./midia/abdominal-masculino-vertical-9x16.mp4"
+            poster="./midia/poster-vertical-9x16.png"
+            preload="none"
+            muted
+            loop
+            playsinline
+            webkit-playsinline
+            aria-label="Vídeo Vertical 9:16 — Abdominal tradicional — Modelo masculino"
+          ></video>
+
+          <div class="piloto-poster-layer" data-piloto-poster-layer title="Toque para reproduzir o vídeo vertical">
+            <img
+              class="piloto-poster-img"
+              data-piloto-poster-img
+              src="./midia/poster-vertical-9x16.png"
+              alt="Poster de pré-visualização Vertical (9:16) — Abdominal tradicional masculino"
+            >
+            <span class="piloto-poster-cta">▶ Toque para reproduzir (9:16)</span>
+          </div>
+
+          <div class="piloto-loading-overlay" data-piloto-loading hidden>
+            <span class="piloto-loading-pill">Carregando vídeo…</span>
+          </div>
+
+          <div class="piloto-error-overlay" data-piloto-error role="alert" hidden>
+            <p class="piloto-error-title" data-piloto-error-title>Falha ao carregar o vídeo.</p>
+            <p class="piloto-error-detail" data-piloto-error-detail></p>
+            <button type="button" class="piloto-ctrl-btn is-primary" data-piloto-retry>Tentar novamente</button>
+          </div>
+        </div>
+
+        <div class="piloto-fs-toolbar" aria-label="Controles em tela cheia (Vertical)">
+          <button type="button" class="piloto-ctrl-btn is-primary" data-action="play">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            <span>Reproduzir</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" data-action="pause" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            <span>Pausar</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" data-action="restart">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            <span>Reiniciar</span>
+          </button>
+          <button type="button" class="piloto-speed-btn" data-speed="0.25" aria-pressed="false">0,25×</button>
+          <button type="button" class="piloto-speed-btn" data-speed="0.5" aria-pressed="false">0,5×</button>
+          <button type="button" class="piloto-speed-btn" data-speed="1" aria-pressed="true">1×</button>
+          <span class="piloto-time-main" data-piloto-fs-time>0,00 s / 6,00 s</span>
+          <button type="button" class="piloto-ctrl-btn" data-action="exit-fullscreen">✕ Sair da tela cheia</button>
+        </div>
+      </div>
+
+      <div class="piloto-progress-block">
+        <div class="piloto-time-row">
+          <span class="piloto-time-main" data-piloto-time>0,00 s / 6,00 s</span>
+          <span class="piloto-time-meta" data-piloto-meta>0% · Quadro 1 / 180</span>
+        </div>
+        <input
+          type="range"
+          class="piloto-range"
+          data-piloto-range
+          min="0"
+          max="1000"
+          step="1"
+          value="0"
+          aria-label="Progresso do vídeo Vertical (9:16)"
+        >
+      </div>
+
+      <div class="piloto-controls">
+        <div class="piloto-btn-row">
+          <button type="button" class="piloto-ctrl-btn is-primary" id="btn-play-vertical" data-action="play">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            <span>Reproduzir</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" id="btn-pause-vertical" data-action="pause" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            <span>Pausar</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" id="btn-restart-vertical" data-action="restart">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            <span>Reiniciar</span>
+          </button>
+          <button type="button" class="piloto-ctrl-btn" id="btn-fs-vertical" data-action="fullscreen" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <span>Tela cheia</span>
+          </button>
+        </div>
+
+        <div class="piloto-speed-row">
+          <span class="piloto-speed-label">Velocidade</span>
+          <div class="piloto-speed-group" role="group" aria-label="Velocidade do vídeo Vertical">
+            <button type="button" class="piloto-speed-btn" id="speed-v-025" data-speed="0.25" aria-pressed="false">0,25×</button>
+            <button type="button" class="piloto-speed-btn" id="speed-v-050" data-speed="0.5" aria-pressed="false">0,5×</button>
+            <button type="button" class="piloto-speed-btn" id="speed-v-100" data-speed="1" aria-pressed="true">1×</button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- GUIA DE AVALIAÇÃO VISUAL E BIOMECÂNICA -->
+  <section class="piloto-checklist-panel" aria-labelledby="checklist-heading">
+    <h2 class="section-title" id="checklist-heading">Critérios de avaliação visual</h2>
+    <p class="screen-subtitle">
+      Use as velocidades <strong>0,5×</strong> e <strong>0,25×</strong> ou arraste a barra de progresso para inspecionar cada aspecto nos dois formatos (marcações apenas locais nesta sessão):
+    </p>
+
+    <div class="piloto-checklist-grid">
+      <label class="piloto-check-item">
+        <input type="checkbox">
+        <div>
+          <strong>Movimento completo do abdominal</strong>
+          <span>Subida concêntrica limpa, contração abdominal no pico (quadro 46) e retorno controlado.</span>
+        </div>
+      </label>
+
+      <label class="piloto-check-item">
+        <input type="checkbox">
+        <div>
+          <strong>Posição inicial e final</strong>
+          <span>Postura inicial em decúbito dorsal idêntica à postura final ao encerrar cada repetição.</span>
+        </div>
+      </label>
+
+      <label class="piloto-check-item">
+        <input type="checkbox">
+        <div>
+          <strong>Naturalidade da execução</strong>
+          <span>Fluidez cadenciada sem movimentos bruscos, distorções de malha ou rigidez artificial.</span>
+        </div>
+      </label>
+
+      <label class="piloto-check-item">
+        <input type="checkbox">
+        <div>
+          <strong>Movimento da coluna e do quadril</strong>
+          <span>Flexão torácica e cervical coerente mantendo pelve e região lombar ancoradas.</span>
+        </div>
+      </label>
+
+      <label class="piloto-check-item">
+        <input type="checkbox">
+        <div>
+          <strong>Posicionamento dos braços e pernas</strong>
+          <span>Braços avançando livres sem colidir com a bermuda e joelhos flexionados estáveis.</span>
+        </div>
+      </label>
+
+      <label class="piloto-check-item">
+        <input type="checkbox">
+        <div>
+          <strong>Contato com o colchonete</strong>
+          <span>Costas/lombar e solas dos calçados apoiadas sobre o colchonete sem flutuar nem atravessar.</span>
+        </div>
+      </label>
+
+      <label class="piloto-check-item">
+        <input type="checkbox">
+        <div>
+          <strong>Continuidade do loop</strong>
+          <span>Passagem contínua sem salto perceptível em 3,00 s e no reinício automático em 6,00 s.</span>
+        </div>
+      </label>
+    </div>
+
+    <details class="piloto-mosaic-disclosure">
+      <summary>Ver mosaicos estáticos das 5 fases do movimento (Horizontal e Vertical)</summary>
+      <div class="piloto-mosaic-list">
+        <div class="piloto-mosaic-box">
+          <p>Horizontal (16:9) — Quadros q0001 · q0023 · q0046 · q0068 · q0090</p>
+          <img
+            src="./midia/horizontal-mosaico-5-fases.png"
+            alt="Mosaico das 5 fases no formato Horizontal (16:9)"
+            loading="lazy"
+          >
+        </div>
+        <div class="piloto-mosaic-box">
+          <p>Vertical (9:16) — Quadros q0001 · q0023 · q0046 · q0068 · q0090</p>
+          <img
+            src="./midia/vertical-mosaico-5-fases.png"
+            alt="Mosaico das 5 fases no formato Vertical (9:16)"
+            loading="lazy"
+          >
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-link" href="../index.html" data-nav="inicio">
+      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5Z"/><path d="M9 21V11h6v10"/></svg></span>
+      <span class="bottom-nav-label">Início</span>
+    </a>
+    <a class="bottom-nav-link" href="../treino/index.html" data-nav="treino">
+      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
+      <span class="bottom-nav-label">Treinos</span>
+    </a>
+    <a class="bottom-nav-link" href="../explorar/index.html" data-nav="explorar">
+      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
+      <span class="bottom-nav-label">Explorar</span>
+    </a>
+    <a class="bottom-nav-link" href="../progresso/index.html" data-nav="progresso">
+      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
+      <span class="bottom-nav-label">Progresso</span>
+    </a>
+    <a class="bottom-nav-link is-active" href="../perfil/index.html" data-nav="perfil" aria-current="page">
+      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
+      <span class="bottom-nav-label">Perfil</span>
+    </a>
+  </div>
+</nav>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+    <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+  </div>
+</footer>
+
+<script src="./avaliacao-piloto-3d.js" defer></script>
+</body>
+</html>

@@ -23,6 +23,7 @@ mkdir -p "$OUT"
 # Caminhos relativos idênticos aos do repositório: preserva data-root, F.url(),
 # navegação e imagens quando o site é servido sob /forja/.
 cp -R "$ROOT/index.html" \
+      "$ROOT/avaliacao-piloto-3d" \
       "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/onboarding" \
       "$ROOT/perfil" "$ROOT/progresso" "$ROOT/treino" \
       "$ROOT/assets" "$OUT/"
@@ -44,8 +45,17 @@ for p in tools tests docs design artifacts .github .git node_modules \
   fi
 done
 
-# Recursos obrigatórios do app e dos créditos.
+# Recursos obrigatórios do app, da avaliação do piloto 3D e dos créditos.
 for p in index.html \
+         avaliacao-piloto-3d/index.html \
+         avaliacao-piloto-3d/avaliacao-piloto-3d.css \
+         avaliacao-piloto-3d/avaliacao-piloto-3d.js \
+         avaliacao-piloto-3d/midia/abdominal-masculino-horizontal-16x9.mp4 \
+         avaliacao-piloto-3d/midia/abdominal-masculino-vertical-9x16.mp4 \
+         avaliacao-piloto-3d/midia/poster-horizontal-16x9.png \
+         avaliacao-piloto-3d/midia/poster-vertical-9x16.png \
+         avaliacao-piloto-3d/midia/horizontal-mosaico-5-fases.png \
+         avaliacao-piloto-3d/midia/vertical-mosaico-5-fases.png \
          configuracoes/index.html explorar/index.html explorar/atlas.html \
          onboarding/index.html perfil/index.html progresso/index.html \
          treino/index.html treino/rotina.html treino/executar.html \

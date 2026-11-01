@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FORJA — Revisão Visual do Piloto Abdominal Masculino (Blender Cycles)</title>
+  <style>
+    :root {
+      --bg-page: #0c0e12;
+      --bg-surface: #141820;
+      --bg-elevated: #1b212c;
+      --bg-stage: #090b0e;
+      --border: #283141;
+      --border-strong: #3a475e;
+      --text-primary: #f1f5f9;
+      --text-secondary: #a3b1c6;
+      --text-muted: #728197;
+      --accent: #84cc16;
+      --accent-strong: #a3e635;
+      --accent-soft: rgba(132, 204, 22, 0.14);
+      --info-soft: rgba(56, 189, 248, 0.14);
+      --info-text: #7dd3fc;
+      --radius: 14px;
+      --radius-sm: 9px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 20px 56px;
+    }
+
+    header.topbar {
+      background: linear-gradient(180deg, rgba(27, 33, 44, 0.92), rgba(20, 24, 32, 0.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-strong);
+      background: var(--accent-soft);
+      border: 1px solid rgba(132, 204, 22, 0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1.2rem, 2vw, 1.55rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .subtitle code {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 0.84rem;
+    }
+
+    .global-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button, .btn-link {
+      appearance: none;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 13px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+      white-space: nowrap;
+    }
+
+    button:hover, .btn-link:hover {
+      background: #252d3d;
+      border-color: #516280;
+    }
+
+    button:active, .btn-link:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0b1105;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-strong);
+      border-color: var(--accent-strong);
+    }
+
+    .btn-active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+    }
+
+    .speed-group {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-stage);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .speed-group span {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      padding: 0 6px;
+    }
+
+    .speed-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 5px 8px;
+      font-size: 0.78rem;
+      border-radius: 6px;
+    }
+
+    .speed-btn.active {
+      background: var(--bg-elevated);
+      color: var(--accent-strong);
+      border: 1px solid rgba(132, 204, 22, 0.4);
+    }
+
+    .videos-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr);
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1040px) {
+      .videos-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .format-title {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .format-title h2 {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .format-title p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .badge-h {
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      border: 1px solid rgba(132, 204, 22, 0.35);
+    }
+
+    .badge-v {
+      background: var(--info-soft);
+      color: var(--info-text);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .video-stage {
+      background: var(--bg-stage);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      padding: 12px;
+      min-height: 320px;
+    }
+
+    .video-stage video {
+      display: block;
+      border-radius: 8px;
+      background: #000;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+    }
+
+    .video-stage.stage-horizontal video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 540px;
+      object-fit: contain;
+    }
+
+    .video-stage.stage-vertical video {
+      height: min(640px, 74vh);
+      width: auto;
+      max-width: 100%;
+      aspect-ratio: 9 / 16;
+      object-fit: contain;
+    }
+
+    /* Suporte completo a tela cheia nativa + fallback CSS em iframes restritos */
+    .video-stage:fullscreen,
+    .video-stage:-webkit-full-screen,
+    .video-stage.pseudo-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 9999 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      padding: 18px !important;
+      background: #050608 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .video-stage:fullscreen video,
+    .video-stage:-webkit-full-screen video,
+    .video-stage.pseudo-fullscreen video {
+      width: 100% !important;
+      height: calc(100vh - 76px) !important;
+      max-width: 100vw !important;
+      max-height: calc(100vh - 76px) !important;
+      object-fit: contain !important;
+    }
+
+    .exit-fs-bar {
+      display: none;
+      margin-top: 12px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .video-stage:fullscreen .exit-fs-bar,
+    .video-stage:-webkit-full-screen .exit-fs-bar,
+    .video-stage.pseudo-fullscreen .exit-fs-bar {
+      display: flex;
+    }
+
+    .player-toolbar {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(12, 14, 18, 0.55);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .timecode {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.79rem;
+      color: var(--text-secondary);
+      background: var(--bg-stage);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 7px;
+    }
+
+    .meta-list {
+      padding: 14px 20px 16px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px 14px;
+      font-size: 0.81rem;
+    }
+
+    .meta-item span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .meta-item strong {
+      color: var(--text-primary);
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    section.panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 1.12rem;
+    }
+
+    .section-head p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .posters-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.85fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .posters-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .media-box {
+      background: var(--bg-stage);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      overflow: hidden;
+    }
+
+    .media-box-head {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.84rem;
+    }
+
+    .media-frame {
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #07090c;
+    }
+
+    .media-frame img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      cursor: zoom-in;
+      display: block;
+    }
+
+    .media-frame.poster-v img {
+      max-height: 460px;
+      width: auto;
+    }
+
+    .mosaic-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .phase-pills {
+      padding: 10px 14px 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .phase-pills a {
+      color: var(--text-primary);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      text-decoration: none;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+    }
+
+    .phase-pills a:hover {
+      border-color: var(--accent);
+      color: var(--accent-strong);
+    }
+
+    .links-table-wrap {
+      overflow-x: auto;
+    }
+
+    table.links-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+
+    table.links-table th,
+    table.links-table td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    table.links-table th {
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    table.links-table a {
+      color: var(--accent-strong);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    table.links-table a:hover {
+      text-decoration: underline;
+    }
+
+    .hash {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+
+    /* Lightbox de inspeção em tela cheia para posters e mosaicos */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(4, 6, 9, 0.94);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 96vw;
+      max-height: calc(92vh - 56px);
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+    }
+
+    .lightbox-bar {
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      color: var(--text-secondary);
+      font-size: 0.86rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div>
+        <div class="brand-tag">FORJA · Revisão Visual do Piloto 3D</div>
+        <h1>Abdominal Tradicional Masculino — Blender Cycles</h1>
+        <p class="subtitle">
+          Diretório isolado: <code>docs/validacao-3d/piloto-abdominal-masculino/</code> · Modelo original <code>DOC-20261031-WA0008.bin</code> · Sem áudio · Loop contínuo
+        </p>
+      </div>
+
+      <div class="global-controls" aria-label="Controles sincronizados dos dois vídeos">
+        <button type="button" class="btn-primary" id="btn-play-both">▶ Reproduzir ambos</button>
+        <button type="button" id="btn-pause-both">⏸ Pausar ambos</button>
+        <button type="button" id="btn-restart-both">↺ Reiniciar (0,00 s)</button>
+        <button type="button" class="btn-active" id="btn-toggle-loop" aria-pressed="true">🔁 Loop: Ativo</button>
+        <div class="speed-group" role="group" aria-label="Velocidade de reprodução">
+          <span>Velocidade</span>
+          <button type="button" class="speed-btn active" data-speed="1">1,0×</button>
+          <button type="button" class="speed-btn" data-speed="0.5">0,5×</button>
+          <button type="button" class="speed-btn" data-speed="0.25">0,25×</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 1. DOIS VÍDEOS INDEPENDENTES -->
+    <main class="videos-grid">
+      <!-- HORIZONTAL 16:9 -->
+      <article class="card" aria-labelledby="titulo-horizontal">
+        <div class="card-header">
+          <div class="format-title">
+            <h2 id="titulo-horizontal">Formato Horizontal (16:9)</h2>
+            <p>Arquivo: <code>abdominal-masculino-horizontal-16x9.mp4</code> · Câmera horizontal dedicada (52 mm)</p>
+          </div>
+          <span class="badge badge-h">Horizontal · 16:9 · 1280 × 720</span>
+        </div>
+
+        <div class="video-stage stage-horizontal" id="stage-horizontal">
+          <video
+            id="video-horizontal"
+            controls
+            loop
+            muted
+            playsinline
+            preload="auto"
+            poster="./poster-horizontal-16x9.png"
+          >
+            <source src="./abdominal-masculino-horizontal-16x9.mp4" type="video/mp4" />
+            Seu navegador não suporta reprodução nativa de vídeo MP4 H.264.
+          </video>
+          <div class="exit-fs-bar">
+            <button type="button" data-toggle-video="video-horizontal">▶ / ⏸ Reproduzir ou Pausar</button>
+            <button type="button" data-exit-fs="stage-horizontal">✕ Sair da tela cheia (Esc)</button>
+          </div>
+        </div>
+
+        <div class="player-toolbar">
+          <div class="toolbar-left">
+            <button type="button" class="btn-primary" id="toggle-horizontal" data-toggle-video="video-horizontal">▶ Reproduzir</button>
+            <button type="button" data-fullscreen-stage="stage-horizontal" data-fullscreen-video="video-horizontal">⛶ Tela cheia</button>
+            <span class="timecode" id="time-horizontal">0,00 s / 6,00 s · Q001/180</span>
+          </div>
+          <div class="toolbar-right">
+            <a class="btn-link" href="./abdominal-masculino-horizontal-16x9.mp4" target="_blank" rel="noopener">↗ MP4 direto</a>
+            <a class="btn-link" href="./abdominal-masculino-horizontal-16x9.mp4?download=1" download="abdominal-masculino-horizontal-16x9.mp4">⬇ Baixar MP4</a>
+          </div>
+        </div>
+
+        <div class="meta-list">
+          <div class="meta-item">
+            <span>Resolução / Proporção</span>
+            <strong>1280 × 720 (16:9 nativo)</strong>
+          </div>
+          <div class="meta-item">
+            <span>Duração / Taxa de quadros</span>
+            <strong>6,00 s · 180 quadros @ 30 FPS</strong>
+          </div>
+          <div class="meta-item">
+            <span>Tamanho / Codec</span>
+            <strong>3,37 MiB (3.537.959 B) · H.264 yuv420p</strong>
+          </div>
+          <div class="meta-item">
+            <span>Câmera 3D independente</span>
+            <strong>52 mm · azim. -58° · elev. 22°</strong>
+          </div>
+        </div>
+      </article>
+
+      <!-- VERTICAL 9:16 -->
+      <article class="card" aria-labelledby="titulo-vertical">
+        <div class="card-header">
+          <div class="format-title">
+            <h2 id="titulo-vertical">Formato Vertical (9:16)</h2>
+            <p>Arquivo: <code>abdominal-masculino-vertical-9x16.mp4</code> · Câmera vertical reposicionada (sem recorte)</p>
+          </div>
+          <span class="badge badge-v">Vertical · 9:16 · 720 × 1280</span>
+        </div>
+
+        <div class="video-stage stage-vertical" id="stage-vertical">
+          <video
+            id="video-vertical"
+            controls
+            loop
+            muted
+            playsinline
+            preload="auto"
+            poster="./poster-vertical-9x16.png"
+          >
+            <source src="./abdominal-masculino-vertical-9x16.mp4" type="video/mp4" />
+            Seu navegador não suporta reprodução nativa de vídeo MP4 H.264.
+          </video>
+          <div class="exit-fs-bar">
+            <button type="button" data-toggle-video="video-vertical">▶ / ⏸ Reproduzir ou Pausar</button>
+            <button type="button" data-exit-fs="stage-vertical">✕ Sair da tela cheia (Esc)</button>
+          </div>
+        </div>
+
+        <div class="player-toolbar">
+          <div class="toolbar-left">
+            <button type="button" class="btn-primary" id="toggle-vertical" data-toggle-video="video-vertical">▶ Reproduzir</button>
+            <button type="button" data-fullscreen-stage="stage-vertical" data-fullscreen-video="video-vertical">⛶ Tela cheia</button>
+            <span class="timecode" id="time-vertical">0,00 s / 6,00 s · Q001/180</span>
+          </div>
+          <div class="toolbar-right">
+            <a class="btn-link" href="./abdominal-masculino-vertical-9x16.mp4" target="_blank" rel="noopener">↗ MP4 direto</a>
+            <a class="btn-link" href="./abdominal-masculino-vertical-9x16.mp4?download=1" download="abdominal-masculino-vertical-9x16.mp4">⬇ Baixar MP4</a>
+          </div>
+        </div>
+
+        <div class="meta-list">
+          <div class="meta-item">
+            <span>Resolução / Proporção</span>
+            <strong>720 × 1280 (9:16 nativo)</strong>
+          </div>
+          <div class="meta-item">
+            <span>Duração / Taxa de quadros</span>
+            <strong>6,00 s · 180 quadros @ 30 FPS</strong>
+          </div>
+          <div class="meta-item">
+            <span>Tamanho / Codec</span>
+            <strong>3,37 MiB (3.529.341 B) · H.264 yuv420p</strong>
+          </div>
+          <div class="meta-item">
+            <span>Câmera 3D independente</span>
+            <strong>48 mm · azim. +23° · elev. 45°</strong>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <!-- 2. POSTERS DEDICADOS -->
+    <section class="panel" aria-labelledby="sec-posters">
+      <div class="section-head">
+        <div>
+          <h2 id="sec-posters">Posters Dedicados (Pico de Contração — Quadro q0046)</h2>
+          <p>Clique na imagem ou em “Ampliar” para inspecionar em tela cheia na resolução nativa.</p>
+        </div>
+      </div>
+
+      <div class="posters-grid">
+        <div class="media-box">
+          <div class="media-box-head">
+            <strong>Poster Horizontal (16:9) — <code>poster-horizontal-16x9.png</code> (1280 × 720)</strong>
+            <div>
+              <button type="button" data-lightbox="./poster-horizontal-16x9.png" data-caption="Poster Horizontal (16:9) — 1280 × 720">⛶ Ampliar</button>
+              <a class="btn-link" href="./poster-horizontal-16x9.png" target="_blank" rel="noopener">↗ PNG direto</a>
+            </div>
+          </div>
+          <div class="media-frame">
+            <img
+              src="./poster-horizontal-16x9.png"
+              alt="Poster horizontal 16:9 do exercício abdominal masculino"
+              data-lightbox="./poster-horizontal-16x9.png"
+              data-caption="Poster Horizontal (16:9) — 1280 × 720"
+            />
+          </div>
+        </div>
+
+        <div class="media-box">
+          <div class="media-box-head">
+            <strong>Poster Vertical (9:16) — <code>poster-vertical-9x16.png</code> (720 × 1280)</strong>
+            <div>
+              <button type="button" data-lightbox="./poster-vertical-9x16.png" data-caption="Poster Vertical (9:16) — 720 × 1280">⛶ Ampliar</button>
+              <a class="btn-link" href="./poster-vertical-9x16.png" target="_blank" rel="noopener">↗ PNG direto</a>
+            </div>
+          </div>
+          <div class="media-frame poster-v">
+            <img
+              src="./poster-vertical-9x16.png"
+              alt="Poster vertical 9:16 do exercício abdominal masculino"
+              data-lightbox="./poster-vertical-9x16.png"
+              data-caption="Poster Vertical (9:16) — 720 × 1280"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. MOSAICOS DE CINCO FASES -->
+    <section class="panel" aria-labelledby="sec-mosaicos">
+      <div class="section-head">
+        <div>
+          <h2 id="sec-mosaicos">Mosaicos das Cinco Fases do Ciclo (q0001 · q0023 · q0046 · q0068 · q0090)</h2>
+          <p>Início/repouso dorsal, subida concêntrica, pico de contração abdominal, descida excêntrica e fechamento do loop.</p>
+        </div>
+      </div>
+
+      <div class="mosaic-stack">
+        <div class="media-box">
+          <div class="media-box-head">
+            <strong>Mosaico Horizontal (16:9) — <code>quadros-representativos/horizontal-mosaico-5-fases.png</code></strong>
+            <div>
+              <button type="button" data-lightbox="./quadros-representativos/horizontal-mosaico-5-fases.png" data-caption="Mosaico Horizontal (16:9) — 5 fases (q0001, q0023, q0046, q0068, q0090)">⛶ Ampliar</button>
+              <a class="btn-link" href="./quadros-representativos/horizontal-mosaico-5-fases.png" target="_blank" rel="noopener">↗ PNG direto</a>
+            </div>
+          </div>
+          <div class="media-frame">
+            <img
+              src="./quadros-representativos/horizontal-mosaico-5-fases.png"
+              alt="Mosaico horizontal de cinco fases do abdominal masculino"
+              data-lightbox="./quadros-representativos/horizontal-mosaico-5-fases.png"
+              data-caption="Mosaico Horizontal (16:9) — 5 fases (q0001, q0023, q0046, q0068, q0090)"
+            />
+          </div>
+          <div class="phase-pills">
+            <span>Quadros individuais 1280×720:</span>
+            <a href="./quadros-representativos/horizontal-q0001-inicio.png" target="_blank" rel="noopener">q0001 (Início)</a>
+            <a href="./quadros-representativos/horizontal-q0023-subida.png" target="_blank" rel="noopener">q0023 (Subida)</a>
+            <a href="./quadros-representativos/horizontal-q0046-pico.png" target="_blank" rel="noopener">q0046 (Pico)</a>
+            <a href="./quadros-representativos/horizontal-q0068-descida.png" target="_blank" rel="noopener">q0068 (Descida)</a>
+            <a href="./quadros-representativos/horizontal-q0090-fim-loop.png" target="_blank" rel="noopener">q0090 (Fim do loop)</a>
+          </div>
+        </div>
+
+        <div class="media-box">
+          <div class="media-box-head">
+            <strong>Mosaico Vertical (9:16) — <code>quadros-representativos/vertical-mosaico-5-fases.png</code></strong>
+            <div>
+              <button type="button" data-lightbox="./quadros-representativos/vertical-mosaico-5-fases.png" data-caption="Mosaico Vertical (9:16) — 5 fases (q0001, q0023, q0046, q0068, q0090)">⛶ Ampliar</button>
+              <a class="btn-link" href="./quadros-representativos/vertical-mosaico-5-fases.png" target="_blank" rel="noopener">↗ PNG direto</a>
+            </div>
+          </div>
+          <div class="media-frame">
+            <img
+              src="./quadros-representativos/vertical-mosaico-5-fases.png"
+              alt="Mosaico vertical de cinco fases do abdominal masculino"
+              data-lightbox="./quadros-representativos/vertical-mosaico-5-fases.png"
+              data-caption="Mosaico Vertical (9:16) — 5 fases (q0001, q0023, q0046, q0068, q0090)"
+            />
+          </div>
+          <div class="phase-pills">
+            <span>Quadros individuais 720×1280:</span>
+            <a href="./quadros-representativos/vertical-q0001-inicio.png" target="_blank" rel="noopener">q0001 (Início)</a>
+            <a href="./quadros-representativos/vertical-q0023-subida.png" target="_blank" rel="noopener">q0023 (Subida)</a>
+            <a href="./quadros-representativos/vertical-q0046-pico.png" target="_blank" rel="noopener">q0046 (Pico)</a>
+            <a href="./quadros-representativos/vertical-q0068-descida.png" target="_blank" rel="noopener">q0068 (Descida)</a>
+            <a href="./quadros-representativos/vertical-q0090-fim-loop.png" target="_blank" rel="noopener">q0090 (Fim do loop)</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. LINKS DIRETOS E INTEGRIDADE SHA-256 -->
+    <section class="panel" aria-labelledby="sec-links">
+      <div class="section-head">
+        <div>
+          <h2 id="sec-links">Links Diretos para os Arquivos Originais e Hashes SHA-256</h2>
+          <p>Arquivos originais intactos (nenhum novo render executado; verificados via <code>SHA256SUMS.txt</code>).</p>
+        </div>
+      </div>
+
+      <div class="links-table-wrap">
+        <table class="links-table">
+          <thead>
+            <tr>
+              <th>Entregável</th>
+              <th>Formato / Dimensões</th>
+              <th>Tamanho</th>
+              <th>Acesso Direto</th>
+              <th>SHA-256</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Vídeo Horizontal</strong></td>
+              <td>MP4 H.264 · 1280 × 720 (16:9) · 30 FPS</td>
+              <td>3.537.959 B (3,37 MiB)</td>
+              <td>
+                <a href="./abdominal-masculino-horizontal-16x9.mp4" target="_blank" rel="noopener">Abrir MP4</a> ·
+                <a href="./abdominal-masculino-horizontal-16x9.mp4?download=1" download="abdominal-masculino-horizontal-16x9.mp4">Baixar</a>
+              </td>
+              <td class="hash">785aaf534e7ec95ae31c9070823c0b5c6440e5c31b68f86a54cdbd8f2b515828</td>
+            </tr>
+            <tr>
+              <td><strong>Vídeo Vertical</strong></td>
+              <td>MP4 H.264 · 720 × 1280 (9:16) · 30 FPS</td>
+              <td>3.529.341 B (3,37 MiB)</td>
+              <td>
+                <a href="./abdominal-masculino-vertical-9x16.mp4" target="_blank" rel="noopener">Abrir MP4</a> ·
+                <a href="./abdominal-masculino-vertical-9x16.mp4?download=1" download="abdominal-masculino-vertical-9x16.mp4">Baixar</a>
+              </td>
+              <td class="hash">1e3b12e1f163bcb58d13e5892e358bf823a3cf3b0c53505aca724e8e470e541a</td>
+            </tr>
+            <tr>
+              <td><strong>Poster Horizontal</strong></td>
+              <td>PNG · 1280 × 720 (16:9)</td>
+              <td>778.302 B</td>
+              <td><a href="./poster-horizontal-16x9.png" target="_blank" rel="noopener">poster-horizontal-16x9.png</a></td>
+              <td class="hash">59cac628bc4008310b75b1a1c02123fac5cb316e3822a29e24361fb6026748cd</td>
+            </tr>
+            <tr>
+              <td><strong>Poster Vertical</strong></td>
+              <td>PNG · 720 × 1280 (9:16)</td>
+              <td>643.170 B</td>
+              <td><a href="./poster-vertical-9x16.png" target="_blank" rel="noopener">poster-vertical-9x16.png</a></td>
+              <td class="hash">afb54266947c5371c7c12c893ef9badc9f76fc9971e1fccca73dd8c7cf00c1c0</td>
+            </tr>
+            <tr>
+              <td><strong>Mosaico 5 Fases Horizontal</strong></td>
+              <td>PNG · 5 fases (16:9)</td>
+              <td>218.138 B</td>
+              <td><a href="./quadros-representativos/horizontal-mosaico-5-fases.png" target="_blank" rel="noopener">horizontal-mosaico-5-fases.png</a></td>
+              <td class="hash">a535fcc3e353308f25ece6abb91f45ec3a1e23a643354a53c917b4ef4ce9e49c</td>
+            </tr>
+            <tr>
+              <td><strong>Mosaico 5 Fases Vertical</strong></td>
+              <td>PNG · 5 fases (9:16)</td>
+              <td>233.595 B</td>
+              <td><a href="./quadros-representativos/vertical-mosaico-5-fases.png" target="_blank" rel="noopener">vertical-mosaico-5-fases.png</a></td>
+              <td class="hash">4efe54b2ee2bcf80eb02e4b72b1804d197ea693a5c413c2106bf66e34172c62a</td>
+            </tr>
+            <tr>
+              <td><strong>Relatório Técnico & Manifesto</strong></td>
+              <td>Markdown / JSON / SHA-256</td>
+              <td>—</td>
+              <td>
+                <a href="./relatorio-piloto-abdominal.md" target="_blank" rel="noopener">Relatório (.md)</a> ·
+                <a href="./relatorio-piloto-abdominal.json" target="_blank" rel="noopener">Métricas (.json)</a> ·
+                <a href="./SHA256SUMS.txt" target="_blank" rel="noopener">SHA256SUMS.txt</a>
+              </td>
+              <td class="hash">Integridade verificada (27/27 OK)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- Lightbox para posters e mosaicos -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visualização ampliada">
+    <img id="lightbox-img" src="" alt="" />
+    <div class="lightbox-bar">
+      <span id="lightbox-caption"></span>
+      <a class="btn-link" id="lightbox-raw" href="#" target="_blank" rel="noopener">↗ Abrir arquivo original</a>
+      <button type="button" id="lightbox-close">✕ Fechar (Esc)</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const vH = document.getElementById("video-horizontal");
+      const vV = document.getElementById("video-vertical");
+      const videos = [vH, vV];
+
+      function formatarTempoQuadro(video, idSaida) {
+        const el = document.getElementById(idSaida);
+        if (!el || !video) return;
+        const dur = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 6.0;
+        const cur = video.currentTime || 0;
+        const quadro = Math.min(180, Math.max(1, Math.floor(cur * 30) + 1));
+        el.textContent =
+          cur.toFixed(2).replace(".", ",") +
+          " s / " +
+          dur.toFixed(2).replace(".", ",") +
+          " s · Q" +
+          String(quadro).padStart(3, "0") +
+          "/180";
+      }
+
+      function atualizarBotaoPlay(video, idBotao) {
+        const btn = document.getElementById(idBotao);
+        if (!btn || !video) return;
+        btn.textContent = video.paused ? "▶ Reproduzir" : "⏸ Pausar";
+      }
+
+      [
+        [vH, "time-horizontal", "toggle-horizontal"],
+        [vV, "time-vertical", "toggle-vertical"],
+      ].forEach(([vid, timeId, btnId]) => {
+        ["timeupdate", "loadedmetadata", "seeked"].forEach((ev) =>
+          vid.addEventListener(ev, () => formatarTempoQuadro(vid, timeId))
+        );
+        ["play", "pause", "ended"].forEach((ev) =>
+          vid.addEventListener(ev, () => atualizarBotaoPlay(vid, btnId))
+        );
+      });
+
+      document.querySelectorAll("[data-toggle-video]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const vid = document.getElementById(btn.getAttribute("data-toggle-video"));
+          if (!vid) return;
+          if (vid.paused) {
+            vid.play().catch(() => {});
+          } else {
+            vid.pause();
+          }
+        });
+      });
+
+      document.getElementById("btn-play-both").addEventListener("click", () => {
+        videos.forEach((v) => v.play().catch(() => {}));
+      });
+
+      document.getElementById("btn-pause-both").addEventListener("click", () => {
+        videos.forEach((v) => v.pause());
+      });
+
+      document.getElementById("btn-restart-both").addEventListener("click", () => {
+        videos.forEach((v) => {
+          v.currentTime = 0;
+        });
+      });
+
+      const btnLoop = document.getElementById("btn-toggle-loop");
+      btnLoop.addEventListener("click", () => {
+        const novoLoop = !vH.loop;
+        videos.forEach((v) => {
+          v.loop = novoLoop;
+        });
+        btnLoop.setAttribute("aria-pressed", String(novoLoop));
+        btnLoop.textContent = novoLoop ? "🔁 Loop: Ativo" : "🔁 Loop: Desativado";
+        btnLoop.classList.toggle("btn-active", novoLoop);
+      });
+
+      document.querySelectorAll(".speed-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const vel = parseFloat(btn.getAttribute("data-speed") || "1");
+          videos.forEach((v) => {
+            v.playbackRate = vel;
+          });
+          document.querySelectorAll(".speed-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      });
+
+      // Tela cheia com suporte nativo + fallback em viewport completo caso o iframe bloqueie a Fullscreen API
+      async function abrirTelaCheia(stageEl, videoEl) {
+        try {
+          if (stageEl.requestFullscreen) {
+            await stageEl.requestFullscreen();
+            return;
+          }
+          if (stageEl.webkitRequestFullscreen) {
+            stageEl.webkitRequestFullscreen();
+            return;
+          }
+          if (videoEl && videoEl.webkitEnterFullscreen) {
+            videoEl.webkitEnterFullscreen();
+            return;
+          }
+        } catch (_) {
+          // Fallback para visualização em tela cheia dentro do próprio viewport
+        }
+        stageEl.classList.add("pseudo-fullscreen");
+      }
+
+      function sairTelaCheia(stageEl) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+        if (stageEl) {
+          stageEl.classList.remove("pseudo-fullscreen");
+        } else {
+          document.querySelectorAll(".pseudo-fullscreen").forEach((el) => el.classList.remove("pseudo-fullscreen"));
+        }
+      }
+
+      document.querySelectorAll("[data-fullscreen-stage]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const stage = document.getElementById(btn.getAttribute("data-fullscreen-stage"));
+          const video = document.getElementById(btn.getAttribute("data-fullscreen-video"));
+          if (!stage) return;
+          if (document.fullscreenElement === stage || stage.classList.contains("pseudo-fullscreen")) {
+            sairTelaCheia(stage);
+          } else {
+            abrirTelaCheia(stage, video);
+          }
+        });
+      });
+
+      document.querySelectorAll("[data-exit-fs]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const stage = document.getElementById(btn.getAttribute("data-exit-fs"));
+          sairTelaCheia(stage);
+        });
+      });
+
+      // Lightbox para imagens (posters e mosaicos)
+      const lightbox = document.getElementById("lightbox");
+      const lbImg = document.getElementById("lightbox-img");
+      const lbCap = document.getElementById("lightbox-caption");
+      const lbRaw = document.getElementById("lightbox-raw");
+
+      document.querySelectorAll("[data-lightbox]").forEach((el) => {
+        el.addEventListener("click", () => {
+          const src = el.getAttribute("data-lightbox");
+          const cap = el.getAttribute("data-caption") || "";
+          lbImg.src = src;
+          lbImg.alt = cap;
+          lbCap.textContent = cap;
+          lbRaw.href = src;
+          lightbox.classList.add("open");
+        });
+      });
+
+      function fecharLightbox() {
+        lightbox.classList.remove("open");
+        lbImg.src = "";
+      }
+
+      document.getElementById("lightbox-close").addEventListener("click", fecharLightbox);
+      lightbox.addEventListener("click", (ev) => {
+        if (ev.target === lightbox) fecharLightbox();
+      });
+
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") {
+          fecharLightbox();
+          sairTelaCheia(null);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

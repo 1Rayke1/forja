@@ -1,0 +1,600 @@
+/* ==========================================================================
+   FORJA — Tela Temporária Isolada: AVALIAÇÃO DO PILOTO 3D
+   Escopo estrito sob body[data-page="avaliacao-piloto-3d"] para não interferir
+   em nenhuma outra página, componente ou estilo do aplicativo.
+   ========================================================================== */
+
+body[data-page="avaliacao-piloto-3d"] .container.piloto-container {
+  width: min(100% - 28px, 1080px);
+  padding-bottom: calc(var(--bottom-nav-height, 72px) + env(safe-area-inset-bottom, 0px) + 28px);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-temp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold, #e7c779);
+  background: rgba(231, 199, 121, 0.12);
+  border: 1px solid rgba(231, 199, 121, 0.35);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-head {
+  margin: 14px 0 18px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-screen-name {
+  font-family: var(--fj-fonte-titulo, inherit);
+  font-size: clamp(24px, 5.6vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 6px 0 6px;
+  color: var(--text, #f5f5f5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-exercise-title {
+  font-family: var(--fj-fonte-titulo, inherit);
+  font-size: clamp(17px, 3.8vw, 21px);
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--gold, #e7c779);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-lead {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted, #a5a5a5);
+  max-width: 72ch;
+}
+
+/* Seletor de visualização (Ambos / Horizontal / Vertical) */
+body[data-page="avaliacao-piloto-3d"] .piloto-view-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  margin: 0 0 18px;
+  background: var(--panel, #191919);
+  border: 1px solid var(--border, #303030);
+  border-radius: 12px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-view-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, #a5a5a5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-tab-btn {
+  min-height: 40px;
+  padding: 7px 13px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #303030);
+  background: var(--panel2, #222222);
+  color: var(--text, #f5f5f5);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-tab-btn[aria-pressed="true"] {
+  border-color: var(--gold, #e7c779);
+  background: rgba(231, 199, 121, 0.16);
+  color: var(--gold, #e7c779);
+}
+
+/* Grade responsiva: empilhada no retrato Android; lado a lado em paisagem / telas largas */
+body[data-page="avaliacao-piloto-3d"] .piloto-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+  margin: 0 0 24px;
+}
+
+@media (min-width: 820px), (orientation: landscape) and (min-width: 680px) {
+  body[data-page="avaliacao-piloto-3d"] .piloto-cards-grid[data-view-mode="ambos"] {
+    grid-template-columns: minmax(0, 1.32fr) minmax(280px, 0.92fr);
+  }
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-card {
+  background: var(--panel, #191919);
+  border: 1px solid var(--border, #303030);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-card[hidden] {
+  display: none !important;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-card-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border, #303030);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-card-title-wrap h3 {
+  margin: 0;
+  font-family: var(--fj-fonte-titulo, inherit);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text, #f5f5f5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-card-sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--muted, #a5a5a5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--panel2, #222222);
+  border: 1px solid var(--border, #303030);
+  color: var(--muted, #a5a5a5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-status-badge[data-tone="ready"],
+body[data-page="avaliacao-piloto-3d"] .piloto-status-badge[data-tone="playing"] {
+  color: var(--green, #8bc99a);
+  border-color: rgba(139, 201, 154, 0.4);
+  background: rgba(139, 201, 154, 0.11);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-status-badge[data-tone="loading"] {
+  color: var(--gold, #e7c779);
+  border-color: rgba(231, 199, 121, 0.45);
+  background: rgba(231, 199, 121, 0.12);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-status-badge[data-tone="error"] {
+  color: var(--red, #ff8585);
+  border-color: rgba(255, 133, 133, 0.45);
+  background: rgba(255, 133, 133, 0.12);
+}
+
+/* Palco do vídeo + camada anti-tela-preta com poster */
+body[data-page="avaliacao-piloto-3d"] .piloto-stage {
+  position: relative;
+  width: 100%;
+  background: #14161a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-stage-horizontal {
+  aspect-ratio: 16 / 9;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-stage-vertical {
+  padding: 8px 0;
+  min-height: 360px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-video-frame {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-stage-horizontal .piloto-video-frame {
+  aspect-ratio: 16 / 9;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-stage-vertical .piloto-video-frame {
+  aspect-ratio: 9 / 16;
+  width: min(100%, 330px);
+  max-height: 70vh;
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  body[data-page="avaliacao-piloto-3d"] .piloto-stage-vertical .piloto-video-frame {
+    width: auto;
+    height: min(68vh, 340px);
+  }
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: transparent;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-poster-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #14161a;
+  cursor: pointer;
+  transition: opacity 0.16s ease;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-poster-layer.is-video-ready {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-poster-cta {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(16, 16, 16, 0.86);
+  border: 1px solid rgba(231, 199, 121, 0.55);
+  color: var(--text, #f5f5f5);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 16, 16, 0.46);
+  pointer-events: none;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-loading-pill {
+  padding: 8px 15px;
+  border-radius: 999px;
+  background: rgba(18, 16, 16, 0.94);
+  border: 1px solid var(--gold, #e7c779);
+  color: var(--gold, #e7c779);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-error-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  padding: 18px;
+  background: rgba(22, 18, 18, 0.96);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-error-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--red, #ff8585);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-error-detail {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted, #a5a5a5);
+  max-width: 44ch;
+  word-break: break-word;
+}
+
+/* Tela cheia nativa (:fullscreen) e fallback Android/WebView (.is-pseudo-fullscreen) */
+body[data-page="avaliacao-piloto-3d"] .piloto-stage:fullscreen,
+body[data-page="avaliacao-piloto-3d"] .piloto-stage:-webkit-full-screen,
+body[data-page="avaliacao-piloto-3d"] .piloto-stage.is-pseudo-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 12px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  background: #0d0e11 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-stage:fullscreen .piloto-video-frame,
+body[data-page="avaliacao-piloto-3d"] .piloto-stage:-webkit-full-screen .piloto-video-frame,
+body[data-page="avaliacao-piloto-3d"] .piloto-stage.is-pseudo-fullscreen .piloto-video-frame {
+  width: 100% !important;
+  max-width: 100vw !important;
+  height: calc(100dvh - 96px) !important;
+  max-height: calc(100vh - 96px) !important;
+  flex: 1 1 auto !important;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-fs-toolbar {
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  z-index: 5;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-stage:fullscreen .piloto-fs-toolbar,
+body[data-page="avaliacao-piloto-3d"] .piloto-stage:-webkit-full-screen .piloto-fs-toolbar,
+body[data-page="avaliacao-piloto-3d"] .piloto-stage.is-pseudo-fullscreen .piloto-fs-toolbar {
+  display: flex;
+}
+
+/* Indicador de duração e barra de progresso */
+body[data-page="avaliacao-piloto-3d"] .piloto-progress-block {
+  padding: 12px 16px 8px;
+  border-top: 1px solid var(--border, #303030);
+  background: rgba(0, 0, 0, 0.16);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-time-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--fj-fonte-numero, ui-monospace, monospace);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-time-main {
+  font-weight: 700;
+  color: var(--text, #f5f5f5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-time-meta {
+  color: var(--muted, #a5a5a5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-range {
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  accent-color: var(--gold, #e7c779);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Barra de botões principais e controle de velocidade */
+body[data-page="avaliacao-piloto-3d"] .piloto-controls {
+  padding: 10px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-btn-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (max-width: 440px) {
+  body[data-page="avaliacao-piloto-3d"] .piloto-btn-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-ctrl-btn {
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border, #303030);
+  background: var(--panel2, #222222);
+  color: var(--text, #f5f5f5);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  touch-action: manipulation;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-ctrl-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-ctrl-btn:disabled {
+  opacity: 0.46;
+  cursor: default;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-ctrl-btn.is-primary {
+  background: var(--gold, #e7c779);
+  border-color: var(--gold, #e7c779);
+  color: #121010;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-speed-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-speed-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted, #a5a5a5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-speed-group {
+  display: inline-flex;
+  gap: 6px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-speed-btn {
+  min-width: 58px;
+  min-height: 40px;
+  padding: 6px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #303030);
+  background: var(--panel2, #222222);
+  color: var(--text, #f5f5f5);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-speed-btn[aria-pressed="true"] {
+  border-color: var(--gold, #e7c779);
+  background: rgba(231, 199, 121, 0.18);
+  color: var(--gold, #e7c779);
+}
+
+/* Painel de critérios de avaliação visual */
+body[data-page="avaliacao-piloto-3d"] .piloto-checklist-panel {
+  background: var(--panel, #191919);
+  border: 1px solid var(--border, #303030);
+  border-radius: 14px;
+  padding: 18px 18px 20px;
+  margin: 0 0 24px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--panel2, #222222);
+  border: 1px solid var(--border, #303030);
+  cursor: pointer;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-check-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--gold, #e7c779);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-check-item strong {
+  display: block;
+  font-size: 13.5px;
+  color: var(--text, #f5f5f5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-check-item span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted, #a5a5a5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-mosaic-disclosure {
+  margin-top: 14px;
+  border-top: 1px solid var(--border, #303030);
+  padding-top: 12px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-mosaic-disclosure summary {
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--gold, #e7c779);
+  padding: 6px 0;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-mosaic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-mosaic-box {
+  background: #131519;
+  border: 1px solid var(--border, #303030);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-mosaic-box p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted, #a5a5a5);
+}
+
+body[data-page="avaliacao-piloto-3d"] .piloto-mosaic-box img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+}
