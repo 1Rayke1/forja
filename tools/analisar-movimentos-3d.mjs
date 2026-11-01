@@ -217,16 +217,31 @@ export function medir(clipe, cena, ossos, amostras = 48) {
     deriva = Math.max(deriva, Math.hypot(b.x - a.x, b.z - a.z) * (quadros.length - 1));
   }
 
-  /* Salto de pose: o maior deslocamento de punho ou pé entre amostras vizinhas. */
+  /*
+    Salto de pose: maior deslocamento de punho/pé entre amostras vizinhas — e,
+    ao lado dele, a razão contra a mediana do próprio clipe. Movimento rápido e
+    contínuo (polichinelo, corrida) dá razão baixa; um quadro solto dá razão
+    alta. Sem a razão, todo exercício rápido era acusado de "salto".
+  */
+  const saltosPorQuadro = [];
   let salto = 0;
   for (let i = 1; i < quadros.length; i += 1) {
+    let maiorDoQuadro = 0;
     for (const chave of ["maos", "pes"]) {
       for (let lado = 0; lado < 2; lado += 1) {
         const d = quadros[i][chave][lado].distanceTo(quadros[i - 1][chave][lado]);
-        salto = Math.max(salto, d);
+        maiorDoQuadro = Math.max(maiorDoQuadro, d);
       }
     }
+    saltosPorQuadro.push(maiorDoQuadro);
+    salto = Math.max(salto, maiorDoQuadro);
   }
+  /* pico contra mediana: descontinuidade de verdade dá razão alta */
+  const saltosOrdenados = [...saltosPorQuadro].sort((a, b) => a - b);
+  const medianaSalto = saltosOrdenados.length
+    ? saltosOrdenados[Math.floor(saltosOrdenados.length / 2)]
+    : 0;
+  const razaoSalto = medianaSalto > 1e-4 ? salto / medianaSalto : 0;
 
   /* Laço: distância entre a primeira e a última pose, comparada à amplitude toda. */
   const primeira = quadros[0];
@@ -266,7 +281,16 @@ export function medir(clipe, cena, ossos, amostras = 48) {
     movimentoGraus: +(faixa("joelho").amp + faixa("cotovelo").amp + faixa("ombroAbd").amp).toFixed(1),
     ombroY: faixa("ombroY"),
     derivaXZ: +deriva.toFixed(3),
+    /* deslocamento real no chão (extensão do quadril em XZ), diferente de
+       derivaXZ, que extrapola a velocidade de um quadro para o clipe inteiro */
+    deslocamentoXZ: +Math.hypot(
+      Math.max(...quadros.map(q => q.P.hips.x)) - Math.min(...quadros.map(q => q.P.hips.x)),
+      Math.max(...quadros.map(q => q.P.hips.z)) - Math.min(...quadros.map(q => q.P.hips.z))
+    ).toFixed(3),
     saltoMax: +salto.toFixed(3),
+    saltoMediana: +medianaSalto.toFixed(3),
+    saltoRazao: +razaoSalto.toFixed(1),
+    saltoDescontinuo: Boolean(salto > 0.12 && razaoSalto >= 4),
     descontinuidadeLaco: +descontinuidade.toFixed(3),
     escalaMax: escala,
     quadrosNaN: quadros.filter(q => !Number.isFinite(q.joelho + q.cotovelo + q.quadrilFlex)).length
@@ -306,7 +330,7 @@ export async function analisarClipes(opcoes = {}) {
     const higiene = [];
     if (medido.quadrosNaN > 0) higiene.push("pose inválida (NaN) em " + medido.quadrosNaN + " amostras");
     if (medido.peMin.min !== null && medido.peMin.min < -0.02) higiene.push("pé abaixo do chão (" + medido.peMin.min + " m)");
-    if (medido.saltoMax > 0.35) higiene.push("salto de pose entre quadros (" + medido.saltoMax + " m)");
+    if (medido.saltoDescontinuo) higiene.push("salto de pose entre quadros (" + medido.saltoMax + " m, " + medido.saltoRazao + "× a mediana)");
     if (info.loop && medido.descontinuidadeLaco > 0.12) higiene.push("laço descontínuo (" + medido.descontinuidadeLaco + " m)");
     if (medido.escalaMax > 0.01) higiene.push("escala de osso animada (" + medido.escalaMax + ")");
 
@@ -359,7 +383,7 @@ export async function analisarArquivo(arquivo, opcoes = {}) {
   const higiene = [];
   if (medido.quadrosNaN > 0) higiene.push("pose inválida (NaN)");
   if (medido.peMin.min !== null && medido.peMin.min < -0.02) higiene.push("pé abaixo do chão (" + medido.peMin.min + " m)");
-  if (medido.saltoMax > 0.35) higiene.push("salto de pose entre quadros (" + medido.saltoMax + " m)");
+  if (medido.saltoDescontinuo) higiene.push("salto de pose entre quadros (" + medido.saltoMax + " m, " + medido.saltoRazao + "× a mediana)");
   if (medido.escalaMax > 0.01) higiene.push("escala de osso animada (" + medido.escalaMax + ")");
   return { arquivo: path.isAbsolute(arquivo) ? arquivo : path.join(raiz, arquivo), duracao: +clipe.duration.toFixed(2), medido, higiene };
 }
@@ -391,7 +415,10 @@ const ehPrincipal = process.argv[1] &&
 if (ehPrincipal) {
   const opcoes = argumentos(process.argv.slice(2));
   if (opcoes.arquivo) {
-    const r = await analisarArquivo(opcoes.arquivo, { amostras: opcoes.amostras ? Number(opcoes.amostras) : 48 });
+    const r = await analisarArquivo(opcoes.arquivo, {
+      amostras: opcoes.amostras ? Number(opcoes.amostras) : 48,
+      personagem: opcoes.personagem || "masculino"
+    });
     if (opcoes.json) {
       console.log(JSON.stringify(r, null, 1));
     } else {

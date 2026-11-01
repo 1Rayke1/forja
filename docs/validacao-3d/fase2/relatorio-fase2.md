@@ -60,11 +60,15 @@ marcado como candidato, não publicado.
 
 ## 3. Descontinuidade entre quadros — causa encontrada
 
-O "salto de pose" não é do transferidor: é do **arquivo de origem**.
-Amostrando `06_Jumping_Jacks.fbx` em 97 pontos (`/tmp/f2/cont-fonte.mjs`), o
-maior salto entre amostras consecutivas de 0,04 s é **112,5 unidades FBX
-(≈1,12 m)**, com média 15,3. É mocap de baixa taxa de quadros: a fonte pula, e
-qualquer clipe fiel à fonte vai pular.
+> **Corrigido na fase 3.** A frase abaixo estava errada: aquela medição usou
+> todas as 66 ossos e unidades do FBX (cm), sem escala. Medido direito — 15
+> ossos mapeados, em metros, a 24 fps — o pior quadro de
+> `06_Jumping_Jacks.fbx` é **0,2145 m com razão 3,6** contra a mediana dos
+> vizinhos: é movimento rápido de braço, não salto. Ver
+> `docs/validacao-3d/fase3/relatorio-transferencia.md` §3.
+
+O "salto de pose" **não** é do transferidor nem da fonte do polichinelo: é do
+**arquivo do iClone**, e só nas duas bordas (0,042 s e 46,067 s).
 
 Onde a descontinuidade **não** existe: no caminho DeskBreak. `prancha-v2`
 (`candidatos/prancha-v2.glb`) sai com higiene **ok**, sem salto entre quadros,
