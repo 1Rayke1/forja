@@ -19,7 +19,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       BRANCH_SESSAO: arena/1c5f56b5-forja
       TAG_TESTE: teste-lfs-${{ github.run_id }}
-      BRANCH_TESTE: teste-lfs-${{ github.run_id }}
+      BRANCH_TESTE: teste-branch-lfs-${{ github.run_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

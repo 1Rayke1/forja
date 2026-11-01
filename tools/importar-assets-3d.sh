@@ -231,9 +231,9 @@ echo "Commit criado: $(git -C "$ROOT" log -1 --pretty='%h %s')"
 if [ "$PUSH" -eq 1 ]; then
   ok=0
   for tentativa in 1 2 3; do
-    if git -C "$ROOT" push origin "HEAD:${BRANCH}"; then ok=1; break; fi
+    if git -C "$ROOT" push origin "HEAD:refs/heads/${BRANCH}"; then ok=1; break; fi
     echo "Push recusado (tentativa ${tentativa}); atualizando com rebase…"
-    git -C "$ROOT" pull --rebase --autostash origin "$BRANCH" || true
+    git -C "$ROOT" pull --rebase --autostash origin "refs/heads/${BRANCH}" || true
   done
   if [ "$ok" -ne 1 ]; then
     echo "ERRO: não foi possível enviar o commit para ${BRANCH}." >&2

@@ -29,7 +29,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TAMANHO_MB: ${{ inputs.tamanho_mb }}
       TAG_TESTE: teste-lfs-${{ github.run_id }}
-      BRANCH_TESTE: teste-lfs-${{ github.run_id }}
+      BRANCH_TESTE: teste-branch-lfs-${{ github.run_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
