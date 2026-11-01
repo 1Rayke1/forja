@@ -7,7 +7,7 @@ name: Teste de recebimento (temporário, via push)
 on:
   push:
     paths:
-      - "FORJA_ASSETS_3D/.teste-disparo"
+      - "FORJA_ASSETS_3D/.teste-disparo.md"
 
 permissions:
   contents: write
@@ -65,11 +65,22 @@ jobs:
 
       - name: "Teste 2b — importar a release para um branch temporário via LFS"
         run: |
-          set -euo pipefail
-          bash tools/importar-assets-3d.sh "$TAG_TESTE" \
+          set -o pipefail
+          bash -x tools/importar-assets-3d.sh "$TAG_TESTE" \
             --repo "$GITHUB_REPOSITORY" \
             --branch "$BRANCH_TESTE" \
-            --destino FORJA_ASSETS_3D/exemplo
+            --destino FORJA_ASSETS_3D/exemplo 2>&1 | tee /tmp/log-2b.txt
+          status=${PIPESTATUS[0]}
+          echo "status=${status}" >> /tmp/log-2b.txt
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "--- diagnóstico ---"
+              git -C "$GITHUB_WORKSPACE" status --short
+              git -C "$GITHUB_WORKSPACE" log --oneline -3
+              git -C "$GITHUB_WORKSPACE" push --dry-run --verbose origin "HEAD:${BRANCH_TESTE}" 2>&1
+            } >> /tmp/log-2b.txt
+          fi
+          exit "$status"
 
       - name: "Teste 2c — clonar do zero e conferir o recebimento"
         run: |
@@ -132,6 +143,11 @@ jobs:
             echo '```'
             echo
             cat /tmp/relatorio-teste2.md 2>/dev/null
+            echo
+            echo "## Log do Teste 2b (sanitizado)"
+            echo '```'
+            sed -E 's#(x-access-token:|https://)[^@[:space:]]*@#\1***@#g; s#gh[pousr]_[A-Za-z0-9]+#***#g' /tmp/log-2b.txt 2>/dev/null | tail -n 60
+            echo '```'
             echo
             echo "## Estado da pasta FORJA_ASSETS_3D no branch da sessão"
             echo '```'
