@@ -28,6 +28,13 @@ FORJA_ASSETS_3D/
 └── README.md
 ```
 
+## Se um arquivo entrou fora do LFS
+
+Arquivo pequeno enviado direto pela pasta no navegador é gravado como Git comum.
+Para consertar sem terminal: **Actions** → **"Normalizar assets 3D (fora do LFS
+→ LFS)"** → **Run workflow**. O arquivo `exemplo/teste-recebimento.glb` (4 KB) é
+o resultado do teste do pipeline e pode ser apagado quando quiser.
+
 ## Importante
 
 - **Não apague nem mova** arquivos que já estão aqui: o histórico do Git guarda
