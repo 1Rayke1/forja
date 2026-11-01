@@ -1,0 +1,38 @@
+{
+  "Personagem masculino": {
+    "id": "masculino",
+    "label": "Personagem masculino",
+    "arquivo": "masculino.glb",
+    "bytes": 880944,
+    "textura": "madeira-masculino",
+    "rig": "rig-16-ossos",
+    "vertices": 12960,
+    "poligonos": 21772,
+    "ossos": 16,
+    "altura_m": 1.832,
+    "largura_ombros_m": 0.641,
+    "materiais": [
+      "wood-masculino",
+      "wood_joint-masculino",
+      "plastic"
+    ]
+  },
+  "Personagem feminino": {
+    "id": "feminino",
+    "label": "Personagem feminino",
+    "arquivo": "feminino.glb",
+    "bytes": 893252,
+    "textura": "madeira-feminino",
+    "rig": "rig-16-ossos",
+    "vertices": 12960,
+    "poligonos": 21772,
+    "ossos": 16,
+    "altura_m": 1.692,
+    "largura_ombros_m": 0.416,
+    "materiais": [
+      "wood-feminino",
+      "wood_joint-feminino",
+      "plastic"
+    ]
+  }
+}

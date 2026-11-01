@@ -1,0 +1,30 @@
+Sun Nov  1 15:25:47 UTC 2026
+== resumo: 0 gerados, 0 sem fonte, 0 com erro
+-rw-r--r-- 1 runner runner 17544 Nov  1 15:25 flexao-joelho.glb
+-rw-r--r-- 1 runner runner 42556 Nov  1 15:25 flexao.glb
+-rw-r--r-- 1 runner runner 20492 Nov  1 15:25 mobilidade-quadril.glb
+-rw-r--r-- 1 runner runner 33352 Nov  1 15:25 mountain-climber-feminino.glb
+-rw-r--r-- 1 runner runner 33348 Nov  1 15:25 mountain-climber.glb
+-rw-r--r-- 1 runner runner 21912 Nov  1 15:25 panturrilha.glb
+-rw-r--r-- 1 runner runner 26536 Nov  1 15:25 peck-deck.glb
+-rw-r--r-- 1 runner runner 16220 Nov  1 15:25 pedalar.glb
+-rw-r--r-- 1 runner runner 22672 Nov  1 15:25 polichinelo.glb
+-rw-r--r-- 1 runner runner 30724 Nov  1 15:25 ponte-gluteo.glb
+-rw-r--r-- 1 runner runner 24456 Nov  1 15:25 pose-biceps.glb
+-rw-r--r-- 1 runner runner 24668 Nov  1 15:25 postura-base.glb
+-rw-r--r-- 1 runner runner 42556 Nov  1 15:25 prancha-feminino.glb
+-rw-r--r-- 1 runner runner 42552 Nov  1 15:25 prancha.glb
+-rw-r--r-- 1 runner runner 24380 Nov  1 15:25 puxada.glb
+-rw-r--r-- 1 runner runner 17008 Nov  1 15:25 remada-alta.glb
+-rw-r--r-- 1 runner runner 20216 Nov  1 15:25 remada-invertida.glb
+-rw-r--r-- 1 runner runner 19580 Nov  1 15:25 remada-sentada.glb
+-rw-r--r-- 1 runner runner 16936 Nov  1 15:25 rosca-direta.glb
+-rw-r--r-- 1 runner runner 16936 Nov  1 15:25 rosca-rotacao.glb
+-rw-r--r-- 1 runner runner 16536 Nov  1 15:25 rotacao-ombros.glb
+-rw-r--r-- 1 runner runner 29932 Nov  1 15:25 salto.glb
+-rw-r--r-- 1 runner runner 50920 Nov  1 15:25 step-up.glb
+-rw-r--r-- 1 runner runner 32680 Nov  1 15:25 supino.glb
+-rw-r--r-- 1 runner runner 16468 Nov  1 15:25 triceps.glb
+clipes de mocap no mapa: 0
+GLB presentes: 0
+

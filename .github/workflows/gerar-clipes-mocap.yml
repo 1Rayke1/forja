@@ -1,0 +1,153 @@
+# Gera os clipes de mocap que faltam no build local.
+#
+# O pacote de captura de movimento (Mocap_Pack_06_Fitness_and_Workout.zip) só
+# existe como anexo da release "Animação-2"; o sandbox de desenvolvimento não
+# consegue baixar anexos de release, por isso o retarget roda no runner do
+# GitHub Actions. O que volta para o repositório são APENAS os GLB já
+# retargetados (dezenas de KB cada), nunca os FBX originais de ~11 MB.
+#
+# Uso: Actions → "Gerar clipes mocap (retarget no CI)" → Run workflow.
+name: Gerar clipes mocap (retarget no CI)
+
+on:
+  workflow_dispatch:
+    inputs:
+      apenas:
+        description: "Ids separados por vírgula (vazio = todos os pendentes)"
+        required: false
+        default: ""
+  # `workflow_dispatch` só aparece na lista de workflows quando o arquivo está no
+  # branch padrão. Enquanto este arquivo vive num branch de trabalho, o gatilho
+  # confiável é o push que mexe no mapa, no retarget ou neste próprio arquivo.
+  push:
+    paths:
+      - "tools/animacoes-mapa.json"
+      - "tools/blender/retarget-mocap.py"
+      - ".github/workflows/gerar-clipes-mocap.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: forja-mocap-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Blender 4.2.1 oficial
+        run: |
+          set -euo pipefail
+          curl -sSL -o /tmp/blender.tar.xz https://download.blender.org/release/Blender4.2/blender-4.2.1-linux-x64.tar.xz
+          mkdir -p /opt/blender
+          tar -xJf /tmp/blender.tar.xz -C /opt/blender --strip-components=1
+          ln -sf /opt/blender/blender /usr/local/bin/blender
+          blender --version | head -2
+
+      - name: Baixar e descompactar o pacote de mocap
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/assets-3d /tmp/mocap
+          gh release download "Animação-2" -D /tmp/assets-3d --clobber \
+            --pattern 'Mocap_Pack_06_Fitness_and_Workout.zip'
+          unzip -q -o /tmp/assets-3d/Mocap_Pack_06_Fitness_and_Workout.zip -d /tmp/mocap
+          echo "== FBX por rig"
+          for rig in Rokoko_Default UE5 iClone; do
+            echo -n "$rig: "
+            find /tmp/mocap -type f -path "*/$rig/*.fbx" | wc -l
+          done
+          echo "== amostra do rig escolhido (iClone)"
+          find /tmp/mocap -type f -path '*/iClone/*.fbx' -printf '%f\n' | sort | head -25
+
+      - name: Retarget dos clipes do mapa
+        continue-on-error: true
+        env:
+          APENAS: ${{ inputs.apenas }}
+        run: |
+          set -uo pipefail
+          mkdir -p assets/3d/animacoes /tmp/mocap-trab docs/validacao-3d
+          node -e 'const fs=require("fs");
+            const mapa=JSON.parse(fs.readFileSync("tools/animacoes-mapa.json","utf8"));
+            const apenas=new Set(String(process.env.APENAS||"").split(",").map(s=>s.trim()).filter(Boolean));
+            const linhas=mapa.clipes.filter(c=>c.fonte==="mocap"&&(!apenas.size||apenas.has(c.id)))
+              .map(c=>[c.id,c.fbx,String(c.quadros||144),String(c.deslocamento||0)].join("\t"));
+            fs.writeFileSync("/tmp/fila.tsv",linhas.join("\n")+"\n");
+            console.log("[fila] "+linhas.length+" clipes de mocap");'
+          if [ ! -s /tmp/fila.tsv ]; then
+            echo "[fila] o mapa não tem clipes de mocap (fontes em DeskBreak): nada a fazer."
+            { date -u; echo "fila vazia: todos os clipes do mapa vêm do DeskBreak (mesmo rig)."; } \
+              > docs/validacao-3d/ci-mocap.txt
+            exit 0
+          fi
+          ok=0; faltando=0; erro=0
+          : > /tmp/relatorio.txt
+          while IFS=$'\t' read -r id fbx quadros desloc; do
+            [ -z "$id" ] && continue
+            origem="$(find /tmp/mocap -type f -name "$fbx" | head -1)"
+            if [ -z "$origem" ]; then
+              echo "[falta] $id: $fbx não existe no pacote" | tee -a /tmp/relatorio.txt
+              faltando=$((faltando+1)); continue
+            fi
+            echo "[clipe] $id ← $fbx" | tee -a /tmp/relatorio.txt
+            if blender --background --factory-startup \
+                --python tools/blender/retarget-mocap.py -- \
+                tools/fontes-3d/exercises.glb "$origem" "$id" \
+                "assets/3d/animacoes/$id.glb" "$quadros" "$desloc" \
+                > "/tmp/log-$id.txt" 2>&1; then
+              grep -E '^\[retarget\]' "/tmp/log-$id.txt" | tee -a /tmp/relatorio.txt
+              ok=$((ok+1))
+            else
+              echo "[erro] $id" | tee -a /tmp/relatorio.txt
+              tail -20 "/tmp/log-$id.txt" >> /tmp/relatorio.txt
+              erro=$((erro+1))
+            fi
+          done < /tmp/fila.tsv
+          echo "== resumo: $ok gerados, $faltando sem fonte, $erro com erro" | tee -a /tmp/relatorio.txt
+          { date -u; cat /tmp/relatorio.txt; } > docs/validacao-3d/ci-mocap.txt
+          ls -la assets/3d/animacoes | tail -25 | tee -a docs/validacao-3d/ci-mocap.txt
+          if [ "$erro" -gt 0 ] || [ "$ok" -eq 0 ]; then
+            echo "::error::retarget com problema ($ok ok, $erro erro)"
+            exit 1
+          fi
+
+      - name: Conferir os GLB gerados
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          node -e 'const fs=require("fs"),path=require("path");
+            const mapa=JSON.parse(fs.readFileSync("tools/animacoes-mapa.json","utf8"));
+            const esperados=mapa.clipes.filter(c=>c.fonte==="mocap").map(c=>c.id);
+            const linhas=[];
+            let presentes=0;
+            for (const id of esperados) {
+              const p="assets/3d/animacoes/"+id+".glb";
+              const existe=fs.existsSync(p);
+              if (existe) presentes+=1;
+              linhas.push((existe?"OK    ":"FALTA ")+id+" "+(existe?fs.statSync(p).size+" B":"-"));
+            }
+            const texto="clipes de mocap no mapa: "+esperados.length+
+              "\nGLB presentes: "+presentes+"\n"+linhas.join("\n")+"\n";
+            fs.appendFileSync("docs/validacao-3d/ci-mocap.txt",texto);
+            console.log(texto);'
+
+      - name: Publicar os clipes no branch
+        run: |
+          set -euo pipefail
+          git config user.name "forja-mocap-ci[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/3d/animacoes docs/validacao-3d
+          if git diff --cached --quiet; then
+            echo "Nenhum clipe novo."
+            exit 0
+          fi
+          git commit -m "feat(assets-3d): clipes de mocap retargetados no CI"
+          git push origin "HEAD:${{ github.ref_name }}"

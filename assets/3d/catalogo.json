@@ -1,0 +1,1508 @@
+{
+  "formato": "forja-catalogo-3d",
+  "versao": 1,
+  "geradoEm": "2026-11-01T15:18:14.311Z",
+  "personagens": {
+    "masculino": {
+      "id": "masculino",
+      "arquivo": "assets/3d/personagens/masculino.glb",
+      "bytes": 880944,
+      "rig": "rig-16-ossos",
+      "ossos": 16,
+      "vertices": 12960,
+      "poligonos": 21772,
+      "alturaM": 1.832,
+      "larguraOmbrosM": 0.641,
+      "materiais": [
+        "wood-masculino",
+        "wood_joint-masculino",
+        "plastic"
+      ]
+    },
+    "feminino": {
+      "id": "feminino",
+      "arquivo": "assets/3d/personagens/feminino.glb",
+      "bytes": 893252,
+      "rig": "rig-16-ossos",
+      "ossos": 16,
+      "vertices": 12960,
+      "poligonos": 21772,
+      "alturaM": 1.692,
+      "larguraOmbrosM": 0.416,
+      "materiais": [
+        "wood-feminino",
+        "wood_joint-feminino",
+        "plastic"
+      ]
+    }
+  },
+  "clipes": [
+    {
+      "id": "postura-base",
+      "nome": "Postura base",
+      "grupo": "corpo inteiro",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/postura-base.glb",
+      "bytes": 24668,
+      "quadros": 94,
+      "fps": 24,
+      "duracaoS": 3.92,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#posture-reset_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Posture reset",
+        "categoria": "back-spine",
+        "vista": null
+      }
+    },
+    {
+      "id": "rotacao-ombros",
+      "nome": "Rotação de ombros",
+      "grupo": "ombros",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/rotacao-ombros.glb",
+      "bytes": 16536,
+      "quadros": 58,
+      "fps": 24,
+      "duracaoS": 2.42,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#shoulder-rolls-back_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-rotacao-ombros"
+      ],
+      "referencia": {
+        "nomeEn": "Shoulder rolls backward",
+        "categoria": "neck-shoulders-arms",
+        "vista": "upper"
+      }
+    },
+    {
+      "id": "circulos-braco",
+      "nome": "Círculos de braço",
+      "grupo": "ombros",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/circulos-braco.glb",
+      "bytes": 16476,
+      "quadros": 42,
+      "fps": 24,
+      "duracaoS": 1.75,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#arm-circles-small_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-mobilidade-ombro"
+      ],
+      "referencia": {
+        "nomeEn": "Small arm circles",
+        "categoria": "neck-shoulders-arms",
+        "vista": null
+      }
+    },
+    {
+      "id": "mobilidade-quadril",
+      "nome": "Mobilidade de quadril",
+      "grupo": "quadril",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/mobilidade-quadril.glb",
+      "bytes": 20492,
+      "quadros": 43,
+      "fps": 24,
+      "duracaoS": 1.79,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#standing-hip-circles_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-mobilidade-quadril"
+      ],
+      "referencia": {
+        "nomeEn": "Standing hip circles",
+        "categoria": "hips-legs",
+        "vista": null
+      }
+    },
+    {
+      "id": "polichinelo",
+      "nome": "Polichinelo",
+      "grupo": "corpo inteiro",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/polichinelo.glb",
+      "bytes": 22672,
+      "quadros": 48,
+      "fps": 24,
+      "duracaoS": 2,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#step-jack_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-polichinelo"
+      ],
+      "referencia": {
+        "nomeEn": "Step jack",
+        "categoria": "cardio-low-impact",
+        "vista": null
+      }
+    },
+    {
+      "id": "flexao",
+      "nome": "Flexão de braço",
+      "grupo": "peito",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/flexao.glb",
+      "bytes": 42556,
+      "quadros": 145,
+      "fps": 24,
+      "duracaoS": 6,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "arquivos": {
+        "masculino": {
+          "arquivo": "assets/3d/animacoes/flexao.glb",
+          "bytes": 42556
+        },
+        "feminino": {
+          "arquivo": "assets/3d/animacoes/flexao-feminino.glb",
+          "bytes": 42560
+        }
+      },
+      "rigOrigem": "rig-16-ossos (autoral, por geometria)",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "FORJA — animação autorada por geometria",
+        "release": null,
+        "arquivo": "tools/lib/pose-autoral-3d.mjs",
+        "rig": "rig-16-ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-flexao"
+      ]
+    },
+    {
+      "id": "agachamento",
+      "nome": "Agachamento livre",
+      "grupo": "pernas",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/agachamento.glb",
+      "bytes": 27208,
+      "quadros": 77,
+      "fps": 24,
+      "duracaoS": 3.21,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#sit-back-squat_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-agachamento"
+      ],
+      "referencia": {
+        "nomeEn": "Sit-back squat",
+        "categoria": "hips-legs",
+        "vista": null
+      }
+    },
+    {
+      "id": "remada-invertida",
+      "nome": "Remada",
+      "grupo": "costas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/remada-invertida.glb",
+      "bytes": 20216,
+      "quadros": 58,
+      "fps": 24,
+      "duracaoS": 2.42,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#hinge-row-no-weight_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-remada-invertida"
+      ],
+      "referencia": {
+        "nomeEn": "Hinged bodyweight row",
+        "categoria": "back-spine",
+        "vista": null
+      }
+    },
+    {
+      "id": "afundo",
+      "nome": "Afundo",
+      "grupo": "pernas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/afundo.glb",
+      "bytes": 20928,
+      "quadros": 31,
+      "fps": 24,
+      "duracaoS": 1.29,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#reverse-lunge-knee-drive_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-afundo"
+      ],
+      "referencia": {
+        "nomeEn": "Back step to knee drive",
+        "categoria": "cardio-low-impact",
+        "vista": null
+      }
+    },
+    {
+      "id": "ponte-gluteo",
+      "nome": "Ponte de glúteo",
+      "grupo": "glúteos",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/ponte-gluteo.glb",
+      "bytes": 30724,
+      "quadros": 98,
+      "fps": 24,
+      "duracaoS": 4.08,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#glute-bridge_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-ponte"
+      ],
+      "referencia": {
+        "nomeEn": "Glute bridge",
+        "categoria": "floor-lying",
+        "vista": "floor"
+      }
+    },
+    {
+      "id": "prancha",
+      "nome": "Prancha frontal",
+      "grupo": "core",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/prancha.glb",
+      "bytes": 42552,
+      "quadros": 145,
+      "fps": 24,
+      "duracaoS": 6,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "arquivos": {
+        "masculino": {
+          "arquivo": "assets/3d/animacoes/prancha.glb",
+          "bytes": 42552
+        },
+        "feminino": {
+          "arquivo": "assets/3d/animacoes/prancha-feminino.glb",
+          "bytes": 42556
+        }
+      },
+      "rigOrigem": "rig-16-ossos (autoral, por geometria)",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "FORJA — animação autorada por geometria",
+        "release": null,
+        "arquivo": "tools/lib/pose-autoral-3d.mjs",
+        "rig": "rig-16-ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-prancha-frontal",
+        "mus-prancha"
+      ]
+    },
+    {
+      "id": "abdominal-supra",
+      "nome": "Abdominal supra",
+      "grupo": "abdômen",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/abdominal-supra.glb",
+      "bytes": 27508,
+      "quadros": 72,
+      "fps": 24,
+      "duracaoS": 3,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#gentle-curl-up_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-abdominal-supra"
+      ],
+      "referencia": {
+        "nomeEn": "Gentle curl-up",
+        "categoria": "floor-lying",
+        "vista": "floor"
+      }
+    },
+    {
+      "id": "elevacao-pernas",
+      "nome": "Elevação de pernas",
+      "grupo": "abdômen",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/elevacao-pernas.glb",
+      "bytes": 17232,
+      "quadros": 65,
+      "fps": 24,
+      "duracaoS": 2.71,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#straight-leg-raise_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-elevacao-pernas",
+        "mus-elevacao-barra"
+      ],
+      "referencia": {
+        "nomeEn": "Straight leg raise",
+        "categoria": "floor-lying",
+        "vista": "floor"
+      }
+    },
+    {
+      "id": "abdominal-infra",
+      "nome": "Abdominal infra",
+      "grupo": "abdômen",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/abdominal-infra.glb",
+      "bytes": 16144,
+      "quadros": 62,
+      "fps": 24,
+      "duracaoS": 2.58,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#leg-lowers_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-abdominal-infra"
+      ],
+      "referencia": {
+        "nomeEn": "Single leg lowers",
+        "categoria": "floor-lying",
+        "vista": "floor"
+      }
+    },
+    {
+      "id": "mountain-climber",
+      "nome": "Mountain climber",
+      "grupo": "corpo inteiro",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/mountain-climber.glb",
+      "bytes": 33348,
+      "quadros": 109,
+      "fps": 24,
+      "duracaoS": 4.5,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "arquivos": {
+        "masculino": {
+          "arquivo": "assets/3d/animacoes/mountain-climber.glb",
+          "bytes": 33348
+        },
+        "feminino": {
+          "arquivo": "assets/3d/animacoes/mountain-climber-feminino.glb",
+          "bytes": 33352
+        }
+      },
+      "rigOrigem": "rig-16-ossos (autoral, por geometria)",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "FORJA — animação autorada por geometria",
+        "release": null,
+        "arquivo": "tools/lib/pose-autoral-3d.mjs",
+        "rig": "rig-16-ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-mountain-climber"
+      ]
+    },
+    {
+      "id": "corrida-estacionaria",
+      "nome": "Corrida estacionária",
+      "grupo": "cardio",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/corrida-estacionaria.glb",
+      "bytes": 16396,
+      "quadros": 12,
+      "fps": 24,
+      "duracaoS": 0.5,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#fast-feet-small_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "cal-corrida-estacionaria"
+      ],
+      "referencia": {
+        "nomeEn": "Fast feet",
+        "categoria": "cardio-low-impact",
+        "vista": null
+      }
+    },
+    {
+      "id": "caminhada",
+      "nome": "Caminhada",
+      "grupo": "cardio",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/caminhada.glb",
+      "bytes": 19016,
+      "quadros": 24,
+      "fps": 24,
+      "duracaoS": 1,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#power-walk-arms-up_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-esteira",
+        "mus-farmer"
+      ],
+      "referencia": {
+        "nomeEn": "March with overhead press",
+        "categoria": "cardio-low-impact",
+        "vista": null
+      }
+    },
+    {
+      "id": "abre-e-fecha",
+      "nome": "Abre e fecha com elástico",
+      "grupo": "costas",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/abre-e-fecha.glb",
+      "bytes": 17008,
+      "quadros": 58,
+      "fps": 24,
+      "duracaoS": 2.42,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#pull-aparts_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Pull-aparts",
+        "categoria": "neck-shoulders-arms",
+        "vista": null
+      }
+    },
+    {
+      "id": "dobradiça-quadril",
+      "nome": "Dobradiça de quadril",
+      "grupo": "posterior",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/dobradiça-quadril.glb",
+      "bytes": 21408,
+      "quadros": 67,
+      "fps": 24,
+      "duracaoS": 2.79,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#hip-hinge_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-terra"
+      ],
+      "referencia": {
+        "nomeEn": "Hip hinge",
+        "categoria": "hips-legs",
+        "vista": null
+      }
+    },
+    {
+      "id": "supino",
+      "nome": "Supino reto",
+      "grupo": "peito",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/supino.glb",
+      "bytes": 32680,
+      "quadros": 101,
+      "fps": 24,
+      "duracaoS": 4.21,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#plank-to-down-dog-flow_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-supino-reto"
+      ],
+      "referencia": {
+        "nomeEn": "Plank to downward dog flow",
+        "categoria": "yoga",
+        "vista": "floor"
+      }
+    },
+    {
+      "id": "agachamento-halteres",
+      "nome": "Agachamento com halteres",
+      "grupo": "pernas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/agachamento-halteres.glb",
+      "bytes": 21372,
+      "quadros": 58,
+      "fps": 24,
+      "duracaoS": 2.42,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#wide-mini-squat_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-agachamento-barra"
+      ],
+      "referencia": {
+        "nomeEn": "Wide mini squat",
+        "categoria": "hips-legs",
+        "vista": null
+      }
+    },
+    {
+      "id": "puxada",
+      "nome": "Puxada",
+      "grupo": "costas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/puxada.glb",
+      "bytes": 24380,
+      "quadros": 53,
+      "fps": 24,
+      "duracaoS": 2.21,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#knee-lift-pull-down_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-puxada-frontal"
+      ],
+      "referencia": {
+        "nomeEn": "Knee lift with pull-down",
+        "categoria": "cardio-low-impact",
+        "vista": null
+      }
+    },
+    {
+      "id": "desenvolvimento",
+      "nome": "Desenvolvimento",
+      "grupo": "ombros",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/desenvolvimento.glb",
+      "bytes": 18100,
+      "quadros": 48,
+      "fps": 24,
+      "duracaoS": 2,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#chair-shoulder-press_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-desenvolvimento"
+      ],
+      "referencia": {
+        "nomeEn": "Seated shoulder press",
+        "categoria": "chair",
+        "vista": null
+      }
+    },
+    {
+      "id": "remada-sentada",
+      "nome": "Remada sentada",
+      "grupo": "costas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/remada-sentada.glb",
+      "bytes": 19580,
+      "quadros": 43,
+      "fps": 24,
+      "duracaoS": 1.79,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#chair-rowing_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-remada-curvada"
+      ],
+      "referencia": {
+        "nomeEn": "Seated rowing",
+        "categoria": "chair",
+        "vista": "floor"
+      }
+    },
+    {
+      "id": "rosca-direta",
+      "nome": "Rosca direta",
+      "grupo": "bíceps",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/rosca-direta.glb",
+      "bytes": 16936,
+      "quadros": 55,
+      "fps": 24,
+      "duracaoS": 2.29,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#biceps-curl_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-rosca-direta"
+      ],
+      "referencia": {
+        "nomeEn": "Elbow curls",
+        "categoria": "neck-shoulders-arms",
+        "vista": null
+      }
+    },
+    {
+      "id": "rosca-rotacao",
+      "nome": "Rosca com rotação",
+      "grupo": "bíceps",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/rosca-rotacao.glb",
+      "bytes": 16936,
+      "quadros": 55,
+      "fps": 24,
+      "duracaoS": 2.29,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#biceps-curl_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Elbow curls",
+        "categoria": "neck-shoulders-arms",
+        "vista": null
+      }
+    },
+    {
+      "id": "triceps",
+      "nome": "Tríceps",
+      "grupo": "tríceps",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/triceps.glb",
+      "bytes": 16468,
+      "quadros": 43,
+      "fps": 24,
+      "duracaoS": 1.79,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#triceps-kickback_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-triceps-polia"
+      ],
+      "referencia": {
+        "nomeEn": "Triceps kickback",
+        "categoria": "neck-shoulders-arms",
+        "vista": null
+      }
+    },
+    {
+      "id": "extensao-joelho",
+      "nome": "Extensão de joelho",
+      "grupo": "quadríceps",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/extensao-joelho.glb",
+      "bytes": 24664,
+      "quadros": 144,
+      "fps": 24,
+      "duracaoS": 6,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#chair-knee-extension_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-extensora"
+      ],
+      "referencia": {
+        "nomeEn": "Seated knee extension",
+        "categoria": "chair",
+        "vista": "floor"
+      }
+    },
+    {
+      "id": "flexao-joelho",
+      "nome": "Flexão de joelho",
+      "grupo": "posterior",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/flexao-joelho.glb",
+      "bytes": 17544,
+      "quadros": 50,
+      "fps": 24,
+      "duracaoS": 2.08,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#standing-hamstring-curl_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-flexora"
+      ],
+      "referencia": {
+        "nomeEn": "Standing hamstring curl",
+        "categoria": "hips-legs",
+        "vista": null
+      }
+    },
+    {
+      "id": "elevacao-lateral",
+      "nome": "Elevação lateral",
+      "grupo": "ombros",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/elevacao-lateral.glb",
+      "bytes": 19160,
+      "quadros": 62,
+      "fps": 24,
+      "duracaoS": 2.58,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#lateral-raise_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-elevacao-lateral"
+      ],
+      "referencia": {
+        "nomeEn": "Lateral raise",
+        "categoria": "neck-shoulders-arms",
+        "vista": null
+      }
+    },
+    {
+      "id": "abdominal-cruzado",
+      "nome": "Abdominal cruzado",
+      "grupo": "abdômen",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/abdominal-cruzado.glb",
+      "bytes": 24980,
+      "quadros": 86,
+      "fps": 24,
+      "duracaoS": 3.58,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#standing-cross-crunch_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-abdominal-polia"
+      ],
+      "referencia": {
+        "nomeEn": "Standing cross crunch",
+        "categoria": "back-spine",
+        "vista": null
+      }
+    },
+    {
+      "id": "pedalar",
+      "nome": "Pedalar",
+      "grupo": "cardio",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/pedalar.glb",
+      "bytes": 16220,
+      "quadros": 19,
+      "fps": 24,
+      "duracaoS": 0.79,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#chair-leg-pedal_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [
+        "mus-bicicleta"
+      ],
+      "referencia": {
+        "nomeEn": "Seated pedaling",
+        "categoria": "chair",
+        "vista": null
+      }
+    },
+    {
+      "id": "panturrilha",
+      "nome": "Elevação de panturrilha",
+      "grupo": "panturrilha",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/panturrilha.glb",
+      "bytes": 21912,
+      "quadros": 62,
+      "fps": 24,
+      "duracaoS": 2.58,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#calf-raise_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Calf raise",
+        "categoria": "hips-legs",
+        "vista": null
+      }
+    },
+    {
+      "id": "remada-alta",
+      "nome": "Remada alta",
+      "grupo": "ombros",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/remada-alta.glb",
+      "bytes": 17008,
+      "quadros": 58,
+      "fps": 24,
+      "duracaoS": 2.42,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#pull-aparts_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Pull-aparts",
+        "categoria": "neck-shoulders-arms",
+        "vista": null
+      }
+    },
+    {
+      "id": "peck-deck",
+      "nome": "Pec deck",
+      "grupo": "peito",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/peck-deck.glb",
+      "bytes": 26536,
+      "quadros": 94,
+      "fps": 24,
+      "duracaoS": 3.92,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#self-hug_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Self hug upper-back stretch",
+        "categoria": "neck-shoulders-arms",
+        "vista": null
+      }
+    },
+    {
+      "id": "step-up",
+      "nome": "Subida no caixote",
+      "grupo": "pernas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/step-up.glb",
+      "bytes": 50920,
+      "quadros": 250,
+      "fps": 24,
+      "duracaoS": 10.42,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#side-step-and-hold_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Side step and balance",
+        "categoria": "balance",
+        "vista": null
+      }
+    },
+    {
+      "id": "salto",
+      "nome": "Salto vertical",
+      "grupo": "pernas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/salto.glb",
+      "bytes": 29932,
+      "quadros": 94,
+      "fps": 24,
+      "duracaoS": 3.92,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#squat-to-calf-raise_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Squat to calf raise",
+        "categoria": "hips-legs",
+        "vista": null
+      }
+    },
+    {
+      "id": "alongamento-1",
+      "nome": "Alongamento 1",
+      "grupo": "mobilidade",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/alongamento-1.glb",
+      "bytes": 18876,
+      "quadros": 197,
+      "fps": 24,
+      "duracaoS": 8.21,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#overhead-side-stretch-clasped_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Clasped overhead side stretch",
+        "categoria": "back-spine",
+        "vista": null
+      }
+    },
+    {
+      "id": "alongamento-2",
+      "nome": "Alongamento 2",
+      "grupo": "mobilidade",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/alongamento-2.glb",
+      "bytes": 30860,
+      "quadros": 110,
+      "fps": 24,
+      "duracaoS": 4.58,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#standing-hamstring-stretch_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Standing hamstring stretch",
+        "categoria": "hips-legs",
+        "vista": null
+      }
+    },
+    {
+      "id": "pose-biceps",
+      "nome": "Pose de bíceps",
+      "grupo": "bíceps",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/pose-biceps.glb",
+      "bytes": 24456,
+      "quadros": 96,
+      "fps": 24,
+      "duracaoS": 4,
+      "loop": true,
+      "movimentoCompleto": true,
+      "personagens": [
+        "masculino",
+        "feminino"
+      ],
+      "rigOrigem": "manequim 16 ossos",
+      "rigDestino": "rig-16-ossos",
+      "retarget": false,
+      "fonte": {
+        "pacote": "DeskBreak — library/exercises.glb",
+        "release": "assets-3d-v1",
+        "arquivo": "library/exercises.glb#funny-muscle-flex_rig",
+        "rig": "manequim 16 ossos",
+        "retarget": false
+      },
+      "exercicios": [],
+      "referencia": {
+        "nomeEn": "Bodybuilder flex",
+        "categoria": "funny",
+        "vista": null
+      }
+    }
+  ],
+  "clipesIndisponiveis": [],
+  "exercicios": {
+    "cal-rotacao-ombros": "rotacao-ombros",
+    "mus-mobilidade-ombro": "circulos-braco",
+    "cal-mobilidade-quadril": "mobilidade-quadril",
+    "cal-polichinelo": "polichinelo",
+    "cal-flexao": "flexao",
+    "cal-agachamento": "agachamento",
+    "cal-remada-invertida": "remada-invertida",
+    "cal-afundo": "afundo",
+    "cal-ponte": "ponte-gluteo",
+    "cal-prancha-frontal": "prancha",
+    "mus-prancha": "prancha",
+    "cal-abdominal-supra": "abdominal-supra",
+    "cal-elevacao-pernas": "elevacao-pernas",
+    "mus-elevacao-barra": "elevacao-pernas",
+    "cal-abdominal-infra": "abdominal-infra",
+    "cal-mountain-climber": "mountain-climber",
+    "cal-corrida-estacionaria": "corrida-estacionaria",
+    "mus-esteira": "caminhada",
+    "mus-farmer": "caminhada",
+    "mus-terra": "dobradiça-quadril",
+    "mus-supino-reto": "supino",
+    "mus-agachamento-barra": "agachamento-halteres",
+    "mus-puxada-frontal": "puxada",
+    "mus-desenvolvimento": "desenvolvimento",
+    "mus-remada-curvada": "remada-sentada",
+    "mus-rosca-direta": "rosca-direta",
+    "mus-triceps-polia": "triceps",
+    "mus-extensora": "extensao-joelho",
+    "mus-flexora": "flexao-joelho",
+    "mus-elevacao-lateral": "elevacao-lateral",
+    "mus-abdominal-polia": "abdominal-cruzado",
+    "mus-bicicleta": "pedalar"
+  },
+  "fallbackPorGrupo": {
+    "pernas": "agachamento",
+    "quadríceps": "extensao-joelho",
+    "posterior": "flexao-joelho",
+    "glúteos": "ponte-gluteo",
+    "panturrilha": "panturrilha",
+    "peito": "peck-deck",
+    "costas": "remada-sentada",
+    "bíceps": "rosca-direta",
+    "tríceps": "triceps",
+    "ombros": "elevacao-lateral",
+    "abdômen": "abdominal-supra",
+    "core": "prancha",
+    "cardio": "polichinelo",
+    "mobilidade": "alongamento-1",
+    "corpo inteiro": "postura-base"
+  },
+  "creditos": {
+    "manequim": {
+      "nome": "DeskBreak — wooden mannequin exercise library",
+      "autor": "Shlomy Reshef",
+      "licenca": "MIT",
+      "origem": "https://github.com/shlomorsh/desk-break",
+      "uso": "malha base, textura e animações do rig de 16 ossos"
+    },
+    "mocap": {
+      "nome": "Mocap Pack 06 — Fitness and Workout",
+      "autor": "não declarado no pacote",
+      "licenca": "não verificada",
+      "uso": "animações retargetadas; publicação condicionada à licença do titular"
+    },
+    "three": {
+      "nome": "three.js",
+      "licenca": "MIT"
+    }
+  }
+}

@@ -4,15 +4,18 @@
   "private": true,
   "description": "FORJA — disciplina diária: calendário, missões e treinos com rotinas A/B/C.",
   "scripts": {
-    "test": "node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs",
+    "test": "node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/personagens3d.test.mjs && node tests/mapeamento3d.test.mjs && node tests/transferencia3d.test.mjs && node tests/pose-autoral3d.test.mjs",
     "test:plan": "node tests/plan.test.mjs",
     "test:e2e": "node tests/e2e.browser.mjs",
     "serve": "python3 -m http.server 8080 --bind 127.0.0.1",
-    "test:onboarding": "node tests/onboarding.test.mjs"
+    "test:onboarding": "node tests/onboarding.test.mjs",
+    "test:3d": "node tests/personagens3d.test.mjs"
   },
   "devDependencies": {
     "@sparticuz/chromium": "^138.0.2",
+    "fflate": "^0.8.3",
     "jsdom": "^30.0.0",
-    "puppeteer-core": "^24.43.1"
+    "puppeteer-core": "^24.43.1",
+    "three": "^0.180.0"
   }
 }

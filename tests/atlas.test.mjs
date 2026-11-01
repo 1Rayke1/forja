@@ -167,8 +167,17 @@ await runTest("ATLAS 1. Página carrega escolha de exercício, modelo anterior/p
   assert.equal(app.$$('.bottom-nav-link[aria-current="page"]').length, 1);
   assert.match(app.$('.bottom-nav-link[aria-current="page"]').textContent, /Explorar/);
   assert.ok(fs.existsSync(path.join(repoRoot, "explorar/index.html")));
-  assert.match(fs.readFileSync(path.join(repoRoot, "explorar/index.html"), "utf8"), /href="atlas\.html"/,
-    "O hub Explorar precisa apontar para o atlas");
+  /*
+    O hub Explorar é renderizado por JS (os cartões de recursos nascem em
+    `forja-explorar.js`), então o link do atlas é verificado no DOM final, não no
+    HTML cru — que nunca teve esse href.
+  */
+  const hub = await boot({}, "explorar/index.html");
+  await wait(80);
+  const linksAtlas = hub.$$('a[href*="atlas"]').map(anchor => anchor.getAttribute("href"));
+  assert.ok(linksAtlas.length >= 1,
+    "O hub Explorar precisa apontar para o atlas (DOM renderizado)");
+  assert.ok(linksAtlas.some(href => /atlas\.html$/.test(href)));
 
   assert.deepEqual(app.keys(), ["forja-perfil-v1"], "Atlas preserva o perfil exigido e não cria outros dados");
   assertNoErrors(app, "atlas");

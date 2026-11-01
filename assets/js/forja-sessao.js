@@ -1404,10 +1404,29 @@
     if (!box) return;
     if (!F.demos || !F.demos.available()) {
       box.hidden = true;
+    } else {
+      const activeSession = session();
+      F.demos.renderMedia(box, exercise, activeSession ? activeSession.modality : null, { eager: true });
+    }
+
+    /*
+      Demonstração 3D: camada adicional, nunca substituta. Ela só aparece quando
+      o módulo está carregado, existe personagem escolhido no perfil e existe
+      animação para o exercício — caso contrário o painel fica oculto e a
+      ilustração acima segue sendo a demonstração. Nenhum erro aqui pode
+      interromper a sessão.
+    */
+    const palco = byId("execution-3d");
+    if (!palco) return;
+    if (!F.personagens3d) {
+      palco.hidden = true;
       return;
     }
-    const activeSession = session();
-    F.demos.renderMedia(box, exercise, activeSession ? activeSession.modality : null, { eager: true });
+    try {
+      F.personagens3d.montarEmExecucao(exercise);
+    } catch (erro) {
+      palco.hidden = true;
+    }
   }
 
   function renderExerciseFigure(exercise) {

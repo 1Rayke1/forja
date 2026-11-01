@@ -1,0 +1,206 @@
+name: Auditar assets 3D (Release → relatório)
+
+# Auditoria reprodutível dos anexos das releases "assets-3d-v1" (tag Animação)
+# e "assets-3d-v2" (tag Animação-2).
+#
+# Por que este workflow existe: o conteúdo real dos modelos/animações está nos
+# anexos da release, não no repositório. Rodar esta auditoria no runner do
+# GitHub é o caminho que baixa os anexos originais, sem inventar arquivos e sem
+# depender de URLs temporárias de download.
+#
+# Saídas versionadas no branch:
+#   docs/assets-3d/auditoria-releases.md   (inventário dos anexos)
+#   docs/assets-3d/inventario-3d.json      (esqueleto, malhas, ações por arquivo)
+#
+# Disparo: push neste branch quando este arquivo (ou um script de auditoria)
+# muda, e também manualmente pelo botão "Run workflow".
+
+on:
+  push:
+    branches: ["arena/f05e6128-forja"]
+    paths:
+      - ".github/workflows/auditar-assets-3d.yml"
+      - "tools/auditar-assets-3d-releases.sh"
+      - "tools/inspecionar-3d-blender.py"
+      - "tools/resumir-inventario-3d.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auditar-assets-3d
+  cancel-in-progress: true
+
+jobs:
+  auditar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ferramentas de inspeção
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq p7zip-full unzip file binutils >/dev/null
+          echo "---- versões"
+          7z | head -2
+          which blender || echo "blender ausente (instalando)"
+          blender --version 2>/dev/null | head -2 || true
+
+      - name: Instalar Blender oficial (traz numpy e io_scene_fbx completo)
+        run: |
+          set -euo pipefail
+          curl -sSL -o /tmp/blender.tar.xz https://download.blender.org/release/Blender4.2/blender-4.2.1-linux-x64.tar.xz
+          sudo tar -xf /tmp/blender.tar.xz -C /opt
+          sudo ln -sf /opt/blender-4.2.1-linux-x64/blender /usr/local/bin/blender
+          blender --version | head -2
+          blender --background --factory-startup --python-expr "import numpy, sys; print('[blender] numpy', numpy.__version__)" 2>&1 | grep '\[blender\]'
+
+      - name: Baixar os anexos das duas releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/assets-3d
+          gh release download "Animação" -D /tmp/assets-3d --clobber
+          gh release download "Animação-2" -D /tmp/assets-3d --clobber
+          ls -la /tmp/assets-3d
+
+      - name: Inventário dos anexos
+        run: |
+          set -euo pipefail
+          mkdir -p docs/assets-3d
+          bash tools/auditar-assets-3d-releases.sh /tmp/assets-3d docs/assets-3d/auditoria-releases.md
+
+      - name: Abrir o instalador do DeskBreak (NSIS → 7z → app)
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/deskbreak
+          7z x -y -o/tmp/deskbreak /tmp/assets-3d/DeskBreak-Setup.exe >/dev/null
+          echo "== árvore do instalador"
+          find /tmp/deskbreak -maxdepth 3 -printf '%y %10s %p\n' | head -40
+          APP7Z="$(find /tmp/deskbreak -name '*.7z' | head -1)"
+          echo "== conteúdo de $APP7Z"
+          7z l "$APP7Z" | sed -n '1,220p'
+          mkdir -p /tmp/deskbreak/app
+          7z x -y -o/tmp/deskbreak/app "$APP7Z" >/dev/null
+          echo "== arquivos 3D/recursos dentro do app"
+          find /tmp/deskbreak/app -type f \
+            \( -iname '*.glb' -o -iname '*.gltf' -o -iname '*.fbx' -o -iname '*.obj' \
+               -o -iname '*.blend' -o -iname '*.asar' -o -iname '*.bin' -o -iname '*.png' \
+               -o -iname '*.jpg' -o -iname '*.ktx2' -o -iname '*.hdr' \) \
+            -printf '%10s %p\n' | sort -rn | head -60 > /tmp/deskbreak/3d.txt || true
+
+      - name: Extrair o app.asar (Electron) e guardar os metadados do modelo
+        run: |
+          set -euo pipefail
+          ASAR="$(find /tmp/deskbreak/app -name '*.asar' | head -1 || true)"
+          if [ -n "$ASAR" ]; then
+            echo "asar encontrado: $ASAR"
+            npx --yes @electron/asar extract "$ASAR" /tmp/deskbreak/asar >/dev/null 2>&1 || echo "falha ao extrair asar"
+            find /tmp/deskbreak/asar -type f -printf '%10s %p\n' 2>/dev/null \
+              | sort -rn | head -50 >> /tmp/deskbreak/3d.txt || true
+          else
+            echo "nenhum app.asar" >> /tmp/deskbreak/3d.txt
+          fi
+          cat /tmp/deskbreak/3d.txt || true
+          mkdir -p docs/assets-3d
+          # Evidência textual: biblioteca de exercícios, licenças do app e do three.js
+          for f in library/exercises.json library/player.js vendor/README.txt package.json vendor/three/LICENSE; do
+            if [ -f "/tmp/deskbreak/asar/$f" ]; then
+              cp "/tmp/deskbreak/asar/$f" "docs/assets-3d/deskbreak-$(basename "$f")"
+            fi
+          done
+          ls -la docs/assets-3d
+          if [ -f /tmp/deskbreak/asar/library/exercises.json ]; then
+            echo "== resumo de exercises.json"
+            python3 tools/resumir-exercises-deskbreak.py /tmp/deskbreak/asar/library/exercises.json
+          fi
+
+      - name: Descompactar o pacote de mocap
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mocap
+          unzip -q -o /tmp/assets-3d/Mocap_Pack_06_Fitness_and_Workout.zip -d /tmp/mocap
+          find /tmp/mocap -type f -name '*.fbx' | sort > /tmp/mocap/lista.txt
+          wc -l /tmp/mocap/lista.txt
+
+      - name: Inspecionar FBX com Blender (esqueleto, malhas, ações)
+        run: |
+          set -euo pipefail
+          mkdir -p docs/assets-3d
+          # Uma amostra por rig + todas as animações do rig padrão (Rokoko).
+          {
+            grep -i 'Rokoko_Default' /tmp/mocap/lista.txt
+            grep -i '/UE5/' /tmp/mocap/lista.txt | head -2
+            grep -i '/iClone/' /tmp/mocap/lista.txt | head -2
+          } > /tmp/mocap/amostra.txt
+          wc -l /tmp/mocap/amostra.txt
+          blender --background --factory-startup --python tools/inspecionar-3d-blender.py -- \
+            /tmp/assets-3d/inventario-mocap.json $(cat /tmp/mocap/amostra.txt) 2>&1 | grep '\[inspecao\]' || true
+          cp /tmp/assets-3d/inventario-mocap.json docs/assets-3d/inventario-mocap.json
+
+      - name: Inspecionar modelos 3D encontrados no DeskBreak
+        run: |
+          set -euo pipefail
+          find /tmp/deskbreak/app /tmp/deskbreak/asar -type f \
+            \( -iname '*.glb' -o -iname '*.gltf' -o -iname '*.fbx' \) 2>/dev/null > /tmp/deskbreak/modelos.txt || true
+          count=$(wc -l < /tmp/deskbreak/modelos.txt)
+          echo "modelos encontrados: $count"
+          if [ "$count" -gt 0 ]; then
+            blender --background --factory-startup --python tools/inspecionar-3d-blender.py -- \
+              /tmp/assets-3d/inventario-deskbreak.json $(head -40 /tmp/deskbreak/modelos.txt) 2>&1 | grep '\[inspecao\]' || true
+            cp /tmp/assets-3d/inventario-deskbreak.json docs/assets-3d/inventario-deskbreak.json
+          else
+            echo '{"modelos": 0}' > docs/assets-3d/inventario-deskbreak.json
+          fi
+
+      - name: Resumo do inventário
+        run: |
+          set -euo pipefail
+          {
+            echo ""
+            echo "## Inspeção profunda (Blender)"
+            echo ""
+            echo "### DeskBreak — arquivos de mídia/3D dentro do app"
+            echo ""
+            echo '```'
+            head -60 /tmp/deskbreak/3d.txt 2>/dev/null || echo "(sem dados)"
+            echo '```'
+            echo ""
+            echo "### Pacote de mocap — esqueleto e animações"
+            echo ""
+            python3 tools/resumir-inventario-3d.py docs/assets-3d/inventario-mocap.json
+            echo "### DeskBreak — modelos 3D"
+            echo ""
+            python3 tools/resumir-inventario-3d.py docs/assets-3d/inventario-deskbreak.json
+          } >> docs/assets-3d/auditoria-releases.md
+
+      - name: Guardar fontes 3D reais para o build local (MIT, release v1)
+        run: |
+          set -euo pipefail
+          mkdir -p tools/fontes-3d
+          cp /tmp/deskbreak/asar/library/exercises.glb tools/fontes-3d/exercises.glb
+          cp /tmp/deskbreak/asar/library/wood.png tools/fontes-3d/wood.png 2>/dev/null || true
+          cp /tmp/deskbreak/asar/library/exercises.json tools/fontes-3d/exercises.json
+          # Uma amostra de cada rig do pacote de mocap, para desenvolver o retargeting.
+          cp /tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/Rokoko_Default/06_Jumping_Jacks.fbx tools/fontes-3d/ 2>/dev/null || true
+          cp /tmp/mocap/Mocap_Pack_06_Fitness_and_Workout/mocap/iClone/16_Barbell_Curl_iclone.fbx tools/fontes-3d/ 2>/dev/null || true
+          ls -la tools/fontes-3d
+
+      - name: Publicar o relatório no branch
+        run: |
+          set -euo pipefail
+          git config user.name "forja-auditoria-3d[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/assets-3d tools/fontes-3d
+          if git diff --cached --quiet; then
+            echo "Relatório sem mudanças."
+          else
+            git commit -m "docs(assets-3d): inventário profundo das releases"
+            git push
+          fi
