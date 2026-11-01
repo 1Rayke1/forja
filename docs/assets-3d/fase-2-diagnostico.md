@@ -185,7 +185,7 @@ Some-se a isso o skinning rígido (1 osso por vértice) e as bordas abertas
 (4.050 arestas), e o veredito é: **serve como marcador de posição, não como
 personagem feminino**.
 
-### 1.7 Proposta para o feminino (para você escolher)
+### 1.7 Proposta para o feminino
 
 Três caminhos, todos mantendo os 16 ossos, os nomes de ossos e o sistema de
 animação intacto (é o que garante que o mesmo clipe serve aos dois):
@@ -206,6 +206,12 @@ você e de o arquivo vir com esqueleto compatível ou mapeável.
 Nos três casos o mesmo pacote de melhorias de pele vale: **2 a 4 influências por
 vértice** com suavização nas juntas, fechar as bordas abertas e remover o
 `Icosphere`.
+
+**Decidido (sua resposta):** opção **A — refinar o paramétrico**, com nível de
+anatomia **semi-realista** — mãos e pés modelados, pescoço e escápula sugeridos,
+rosto simples, mantendo os 16 ossos e os nomes atuais. Fica registrado assim:
+nada de mesh externo nesta fase; a opção C continua aberta para o futuro, e o
+pipeline não muda se ela for usada depois.
 
 ---
 
@@ -244,13 +250,15 @@ depois.
 
 ### Etapa B — os cinco sem fonte
 
+**Decidido (sua resposta): autorar os cinco por keyframe.** Então:
+
 1. Autorar `barra-fixa`, `mergulho`, `prancha-lateral`, `burpee` e `leg-press`
-   por keyframe no rig de 16 ossos (mesmo exportador dos outros 40).
-2. `barra-fixa` e `mergulho` precisam de acessório: uso o osso `prop`
-   (barra/paralelas) em vez de fingir que o corpo flutua.
-3. `leg-press` só entra se der para ler o movimento; senão continua aproximado e
-   assumido — **não publico animação ruim para fechar número**.
-4. Cada um passa pelo mesmo validador e pela mesma folha de imagens.
+   no rig de 16 ossos, pelo mesmo exportador dos outros 40.
+2. `barra-fixa`, `mergulho` e `leg-press` usam o osso `prop` para o acessório
+   (barra, paralelas, plataforma do leg press) — sem fingir corpo flutuando.
+3. Cada um passa pelo validador automático **e** pela folha de imagens
+   (frente + perfil, 6 fases) antes de entrar no catálogo. Se um deles não ficar
+   legível como o exercício, ele não é publicado e eu digo qual e por quê.
 
 Aceite: cobertura de 32/37 → até 37/37, com selo honesto onde não houver.
 
@@ -288,6 +296,45 @@ entre eles.
 - Cálculo de treino, carga, histórico, backup, calendário, Atlas 2D.
 - Nenhum arquivo original é removido: clipe substituído continua no histórico do
   Git e a troca fica registrada no catálogo (`fonte`, `status`, `retarget`).
+
+## Estado do protótipo (fim desta etapa, nada publicado)
+
+Duas mudanças de rumo aconteceram depois da aprovação do plano, as duas
+documentadas aqui:
+
+1. **O Blender não existe mais neste ambiente.** O `retarget-mocap.py` depende
+   dele; sem Blender eu não consigo nem reproduzir o pipeline antigo. Em vez de
+   parar, portei a transferência para **Node com o three.js que o app já usa**
+   (`tools/retransferir-mocap.mjs`): lê FBX/GLB, avalia a animação com
+   `AnimationMixer`, faz a matemática e grava o GLB do clipe. Vantagem real: o
+   pipeline deixa de depender de uma instalação de Blender e passa a rodar com
+   `npm install && node`. O `retarget-mocap.py` continua no repositório como
+   referência histórica.
+2. **`tools/analisar-movimentos-3d.mjs` ganhou `--arquivo`**, para medir um
+   clipe candidato que ainda não está no catálogo. É o portão de entrada:
+   medir, olhar, só então publicar.
+
+Resultado medido do protótipo em `06_Jumping_Jacks.fbx` (4 s):
+
+| Métrica | Pipeline antigo (Blender) | Protótipo Node | Fonte mocap | Veredito |
+| --- | --- | --- | --- | --- |
+| Altura do pé | 1,37–1,85 m | 0,08–0,35 m | — | **upright: resolvido** |
+| Abdução do ombro | — | 41–142° | 34–135° | **amplitude: resolvida** |
+| Altura máxima da mão | — | 1,14 m | 1,81 m | ainda baixa |
+| Ângulo do joelho | — | 105–170° | — | fecha demais |
+| Salto de pose entre quadros | — | 0,80 m | — | **defeito aberto** |
+
+Traduzindo: o personagem **fica em pé** e os braços **abrem na faixa certa**,
+mas ainda há um quadro em que o corpo dá um salto de 80 cm e os braços não
+chegam acima da cabeça. Por isso o clipe **não foi publicado** e continua fora
+do catálogo. A imagem `/tmp` do protótipo não entra no repositório de propósito:
+o que se guarda é a medida, não um resultado ruim.
+
+Próximos passos técnicos, na ordem: (a) achar o quadro de descontinuidade
+(suspeita: torção do antebraço e reamostragem), (b) alinhar o plano de dobra do
+cotovelo e do joelho, (c) repetir no segundo rig de origem (`iclone`, 52 ossos,
+`16_Barbell_Curl_iclone.fbx`) para garantir que a tabela de nomes funciona nos
+três formatos do pacote, (d) só então gerar os 11 clipes e as folhas de imagem.
 
 ## Limitações deste diagnóstico
 
