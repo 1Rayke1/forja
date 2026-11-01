@@ -53,18 +53,18 @@ OSSOS_FORJA_16 = [
 SINONIMOS_RIG_HUMANOIDE = {
     "hips": ["hips", "pelvis", "root", "hip", "cog", "center"],
     "spine": ["spine2", "spine1", "spine", "spine03", "spine02", "chest", "upperchest", "torso"],
-    "neck": ["neck", "neck01", "head"],
+    "neck": ["neck", "neck01", "necktwist01", "head"],
     "armL": ["arml", "leftarm", "upperarml", "lupperarm", "shoulderl", "leftshoulder"],
     "elbowL": ["elbowl", "leftforearm", "lowerarml", "lforearm", "forearml"],
     "handL": ["handl", "lefthand", "lhand", "wristl"],
     "armR": ["armr", "rightarm", "upperarmr", "rupperarm", "shoulderr", "rightshoulder"],
     "elbowR": ["elbowr", "rightforearm", "lowerarmr", "rforearm", "forearmr"],
     "handR": ["handr", "righthand", "rhand", "wristr"],
-    "legL": ["legl", "leftupleg", "leftthigh", "thighl", "lupleg", "upperlegl"],
-    "kneeL": ["kneel", "leftleg", "leftshin", "calfl", "lleg", "lowerlegl", "shinl"],
+    "legL": ["legl", "leftupleg", "leftthigh", "thighl", "lthigh", "lupleg", "upperlegl"],
+    "kneeL": ["kneel", "leftleg", "leftshin", "calfl", "lcalf", "lleg", "lowerlegl", "shinl"],
     "footL": ["footl", "leftfoot", "lfoot", "anklel"],
-    "legR": ["legr", "rightupleg", "rightthigh", "thighr", "rupleg", "upperlegr"],
-    "kneeR": ["kneer", "rightleg", "rightshin", "calfr", "rleg", "lowerlegr", "shinr"],
+    "legR": ["legr", "rightupleg", "rightthigh", "thighr", "rthigh", "rupleg", "upperlegr"],
+    "kneeR": ["kneer", "rightleg", "rightshin", "calfr", "rcalf", "rleg", "lowerlegr", "shinr"],
     "footR": ["footr", "rightfoot", "rfoot", "ankler"],
 }
 
@@ -179,10 +179,17 @@ def consultar_gpu_blender() -> dict[str, Any]:
 def metadados_blender() -> dict[str, Any]:
     import bpy  # type: ignore
 
-    engines = [
+    engines = {
         item.identifier
         for item in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items
-    ]
+    }
+    try:
+        import addon_utils  # type: ignore
+
+        if any(getattr(m, "__name__", "") == "cycles" for m in addon_utils.modules()):
+            engines.add("CYCLES")
+    except Exception:
+        pass
     gltf_ver = None
     try:
         import io_scene_gltf2  # type: ignore
@@ -197,9 +204,55 @@ def metadados_blender() -> dict[str, Any]:
         if isinstance(getattr(bpy.app, "build_hash", ""), bytes)
         else str(getattr(bpy.app, "build_hash", "")),
         "binario": bpy.app.binary_path,
-        "motores_disponiveis": engines,
+        "motores_disponiveis": sorted(engines),
         "io_scene_gltf2_versao": list(gltf_ver) if gltf_ver else None,
     }
+
+
+def malhas_personagem_renderizaveis() -> tuple[list[Any], list[str]]:
+    """
+    Retorna `(malhas_reais, malhas_auxiliares_ignoradas)` excluindo widgets de
+    osso criados pelo `io_scene_gltf2` (ex.: `Icosphere` em `glTF_not_exported`),
+    objetos fora da `view_layer` ativa e objetos de estúdio `forja_*`.
+    """
+    import bpy  # type: ignore
+
+    shapes_osso = set()
+    for arm in bpy.data.objects:
+        if arm.type == "ARMATURE" and getattr(arm, "pose", None):
+            for pb in arm.pose.bones:
+                if getattr(pb, "custom_shape", None) is not None:
+                    shapes_osso.add(pb.custom_shape.name)
+
+    nomes_view_layer = None
+    try:
+        nomes_view_layer = {ob.name for ob in bpy.context.view_layer.objects}
+    except Exception:
+        nomes_view_layer = None
+
+    reais = []
+    ignoradas = []
+    for ob in bpy.data.objects:
+        if ob.type != "MESH":
+            continue
+        if ob.name.startswith("forja_"):
+            continue
+        cols = [c.name.lower() for c in getattr(ob, "users_collection", [])]
+        eh_widget = (
+            ob.hide_render
+            or ob.name in shapes_osso
+            or any("gltf_not_exported" in c for c in cols)
+            or (nomes_view_layer is not None and ob.name not in nomes_view_layer)
+        )
+        if eh_widget:
+            ignoradas.append(ob.name)
+        else:
+            reais.append(ob)
+
+    if not reais:
+        reais = [ob for ob in bpy.data.objects if ob.type == "MESH" and not ob.name.startswith("forja_")]
+        ignoradas = []
+    return reais, ignoradas
 
 
 def importar_modelo_blender(caminho: str, forcar_gltf: bool = False) -> dict[str, Any]:
@@ -228,7 +281,7 @@ def importar_modelo_blender(caminho: str, forcar_gltf: bool = False) -> dict[str
     duracao = round(time.perf_counter() - t0, 4)
     log_texto = ler_e_apagar(tmp_log).strip()
 
-    malhas = [ob for ob in bpy.data.objects if ob.type == "MESH"]
+    malhas, malhas_aux = malhas_personagem_renderizaveis()
     armaduras = [ob for ob in bpy.data.objects if ob.type == "ARMATURE"]
     total_vertices = sum(len(ob.data.vertices) for ob in malhas)
     sucesso = (erro is None) and (len(malhas) > 0) and (total_vertices > 0)
@@ -248,6 +301,7 @@ def importar_modelo_blender(caminho: str, forcar_gltf: bool = False) -> dict[str
         "tempo_s": duracao,
         "objetos_importados": len(bpy.data.objects),
         "malhas": len(malhas),
+        "malhas_auxiliares_ignoradas": malhas_aux,
         "armaduras": len(armaduras),
         "vertices_totais": total_vertices,
         "erro": erro,
@@ -256,18 +310,106 @@ def importar_modelo_blender(caminho: str, forcar_gltf: bool = False) -> dict[str
     }
 
 
-def avaliar_geometria_mundo() -> dict[str, Any]:
-    """Calcula caixa delimitadora real em espaço de mundo a partir da malha avaliada."""
+def detectar_direcao_frente() -> dict[str, Any]:
+    """
+    Determina o vetor horizontal unitário `(fx, fy)` que aponta para a frente
+    anatômica do personagem em espaço de mundo (Z-up do Blender):
+      1) produto vetorial `Z × (ombro_direito - ombro_esquerdo)` (ou coxas),
+         validado pelo vetor pé→dedos (`Foot → ToeBase`);
+      2) vetor pé→dedos diretamente;
+      3) convenção glTF padrão `(0, -1)`.
+    """
+    import bpy  # type: ignore
+
+    armaduras = [ob for ob in bpy.data.objects if ob.type == "ARMATURE"]
+    for arm in armaduras:
+        mw = arm.matrix_world
+        ossos = {normalizar_nome_osso(b.name): b for b in arm.data.bones}
+
+        # Vetor pé -> dedo no plano XY
+        tx, ty = 0.0, 0.0
+        pares_pes = []
+        for par_pe, par_dedo in (
+            (["leftfoot", "footl", "lfoot"], ["lefttoebase", "lefttoe", "toel", "ltoebase"]),
+            (["rightfoot", "footr", "rfoot"], ["righttoebase", "righttoe", "toer", "rtoebase"]),
+        ):
+            b_pe = next((ossos[n] for n in par_pe if n in ossos), None)
+            b_dedo = next((ossos[n] for n in par_dedo if n in ossos), None)
+            if b_pe and b_dedo:
+                v = (mw @ b_dedo.head_local) - (mw @ b_pe.head_local)
+                tx += float(v.x)
+                ty += float(v.y)
+                pares_pes.append(f"{b_pe.name}→{b_dedo.name}")
+
+        # Produto vetorial Z × (Direita - Esquerda) = (-(ry - ly), rx - lx)
+        b_esq = next((ossos[c] for c in SINONIMOS_RIG_HUMANOIDE["armL"] if c in ossos), None) or next(
+            (ossos[c] for c in SINONIMOS_RIG_HUMANOIDE["legL"] if c in ossos), None
+        )
+        b_dir = next((ossos[c] for c in SINONIMOS_RIG_HUMANOIDE["armR"] if c in ossos), None) or next(
+            (ossos[c] for c in SINONIMOS_RIG_HUMANOIDE["legR"] if c in ossos), None
+        )
+        if b_esq and b_dir:
+            p_esq = mw @ b_esq.head_local
+            p_dir = mw @ b_dir.head_local
+            dx_rl = float(p_dir.x - p_esq.x)
+            dy_rl = float(p_dir.y - p_esq.y)
+            # Z × (dx_rl, dy_rl, 0) = (-dy_rl, dx_rl, 0)
+            fx, fy = -dy_rl, dx_rl
+            norma = math.hypot(fx, fy)
+            if norma > 1e-4:
+                fx, fy = fx / norma, fy / norma
+                if math.hypot(tx, ty) > 1e-3 and (fx * tx + fy * ty) < 0.0:
+                    fx, fy = -fx, -fy
+                return {
+                    "vetor_xy": [round(fx, 5), round(fy, 5)],
+                    "sinal_y": -1.0 if fy < 0 else 1.0,
+                    "criterio": (
+                        f"eixo anatômico Z×({b_dir.name}−{b_esq.name})"
+                        + (f" confirmado por {', '.join(pares_pes)}" if pares_pes else "")
+                        + f" → ({fx:.3f}, {fy:.3f})"
+                    ),
+                }
+
+        norma_pe = math.hypot(tx, ty)
+        if norma_pe > 1e-3:
+            fx, fy = tx / norma_pe, ty / norma_pe
+            return {
+                "vetor_xy": [round(fx, 5), round(fy, 5)],
+                "sinal_y": -1.0 if fy < 0 else 1.0,
+                "criterio": f"vetor pé→dedo ({', '.join(pares_pes)}) → ({fx:.3f}, {fy:.3f})",
+            }
+
+    return {
+        "vetor_xy": [0.0, -1.0],
+        "sinal_y": -1.0,
+        "criterio": "convenção padrão glTF 2.0 (+Z glTF → -Y Blender)",
+    }
+
+
+def avaliar_geometria_mundo(frente_xy: tuple[float, float] | None = None) -> dict[str, Any]:
+    """Calcula caixa delimitadora real em espaço de mundo apenas das malhas renderizáveis do personagem."""
     import bpy  # type: ignore
     from mathutils import Vector  # type: ignore
 
     bpy.context.view_layer.update()
     depsgraph = bpy.context.evaluated_depsgraph_get()
-    malhas_orig = [ob for ob in bpy.data.objects if ob.type == "MESH" and not ob.hide_render]
+    malhas_orig, malhas_ignoradas = malhas_personagem_renderizaveis()
+
+    if frente_xy is None:
+        info_f = detectar_direcao_frente()
+        fx, fy = float(info_f["vetor_xy"][0]), float(info_f["vetor_xy"][1])
+    else:
+        fx, fy = float(frente_xy[0]), float(frente_xy[1])
+    norma_f = math.hypot(fx, fy) or 1.0
+    fx, fy = fx / norma_f, fy / norma_f
+    # Eixo lateral (esquerda → direita do observador): Z × F = (-fy, fx)
+    lx, ly = -fy, fx
 
     xs: list[float] = []
     ys: list[float] = []
     zs: list[float] = []
+    lats: list[float] = []
+    sags: list[float] = []
     amostras_anatomia: list[tuple[float, float, float]] = []
 
     for ob in malhas_orig:
@@ -279,11 +421,15 @@ def avaliar_geometria_mundo() -> dict[str, Any]:
             passo = max(1, n_verts // 25000)
             for idx, vert in enumerate(malha_eval.vertices):
                 p = mw @ Vector(vert.co)
+                lat = p.x * lx + p.y * ly
+                sag = p.x * fx + p.y * fy
                 xs.append(p.x)
                 ys.append(p.y)
                 zs.append(p.z)
+                lats.append(lat)
+                sags.append(sag)
                 if idx % passo == 0:
-                    amostras_anatomia.append((p.x, p.y, p.z))
+                    amostras_anatomia.append((lat, sag, p.z))
         finally:
             ob_eval.to_mesh_clear()
 
@@ -294,32 +440,35 @@ def avaliar_geometria_mundo() -> dict[str, Any]:
             "bbox_max": [0.0, 0.0, 0.0],
             "dimensoes": [0.0, 0.0, 0.0],
             "centro": [0.0, 0.0, 0.0],
+            "malhas_auxiliares_ignoradas": malhas_ignoradas,
         }
 
     xmin, xmax = min(xs), max(xs)
     ymin, ymax = min(ys), max(ys)
     zmin, zmax = min(zs), max(zs)
-    largura = xmax - xmin
-    profundidade = ymax - ymin
+    largura_x = xmax - xmin
+    profundidade_y = ymax - ymin
+    largura_frontal = max(lats) - min(lats)
+    profundidade_sagital = max(sags) - min(sags)
     altura = zmax - zmin
     cx = 0.5 * (xmin + xmax)
     cy = 0.5 * (ymin + ymax)
     cz = 0.5 * (zmin + zmax)
+    lat_centro = 0.5 * (min(lats) + max(lats))
 
-    # Medidas do tronco central (excluindo braços abertos em A-pose/T-pose)
-    # para auxiliar auditoria anatômica e classificação transparente.
+    # Medidas anatômicas do tronco central no eixo lateral real do personagem (excluindo braços)
     largura_quadril_central = None
     largura_cintura_central = None
     largura_peito_central = None
     profundidade_peito_central = None
     if altura > 1e-5:
-        meia_faixa_tronco = 0.16 * altura
+        meia_faixa_tronco = 0.145 * altura
 
         def fatia_central(z_ini: float, z_fim: float) -> list[tuple[float, float, float]]:
             return [
-                (x, y, z)
-                for (x, y, z) in amostras_anatomia
-                if z_ini <= (z - zmin) / altura <= z_fim and abs(x - cx) <= meia_faixa_tronco
+                (lat, sag, z)
+                for (lat, sag, z) in amostras_anatomia
+                if z_ini <= (z - zmin) / altura <= z_fim and abs(lat - lat_centro) <= meia_faixa_tronco
             ]
 
         pts_quadril = fatia_central(0.47, 0.55)
@@ -341,11 +490,14 @@ def avaliar_geometria_mundo() -> dict[str, Any]:
         "vazio": False,
         "bbox_min": [round(xmin, 4), round(ymin, 4), round(zmin, 4)],
         "bbox_max": [round(xmax, 4), round(ymax, 4), round(zmax, 4)],
-        "dimensoes": [round(largura, 4), round(profundidade, 4), round(altura, 4)],
-        "largura_x_m": round(largura, 4),
-        "profundidade_y_m": round(profundidade, 4),
+        "dimensoes": [round(largura_x, 4), round(profundidade_y, 4), round(altura, 4)],
+        "largura_x_m": round(largura_x, 4),
+        "profundidade_y_m": round(profundidade_y, 4),
+        "largura_frontal_m": round(largura_frontal, 4),
+        "profundidade_sagital_m": round(profundidade_sagital, 4),
         "altura_z_m": round(altura, 4),
         "centro": [round(cx, 4), round(cy, 4), round(cz, 4)],
+        "malhas_auxiliares_ignoradas": malhas_ignoradas,
         "anatomia_tronco": {
             "largura_quadril_central_m": largura_quadril_central,
             "largura_cintura_central_m": largura_cintura_central,
@@ -356,51 +508,17 @@ def avaliar_geometria_mundo() -> dict[str, Any]:
     }
 
 
-def detectar_direcao_frente(geom: dict[str, Any]) -> dict[str, Any]:
-    """
-    Determina o sinal frontal no eixo Y do Blender.
-    Pela convenção glTF (+Z frontal → -Y no Blender), a frente padrão é -Y (-1).
-    Se houver ossos de pé/dedo do pé (toe/foot) ou nariz/cabeça, confirma pelo vetor real.
-    """
-    import bpy  # type: ignore
-
-    armaduras = [ob for ob in bpy.data.objects if ob.type == "ARMATURE"]
-    for arm in armaduras:
-        mw = arm.matrix_world
-        ossos = {normalizar_nome_osso(b.name): b for b in arm.data.bones}
-        for par_pe, par_dedo in (
-            (["leftfoot", "footl", "lfoot"], ["lefttoebase", "lefttoe", "toel", "ltoebase"]),
-            (["rightfoot", "footr", "rfoot"], ["righttoebase", "righttoe", "toer", "rtoebase"]),
-        ):
-            b_pe = next((ossos[n] for n in par_pe if n in ossos), None)
-            b_dedo = next((ossos[n] for n in par_dedo if n in ossos), None)
-            if b_pe and b_dedo:
-                p_pe = mw @ b_pe.head_local
-                p_dedo = mw @ b_dedo.head_local
-                dy = p_dedo.y - p_pe.y
-                if abs(dy) > 1e-3:
-                    return {
-                        "sinal_y": -1.0 if dy < 0 else 1.0,
-                        "criterio": f"vetor pé→dedo ({b_pe.name}→{b_dedo.name}, dy={dy:.4f})",
-                    }
-    return {
-        "sinal_y": -1.0,
-        "criterio": "convenção padrão glTF 2.0 (+Z glTF → -Y Blender)",
-    }
-
-
 def inspecionar_cena_completa(clipe_forja: str | None = None) -> dict[str, Any]:
     """Extrai inventário detalhado da cena já importada + teste real de rig/pose."""
     import bpy  # type: ignore
     from mathutils import Euler, Matrix, Vector  # type: ignore
 
-    geom = avaliar_geometria_mundo()
-    frente = detectar_direcao_frente(geom)
+    frente = detectar_direcao_frente()
+    geom = avaliar_geometria_mundo(tuple(frente["vetor_xy"]))
+    malhas_reais, malhas_ignoradas = malhas_personagem_renderizaveis()
 
     malhas_info = []
-    for ob in bpy.data.objects:
-        if ob.type != "MESH":
-            continue
+    for ob in malhas_reais:
         me = ob.data
         me.calc_loop_triangles()
         malhas_info.append({
@@ -553,32 +671,30 @@ def inspecionar_cena_completa(clipe_forja: str | None = None) -> dict[str, Any]:
                 bpy.context.view_layer.update()
                 deps_antes = bpy.context.evaluated_depsgraph_get()
                 amostra_antes = []
-                for ob in bpy.data.objects:
-                    if ob.type == "MESH":
-                        ev = ob.evaluated_get(deps_antes)
-                        me = ev.to_mesh()
-                        passo = max(1, len(me.vertices) // 2000)
-                        amostra_antes.extend(
-                            (ev.matrix_world @ Vector(me.vertices[i].co)).copy()
-                            for i in range(0, len(me.vertices), passo)
-                        )
-                        ev.to_mesh_clear()
+                for ob in malhas_reais:
+                    ev = ob.evaluated_get(deps_antes)
+                    me = ev.to_mesh()
+                    passo = max(1, len(me.vertices) // 2000)
+                    amostra_antes.extend(
+                        (ev.matrix_world @ Vector(me.vertices[i].co)).copy()
+                        for i in range(0, len(me.vertices), passo)
+                    )
+                    ev.to_mesh_clear()
 
                 pb.rotation_mode = "XYZ"
                 pb.rotation_euler = Euler((0.35, 0.0, 0.25), "XYZ")
                 bpy.context.view_layer.update()
                 deps_depois = bpy.context.evaluated_depsgraph_get()
                 amostra_depois = []
-                for ob in bpy.data.objects:
-                    if ob.type == "MESH":
-                        ev = ob.evaluated_get(deps_depois)
-                        me = ev.to_mesh()
-                        passo = max(1, len(me.vertices) // 2000)
-                        amostra_depois.extend(
-                            (ev.matrix_world @ Vector(me.vertices[i].co)).copy()
-                            for i in range(0, len(me.vertices), passo)
-                        )
-                        ev.to_mesh_clear()
+                for ob in malhas_reais:
+                    ev = ob.evaluated_get(deps_depois)
+                    me = ev.to_mesh()
+                    passo = max(1, len(me.vertices) // 2000)
+                    amostra_depois.extend(
+                        (ev.matrix_world @ Vector(me.vertices[i].co)).copy()
+                        for i in range(0, len(me.vertices), passo)
+                    )
+                    ev.to_mesh_clear()
 
                 movidos = sum(
                     1 for a, b in zip(amostra_antes, amostra_depois) if (a - b).length > 1e-3
@@ -648,8 +764,10 @@ def inspecionar_cena_completa(clipe_forja: str | None = None) -> dict[str, Any]:
         "geometria_mundo": geom,
         "frente_detectada": frente,
         "malhas": malhas_info,
+        "malhas_auxiliares_ignoradas": malhas_ignoradas,
         "totais": {
             "malhas": len(malhas_info),
+            "malhas_auxiliares_ignoradas": len(malhas_ignoradas),
             "vertices": sum(m["vertices"] for m in malhas_info),
             "poligonos": sum(m["poligonos"] for m in malhas_info),
             "triangulos": sum(m["triangulos"] for m in malhas_info),
@@ -917,33 +1035,45 @@ def executar_modo_auditar(args: argparse.Namespace) -> int:
 def montar_cena_comparativa(
     largura_px: int,
     altura_px: int,
-    sinal_frente_forcado: float | None = None,
+    frente_xy_forcada: tuple[float, float] | None = None,
 ) -> dict[str, Any]:
     """
-    Constrói exatamente a mesma cena de estúdio (mundo, piso, 4 luzes de área,
-    câmera 50 mm enquadrada pela caixa delimitadora e gerenciamento de cor)
-    para que Cycles e EEVEE sejam comparados sob condições idênticas.
+    Constrói exatamente a mesma cena de estúdio (mundo, piso encostado na sola
+    dos pés, painel de fundo fosco, 4 luzes de área físicas escaladas por s²,
+    câmera 50 mm em vista 3/4 frontal enquadrada pela caixa delimitadora real e
+    gerenciamento de cor AgX) para que Cycles e EEVEE sejam comparados sob
+    condições idênticas.
     """
     import bpy  # type: ignore
     from mathutils import Vector  # type: ignore
 
     cena = bpy.context.scene
-    geom = avaliar_geometria_mundo()
+    frente_info = detectar_direcao_frente()
+    if frente_xy_forcada is not None and math.hypot(frente_xy_forcada[0], frente_xy_forcada[1]) > 1e-4:
+        fx, fy = float(frente_xy_forcada[0]), float(frente_xy_forcada[1])
+    else:
+        fx, fy = float(frente_info["vetor_xy"][0]), float(frente_info["vetor_xy"][1])
+    norma_f = math.hypot(fx, fy) or 1.0
+    fx, fy = fx / norma_f, fy / norma_f
+
+    geom = avaliar_geometria_mundo((fx, fy))
     if geom["vazio"]:
         raise RuntimeError("Cena sem geometria visível para renderizar.")
 
-    frente_info = detectar_direcao_frente(geom)
-    sinal_frente = float(sinal_frente_forcado) if sinal_frente_forcado in (-1.0, 1.0) else float(frente_info["sinal_y"])
-    # Quando a frente é -Y, o lado direito do observador é +X; quando é +Y, inverte X para manter o mesmo ângulo 3/4.
-    sinal_x = 1.0 if sinal_frente < 0 else -1.0
+    # Base ortonormal horizontal alinhada ao personagem:
+    # F = frente anatômica; D_dir = direita do observador frontal = Z × F = (-fy, fx)
+    F = Vector((fx, fy, 0.0))
+    D_dir = Vector((-fy, fx, 0.0))
+    Z_up = Vector((0.0, 0.0, 1.0))
 
     xmin, ymin, zmin = geom["bbox_min"]
     xmax, ymax, zmax = geom["bbox_max"]
-    largura_m = max(1e-3, xmax - xmin)
-    profundidade_m = max(1e-3, ymax - ymin)
+    largura_frontal_m = max(1e-3, float(geom.get("largura_frontal_m") or (xmax - xmin)))
+    profundidade_sagital_m = max(1e-3, float(geom.get("profundidade_sagital_m") or (ymax - ymin)))
     altura_m = max(1e-3, zmax - zmin)
     cx = 0.5 * (xmin + xmax)
     cy = 0.5 * (ymin + ymax)
+    centro_base = Vector((cx, cy, zmin))
 
     escala_cena = altura_m / 1.75
 
@@ -956,36 +1086,53 @@ def montar_cena_comparativa(
         bg.inputs[1].default_value = 0.55
     cena.world = mundo
 
-    # Piso fosco encostado exatamente na cota mínima dos pés (zmin)
-    raio_piso = 3.6 * altura_m
+    mat_estudio = bpy.data.materials.new("forja_piso_material")
+    mat_estudio.use_nodes = True
+    bsdf_piso = mat_estudio.node_tree.nodes.get("Principled BSDF")
+    if bsdf_piso:
+        bsdf_piso.inputs["Base Color"].default_value = (0.072, 0.077, 0.084, 1.0)
+        bsdf_piso.inputs["Roughness"].default_value = 0.84
+        if "Metallic" in bsdf_piso.inputs:
+            bsdf_piso.inputs["Metallic"].default_value = 0.04
+
+    # Piso fosco encostado exatamente na cota mínima dos calçados (zmin)
+    raio_piso = 6.5 * altura_m
     malha_piso = bpy.data.meshes.new("forja_piso_malha")
-    malha_piso.from_pydata(
-        [
-            (cx - raio_piso, cy - raio_piso, zmin),
-            (cx + raio_piso, cy - raio_piso, zmin),
-            (cx + raio_piso, cy + raio_piso, zmin),
-            (cx - raio_piso, cy + raio_piso, zmin),
-        ],
-        [],
-        [(0, 1, 2, 3)],
-    )
+    p0 = centro_base - D_dir * raio_piso - F * raio_piso
+    p1 = centro_base + D_dir * raio_piso - F * raio_piso
+    p2 = centro_base + D_dir * raio_piso + F * raio_piso
+    p3 = centro_base - D_dir * raio_piso + F * raio_piso
+    malha_piso.from_pydata([tuple(p0), tuple(p1), tuple(p2), tuple(p3)], [], [(0, 1, 2, 3)])
     malha_piso.update()
     obj_piso = bpy.data.objects.new("forja_piso", malha_piso)
+    obj_piso.data.materials.append(mat_estudio)
     cena.collection.objects.link(obj_piso)
 
-    mat_piso = bpy.data.materials.new("forja_piso_material")
-    mat_piso.use_nodes = True
-    bsdf_piso = mat_piso.node_tree.nodes.get("Principled BSDF")
-    if bsdf_piso:
-        bsdf_piso.inputs["Base Color"].default_value = (0.075, 0.080, 0.085, 1.0)
-        bsdf_piso.inputs["Roughness"].default_value = 0.82
-        if "Metallic" in bsdf_piso.inputs:
-            bsdf_piso.inputs["Metallic"].default_value = 0.05
-    obj_piso.data.materials.append(mat_piso)
+    # Painel de fundo vertical fosco atrás do personagem (-F) para estúdio contínuo sem corte brusco
+    mat_fundo = bpy.data.materials.new("forja_fundo_material")
+    mat_fundo.use_nodes = True
+    bsdf_fundo = mat_fundo.node_tree.nodes.get("Principled BSDF")
+    if bsdf_fundo:
+        bsdf_fundo.inputs["Base Color"].default_value = (0.040, 0.044, 0.050, 1.0)
+        bsdf_fundo.inputs["Roughness"].default_value = 0.92
+    dist_fundo = 2.6 * altura_m
+    larg_fundo = 6.5 * altura_m
+    alt_fundo = 4.5 * altura_m
+    base_fundo = centro_base - F * dist_fundo
+    f0 = base_fundo - D_dir * larg_fundo
+    f1 = base_fundo + D_dir * larg_fundo
+    f2 = f1 + Z_up * alt_fundo
+    f3 = f0 + Z_up * alt_fundo
+    malha_fundo = bpy.data.meshes.new("forja_fundo_malha")
+    malha_fundo.from_pydata([tuple(f0), tuple(f1), tuple(f2), tuple(f3)], [], [(0, 1, 2, 3)])
+    malha_fundo.update()
+    obj_fundo = bpy.data.objects.new("forja_fundo", malha_fundo)
+    obj_fundo.data.materials.append(mat_fundo)
+    cena.collection.objects.link(obj_fundo)
 
-    alvo = Vector((cx, cy, zmin + altura_m * 0.51))
+    alvo = centro_base + Z_up * (altura_m * 0.515)
 
-    # Câmera 50 mm em vista 3/4 frontal com distância calculada para nunca cortar membros
+    # Câmera 50 mm em vista 3/4 frontal (~22°) enquadrando corpo inteiro (~84% da altura)
     cam_dados = bpy.data.cameras.new("forja_camera")
     cam_dados.lens = 50.0
     cam_dados.sensor_fit = "HORIZONTAL"
@@ -996,36 +1143,33 @@ def montar_cena_comparativa(
     tan_meio_x = (cam_dados.sensor_width * 0.5) / cam_dados.lens
     tan_meio_y = tan_meio_x * (float(altura_px) / float(largura_px))
 
-    azimute = 0.38  # ~21.8° de rotação 3/4 para evidenciar volume, sombra e silhueta
-    elevacao = 0.10
-    largura_proj = abs(largura_m * math.cos(azimute)) + abs(profundidade_m * math.sin(azimute))
-    dist_y = (altura_m * 1.24) / (2.0 * tan_meio_y)
-    dist_x = (largura_proj * 1.26) / (2.0 * tan_meio_x)
-    distancia = max(dist_x, dist_y, 1.1 * altura_m) + 0.35 * profundidade_m
+    azimute = 0.38  # ~21.8° de rotação 3/4 frontal para evidenciar volume, normal map e silhueta
+    elevacao = 0.085
+    largura_proj = abs(largura_frontal_m * math.cos(azimute)) + abs(profundidade_sagital_m * math.sin(azimute))
+    dist_y = (altura_m * 1.19) / (2.0 * tan_meio_y)
+    dist_x = (largura_proj * 1.24) / (2.0 * tan_meio_x)
+    distancia = max(dist_x, dist_y, 1.05 * altura_m) + 0.30 * profundidade_sagital_m
 
-    vetor_cam = Vector((
-        math.sin(azimute) * math.cos(elevacao) * distancia * sinal_x,
-        math.cos(azimute) * math.cos(elevacao) * distancia * sinal_frente,
-        math.sin(elevacao) * distancia,
-    ))
+    dir_cam_horiz = (F * math.cos(azimute)) + (D_dir * math.sin(azimute))
+    vetor_cam = (dir_cam_horiz * (math.cos(elevacao) * distancia)) + (Z_up * (math.sin(elevacao) * distancia))
     cam_obj = bpy.data.objects.new("forja_camera", cam_dados)
     cam_obj.location = alvo + vetor_cam
     cam_obj.rotation_euler = (alvo - cam_obj.location).to_track_quat("-Z", "Y").to_euler()
     cena.collection.objects.link(cam_obj)
     cena.camera = cam_obj
 
-    # Iluminação de estúdio de 4 pontos (AREA lights físicas idênticas nos dois motores)
+    # Iluminação de estúdio de 4 pontos (AREA lights físicas escaladas por s² para irradiância constante)
     s = escala_cena
     s2 = s * s
     definicao_luzes = [
         ("forja_luz_principal", 380.0 * s2, 3.0 * s, (1.00, 0.96, 0.90),
-         Vector((cx + 2.4 * s * sinal_x, cy + 2.8 * s * sinal_frente, zmin + 2.85 * s))),
+         centro_base + D_dir * (2.4 * s) + F * (2.8 * s) + Z_up * (2.85 * s)),
         ("forja_luz_preenchimento", 180.0 * s2, 3.2 * s, (0.82, 0.89, 1.00),
-         Vector((cx - 2.6 * s * sinal_x, cy + 2.2 * s * sinal_frente, zmin + 2.05 * s))),
+         centro_base - D_dir * (2.6 * s) + F * (2.2 * s) + Z_up * (2.05 * s)),
         ("forja_luz_recorte", 240.0 * s2, 2.8 * s, (1.00, 0.84, 0.64),
-         Vector((cx - 2.3 * s * sinal_x, cy - 2.6 * s * sinal_frente, zmin + 2.80 * s))),
+         centro_base - D_dir * (2.2 * s) - F * (2.1 * s) + Z_up * (2.75 * s)),
         ("forja_luz_topo", 120.0 * s2, 2.4 * s, (1.00, 1.00, 1.00),
-         Vector((cx, cy - 0.3 * s * sinal_frente, zmin + 3.55 * s))),
+         centro_base - F * (0.25 * s) + Z_up * (3.45 * s)),
     ]
     luzes_resumo = []
     for nome_luz, energia, tamanho, cor, pos in definicao_luzes:
@@ -1061,7 +1205,7 @@ def montar_cena_comparativa(
     return {
         "resolucao_px": [largura_px, altura_px],
         "geometria_enquadrada": geom,
-        "frente_usada": {"sinal_y": sinal_frente, "origem": frente_info["criterio"]},
+        "frente_usada": {"vetor_xy": [round(fx, 5), round(fy, 5)], "origem": frente_info["criterio"]},
         "piso_z_m": round(zmin, 4),
         "camera": {
             "lente_mm": cam_dados.lens,
@@ -1192,11 +1336,17 @@ def executar_modo_renderizar(args: argparse.Namespace) -> int:
         if not imp["sucesso"]:
             raise RuntimeError(f"Falha ao importar {args.modelo}: {imp['erro']}")
 
+        frente_xy_arg = None
+        if args.frente_x is not None and args.frente_y is not None:
+            frente_xy_arg = (float(args.frente_x), float(args.frente_y))
+        elif args.sinal_frente in (-1.0, 1.0):
+            frente_xy_arg = (0.0, float(args.sinal_frente))
+
         t_cena_0 = time.perf_counter()
         cena_cfg = montar_cena_comparativa(
             largura_px=args.largura,
             altura_px=args.altura,
-            sinal_frente_forcado=args.sinal_frente,
+            frente_xy_forcada=frente_xy_arg,
         )
         motor_cfg = configurar_motor_render(args.motor, args.amostras)
         tempo_prep_cena = round(time.perf_counter() - t_cena_0, 4)
@@ -1275,7 +1425,9 @@ def executar_modo_renderizar(args: argparse.Namespace) -> int:
                 "pico_rss_hwm_pos_frio": mem_pos_frio["vm_hwm_mb"],
                 "pico_rss_hwm_processo": mem_final["vm_hwm_mb"],
                 "pico_virtual_vmpeak": mem_final["vm_peak_mb"],
-                "pico_interno_blender": extrair_pico_stats_blender(stats_capturados),
+                "pico_interno_blender": extrair_pico_stats_blender(
+                    stats_capturados + (log_frio.splitlines() if log_frio else [])
+                ),
             },
             "gpu_opengl": gpu_pos_render,
             "amostra_render_stats": stats_capturados[-8:],
@@ -1342,9 +1494,8 @@ def executar_modo_comparar(args: argparse.Namespace) -> int:
     for modelo_info in modelos_ordenados:
         personagem = modelo_info["personagem"]
         caminho_modelo = modelo_info.get("caminho_modelo_render")
-        sinal_frente = (
-            ((modelo_info.get("inspecao_cena") or {}).get("frente_detectada") or {}).get("sinal_y")
-        )
+        frente_det = ((modelo_info.get("inspecao_cena") or {}).get("frente_detectada") or {})
+        vetor_xy = frente_det.get("vetor_xy")
 
         for motor in ("CYCLES", "EEVEE"):
             motor_slug = motor.lower()
@@ -1392,8 +1543,8 @@ def executar_modo_comparar(args: argparse.Namespace) -> int:
                 "--amostras",
                 str(amostras),
             ])
-            if sinal_frente in (-1.0, 1.0):
-                cmd.extend(["--sinal-frente", str(sinal_frente)])
+            if isinstance(vetor_xy, list) and len(vetor_xy) == 2:
+                cmd.extend(["--frente-x", str(vetor_xy[0]), "--frente-y", str(vetor_xy[1])])
 
             env = os.environ.copy()
             env.setdefault("LIBGL_ALWAYS_SOFTWARE", "1")
@@ -1472,6 +1623,8 @@ def construir_parser() -> argparse.ArgumentParser:
     p.add_argument("--saida-png", help="PNG de saída do worker")
     p.add_argument("--amostras", type=int, default=64)
     p.add_argument("--sinal-frente", type=float, default=None)
+    p.add_argument("--frente-x", type=float, default=None)
+    p.add_argument("--frente-y", type=float, default=None)
 
     # argumentos --modo comparar (orquestrador)
     p.add_argument("--auditoria", help="JSON produzido por --modo auditar")

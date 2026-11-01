@@ -28,6 +28,8 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import zlib from "node:zlib";
 
+import { mapearOssos } from "./lib/mapeamento-ossos.mjs";
+
 const RAIZ_REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function parseArgs(argv) {
@@ -754,15 +756,33 @@ function compararParImagens(imgCycles, stCycles, imgEevee, stEevee, caminhoLadoA
   const totalPx = imgCycles.largura * imgCycles.altura;
   let somaAbs = 0;
   let somaQuad = 0;
+  let somaAbsRoi = 0;
+  let somaQuadRoi = 0;
+  let nRoi = 0;
   let interSilhueta = 0;
   let uniaoSilhueta = 0;
+
+  const xIniRoi = Math.floor(imgCycles.largura * 0.18);
+  const xFimRoi = Math.ceil(imgCycles.largura * 0.82);
+  const yIniRoi = Math.floor(imgCycles.altura * 0.06);
+  const yFimRoi = Math.ceil(imgCycles.altura * 0.94);
 
   for (let i = 0; i < totalPx; i += 1) {
     const dr = imgEevee.rgba[i * 4] - imgCycles.rgba[i * 4];
     const dg = imgEevee.rgba[i * 4 + 1] - imgCycles.rgba[i * 4 + 1];
     const db = imgEevee.rgba[i * 4 + 2] - imgCycles.rgba[i * 4 + 2];
-    somaAbs += (Math.abs(dr) + Math.abs(dg) + Math.abs(db)) / 3.0;
-    somaQuad += (dr * dr + dg * dg + db * db) / 3.0;
+    const absPx = (Math.abs(dr) + Math.abs(dg) + Math.abs(db)) / 3.0;
+    const quadPx = (dr * dr + dg * dg + db * db) / 3.0;
+    somaAbs += absPx;
+    somaQuad += quadPx;
+
+    const x = i % imgCycles.largura;
+    const y = Math.floor(i / imgCycles.largura);
+    if (x >= xIniRoi && x < xFimRoi && y >= yIniRoi && y < yFimRoi) {
+      somaAbsRoi += absPx;
+      somaQuadRoi += quadPx;
+      nRoi += 1;
+    }
 
     const mc = stCycles._mascaraSilhueta[i];
     const me = stEevee._mascaraSilhueta[i];
@@ -774,31 +794,49 @@ function compararParImagens(imgCycles, stCycles, imgEevee, stEevee, caminhoLadoA
   const mse = somaQuad / totalPx;
   const rmse = Math.sqrt(mse);
   const psnr = mse > 1e-9 ? 10 * Math.log10((255 * 255) / mse) : 99.0;
+  const maeRoi = nRoi > 0 ? somaAbsRoi / nRoi : mae;
+  const mseRoi = nRoi > 0 ? somaQuadRoi / nRoi : mse;
+  const psnrRoi = mseRoi > 1e-9 ? 10 * Math.log10((255 * 255) / mseRoi) : 99.0;
   const iou = uniaoSilhueta > 0 ? interSilhueta / uniaoSilhueta : 0;
 
   if (caminhoLadoALado) {
     const largDiv = 4;
-    const largTotal = imgCycles.largura * 2 + largDiv;
+    const W = imgCycles.largura;
+    const largTotal = W * 3 + largDiv * 2;
     const altTotal = imgCycles.altura;
     const rgbComp = Buffer.alloc(largTotal * altTotal * 3);
     for (let y = 0; y < altTotal; y += 1) {
-      for (let x = 0; x < imgCycles.largura; x += 1) {
-        const orig = (y * imgCycles.largura + x) * 4;
-        const dEsq = (y * largTotal + x) * 3;
-        rgbComp[dEsq] = imgCycles.rgba[orig];
-        rgbComp[dEsq + 1] = imgCycles.rgba[orig + 1];
-        rgbComp[dEsq + 2] = imgCycles.rgba[orig + 2];
+      for (let x = 0; x < W; x += 1) {
+        const orig = (y * W + x) * 4;
+        const rc = imgCycles.rgba[orig];
+        const gc = imgCycles.rgba[orig + 1];
+        const bc = imgCycles.rgba[orig + 2];
+        const re = imgEevee.rgba[orig];
+        const ge = imgEevee.rgba[orig + 1];
+        const be = imgEevee.rgba[orig + 2];
 
-        const dDir = (y * largTotal + imgCycles.largura + largDiv + x) * 3;
-        rgbComp[dDir] = imgEevee.rgba[orig];
-        rgbComp[dDir + 1] = imgEevee.rgba[orig + 1];
-        rgbComp[dDir + 2] = imgEevee.rgba[orig + 2];
+        const dEsq = (y * largTotal + x) * 3;
+        rgbComp[dEsq] = rc;
+        rgbComp[dEsq + 1] = gc;
+        rgbComp[dEsq + 2] = bc;
+
+        const dMeioImg = (y * largTotal + W + largDiv + x) * 3;
+        rgbComp[dMeioImg] = re;
+        rgbComp[dMeioImg + 1] = ge;
+        rgbComp[dMeioImg + 2] = be;
+
+        const dDif = (y * largTotal + (W + largDiv) * 2 + x) * 3;
+        rgbComp[dDif] = Math.min(255, Math.abs(re - rc) * 4);
+        rgbComp[dDif + 1] = Math.min(255, Math.abs(ge - gc) * 4);
+        rgbComp[dDif + 2] = Math.min(255, Math.abs(be - bc) * 4);
       }
       for (let dx = 0; dx < largDiv; dx += 1) {
-        const dMeio = (y * largTotal + imgCycles.largura + dx) * 3;
-        rgbComp[dMeio] = 196;
-        rgbComp[dMeio + 1] = 148;
-        rgbComp[dMeio + 2] = 88;
+        for (const baseX of [W + dx, W * 2 + largDiv + dx]) {
+          const dDiv = (y * largTotal + baseX) * 3;
+          rgbComp[dDiv] = 196;
+          rgbComp[dDiv + 1] = 148;
+          rgbComp[dDiv + 2] = 88;
+        }
       }
     }
     fs.writeFileSync(caminhoLadoALado, codificarPngRgb(largTotal, altTotal, rgbComp));
@@ -809,6 +847,9 @@ function compararParImagens(imgCycles, stCycles, imgEevee, stEevee, caminhoLadoA
     mae_pct: Number(((mae / 255) * 100).toFixed(2)),
     rmse_rgb_0_255: Number(rmse.toFixed(2)),
     psnr_db: Number(psnr.toFixed(2)),
+    mae_roi_personagem_0_255: Number(maeRoi.toFixed(2)),
+    mae_roi_personagem_pct: Number(((maeRoi / 255) * 100).toFixed(2)),
+    psnr_roi_personagem_db: Number(psnrRoi.toFixed(2)),
     iou_silhueta: Number(iou.toFixed(4)),
     delta_luminancia_media_eevee_menos_cycles: Number(
       (stEevee.luminancia_media_0_255 - stCycles.luminancia_media_0_255).toFixed(2)
@@ -886,6 +927,13 @@ function gerarMarkdownRelatorio(rel) {
     linhas.push(`- **Possui armadura (` + "`ARMATURE`" + `):** ${p.tem_armadura ? "SIM" : "NÃO"} (${m.totais_cena?.ossos ?? 0} ossos)`);
     linhas.push(`- **Possui skinning ativo na malha:** ${p.tem_skin_ativo ? "SIM" : "NÃO"}`);
     linhas.push(`- **Compatível diretamente com os clipes de 16 ossos atuais do FORJA:** ${p.compativel_direto_forja_16_ossos ? "SIM" : "NÃO"} (${(p.ossos_forja_exatos || []).length}/16 nomes exatos; ${Object.keys(p.ossos_humanoides_mapeaveis || {}).length}/15 ossos humanoides mapeáveis)`);
+    if (p.mapeamento_biblioteca_forja) {
+      const mb = p.mapeamento_biblioteca_forja;
+      linhas.push(
+        `- **Mapeador oficial \`tools/lib/mapeamento-ossos.mjs\`:** \`${Object.keys(mb.mapa || {}).length}/15\` ossos casados ` +
+        `(exatos: \`${mb.passadas?.exata ?? 0}\`, normalizados: \`${mb.passadas?.normalizada ?? 0}\`, faltando: \`${(mb.faltando || []).join(", ") || "nenhum"}\`)`
+      );
+    }
     if (p.teste_deformacao_skin) {
       const td = p.teste_deformacao_skin;
       linhas.push(`- **Teste reversível de deformação de skin:** osso \`${td.osso_testado}\` moveu \`${td.vertices_movidos}/${td.amostras_comparadas}\` vértices amostrados (deslocamento máx. \`${td.deslocamento_max_m} m\`)`);
@@ -898,7 +946,7 @@ function gerarMarkdownRelatorio(rel) {
 
   linhas.push("## 4. Tempo de Renderização e Memória Medidos (Processos Isolados)");
   linhas.push("");
-  linhas.push("| Personagem | Motor (`engine_id`) | Status | Importação (s) | Prep. Cena (s) | Render Frio — 1º quadro (s) | Render Quente — 2º quadro (s) | CPU Frio (s) | Pico RSS Kernel `VmHWM` (MiB) | Pico Interno Blender (MiB) | PNG Gerado |");
+  linhas.push("| Personagem | Motor (`engine_id`) | Status | Importação (s) | Prep. Cena (s) | Render Frio — 1º quadro (s) | Render Quente — 2º quadro (s) | CPU Frio (s) | RSS Pós-Render (MiB) | Pico RSS Kernel `VmHWM` (MiB) | PNG Gerado |");
   linhas.push("| --- | --- | :---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
   for (const ex of rel.execucoes_render) {
     const t = ex.tempos_s || {};
@@ -906,7 +954,7 @@ function gerarMarkdownRelatorio(rel) {
     linhas.push(
       `| **${ex.personagem}** | \`${ex.engine_id_blender || ex.motor}\` | ${ex.sucesso ? "OK" : "FALHA"} | ` +
       `${t.importacao ?? "—"} | ${t.preparacao_cena ?? "—"} | **${t.render_frio ?? "—"}** | **${t.render_quente ?? "—"}** | ` +
-      `${t.cpu_frio_total ?? "—"} | **${mem.pico_rss_hwm_processo ?? "—"}** | ${mem.pico_interno_blender ?? "—"} | ` +
+      `${t.cpu_frio_total ?? "—"} | ${mem.rss_pos_render_frio ?? "—"} | **${mem.pico_rss_hwm_processo ?? "—"}** | ` +
       `\`${ex.arquivo_png || "—"}\` (${ex.png_bytes ? `${(ex.png_bytes / 1024).toFixed(1)} KiB` : "—"}) |`
     );
   }
@@ -914,7 +962,7 @@ function gerarMarkdownRelatorio(rel) {
 
   linhas.push("## 5. Comparação Quantitativa e Visual (Pixels Reais Cycles vs EEVEE)");
   linhas.push("");
-  linhas.push("| Personagem | Luminância Média (Cycles / EEVEE) | Cobertura Silhueta % (Cycles / EEVEE) | Pixels Magenta (Textura Ausente) | IoU de Silhueta | MAE RGB (0–255) | PSNR (dB) | Razão de Tempo Frio (Cycles/EEVEE) | Razão de Tempo Quente (Cycles/EEVEE) |");
+  linhas.push("| Personagem | Luminância Média (Cycles / EEVEE) | Cobertura Silhueta % (Cycles / EEVEE) | Pixels Magenta (Textura Ausente) | IoU de Silhueta | MAE Quadro (0–255) | MAE Região Personagem | PSNR Quadro / ROI (dB) | Razão Tempo Frio / Quente (Cycles÷EEVEE) |");
   linhas.push("| --- | :---: | :---: | :---: | ---: | ---: | ---: | ---: | ---: |");
   for (const comp of rel.comparativo_por_personagem) {
     const sc = comp.metricas_imagem_cycles;
@@ -924,8 +972,10 @@ function gerarMarkdownRelatorio(rel) {
       `| **${comp.personagem}** | ${sc?.luminancia_media_0_255 ?? "—"} / ${se?.luminancia_media_0_255 ?? "—"} | ` +
       `${sc?.cobertura_silhueta_pct ?? "—"}% / ${se?.cobertura_silhueta_pct ?? "—"}% | ` +
       `${sc?.pixels_magenta_textura_ausente ?? "—"} / ${se?.pixels_magenta_textura_ausente ?? "—"} | ` +
-      `${px.iou_silhueta ?? "—"} | ${px.mae_rgb_0_255 ?? "—"} (${px.mae_pct ?? "—"}%) | ${px.psnr_db ?? "—"} | ` +
-      `${comp.razao_tempo_frio_cycles_sobre_eevee ?? "—"}× | ${comp.razao_tempo_quente_cycles_sobre_eevee ?? "—"}× |`
+      `${px.iou_silhueta ?? "—"} | ${px.mae_rgb_0_255 ?? "—"} (${px.mae_pct ?? "—"}%) | ` +
+      `${px.mae_roi_personagem_0_255 ?? "—"} (${px.mae_roi_personagem_pct ?? "—"}%) | ` +
+      `${px.psnr_db ?? "—"} / ${px.psnr_roi_personagem_db ?? "—"} | ` +
+      `${comp.razao_tempo_frio_cycles_sobre_eevee ?? "—"}× / ${comp.razao_tempo_quente_cycles_sobre_eevee ?? "—"}× |`
     );
   }
   linhas.push("");
@@ -1021,6 +1071,14 @@ function executarResumir(args) {
       });
     }
 
+    const poseCompBase = m.inspecao_cena?.pose_compatibilidade
+      ? { ...m.inspecao_cena.pose_compatibilidade }
+      : null;
+    const todosOssos = m.inspecao_cena?.armaduras?.[0]?.todos_ossos || [];
+    if (poseCompBase && todosOssos.length > 0) {
+      poseCompBase.mapeamento_biblioteca_forja = mapearOssos(todosOssos);
+    }
+
     return {
       personagem: m.personagem,
       criterio_classificacao: m.criterio_classificacao,
@@ -1063,7 +1121,7 @@ function executarResumir(args) {
         razao_ombro_quadril_ossos: a.razao_ombro_quadril_ossos,
       })),
       acoes: m.inspecao_cena?.acoes || [],
-      pose_compatibilidade: m.inspecao_cena?.pose_compatibilidade || null,
+      pose_compatibilidade: poseCompBase,
       evidencias_genero: m.evidencias_genero || null,
     };
   });

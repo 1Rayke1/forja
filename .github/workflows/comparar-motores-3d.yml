@@ -203,10 +203,15 @@ jobs:
           fi
           cat /tmp/comparacao-3d/sonda_xvfb.out >> "$LOG_GL"
 
+          EGL_TEM_ERRO=0
+          if grep -qi 'EGL Error' /tmp/comparacao-3d/sonda_egl.out; then
+            EGL_TEM_ERRO=1
+          fi
+
           USAR_XVFB="false"
           MODO_ESCOLHIDO="nenhum"
           LINHA_JSON=""
-          if [ "$EGL_OK" -eq 1 ]; then
+          if [ "$EGL_OK" -eq 1 ] && [ "$EGL_TEM_ERRO" -eq 0 ]; then
             MODO_ESCOLHIDO="headless_egl"
             USAR_XVFB="false"
             LINHA_JSON="$(grep '\[SONDA_GL_JSON\]' /tmp/comparacao-3d/sonda_egl.out | tail -1 | sed 's/^\[SONDA_GL_JSON\] //')"
@@ -214,14 +219,21 @@ jobs:
             MODO_ESCOLHIDO="xvfb_run"
             USAR_XVFB="true"
             LINHA_JSON="$(grep '\[SONDA_GL_JSON\]' /tmp/comparacao-3d/sonda_xvfb.out | tail -1 | sed 's/^\[SONDA_GL_JSON\] //')"
+          elif [ "$EGL_OK" -eq 1 ]; then
+            MODO_ESCOLHIDO="headless_egl"
+            USAR_XVFB="false"
+            LINHA_JSON="$(grep '\[SONDA_GL_JSON\]' /tmp/comparacao-3d/sonda_egl.out | tail -1 | sed 's/^\[SONDA_GL_JSON\] //')"
           fi
 
           echo "usar_xvfb=${USAR_XVFB}" >> "$GITHUB_OUTPUT"
           node -e '
             const fs = require("fs");
             const sonda = process.argv[4] ? JSON.parse(process.argv[4]) : null;
+            const eglOut = fs.readFileSync("/tmp/comparacao-3d/sonda_egl.out", "utf8");
+            const eglErros = eglOut.split(/\r?\n/).filter(l => /EGL Error/i.test(l));
             fs.writeFileSync("/tmp/comparacao-3d/opengl-ambiente.json", JSON.stringify({
               egl_headless_sucesso: process.argv[1] === "1",
+              egl_headless_avisos: eglErros,
               xvfb_sucesso: process.argv[2] === "1",
               modo_escolhido: process.argv[3],
               sonda_blender: sonda,
