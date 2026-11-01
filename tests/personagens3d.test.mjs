@@ -622,6 +622,19 @@ await runTest("18. o grafo de módulos funciona sem bundler", async () => {
   assert.ok(fs.existsSync(path.join(repoRoot, "assets/vendor/three/three.core.min.js")),
     "three.core.min.js precisa acompanhar o módulo");
   assert.ok(fs.existsSync(path.join(repoRoot, "assets/vendor/three/LICENSE")));
+
+  /*
+    A cena é carregada com `import()`, que dentro de script clássico resolve
+    contra o ENDEREÇO DO SCRIPT — não contra o documento. Com o caminho
+    relativo cru (`../assets/js/...`) o navegador pedia o prefixo de `assets/`
+    duplicado, dava 404 e o painel 3D não aparecia em navegador real (o jsdom
+    dos testes injeta o módulo, então isso passava). Tem de ser URL absoluta.
+  */
+  const personagens = read("assets/js/forja-personagens.js");
+  assert.match(personagens, /new URL\(url\(MODULO_CENA\), doc\.baseURI\)/,
+    "o módulo da cena precisa ser importado por URL absoluta (baseURI do documento)");
+  assert.ok(!/import\(url\(MODULO_CENA\)\)/.test(personagens),
+    "import() com caminho relativo cru volta a quebrar o painel no navegador");
 });
 
 const falhas = results.filter(result => !result.ok);

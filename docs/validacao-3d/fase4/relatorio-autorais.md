@@ -236,7 +236,16 @@ lugares:
    É pose, não preensão.
 4. **Pé na ponta a 40°** é constante na flexão e na prancha; no mountain climber o
    pé que viaja sai da ponta para neutro.
-5. **Custo de arquivo**: os autorados são maiores que os do DeskBreak
+5. **Bug pré-existente encontrado na revisão de publicação**: o painel 3D não
+   carregava em navegador real. `import()` dentro de script clássico resolve o
+   caminho contra o **endereço do script**, não contra o documento, então
+   `import(url("assets/js/forja-3d-cena.js"))` pedia o prefixo de `assets/`
+   duplicado (404) e o painel caía em "O visualizador 3D não pôde ser
+   carregado". Os testes em jsdom não pegavam porque injetam o módulo. Corrigido
+   com `new URL(url(MODULO_CENA), doc.baseURI).href`, e o teste 18 (personagens
+   3D) agora exige esse formato. Verificado em Chromium real: painel chega a
+   `data-estado="pronto"`, com canvas e sem selo de aproximação.
+6. **Custo de arquivo**: os autorados são maiores que os do DeskBreak
    (33–43 KB contra 18–33 KB) porque trazem um quadro por 1/24 s em vez de
    esparso. Total de animações: 921 KB.
 
@@ -262,7 +271,8 @@ Alterados:
   no mapa) e `arquivos` por personagem;
 - `tools/animacoes-mapa.json` — os três entram como `autoral` / `exact`;
 - `assets/js/forja-personagens.js` — `arquivoDoClipe()`, usado nos dois pontos de
-  montagem da URL do clipe;
+  montagem da URL do clipe; e o `import()` do módulo da cena passou a usar URL
+  absoluta contra `doc.baseURI` (ver §9.6);
 - `tools/analisar-movimentos-3d.mjs` — `joelhoDobrado` e `--exercicio`;
 - `tools/folha-imagens-3d.mjs` — vistas, `--linhas`, `--azimute` e a frente
   corrigida;

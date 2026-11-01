@@ -285,7 +285,14 @@
 
   function carregarModuloCena() {
     if (!cenaModulo) {
-      cenaModulo = import(url(MODULO_CENA)).catch(erro => {
+      /*
+        `import()` dentro de script clássico resolve o caminho contra o ENDEREÇO
+        DO SCRIPT, não contra o documento: o caminho relativo saía com o prefixo
+        de `assets/` duplicado e o painel 3D nunca carregava. Resolvido contra
+        `baseURI` do documento, é o mesmo caminho que o `fetch` dos GLB usa.
+      */
+      const endereco = new URL(url(MODULO_CENA), doc.baseURI).href;
+      cenaModulo = import(endereco).catch(erro => {
         cenaModulo = null;
         throw erro;
       });
