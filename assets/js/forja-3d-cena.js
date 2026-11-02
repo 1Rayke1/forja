@@ -119,36 +119,75 @@ export function reamarrarFaixas(clipe, raiz) {
 
 const VELOCIDADES = [0.5, 1, 1.5];
 
+/*
+  Modo apresentação (tela do exercício): mesma cena, sem controles, com o
+  enquadramento e o formato aprovados na primeira etapa. O buffer é fixo em
+  1280 × 720 (16:9) e o laço entrega 30 quadros por segundo; o CSS só escala
+  o canvas, sem mudar a resolução interna.
+*/
+export const APRESENTACAO = Object.freeze({
+  largura: 1280,
+  altura: 720,
+  fps: 30,
+  fundo: "#121010",
+  camera: Object.freeze({
+    azimuteGraus: -58,
+    elevacaoGraus: 22,
+    campoVisaoVerticalGraus: 32,
+    margem: 0.09
+  })
+});
+
 export async function criarCena(container, opcoes) {
   const config = Object.assign(
-    { personagemUrl: "", clipeUrl: "", aoErro: null, aoEstado: null, aoCarregar: null },
+    {
+      personagemUrl: "",
+      clipeUrl: "",
+      aoErro: null,
+      aoEstado: null,
+      aoCarregar: null,
+      modoApresentacao: false,
+      aoEnquadrar: null
+    },
     opcoes || {}
   );
+  const apresentacao = config.modoApresentacao === true;
 
   if (!webglDisponivel()) throw new Error("WebGL indisponível neste navegador.");
 
-  const larguraInicial = Math.max(1, container.clientWidth || 320);
-  const alturaInicial = Math.max(1, container.clientHeight || 260);
+  const larguraInicial = apresentacao ? APRESENTACAO.largura : Math.max(1, container.clientWidth || 320);
+  const alturaInicial = apresentacao ? APRESENTACAO.altura : Math.max(1, container.clientHeight || 260);
 
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({
-      antialias: window.devicePixelRatio <= 1.5,
-      alpha: true,
+      antialias: apresentacao ? false : window.devicePixelRatio <= 1.5,
+      alpha: !apresentacao,
       powerPreference: "low-power"
     });
   } catch (erro) {
     throw new Error("Não foi possível iniciar o WebGL.");
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setPixelRatio(apresentacao ? 1 : Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.setSize(larguraInicial, alturaInicial, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.domElement.className = "c3-canvas";
+  if (apresentacao) {
+    renderer.setClearColor(APRESENTACAO.fundo, 1);
+  }
+  renderer.domElement.className = apresentacao ? "c3-canvas e3-canvas" : "c3-canvas";
   renderer.domElement.setAttribute("role", "img");
   container.appendChild(renderer.domElement);
 
   const cena = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(32, larguraInicial / alturaInicial, 0.1, 40);
+  if (apresentacao) {
+    cena.background = new THREE.Color(APRESENTACAO.fundo);
+  }
+  const camera = new THREE.PerspectiveCamera(
+    apresentacao ? APRESENTACAO.camera.campoVisaoVerticalGraus : 32,
+    larguraInicial / alturaInicial,
+    0.1,
+    40
+  );
 
   cena.add(new THREE.HemisphereLight(0xfff6ea, 0x2b2f26, 2.0));
   const sol = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -158,13 +197,19 @@ export async function criarCena(container, opcoes) {
   contra.position.set(-2.4, 1.6, -2.2);
   cena.add(contra);
 
-  const piso = new THREE.Mesh(
-    new THREE.CircleGeometry(1.5, 40),
-    new THREE.MeshBasicMaterial({ color: 0x1b2018, transparent: true, opacity: 0.55 })
-  );
-  piso.rotation.x = -Math.PI / 2;
-  piso.position.y = 0.001;
-  cena.add(piso);
+  /* No palco de apresentação o fundo é uniforme #121010: nenhum piso,
+     aro ou elemento decorativo pode aparecer atrás do personagem. */
+  const piso = apresentacao
+    ? null
+    : new THREE.Mesh(
+        new THREE.CircleGeometry(1.5, 40),
+        new THREE.MeshBasicMaterial({ color: 0x1b2018, transparent: true, opacity: 0.55 })
+      );
+  if (piso) {
+    piso.rotation.x = -Math.PI / 2;
+    piso.position.y = 0.001;
+    cena.add(piso);
+  }
 
   const grupo = new THREE.Group();
   cena.add(grupo);
@@ -182,17 +227,172 @@ export async function criarCena(container, opcoes) {
   let personagem = null;
   let requisicao = 0;
   const alvo = new THREE.Vector3(0, 0.95, 0);
-  const orbita = { azimute: 0.28, elevacao: 0.06, distancia: 4.1 };
+  const orbita = apresentacao
+    ? {
+        azimute: (APRESENTACAO.camera.azimuteGraus * Math.PI) / 180,
+        elevacao: (APRESENTACAO.camera.elevacaoGraus * Math.PI) / 180,
+        distancia: 4.1
+      }
+    : { azimute: 0.28, elevacao: 0.06, distancia: 4.1 };
 
   function enquadrar() {
+    /* No modo apresentação a câmera fica exatamente no azimute/elevação
+       aprovados; o pequeno lift de 0,15 do modo interativo deslocaria o
+       enquadramento automático. */
+    const lift = apresentacao ? 0 : 0.15;
     camera.position.set(
       alvo.x + Math.sin(orbita.azimute) * orbita.distancia,
-      alvo.y + Math.sin(orbita.elevacao) * orbita.distancia + 0.15,
+      alvo.y + Math.sin(orbita.elevacao) * orbita.distancia + lift,
       alvo.z + Math.cos(orbita.azimute) * orbita.distancia
     );
     camera.lookAt(alvo);
   }
   enquadrar();
+
+  /*
+    Enquadramento automático do modo apresentação.
+
+    A caixa é calculada sobre a MALHA DEFORMADA em cinco instantes do clipe
+    (0%, 25%, 50%, 75% e 95%), não sobre a pose de repouso: um abdominal
+    deitado e um agachamento em pé ocupam volumes muito diferentes. A câmera
+    fica sempre no mesmo azimute/elevação 3/4; só a distância se ajusta para
+    manter o corpo inteiro visível com a margem aprovada.
+  */
+  function caixaDeformada(raiz) {
+    const caixa = new THREE.Box3();
+    const pontos = [];
+    const vertice = new THREE.Vector3();
+
+    raiz.updateMatrixWorld(true);
+    raiz.traverse(objeto => {
+      if (!objeto.isMesh || !objeto.geometry) return;
+
+      if (objeto.isSkinnedMesh && objeto.applyBoneTransform && objeto.geometry.attributes.position) {
+        const posicao = objeto.geometry.attributes.position;
+        /* Amostra densa o bastante para achar a silhueta real, sem varrer
+           centenas de milhares de vértices em cada um dos cinco instantes. */
+        const passo = Math.max(1, Math.floor(posicao.count / 4000));
+        for (let i = 0; i < posicao.count; i += passo) {
+          vertice.fromBufferAttribute(posicao, i);
+          objeto.applyBoneTransform(i, vertice);
+          vertice.applyMatrix4(objeto.matrixWorld);
+          caixa.expandByPoint(vertice);
+          pontos.push(vertice.clone());
+        }
+        return;
+      }
+
+      objeto.geometry.computeBoundingBox();
+      if (objeto.geometry.boundingBox) {
+        const parte = objeto.geometry.boundingBox.clone().applyMatrix4(objeto.matrixWorld);
+        caixa.union(parte);
+        pontos.push(
+          new THREE.Vector3(parte.min.x, parte.min.y, parte.min.z),
+          new THREE.Vector3(parte.min.x, parte.min.y, parte.max.z),
+          new THREE.Vector3(parte.min.x, parte.max.y, parte.min.z),
+          new THREE.Vector3(parte.min.x, parte.max.y, parte.max.z),
+          new THREE.Vector3(parte.max.x, parte.min.y, parte.min.z),
+          new THREE.Vector3(parte.max.x, parte.min.y, parte.max.z),
+          new THREE.Vector3(parte.max.x, parte.max.y, parte.min.z),
+          new THREE.Vector3(parte.max.x, parte.max.y, parte.max.z)
+        );
+      }
+    });
+
+    return { caixa, pontos };
+  }
+
+  /*
+    Distância que faz a CAIXA PROJETADA caber no quadro. A esfera envolvida
+    superestima muito um corpo deitado (o comprimento vira profundidade e a
+    silhueta encolhe). Aqui cada canto da caixa é projetado com a orientação
+    real da câmera e a distância mínima é resolvida por canto. O resultado é o
+    corpo inteiro visível, preenchendo o quadro como no piloto.
+  */
+  function distanciaDeEnquadramento(caixa, centro, pontos) {
+    const d0 = 4;
+    alvo.copy(centro);
+    orbita.distancia = d0;
+    enquadrar();
+    camera.updateMatrixWorld(true);
+
+    const tanY = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const tanX = tanY * camera.aspect;
+    const margem = 1 - APRESENTACAO.camera.margem;
+    const amostras = pontos && pontos.length
+      ? pontos
+      : [
+          new THREE.Vector3(caixa.min.x, caixa.min.y, caixa.min.z),
+          new THREE.Vector3(caixa.min.x, caixa.min.y, caixa.max.z),
+          new THREE.Vector3(caixa.min.x, caixa.max.y, caixa.min.z),
+          new THREE.Vector3(caixa.min.x, caixa.max.y, caixa.max.z),
+          new THREE.Vector3(caixa.max.x, caixa.min.y, caixa.min.z),
+          new THREE.Vector3(caixa.max.x, caixa.min.y, caixa.max.z),
+          new THREE.Vector3(caixa.max.x, caixa.max.y, caixa.min.z),
+          new THREE.Vector3(caixa.max.x, caixa.max.y, caixa.max.z)
+        ];
+    const vertice = new THREE.Vector3();
+    let distancia = 0;
+
+    amostras.forEach(amostra => {
+      vertice.copy(amostra).applyMatrix4(camera.matrixWorldInverse);
+      /* z0 é a profundidade relativa ao alvo; a câmera recua ao longo do
+         próprio eixo, então a profundidade no quadro é d - z0. */
+      const z0 = vertice.z + d0;
+      distancia = Math.max(
+        distancia,
+        z0 + Math.abs(vertice.x) / (margem * tanX),
+        z0 + Math.abs(vertice.y) / (margem * tanY)
+      );
+    });
+
+    return THREE.MathUtils.clamp(distancia, 2.0, 9);
+  }
+
+  function enquadrarCaixa(caixa, pontos) {
+    if (!caixa || caixa.isEmpty()) return false;
+
+    const centro = caixa.getCenter(new THREE.Vector3());
+    const tamanho = caixa.getSize(new THREE.Vector3());
+    const raio = Math.max(0.2, tamanho.length() / 2);
+    const distancia = distanciaDeEnquadramento(caixa, centro, pontos);
+
+    alvo.copy(centro);
+    orbita.distancia = distancia;
+    enquadrar();
+
+    if (config.aoEnquadrar) {
+      config.aoEnquadrar({
+        centro: centro.toArray(),
+        raio,
+        distancia,
+        minimo: caixa.min.toArray(),
+        maximo: caixa.max.toArray()
+      });
+    }
+    return true;
+  }
+
+  function enquadrarAutomatico(duracao) {
+    if (!apresentacao || !personagem || !mixer) return false;
+
+    const total = Number(duracao) > 0 ? Number(duracao) : 1;
+    const caixa = new THREE.Box3();
+    const pontos = [];
+    [0, 0.25, 0.5, 0.75, 0.95].forEach(fracao => {
+      mixer.setTime(total * fracao);
+      const parcial = caixaDeformada(personagem);
+      if (!parcial.caixa.isEmpty()) {
+        caixa.union(parcial.caixa);
+        pontos.push(...parcial.pontos);
+      }
+    });
+
+    mixer.setTime(0);
+    if (acaoAtual) acaoAtual.reset().play();
+
+    return enquadrarCaixa(caixa, pontos);
+  }
 
   function aplicarVelocidade() {
     if (mixer) mixer.timeScale = estado.velocidade;
@@ -279,6 +479,17 @@ export async function criarCena(container, opcoes) {
     estado.erro = null;
     aplicarVelocidade();
     if (!estado.tocando) nova.paused = true;
+
+    if (apresentacao) {
+      enquadrarAutomatico(clipe.duration || origem.duration || 1);
+      renderer.domElement.setAttribute(
+        "aria-label",
+        "Demonstração em movimento do exercício, personagem " +
+          (config.personagemId || "") + ", em loop contínuo."
+      );
+      return;
+    }
+
     renderer.domElement.setAttribute(
       "aria-label",
       "Demonstração 3D em movimento do personagem " + (config.personagemId || "") + "."
@@ -289,6 +500,8 @@ export async function criarCena(container, opcoes) {
   let ativo = true;
   const relogio = new THREE.Clock();
   let quadro = 0;
+  let acumulado = 0;
+  const passoApresentacao = 1 / APRESENTACAO.fps;
 
   function laco() {
     if (ativo) {
@@ -303,6 +516,24 @@ export async function criarCena(container, opcoes) {
       }
       quadro = requestAnimationFrame(laco);
       const delta = Math.min(relogio.getDelta(), 0.1);
+
+      if (apresentacao) {
+        /*
+          A tela do exercício entrega exatamente 30 quadros por segundo, mesmo
+          em monitor de 60/120 Hz. O tempo acumulado é consumido de uma vez,
+          então a animação mantém a velocidade real sem oscilar.
+        */
+        acumulado += delta;
+        if (acumulado + 1e-6 < passoApresentacao) return;
+        const passo = acumulado;
+        acumulado = 0;
+        if (mixer && estado.tocando && visivel && !document.hidden) {
+          mixer.update(passo);
+        }
+        renderer.render(cena, camera);
+        return;
+      }
+
       if (mixer && estado.tocando && visivel && !document.hidden) {
         mixer.update(delta);
       }
@@ -312,6 +543,7 @@ export async function criarCena(container, opcoes) {
   laco();
 
   function redimensionar() {
+    if (apresentacao) return;
     const largura = Math.max(1, container.clientWidth || 320);
     const altura = Math.max(1, container.clientHeight || 260);
     renderer.setSize(largura, altura, false);
@@ -319,7 +551,7 @@ export async function criarCena(container, opcoes) {
     camera.updateProjectionMatrix();
   }
 
-  const observadorTamanho = typeof ResizeObserver === "function"
+  const observadorTamanho = !apresentacao && typeof ResizeObserver === "function"
     ? new ResizeObserver(redimensionar)
     : null;
   if (observadorTamanho) observadorTamanho.observe(container);
@@ -382,15 +614,31 @@ export async function criarCena(container, opcoes) {
   }
 
   const elemento = renderer.domElement;
-  elemento.style.touchAction = "none";
-  elemento.addEventListener("pointerdown", aoPressionar);
-  elemento.addEventListener("pointermove", aoMover);
-  elemento.addEventListener("pointerup", aoSoltar);
-  elemento.addEventListener("pointercancel", aoSoltar);
-  elemento.addEventListener("wheel", aoRoda, { passive: false });
+  if (!apresentacao) {
+    elemento.style.touchAction = "none";
+    elemento.addEventListener("pointerdown", aoPressionar);
+    elemento.addEventListener("pointermove", aoMover);
+    elemento.addEventListener("pointerup", aoSoltar);
+    elemento.addEventListener("pointercancel", aoSoltar);
+    elemento.addEventListener("wheel", aoRoda, { passive: false });
+  }
 
   const api = {
     estado,
+    modo: apresentacao ? "apresentacao" : "interativo",
+    especificacao: apresentacao
+      ? {
+          proporcao: "16:9",
+          largura: APRESENTACAO.largura,
+          altura: APRESENTACAO.altura,
+          fps: APRESENTACAO.fps,
+          fundo: APRESENTACAO.fundo,
+          camera: APRESENTACAO.camera,
+          controles: false,
+          audio: false,
+          loop: "infinito"
+        }
+      : null,
     async carregarPersonagem(url) {
       const meu = ++requisicao;
       try {
@@ -446,10 +694,12 @@ export async function criarCena(container, opcoes) {
       return estado.velocidade;
     },
     enquadrar() {
+      if (apresentacao) return false;
       orbita.azimute = 0.28;
       orbita.elevacao = 0.06;
       orbita.distancia = 4.1;
       enquadrar();
+      return true;
     },
     destruir() {
       ativo = false;
@@ -457,11 +707,13 @@ export async function criarCena(container, opcoes) {
       document.removeEventListener("visibilitychange", aoOcultar);
       if (observadorTamanho) observadorTamanho.disconnect();
       if (observadorVisivel) observadorVisivel.disconnect();
-      elemento.removeEventListener("pointerdown", aoPressionar);
-      elemento.removeEventListener("pointermove", aoMover);
-      elemento.removeEventListener("pointerup", aoSoltar);
-      elemento.removeEventListener("pointercancel", aoSoltar);
-      elemento.removeEventListener("wheel", aoRoda);
+      if (!apresentacao) {
+        elemento.removeEventListener("pointerdown", aoPressionar);
+        elemento.removeEventListener("pointermove", aoMover);
+        elemento.removeEventListener("pointerup", aoSoltar);
+        elemento.removeEventListener("pointercancel", aoSoltar);
+        elemento.removeEventListener("wheel", aoRoda);
+      }
       if (mixer) {
         mixer.stopAllAction();
         mixer = null;
@@ -476,8 +728,10 @@ export async function criarCena(container, opcoes) {
           if (objeto.isMesh) objeto.frustumCulled = true;
         });
       }
-      piso.geometry.dispose();
-      piso.material.dispose();
+      if (piso) {
+        piso.geometry.dispose();
+        piso.material.dispose();
+      }
       renderer.dispose();
       if (elemento.parentNode) elemento.parentNode.removeChild(elemento);
     }
