@@ -1,6 +1,6 @@
 name: Validar modelos originais do Drive (temporário)
 
-# Não baixa nem valida nada em push comum. A mensagem exata é uma trava
+# Não baixa nem valida nada em push comum. O prefixo da mensagem é uma trava
 # operacional, não substitui as permissões de escrita da branch.
 on:
   push:
@@ -13,7 +13,9 @@ permissions: {}
 jobs:
   validar-modelos:
     if: >-
-      github.event_name == 'push' && github.ref == 'refs/heads/arena/0bd69e1c-forja' && github.event.head_commit.message == 'chore: autorizar validacao temporaria dos modelos Drive [autorizado]'
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/arena/0bd69e1c-forja' &&
+      startsWith(github.event.head_commit.message, 'chore: autorizar validacao temporaria dos modelos Drive [autorizado]')
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
