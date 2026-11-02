@@ -1,0 +1,3226 @@
+{
+  "formato": "forja-apresentacao-exercicios",
+  "versao": 1,
+  "geradoEm": "2026-11-02T14:18:13.646Z",
+  "especificacao": {
+    "proporcao": "16:9",
+    "largura": 1280,
+    "altura": 720,
+    "fps": 30,
+    "fundo": "#121010",
+    "orientacao": "horizontal",
+    "camera": {
+      "perspectiva": "3/4",
+      "angulo": "próximo da lateral",
+      "azimuteGraus": -58,
+      "elevacaoGraus": 22,
+      "campoVisaoVerticalGraus": 32,
+      "margemEnquadramento": 0.09
+    },
+    "loop": "infinito",
+    "audio": false,
+    "controles": false,
+    "autoplay": true,
+    "reproduzirInline": true
+  },
+  "fontes": {
+    "catalogo": "assets/3d/catalogo.json",
+    "catalogoGeradoEm": "2026-11-01T15:18:14.311Z",
+    "biblioteca": "assets/js/forja-biblioteca.js",
+    "animacoes": "assets/3d/animacoes/",
+    "videos": "assets/videos/exercicios/",
+    "auditoriaLoop": {
+      "tolerancia": {
+        "razaoFechado": 0.5,
+        "razaoAtencao": 1,
+        "angularFechadoGraus": 4,
+        "angularAtencaoGraus": 8,
+        "linearFechadoM": 0.004,
+        "linearAtencaoM": 0.008,
+        "movimentoMinimoAngularGraus": 0.05,
+        "movimentoMinimoLinearM": 0.0001
+      },
+      "resumo": {
+        "total": 43,
+        "fechados": 42,
+        "atencao": 1,
+        "falhas": 0
+      },
+      "excecoes": [
+        {
+          "arquivo": "caminhada.glb",
+          "status": "atencao",
+          "motivo": "Deslocamento residual de ~2 mm na raiz (hips), preservado sem correção; continuidade visual a validar no vídeo renderizado.",
+          "residualRaizM": 0.0021,
+          "noRaiz": "hips"
+        }
+      ],
+      "arquivos": {
+        "abdominal-cruzado.glb": {
+          "arquivo": "abdominal-cruzado.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 3.625,
+          "inicioS": 0,
+          "fimS": 3.625,
+          "maxAngularGraus": 0.5773,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0573,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 3,
+            "noNome": "footR",
+            "costura": 0.2491,
+            "maiorPasso": 4.3501,
+            "razao": 0.0573
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "abdominal-infra.glb": {
+          "arquivo": "abdominal-infra.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.625,
+          "inicioS": 0,
+          "fimS": 2.625,
+          "maxAngularGraus": 0.0369,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0094,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 5,
+            "noNome": "legR",
+            "costura": 0.03,
+            "maiorPasso": 3.2086,
+            "razao": 0.0094
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "abdominal-supra.glb": {
+          "arquivo": "abdominal-supra.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 3,
+          "inicioS": 0,
+          "fimS": 3,
+          "maxAngularGraus": 0.1239,
+          "maxLinear": 0.000107,
+          "maxRazaoCostura": 0.202,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 0,
+            "noNome": "footL",
+            "costura": 0.0182,
+            "maiorPasso": 0.0903,
+            "razao": 0.202
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "abre-e-fecha.glb": {
+          "arquivo": "abre-e-fecha.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.4167,
+          "inicioS": 0,
+          "fimS": 2.4167,
+          "maxAngularGraus": 0.1323,
+          "maxLinear": 0.000001,
+          "maxRazaoCostura": 0.0229,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 8,
+            "noNome": "armL",
+            "costura": 0.1323,
+            "maiorPasso": 5.7756,
+            "razao": 0.0229
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "afundo.glb": {
+          "arquivo": "afundo.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 1.3333,
+          "inicioS": 0,
+          "fimS": 1.3333,
+          "maxAngularGraus": 0.0474,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0038,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 1,
+            "noNome": "kneeL",
+            "costura": 0.0474,
+            "maiorPasso": 12.3685,
+            "razao": 0.0038
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "agachamento-halteres.glb": {
+          "arquivo": "agachamento-halteres.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.4167,
+          "inicioS": 0,
+          "fimS": 2.4167,
+          "maxAngularGraus": 0.014,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0121,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 0,
+            "noNome": "footL",
+            "costura": 0.014,
+            "maiorPasso": 1.1574,
+            "razao": 0.0121
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "agachamento.glb": {
+          "arquivo": "agachamento.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 3.2083,
+          "inicioS": 0,
+          "fimS": 3.2083,
+          "maxAngularGraus": 0.1193,
+          "maxLinear": 0.00016,
+          "maxRazaoCostura": 0.0261,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 8,
+            "noNome": "armL",
+            "costura": 0.1193,
+            "maiorPasso": 4.5681,
+            "razao": 0.0261
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "alongamento-1.glb": {
+          "arquivo": "alongamento-1.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 8.2083,
+          "inicioS": 0,
+          "fimS": 8.2083,
+          "maxAngularGraus": 0.0396,
+          "maxLinear": 0.000005,
+          "maxRazaoCostura": 0.0411,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 13,
+            "noNome": "spine",
+            "costura": 0.0396,
+            "maiorPasso": 0.9634,
+            "razao": 0.0411
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "alongamento-2.glb": {
+          "arquivo": "alongamento-2.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 4.625,
+          "inicioS": 0,
+          "fimS": 4.625,
+          "maxAngularGraus": 0.0034,
+          "maxLinear": 0.000024,
+          "maxRazaoCostura": 0.0171,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 10,
+            "noNome": "elbowR",
+            "costura": 0.0034,
+            "maiorPasso": 0.1961,
+            "razao": 0.0171
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "caminhada.glb": {
+          "arquivo": "caminhada.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 1,
+          "inicioS": 0,
+          "fimS": 1,
+          "maxAngularGraus": 1.4075,
+          "maxLinear": 0.002103,
+          "maxRazaoCostura": 1,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "translation",
+            "no": 14,
+            "noNome": "hips",
+            "costura": 0.0021,
+            "maiorPasso": 0.0021,
+            "razao": 1
+          },
+          "status": "atencao",
+          "trilhasComDelta": [
+            {
+              "animacao": 0,
+              "caminho": "translation",
+              "no": 14,
+              "costura": 0.0021,
+              "maiorPasso": 0.0021,
+              "razao": 1
+            }
+          ],
+          "statusOriginal": "fechado",
+          "excecao": {
+            "motivo": "Deslocamento residual de ~2 mm na raiz (hips), preservado sem correção; continuidade visual a validar no vídeo renderizado.",
+            "residualRaizM": 0.0021,
+            "noRaiz": "hips"
+          }
+        },
+        "circulos-braco.glb": {
+          "arquivo": "circulos-braco.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 1.7917,
+          "inicioS": 0,
+          "fimS": 1.7917,
+          "maxAngularGraus": 0.3179,
+          "maxLinear": 0.000001,
+          "maxRazaoCostura": 0.1706,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 8,
+            "noNome": "armL",
+            "costura": 0.3179,
+            "maiorPasso": 1.8639,
+            "razao": 0.1706
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "corrida-estacionaria.glb": {
+          "arquivo": "corrida-estacionaria.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 0.5,
+          "inicioS": 0,
+          "fimS": 0.5,
+          "maxAngularGraus": 2.2629,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.4093,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 2,
+            "noNome": "legL",
+            "costura": 1.6328,
+            "maiorPasso": 3.9895,
+            "razao": 0.4093
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "desenvolvimento.glb": {
+          "arquivo": "desenvolvimento.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2,
+          "inicioS": 0,
+          "fimS": 2,
+          "maxAngularGraus": 0.2852,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.046,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 10,
+            "noNome": "elbowR",
+            "costura": 0.2395,
+            "maiorPasso": 5.2034,
+            "razao": 0.046
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "dobradiça-quadril.glb": {
+          "arquivo": "dobradiça-quadril.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.8333,
+          "inicioS": 0,
+          "fimS": 2.8333,
+          "maxAngularGraus": 0.0183,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0505,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 5,
+            "noNome": "legR",
+            "costura": 0.0099,
+            "maiorPasso": 0.1968,
+            "razao": 0.0505
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "elevacao-lateral.glb": {
+          "arquivo": "elevacao-lateral.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.625,
+          "inicioS": 0,
+          "fimS": 2.625,
+          "maxAngularGraus": 0.052,
+          "maxLinear": 0.000001,
+          "maxRazaoCostura": 0.1065,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 10,
+            "noNome": "elbowR",
+            "costura": 0.0363,
+            "maiorPasso": 0.3409,
+            "razao": 0.1065
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "elevacao-pernas.glb": {
+          "arquivo": "elevacao-pernas.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.7083,
+          "inicioS": 0,
+          "fimS": 2.7083,
+          "maxAngularGraus": 0.0885,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0342,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 5,
+            "noNome": "legR",
+            "costura": 0.0885,
+            "maiorPasso": 2.587,
+            "razao": 0.0342
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "extensao-joelho.glb": {
+          "arquivo": "extensao-joelho.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 6,
+          "inicioS": 0,
+          "fimS": 6,
+          "maxAngularGraus": 0.2552,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0505,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 3,
+            "noNome": "footR",
+            "costura": 0.0791,
+            "maiorPasso": 1.5667,
+            "razao": 0.0505
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "flexao-feminino.glb": {
+          "arquivo": "flexao-feminino.glb",
+          "animacoes": 1,
+          "trilhas": 16,
+          "duracaoS": 6,
+          "inicioS": 0,
+          "fimS": 6,
+          "maxAngularGraus": 0.0305,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0138,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 3,
+            "noNome": "footL",
+            "costura": 0.0083,
+            "maiorPasso": 0.5989,
+            "razao": 0.0138
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "flexao-joelho.glb": {
+          "arquivo": "flexao-joelho.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.125,
+          "inicioS": 0,
+          "fimS": 2.125,
+          "maxAngularGraus": 0.896,
+          "maxLinear": 0.000001,
+          "maxRazaoCostura": 0.0861,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 2,
+            "noNome": "legL",
+            "costura": 0.3864,
+            "maiorPasso": 4.4902,
+            "razao": 0.0861
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "flexao.glb": {
+          "arquivo": "flexao.glb",
+          "animacoes": 1,
+          "trilhas": 16,
+          "duracaoS": 6,
+          "inicioS": 0,
+          "fimS": 6,
+          "maxAngularGraus": 0.021,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0256,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 0,
+            "noNome": "hips",
+            "costura": 0.0142,
+            "maiorPasso": 0.5538,
+            "razao": 0.0256
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "mobilidade-quadril.glb": {
+          "arquivo": "mobilidade-quadril.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 1.8333,
+          "inicioS": 0,
+          "fimS": 1.8333,
+          "maxAngularGraus": 0.0428,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0262,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 13,
+            "noNome": "spine",
+            "costura": 0.0428,
+            "maiorPasso": 1.6331,
+            "razao": 0.0262
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "mountain-climber-feminino.glb": {
+          "arquivo": "mountain-climber-feminino.glb",
+          "animacoes": 1,
+          "trilhas": 16,
+          "duracaoS": 4.5,
+          "inicioS": 0,
+          "fimS": 4.5,
+          "maxAngularGraus": 0.0305,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0007,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 3,
+            "noNome": "footL",
+            "costura": 0.0226,
+            "maiorPasso": 32.2446,
+            "razao": 0.0007
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "mountain-climber.glb": {
+          "arquivo": "mountain-climber.glb",
+          "animacoes": 1,
+          "trilhas": 16,
+          "duracaoS": 4.5,
+          "inicioS": 0,
+          "fimS": 4.5,
+          "maxAngularGraus": 0.021,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0,
+          "piorTrilha": null,
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "panturrilha.glb": {
+          "arquivo": "panturrilha.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.625,
+          "inicioS": 0,
+          "fimS": 2.625,
+          "maxAngularGraus": 0.0361,
+          "maxLinear": 0.000031,
+          "maxRazaoCostura": 0.1108,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 5,
+            "noNome": "legR",
+            "costura": 0.0361,
+            "maiorPasso": 0.3255,
+            "razao": 0.1108
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "peck-deck.glb": {
+          "arquivo": "peck-deck.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 3.9167,
+          "inicioS": 0,
+          "fimS": 3.9167,
+          "maxAngularGraus": 0.1021,
+          "maxLinear": 0.000034,
+          "maxRazaoCostura": 0.0218,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "translation",
+            "no": 11,
+            "noNome": "armR",
+            "costura": 0,
+            "maiorPasso": 0.0016,
+            "razao": 0.0218
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "pedalar.glb": {
+          "arquivo": "pedalar.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 0.8333,
+          "inicioS": 0,
+          "fimS": 0.8333,
+          "maxAngularGraus": 0.037,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0019,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 1,
+            "noNome": "kneeL",
+            "costura": 0.0176,
+            "maiorPasso": 9.4929,
+            "razao": 0.0019
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "polichinelo.glb": {
+          "arquivo": "polichinelo.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2,
+          "inicioS": 0,
+          "fimS": 2,
+          "maxAngularGraus": 3.8481,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.3384,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 4,
+            "noNome": "kneeR",
+            "costura": 3.8481,
+            "maiorPasso": 11.3731,
+            "razao": 0.3384
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "ponte-gluteo.glb": {
+          "arquivo": "ponte-gluteo.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 4.125,
+          "inicioS": 0,
+          "fimS": 4.125,
+          "maxAngularGraus": 0.0687,
+          "maxLinear": 0.000164,
+          "maxRazaoCostura": 0.0365,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 1,
+            "noNome": "kneeL",
+            "costura": 0.0687,
+            "maiorPasso": 1.8858,
+            "razao": 0.0365
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "pose-biceps.glb": {
+          "arquivo": "pose-biceps.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 4,
+          "inicioS": 0,
+          "fimS": 4,
+          "maxAngularGraus": 0.6932,
+          "maxLinear": 0.000002,
+          "maxRazaoCostura": 0.0845,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 10,
+            "noNome": "elbowR",
+            "costura": 0.1758,
+            "maiorPasso": 2.0797,
+            "razao": 0.0845
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "postura-base.glb": {
+          "arquivo": "postura-base.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 3.9167,
+          "inicioS": 0,
+          "fimS": 3.9167,
+          "maxAngularGraus": 0.037,
+          "maxLinear": 0.000074,
+          "maxRazaoCostura": 0.0324,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 13,
+            "noNome": "spine",
+            "costura": 0.0287,
+            "maiorPasso": 0.8863,
+            "razao": 0.0324
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "prancha-feminino.glb": {
+          "arquivo": "prancha-feminino.glb",
+          "animacoes": 1,
+          "trilhas": 16,
+          "duracaoS": 6,
+          "inicioS": 0,
+          "fimS": 6,
+          "maxAngularGraus": 0.0327,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0,
+          "piorTrilha": null,
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "prancha.glb": {
+          "arquivo": "prancha.glb",
+          "animacoes": 1,
+          "trilhas": 16,
+          "duracaoS": 6,
+          "inicioS": 0,
+          "fimS": 6,
+          "maxAngularGraus": 0.0327,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0,
+          "piorTrilha": null,
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "puxada.glb": {
+          "arquivo": "puxada.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.2083,
+          "inicioS": 0,
+          "fimS": 2.2083,
+          "maxAngularGraus": 3.8419,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.2245,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 4,
+            "noNome": "kneeR",
+            "costura": 3.8419,
+            "maiorPasso": 17.1107,
+            "razao": 0.2245
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "remada-alta.glb": {
+          "arquivo": "remada-alta.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.4167,
+          "inicioS": 0,
+          "fimS": 2.4167,
+          "maxAngularGraus": 0.1323,
+          "maxLinear": 0.000001,
+          "maxRazaoCostura": 0.0229,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 8,
+            "noNome": "armL",
+            "costura": 0.1323,
+            "maiorPasso": 5.7756,
+            "razao": 0.0229
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "remada-invertida.glb": {
+          "arquivo": "remada-invertida.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.4167,
+          "inicioS": 0,
+          "fimS": 2.4167,
+          "maxAngularGraus": 0.1312,
+          "maxLinear": 0.000049,
+          "maxRazaoCostura": 0.0261,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "translation",
+            "no": 8,
+            "noNome": "armL",
+            "costura": 0,
+            "maiorPasso": 0.0019,
+            "razao": 0.0261
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "remada-sentada.glb": {
+          "arquivo": "remada-sentada.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 1.8333,
+          "inicioS": 0,
+          "fimS": 1.8333,
+          "maxAngularGraus": 0.0387,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0.0464,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 13,
+            "noNome": "spine",
+            "costura": 0.0387,
+            "maiorPasso": 0.8325,
+            "razao": 0.0464
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "rosca-direta.glb": {
+          "arquivo": "rosca-direta.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.3333,
+          "inicioS": 0,
+          "fimS": 2.3333,
+          "maxAngularGraus": 0.0369,
+          "maxLinear": 0.000001,
+          "maxRazaoCostura": 0.0039,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 7,
+            "noNome": "elbowL",
+            "costura": 0.0369,
+            "maiorPasso": 9.4524,
+            "razao": 0.0039
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "rosca-rotacao.glb": {
+          "arquivo": "rosca-rotacao.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.3333,
+          "inicioS": 0,
+          "fimS": 2.3333,
+          "maxAngularGraus": 0.0369,
+          "maxLinear": 0.000001,
+          "maxRazaoCostura": 0.0039,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 7,
+            "noNome": "elbowL",
+            "costura": 0.0369,
+            "maiorPasso": 9.4524,
+            "razao": 0.0039
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "rotacao-ombros.glb": {
+          "arquivo": "rotacao-ombros.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 2.4167,
+          "inicioS": 0,
+          "fimS": 2.4167,
+          "maxAngularGraus": 0.0369,
+          "maxLinear": 0.001556,
+          "maxRazaoCostura": 0.4,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "translation",
+            "no": 11,
+            "noNome": "armR",
+            "costura": 0.0016,
+            "maiorPasso": 0.0039,
+            "razao": 0.4
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "salto.glb": {
+          "arquivo": "salto.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 3.9167,
+          "inicioS": 0,
+          "fimS": 3.9167,
+          "maxAngularGraus": 0.2314,
+          "maxLinear": 0.000078,
+          "maxRazaoCostura": 0.0163,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 3,
+            "noNome": "footR",
+            "costura": 0.0575,
+            "maiorPasso": 3.5393,
+            "razao": 0.0163
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "step-up.glb": {
+          "arquivo": "step-up.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 10.4167,
+          "inicioS": 0,
+          "fimS": 10.4167,
+          "maxAngularGraus": 0.0411,
+          "maxLinear": 0.000062,
+          "maxRazaoCostura": 0.0115,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "translation",
+            "no": 14,
+            "noNome": "hips",
+            "costura": 0.0001,
+            "maiorPasso": 0.0054,
+            "razao": 0.0115
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "supino.glb": {
+          "arquivo": "supino.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 4.2083,
+          "inicioS": 0,
+          "fimS": 4.2083,
+          "maxAngularGraus": 1.0539,
+          "maxLinear": 0.000501,
+          "maxRazaoCostura": 0.2319,
+          "piorTrilha": {
+            "animacao": 0,
+            "caminho": "rotation",
+            "no": 10,
+            "noNome": "elbowR",
+            "costura": 1.0539,
+            "maiorPasso": 4.5438,
+            "razao": 0.2319
+          },
+          "status": "fechado",
+          "trilhasComDelta": []
+        },
+        "triceps.glb": {
+          "arquivo": "triceps.glb",
+          "animacoes": 1,
+          "trilhas": 48,
+          "duracaoS": 1.8333,
+          "inicioS": 0,
+          "fimS": 1.8333,
+          "maxAngularGraus": 0.0229,
+          "maxLinear": 0,
+          "maxRazaoCostura": 0,
+          "piorTrilha": null,
+          "status": "fechado",
+          "trilhasComDelta": []
+        }
+      }
+    }
+  },
+  "personagens": {
+    "masculino": {
+      "id": "masculino",
+      "arquivo": "assets/3d/personagens/masculino.glb",
+      "bytes": 880944,
+      "rig": "rig-16-ossos",
+      "ossos": 16,
+      "vertices": 12960,
+      "poligonos": 21772,
+      "alturaM": 1.832,
+      "larguraOmbrosM": 0.641,
+      "materiais": [
+        "wood-masculino",
+        "wood_joint-masculino",
+        "plastic"
+      ]
+    },
+    "feminino": {
+      "id": "feminino",
+      "arquivo": "assets/3d/personagens/feminino.glb",
+      "bytes": 893252,
+      "rig": "rig-16-ossos",
+      "ossos": 16,
+      "vertices": 12960,
+      "poligonos": 21772,
+      "alturaM": 1.692,
+      "larguraOmbrosM": 0.416,
+      "materiais": [
+        "wood-feminino",
+        "wood_joint-feminino",
+        "plastic"
+      ]
+    }
+  },
+  "mapeamento": {
+    "regra": "Cada clipe atende no máximo um exercício; nenhum movimento é reutilizado.",
+    "conflitos": [
+      {
+        "exercicioId": "mus-prancha",
+        "clipeId": "prancha",
+        "clipeNome": "Prancha frontal",
+        "usadoPor": "cal-prancha-frontal",
+        "motivo": "Movimento já usado por outro exercício; não é reutilizado."
+      },
+      {
+        "exercicioId": "mus-elevacao-barra",
+        "clipeId": "elevacao-pernas",
+        "clipeNome": "Elevação de pernas",
+        "usadoPor": "cal-elevacao-pernas",
+        "motivo": "Movimento já usado por outro exercício; não é reutilizado."
+      },
+      {
+        "exercicioId": "mus-farmer",
+        "clipeId": "caminhada",
+        "clipeNome": "Caminhada",
+        "usadoPor": "mus-esteira",
+        "motivo": "Movimento já usado por outro exercício; não é reutilizado."
+      }
+    ]
+  },
+  "exercicios": [
+    {
+      "id": "cal-rotacao-ombros",
+      "nome": "Rotação de ombros",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "warmup",
+      "tipo": "duration",
+      "series": 2,
+      "repeticoes": "10",
+      "duracao": 30,
+      "clipeId": "rotacao-ombros",
+      "clipeNome": "Rotação de ombros",
+      "clipeGrupo": "ombros",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/rotacao-ombros.glb",
+      "duracaoClipeS": 2.42,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.0369,
+        "maxLinear": 0.001556,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/rotacao-ombros.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/rotacao-ombros.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-mobilidade-quadril",
+      "nome": "Mobilidade de quadril",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "warmup",
+      "tipo": "duration",
+      "series": 2,
+      "repeticoes": "10",
+      "duracao": 30,
+      "clipeId": "mobilidade-quadril",
+      "clipeNome": "Mobilidade de quadril",
+      "clipeGrupo": "quadril",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/mobilidade-quadril.glb",
+      "duracaoClipeS": 1.79,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.0428,
+        "maxLinear": 0,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/mobilidade-quadril.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/mobilidade-quadril.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-polichinelo",
+      "nome": "Polichinelo",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "warmup",
+      "tipo": "reps",
+      "series": 2,
+      "repeticoes": "20",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "polichinelo",
+        "nome": "Polichinelo",
+        "grupo": "corpo inteiro",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/polichinelo.glb",
+        "duracaoS": 2,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Step jack",
+          "categoria": "cardio-low-impact",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 3.8481,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Polichinelo\" (polichinelo) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "cal-flexao",
+      "nome": "Flexão de braço",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 4,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": "flexao",
+      "clipeNome": "Flexão de braço",
+      "clipeGrupo": "peito",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/flexao.glb",
+      "duracaoClipeS": 6,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.021,
+        "maxLinear": 0,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/flexao.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/flexao-feminino.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-agachamento",
+      "nome": "Agachamento livre",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 4,
+      "repeticoes": "15",
+      "duracao": 45,
+      "clipeId": "agachamento",
+      "clipeNome": "Agachamento livre",
+      "clipeGrupo": "pernas",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/agachamento.glb",
+      "duracaoClipeS": 3.21,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.1193,
+        "maxLinear": 0.00016,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/agachamento.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/agachamento.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-barra-fixa",
+      "nome": "Barra fixa (pegada pronada)",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 4,
+      "repeticoes": "6",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": null,
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Sem clipe 3D próprio mapeado neste exercício."
+      ]
+    },
+    {
+      "id": "cal-remada-invertida",
+      "nome": "Remada invertida",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 4,
+      "repeticoes": "8",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "remada-invertida",
+        "nome": "Remada",
+        "grupo": "costas",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/remada-invertida.glb",
+        "duracaoS": 2.42,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Hinged bodyweight row",
+          "categoria": "back-spine",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.1312,
+          "maxLinear": 0.000049,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Remada\" (remada-invertida) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "cal-mergulho",
+      "nome": "Paralela (mergulho)",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "8",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": null,
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Sem clipe 3D próprio mapeado neste exercício."
+      ]
+    },
+    {
+      "id": "cal-afundo",
+      "nome": "Afundo alternado",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "10 por perna",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "afundo",
+        "nome": "Afundo",
+        "grupo": "pernas",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/afundo.glb",
+        "duracaoS": 1.29,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Back step to knee drive",
+          "categoria": "cardio-low-impact",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.0474,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Afundo\" (afundo) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "cal-ponte",
+      "nome": "Ponte de glúteo",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "15",
+      "duracao": 45,
+      "clipeId": "ponte-gluteo",
+      "clipeNome": "Ponte de glúteo",
+      "clipeGrupo": "glúteos",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/ponte-gluteo.glb",
+      "duracaoClipeS": 4.08,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.0687,
+        "maxLinear": 0.000164,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/ponte-gluteo.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/ponte-gluteo.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-prancha-frontal",
+      "nome": "Prancha frontal",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "abs",
+      "tipo": "duration",
+      "series": 3,
+      "repeticoes": "10",
+      "duracao": 30,
+      "clipeId": "prancha",
+      "clipeNome": "Prancha frontal",
+      "clipeGrupo": "core",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/prancha.glb",
+      "duracaoClipeS": 6,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.0327,
+        "maxLinear": 0,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/prancha.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/prancha-feminino.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-prancha-lateral",
+      "nome": "Prancha lateral",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "abs",
+      "tipo": "duration",
+      "series": 2,
+      "repeticoes": "10",
+      "duracao": 30,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": null,
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Sem clipe 3D próprio mapeado neste exercício."
+      ]
+    },
+    {
+      "id": "cal-abdominal-supra",
+      "nome": "Abdominal supra",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "abs",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "15",
+      "duracao": 45,
+      "clipeId": "abdominal-supra",
+      "clipeNome": "Abdominal supra",
+      "clipeGrupo": "abdômen",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/abdominal-supra.glb",
+      "duracaoClipeS": 3,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.1239,
+        "maxLinear": 0.000107,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/abdominal-supra.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/abdominal-supra.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [
+          {
+            "arquivo": "avaliacao-piloto-3d/midia/abdominal-masculino-horizontal-16x9.mp4",
+            "status": "pronto",
+            "motivo": null,
+            "meta": {
+              "arquivo": "avaliacao-piloto-3d/midia/abdominal-masculino-horizontal-16x9.mp4",
+              "bytes": 3537959,
+              "largura": 1280,
+              "altura": 720,
+              "fps": 30,
+              "duracaoS": 6,
+              "codec": "avc1",
+              "temVideo": true,
+              "temAudio": false,
+              "proporcao": 1.7778
+            }
+          },
+          {
+            "arquivo": "docs/validacao-3d/piloto-abdominal-masculino/abdominal-masculino-horizontal-16x9.mp4",
+            "status": "pronto",
+            "motivo": null,
+            "meta": {
+              "arquivo": "docs/validacao-3d/piloto-abdominal-masculino/abdominal-masculino-horizontal-16x9.mp4",
+              "bytes": 3537959,
+              "largura": 1280,
+              "altura": 720,
+              "fps": 30,
+              "duracaoS": 6,
+              "codec": "avc1",
+              "temVideo": true,
+              "temAudio": false,
+              "proporcao": 1.7778
+            }
+          }
+        ],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-elevacao-pernas",
+      "nome": "Elevação de pernas",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "abs",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": "elevacao-pernas",
+      "clipeNome": "Elevação de pernas",
+      "clipeGrupo": "abdômen",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/elevacao-pernas.glb",
+      "duracaoClipeS": 2.71,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.0885,
+        "maxLinear": 0,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/elevacao-pernas.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/elevacao-pernas.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-abdominal-infra",
+      "nome": "Abdominal infra",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "abs",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "12",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "abdominal-infra",
+        "nome": "Abdominal infra",
+        "grupo": "abdômen",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/abdominal-infra.glb",
+        "duracaoS": 2.58,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Single leg lowers",
+          "categoria": "floor-lying",
+          "vista": "floor"
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.0369,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Abdominal infra\" (abdominal-infra) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "cal-burpee",
+      "nome": "Burpee",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "finisher",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": null,
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Sem clipe 3D próprio mapeado neste exercício."
+      ]
+    },
+    {
+      "id": "cal-mountain-climber",
+      "nome": "Mountain climber",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "finisher",
+      "tipo": "duration",
+      "series": 3,
+      "repeticoes": "10",
+      "duracao": 40,
+      "clipeId": "mountain-climber",
+      "clipeNome": "Mountain climber",
+      "clipeGrupo": "corpo inteiro",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/mountain-climber.glb",
+      "duracaoClipeS": 4.5,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.021,
+        "maxLinear": 0,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/mountain-climber.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/mountain-climber-feminino.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "cal-corrida-estacionaria",
+      "nome": "Corrida estacionária",
+      "modalidade": "calisthenics",
+      "modalidadeRotulo": "Calistenia",
+      "secao": "finisher",
+      "tipo": "duration",
+      "series": 2,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "corrida-estacionaria",
+        "nome": "Corrida estacionária",
+        "grupo": "cardio",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/corrida-estacionaria.glb",
+        "duracaoS": 0.5,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Fast feet",
+          "categoria": "cardio-low-impact",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 2.2629,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Corrida estacionária\" (corrida-estacionaria) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-esteira",
+      "nome": "Esteira em ritmo leve",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "warmup",
+      "tipo": "duration",
+      "series": 1,
+      "repeticoes": "10",
+      "duracao": 300,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "caminhada",
+        "nome": "Caminhada",
+        "grupo": "cardio",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/caminhada.glb",
+        "duracaoS": 1,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "March with overhead press",
+          "categoria": "cardio-low-impact",
+          "vista": null
+        },
+        "loop": {
+          "status": "atencao",
+          "maxAngularGraus": 1.4075,
+          "maxLinear": 0.002103,
+          "excecao": {
+            "motivo": "Deslocamento residual de ~2 mm na raiz (hips), preservado sem correção; continuidade visual a validar no vídeo renderizado.",
+            "residualRaizM": 0.0021,
+            "noRaiz": "hips"
+          }
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Caminhada\" (caminhada) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-mobilidade-ombro",
+      "nome": "Mobilidade de ombro com elástico",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "warmup",
+      "tipo": "duration",
+      "series": 2,
+      "repeticoes": "10",
+      "duracao": 60,
+      "clipeId": "circulos-braco",
+      "clipeNome": "Círculos de braço",
+      "clipeGrupo": "ombros",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/circulos-braco.glb",
+      "duracaoClipeS": 1.75,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.3179,
+        "maxLinear": 0.000001,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/circulos-braco.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/circulos-braco.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "mus-supino-reto",
+      "nome": "Supino reto com barra",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 4,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "supino",
+        "nome": "Supino reto",
+        "grupo": "peito",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/supino.glb",
+        "duracaoS": 4.21,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Plank to downward dog flow",
+          "categoria": "yoga",
+          "vista": "floor"
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 1.0539,
+          "maxLinear": 0.000501,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Supino reto\" (supino) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-agachamento-barra",
+      "nome": "Agachamento livre com barra",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 4,
+      "repeticoes": "8",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "agachamento-halteres",
+        "nome": "Agachamento com halteres",
+        "grupo": "pernas",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/agachamento-halteres.glb",
+        "duracaoS": 2.42,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Wide mini squat",
+          "categoria": "hips-legs",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.014,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Agachamento com halteres\" (agachamento-halteres) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-terra",
+      "nome": "Levantamento terra",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "5",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "dobradiça-quadril",
+        "nome": "Dobradiça de quadril",
+        "grupo": "posterior",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/dobradiça-quadril.glb",
+        "duracaoS": 2.79,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Hip hinge",
+          "categoria": "hips-legs",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.0183,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Dobradiça de quadril\" (dobradiça-quadril) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-puxada-frontal",
+      "nome": "Puxada frontal",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 4,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "puxada",
+        "nome": "Puxada",
+        "grupo": "costas",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/puxada.glb",
+        "duracaoS": 2.21,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Knee lift with pull-down",
+          "categoria": "cardio-low-impact",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 3.8419,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Puxada\" (puxada) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-desenvolvimento",
+      "nome": "Desenvolvimento com halteres",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "desenvolvimento",
+        "nome": "Desenvolvimento",
+        "grupo": "ombros",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/desenvolvimento.glb",
+        "duracaoS": 2,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Seated shoulder press",
+          "categoria": "chair",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.2852,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Desenvolvimento\" (desenvolvimento) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-remada-curvada",
+      "nome": "Remada curvada com barra",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 4,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "remada-sentada",
+        "nome": "Remada sentada",
+        "grupo": "costas",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/remada-sentada.glb",
+        "duracaoS": 1.79,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Seated rowing",
+          "categoria": "chair",
+          "vista": "floor"
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.0387,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Remada sentada\" (remada-sentada) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-leg-press",
+      "nome": "Leg press 45°",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "12",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": null,
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Sem clipe 3D próprio mapeado neste exercício."
+      ]
+    },
+    {
+      "id": "mus-rosca-direta",
+      "nome": "Rosca direta",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "12",
+      "duracao": 45,
+      "clipeId": "rosca-direta",
+      "clipeNome": "Rosca direta",
+      "clipeGrupo": "bíceps",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/rosca-direta.glb",
+      "duracaoClipeS": 2.29,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.0369,
+        "maxLinear": 0.000001,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/rosca-direta.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/rosca-direta.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "mus-triceps-polia",
+      "nome": "Tríceps na polia",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "12",
+      "duracao": 45,
+      "clipeId": "triceps",
+      "clipeNome": "Tríceps",
+      "clipeGrupo": "tríceps",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/triceps.glb",
+      "duracaoClipeS": 1.79,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.0229,
+        "maxLinear": 0,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/triceps.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/triceps.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "mus-extensora",
+      "nome": "Cadeira extensora",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "12",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "extensao-joelho",
+        "nome": "Extensão de joelho",
+        "grupo": "quadríceps",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/extensao-joelho.glb",
+        "duracaoS": 6,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Seated knee extension",
+          "categoria": "chair",
+          "vista": "floor"
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.2552,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Extensão de joelho\" (extensao-joelho) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-flexora",
+      "nome": "Mesa flexora",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "12",
+      "duracao": 45,
+      "clipeId": "flexao-joelho",
+      "clipeNome": "Flexão de joelho",
+      "clipeGrupo": "posterior",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/flexao-joelho.glb",
+      "duracaoClipeS": 2.08,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.896,
+        "maxLinear": 0.000001,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/flexao-joelho.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/flexao-joelho.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "mus-elevacao-lateral",
+      "nome": "Elevação lateral",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "main",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "15",
+      "duracao": 45,
+      "clipeId": "elevacao-lateral",
+      "clipeNome": "Elevação lateral",
+      "clipeGrupo": "ombros",
+      "clipeQualidade": "exact",
+      "clipeArquivo": "assets/3d/animacoes/elevacao-lateral.glb",
+      "duracaoClipeS": 2.58,
+      "fpsClipe": 24,
+      "clipeRevisao": null,
+      "loop": {
+        "status": "fechado",
+        "maxAngularGraus": 0.052,
+        "maxLinear": 0.000001,
+        "excecao": null
+      },
+      "personagens": {
+        "masculino": {
+          "id": "masculino",
+          "modelo": "assets/3d/personagens/masculino.glb",
+          "clipe": "assets/3d/animacoes/elevacao-lateral.glb"
+        },
+        "feminino": {
+          "id": "feminino",
+          "modelo": "assets/3d/personagens/feminino.glb",
+          "clipe": "assets/3d/animacoes/elevacao-lateral.glb"
+        }
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "previa-3d",
+      "pendencias": []
+    },
+    {
+      "id": "mus-abdominal-polia",
+      "nome": "Abdominal na polia",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "abs",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "12",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "abdominal-cruzado",
+        "nome": "Abdominal cruzado",
+        "grupo": "abdômen",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/abdominal-cruzado.glb",
+        "duracaoS": 3.58,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Standing cross crunch",
+          "categoria": "back-spine",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.5773,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Abdominal cruzado\" (abdominal-cruzado) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-prancha",
+      "nome": "Prancha frontal",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "abs",
+      "tipo": "duration",
+      "series": 3,
+      "repeticoes": "10",
+      "duracao": 40,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": null,
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "O clipe \"Prancha frontal\" (prancha) já é usado por outro exercício e não é reutilizado aqui."
+      ]
+    },
+    {
+      "id": "mus-elevacao-barra",
+      "nome": "Elevação de pernas na barra",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "abs",
+      "tipo": "reps",
+      "series": 3,
+      "repeticoes": "10",
+      "duracao": 45,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": null,
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "O clipe \"Elevação de pernas\" (elevacao-pernas) já é usado por outro exercício e não é reutilizado aqui."
+      ]
+    },
+    {
+      "id": "mus-bicicleta",
+      "nome": "Bicicleta ergométrica",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "finisher",
+      "tipo": "duration",
+      "series": 1,
+      "repeticoes": "10",
+      "duracao": 300,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": {
+        "id": "pedalar",
+        "nome": "Pedalar",
+        "grupo": "cardio",
+        "status": "review",
+        "arquivo": "assets/3d/animacoes/pedalar.glb",
+        "duracaoS": 0.79,
+        "fps": 24,
+        "referencia": {
+          "nomeEn": "Seated pedaling",
+          "categoria": "chair",
+          "vista": null
+        },
+        "loop": {
+          "status": "fechado",
+          "maxAngularGraus": 0.037,
+          "maxLinear": 0,
+          "excecao": null
+        },
+        "motivo": "Clipe do catálogo em revisão técnica; não é a demonstração final do exercício."
+      },
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "Clipe \"Pedalar\" (pedalar) está em revisão técnica (status review) e não é usado como demonstração final."
+      ]
+    },
+    {
+      "id": "mus-farmer",
+      "nome": "Farmer walk",
+      "modalidade": "weights",
+      "modalidadeRotulo": "Musculação",
+      "secao": "finisher",
+      "tipo": "duration",
+      "series": 3,
+      "repeticoes": "10",
+      "duracao": 40,
+      "clipeId": null,
+      "clipeNome": null,
+      "clipeGrupo": null,
+      "clipeQualidade": null,
+      "clipeArquivo": null,
+      "duracaoClipeS": null,
+      "fpsClipe": null,
+      "clipeRevisao": null,
+      "loop": null,
+      "personagens": {
+        "masculino": null,
+        "feminino": null
+      },
+      "video": {
+        "masculino": null,
+        "feminino": null
+      },
+      "videosLegados": {
+        "masculino": [],
+        "feminino": []
+      },
+      "modo": "pendente-animacao",
+      "pendencias": [
+        "O clipe \"Caminhada\" (caminhada) já é usado por outro exercício e não é reutilizado aqui."
+      ]
+    }
+  ],
+  "clipesSemExercicio": [
+    {
+      "id": "postura-base",
+      "nome": "Postura base",
+      "grupo": "corpo inteiro",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/postura-base.glb",
+      "duracaoS": 3.92,
+      "loop": {
+        "arquivo": "postura-base.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 3.9167,
+        "inicioS": 0,
+        "fimS": 3.9167,
+        "maxAngularGraus": 0.037,
+        "maxLinear": 0.000074,
+        "maxRazaoCostura": 0.0324,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 13,
+          "noNome": "spine",
+          "costura": 0.0287,
+          "maiorPasso": 0.8863,
+          "razao": 0.0324
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "abre-e-fecha",
+      "nome": "Abre e fecha com elástico",
+      "grupo": "costas",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/abre-e-fecha.glb",
+      "duracaoS": 2.42,
+      "loop": {
+        "arquivo": "abre-e-fecha.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 2.4167,
+        "inicioS": 0,
+        "fimS": 2.4167,
+        "maxAngularGraus": 0.1323,
+        "maxLinear": 0.000001,
+        "maxRazaoCostura": 0.0229,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 8,
+          "noNome": "armL",
+          "costura": 0.1323,
+          "maiorPasso": 5.7756,
+          "razao": 0.0229
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "rosca-rotacao",
+      "nome": "Rosca com rotação",
+      "grupo": "bíceps",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/rosca-rotacao.glb",
+      "duracaoS": 2.29,
+      "loop": {
+        "arquivo": "rosca-rotacao.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 2.3333,
+        "inicioS": 0,
+        "fimS": 2.3333,
+        "maxAngularGraus": 0.0369,
+        "maxLinear": 0.000001,
+        "maxRazaoCostura": 0.0039,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 7,
+          "noNome": "elbowL",
+          "costura": 0.0369,
+          "maiorPasso": 9.4524,
+          "razao": 0.0039
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "panturrilha",
+      "nome": "Elevação de panturrilha",
+      "grupo": "panturrilha",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/panturrilha.glb",
+      "duracaoS": 2.58,
+      "loop": {
+        "arquivo": "panturrilha.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 2.625,
+        "inicioS": 0,
+        "fimS": 2.625,
+        "maxAngularGraus": 0.0361,
+        "maxLinear": 0.000031,
+        "maxRazaoCostura": 0.1108,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 5,
+          "noNome": "legR",
+          "costura": 0.0361,
+          "maiorPasso": 0.3255,
+          "razao": 0.1108
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "remada-alta",
+      "nome": "Remada alta",
+      "grupo": "ombros",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/remada-alta.glb",
+      "duracaoS": 2.42,
+      "loop": {
+        "arquivo": "remada-alta.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 2.4167,
+        "inicioS": 0,
+        "fimS": 2.4167,
+        "maxAngularGraus": 0.1323,
+        "maxLinear": 0.000001,
+        "maxRazaoCostura": 0.0229,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 8,
+          "noNome": "armL",
+          "costura": 0.1323,
+          "maiorPasso": 5.7756,
+          "razao": 0.0229
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "peck-deck",
+      "nome": "Pec deck",
+      "grupo": "peito",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/peck-deck.glb",
+      "duracaoS": 3.92,
+      "loop": {
+        "arquivo": "peck-deck.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 3.9167,
+        "inicioS": 0,
+        "fimS": 3.9167,
+        "maxAngularGraus": 0.1021,
+        "maxLinear": 0.000034,
+        "maxRazaoCostura": 0.0218,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "translation",
+          "no": 11,
+          "noNome": "armR",
+          "costura": 0,
+          "maiorPasso": 0.0016,
+          "razao": 0.0218
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "step-up",
+      "nome": "Subida no caixote",
+      "grupo": "pernas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/step-up.glb",
+      "duracaoS": 10.42,
+      "loop": {
+        "arquivo": "step-up.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 10.4167,
+        "inicioS": 0,
+        "fimS": 10.4167,
+        "maxAngularGraus": 0.0411,
+        "maxLinear": 0.000062,
+        "maxRazaoCostura": 0.0115,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "translation",
+          "no": 14,
+          "noNome": "hips",
+          "costura": 0.0001,
+          "maiorPasso": 0.0054,
+          "razao": 0.0115
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "salto",
+      "nome": "Salto vertical",
+      "grupo": "pernas",
+      "status": "review",
+      "arquivo": "assets/3d/animacoes/salto.glb",
+      "duracaoS": 3.92,
+      "loop": {
+        "arquivo": "salto.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 3.9167,
+        "inicioS": 0,
+        "fimS": 3.9167,
+        "maxAngularGraus": 0.2314,
+        "maxLinear": 0.000078,
+        "maxRazaoCostura": 0.0163,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 3,
+          "noNome": "footR",
+          "costura": 0.0575,
+          "maiorPasso": 3.5393,
+          "razao": 0.0163
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "alongamento-1",
+      "nome": "Alongamento 1",
+      "grupo": "mobilidade",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/alongamento-1.glb",
+      "duracaoS": 8.21,
+      "loop": {
+        "arquivo": "alongamento-1.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 8.2083,
+        "inicioS": 0,
+        "fimS": 8.2083,
+        "maxAngularGraus": 0.0396,
+        "maxLinear": 0.000005,
+        "maxRazaoCostura": 0.0411,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 13,
+          "noNome": "spine",
+          "costura": 0.0396,
+          "maiorPasso": 0.9634,
+          "razao": 0.0411
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "alongamento-2",
+      "nome": "Alongamento 2",
+      "grupo": "mobilidade",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/alongamento-2.glb",
+      "duracaoS": 4.58,
+      "loop": {
+        "arquivo": "alongamento-2.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 4.625,
+        "inicioS": 0,
+        "fimS": 4.625,
+        "maxAngularGraus": 0.0034,
+        "maxLinear": 0.000024,
+        "maxRazaoCostura": 0.0171,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 10,
+          "noNome": "elbowR",
+          "costura": 0.0034,
+          "maiorPasso": 0.1961,
+          "razao": 0.0171
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    },
+    {
+      "id": "pose-biceps",
+      "nome": "Pose de bíceps",
+      "grupo": "bíceps",
+      "status": "exact",
+      "arquivo": "assets/3d/animacoes/pose-biceps.glb",
+      "duracaoS": 4,
+      "loop": {
+        "arquivo": "pose-biceps.glb",
+        "animacoes": 1,
+        "trilhas": 48,
+        "duracaoS": 4,
+        "inicioS": 0,
+        "fimS": 4,
+        "maxAngularGraus": 0.6932,
+        "maxLinear": 0.000002,
+        "maxRazaoCostura": 0.0845,
+        "piorTrilha": {
+          "animacao": 0,
+          "caminho": "rotation",
+          "no": 10,
+          "noNome": "elbowR",
+          "costura": 0.1758,
+          "maiorPasso": 2.0797,
+          "razao": 0.0845
+        },
+        "status": "fechado",
+        "trilhasComDelta": []
+      }
+    }
+  ],
+  "resumo": {
+    "totalExercicios": 37,
+    "comClipe3d": 14,
+    "comClipeEmRevisao": 15,
+    "semClipe3d": 23,
+    "comVideoPronto": 0,
+    "emPrevia3d": 14,
+    "pendentesDeAnimacao": 23,
+    "pendentesSemClipe": 8,
+    "pendentesComClipeEmRevisao": 15,
+    "totalClipesAuditados": 43,
+    "clipesComLoopFechado": 42,
+    "clipesComAtencaoDeLoop": 1,
+    "clipesComFalhaDeLoop": 0,
+    "clipesSemExercicio": 11
+  }
+}

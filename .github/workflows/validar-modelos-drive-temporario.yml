@@ -1,0 +1,148 @@
+name: Validar modelos originais do Drive (temporário)
+
+# Não baixa nem valida nada em push comum. O prefixo da mensagem é uma trava
+# operacional, não substitui as permissões de escrita da branch.
+on:
+  push:
+    branches:
+      - arena/0bd69e1c-forja
+
+# Sem acesso de escrita ao repositório ou a outros recursos GitHub.
+permissions: {}
+
+jobs:
+  validar-modelos:
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/arena/0bd69e1c-forja' &&
+      startsWith(github.event.head_commit.message, 'chore: autorizar validacao temporaria dos modelos Drive [autorizado]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependências temporárias
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/forja-drive-venv"
+          "$RUNNER_TEMP/forja-drive-venv/bin/python" -m pip install --disable-pip-version-check 'gdown==5.2.0'
+          mkdir -p "$RUNNER_TEMP/forja-glb-validador"
+          npm install --prefix "$RUNNER_TEMP/forja-glb-validador" --no-audit --no-fund 'gltf-validator@2.0.0-dev.3.10'
+      - name: Baixar e validar os arquivos originais sem publicar os bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR="$(mktemp -d "$RUNNER_TEMP/forja-modelos-drive.XXXXXXXX")"
+          trap 'rm -rf -- "$DIR"' EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          PYTHON="$RUNNER_TEMP/forja-drive-venv/bin/python"
+          MASC="$DIR/masculino-original.bin"
+          FEM="$DIR/feminino-original.bin"
+
+          # Mostra somente categorias fixas. O stderr bruto pode conter URLs
+          # temporárias ou dados de sessão e nunca é impresso ou preservado.
+          diagnosticar_download() {
+            local modelo="$1" log="$2" status="$3"
+            echo "Falha no download do modelo ${modelo} (código de saída ${status})." >&2
+            if grep -Eqi 'SSLError|SSL|TLS|CERTIFICATE_VERIFY_FAILED' "$log"; then
+              echo 'Diagnóstico: falha de TLS ou de certificado.' >&2
+            elif grep -Eqi 'timed out|timeout|ConnectionError|NameResolutionError|Temporary failure in name resolution' "$log"; then
+              echo 'Diagnóstico: tempo esgotado ou falha de conexão/DNS.' >&2
+            elif grep -Eqi 'Failed to retrieve file url|permission|access denied|403 Client Error|401 Client Error' "$log"; then
+              echo 'Diagnóstico: acesso ou confirmação do download indisponível; verifique o compartilhamento do arquivo.' >&2
+            elif grep -Eqi 'Too Many Requests|429 Client Error|quota|downloaded too many times' "$log"; then
+              echo 'Diagnóstico: possível limite de acesso ou de downloads do Drive.' >&2
+            elif grep -Eqi '404 Client Error|not found' "$log"; then
+              echo 'Diagnóstico: arquivo ou recurso não encontrado.' >&2
+            else
+              echo 'Diagnóstico: causa não classificada; nenhum detalhe bruto foi exposto.' >&2
+            fi
+          }
+          baixar_modelo() {
+            local modelo="$1" caminho="$2" url="$3" log="$DIR/erro-$1.log" status
+            if "$PYTHON" -m gdown --no-cookies --quiet -O "$caminho" "$url" >"$DIR/saida-$1.log" 2>"$log"; then
+              if [ ! -f "$caminho" ]; then
+                echo "Download do modelo ${modelo} terminou sem arquivo de saída." >&2
+                return 1
+              fi
+            else
+              status=$?
+              diagnosticar_download "$modelo" "$log" "$status"
+              return "$status"
+            fi
+          }
+
+          # Cookies e arquivos temporários não são gravados no repositório.
+          baixar_modelo masculino "$MASC" 'https://drive.google.com/uc?export=download&id=1YZj6h6ZfPytE8_jSEJpeaMuexF4fNte-'
+          baixar_modelo feminino "$FEM" 'https://drive.google.com/uc?export=download&id=1sxeUJsnKw991TCZ4VIxAWgHi0BpphnbM'
+
+          TAM_MASC="$(stat -c %s "$MASC")"
+          TAM_FEM="$(stat -c %s "$FEM")"
+          [ "$TAM_MASC" = 20465552 ] || { echo "Tamanho inválido do modelo masculino: ${TAM_MASC} bytes." >&2; exit 1; }
+          [ "$TAM_FEM" = 20650336 ] || { echo "Tamanho inválido do modelo feminino: ${TAM_FEM} bytes." >&2; exit 1; }
+          echo 'Tamanhos confirmados: masculino 20465552 bytes; feminino 20650336 bytes.'
+          echo "ad3ac1c95ef9c3850d4780bbd4108008833dc6b4f18786e60bef213e533280d1  $MASC" | sha256sum -c -
+          SHA_FEM="$(sha256sum "$FEM" | cut -d ' ' -f1)"
+          echo "SHA-256 feminino calculado: $SHA_FEM"
+          if [ "$SHA_FEM" != '7f294533acd9a278cf53332170ffcdb4bbed26aacbee66a7d9b5ea3d67966077' ]; then
+            echo 'ERRO: SHA-256 feminino difere do relatório original do projeto.' >&2
+            exit 1
+          fi
+          echo 'SHA-256 feminino corresponde ao relatório original do projeto.'
+
+          # Cabeçalho, chunks e JSON: rejeita HTML, GLB truncado ou versão inválida.
+          "$PYTHON" - "$MASC" "$FEM" <<'PY'
+          import json, os, struct, sys
+          for path in sys.argv[1:]:
+              size = os.path.getsize(path)
+              with open(path, 'rb') as f:
+                  header = f.read(12)
+                  if len(header) != 12:
+                      raise ValueError('Cabeçalho GLB incompleto')
+                  magic, version, length = struct.unpack('<4sII', header)
+                  if magic != b'glTF' or version != 2 or length != size:
+                      raise ValueError('Não é GLB 2.0 válido ou tamanho do cabeçalho diverge')
+                  chunks = []
+                  while f.tell() < size:
+                      raw = f.read(8)
+                      if len(raw) != 8:
+                          raise ValueError('Cabeçalho de chunk incompleto')
+                      n, kind = struct.unpack('<I4s', raw)
+                      if n % 4 or n > size - f.tell():
+                          raise ValueError('Chunk GLB inválido ou truncado')
+                      data = f.read(n) if kind == b'JSON' else None
+                      if data is None:
+                          f.seek(n, 1)
+                      chunks.append((kind, n, data))
+                  if not chunks or chunks[0][0] != b'JSON' or sum(c[0] == b'JSON' for c in chunks) != 1:
+                      raise ValueError('Chunk JSON ausente ou duplicado')
+                  gltf = json.loads(chunks[0][2].decode('utf-8'))
+                  if gltf.get('asset', {}).get('version') != '2.0':
+                      raise ValueError('Versão glTF inválida')
+                  print(os.path.basename(path), ': cabeçalho e estrutura GLB 2.0 válidos; meshes=', len(gltf.get('meshes', [])), 'skins=', len(gltf.get('skins', [])))
+          PY
+
+          # Validador oficial Khronos: erros interrompem; avisos são registrados.
+          NODE_PATH="$RUNNER_TEMP/forja-glb-validador/node_modules" node - "$MASC" "$FEM" <<'JS'
+          const fs = require('fs');
+          const path = require('path');
+          const validator = require('gltf-validator');
+          (async () => {
+            for (const file of process.argv.slice(2)) {
+              const result = await validator.validateBytes(new Uint8Array(fs.readFileSync(file)), { uri: path.basename(file), maxIssues: 50 });
+              const issues = result.issues;
+              console.log(`${path.basename(file)}: erros=${issues.numErrors}, avisos=${issues.numWarnings}, infos=${issues.numInfos}`);
+              for (const item of issues.messages) console.log(`  ${item.code}: ${item.message}`);
+              if (issues.numErrors > 0) throw new Error('O validador Khronos encontrou erros.');
+            }
+          })().catch(err => { console.error(err.message); process.exit(1); });
+          JS
+      # Não há upload de artefatos nem etapas de commit, push, merge ou deploy.
