@@ -125,7 +125,8 @@ await runTest("1. manifesto cobre a biblioteca e declara 16:9 / 1280×720 / 30 F
   assert.equal(manifesto.resumo.comClipe3d + manifesto.resumo.semClipe3d, 37);
   assert.equal(manifesto.resumo.comClipe3d, 14);
   assert.equal(manifesto.resumo.comClipeEmRevisao, 15);
-  assert.equal(manifesto.resumo.emPrevia3d, 14);
+  assert.equal(manifesto.resumo.emPrevia3d, 0);
+  assert.equal(manifesto.resumo.comVideoPronto, 14);
   assert.equal(manifesto.resumo.pendentesDeAnimacao, 23);
   assert.equal(manifesto.resumo.pendentesSemClipe, 8);
   assert.equal(manifesto.resumo.pendentesComClipeEmRevisao, 15);
@@ -148,7 +149,6 @@ await runTest("1. manifesto cobre a biblioteca e declara 16:9 / 1280×720 / 30 F
 
   const ids = manifesto.exercicios.map(item => item.id);
   assert.equal(new Set(ids).size, ids.length, "id de exercício repetido no manifesto");
-  assert.equal(manifesto.resumo.comVideoPronto, 0, "nenhum MP4 foi renderizado nesta etapa");
 
   /* O manifesto precisa ser idêntico em qualquer worktree. Caminho absoluto
      do ambiente de geração vazaria para o JSON e quebraria o --check. */
@@ -287,7 +287,12 @@ await runTest("5. MP4 aprovado: autoplay, mudo, loop, inline e sem controles", a
 });
 
 await runTest("6. sem MP4: prévia 3D com modelo e clipe EXATOS do exercício", async () => {
-  const { dom, w, chamadas } = await abrirControlador("cal-flexao");
+  const { dom, w, chamadas } = await abrirControlador("cal-flexao", {
+    alterar: dados => {
+      const item = dados.exercicios.find(entrada => entrada.id === "cal-flexao");
+      item.video = { masculino: null, feminino: null };
+    },
+  });
 
   assert.equal(chamadas.length, 1);
   const { dados } = chamadas[0];
@@ -329,7 +334,13 @@ await runTest("7c. clipe já usado por outro exercício: pendência, sem reutili
 });
 
 await runTest("8. perfil feminino chega ao título e ao modelo", async () => {
-  const { dom, w, chamadas } = await abrirControlador("cal-flexao", { personagem: "feminino" });
+  const { dom, w, chamadas } = await abrirControlador("cal-flexao", {
+    personagem: "feminino",
+    alterar: dados => {
+      const item = dados.exercicios.find(entrada => entrada.id === "cal-flexao");
+      item.video = { masculino: null, feminino: null };
+    },
+  });
 
   assert.match(w.document.querySelector("#exercicio-title").textContent, /modelo feminino/);
   assert.equal(chamadas.length, 1);
