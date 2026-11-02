@@ -1,7 +1,7 @@
 {
   "formato": "forja-apresentacao-exercicios",
   "versao": 1,
-  "geradoEm": "2026-11-02T14:18:13.646Z",
+  "geradoEm": "2026-11-02T16:35:25.969Z",
   "especificacao": {
     "proporcao": "16:9",
     "largura": 1280,
@@ -1086,14 +1086,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+            "bytes": 161483,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.4333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+            "bytes": 177171,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.4333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -1133,14 +1165,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+            "bytes": 306749,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 1.8333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+            "bytes": 339129,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 1.8333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -1236,14 +1300,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+            "bytes": 775325,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 6,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+            "bytes": 986019,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 6,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -1283,14 +1379,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+            "bytes": 342711,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 3.2,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+            "bytes": 386716,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 3.2,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -1514,14 +1642,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+            "bytes": 509001,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 4.1333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+            "bytes": 576658,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 4.1333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -1561,14 +1721,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+            "bytes": 111715,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 6,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+            "bytes": 138791,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 6,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -1644,8 +1836,40 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+            "bytes": 452301,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 3,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+            "bytes": 510582,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 3,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [
@@ -1686,7 +1910,7 @@
         ],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -1726,14 +1950,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+            "bytes": 67501,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.7,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+            "bytes": 66750,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.7,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -1865,14 +2121,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+            "bytes": 126355,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 4.5,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+            "bytes": 148060,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 4.5,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -2028,14 +2316,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+            "bytes": 92377,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 1.8,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+            "bytes": 94503,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 1.8,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -2447,14 +2767,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+            "bytes": 161001,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.3333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+            "bytes": 178018,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.3333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -2494,14 +2846,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+            "bytes": 67598,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 1.8333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+            "bytes": 74230,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 1.8333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -2597,14 +2981,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+            "bytes": 46619,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.1333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+            "bytes": 55661,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.1333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -2644,14 +3060,46 @@
         }
       },
       "video": {
-        "masculino": null,
-        "feminino": null
+        "masculino": {
+          "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+            "bytes": 157695,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.6333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        },
+        "feminino": {
+          "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+          "status": "pronto",
+          "motivo": null,
+          "meta": {
+            "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+            "bytes": 165444,
+            "largura": 1280,
+            "altura": 720,
+            "fps": 30,
+            "duracaoS": 2.6333,
+            "codec": "avc1",
+            "temVideo": true,
+            "temAudio": false,
+            "proporcao": 1.7778
+          }
+        }
       },
       "videosLegados": {
         "masculino": [],
         "feminino": []
       },
-      "modo": "previa-3d",
+      "modo": "video",
       "pendencias": []
     },
     {
@@ -3212,8 +3660,8 @@
     "comClipe3d": 14,
     "comClipeEmRevisao": 15,
     "semClipe3d": 23,
-    "comVideoPronto": 0,
-    "emPrevia3d": 14,
+    "comVideoPronto": 14,
+    "emPrevia3d": 0,
     "pendentesDeAnimacao": 23,
     "pendentesSemClipe": 8,
     "pendentesComClipeEmRevisao": 15,

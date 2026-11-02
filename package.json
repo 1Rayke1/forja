@@ -13,8 +13,10 @@
     "test:exercicio": "node tests/exercicio-apresentacao.test.mjs"
   },
   "devDependencies": {
+    "@ffmpeg/core": "^0.12.0",
     "@sparticuz/chromium": "^138.0.2",
     "fflate": "^0.8.3",
+    "jpeg-js": "^0.4.4",
     "jsdom": "^30.0.0",
     "puppeteer-core": "^24.43.1",
     "three": "^0.180.0"
