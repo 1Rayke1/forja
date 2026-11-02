@@ -91,18 +91,76 @@ try {
     console.log(`OK ${name}: vídeo, controles, tela cheia e ausência de imagens; ${metadata.join(' × ')}`);
     await page.close();
   }
-  // Falha do preload antes do clique deve ser informada.
-  const erroPage = await browser.newPage();
-  await erroPage.setRequestInterception(true);
-  let bloquearVideo = true;
-  erroPage.on('request', req => {
-    if (bloquearVideo && req.method() === 'GET' && req.url().endsWith('.mp4')) req.abort();
-    else req.continue();
-  });
-  await erroPage.goto(url, {waitUntil:'networkidle0'});
-  await erroPage.waitForFunction(() => document.querySelector('video').error, {timeout:10000});
-  await erroPage.click('#btn-play-horizontal');
-  await erroPage.waitForFunction(() => !document.querySelector('[data-piloto-error]').hidden);
-  console.log('OK falha no preload informada');
-  await erroPage.close();
+  // Falha, nova falha e recuperação real, em desktop e Android emulado.
+  for (const [name, viewport] of [
+    ['desktop', {width:1440,height:900,deviceScaleFactor:1}],
+    ['android-emulado', {width:412,height:915,deviceScaleFactor:2,isMobile:true,hasTouch:true}]
+  ]) {
+    const page = await browser.newPage();
+    await page.setViewport(viewport);
+    if (name.startsWith('android')) await page.setUserAgent('Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36');
+    await page.bringToFront();
+    await page.setCacheEnabled(false);
+    await page.setRequestInterception(true);
+    let bloquearVideo = true, requisicoesVideo = 0, segurar = false;
+    let liberarRetida;
+    const requisicaoRetida = new Promise(resolve => { liberarRetida = resolve; });
+    const erros = [];
+    page.on('pageerror', err => erros.push(String(err)));
+    page.on('request', req => {
+      if (req.method() === 'GET' && req.url().endsWith('.mp4')) {
+        requisicoesVideo++;
+        if (segurar) { segurar = false; liberarRetida(req); return; }
+        if (bloquearVideo) { req.respond({status:503, contentType:'text/plain', body:'Indisponível'}); return; }
+      }
+      req.continue();
+    });
+    await page.goto(url, {waitUntil:'networkidle0'});
+    await page.waitForFunction(() => document.querySelector('video').error, {timeout:10000});
+    await page.click('#btn-play-horizontal');
+    await page.waitForFunction(() => !document.querySelector('[data-piloto-error]').hidden);
+    assert.match(await page.$eval('[data-piloto-error-title]', e => e.textContent), /não foi possível|ausente|não encontrado/i);
+    if (screenshots) await page.screenshot({path:path.join(screenshots, `retentativa-erro-${name}.png`)});
+    // Continua indisponível: uma nova requisição falha e a mensagem reaparece.
+    const antes = requisicoesVideo;
+    await page.click('[data-piloto-retry]');
+    await page.waitForFunction(() => !document.querySelector('[data-piloto-error]').hidden && !!document.querySelector('video').error, {timeout:10000});
+    assert.ok(requisicoesVideo > antes, 'A retentativa deve fazer outra requisição');
+    assert.match(await page.$eval('[data-piloto-error-title]', e => e.textContent), /não foi possível|ausente|não encontrado/i);
+    bloquearVideo = false;
+    const antesRecuperacao = requisicoesVideo;
+    // Uma tentativa pendente é cancelada ao iniciar outra, sem deixar promessas órfãs.
+    segurar = true;
+    await page.click('[data-piloto-retry]');
+    const retida = await requisicaoRetida;
+    const cancelada = page.evaluate(async () => {
+      const cs = window.__forjaPiloto3d.estado.cartoes.horizontal;
+      const anterior = cs.cargaPendente.promessa.then(() => 'resolvida', e => e.name);
+      document.querySelector('[data-piloto-retry]').click();
+      return anterior;
+    });
+    assert.equal(await cancelada, 'AbortError');
+    await retida.abort().catch(() => {});
+    await page.waitForFunction(() => {const v=document.querySelector('video');return !v.paused && v.currentTime > .2 && v.videoWidth === 1280;}, {timeout:10000});
+    assert.ok(requisicoesVideo > antesRecuperacao, 'Recuperação deve iniciar outra requisição');
+    assert.equal(await page.$eval('[data-piloto-error]', e=>e.hidden), true);
+    if (screenshots) await page.screenshot({path:path.join(screenshots, `retentativa-recuperada-${name}.png`)});
+    await page.click('#btn-pause-horizontal');
+    assert.equal(await page.$eval('video', v=>v.paused), true);
+    await page.click('#btn-restart-horizontal');
+    assert.equal(await page.$eval('video', v=>v.currentTime), 0);
+    await page.click('#speed-h-050');
+    assert.equal(await page.$eval('video', v=>v.playbackRate), .5);
+    await page.click('#btn-play-horizontal');
+    await page.waitForFunction(() => !document.querySelector('video').paused && document.querySelector('video').currentTime > .05, {timeout:10000});
+    await page.click('#btn-fs-horizontal');
+    await page.waitForFunction(() => {const s=document.querySelector('[data-piloto-stage]');return document.fullscreenElement===s || s.classList.contains('is-pseudo-fullscreen');});
+    await page.click('[data-action="exit-fullscreen"]');
+    await page.waitForFunction(() => !document.fullscreenElement && !document.querySelector('[data-piloto-stage]').classList.contains('is-pseudo-fullscreen'));
+    assert.equal(await page.evaluate(() => window.__forjaPiloto3d.estado.cartoes.horizontal.cargaPendente), null);
+    assert.deepEqual(erros, []);
+    console.log(`OK ${name}: falha, nova falha, recuperação e controles`);
+    await page.close();
+  }
+
 } finally { await browser.close(); await new Promise(resolve=>server.close(resolve)); }

@@ -127,6 +127,7 @@
 
     const video = cardState.video;
     cardState.tokenCarga += 1;
+    if (cardState.cargaPendente) cardState.cargaPendente.cancelar();
     cardState.carregando = false;
     cardState.carregado = false;
     cardState.prontoParaExibir = false;
@@ -190,6 +191,7 @@
       return Promise.reject(new Error("Cartão inválido"));
     }
 
+    if (cardState.cargaPendente) return cardState.cargaPendente.promessa;
     ocultarErro(cardState);
     liberarOutrosCartoes(chave);
 
@@ -214,14 +216,26 @@
     atualizarStatus(cardState, "Carregando vídeo…", "loading");
     atualizarBotoesCard(cardState);
 
-    return new Promise(function (resolve, reject) {
+    const carga = {};
+    cardState.cargaPendente = carga;
+    carga.promessa = new Promise(function (resolve, reject) {
       let concluido = false;
 
       function limparOuvintes() {
         video.removeEventListener("loadeddata", aoPronto);
         video.removeEventListener("canplay", aoPronto);
         video.removeEventListener("error", aoErro);
+        if (cardState.cargaPendente === carga) cardState.cargaPendente = null;
       }
+
+      carga.cancelar = function () {
+        if (concluido) return;
+        concluido = true;
+        limparOuvintes();
+        const erro = new Error("Carga cancelada");
+        erro.name = "AbortError";
+        reject(erro);
+      };
 
       function aoPronto() {
         if (concluido) return;
@@ -287,6 +301,7 @@
         aoPronto();
       }
     });
+    return carga.promessa;
   }
 
   async function reproduzirCard(chave) {
@@ -301,11 +316,16 @@
       return;
     }
 
+    let token;
     try {
-      const video = await carregarExclusivo(chave);
+      const carga = carregarExclusivo(chave);
+      token = cardState.tokenCarga;
+      const video = await carga;
+      if (token !== cardState.tokenCarga) return;
       video.defaultPlaybackRate = cardState.velocidade;
       video.playbackRate = cardState.velocidade;
       await video.play();
+      if (token !== cardState.tokenCarga) return;
       atualizarStatus(
         cardState,
         "Reproduzindo (" + rotuloVelocidade(cardState.velocidade) + ")",
@@ -314,6 +334,7 @@
       atualizarBotoesCard(cardState);
       iniciarLoopProgresso();
     } catch (err) {
+      if (token !== cardState.tokenCarga || (err && err.name === "AbortError")) return;
       if (cardState && !cardState.erro && cardState.carregado) {
         mostrarErro(
           cardState,
@@ -468,6 +489,8 @@
         signal: signal
       });
 
+      if (signal && signal.aborted) return;
+
       // Alguns servidores estáticos simples não implementam HEAD (405/501)
       if (res.status === 405 || res.status === 501) {
         const ctrlCurto = new AbortController();
@@ -478,6 +501,7 @@
           headers: { Range: "bytes=0-0" },
           signal: ctrlCurto.signal
         });
+        if (signal && signal.aborted) return;
         const ok = res.ok || res.status === 206;
         ctrlCurto.abort();
         if (signal) signal.removeEventListener("abort", abortarPai);
@@ -514,7 +538,7 @@
         atualizarStatus(cardState, "Pronto" + sufixo, "ready");
       }
     } catch (err) {
-      if (err && err.name === "AbortError") return;
+      if ((signal && signal.aborted) || (err && err.name === "AbortError")) return;
       mostrarErro(
         cardState,
         "Não foi possível verificar o arquivo de vídeo.",
@@ -603,7 +627,8 @@
       tamanhoTexto: "",
       arrastandoBarra: false,
       erro: null,
-      tokenCarga: 0
+      tokenCarga: 0,
+      cargaPendente: null
     };
 
     estado.cartoes[chave] = cardState;
@@ -695,6 +720,12 @@
 
     if (elRetry) {
       elRetry.addEventListener("click", function () {
+        // Descarta verificação e carga anteriores antes de reinstalar a fonte.
+        if (estado.abortVerificacao) {
+          estado.abortVerificacao.abort();
+          estado.abortVerificacao = null;
+        }
+        liberarCard(chave, { preservarVelocidade: true });
         cardState.arquivoAusenteConfirmado = false;
         ocultarErro(cardState);
         reproduzirCard(chave);
@@ -711,7 +742,10 @@
       elRange.addEventListener("input", async function () {
         const frac = Math.min(1, Math.max(0, Number(elRange.value || 0) / 1000));
         try {
-          const v = await carregarExclusivo(chave);
+          const carga = carregarExclusivo(chave);
+          const token = cardState.tokenCarga;
+          const v = await carga;
+          if (token !== cardState.tokenCarga) return;
           const dur =
             Number.isFinite(v.duration) && v.duration > 0
               ? v.duration
