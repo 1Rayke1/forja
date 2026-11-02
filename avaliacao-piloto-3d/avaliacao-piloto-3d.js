@@ -1,8 +1,6 @@
 /* ==========================================================================
    FORJA — Controlador Isolado da Tela Temporária: AVALIAÇÃO DO PILOTO 3D
-   - Nenhum vídeo carrega automaticamente no boot (preload="none", sem src).
-   - Nunca carrega nem decodifica os dois vídeos simultaneamente.
-   - Mantém o poster visível até o 1º quadro real estar decodificado (zero tela preta).
+   - Carrega apenas o vídeo horizontal.
    - Trata carregamento, ausência de arquivo e falha de decodificação/reprodução.
    - Libera todos os recursos de mídia ao sair da tela.
    ========================================================================== */
@@ -113,7 +111,6 @@
     if (cardState.elErrorTitle) cardState.elErrorTitle.textContent = titulo;
     if (cardState.elErrorDetail) cardState.elErrorDetail.textContent = detalhe || "";
     if (cardState.elError) cardState.elError.hidden = false;
-    if (cardState.elPosterLayer) cardState.elPosterLayer.classList.remove("is-video-ready");
     atualizarStatus(cardState, "Falha no vídeo", "error");
     atualizarBotoesCard(cardState);
   }
@@ -153,9 +150,6 @@
     }
 
     if (cardState.elLoading) cardState.elLoading.hidden = true;
-    if (cardState.elPosterLayer) {
-      cardState.elPosterLayer.classList.remove("is-video-ready");
-    }
 
     if (estado.ativo === chave) {
       estado.ativo = null;
@@ -165,7 +159,7 @@
       const sufixo = cardState.tamanhoTexto ? " · " + cardState.tamanhoTexto : "";
       atualizarStatus(
         cardState,
-        cardState.arquivoVerificado ? "Pronto" + sufixo : "Poster pronto",
+        cardState.arquivoVerificado ? "Pronto" + sufixo : "Pronto para reproduzir",
         cardState.arquivoVerificado ? "ready" : "idle"
       );
     }
@@ -214,9 +208,6 @@
     estado.ativo = chave;
     estado.recursosLiberados = false;
 
-    if (cardState.elPosterLayer) {
-      cardState.elPosterLayer.classList.remove("is-video-ready");
-    }
     if (cardState.elLoading) {
       cardState.elLoading.hidden = false;
     }
@@ -250,9 +241,6 @@
         video.playbackRate = cardState.velocidade;
 
         if (cardState.elLoading) cardState.elLoading.hidden = true;
-        if (cardState.elPosterLayer) {
-          cardState.elPosterLayer.classList.add("is-video-ready");
-        }
         atualizarIndicadorProgresso(cardState);
         atualizarBotoesCard(cardState);
         resolve(video);
@@ -285,11 +273,18 @@
       video.playsInline = true;
       video.defaultPlaybackRate = cardState.velocidade;
       video.playbackRate = cardState.velocidade;
-      video.setAttribute("src", cardState.src);
-      try {
-        video.load();
-      } catch (err) {
+      if (!video.hasAttribute("src")) {
+        video.setAttribute("src", cardState.src);
+        try {
+          video.load();
+        } catch (err) {
+          aoErro();
+        }
+      } else if (video.error) {
+        // O preload pode ter falhado antes de o usuário tocar em Reproduzir.
         aoErro();
+      } else if (video.readyState >= 2) {
+        aoPronto();
       }
     });
   }
@@ -533,7 +528,7 @@
     const ctrl = new AbortController();
     estado.abortVerificacao = ctrl;
 
-    const chaves = ["horizontal", "vertical"];
+    const chaves = ["horizontal"];
     for (let i = 0; i < chaves.length; i += 1) {
       if (ctrl.signal.aborted) return;
       const cs = estado.cartoes[chaves[i]];
@@ -566,8 +561,6 @@
 
     const video = card.querySelector("[data-piloto-video]");
     const stage = card.querySelector("[data-piloto-stage]");
-    const elPosterLayer = card.querySelector("[data-piloto-poster-layer]");
-    const elPosterImg = card.querySelector("[data-piloto-poster-img]");
     const elLoading = card.querySelector("[data-piloto-loading]");
     const elError = card.querySelector("[data-piloto-error]");
     const elErrorTitle = card.querySelector("[data-piloto-error-title]");
@@ -585,9 +578,6 @@
       video: video,
       stage: stage,
       src: video.getAttribute("data-video-src") || "",
-      poster: video.getAttribute("poster") || "",
-      elPosterLayer: elPosterLayer,
-      elPosterImg: elPosterImg,
       elLoading: elLoading,
       elError: elError,
       elErrorTitle: elErrorTitle,
@@ -617,18 +607,6 @@
     };
 
     estado.cartoes[chave] = cardState;
-
-    if (elPosterImg) {
-      elPosterImg.addEventListener("error", function () {
-        atualizarStatus(cardState, "Poster indisponível", "error");
-      });
-    }
-
-    if (elPosterLayer) {
-      elPosterLayer.addEventListener("click", function () {
-        reproduzirCard(chave);
-      });
-    }
 
     video.addEventListener("click", function () {
       if (!cardState.carregado) {
@@ -751,38 +729,6 @@
     atualizarBotoesCard(cardState);
   }
 
-  function configurarFiltroVisualizacao() {
-    const grid = doc.getElementById("piloto-cards-grid");
-    const tabs = Array.from(doc.querySelectorAll("[data-view-filter]"));
-    if (!grid || tabs.length === 0) return;
-
-    tabs.forEach(function (tab) {
-      tab.addEventListener("click", function () {
-        const modo = tab.getAttribute("data-view-filter") || "ambos";
-        grid.setAttribute("data-view-mode", modo);
-        tabs.forEach(function (t) {
-          t.setAttribute("aria-pressed", t === tab ? "true" : "false");
-        });
-
-        const mostrarH = modo === "ambos" || modo === "horizontal";
-        const mostrarV = modo === "ambos" || modo === "vertical";
-
-        if (estado.cartoes.horizontal && estado.cartoes.horizontal.card) {
-          estado.cartoes.horizontal.card.hidden = !mostrarH;
-          if (!mostrarH && estado.ativo === "horizontal") {
-            liberarCard("horizontal", { preservarVelocidade: true });
-          }
-        }
-        if (estado.cartoes.vertical && estado.cartoes.vertical.card) {
-          estado.cartoes.vertical.card.hidden = !mostrarV;
-          if (!mostrarV && estado.ativo === "vertical") {
-            liberarCard("vertical", { preservarVelocidade: true });
-          }
-        }
-      });
-    });
-  }
-
   function configurarBannerSessaoLeituraSomente() {
     // Leitura estritamente passiva caso exista treino em andamento (sem escrever em localStorage)
     try {
@@ -849,8 +795,6 @@
     }
 
     configurarCard("horizontal");
-    configurarCard("vertical");
-    configurarFiltroVisualizacao();
     configurarBannerSessaoLeituraSomente();
     configurarCicloDeVida();
     verificarArquivosSequencialmente();
