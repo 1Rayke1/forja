@@ -1,0 +1,1663 @@
+{
+  "geradoEm": "2026-11-03T06:14:06.792Z",
+  "referencia": "assets/js/forja-3d-cena.js (modoApresentacao) em Chromium headless real, MESMO GLB/MESMO clipe/sem alterações",
+  "navegador": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/138.0.7204.0 Safari/537.36",
+  "instantes": [
+    0,
+    0.5,
+    0.85
+  ],
+  "observacoesSobreTempo": "Instante determinístico: THREE.Clock e requestAnimationFrame da cena oficial são controlados por relógio virtual de TESTE a 30 fps; cada comparação avança exatamente round(tempo*30) quadros antes da captura, e o MP4 é amostrado no mesmo tempo absoluto. Não há a defasagem do relógio real do Chromium headless; pode restar no máximo ~1 quadro de diferença de fase pelo arredondamento de PTS do H.264.",
+  "metricas": {
+    "casos": 10,
+    "comparacoes": 30,
+    "iouMinimo": 0.86,
+    "iouMaximo": 0.931,
+    "iouMedio": 0.891,
+    "todosComPersonagemVisivel": true,
+    "escalaMP4sobreWebGL": {
+      "minimo": 0.946,
+      "maximo": 0.991,
+      "porExercicio": [
+        {
+          "id": "mus-elevacao-lateral",
+          "r": 0.974
+        },
+        {
+          "id": "mus-rosca-direta",
+          "r": 0.977
+        },
+        {
+          "id": "mus-triceps-polia",
+          "r": 0.977
+        },
+        {
+          "id": "mus-flexora",
+          "r": 0.983
+        },
+        {
+          "id": "mus-mobilidade-ombro",
+          "r": 0.985
+        }
+      ]
+    },
+    "corMediaPorPersonagem": {
+      "masculino": {
+        "webgl": [
+          126,
+          95,
+          56
+        ],
+        "cpu": [
+          167,
+          142,
+          102
+        ],
+        "dCor": 77.9
+      },
+      "feminino": {
+        "webgl": [
+          182,
+          162,
+          107
+        ],
+        "cpu": [
+          202,
+          190,
+          146
+        ],
+        "dCor": 52
+      }
+    }
+  },
+  "diferencasRegistradas": [
+    "Pose e anatomia: no mesmo instante determinístico, os pares inspecionados mostram a MESMA pose e a MESMA anatomia nos dois lados (mesmo GLB de personagem e mesmo clipe, sem nenhuma alteração de normais, materiais, luzes ou animações oficiais). Isso NÃO é equivalência perfeita de pixels: pode haver até ~1 quadro de diferença de fase e a silhueta nunca coincide 100% por causa da escala e do antialiasing. Não há membro ausente, duplicado ou deformado.",
+    "Material/iluminação: diferença REAL e sistemática, não artefato de medição. O WebGL oficial usa PBR (HemisphereLight 2.0 + DirectionalLight 2.4 + contra-luz 0.9); o rasterizador offline usa o modelo difuso simplificado já existente, calibrado pelas imagens de referência oficiais do repositório. Média do personagem — masculino WebGL 126/95/56 vs MP4 167/142/102 (distância 77.9); feminino WebGL 182/162/107 vs MP4 202/190/146 (distância 52). O WebGL headless sai mais escuro/amarronzado; o MP4 sai bege claro, coerente com as referências aprovadas.",
+    "Enquadramento: diferença REAL de escala, não de pose. Ambos usam azimute -58°, elevação 22°, FOV 32° e margem 9%, mas a cena oficial calcula a distância analiticamente com clamp [2.0, 9] e posiciona a câmera sem o fator cos(elevação) no plano horizontal, enquanto o rasterizador faz busca binária sobre NDC até maxNdc = 0.91 e permite distância a partir de 1.5. Razão de escala MP4/WebGL: 0.95–0.99. Maiores desvios: mus-elevacao-lateral 0.97x, mus-rosca-direta 0.98x, mus-triceps-polia 0.98x, mus-flexora 0.98x — é isso que derruba o IoU desses clipes, não uma pose diferente.",
+    "Artefatos: nenhum leque, rastro entre quadros, painel/zigue-zague, membro preto ou tonalidade verde-azulada aparece nos 28 MP4 finais nem nos quadros WebGL comparados. A correção do buffer de cor eliminou o defeito em todos os exercícios e nos dois personagens.",
+    "Correspondência animação↔exercício: conferida nos mosaicos 02–05 (início/meio/fim dos 28) e nos pares 06/07; cada clipe reproduz o movimento do exercício nomeado e muda entre início e fim, à exceção do clipe isométrico cal-prancha-frontal (movimento 0.18/0.30 no validador).",
+    "Limitação conhecida (NÃO corrigida nesta entrega): o rasterizador offline não replica o pipeline PBR/gerenciamento de cor do three.js nem a fórmula analítica de distância da cena oficial. Cor e escala dos MP4, portanto, NÃO são idênticas às do WebGL headless, embora estejam dentro das referências de cor aprovadas e respeitem a margem de 9% (maxNdc = 0.91 nos 28). Investigamos a origem; alinhar os dois pipelines exigiria alterar luz/câmera do rasterizador e re-renderizar os 28 MP4, o que está fora da correção do buffer de cor autorizada e não foi feito para não descartar as evidências já validadas."
+  ],
+  "resultados": [
+    {
+      "exercicioId": "mus-mobilidade-ombro",
+      "clipeId": "circulos-braco",
+      "clipeArquivo": "assets/3d/animacoes/circulos-braco.glb",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+      "duracaoS": 1.8,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              127.5,
+              95.7,
+              58
+            ],
+            "pixels": 3338,
+            "bbox": [
+              100,
+              6,
+              198,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              168.8,
+              143.9,
+              103.7
+            ],
+            "pixels": 3360,
+            "bbox": [
+              101,
+              8,
+              198,
+              163
+            ]
+          },
+          "iouSilhueta": 0.863,
+          "distanciaCor": 78.2,
+          "areaWebGL": 3338,
+          "areaCPU": 3360
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 0.9,
+          "quadrosWebGL": 27,
+          "tempoVirtualWebGL": 0.967,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              128.7,
+              96.7,
+              58.6
+            ],
+            "pixels": 3353,
+            "bbox": [
+              103,
+              6,
+              197,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              170,
+              144.6,
+              104.8
+            ],
+            "pixels": 3362,
+            "bbox": [
+              103,
+              8,
+              197,
+              163
+            ]
+          },
+          "iouSilhueta": 0.872,
+          "distanciaCor": 78.3,
+          "areaWebGL": 3353,
+          "areaCPU": 3362
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 1.53,
+          "quadrosWebGL": 46,
+          "tempoVirtualWebGL": 2.533,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              127.3,
+              95.5,
+              57.8
+            ],
+            "pixels": 3313,
+            "bbox": [
+              101,
+              6,
+              199,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              168.9,
+              143.6,
+              104
+            ],
+            "pixels": 3328,
+            "bbox": [
+              102,
+              8,
+              199,
+              163
+            ]
+          },
+          "iouSilhueta": 0.862,
+          "distanciaCor": 78.6,
+          "areaWebGL": 3313,
+          "areaCPU": 3328
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-mobilidade-ombro",
+      "clipeId": "circulos-braco",
+      "clipeArquivo": "assets/3d/animacoes/circulos-braco.glb",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+      "duracaoS": 1.8,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              182.4,
+              162.7,
+              108.2
+            ],
+            "pixels": 3326,
+            "bbox": [
+              100,
+              6,
+              198,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              201.9,
+              190.4,
+              147.1
+            ],
+            "pixels": 3261,
+            "bbox": [
+              101,
+              8,
+              198,
+              164
+            ]
+          },
+          "iouSilhueta": 0.864,
+          "distanciaCor": 51.6,
+          "areaWebGL": 3326,
+          "areaCPU": 3261
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 0.9,
+          "quadrosWebGL": 27,
+          "tempoVirtualWebGL": 0.967,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              184.1,
+              164.6,
+              109.6
+            ],
+            "pixels": 3340,
+            "bbox": [
+              102,
+              6,
+              197,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              202.6,
+              190.9,
+              148.2
+            ],
+            "pixels": 3277,
+            "bbox": [
+              103,
+              8,
+              197,
+              164
+            ]
+          },
+          "iouSilhueta": 0.872,
+          "distanciaCor": 50.2,
+          "areaWebGL": 3340,
+          "areaCPU": 3277
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 1.53,
+          "quadrosWebGL": 46,
+          "tempoVirtualWebGL": 2.533,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              183.5,
+              163.9,
+              109.1
+            ],
+            "pixels": 3312,
+            "bbox": [
+              101,
+              6,
+              199,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              202.6,
+              190.7,
+              148.1
+            ],
+            "pixels": 3252,
+            "bbox": [
+              102,
+              8,
+              199,
+              164
+            ]
+          },
+          "iouSilhueta": 0.86,
+          "distanciaCor": 51,
+          "areaWebGL": 3312,
+          "areaCPU": 3252
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-rosca-direta",
+      "clipeId": "rosca-direta",
+      "clipeArquivo": "assets/3d/animacoes/rosca-direta.glb",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+      "duracaoS": 2.3333,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              124.8,
+              93.7,
+              56.4
+            ],
+            "pixels": 3262,
+            "bbox": [
+              131,
+              6,
+              165,
+              161
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              166.3,
+              142,
+              102.4
+            ],
+            "pixels": 3230,
+            "bbox": [
+              131,
+              8,
+              165,
+              160
+            ]
+          },
+          "iouSilhueta": 0.928,
+          "distanciaCor": 78.6,
+          "areaWebGL": 3262,
+          "areaCPU": 3230
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 1.167,
+          "quadrosWebGL": 35,
+          "tempoVirtualWebGL": 1.233,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              123.8,
+              93.1,
+              55.5
+            ],
+            "pixels": 3021,
+            "bbox": [
+              131,
+              6,
+              179,
+              161
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              165.5,
+              141.3,
+              101.5
+            ],
+            "pixels": 3016,
+            "bbox": [
+              131,
+              8,
+              178,
+              160
+            ]
+          },
+          "iouSilhueta": 0.91,
+          "distanciaCor": 78.6,
+          "areaWebGL": 3021,
+          "areaCPU": 3016
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 1.983,
+          "quadrosWebGL": 59,
+          "tempoVirtualWebGL": 3.233,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              127,
+              95.4,
+              57.6
+            ],
+            "pixels": 3123,
+            "bbox": [
+              131,
+              6,
+              182,
+              161
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              168.1,
+              143.5,
+              103.4
+            ],
+            "pixels": 3099,
+            "bbox": [
+              131,
+              8,
+              179,
+              160
+            ]
+          },
+          "iouSilhueta": 0.892,
+          "distanciaCor": 78.1,
+          "areaWebGL": 3123,
+          "areaCPU": 3099
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-rosca-direta",
+      "clipeId": "rosca-direta",
+      "clipeArquivo": "assets/3d/animacoes/rosca-direta.glb",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+      "duracaoS": 2.3333,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              181,
+              161.5,
+              106.7
+            ],
+            "pixels": 3297,
+            "bbox": [
+              132,
+              6,
+              166,
+              162
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              202.2,
+              190.3,
+              146.8
+            ],
+            "pixels": 3183,
+            "bbox": [
+              132,
+              8,
+              166,
+              160
+            ]
+          },
+          "iouSilhueta": 0.918,
+          "distanciaCor": 53.7,
+          "areaWebGL": 3297,
+          "areaCPU": 3183
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 1.167,
+          "quadrosWebGL": 35,
+          "tempoVirtualWebGL": 1.233,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              180.3,
+              161.1,
+              105.9
+            ],
+            "pixels": 3130,
+            "bbox": [
+              132,
+              6,
+              179,
+              162
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              202.1,
+              190.1,
+              146.3
+            ],
+            "pixels": 3034,
+            "bbox": [
+              132,
+              8,
+              179,
+              160
+            ]
+          },
+          "iouSilhueta": 0.91,
+          "distanciaCor": 54.3,
+          "areaWebGL": 3130,
+          "areaCPU": 3034
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 1.983,
+          "quadrosWebGL": 59,
+          "tempoVirtualWebGL": 3.233,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              182.4,
+              163.1,
+              107.7
+            ],
+            "pixels": 3171,
+            "bbox": [
+              132,
+              6,
+              182,
+              162
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              202.9,
+              191.2,
+              147.5
+            ],
+            "pixels": 3068,
+            "bbox": [
+              132,
+              8,
+              179,
+              160
+            ]
+          },
+          "iouSilhueta": 0.887,
+          "distanciaCor": 52.9,
+          "areaWebGL": 3171,
+          "areaCPU": 3068
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-triceps-polia",
+      "clipeId": "triceps",
+      "clipeArquivo": "assets/3d/animacoes/triceps.glb",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+      "duracaoS": 1.8333,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              124,
+              93.8,
+              54.8
+            ],
+            "pixels": 3961,
+            "bbox": [
+              137,
+              7,
+              209,
+              173
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              165.4,
+              141.7,
+              100.4
+            ],
+            "pixels": 3984,
+            "bbox": [
+              137,
+              9,
+              208,
+              171
+            ]
+          },
+          "iouSilhueta": 0.891,
+          "distanciaCor": 78,
+          "areaWebGL": 3961,
+          "areaCPU": 3984
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 0.917,
+          "quadrosWebGL": 27,
+          "tempoVirtualWebGL": 0.967,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              123.8,
+              93.8,
+              54.5
+            ],
+            "pixels": 3976,
+            "bbox": [
+              102,
+              7,
+              209,
+              173
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              164.6,
+              140.9,
+              99.8
+            ],
+            "pixels": 4033,
+            "bbox": [
+              103,
+              9,
+              208,
+              171
+            ]
+          },
+          "iouSilhueta": 0.861,
+          "distanciaCor": 77,
+          "areaWebGL": 3976,
+          "areaCPU": 4033
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 1.558,
+          "quadrosWebGL": 47,
+          "tempoVirtualWebGL": 2.567,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              123.2,
+              93.2,
+              54.3
+            ],
+            "pixels": 3910,
+            "bbox": [
+              133,
+              7,
+              209,
+              173
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              164.8,
+              141,
+              100.2
+            ],
+            "pixels": 3941,
+            "bbox": [
+              133,
+              9,
+              208,
+              171
+            ]
+          },
+          "iouSilhueta": 0.884,
+          "distanciaCor": 78.2,
+          "areaWebGL": 3910,
+          "areaCPU": 3941
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-triceps-polia",
+      "clipeId": "triceps",
+      "clipeArquivo": "assets/3d/animacoes/triceps.glb",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+      "duracaoS": 1.8333,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              181.3,
+              162.8,
+              106
+            ],
+            "pixels": 4131,
+            "bbox": [
+              136,
+              7,
+              208,
+              173
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              202,
+              190.9,
+              145.5
+            ],
+            "pixels": 4031,
+            "bbox": [
+              137,
+              10,
+              207,
+              171
+            ]
+          },
+          "iouSilhueta": 0.902,
+          "distanciaCor": 52.7,
+          "areaWebGL": 4131,
+          "areaCPU": 4031
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 0.917,
+          "quadrosWebGL": 27,
+          "tempoVirtualWebGL": 0.967,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              180.5,
+              162.3,
+              105.2
+            ],
+            "pixels": 4197,
+            "bbox": [
+              103,
+              7,
+              208,
+              173
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              201.1,
+              189.8,
+              144.5
+            ],
+            "pixels": 4113,
+            "bbox": [
+              104,
+              10,
+              207,
+              171
+            ]
+          },
+          "iouSilhueta": 0.877,
+          "distanciaCor": 52.2,
+          "areaWebGL": 4197,
+          "areaCPU": 4113
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 1.558,
+          "quadrosWebGL": 47,
+          "tempoVirtualWebGL": 2.567,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              180.6,
+              162.2,
+              105.5
+            ],
+            "pixels": 4107,
+            "bbox": [
+              133,
+              7,
+              208,
+              173
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              201.6,
+              190.3,
+              145.1
+            ],
+            "pixels": 4013,
+            "bbox": [
+              134,
+              10,
+              207,
+              171
+            ]
+          },
+          "iouSilhueta": 0.895,
+          "distanciaCor": 52.9,
+          "areaWebGL": 4107,
+          "areaCPU": 4013
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-flexora",
+      "clipeId": "flexao-joelho",
+      "clipeArquivo": "assets/3d/animacoes/flexao-joelho.glb",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+      "duracaoS": 2.1333,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              124.9,
+              94.1,
+              54.8
+            ],
+            "pixels": 3155,
+            "bbox": [
+              110,
+              6,
+              180,
+              159
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              165.3,
+              141.2,
+              99.9
+            ],
+            "pixels": 3152,
+            "bbox": [
+              110,
+              8,
+              180,
+              157
+            ]
+          },
+          "iouSilhueta": 0.915,
+          "distanciaCor": 76.7,
+          "areaWebGL": 3155,
+          "areaCPU": 3152
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 1.067,
+          "quadrosWebGL": 32,
+          "tempoVirtualWebGL": 1.133,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              125.3,
+              94.4,
+              55.1
+            ],
+            "pixels": 2973,
+            "bbox": [
+              110,
+              6,
+              180,
+              157
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              166.4,
+              141.7,
+              100.6
+            ],
+            "pixels": 2980,
+            "bbox": [
+              110,
+              8,
+              180,
+              155
+            ]
+          },
+          "iouSilhueta": 0.914,
+          "distanciaCor": 77.4,
+          "areaWebGL": 2973,
+          "areaCPU": 2980
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 1.813,
+          "quadrosWebGL": 54,
+          "tempoVirtualWebGL": 2.967,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              125.6,
+              94.7,
+              55.2
+            ],
+            "pixels": 3048,
+            "bbox": [
+              110,
+              6,
+              180,
+              157
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              166,
+              141.5,
+              100.4
+            ],
+            "pixels": 3072,
+            "bbox": [
+              110,
+              8,
+              180,
+              155
+            ]
+          },
+          "iouSilhueta": 0.906,
+          "distanciaCor": 76.6,
+          "areaWebGL": 3048,
+          "areaCPU": 3072
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-flexora",
+      "clipeId": "flexao-joelho",
+      "clipeArquivo": "assets/3d/animacoes/flexao-joelho.glb",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+      "duracaoS": 2.1333,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              180.5,
+              160.3,
+              103.9
+            ],
+            "pixels": 3251,
+            "bbox": [
+              109,
+              6,
+              176,
+              159
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              199.4,
+              187.3,
+              142.7
+            ],
+            "pixels": 3185,
+            "bbox": [
+              109,
+              8,
+              175,
+              157
+            ]
+          },
+          "iouSilhueta": 0.906,
+          "distanciaCor": 50.9,
+          "areaWebGL": 3251,
+          "areaCPU": 3185
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 1.067,
+          "quadrosWebGL": 32,
+          "tempoVirtualWebGL": 1.133,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              180.3,
+              160,
+              103.8
+            ],
+            "pixels": 2997,
+            "bbox": [
+              109,
+              6,
+              176,
+              157
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              200.2,
+              187.6,
+              143.5
+            ],
+            "pixels": 2940,
+            "bbox": [
+              109,
+              8,
+              175,
+              155
+            ]
+          },
+          "iouSilhueta": 0.904,
+          "distanciaCor": 52.3,
+          "areaWebGL": 2997,
+          "areaCPU": 2940
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 1.813,
+          "quadrosWebGL": 54,
+          "tempoVirtualWebGL": 2.967,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              180.9,
+              160.5,
+              104.1
+            ],
+            "pixels": 3134,
+            "bbox": [
+              109,
+              6,
+              176,
+              157
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              200.5,
+              187.9,
+              143.6
+            ],
+            "pixels": 3079,
+            "bbox": [
+              109,
+              8,
+              175,
+              155
+            ]
+          },
+          "iouSilhueta": 0.904,
+          "distanciaCor": 51.9,
+          "areaWebGL": 3134,
+          "areaCPU": 3079
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-elevacao-lateral",
+      "clipeId": "elevacao-lateral",
+      "clipeArquivo": "assets/3d/animacoes/elevacao-lateral.glb",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+      "duracaoS": 2.6333,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              124.8,
+              93.8,
+              56.2
+            ],
+            "pixels": 3362,
+            "bbox": [
+              140,
+              6,
+              174,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              166.7,
+              142.3,
+              102.3
+            ],
+            "pixels": 3330,
+            "bbox": [
+              140,
+              8,
+              174,
+              163
+            ]
+          },
+          "iouSilhueta": 0.93,
+          "distanciaCor": 78.9,
+          "areaWebGL": 3362,
+          "areaCPU": 3330
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 1.317,
+          "quadrosWebGL": 39,
+          "tempoVirtualWebGL": 1.367,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              128.5,
+              96.5,
+              58.5
+            ],
+            "pixels": 3330,
+            "bbox": [
+              106,
+              6,
+              201,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              169.9,
+              144.9,
+              104.8
+            ],
+            "pixels": 3335,
+            "bbox": [
+              106,
+              8,
+              200,
+              163
+            ]
+          },
+          "iouSilhueta": 0.876,
+          "distanciaCor": 78.7,
+          "areaWebGL": 3330,
+          "areaCPU": 3335
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 2.238,
+          "quadrosWebGL": 67,
+          "tempoVirtualWebGL": 3.633,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              126.1,
+              94.9,
+              57
+            ],
+            "pixels": 3423,
+            "bbox": [
+              130,
+              6,
+              185,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              166.3,
+              142.2,
+              102.4
+            ],
+            "pixels": 3432,
+            "bbox": [
+              131,
+              8,
+              183,
+              163
+            ]
+          },
+          "iouSilhueta": 0.861,
+          "distanciaCor": 76.9,
+          "areaWebGL": 3423,
+          "areaCPU": 3432
+        }
+      ]
+    },
+    {
+      "exercicioId": "mus-elevacao-lateral",
+      "clipeId": "elevacao-lateral",
+      "clipeArquivo": "assets/3d/animacoes/elevacao-lateral.glb",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+      "duracaoS": 2.6333,
+      "estado": {
+        "pronto": true,
+        "erro": null
+      },
+      "instantes": [
+        {
+          "rotulo": "INICIO",
+          "tempoS": 0,
+          "quadrosWebGL": 0,
+          "tempoVirtualWebGL": 0.033,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              180.5,
+              161.1,
+              106.3
+            ],
+            "pixels": 3410,
+            "bbox": [
+              141,
+              6,
+              174,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              200.6,
+              188.7,
+              145
+            ],
+            "pixels": 3327,
+            "bbox": [
+              141,
+              8,
+              174,
+              164
+            ]
+          },
+          "iouSilhueta": 0.931,
+          "distanciaCor": 51.6,
+          "areaWebGL": 3410,
+          "areaCPU": 3327
+        },
+        {
+          "rotulo": "MEIO",
+          "tempoS": 1.317,
+          "quadrosWebGL": 39,
+          "tempoVirtualWebGL": 1.367,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              184.3,
+              164.7,
+              109.7
+            ],
+            "pixels": 3309,
+            "bbox": [
+              105,
+              6,
+              201,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              202.8,
+              191.2,
+              148.3
+            ],
+            "pixels": 3249,
+            "bbox": [
+              106,
+              8,
+              200,
+              164
+            ]
+          },
+          "iouSilhueta": 0.871,
+          "distanciaCor": 50.3,
+          "areaWebGL": 3309,
+          "areaCPU": 3249
+        },
+        {
+          "rotulo": "FIM",
+          "tempoS": 2.238,
+          "quadrosWebGL": 67,
+          "tempoVirtualWebGL": 3.633,
+          "webgl": {
+            "fundo": [
+              18,
+              16,
+              16
+            ],
+            "corPersonagem": [
+              180.4,
+              161.2,
+              106.5
+            ],
+            "pixels": 3495,
+            "bbox": [
+              129,
+              6,
+              185,
+              165
+            ]
+          },
+          "cpu": {
+            "fundo": [
+              15,
+              16,
+              13
+            ],
+            "corPersonagem": [
+              200.2,
+              188.5,
+              145.2
+            ],
+            "pixels": 3408,
+            "bbox": [
+              132,
+              8,
+              183,
+              164
+            ]
+          },
+          "iouSilhueta": 0.861,
+          "distanciaCor": 51.3,
+          "areaWebGL": 3495,
+          "areaCPU": 3408
+        }
+      ]
+    }
+  ]
+}

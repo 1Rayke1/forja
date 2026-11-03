@@ -36,6 +36,9 @@ import path from "node:path";
 import zlib from "node:zlib";
 import { performance } from "node:perf_hooks";
 import { createRequire } from "node:module";
+import { bmpDeFrame } from "./lib/bmp-frame.mjs";
+import { uvDoVertice } from "./lib/amostra-uv.mjs";
+import { criarCalculadoraNormais } from "./lib/normais-vertice.mjs";
 
 /* Stub de APIs de navegador que o GLTFLoader usa apenas para textura. */
 globalThis.self = globalThis;
@@ -53,13 +56,20 @@ const lerJSON = arquivo => JSON.parse(fs.readFileSync(arquivo, "utf8"));
 
 const argumentos = lista => {
   const saida = {};
+  /* Aceita tanto --sem-textura quanto --semTextura: as opções são lidas em
+     camelCase no código, mas a documentação usa kebab-case. Mantemos as duas
+     chaves para não quebrar --salvar-quadros, que é lido com o hífen. */
+  const emCamel = chave => chave.replace(/-([a-z])/g, (_, letra) => letra.toUpperCase());
   for (let i = 0; i < lista.length; i += 1) {
     const item = lista[i];
     if (!item.startsWith("--")) continue;
     const chave = item.slice(2);
     const proximo = lista[i + 1];
-    if (proximo && !proximo.startsWith("--")) { saida[chave] = proximo; i += 1; }
-    else saida[chave] = true;
+    const valor = proximo && !proximo.startsWith("--") ? proximo : true;
+    if (valor !== true) i += 1;
+    saida[chave] = valor;
+    const camel = emCamel(chave);
+    if (camel !== chave) saida[camel] = valor;
   }
   return saida;
 };
@@ -233,8 +243,9 @@ acao.play();
 const tmpV = new THREE.Vector3();
 const tmpM = new THREE.Matrix4();
 const tmpQ = new THREE.Quaternion();
+const normaisDeformadas = criarCalculadoraNormais(THREE);
 
-function capturarFase(tempo) {
+function capturarFase(tempo, comNormais = false) {
   mixer.setTime(tempo);
   raizPersonagem.updateMatrixWorld(true);
   const pedacos = [];
@@ -249,7 +260,10 @@ function capturarFase(tempo) {
       tmpV.applyMatrix4(malha.matrixWorld);
       verts.push(tmpV.x, tmpV.y, tmpV.z);
     }
-    pedacos.push({ malha, verts, total: pos.count });
+    /* Normais suaves do GLB, deformadas pelo mesmo skinning das posições.
+       Só são necessárias na rasterização, não na medição de enquadramento. */
+    const normais = comNormais ? normaisDeformadas(malha) : null;
+    pedacos.push({ malha, verts, normais, total: pos.count });
   });
   return pedacos;
 }
@@ -396,33 +410,27 @@ const FUNDO = [0.071, 0.063, 0.063]; /* #121010 */
 function criarAlvo(largura, altura) {
   const cor = new Uint8Array(largura * altura * 3);
   const profundidade = new Float32Array(largura * altura).fill(Infinity);
+  const fundo = new Uint8Array(largura * altura * 3);
   for (let i = 0; i < largura * altura; i += 1) {
     cor[i * 3] = FUNDO[0] * 255;
     cor[i * 3 + 1] = FUNDO[1] * 255;
     cor[i * 3 + 2] = FUNDO[2] * 255;
+    fundo[i * 3] = FUNDO[0] * 255;
+    fundo[i * 3 + 1] = FUNDO[1] * 255;
+    fundo[i * 3 + 2] = FUNDO[2] * 255;
   }
-  return { largura, altura, cor, profundidade };
+  return { largura, altura, cor, profundidade, fundo };
 }
 
 function gamma(v) {
   return Math.pow(Math.max(0, Math.min(1, v)), 1 / 1.9) * 255;
 }
 
-function iluminar(normal, corBase) {
-  let r = corBase[0] * AMBIENTE[0];
-  let g = corBase[1] * AMBIENTE[1];
-  let b = corBase[2] * AMBIENTE[2];
-  for (const luz of LUZES) {
-    const dif = Math.max(0, normal.x * luz.direcao.x + normal.y * luz.direcao.y + normal.z * luz.direcao.z);
-    const c = luz.cor;
-    r += corBase[0] * c[0] * luz.forca * dif;
-    g += corBase[1] * c[1] * luz.forca * dif;
-    b += corBase[2] * c[2] * luz.forca * dif;
-  }
-  return [r, g, b];
-}
-
-function desenharTriangulo(alvo, a, b, c, ca, cb, cc) {
+/* Iluminação por PIXEL (Phong difuso), como o WebGL oficial: interpola a
+   normal suave e a cor base da textura, normaliza a normal e só então aplica
+   as luzes. Interpolar cores JÁ iluminadas (Gouraud) produzia faixas em
+   zigue-zague nas superfícies curvas de baixa malha do manequim. */
+function desenharTriangulo(alvo, a, b, c, ca, cb, cc, normais, ia, ib, ic) {
   const area = (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
   if (Math.abs(area) < 1e-6) return;
   const minX = Math.max(0, Math.floor(Math.min(a.x, b.x, c.x)));
@@ -432,37 +440,57 @@ function desenharTriangulo(alvo, a, b, c, ca, cb, cc) {
   const cor = alvo.cor;
   const profundidade = alvo.profundidade;
   const largura = alvo.largura;
+  const na0 = normais[ia * 3], na1 = normais[ia * 3 + 1], na2 = normais[ia * 3 + 2];
+  const nb0 = normais[ib * 3], nb1 = normais[ib * 3 + 1], nb2 = normais[ib * 3 + 2];
+  const nc0 = normais[ic * 3], nc1 = normais[ic * 3 + 1], nc2 = normais[ic * 3 + 2];
+  const numeroLuzes = LUZES.length;
   for (let y = minY; y <= maxY; y += 1) {
     const baseLinha = y * largura;
     const py = y + 0.5;
     for (let x = minX; x <= maxX; x += 1) {
       const px = x + 0.5;
-      let w0 = ((b.x - px) * (c.y - py) - (c.x - px) * (b.y - py)) / area;
-      let w1 = ((c.x - px) * (a.y - py) - (a.x - px) * (c.y - py)) / area;
+      const w0 = ((b.x - px) * (c.y - py) - (c.x - px) * (b.y - py)) / area;
+      const w1 = ((c.x - px) * (a.y - py) - (a.x - px) * (c.y - py)) / area;
       const w2 = 1 - w0 - w1;
       if (w0 < -0.0001 || w1 < -0.0001 || w2 < -0.0001) continue;
       const z = w0 * a.z + w1 * b.z + w2 * c.z;
       const indice = baseLinha + x;
       if (z >= profundidade[indice]) continue;
       profundidade[indice] = z;
-      /* interpolacao de cor e textura (UVs vemos por cor do vertice sem textura) */
-      const brilhoR = w0 * ca[0] + w1 * cb[0] + w2 * cc[0];
-      const brilhoG = w0 * ca[1] + w1 * cb[1] + w2 * cc[1];
-      const brilhoB = w0 * ca[2] + w1 * cb[2] + w2 * cc[2];
-      cor[indice * 3] = gamma(brilhoR);
-      cor[indice * 3 + 1] = gamma(brilhoG);
-      cor[indice * 3 + 2] = gamma(brilhoB);
+      let nx = w0 * na0 + w1 * nb0 + w2 * nc0;
+      let ny = w0 * na1 + w1 * nb1 + w2 * nc1;
+      let nz = w0 * na2 + w1 * nb2 + w2 * nc2;
+      const comprimento = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+      nx /= comprimento; ny /= comprimento; nz /= comprimento;
+      const r = w0 * ca[0] + w1 * cb[0] + w2 * cc[0];
+      const g = w0 * ca[1] + w1 * cb[1] + w2 * cc[1];
+      const bl = w0 * ca[2] + w1 * cb[2] + w2 * cc[2];
+      let lr = r * AMBIENTE[0], lg = g * AMBIENTE[1], lb = bl * AMBIENTE[2];
+      for (let li = 0; li < numeroLuzes; li += 1) {
+        const luz = LUZES[li];
+        const dif = Math.max(0, nx * luz.direcao.x + ny * luz.direcao.y + nz * luz.direcao.z);
+        const k = luz.forca * dif;
+        lr += r * luz.cor[0] * k;
+        lg += g * luz.cor[1] * k;
+        lb += bl * luz.cor[2] * k;
+      }
+      cor[indice * 3] = gamma(lr);
+      cor[indice * 3 + 1] = gamma(lg);
+      cor[indice * 3 + 2] = gamma(lb);
     }
   }
 }
 
 function renderizarFrame(pedacos, alvo) {
-  /* fundo ja preenchido ao criar o alvo; redefinir profundidade */
+  /* Limpa COR e PROFUNDIDADE a cada quadro. Sem limpar a cor, os quadros
+     anteriores ficam como rastro: a perna que varre um arco vira um "leque"
+     e as bordas acumuladas viram zigue-zagues que não existem no WebGL. */
+  alvo.cor.set(alvo.fundo);
   alvo.profundidade.fill(Infinity);
   const projetado = new THREE.Vector3();
   const pontoMundo = new THREE.Vector3();
   for (const pedaco of pedacos) {
-    const { malha, verts, total } = pedaco;
+    const { malha, verts, normais, total } = pedaco;
     const mat = materialDaMalha(malha);
     const atributos = atributosPorMalha.get(malha);
     const indice = atributos.indice;
@@ -490,28 +518,22 @@ function renderizarFrame(pedacos, alvo) {
       const pa = projetados[ii]; const pb = projetados[ij]; const pc = projetados[ik];
       if (!pa || !pb || !pc) continue;
       if (pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1 || pc.z < -1 || pc.z > 1) continue;
-      /* normal da face a partir dos pontos deformados no mundo */
-      const va = new THREE.Vector3().fromArray([verts[ii * 3], verts[ii * 3 + 1], verts[ii * 3 + 2]]);
-      const vb = new THREE.Vector3().fromArray([verts[ij * 3], verts[ij * 3 + 1], verts[ij * 3 + 2]]);
-      const vc = new THREE.Vector3().fromArray([verts[ik * 3], verts[ik * 3 + 1], verts[ik * 3 + 2]]);
-      const normal = new THREE.Vector3().subVectors(vb, va).cross(new THREE.Vector3().subVectors(vc, va)).normalize();
-
+      /* Cores BASE (não iluminadas) por vértice: a iluminação é aplicada por
+         pixel em desenharTriangulo, com a normal suave interpolada. */
       let corA, corB, corC;
       if (textura && uv) {
         /* UV por vertice (sem skinning de UV — malha nao se desfaz) */
         const lerUV = k => {
-          const u = uv.getX(k * 2);
-          const v = uv.getY(k * 2);
+          const [u, v] = uvDoVertice(uv, k);
           return amostraTextura(textura, u, v) || fator;
         };
-        corA = iluminar(normal, lerUV(ii));
-        corB = iluminar(normal, lerUV(ij));
-        corC = iluminar(normal, lerUV(ik));
+        corA = lerUV(ii);
+        corB = lerUV(ij);
+        corC = lerUV(ik);
       } else {
-        const base = iluminar(normal, fator);
-        corA = base; corB = base; corC = base;
+        corA = fator; corB = fator; corC = fator;
       }
-      desenharTriangulo(alvo, pa, pb, pc, corA, corB, corC);
+      desenharTriangulo(alvo, pa, pb, pc, corA, corB, corC, normais, ii, ij, ik);
     }
   }
 }
@@ -571,35 +593,10 @@ function escreverPNG(arquivo, imagem) {
 }
 
 /* ------------------------------------------------------------------ */
-/* BMP (sem compressao) para alimentar o image2 do ffmpeg              */
+/* BMP: a conversão de quadro RGB -> BMP 24bpp (top-down, padding por   */
+/* linha, ordem BGR) vive em tools/lib/bmp-frame.mjs e é testada em     */
+/* tests/bmp-frame.test.mjs. Nenhuma cor é ajustada neste arquivo.      */
 /* ------------------------------------------------------------------ */
-
-function bmpDeFrame(alvo) {
-  const { largura, altura, cor } = alvo;
-  const passoLinha = Math.ceil(largura * 3 / 4) * 4;
-  const tam = 14 + 40 + passoLinha * altura;
-  const saida = new Uint8Array(tam);
-  const dv = new DataView(saida.buffer);
-  saida[0] = 0x42; saida[1] = 0x4D;
-  dv.setUint32(2, tam, true);
-  dv.setUint32(10, 14 + 40, true);
-  dv.setUint32(14, 40, true);
-  dv.setInt32(18, largura, true);
-  dv.setInt32(22, -altura, true); /* topo primeiro */
-  dv.setUint16(26, 1, true);
-  dv.setUint16(28, 24, true);
-  let o = 14 + 40;
-  for (let y = 0; y < altura; y += 1) {
-    for (let x = 0; x < largura; x += 1) {
-      const i = (y * largura + x) * 3;
-      saida[o++] = cor[i + 2]; // B
-      saida[o++] = cor[i + 1]; // G
-      saida[o++] = cor[i];     // R
-    }
-    while (o % 4 !== 0) saida[o++] = 0;
-  }
-  return saida;
-}
 
 /* ------------------------------------------------------------------ */
 /* ffmpeg.wasm                                                         */
@@ -616,7 +613,7 @@ const t0 = performance.now();
 
 for (let frame = 0; frame < totalFrames; frame += 1) {
   const tempo = (duracao * frame) / totalFrames;
-  const pedacos = capturarFase(tempo);
+  const pedacos = capturarFase(tempo, true);
   renderizarFrame(pedacos, alvo);
   const nome = `frame-${String(frame + 1).padStart(4, "0")}.bmp`;
   ffmpeg.FS.writeFile(nome, bmpDeFrame(alvo));

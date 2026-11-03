@@ -1,0 +1,517 @@
+Exercícios com clipe exato: 14
+   cal-rotacao-ombros → rotacao-ombros
+   cal-mobilidade-quadril → mobilidade-quadril
+   cal-flexao → flexao
+   cal-agachamento → agachamento
+   cal-ponte → ponte-gluteo
+   cal-prancha-frontal → prancha
+   cal-abdominal-supra → abdominal-supra
+   cal-elevacao-pernas → elevacao-pernas
+   cal-mountain-climber → mountain-climber
+   mus-mobilidade-ombro → circulos-braco
+   mus-rosca-direta → rosca-direta
+   mus-triceps-polia → triceps
+   mus-flexora → flexao-joelho
+   mus-elevacao-lateral → elevacao-lateral
+
+### cal-rotacao-ombros — masculino (clipe rotacao-ombros)
+clipe assets/3d/animacoes/rotacao-ombros.glb duracao 2.4166667461395264 s -> 73 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0, 0.88, 0.04 ] distancia 3.48 maxNdc 0.91 limite 0.91
+(node:3089) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/73 (41%, 1.8s)
+  quadro 60/73 (82%, 3.5s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 938 ms
+OK: assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4 {"bytes":229274,"largura":1280,"altura":720,"fps":30,"duracaoS":2.4333,"codec":"avc1","proporcao":1.7778,"renderMs":5245,"encodeMs":940}
+   ✅ OK
+
+### cal-mobilidade-quadril — masculino (clipe mobilidade-quadril)
+clipe assets/3d/animacoes/mobilidade-quadril.glb duracao 1.8333333730697632 s -> 55 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.88, -0 ] distancia 3.49 maxNdc 0.909 limite 0.91
+(node:3097) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/55 (55%, 1.7s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 722 ms
+OK: assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4 {"bytes":361421,"largura":1280,"altura":720,"fps":30,"duracaoS":1.8333,"codec":"avc1","proporcao":1.7778,"renderMs":3819,"encodeMs":725}
+   ✅ OK
+
+### cal-flexao — masculino (clipe flexao)
+clipe assets/3d/animacoes/flexao.glb duracao 6 s -> 180 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.38, 0.83 ] distancia 2.56 maxNdc 0.909 limite 0.91
+(node:3106) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/180 (17%, 2.5s)
+  quadro 60/180 (33%, 4.9s)
+  quadro 90/180 (50%, 7.5s)
+  quadro 120/180 (67%, 9.9s)
+  quadro 150/180 (83%, 12.3s)
+  quadro 180/180 (100%, 14.7s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 2247 ms
+OK: assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4 {"bytes":997501,"largura":1280,"altura":720,"fps":30,"duracaoS":6,"codec":"avc1","proporcao":1.7778,"renderMs":16930,"encodeMs":2251}
+   ✅ OK
+
+### cal-agachamento — masculino (clipe agachamento)
+clipe assets/3d/animacoes/agachamento.glb duracao 3.2083332538604736 s -> 96 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0.26, 0.88, 0.08 ] distancia 3.6 maxNdc 0.91 limite 0.91
+(node:3114) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/96 (31%, 1.8s)
+  quadro 60/96 (63%, 3.6s)
+  quadro 90/96 (94%, 5.2s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1199 ms
+OK: assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4 {"bytes":449200,"largura":1280,"altura":720,"fps":30,"duracaoS":3.2,"codec":"avc1","proporcao":1.7778,"renderMs":6798,"encodeMs":1203}
+   ✅ OK
+
+### cal-ponte — masculino (clipe ponte-gluteo)
+clipe assets/3d/animacoes/ponte-gluteo.glb duracao 4.125 s -> 124 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.27, -0.16 ] distancia 1.78 maxNdc 0.91 limite 0.91
+(node:3122) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/124 (24%, 4.5s)
+  quadro 60/124 (48%, 9.3s)
+  quadro 90/124 (73%, 14.1s)
+  quadro 120/124 (97%, 18.8s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1890 ms
+OK: assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4 {"bytes":746948,"largura":1280,"altura":720,"fps":30,"duracaoS":4.1333,"codec":"avc1","proporcao":1.7778,"renderMs":21220,"encodeMs":1894}
+   ✅ OK
+
+### cal-prancha-frontal — masculino (clipe prancha)
+clipe assets/3d/animacoes/prancha.glb duracao 6 s -> 180 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0, 0.24, 0.87 ] distancia 2.41 maxNdc 0.909 limite 0.91
+(node:3130) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/180 (17%, 2.8s)
+  quadro 60/180 (33%, 5.4s)
+  quadro 90/180 (50%, 8.0s)
+  quadro 120/180 (67%, 10.7s)
+  quadro 150/180 (83%, 13.3s)
+  quadro 180/180 (100%, 15.8s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 2141 ms
+OK: assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4 {"bytes":131422,"largura":1280,"altura":720,"fps":30,"duracaoS":6,"codec":"avc1","proporcao":1.7778,"renderMs":17987,"encodeMs":2143}
+   ✅ OK
+
+### cal-abdominal-supra — masculino (clipe abdominal-supra)
+clipe assets/3d/animacoes/abdominal-supra.glb duracao 3 s -> 90 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0, 0.27, -0.03 ] distancia 1.88 maxNdc 0.91 limite 0.91
+(node:3138) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/90 (33%, 4.2s)
+  quadro 60/90 (67%, 8.6s)
+  quadro 90/90 (100%, 12.8s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1198 ms
+OK: assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4 {"bytes":557903,"largura":1280,"altura":720,"fps":30,"duracaoS":3,"codec":"avc1","proporcao":1.7778,"renderMs":13958,"encodeMs":1202}
+   ✅ OK
+
+### cal-elevacao-pernas — masculino (clipe elevacao-pernas)
+clipe assets/3d/animacoes/elevacao-pernas.glb duracao 2.7083332538604736 s -> 81 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.42, 0.07 ] distancia 2.43 maxNdc 0.91 limite 0.91
+(node:3147) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/81 (37%, 2.6s)
+  quadro 60/81 (74%, 5.2s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 976 ms
+OK: assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4 {"bytes":250159,"largura":1280,"altura":720,"fps":30,"duracaoS":2.7,"codec":"avc1","proporcao":1.7778,"renderMs":7892,"encodeMs":979}
+   ✅ OK
+
+### cal-mountain-climber — masculino (clipe mountain-climber)
+clipe assets/3d/animacoes/mountain-climber.glb duracao 4.5 s -> 135 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0.06, 0.38, 0.8 ] distancia 2.73 maxNdc 0.91 limite 0.91
+(node:3156) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/135 (22%, 2.3s)
+  quadro 60/135 (44%, 4.5s)
+  quadro 90/135 (67%, 6.6s)
+  quadro 120/135 (89%, 8.8s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1522 ms
+OK: assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4 {"bytes":504618,"largura":1280,"altura":720,"fps":30,"duracaoS":4.5,"codec":"avc1","proporcao":1.7778,"renderMs":11508,"encodeMs":1526}
+   ✅ OK
+
+### mus-mobilidade-ombro — masculino (clipe circulos-braco)
+clipe assets/3d/animacoes/circulos-braco.glb duracao 1.7916666269302368 s -> 54 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0, 0.88, 0.04 ] distancia 3.48 maxNdc 0.91 limite 0.91
+(node:3164) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/54 (56%, 1.7s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 717 ms
+OK: assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4 {"bytes":158413,"largura":1280,"altura":720,"fps":30,"duracaoS":1.8,"codec":"avc1","proporcao":1.7778,"renderMs":3716,"encodeMs":719}
+   ✅ OK
+
+### mus-rosca-direta — masculino (clipe rosca-direta)
+clipe assets/3d/animacoes/rosca-direta.glb duracao 2.3333332538604736 s -> 70 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.88, 0.15 ] distancia 3.51 maxNdc 0.909 limite 0.91
+(node:3173) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/70 (43%, 1.6s)
+  quadro 60/70 (86%, 3.2s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 844 ms
+OK: assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4 {"bytes":172439,"largura":1280,"altura":720,"fps":30,"duracaoS":2.3333,"codec":"avc1","proporcao":1.7778,"renderMs":4618,"encodeMs":847}
+   ✅ OK
+
+### mus-triceps-polia — masculino (clipe triceps)
+clipe assets/3d/animacoes/triceps.glb duracao 1.8333333730697632 s -> 55 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.81, -0.06 ] distancia 3.16 maxNdc 0.909 limite 0.91
+(node:3181) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/55 (55%, 2.0s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 652 ms
+OK: assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4 {"bytes":137611,"largura":1280,"altura":720,"fps":30,"duracaoS":1.8333,"codec":"avc1","proporcao":1.7778,"renderMs":4289,"encodeMs":654}
+   ✅ OK
+
+### mus-flexora — masculino (clipe flexao-joelho)
+clipe assets/3d/animacoes/flexao-joelho.glb duracao 2.125 s -> 64 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0.09, 0.88, 0.11 ] distancia 3.54 maxNdc 0.91 limite 0.91
+(node:3189) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/64 (47%, 1.6s)
+  quadro 60/64 (94%, 3.2s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 771 ms
+OK: assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4 {"bytes":82212,"largura":1280,"altura":720,"fps":30,"duracaoS":2.1333,"codec":"avc1","proporcao":1.7778,"renderMs":4187,"encodeMs":773}
+   ✅ OK
+
+### mus-elevacao-lateral — masculino (clipe elevacao-lateral)
+clipe assets/3d/animacoes/elevacao-lateral.glb duracao 2.625 s -> 79 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.88, 0.04 ] distancia 3.48 maxNdc 0.91 limite 0.91
+(node:3197) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/79 (38%, 1.6s)
+  quadro 60/79 (76%, 3.1s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 904 ms
+OK: assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4 {"bytes":234172,"largura":1280,"altura":720,"fps":30,"duracaoS":2.6333,"codec":"avc1","proporcao":1.7778,"renderMs":4980,"encodeMs":907}
+   ✅ OK
+
+### cal-rotacao-ombros — feminino (clipe rotacao-ombros)
+clipe assets/3d/animacoes/rotacao-ombros.glb duracao 2.4166667461395264 s -> 73 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.87, 0.04 ] distancia 3.43 maxNdc 0.91 limite 0.91
+(node:3205) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/73 (41%, 1.5s)
+  quadro 60/73 (82%, 3.0s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 848 ms
+OK: assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4 {"bytes":236322,"largura":1280,"altura":720,"fps":30,"duracaoS":2.4333,"codec":"avc1","proporcao":1.7778,"renderMs":4490,"encodeMs":851}
+   ✅ OK
+
+### cal-mobilidade-quadril — feminino (clipe mobilidade-quadril)
+clipe assets/3d/animacoes/mobilidade-quadril.glb duracao 1.8333333730697632 s -> 55 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.87, -0 ] distancia 3.44 maxNdc 0.91 limite 0.91
+(node:3213) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/55 (55%, 1.5s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 734 ms
+OK: assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4 {"bytes":383111,"largura":1280,"altura":720,"fps":30,"duracaoS":1.8333,"codec":"avc1","proporcao":1.7778,"renderMs":3489,"encodeMs":736}
+   ✅ OK
+
+### cal-flexao — feminino (clipe flexao)
+clipe assets/3d/animacoes/flexao.glb duracao 6 s -> 180 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.37, 0.81 ] distancia 2.29 maxNdc 0.909 limite 0.91
+(node:3221) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/180 (17%, 2.3s)
+  quadro 60/180 (33%, 4.6s)
+  quadro 90/180 (50%, 6.8s)
+  quadro 120/180 (67%, 9.1s)
+  quadro 150/180 (83%, 11.2s)
+  quadro 180/180 (100%, 13.6s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 2259 ms
+OK: assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4 {"bytes":1218356,"largura":1280,"altura":720,"fps":30,"duracaoS":6,"codec":"avc1","proporcao":1.7778,"renderMs":15817,"encodeMs":2264}
+   ✅ OK
+
+### cal-agachamento — feminino (clipe agachamento)
+clipe assets/3d/animacoes/agachamento.glb duracao 3.2083332538604736 s -> 96 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0.25, 0.87, 0.08 ] distancia 3.55 maxNdc 0.909 limite 0.91
+(node:3229) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/96 (31%, 1.2s)
+  quadro 60/96 (63%, 2.5s)
+  quadro 90/96 (94%, 3.8s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1125 ms
+OK: assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4 {"bytes":478139,"largura":1280,"altura":720,"fps":30,"duracaoS":3.2,"codec":"avc1","proporcao":1.7778,"renderMs":5170,"encodeMs":1128}
+   ✅ OK
+
+### cal-ponte — feminino (clipe ponte-gluteo)
+clipe assets/3d/animacoes/ponte-gluteo.glb duracao 4.125 s -> 124 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.27, -0.15 ] distancia 1.76 maxNdc 0.91 limite 0.91
+(node:3237) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/124 (24%, 4.0s)
+  quadro 60/124 (48%, 8.3s)
+  quadro 90/124 (73%, 12.4s)
+  quadro 120/124 (97%, 16.4s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1644 ms
+OK: assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4 {"bytes":764881,"largura":1280,"altura":720,"fps":30,"duracaoS":4.1333,"codec":"avc1","proporcao":1.7778,"renderMs":18545,"encodeMs":1648}
+   ✅ OK
+
+### cal-prancha-frontal — feminino (clipe prancha)
+clipe assets/3d/animacoes/prancha.glb duracao 6 s -> 180 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0, 0.24, 0.84 ] distancia 2.12 maxNdc 0.909 limite 0.91
+(node:3245) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/180 (17%, 2.8s)
+  quadro 60/180 (33%, 5.4s)
+  quadro 90/180 (50%, 8.1s)
+  quadro 120/180 (67%, 10.9s)
+  quadro 150/180 (83%, 13.6s)
+  quadro 180/180 (100%, 16.3s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 2053 ms
+OK: assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4 {"bytes":155652,"largura":1280,"altura":720,"fps":30,"duracaoS":6,"codec":"avc1","proporcao":1.7778,"renderMs":18383,"encodeMs":2056}
+   ✅ OK
+
+### cal-abdominal-supra — feminino (clipe abdominal-supra)
+clipe assets/3d/animacoes/abdominal-supra.glb duracao 3 s -> 90 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.27, -0.02 ] distancia 1.86 maxNdc 0.909 limite 0.91
+(node:3253) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/90 (33%, 3.9s)
+  quadro 60/90 (67%, 7.9s)
+  quadro 90/90 (100%, 11.6s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1210 ms
+OK: assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4 {"bytes":561926,"largura":1280,"altura":720,"fps":30,"duracaoS":3,"codec":"avc1","proporcao":1.7778,"renderMs":12843,"encodeMs":1213}
+   ✅ OK
+
+### cal-elevacao-pernas — feminino (clipe elevacao-pernas)
+clipe assets/3d/animacoes/elevacao-pernas.glb duracao 2.7083332538604736 s -> 81 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.42, 0.08 ] distancia 2.41 maxNdc 0.909 limite 0.91
+(node:3261) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/81 (37%, 2.4s)
+  quadro 60/81 (74%, 4.7s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1011 ms
+OK: assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4 {"bytes":262249,"largura":1280,"altura":720,"fps":30,"duracaoS":2.7,"codec":"avc1","proporcao":1.7778,"renderMs":7242,"encodeMs":1014}
+   ✅ OK
+
+### cal-mountain-climber — feminino (clipe mountain-climber)
+clipe assets/3d/animacoes/mountain-climber.glb duracao 4.5 s -> 135 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0.12, 0.37, 0.78 ] distancia 2.53 maxNdc 0.909 limite 0.91
+(node:3269) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/135 (22%, 2.4s)
+  quadro 60/135 (44%, 4.7s)
+  quadro 90/135 (67%, 7.1s)
+  quadro 120/135 (89%, 9.5s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 1600 ms
+OK: assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4 {"bytes":542832,"largura":1280,"altura":720,"fps":30,"duracaoS":4.5,"codec":"avc1","proporcao":1.7778,"renderMs":12207,"encodeMs":1606}
+   ✅ OK
+
+### mus-mobilidade-ombro — feminino (clipe circulos-braco)
+clipe assets/3d/animacoes/circulos-braco.glb duracao 1.7916666269302368 s -> 54 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0, 0.87, 0.04 ] distancia 3.43 maxNdc 0.91 limite 0.91
+(node:3277) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/54 (56%, 1.6s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 689 ms
+OK: assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4 {"bytes":152917,"largura":1280,"altura":720,"fps":30,"duracaoS":1.8,"codec":"avc1","proporcao":1.7778,"renderMs":3514,"encodeMs":692}
+   ✅ OK
+
+### mus-rosca-direta — feminino (clipe rosca-direta)
+clipe assets/3d/animacoes/rosca-direta.glb duracao 2.3333332538604736 s -> 70 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.87, 0.15 ] distancia 3.46 maxNdc 0.909 limite 0.91
+(node:3285) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/70 (43%, 1.6s)
+  quadro 60/70 (86%, 3.5s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 830 ms
+OK: assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4 {"bytes":174793,"largura":1280,"altura":720,"fps":30,"duracaoS":2.3333,"codec":"avc1","proporcao":1.7778,"renderMs":5008,"encodeMs":832}
+   ✅ OK
+
+### mus-triceps-polia — feminino (clipe triceps)
+clipe assets/3d/animacoes/triceps.glb duracao 1.8333333730697632 s -> 55 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.8, -0.06 ] distancia 3.13 maxNdc 0.91 limite 0.91
+(node:3293) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/55 (55%, 1.9s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 785 ms
+OK: assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4 {"bytes":141799,"largura":1280,"altura":720,"fps":30,"duracaoS":1.8333,"codec":"avc1","proporcao":1.7778,"renderMs":4266,"encodeMs":787}
+   ✅ OK
+
+### mus-flexora — feminino (clipe flexao-joelho)
+clipe assets/3d/animacoes/flexao-joelho.glb duracao 2.125 s -> 64 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ -0.09, 0.87, 0.13 ] distancia 3.49 maxNdc 0.909 limite 0.91
+(node:3301) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/64 (47%, 1.5s)
+  quadro 60/64 (94%, 3.0s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 766 ms
+OK: assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4 {"bytes":91060,"largura":1280,"altura":720,"fps":30,"duracaoS":2.1333,"codec":"avc1","proporcao":1.7778,"renderMs":3977,"encodeMs":769}
+   ✅ OK
+
+### mus-elevacao-lateral — feminino (clipe elevacao-lateral)
+clipe assets/3d/animacoes/elevacao-lateral.glb duracao 2.625 s -> 79 quadros @30 fps
+texturas decodificadas: 1
+enquadramento: centro [ 0, 0.87, 0.04 ] distancia 3.43 maxNdc 0.91 limite 0.91
+(node:3309) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  quadro 30/79 (38%, 1.6s)
+  quadro 60/79 (76%, 3.1s)
+warning: unsupported syscall: __syscall_getrusage
+
+ffmpeg ret: 0 encode em 945 ms
+OK: assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4 {"bytes":235142,"largura":1280,"altura":720,"fps":30,"duracaoS":2.6333,"codec":"avc1","proporcao":1.7778,"renderMs":5067,"encodeMs":948}
+   ✅ OK
+
+Resultado: 28 OK, 0 falhas de 28.
+   ✔ assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4 229274 B 30 fps
+   ✔ assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4 361421 B 30 fps
+   ✔ assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4 997501 B 30 fps
+   ✔ assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4 449200 B 30 fps
+   ✔ assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4 746948 B 30 fps
+   ✔ assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4 131422 B 30 fps
+   ✔ assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4 557903 B 30 fps
+   ✔ assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4 250159 B 30 fps
+   ✔ assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4 504618 B 30 fps
+   ✔ assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4 158413 B 30 fps
+   ✔ assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4 172439 B 30 fps
+   ✔ assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4 137611 B 30 fps
+   ✔ assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4 82212 B 30 fps
+   ✔ assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4 234172 B 30 fps
+   ✔ assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4 236322 B 30 fps
+   ✔ assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4 383111 B 30 fps
+   ✔ assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4 1218356 B 30 fps
+   ✔ assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4 478139 B 30 fps
+   ✔ assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4 764881 B 30 fps
+   ✔ assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4 155652 B 30 fps
+   ✔ assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4 561926 B 30 fps
+   ✔ assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4 262249 B 30 fps
+   ✔ assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4 542832 B 30 fps
+   ✔ assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4 152917 B 30 fps
+   ✔ assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4 174793 B 30 fps
+   ✔ assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4 141799 B 30 fps
+   ✔ assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4 91060 B 30 fps
+   ✔ assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4 235142 B 30 fps
+
+Todos os 28 MP4 atendem à especificação 1280×720 @30 FPS 16:9 sem áudio.

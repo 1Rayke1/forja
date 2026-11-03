@@ -1,7 +1,7 @@
 {
   "formato": "forja-apresentacao-exercicios",
   "versao": 1,
-  "geradoEm": "2026-11-02T16:35:25.969Z",
+  "geradoEm": "2026-11-03T04:32:52.743Z",
   "especificacao": {
     "proporcao": "16:9",
     "largura": 1280,
@@ -1092,7 +1092,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
-            "bytes": 161483,
+            "bytes": 229274,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1109,7 +1109,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
-            "bytes": 177171,
+            "bytes": 236322,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1171,7 +1171,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
-            "bytes": 306749,
+            "bytes": 361421,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1188,7 +1188,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
-            "bytes": 339129,
+            "bytes": 383111,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1306,7 +1306,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
-            "bytes": 775325,
+            "bytes": 997501,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1323,7 +1323,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
-            "bytes": 986019,
+            "bytes": 1218356,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1385,7 +1385,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
-            "bytes": 342711,
+            "bytes": 449200,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1402,7 +1402,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
-            "bytes": 386716,
+            "bytes": 478139,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1648,7 +1648,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
-            "bytes": 509001,
+            "bytes": 746948,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1665,7 +1665,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
-            "bytes": 576658,
+            "bytes": 764881,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1727,7 +1727,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
-            "bytes": 111715,
+            "bytes": 131422,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1744,7 +1744,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
-            "bytes": 138791,
+            "bytes": 155652,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1842,7 +1842,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
-            "bytes": 452301,
+            "bytes": 557903,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1859,7 +1859,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
-            "bytes": 510582,
+            "bytes": 561926,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1956,7 +1956,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
-            "bytes": 67501,
+            "bytes": 250159,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -1973,7 +1973,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
-            "bytes": 66750,
+            "bytes": 262249,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2127,7 +2127,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
-            "bytes": 126355,
+            "bytes": 504618,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2144,7 +2144,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
-            "bytes": 148060,
+            "bytes": 542832,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2322,7 +2322,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
-            "bytes": 92377,
+            "bytes": 158413,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2339,7 +2339,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
-            "bytes": 94503,
+            "bytes": 152917,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2773,7 +2773,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
-            "bytes": 161001,
+            "bytes": 172439,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2790,7 +2790,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
-            "bytes": 178018,
+            "bytes": 174793,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2852,7 +2852,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
-            "bytes": 67598,
+            "bytes": 137611,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2869,7 +2869,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
-            "bytes": 74230,
+            "bytes": 141799,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -2987,7 +2987,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
-            "bytes": 46619,
+            "bytes": 82212,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -3004,7 +3004,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
-            "bytes": 55661,
+            "bytes": 91060,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -3066,7 +3066,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
-            "bytes": 157695,
+            "bytes": 234172,
             "largura": 1280,
             "altura": 720,
             "fps": 30,
@@ -3083,7 +3083,7 @@
           "motivo": null,
           "meta": {
             "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
-            "bytes": 165444,
+            "bytes": 235142,
             "largura": 1280,
             "altura": 720,
             "fps": 30,

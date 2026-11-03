@@ -1,0 +1,371 @@
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+Quadros CPU pré-decodificados: 84
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-rotacao-ombros/masculino: IoU 0.931/0.93/0.932 | Δcor 78.7/79.2/78.9
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-rotacao-ombros/feminino: IoU 0.931/0.922/0.928 | Δcor 52.2/52.6/52.8
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-mobilidade-quadril/masculino: IoU 0.91/0.885/0.904 | Δcor 76.4/77.2/77.3
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-mobilidade-quadril/feminino: IoU 0.915/0.895/0.908 | Δcor 53.5/52.8/53.9
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-flexao/masculino: IoU 0.708/0.708/0.779 | Δcor 75.9/76.2/74.5
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-flexao/feminino: IoU 0.672/0.673/0.752 | Δcor 50.2/50.4/43.9
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-agachamento/masculino: IoU 0.933/0.909/0.933 | Δcor 75.7/74.9/74.2
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-agachamento/feminino: IoU 0.922/0.915/0.923 | Δcor 52.3/48.7/49.7
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-ponte/masculino: IoU 0.527/0.466/0.48 | Δcor 77/77.1/77
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-ponte/feminino: IoU 0.523/0.45/0.475 | Δcor 50.9/50.8/51.4
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-prancha-frontal/masculino: IoU 0.721/0.722/0.721 | Δcor 75/74.9/75.1
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-prancha-frontal/feminino: IoU 0.888/0.888/0.887 | Δcor 48.3/48.5/48.5
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-abdominal-supra/masculino: IoU 0.587/0.564/0.587 | Δcor 74.9/76.7/77.3
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-abdominal-supra/feminino: IoU 0.581/0.551/0.576 | Δcor 46.7/51/50
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-elevacao-pernas/masculino: IoU 0.687/0.696/0.722 | Δcor 72.9/74.5/73.6
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-elevacao-pernas/feminino: IoU 0.672/0.684/0.709 | Δcor 41.8/47.6/43.3
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-mountain-climber/masculino: IoU 0.731/0.729/0.727 | Δcor 75.9/76.5/76.9
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+cal-mountain-climber/feminino: IoU 0.704/0.702/0.694 | Δcor 50.3/50.3/51.5
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-mobilidade-ombro/masculino: IoU 0.863/0.872/0.862 | Δcor 78.2/78.3/78.6
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-mobilidade-ombro/feminino: IoU 0.864/0.872/0.86 | Δcor 51.6/50.2/51
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-rosca-direta/masculino: IoU 0.928/0.91/0.892 | Δcor 78.6/78.6/78.1
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-rosca-direta/feminino: IoU 0.918/0.91/0.887 | Δcor 53.7/54.3/52.9
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-triceps-polia/masculino: IoU 0.891/0.861/0.884 | Δcor 78/77/78.2
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-triceps-polia/feminino: IoU 0.902/0.877/0.895 | Δcor 52.7/52.2/52.9
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-flexora/masculino: IoU 0.915/0.914/0.906 | Δcor 76.7/77.4/76.6
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-flexora/feminino: IoU 0.906/0.904/0.904 | Δcor 50.9/52.3/51.9
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-elevacao-lateral/masculino: IoU 0.93/0.876/0.861 | Δcor 78.9/78.7/76.9
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+warning: unsupported syscall: __syscall_getrusage
+
+mus-elevacao-lateral/feminino: IoU 0.931/0.871/0.861 | Δcor 51.6/50.3/51.3
+mosaico: mosaico-06-webgl-vs-cpu-masculino.png 1025738 bytes
+mosaico: mosaico-07-webgl-vs-cpu-feminino.png 1096675 bytes
+mosaico detalhe: mosaico-08-detalhe-masculino.png 1009894 bytes
+mosaico detalhe: mosaico-09-detalhe-feminino.png 1122556 bytes
+
+IoU médio 0.8 (0.45–0.933), 84 comparações.

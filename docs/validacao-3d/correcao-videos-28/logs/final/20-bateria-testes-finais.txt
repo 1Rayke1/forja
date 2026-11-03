@@ -1,0 +1,402 @@
+=== 20 npm test ===
+
+> forja@2.0.0 test
+> node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/personagens3d.test.mjs && node tests/mapeamento3d.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/transferencia3d.test.mjs && node tests/pose-autoral3d.test.mjs && node tests/bmp-frame.test.mjs && node tests/uv-frame.test.mjs && node tests/normais-frame.test.mjs && node tests/limpeza-frame.test.mjs
+
+✅ 00. Módulo de métricas está carregado e é independente de DOM/estado
+✅ 01. recordDate usa finishedAt e cai para a data antiga sem inventar
+✅ 02. Períodos: semana segunda→domingo, mês, tudo e personalizado
+✅ 03. filterByPeriod inclui os limites do dia e descarta registro sem data
+✅ 04. Totais separam unidades e respeitam totals gravados
+✅ 05. Histórico antigo sem totals é derivado das séries, sem estimativa
+✅ 06. Métrica sem dado fica indisponível, nunca zero fabricado
+✅ 07. As funções não mutam os registros recebidos
+✅ 08. weeklySeries agrupa por semana e cobre a janela pedida
+✅ 09. frequency monta 7 dias por semana, começando na segunda
+✅ 10. exerciseList infere a medida e ignora acento/caixa
+✅ 11. exerciseEvolution usa a maior carga por treino, em ordem cronológica
+✅ 12. exerciseEvolution: distância, tempo, pontos insuficientes e sessões sem medida
+✅ 13. Recordes têm critério explícito, empate recente e categorias ausentes
+✅ 14. Recordes ignoram carga ilegível e histórico vazio não gera recorde
+✅ 15. comparePeriods calcula diferença, percentual e ausência de base
+✅ 16. Metas semanais usam a semana corrente e o escopo da meta
+✅ 17. searchRecords combina texto, status e período com acento e caixa ignorados
+
+============================================================
+MÉTRICAS — 18/18 testes aprovados
+============================================================
+✅ 01. Calendário e missões funcionam na página inicial
+✅ 02. Dados antigos são preservados após a migração
+✅ 03. A migração não é repetida e não duplica rotinas
+✅ 04. Todas as páginas carregam sem erros de JavaScript e sem recursos ausentes
+✅ 05. Links relativos resolvem dentro do caminho /forja/ (GitHub Pages)
+✅ 06. TREINO abre o hub e o hub leva a CALISTENIA e MUSCULAÇÃO
+✅ 07. Rotinas de calistenia e musculação permanecem separadas
+✅ 08. Criar, editar e iniciar uma rotina
+✅ 09. Cronômetro de exercício por duração usa timestamps
+✅ 10. Pausar, retomar e descanso (com pular)
+✅ 11. Sessão ativa sobrevive à navegação e ao recarregamento
+✅ 12. Histórico registra treino concluído e treino parcial
+✅ 13. Descartar a sessão pede confirmação e não grava histórico
+✅ 14. Repetidos cliques em concluir série não concluem duas séries
+✅ 15. Voltar ao exercício anterior e navegar entre exercícios
+✅ 16. Resumo ao finalizar e reordenação no editor
+✅ 17. Biblioteca: busca e exercício personalizado
+✅ 18. Progresso mostra só dados reais e filtra por modalidade
+✅ 19. Exportar, importar e desfazer restauração
+✅ 20. Importação inválida é rejeitada sem alterar dados
+✅ 21. Preferências de descanso são salvas e a biblioteca é validada no backup
+✅ 22. Armazenamento local é informado em todas as páginas
+✅ 23. Código: sem localStorage.clear(), um único intervalo e calendário intacto
+✅ 24. Regras móveis: sem rolagem horizontal, alvos grandes e empilhamento no hub
+✅ 25. Execução: série por duração não é registrada duas vezes com cliques repetidos
+✅ 26. Cronômetro da série pausa, retoma e não avança com a pausa
+✅ 27. Biblioteca: busca, filtros e detalhe sem alterar dados
+✅ 27b. Biblioteca: detalhe usa o histórico real, não número inventado
+✅ 28. Biblioteca: adicionar à rotina grava na seção escolhida
+✅ 29. Biblioteca sem rotinas leva o usuário ao lugar certo
+✅ 30. Editor: metadados do exercício personalizado chegam à biblioteca
+✅ 30b. Editor: editar exercício preserva measure, distance, libraryId e instructions após salvar e recarregar
+✅ 30c. Biblioteca no editor: busca rápida e ?exercicio= preservam libraryId e instructions (sugerido e personalizado)
+✅ 31. Execução: corrigir e remover uma série já registrada
+✅ 32. Execução: ajustar o descanso em andamento em passos de 15 s
+✅ 33. Execução: série por distância e resumo com volume real
+✅ 33b. Resposta da sessão: RPE e nota são opcionais e vão para o histórico
+✅ 34. Progresso: resumo, período e calendário de frequência com dados reais
+✅ 35. Progresso: gráficos semana a semana e evolução real por exercício
+✅ 36. Progresso: recordes com critério explícito e sem categoria inventada
+✅ 37. Progresso: comparação de períodos e metas semanais persistentes
+✅ 38. Progresso: busca, status e período no histórico; abrir a tela não grava nada
+✅ 39. Progresso: limite de 200 registros e dados antigos sem totals
+✅ 40. Home: uma única ação principal por estado
+✅ 41. Home: com sessão ativa a ação principal some e só o banner permite retomar
+✅ 42. Home simplificada: hierarquia curta e dados reais
+✅ 42a. Home: metas semanais reutilizam métricas, estados e não gravam ao carregar
+✅ 43. Barra inferior fixa: 5 itens, aria-current, safe-area e não cobre conteúdo
+✅ 44. Links da barra inferior resolvem e perfil/explorar existem
+✅ 45. Perfil: usa o controlador de Configurações e os checkboxes refletem o armazenado
+✅ 46. Perfil e Configurações: abrir a página não grava nada no localStorage
+✅ 47. Som e vibração: a mesma escolha vale em Perfil, Configurações e no fim do descanso
+✅ 48. Perfil: exportar, rejeitar backup inválido, importar e desfazer direto na página
+✅ 49. Perfil: backups com dados das versões 1, 2 e 3 continuam aceitos
+✅ 50. F.url("perfil") e F.url("explorar") resolvem sob /forja/ em todas as páginas
+✅ 51. Navegação ativa: HTML, JavaScript e CSS marcam o mesmo item em todas as páginas
+✅ 52. Preferências: falha ao gravar no Perfil mantém tela e descanso no valor armazenado
+✅ 53. Preferências: mudança feita em outra aba chega ao Perfil, às Configurações e à execução
+✅ 54. Home sem rotina e com rotina vazia nunca exibe botão Iniciar quebrado
+✅ 55. Biblioteca vazia, hub e editor direto abrem criação válida sem #editor-missing
+✅ 56. Editor: criar, salvar sem duplicar, cancelar e voltar sem órfãos nem perda de dados
+✅ 57. Home: rotação previsível entre sessões/reloads, sem depender de updatedAt nem avançar ao abrir
+✅ 58. Exclusão da rotina atualmente selecionada avança de forma consistente e limpa ao esvaziar
+✅ 59. Compatibilidade com dados legados (v1/v2) e backups v1/v2/v3 sem chave de rotação
+✅ 59b. C3: telas de treino e biblioteca sincronizam com outra aba/BFCache sem gravar nada
+✅ 59c. C3: editor não sobrescreve mudança externa na mesma rotina e preserva mudanças em outras
+✅ 59d. C4: nomes duplicados de rotina e de exercício personalizado são bloqueados sem corrigir dados antigos
+✅ 59e. C5: esvaziar, reabastecer e duplicar mantêm rotação persistida igual à próxima exibida
+✅ 59f. C6: backup com exercício personalizado inválido é rejeitado antes de importar; válido e antigo são aceitos
+✅ 59g. C7: modais de rotina validam inline, foco cai no campo certo e alvos de toque têm 44px
+✅ 60. Onboarding: primeiro acesso redireciona antes de inicializar a Home
+✅ 61. Onboarding: nenhuma ação permite dispensar o cadastro obrigatório
+✅ 62. Onboarding: o novo usuário vê a primeira pergunta sem entrada alternativa
+✅ 63. Onboarding: salva só na confirmação e libera o app após sucesso
+✅ 64. Onboarding obrigatório: rotinas/histórico não substituem um perfil
+✅ 65. Perfil: formulário reflete o armazenado, salva e não altera treinos nem histórico
+✅ 66. Perfil: falha de gravação informa o problema e preserva o estado anterior
+✅ 67. Perfil: conteúdo ilegível é preservado e não libera acesso sem conclusão
+✅ 68. Backup: exportação, importação e registry cobrem forja-perfil-v1
+✅ 69. Equipamento 'Sem equipamentos' é opção válida no perfil, onboarding, resumo e backup
+✅ 70. F.state.profile é inicializado em todas as páginas (ausente, inválido e válido)
+✅ 71. Onboarding: o gate continua ativo em navegação direta sem perfil
+✅ 72. Importação de backup atualiza estado em memória e formulário do Perfil
+✅ 73. Home: seletor da ação principal segue único e não oferece onboarding opcional
+✅ 74. Home: sincronização via evento storage (metas, histórico, rotinas, legado v1, sessão ativa e perfil) sem gravar nada
+✅ 75. Home: retorno via pageshow (BFCache) sincroniza F.state e interface sem recarregar no boot nem gravar dados
+✅ 76a. Segurança syncStateFromStorage: chamada sem argumento atualiza todo F.state com zero escrita
+✅ 76b. Segurança syncStateFromStorage: cada chave suportada atualiza apenas a memória sem tocar no storage
+✅ 76c. Segurança syncStateFromStorage: dados legados v1 normalizam só em memória sem migrar nem arquivar no disco
+✅ 76d. Segurança syncStateFromStorage: JSON inválido não arquiva, não remove chaves e limpa apenas F.state em memória
+✅ 76e. Segurança de sincronização: eventos storage e pageshow/BFCache não executam setItem, removeItem nem clear
+✅ 76f. Segurança syncStateFromStorage: preferências ausentes ou inválidas usam padrão em memória sem gravar
+✅ 77a. D-01: importar 250 registros mantém os mais recentes e não perde treino novo
+✅ 77b. D-01/D-05: ordem do histórico não depende da ordem do arquivo
+✅ 77c. D-02: falha na restauração libera o desfazer na mesma tela
+✅ 77d. D-03: preview nomeia as chaves removidas e avisa as duas sensíveis
+✅ 77e. D-04: descanso não anuncia cada segundo e mantém os momentos importantes
+✅ 77f. D-07: abrir o descanso rola até o painel e reserva a barra inferior
+✅ 77g. D-08: o skip link move o foco para o conteúdo
+✅ 77h. D-09: a Biblioteca tem exatamente um h1
+✅ 77i. D-10: missão sem texto é ignorada com aviso, sem dado invisível
+✅ 77j. D-06: "Falta 1 série" no Progresso e na Home
+✅ 77k. D-11: a barra inferior mantém os cinco rótulos legíveis em 320 px
+✅ 78. Treinos lista, filtra e inicia rotinas diretamente, sem escrita de consulta
+✅ 79. Detalhes e catálogo compartilhados preservam campos, ordem e IDs do editor
+✅ 80. Instruções na sessão não escrevem nem reiniciam descanso, pausa ou campos digitados
+✅ 81. Identidade e preparação de fotos nunca usam correspondência por nome
+✅ 82. Fotografias dos cartões: arquivos locais, manifesto íntegro e sem rede
+✅ 83. Explorar usa fotografias locais nos cartões e mantém fallback sem imagem quebrada
+✅ 84. Créditos das fotografias aparecem em Configurações com licença e autoria
+
+==================================================================
+FORJA — 110/110 testes aprovados
+==================================================================
+✅ 1. Primeiro acesso sem perfil abre diretamente a pergunta inicial
+✅ 2. Conclusão de todas as etapas: confirmação, perfil completo e retorno à Home
+✅ 3. Navegação para trás corrige a resposta e a revisão acompanha
+✅ 4. Reabertura: perfil salvo entra no app e onboarding só abre por refazer
+✅ 5. Perfil antigo (v1) sem sexo carrega sem erro, sem personagem e sem regravar
+✅ 6. Normalização: valores ausentes, desconhecidos e fora de faixa não quebram nada
+✅ 7. Edição posterior em Perfil grava o sexo e preserva o restante
+✅ 8. Sexo persiste entre páginas e resolve o personagem só quando reconhecido
+✅ 9. 'Prefiro não informar' não seleciona personagem e o app funciona sem ele
+✅ 10. Backup: exporta, importa e restaura perfil v3 e aceita perfil v1
+✅ 11. Concluir o onboarding preserva rotinas, histórico e sessão ativa
+✅ 12. Layout e acessibilidade: alvos de 44px, 320px, foco visível e movimento reduzido
+✅ 13. Fluxo interrompido retoma no mesmo passo sem gravar perfil
+✅ 14. Falha ao gravar mantém as respostas e avisa, sem perder o rascunho
+✅ 15. Metas: opt-in cria a meta do perfil; desmarcado ou já existente não mexe em nada
+✅ 16. Integração: preferência filtra o hub, sugestão preenche metas e nada é automático
+✅ 17. Gravação preserva campos desconhecidos e não duplica fontes oficiais
+✅ 18. Altura, peso e ano: conversão cm↔pés/pol e kg↔lb, faixas que bloqueiam e ano sem futuro
+✅ 19. Todas as opcionais puladas: fora da revisão, contadas na nota e gravadas como ausência
+✅ 20. Derivações clássicas e refazer: derivados só do que foi tocado, duração e puladas preservam o salvo
+✅ 21. Gate obrigatório: URLs internas bloqueadas, rascunho retomado e perfil existente liberado
+
+============================================================
+ONBOARDING — 21/21 testes aprovados
+============================================================
+✅ Endpoint: valida payload enxuto, esquema, limites e IDs do catálogo
+✅ Plano: fallback local, prévia, persistência, calendário e preservação do histórico
+✅ ATLAS 1. Página carrega escolha de exercício, modelo anterior/posterior e barra inferior
+✅ ATLAS 2. Flexão de braço destaca peitoral, tríceps, ombros e abdômen com papéis explícitos
+✅ ATLAS 3. Um único arquivo de referência, duas vistas alinhadas e máscaras derivadas
+✅ ATLAS 4. Explorar por grupo: filtro por modalidade e mensagem de vazio
+✅ ATLAS 5. Relação entre grupos e exercícios com papéis do catálogo
+✅ ATLAS 6. Grupo sem exercícios mostra mensagem honesta e panturrilha com contorno completo
+✅ ATLAS 7. Legenda leva à biblioteca filtrada e o detalhe mostra a mesma figura
+✅ ATLAS 8. Exercício personalizado sem metadados não é classificado por suposição
+✅ ATLAS 9. Link direto (?exercicio/?grupo/?modalidade) e estado de erro com retentativa
+✅ ATLAS 10. Preserva chaves, rotinas e histórico; não escreve nem limpa storage
+✅ ATLAS 11. CSS responsivo (320–1280), foco visível e figura integrada às três páginas
+✅ ATLAS 13. Seleção de sexo continua igual e não muda a prancha anatômica
+✅ ATLAS 12. Execução de treino preserva sessão, séries e storage ao abrir 'Músculos trabalhados'
+
+==================================================================
+ATLAS — 13/13 testes aprovados
+==================================================================
+✅ 1. Migração dos dados antigos
+✅ 1b. Migração não destrói JSON corrompido
+✅ 1c. Rotinas ausentes são reconstruídas a partir do legado
+✅ 1d. Auditoria: calendário, missões, exercícios e histórico são preservados
+✅ 1e. Conteúdo parcialmente inválido é arquivado, nunca descartado
+✅ 1f. Formato antigo ilegível não é sobrescrito por rotinas vazias
+✅ 1g. Sessão ativa com itens não reconhecidos preserva o original
+✅ 2. Criar, editar, duplicar, renomear, reordenar e excluir rotinas
+✅ 2b. Rotina não é iniciada sem exercícios e alterações não salvas são protegidas
+✅ 3. Calistenia e Musculação têm rotinas e históricos separados
+✅ 4. Execução com descanso, pausa, retomada e avanço automático
+✅ 4b. Pular descanso não prende o usuário e descanso manual funciona
+✅ 5. Recarregar a página durante uma sessão ativa
+✅ 6. Concluir e cancelar sessões sem corromper o histórico
+✅ 7. Exportar e importar backup JSON com validação e segurança
+✅ 7b. Backup inclui sessão ativa e a restaura com segurança
+✅ 7c. Importação de backup antigo sem rotinas gera rotinas padrão
+✅ 8. Calendário e missões antes e depois das alterações
+✅ 9. Base responsiva presente (viewport e media queries)
+✅ 9b. Ação TREINO compacta, destacada e acessível (mobile)
+✅ 10. Integridade: ids referenciados existem e nenhum erro de console
+✅ 11a. Calendário e missões: dias, conclusão, exclusão e persistência
+✅ 11b. Um envio cria exatamente um item (sem listeners duplicados)
+✅ 11c. Missões antigas em formato de texto continuam funcionando
+✅ 12a. IDs únicos inclusive com modal, editor e execução abertos
+✅ 12b. Nenhuma função/ID antiga referenciada e um único boot
+✅ 12c. Regras móveis de calendário/missões seguem presentes em ≤380px
+✅ 13a. Exportar/importar/desfazer preserva todas as chaves exatamente
+✅ 13b. Falha de gravação na importação restaura os dados e informa a chave
+✅ 13c. Falha também no rollback é reportada sem esconder as chaves afetadas
+✅ 13d. Falha ao criar a cópia de segurança aborta sem alterar dados
+✅ 13e. Backup de perfil sem atividade continua exportável
+✅ 14a. Pausar a sessão durante o descanso pendente e recarregar mantém o avanço
+✅ 14b. Pausar apenas o descanso pendente e recarregar mantém o avanço
+✅ 14c. Estado inconsistente não pula séries pendentes
+✅ 14d. Descanso pendente no último exercício conclui a sessão uma única vez
+✅ 15a. Carregar só com missões não grava nenhuma chave de treino
+✅ 15b. Migração é idempotente em três carregamentos consecutivos
+✅ 15c. Sessão antiga com progresso extra migra e preserva o original
+✅ 15d. Rotinas existentes impedem migração duplicada do legado
+
+============================================================
+PARIDADE — 40/40 testes aprovados
+============================================================
+✅ D1. Registro cobre os 37 exercícios com status e candidatos válidos
+✅ D2. Manifesto: hashes, tamanho real, licença e bundle sincronizados
+✅ D3. Confirmações documentadas, sem revisão atribuída ao usuário
+✅ D4. Atribuição visível nas 13 páginas e na tela de créditos
+✅ D5. normalizeDemoId aceita ids curtos e 'none', rejeita lixo
+✅ D6. Resolvedor: exact confirmado, review com selo, none e stale
+✅ D7. Candidatos: ordenação, selos e catálogo manual para personalizado
+✅ D8. Detalhe do catálogo mostra ilustração, créditos e fallback
+✅ D9. Seletor na linha: busca, selo, confirmar, Sem demonstração e remover
+✅ D10. Seletor no formulário: escolha pendente e cancelar não grava
+✅ D11. Sem alternativas válidas: mensagem, fallback mantido e zero escrita
+✅ D12. Exercício personalizado não ganha imagem por nome
+✅ D13. Salvar e reabrir preserva demoId; editar séries não apaga
+✅ D14. Backup antigo importa; backup novo preserva demoId
+✅ D15. demoId malformado é rejeitado no backup e descartado no boot
+✅ D16. Sessão e execução preservam a imagem personalizada
+✅ D17. Abrir páginas e cancelar seletor não gravam nada nem criam chave
+
+==================================================================
+DEMONSTRAÇÕES — 17/17 testes aprovados
+==================================================================
+✅ 1. páginas declaram CSS e script uma vez, só onde há 3D
+✅ 2. sem personagem escolhido: pergunta obrigatória, sem canvas, sem gravação
+✅ 3. escolher personagem grava sexo e preserva o resto do perfil
+✅ 4. trocar de personagem não apaga treino, rotinas nem histórico
+✅ 5. catálogo publicado não aponta para arquivo inexistente
+✅ 6. exercício com clipe próprio resolve exato
+✅ 7. exercício sem clipe cai no grupo muscular como aproximado
+✅ 8. exercício sem classificação cai na pose base
+✅ 9. sem WebGL o painel avisa e não lança exceção
+✅ 10. catálogo incompleto degrada com mensagem
+✅ 11. troca de personagem remonta o painel aberto
+✅ 12. os dois personagens abrem com o mesmo rig de 16 ossos
+✅ 13. todos os clipes publicados casam osso a osso com o rig
+✅ 14. o AnimationMixer movimenta o esqueleto de verdade
+✅ 15. sanidade de pose em todos os clipes publicados
+(node:1600) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✅ 16. a tela de execução mostra o painel 3D do exercício
+✅ 17. a escolha feita no Perfil chega ao painel 3D
+✅ 18. o grafo de módulos funciona sem bundler
+
+18/18 testes de personagens 3D passaram
+mapeamento de ossos — mocap → FORJA
+  ok 1 — o rig do FORJA tem 15 ossos de corpo, sem osso de cabeça e sem exigir `prop`
+  ok 2 — Rokoko (Mocap_Pack_06) mapeia os 15 ossos no nome exato
+  ok 3 — Mixamo (mixamorig:Hips) mapeia os 15 ossos no nome exato
+  ok 4 — iClone sem dois-pontos (mixamorigHips) mapeia os 15 ossos pela normalização
+  ok 5 — iClone/UE5 canônico (pelvis, thigh_l) mapeia os 15 ossos
+  ok 6 — a normalização não confunde braço com antebraço nem coxa com canela
+  ok 7 — todo destino mapeado aponta para um osso que existe na origem
+  ok 8 — rig sem pernas reprova e diz o que falta
+  ok 9 — lista vazia reprova com os 15 ossos faltando
+
+9 testes de mapeamento de ossos, todos verdes.
+✅ 1. manifesto cobre a biblioteca e declara 16:9 / 1280×720 / 30 FPS / #121010
+✅ 2. nenhum exercício pega o clipe abdominal emprestado
+✅ 2b. nenhum clipe é reutilizado entre exercícios
+✅ 3. auditoria: 42 loops fechados + 1 exceção conhecida (caminhada)
+✅ 4. a página tem só título + palco; o vídeo não nasce com controles
+✅ 5. MP4 aprovado: autoplay, mudo, loop, inline e sem controles
+✅ 6. sem MP4: prévia 3D com modelo e clipe EXATOS do exercício
+✅ 7. sem clipe: pendência explícita, sem movimento inventado
+✅ 7b. clipe em revisão não vira demonstração: pendência com motivo
+✅ 7c. clipe já usado por outro exercício: pendência, sem reutilização
+✅ 8. perfil feminino chega ao título e ao modelo
+✅ 9. manifesto indisponível degrada para a biblioteca, sem tela em branco
+✅ 10. gerador atualizado e página de apresentação presente
+
+13/13 testes passaram.
+transferência de mocap — fechada nos quatro vocabulários
+  ok 1 — rig masculino reconstrói a pose do FORJA (vocabulário Rokoko)
+  ok 2 — rig feminino reconstrói a pose do FORJA (vocabulário iClone)
+  ok 3 — rig masculino reconstrói a pose do FORJA (vocabulário Mixamo)
+  ok 4 — rig feminino reconstrói a pose do FORJA (vocabulário UE5)
+  ok 5 — repouso diferente (a45) não muda a pose transferida
+  ok 6 — repouso diferente (virado180) não muda a pose transferida
+  ok 7 — repouso diferente (virado30) não muda a pose transferida
+  ok 8 — repouso diferente (centimetros) não muda a pose transferida
+  ok 9 — a guinada compensa rig virado 180° (o personagem não chega de costas)
+  ok 10 — rig em centímetros: a altura é escalada e o quadril cai na altura do alvo
+  ok 11 — pés nunca abaixo do chão e personagem sempre em pé
+  ok 12 — joelho e cotovelo dobram como na origem (amplitude preservada)
+  ok 13 — modo mundo também fica em pé, mas comprime a flexão do cotovelo (por isso não é o padrão)
+  ok 14 — quadros consecutivos não saltam (continuidade do resultado)
+  ok 15 — descontinuidade distingue salto de movimento rápido
+  ok 16 — iClone real: 15/15 ossos, personagem em pé e no chão
+  ok 17 — fonte com salto na borda é detectada (janela ruim do iClone)
+
+17 testes de transferência 3D, todos verdes.
+(node:1631) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 — rig: as medidas usadas na autoração batem com os ossos
+  ok 2 — IK de dois ossos: alcance e cotovelo no lado do polo
+  ok 3 — altura da ponta do pé: quem está na ponta tem tornozelo mais alto
+  ok 4 — flexão e prancha: a mão não sai do lugar e fica a 3–5 cm do chão
+  ok 5 — flexão e prancha: o pé não sai do lugar
+  ok 6 — mountain climber: um pé fica apoiado, o outro viaja
+  ok 7 — nenhum clipe fura o chão (vértice mais baixo ≥ −1 cm)
+  ok 8 — nenhum clipe flutua (vértice mais baixo encosta em ≤ 1 cm)
+  ok 9 — flexão: cotovelo dobra até ≤ 70° e estica até ≥ 170°
+  ok 10 — flexão: o corpo desce e sobe (quadril varia ≥ 10 cm)
+  ok 11 — flexão e prancha: ombro–quadril–tornozelo na mesma linha (≥ 175°)
+  ok 12 — prancha: cotovelo a 90° e antebraço deitado no chão
+  ok 13 — prancha: postura parada, só o pescoço respira
+  ok 14 — mountain climber: o joelho sobe em direção ao peito (≤ 110°)
+  ok 15 — mountain climber: o joelho avança à frente do quadril
+  ok 16 — mountain climber: a prancha alta é mantida (tronco ≥ 150° e mão fixa)
+  ok 17 — continuidade: nenhum teletransporte de osso entre quadros
+  ok 18 — laço: o último quadro fecha com o primeiro
+  ok 19 — compatibilidade: toda trilha do GLB acha um osso do rig
+  ok 20 — cada clipe passa a assinatura do SEU exercício no analisador do repo
+  ok 21 — determinismo: gerar duas vezes dá o mesmo GLB
+  ok 22 — os candidatos da fase 4 são exatamente o que o gerador produz hoje
+
+22 testes de animação autoral 3D, todos verdes.
+(node:1639) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 — cabeçalho BMP: 54 bytes, top-down, 24bpp, sem compressão
+  ok 2 — padding é relativo ao início de CADA linha (não ao offset absoluto)
+  ok 3 — conversão explícita R,G,B -> B,G,R e ida-e-volta em todos os pixels
+  ok 4 — pixel de referência #121010 e madeira bege preservam a ordem dos canais
+  ok 5 — regressão do deslocamento de 2 bytes: linha 1 começa exatamente em 54+passo
+  ok 6 — dimensões inválidas são rejeitadas
+
+6 testes do conversor BMP, todos verdes.
+  ok 1 — masculino: 3 malhas com os materiais oficiais
+  ok 2 — masculino: UV é finita para TODOS os vértices com o índice corrigido
+  ok 3 — masculino: o índice antigo (k*2) de fato quebrava ~50% da malha
+  ok 4 — feminino: 3 malhas com os materiais oficiais
+  ok 5 — feminino: UV é finita para TODOS os vértices com o índice corrigido
+  ok 6 — feminino: o índice antigo (k*2) de fato quebrava ~50% da malha
+  ok 7 — uvDoVertice rejeita índice fora da malha
+
+7 testes de UV do rasterizador, todos verdes.
+(node:1654) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/addons/loaders/GLTFLoader.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 — masculino: 3 malhas com normal/skinIndex/skinWeight completos
+  ok 2 — masculino: normais deformadas são finitas e unitárias em repouso
+  ok 3 — masculino: o skinning realmente gira as normais
+  ok 4 — masculino: normais continuam válidas no fim do clipe
+  ok 5 — feminino: 3 malhas com normal/skinIndex/skinWeight completos
+  ok 6 — feminino: normais deformadas são finitas e unitárias em repouso
+  ok 7 — feminino: o skinning realmente gira as normais
+  ok 8 — feminino: normais continuam válidas no fim do clipe
+  ok 9 — rasterizador usa as normais por vértice, não uma normal de face
+  ok 10 — iluminação é aplicada por pixel com normal interpolada
+
+10 testes de normais/sombreamento do rasterizador, todos verdes.
+(node:1662) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/forja/assets/vendor/three/three.module.min.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/user/forja/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 — rasterizador limpa a COR e a PROFUNDIDADE a cada quadro
+warning: unsupported syscall: __syscall_getrusage
+
+  ok 2 — quadro 40 não contém rastro nos pontos antes ocupados pelo leque
+warning: unsupported syscall: __syscall_getrusage
+
+  ok 3 — o quadro ARQUIVADO com rastro é reprovado pelos mesmos pontos
+  ok 4 — o personagem continua visível no mesmo quadro (não é um quadro vazio)
+  ok 5 — o fundo é o #121010 oficial
+
+5 testes de limpeza de quadro, todos verdes.
+npm test EXIT=0

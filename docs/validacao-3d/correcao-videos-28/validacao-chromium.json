@@ -1,0 +1,2104 @@
+{
+  "geradoEm": "2026-11-03T06:23:17.785Z",
+  "navegador": "Chromium headless (@sparticuz/chromium, SwiftShader)",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/138.0.7204.0 Safari/537.36",
+  "corBegeDeReferenciaDaTarefa": [
+    170,
+    143,
+    101
+  ],
+  "corDaTexturaOficialPorPersonagem": {
+    "masculino": [
+      167.2,
+      123.8,
+      78.3
+    ],
+    "feminino": [
+      253,
+      219.2,
+      156.8
+    ]
+  },
+  "parametros": {
+    "TOLERANCIA_COR": 70,
+    "TOLERANCIA_CROMATICIDADE": 0.08,
+    "TOLERANCIA_FPS": 2,
+    "LIMIAR_MOVIMENTO": 0.05,
+    "amostra": "canvas 160x90 em 3 instantes da reprodução",
+    "observacao": "brilho absoluto varia com iluminação/gamma/pose; o critério de fidelidade é o matiz (cromaticidade) e r>g>b"
+  },
+  "referenciasWebGL": [
+    {
+      "personagem": "masculino",
+      "arquivo": "docs/validacao-3d/correcao-videos-28/quadros/referencia-webgl-masculino.png",
+      "bytes": 49945,
+      "estado": {
+        "pronto": true,
+        "erro": null,
+        "canvas": true
+      }
+    },
+    {
+      "personagem": "feminino",
+      "arquivo": "docs/validacao-3d/correcao-videos-28/quadros/referencia-webgl-feminino.png",
+      "bytes": 46851,
+      "estado": {
+        "pronto": true,
+        "erro": null,
+        "canvas": true
+      }
+    }
+  ],
+  "videos": [
+    {
+      "exercicioId": "cal-rotacao-ombros",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 35.3,
+      "distanciaCromaticidade": 0.0522,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.4333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.3781,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 69,
+        "quadrosQualidade": {
+          "total": 73,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 28.73,
+        "fpsApresentados": 29.03,
+        "tempoQuadros": [
+          0.1,
+          0.867,
+          1.733
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          175.5,
+          146.9,
+          103.6
+        ],
+        "pixelsPersonagem": 808,
+        "bbox": [
+          70,
+          4,
+          86,
+          81
+        ],
+        "movimento": {
+          "inicioMeio": 1.334,
+          "inicioFim": 1.612
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-rotacao-ombros",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 47.5,
+      "distanciaCromaticidade": 0.0298,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.4333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 0,
+          "readyState": 1,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 70,
+        "quadrosQualidade": {
+          "total": 73,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.15,
+        "fpsApresentados": 28.78,
+        "tempoQuadros": [
+          0.1,
+          0.867,
+          1.733
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          212.1,
+          196,
+          150.1
+        ],
+        "pixelsPersonagem": 810,
+        "bbox": [
+          70,
+          4,
+          86,
+          81
+        ],
+        "movimento": {
+          "inicioMeio": 1.651,
+          "inicioFim": 2.002
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-mobilidade-quadril",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 30.5,
+      "distanciaCromaticidade": 0.0502,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 1.8333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 1.7836,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 51,
+        "quadrosQualidade": {
+          "total": 55,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 28.3,
+        "fpsApresentados": 28.59,
+        "tempoQuadros": [
+          0.067,
+          0.667,
+          1.3
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          172.3,
+          144,
+          100.6
+        ],
+        "pixelsPersonagem": 890,
+        "bbox": [
+          61,
+          4,
+          98,
+          80
+        ],
+        "movimento": {
+          "inicioMeio": 4.247,
+          "inicioFim": 5.348
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-mobilidade-quadril",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 53,
+      "distanciaCromaticidade": 0.0271,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 1.8333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 1.7892,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 52,
+        "quadrosQualidade": {
+          "total": 55,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 28.87,
+        "fpsApresentados": 28.52,
+        "tempoQuadros": [
+          0.067,
+          0.667,
+          1.3
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          208.9,
+          191.9,
+          146.1
+        ],
+        "pixelsPersonagem": 894,
+        "bbox": [
+          61,
+          4,
+          98,
+          80
+        ],
+        "movimento": {
+          "inicioMeio": 6.046,
+          "inicioFim": 7.066
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-flexao",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 39.2,
+      "distanciaCromaticidade": 0.0505,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 6,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 5.9682,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 177,
+        "quadrosQualidade": {
+          "total": 180,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.66,
+        "fpsApresentados": 29.49,
+        "tempoQuadros": [
+          0.2,
+          2.1,
+          4.2
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          179,
+          150.7,
+          104.2
+        ],
+        "pixelsPersonagem": 1360,
+        "bbox": [
+          37,
+          30,
+          135,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 15.439,
+          "inicioFim": 17.14
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-flexao",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 40.6,
+      "distanciaCromaticidade": 0.0275,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 6,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 5.9701,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 178,
+        "quadrosQualidade": {
+          "total": 180,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.83,
+        "fpsApresentados": 29.48,
+        "tempoQuadros": [
+          0.2,
+          2.1,
+          4.2
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          216.8,
+          201.8,
+          151.1
+        ],
+        "pixelsPersonagem": 1561,
+        "bbox": [
+          35,
+          28,
+          140,
+          84
+        ],
+        "movimento": {
+          "inicioMeio": 23.831,
+          "inicioFim": 26.612
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-agachamento",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 24.5,
+      "distanciaCromaticidade": 0.0475,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 3.2,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 3.151,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 92,
+        "quadrosQualidade": {
+          "total": 96,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.04,
+        "fpsApresentados": 29.2,
+        "tempoQuadros": [
+          0.1,
+          1.133,
+          2.267
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          167.8,
+          140.4,
+          96.3
+        ],
+        "pixelsPersonagem": 781,
+        "bbox": [
+          70,
+          4,
+          94,
+          75
+        ],
+        "movimento": {
+          "inicioMeio": 5.85,
+          "inicioFim": 5.538
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-agachamento",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 56.2,
+      "distanciaCromaticidade": 0.0248,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 3.2,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 3.1546,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 92,
+        "quadrosQualidade": {
+          "total": 96,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.04,
+        "fpsApresentados": 29.17,
+        "tempoQuadros": [
+          0.1,
+          1.133,
+          2.267
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          207,
+          190,
+          143.1
+        ],
+        "pixelsPersonagem": 767,
+        "bbox": [
+          70,
+          4,
+          94,
+          75
+        ],
+        "movimento": {
+          "inicioMeio": 6.972,
+          "inicioFim": 6.727
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-ponte",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 41.5,
+      "distanciaCromaticidade": 0.0495,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 4.1333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 4.1075,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 122,
+        "quadrosQualidade": {
+          "total": 124,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.75,
+        "fpsApresentados": 29.19,
+        "tempoQuadros": [
+          0.133,
+          1.467,
+          2.9
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          181.2,
+          152.4,
+          104.9
+        ],
+        "pixelsPersonagem": 2542,
+        "bbox": [
+          38,
+          24,
+          133,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 26.304,
+          "inicioFim": 26.209
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-ponte",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 39.1,
+      "distanciaCromaticidade": 0.0284,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 4.1333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 4.0987,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 121,
+        "quadrosQualidade": {
+          "total": 124,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.51,
+        "fpsApresentados": 29.27,
+        "tempoQuadros": [
+          0.133,
+          1.467,
+          2.9
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          217.8,
+          202.8,
+          152.5
+        ],
+        "pixelsPersonagem": 2453,
+        "bbox": [
+          38,
+          24,
+          133,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 35.337,
+          "inicioFim": 35.264
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-prancha-frontal",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 43.3,
+      "distanciaCromaticidade": 0.0506,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 6,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 5.9519,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 177,
+        "quadrosQualidade": {
+          "total": 180,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.66,
+        "fpsApresentados": 29.57,
+        "tempoQuadros": [
+          0.2,
+          2.1,
+          4.2
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          182.2,
+          153.4,
+          106.1
+        ],
+        "pixelsPersonagem": 1697,
+        "bbox": [
+          33,
+          35,
+          145,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 0.18,
+          "inicioFim": 0.074
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-prancha-frontal",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 37.8,
+      "distanciaCromaticidade": 0.0278,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 6,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 5.9496,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 177,
+        "quadrosQualidade": {
+          "total": 180,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.66,
+        "fpsApresentados": 29.58,
+        "tempoQuadros": [
+          0.2,
+          2.1,
+          4.2
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          218.7,
+          203.8,
+          152.6
+        ],
+        "pixelsPersonagem": 1997,
+        "bbox": [
+          30,
+          34,
+          151,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 0.302,
+          "inicioFim": 0.074
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-abdominal-supra",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 45.1,
+      "distanciaCromaticidade": 0.05,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 3,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 0,
+          "readyState": 1,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 87,
+        "quadrosQualidade": {
+          "total": 90,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.32,
+        "fpsApresentados": 28.93,
+        "tempoQuadros": [
+          0.1,
+          1.067,
+          2.1
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          183.7,
+          155,
+          106.4
+        ],
+        "pixelsPersonagem": 2225,
+        "bbox": [
+          33,
+          35,
+          149,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 11.486,
+          "inicioFim": 11.484
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-abdominal-supra",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 37,
+      "distanciaCromaticidade": 0.0285,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 3,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.9561,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 86,
+        "quadrosQualidade": {
+          "total": 90,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 28.98,
+        "fpsApresentados": 29.1,
+        "tempoQuadros": [
+          0.1,
+          1.067,
+          2.1
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          219.1,
+          204.8,
+          153.2
+        ],
+        "pixelsPersonagem": 2173,
+        "bbox": [
+          33,
+          35,
+          149,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 13.855,
+          "inicioFim": 13.812
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-elevacao-pernas",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 44.6,
+      "distanciaCromaticidade": 0.0502,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.7,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.6592,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 79,
+        "quadrosQualidade": {
+          "total": 81,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.62,
+        "fpsApresentados": 28.95,
+        "tempoQuadros": [
+          0.1,
+          0.967,
+          1.9
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          183.3,
+          154.6,
+          106.3
+        ],
+        "pixelsPersonagem": 1417,
+        "bbox": [
+          39,
+          45,
+          134,
+          84
+        ],
+        "movimento": {
+          "inicioMeio": 5.406,
+          "inicioFim": 5.607
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-elevacao-pernas",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 36.1,
+      "distanciaCromaticidade": 0.0298,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.7,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.6512,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 79,
+        "quadrosQualidade": {
+          "total": 81,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.62,
+        "fpsApresentados": 29.05,
+        "tempoQuadros": [
+          0.1,
+          0.967,
+          1.9
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          219.6,
+          205.7,
+          154.5
+        ],
+        "pixelsPersonagem": 1380,
+        "bbox": [
+          39,
+          44,
+          134,
+          84
+        ],
+        "movimento": {
+          "inicioMeio": 7.648,
+          "inicioFim": 7.999
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-mountain-climber",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 38.7,
+      "distanciaCromaticidade": 0.0514,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 4.5,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 0,
+          "readyState": 1,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 131,
+        "quadrosQualidade": {
+          "total": 135,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.32,
+        "fpsApresentados": 29.29,
+        "tempoQuadros": [
+          0.167,
+          1.6,
+          3.167
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          178.3,
+          150.2,
+          104.3
+        ],
+        "pixelsPersonagem": 1446,
+        "bbox": [
+          43,
+          31,
+          131,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 3.556,
+          "inicioFim": 0.134
+        }
+      }
+    },
+    {
+      "exercicioId": "cal-mountain-climber",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 40.1,
+      "distanciaCromaticidade": 0.0304,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 4.5,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 4.4678,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 132,
+        "quadrosQualidade": {
+          "total": 135,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.55,
+        "fpsApresentados": 29.32,
+        "tempoQuadros": [
+          0.167,
+          1.6,
+          3.167
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          216.7,
+          202.5,
+          153.2
+        ],
+        "pixelsPersonagem": 1624,
+        "bbox": [
+          39,
+          32,
+          132,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 5.661,
+          "inicioFim": 0.142
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-mobilidade-ombro",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 39.6,
+      "distanciaCromaticidade": 0.0525,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 1.8,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 1.7655,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 51,
+        "quadrosQualidade": {
+          "total": 54,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 28.85,
+        "fpsApresentados": 28.3,
+        "tempoQuadros": [
+          0.067,
+          0.633,
+          1.267
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          179,
+          149.7,
+          105.9
+        ],
+        "pixelsPersonagem": 796,
+        "bbox": [
+          51,
+          4,
+          98,
+          81
+        ],
+        "movimento": {
+          "inicioMeio": 2.497,
+          "inicioFim": 2.316
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-mobilidade-ombro",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 43.1,
+      "distanciaCromaticidade": 0.0319,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 1.8,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 1.7501,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 50,
+        "quadrosQualidade": {
+          "total": 54,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 28.27,
+        "fpsApresentados": 28.59,
+        "tempoQuadros": [
+          0.067,
+          0.633,
+          1.267
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          215,
+          199.2,
+          153.7
+        ],
+        "pixelsPersonagem": 778,
+        "bbox": [
+          50,
+          4,
+          98,
+          81
+        ],
+        "movimento": {
+          "inicioMeio": 2.61,
+          "inicioFim": 2.534
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-rosca-direta",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 35.9,
+      "distanciaCromaticidade": 0.0523,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.3333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.3031,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 67,
+        "quadrosQualidade": {
+          "total": 70,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.12,
+        "fpsApresentados": 28.65,
+        "tempoQuadros": [
+          0.1,
+          0.833,
+          1.667
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          176,
+          147.2,
+          104
+        ],
+        "pixelsPersonagem": 773,
+        "bbox": [
+          65,
+          4,
+          82,
+          79
+        ],
+        "movimento": {
+          "inicioMeio": 1.088,
+          "inicioFim": 1.166
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-rosca-direta",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 48.7,
+      "distanciaCromaticidade": 0.0296,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.3333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 0,
+          "readyState": 1,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 67,
+        "quadrosQualidade": {
+          "total": 70,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.12,
+        "fpsApresentados": 28.65,
+        "tempoQuadros": [
+          0.1,
+          0.833,
+          1.667
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          211.3,
+          195.1,
+          149.4
+        ],
+        "pixelsPersonagem": 759,
+        "bbox": [
+          66,
+          4,
+          82,
+          79
+        ],
+        "movimento": {
+          "inicioMeio": 1.252,
+          "inicioFim": 1.359
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-triceps-polia",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 33.8,
+      "distanciaCromaticidade": 0.0506,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 1.8333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 1.7783,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 53,
+        "quadrosQualidade": {
+          "total": 55,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.43,
+        "fpsApresentados": 28.7,
+        "tempoQuadros": [
+          0.067,
+          0.667,
+          1.3
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          174.8,
+          146.6,
+          102.1
+        ],
+        "pixelsPersonagem": 960,
+        "bbox": [
+          68,
+          5,
+          103,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 1.266,
+          "inicioFim": 1.1
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-triceps-polia",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 46.3,
+      "distanciaCromaticidade": 0.029,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 1.8333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 1.7801,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 52,
+        "quadrosQualidade": {
+          "total": 55,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 28.87,
+        "fpsApresentados": 28.62,
+        "tempoQuadros": [
+          0.067,
+          0.667,
+          1.3
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          212.8,
+          197.3,
+          149.8
+        ],
+        "pixelsPersonagem": 965,
+        "bbox": [
+          68,
+          5,
+          103,
+          85
+        ],
+        "movimento": {
+          "inicioMeio": 1.466,
+          "inicioFim": 1.317
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-flexora",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 34.4,
+      "distanciaCromaticidade": 0.0502,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.1333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.1005,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 62,
+        "quadrosQualidade": {
+          "total": 64,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.52,
+        "fpsApresentados": 28.56,
+        "tempoQuadros": [
+          0.067,
+          0.767,
+          1.5
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          175.5,
+          147,
+          102.3
+        ],
+        "pixelsPersonagem": 769,
+        "bbox": [
+          55,
+          4,
+          89,
+          78
+        ],
+        "movimento": {
+          "inicioMeio": 0.937,
+          "inicioFim": 0.907
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-flexora",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 49.8,
+      "distanciaCromaticidade": 0.0269,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.1333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.1003,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 61,
+        "quadrosQualidade": {
+          "total": 64,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.03,
+        "fpsApresentados": 28.56,
+        "tempoQuadros": [
+          0.067,
+          0.767,
+          1.5
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          210.9,
+          194.4,
+          147.2
+        ],
+        "pixelsPersonagem": 768,
+        "bbox": [
+          55,
+          4,
+          87,
+          78
+        ],
+        "movimento": {
+          "inicioMeio": 1.44,
+          "inicioFim": 1.425
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-elevacao-lateral",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCorOficial": 35.3,
+      "distanciaCromaticidade": 0.0522,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.6333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.5832,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 77,
+        "quadrosQualidade": {
+          "total": 79,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.61,
+        "fpsApresentados": 29.03,
+        "tempoQuadros": [
+          0.1,
+          0.933,
+          1.867
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          175.5,
+          146.9,
+          103.6
+        ],
+        "pixelsPersonagem": 805,
+        "bbox": [
+          70,
+          4,
+          86,
+          81
+        ],
+        "movimento": {
+          "inicioMeio": 2.722,
+          "inicioFim": 2.691
+        }
+      }
+    },
+    {
+      "exercicioId": "mus-elevacao-lateral",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+      "fpsDeclaradoNoArquivo": 30,
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCorOficial": 45.6,
+      "distanciaCromaticidade": 0.03,
+      "checagens": {
+        "resolucao": true,
+        "codec": true,
+        "reproducao": true,
+        "fpsArquivo": true,
+        "fps": true,
+        "movimento": true,
+        "enquadramento": true,
+        "corAbsoluta": true,
+        "cromaticidadeDaMadeira": true,
+        "matizBege": true
+      },
+      "medido": {
+        "largura": 1280,
+        "altura": 720,
+        "duracao": 2.6333,
+        "canPlayH264": "probably",
+        "reproducao": {
+          "pausado": false,
+          "tempoAtual": 2.5938,
+          "readyState": 4,
+          "erro": null,
+          "loop": true,
+          "mudo": true,
+          "inline": true
+        },
+        "quadrosApresentados": 76,
+        "quadrosQualidade": {
+          "total": 79,
+          "perdidos": 0
+        },
+        "fpsEfetivo": 29.22,
+        "fpsApresentados": 28.88,
+        "tempoQuadros": [
+          0.1,
+          0.933,
+          1.867
+        ],
+        "fundoMedido": [
+          16,
+          17,
+          14
+        ],
+        "corPersonagem": [
+          213.4,
+          197.3,
+          151.2
+        ],
+        "pixelsPersonagem": 798,
+        "bbox": [
+          70,
+          4,
+          86,
+          81
+        ],
+        "movimento": {
+          "inicioMeio": 2.937,
+          "inicioFim": 2.985
+        }
+      }
+    }
+  ],
+  "problemas": [],
+  "resultado": {
+    "analisados": 28,
+    "aprovados": 28,
+    "totalProblemas": 0
+  }
+}
