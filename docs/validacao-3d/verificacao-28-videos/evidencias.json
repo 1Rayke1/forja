@@ -1,0 +1,4478 @@
+{
+  "geradoEm": "2026-11-03T02:23:27.472Z",
+  "ferramenta": "tools/verificar-videos-exercicios.mjs",
+  "branch": "arena/4cf65613-forja",
+  "commit": "41a00c8c4be053248c97fc0b15d2dac15d3d2d8a",
+  "node": "v22.22.3",
+  "manifesto": {
+    "arquivo": "assets/3d/apresentacao-exercicios.json",
+    "resumo": {
+      "totalExercicios": 37,
+      "comClipe3d": 14,
+      "comClipeEmRevisao": 15,
+      "semClipe3d": 23,
+      "comVideoPronto": 14,
+      "emPrevia3d": 0,
+      "pendentesDeAnimacao": 23,
+      "pendentesSemClipe": 8,
+      "pendentesComClipeEmRevisao": 15,
+      "totalClipesAuditados": 43,
+      "clipesComLoopFechado": 42,
+      "clipesComAtencaoDeLoop": 1,
+      "clipesComFalhaDeLoop": 0,
+      "clipesSemExercicio": 11
+    },
+    "exerciciosEmModoVideo": 14
+  },
+  "referenciaTexturaOficial": {
+    "arquivo": "assets/3d/personagens/masculino.glb",
+    "imagem": "madeira-masculino",
+    "rgb": [
+      167.2,
+      123.8,
+      78.3
+    ]
+  },
+  "parametros": {
+    "W": 1280,
+    "H": 720,
+    "TOLERANCIA_FUNDO": 8,
+    "TOLERANCIA_COR": 60,
+    "decodificador": "@ffmpeg/core (ffmpeg.wasm)"
+  },
+  "inventario": {
+    "mp4NoDisco": 28,
+    "referenciasNoManifesto": 28,
+    "orfaos": []
+  },
+  "reproducibilidade": {
+    "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+    "comando": "node tools/renderizar-videos-3d.mjs --personagem masculino --clipe agachamento --saida <tmp> --salvar-quadros <tmp>",
+    "sha256Regerado": "4de557956ec7b6e3c986a31ada5369d72b5d6a41c2aeccbc406e26145fba6699",
+    "sha256Publicado": "4de557956ec7b6e3c986a31ada5369d72b5d6a41c2aeccbc406e26145fba6699",
+    "identico": true,
+    "bytes": 342711,
+    "quadroDeReferencia": "docs/validacao-3d/verificacao-28-videos/quadros/rasterizador-antes-do-encoder.png",
+    "ultimaLinha": "OK: ../../../tmp/forja-reproducibilidade-3504.mp4 {\"bytes\":342711,\"largura\":1280,\"altura\":720,\"fps\":30,\"duracaoS\":3.2,\"codec\":\"avc1\",\"proporcao\":1.7778,\"renderMs\":5944,\"encodeMs\":1023}"
+  },
+  "quadrosSalvos": [
+    {
+      "arquivo": "docs/validacao-3d/verificacao-28-videos/quadros/primeiro-quadro-masculino.png",
+      "origem": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+      "bytes": 22784
+    },
+    {
+      "arquivo": "docs/validacao-3d/verificacao-28-videos/quadros/primeiro-quadro-feminino.png",
+      "origem": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+      "bytes": 24799
+    }
+  ],
+  "videos": [
+    {
+      "exercicioId": "cal-rotacao-ombros",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+        "bytes": 161483,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.4333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 73,
+          "obtido": 73
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 161483,
+      "sha256": "bc2ba5ce149eaa36d255a00613b5568b46629eff2ca45a29aa540813fe5de8b9",
+      "git": {
+        "hashLocal": "2edcda8f26073c92d33462083fa52dd93b64c848",
+        "blobCommitado": "2edcda8f26073c92d33462083fa52dd93b64c848",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+        "bytes": 161483,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.4333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 73,
+        "duracaoS": 2.4333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          108.7,
+          179.4,
+          148.6
+        ],
+        "distanciaAteTexturaOficial": 107,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 0.817,
+          "diferencaPrimeiroSegundo": 0.016,
+          "diferencaPrimeiroMeio": 0.436
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-rotacao-ombros",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+        "bytes": 177171,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.4333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 73,
+          "obtido": 73
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 177171,
+      "sha256": "7ff8fa60435a52b4308244adfcc763c192115f7d8298d08f675692829fd99faf",
+      "git": {
+        "hashLocal": "8ded1cbc9be373c5fe604ee5db6728fc7c564bb6",
+        "blobCommitado": "8ded1cbc9be373c5fe604ee5db6728fc7c564bb6",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+        "bytes": 177171,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.4333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 73,
+        "duracaoS": 2.4333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          153.3,
+          215.2,
+          197.3
+        ],
+        "distanciaAteTexturaOficial": 150.7,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.048,
+          "diferencaPrimeiroSegundo": 0.02,
+          "diferencaPrimeiroMeio": 0.519
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-mobilidade-quadril",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+        "bytes": 306749,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 55,
+          "obtido": 55
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 306749,
+      "sha256": "4db6e1a8f4b447ab2474c4258cf531750130cc1eb9c37db0a9e79c8c07096663",
+      "git": {
+        "hashLocal": "9efe9236872fc5c72b4fb471ff4654b43bec53e1",
+        "blobCommitado": "9efe9236872fc5c72b4fb471ff4654b43bec53e1",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+        "bytes": 306749,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 55,
+        "duracaoS": 1.8333,
+        "fpsEmpirico": 30.001,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          102.2,
+          171.6,
+          142.2
+        ],
+        "distanciaAteTexturaOficial": 102.9,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 2.88,
+          "diferencaPrimeiroSegundo": 0.036,
+          "diferencaPrimeiroMeio": 3.37
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-mobilidade-quadril",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+        "bytes": 339129,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 55,
+          "obtido": 55
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 339129,
+      "sha256": "06eb2d0736ad682e4f378ef4a2e32cc6ba9d3e183f7bb69477fa00ce2da26de1",
+      "git": {
+        "hashLocal": "da1e7c671158af5aeeb31eaf8cc5b295db9aa7ef",
+        "blobCommitado": "da1e7c671158af5aeeb31eaf8cc5b295db9aa7ef",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+        "bytes": 339129,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 55,
+        "duracaoS": 1.8333,
+        "fpsEmpirico": 30.001,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          149.2,
+          211.3,
+          193.3
+        ],
+        "distanciaAteTexturaOficial": 145.6,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 3.978,
+          "diferencaPrimeiroSegundo": 0.059,
+          "diferencaPrimeiroMeio": 4.417
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-flexao",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+        "bytes": 775325,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-flexao-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 180,
+          "obtido": 180
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 775325,
+      "sha256": "04418f6dc6a02a8cd525424e0b456303608e567a541bc3ecddeaf83e50a6c808",
+      "git": {
+        "hashLocal": "e704c7c8da91a8f07a9d62e9284de2bf7292e5a8",
+        "blobCommitado": "e704c7c8da91a8f07a9d62e9284de2bf7292e5a8",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+        "bytes": 775325,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 180,
+        "duracaoS": 6,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          105.6,
+          179.4,
+          150.1
+        ],
+        "distanciaAteTexturaOficial": 109.7,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 6.233,
+          "diferencaPrimeiroSegundo": 0.096,
+          "diferencaPrimeiroMeio": 6.232
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-flexao",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+        "bytes": 986019,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-flexao-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 180,
+          "obtido": 180
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 986019,
+      "sha256": "ecea52ad6cb984237f0ede61100c6c181d9e299c47becc39f5c51b795556d60f",
+      "git": {
+        "hashLocal": "1c780f60620e7b1500c3a6c68a9379305203243f",
+        "blobCommitado": "1c780f60620e7b1500c3a6c68a9379305203243f",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+        "bytes": 986019,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 180,
+        "duracaoS": 6,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          150.8,
+          217.4,
+          200.8
+        ],
+        "distanciaAteTexturaOficial": 155,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 10.245,
+          "diferencaPrimeiroSegundo": 0.14,
+          "diferencaPrimeiroMeio": 10.211
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-agachamento",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+        "bytes": 342711,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3.2,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-agachamento-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 96,
+          "obtido": 96
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 342711,
+      "sha256": "4de557956ec7b6e3c986a31ada5369d72b5d6a41c2aeccbc406e26145fba6699",
+      "git": {
+        "hashLocal": "fbf2aa4427c39bdbb9ad8bfaa92cc5e68084d545",
+        "blobCommitado": "fbf2aa4427c39bdbb9ad8bfaa92cc5e68084d545",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+        "bytes": 342711,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3.2,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 96,
+        "duracaoS": 3.2,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          98,
+          167.5,
+          139.4
+        ],
+        "distanciaAteTexturaOficial": 102.1,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.801,
+          "diferencaPrimeiroSegundo": 0.007,
+          "diferencaPrimeiroMeio": 3.943
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-agachamento",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+        "bytes": 386716,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3.2,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-agachamento-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 96,
+          "obtido": 96
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 386716,
+      "sha256": "e7dc553dd34bfb530991b8ecc3d68923d064faa7f39ff412fe3672e74cc8be0f",
+      "git": {
+        "hashLocal": "8e0a8556df08960860673e193409823a7170c739",
+        "blobCommitado": "8e0a8556df08960860673e193409823a7170c739",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+        "bytes": 386716,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3.2,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 96,
+        "duracaoS": 3.2,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          146.1,
+          209.8,
+          191.6
+        ],
+        "distanciaAteTexturaOficial": 143.8,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 2.305,
+          "diferencaPrimeiroSegundo": 0.004,
+          "diferencaPrimeiroMeio": 4.945
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-ponte",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+        "bytes": 509001,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-ponte-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 124,
+          "obtido": 124
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 509001,
+      "sha256": "9ebc6e4f608b64ca49c3606c25835d8879219d662d167465a9a5e8ced36bf6ef",
+      "git": {
+        "hashLocal": "1082615fb543dbaad9eb04b326240e508d81b971",
+        "blobCommitado": "1082615fb543dbaad9eb04b326240e508d81b971",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+        "bytes": 509001,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 124,
+        "duracaoS": 4.1333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          115.4,
+          192.7,
+          161.7
+        ],
+        "distanciaAteTexturaOficial": 119.9,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 11.36,
+          "diferencaPrimeiroSegundo": 0.017,
+          "diferencaPrimeiroMeio": 12.727
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-ponte",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+        "bytes": 576658,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-ponte-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 124,
+          "obtido": 124
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 576658,
+      "sha256": "39124bc39a76c9c3b3fa97fff34d51c62fef80bbde4702ed6ead845a32c1e64e",
+      "git": {
+        "hashLocal": "c1f4bca1dcff1fb070c8da9c7902cf2a1630b5a2",
+        "blobCommitado": "c1f4bca1dcff1fb070c8da9c7902cf2a1630b5a2",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+        "bytes": 576658,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 124,
+        "duracaoS": 4.1333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          161.1,
+          225.4,
+          211.1
+        ],
+        "distanciaAteTexturaOficial": 167.3,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 15.336,
+          "diferencaPrimeiroSegundo": 0.014,
+          "diferencaPrimeiroMeio": 15.856
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-prancha-frontal",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+        "bytes": 111715,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 180,
+          "obtido": 180
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 111715,
+      "sha256": "9ba31146dfda7a470604bc007364b390d2e0cf6f3b855aceb7365af9f1374cf9",
+      "git": {
+        "hashLocal": "a9f23dae139f831f7b375322b76b6ec696fa123f",
+        "blobCommitado": "a9f23dae139f831f7b375322b76b6ec696fa123f",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+        "bytes": 111715,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 180,
+        "duracaoS": 6,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          108,
+          183.6,
+          153.8
+        ],
+        "distanciaAteTexturaOficial": 113.1,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 0.154,
+          "diferencaPrimeiroSegundo": 0.008,
+          "diferencaPrimeiroMeio": 0.149
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-prancha-frontal",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+        "bytes": 138791,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 180,
+          "obtido": 180
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 138791,
+      "sha256": "c0917f3b74702204deddaaed87568a85cf2dccbc6f54a7ab084441ba4d9e1a8a",
+      "git": {
+        "hashLocal": "cd9b1efc2a077780757c5b6e8bace0ca08f954fa",
+        "blobCommitado": "cd9b1efc2a077780757c5b6e8bace0ca08f954fa",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+        "bytes": 138791,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 180,
+        "duracaoS": 6,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          153.6,
+          220.7,
+          204.4
+        ],
+        "distanciaAteTexturaOficial": 159.6,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 0.207,
+          "diferencaPrimeiroSegundo": 0.008,
+          "diferencaPrimeiroMeio": 0.207
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-abdominal-supra",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+        "bytes": 452301,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 90,
+          "obtido": 90
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 452301,
+      "sha256": "a34cddf9cf9179528736b98740b99a567a6ee0ea0417cb63f46fc887695488fa",
+      "git": {
+        "hashLocal": "c42c0149a7c11607d406effef9ac113735c8c7d4",
+        "blobCommitado": "c42c0149a7c11607d406effef9ac113735c8c7d4",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+        "bytes": 452301,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 90,
+        "duracaoS": 3,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          116.7,
+          194.5,
+          163.2
+        ],
+        "distanciaAteTexturaOficial": 121.5,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 12.988,
+          "diferencaPrimeiroSegundo": 0.014,
+          "diferencaPrimeiroMeio": 10.152
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-abdominal-supra",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+        "bytes": 510582,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 90,
+          "obtido": 90
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 510582,
+      "sha256": "3ca53716ddb25c51936ffa49e12e6121a845842c0011feaca20a2930517bc1f6",
+      "git": {
+        "hashLocal": "3e9dfadd2d5b74d31806a342bb63fcedd0db2332",
+        "blobCommitado": "3e9dfadd2d5b74d31806a342bb63fcedd0db2332",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+        "bytes": 510582,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 90,
+        "duracaoS": 3,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          163.4,
+          226.8,
+          213.1
+        ],
+        "distanciaAteTexturaOficial": 169.7,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 16.501,
+          "diferencaPrimeiroSegundo": 0.015,
+          "diferencaPrimeiroMeio": 12.341
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-elevacao-pernas",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+        "bytes": 67501,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.7,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 81,
+          "obtido": 81
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 67501,
+      "sha256": "e1c72669a431cdcc8c41e27673195900b2bfab180ab9335a0d93bd5b428fb5be",
+      "git": {
+        "hashLocal": "af5dccb67e2074bb110c631e581818ccd4a045bf",
+        "blobCommitado": "af5dccb67e2074bb110c631e581818ccd4a045bf",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+        "bytes": 67501,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.7,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 81,
+        "duracaoS": 2.7,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          118.2,
+          196,
+          164.5
+        ],
+        "distanciaAteTexturaOficial": 122.7,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.186,
+          "diferencaPrimeiroSegundo": 0.001,
+          "diferencaPrimeiroMeio": 1.702
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-elevacao-pernas",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+        "bytes": 66750,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.7,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 81,
+          "obtido": 81
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 66750,
+      "sha256": "8047e8b0f905866ee5d42202512c85b8f6dea9ea2022bf3fb5b564800bde5730",
+      "git": {
+        "hashLocal": "21c3ffedac7539276230a4b5cb50aed126839d7e",
+        "blobCommitado": "21c3ffedac7539276230a4b5cb50aed126839d7e",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+        "bytes": 66750,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.7,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 81,
+        "duracaoS": 2.7,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          165.2,
+          227.5,
+          214.5
+        ],
+        "distanciaAteTexturaOficial": 171.2,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.179,
+          "diferencaPrimeiroSegundo": 0.003,
+          "diferencaPrimeiroMeio": 1.818
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-mountain-climber",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+        "bytes": 126355,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.5,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-mountain-climber-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 135,
+          "obtido": 135
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 126355,
+      "sha256": "2c6e42c819ebd14b39e68e7c2b7f2b5d163cd07b50efb2379f139716cfc8e6e5",
+      "git": {
+        "hashLocal": "167ee61659bef2c4a92bdcdd2ae9770f2893db96",
+        "blobCommitado": "167ee61659bef2c4a92bdcdd2ae9770f2893db96",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+        "bytes": 126355,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.5,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 135,
+        "duracaoS": 4.5,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          105.8,
+          180,
+          150.6
+        ],
+        "distanciaAteTexturaOficial": 110.3,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.511,
+          "diferencaPrimeiroSegundo": 0.099,
+          "diferencaPrimeiroMeio": 1.493
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "cal-mountain-climber",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+        "bytes": 148060,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.5,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "cal-mountain-climber-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 135,
+          "obtido": 135
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 148060,
+      "sha256": "72caca468a59ecc3a405eab1f993601197cfa472fc80c18d286e6d87f44faa0e",
+      "git": {
+        "hashLocal": "916a1bbb0b10cce3be02700ccb5b4336156b7449",
+        "blobCommitado": "916a1bbb0b10cce3be02700ccb5b4336156b7449",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+        "bytes": 148060,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.5,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 135,
+        "duracaoS": 4.5,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          152,
+          218.3,
+          201.8
+        ],
+        "distanciaAteTexturaOficial": 156.2,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.801,
+          "diferencaPrimeiroSegundo": 0.112,
+          "diferencaPrimeiroMeio": 1.685
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-mobilidade-ombro",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+        "bytes": 92377,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 54,
+          "obtido": 54
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 92377,
+      "sha256": "4e7099b56ae072915ae89aba13e8e3e1bb7900a34bccd393f1b3d36b4a7143aa",
+      "git": {
+        "hashLocal": "50ccfb13ed9f3a15bcd9868833734e70e27cc47d",
+        "blobCommitado": "50ccfb13ed9f3a15bcd9868833734e70e27cc47d",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+        "bytes": 92377,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 54,
+        "duracaoS": 1.8,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          110.6,
+          182.2,
+          151.3
+        ],
+        "distanciaAteTexturaOficial": 109.3,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 0.976,
+          "diferencaPrimeiroSegundo": 0.005,
+          "diferencaPrimeiroMeio": 1.309
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-mobilidade-ombro",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+        "bytes": 94503,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 54,
+          "obtido": 54
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 94503,
+      "sha256": "eaa9ad3bb762ce7896ee42e5386b430ba0dea267d94c91069cf58feec1a0f8a9",
+      "git": {
+        "hashLocal": "55804066ac2cad2c5d56d2a47e2620d2006b2e66",
+        "blobCommitado": "55804066ac2cad2c5d56d2a47e2620d2006b2e66",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+        "bytes": 94503,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 54,
+        "duracaoS": 1.8,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          157.3,
+          218.5,
+          201.8
+        ],
+        "distanciaAteTexturaOficial": 155.9,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.232,
+          "diferencaPrimeiroSegundo": 0.005,
+          "diferencaPrimeiroMeio": 1.572
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-rosca-direta",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+        "bytes": 161001,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.3333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-rosca-direta-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 70,
+          "obtido": 70
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 161001,
+      "sha256": "169617fed620a9a682933781b645b1d98ca9cce7a821aa4dce4474aff5890108",
+      "git": {
+        "hashLocal": "160873147142c823cbd66e9c4aab5db042d7836d",
+        "blobCommitado": "160873147142c823cbd66e9c4aab5db042d7836d",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+        "bytes": 161001,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.3333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 70,
+        "duracaoS": 2.3333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          109,
+          180.1,
+          149.1
+        ],
+        "distanciaAteTexturaOficial": 107.6,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 3.026,
+          "diferencaPrimeiroSegundo": 0.009,
+          "diferencaPrimeiroMeio": 2.646
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-rosca-direta",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+        "bytes": 178018,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.3333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-rosca-direta-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 70,
+          "obtido": 70
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 178018,
+      "sha256": "c7516e3fa45e10bea54ace8166601c50df17074a8dabfae1b03c22ad4dea6f06",
+      "git": {
+        "hashLocal": "6e77745747d0241b8042030fd87a24bab6991ac6",
+        "blobCommitado": "6e77745747d0241b8042030fd87a24bab6991ac6",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+        "bytes": 178018,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.3333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 70,
+        "duracaoS": 2.3333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          154.3,
+          215.4,
+          197.7
+        ],
+        "distanciaAteTexturaOficial": 151,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 3.625,
+          "diferencaPrimeiroSegundo": 0.007,
+          "diferencaPrimeiroMeio": 3.254
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-triceps-polia",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+        "bytes": 67598,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-triceps-polia-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 55,
+          "obtido": 55
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 67598,
+      "sha256": "99f32808d3d4141cc85cd983606b7bce8a6a66cf2c9fff72f593ee2fd452e2ac",
+      "git": {
+        "hashLocal": "e714543e901958dddb72fb83422ccce3022774f2",
+        "blobCommitado": "e714543e901958dddb72fb83422ccce3022774f2",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+        "bytes": 67598,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 55,
+        "duracaoS": 1.8333,
+        "fpsEmpirico": 30.001,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          102.7,
+          173,
+          143.7
+        ],
+        "distanciaAteTexturaOficial": 104.2,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.244,
+          "diferencaPrimeiroSegundo": 0.004,
+          "diferencaPrimeiroMeio": 1.295
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-triceps-polia",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+        "bytes": 74230,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-triceps-polia-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 55,
+          "obtido": 55
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 74230,
+      "sha256": "3a0e29e8b68b9f969c88a3f3821ea63ca112ce68022b986fe1e7a66e18ed9e67",
+      "git": {
+        "hashLocal": "4dc99cc2cfac0a05dee68e90963fe4dd3893f0b3",
+        "blobCommitado": "4dc99cc2cfac0a05dee68e90963fe4dd3893f0b3",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+        "bytes": 74230,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 55,
+        "duracaoS": 1.8333,
+        "fpsEmpirico": 30.001,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          148.1,
+          211.5,
+          194
+        ],
+        "distanciaAteTexturaOficial": 146.4,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 1.535,
+          "diferencaPrimeiroSegundo": 0.002,
+          "diferencaPrimeiroMeio": 1.609
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-flexora",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+        "bytes": 46619,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-flexora-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 64,
+          "obtido": 64
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 46619,
+      "sha256": "7918e6b4ef01b1b4e416bbaac5df7302a933a105f7a68feed7eeadccac56ddf0",
+      "git": {
+        "hashLocal": "8948ffaca1c180d68be328c46b7236c165fbf96f",
+        "blobCommitado": "8948ffaca1c180d68be328c46b7236c165fbf96f",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+        "bytes": 46619,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 64,
+        "duracaoS": 2.1333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          102.8,
+          174.2,
+          145.3
+        ],
+        "distanciaAteTexturaOficial": 105.7,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 0.138,
+          "diferencaPrimeiroSegundo": 0.007,
+          "diferencaPrimeiroMeio": 0.161
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-flexora",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+        "bytes": 55661,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-flexora-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 64,
+          "obtido": 64
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 55661,
+      "sha256": "1472ce3d3191a4e544708bc17ff56976f766d1383edc66db22fb95cbecc24300",
+      "git": {
+        "hashLocal": "f4adf8778ad5ce8c39e92489a880a90c4137c576",
+        "blobCommitado": "f4adf8778ad5ce8c39e92489a880a90c4137c576",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+        "bytes": 55661,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 64,
+        "duracaoS": 2.1333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          150.5,
+          213.4,
+          196.4
+        ],
+        "distanciaAteTexturaOficial": 149.2,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 0.153,
+          "diferencaPrimeiroSegundo": 0.001,
+          "diferencaPrimeiroMeio": 0.186
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-elevacao-lateral",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+        "bytes": 157695,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.6333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 79,
+          "obtido": 79
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 157695,
+      "sha256": "44fb68097b45a543d78920ba79ab223ec301eaf9dd9c75ff38d78d8357aed35e",
+      "git": {
+        "hashLocal": "b8eba3d298a2417993e3be64e92dc9816a8652fa",
+        "blobCommitado": "b8eba3d298a2417993e3be64e92dc9816a8652fa",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+        "bytes": 157695,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.6333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 79,
+        "duracaoS": 2.6333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          109,
+          179.7,
+          148.9
+        ],
+        "distanciaAteTexturaOficial": 107.2,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 4.159,
+          "diferencaPrimeiroSegundo": 0.009,
+          "diferencaPrimeiroMeio": 3.257
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    },
+    {
+      "exercicioId": "mus-elevacao-lateral",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+      "statusManifesto": "pronto",
+      "metaManifesto": {
+        "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+        "bytes": 165444,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.6333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "nome": "mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+      "especificacao": [
+        {
+          "verificacao": "resolução 1280×720",
+          "ok": true,
+          "esperado": "1280x720",
+          "obtido": "1280x720"
+        },
+        {
+          "verificacao": "proporção 16:9",
+          "ok": true,
+          "esperado": 1.7778,
+          "obtido": 1.7778
+        },
+        {
+          "verificacao": "30 FPS",
+          "ok": true,
+          "esperado": 30,
+          "obtido": 30
+        },
+        {
+          "verificacao": "H.264 (avc1)",
+          "ok": true,
+          "esperado": "avc1",
+          "obtido": "avc1"
+        },
+        {
+          "verificacao": "trilha de vídeo",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "sem áudio",
+          "ok": true,
+          "esperado": false,
+          "obtido": false
+        },
+        {
+          "verificacao": "moov antes de mdat",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        },
+        {
+          "verificacao": "quadros = duração × 30",
+          "ok": true,
+          "esperado": 79,
+          "obtido": 79
+        },
+        {
+          "verificacao": "pixel yuv420p",
+          "ok": true,
+          "esperado": true,
+          "obtido": true
+        }
+      ],
+      "conforme": true,
+      "corPersonagem": null,
+      "bytes": 165444,
+      "sha256": "3d618590731d968476a4bb087143cb6deb371c35e5884eea20c34988395e544a",
+      "git": {
+        "hashLocal": "b391102211d30f3d82a7fa9816068b39d7bd89e8",
+        "blobCommitado": "b391102211d30f3d82a7fa9816068b39d7bd89e8",
+        "integro": true
+      },
+      "faststart": true,
+      "formatoDePixel": {
+        "determinado": true,
+        "perfil": 66,
+        "perfilSPS": 66,
+        "nivel": 31,
+        "chromaFormatIdc": 1,
+        "yuv420p": true
+      },
+      "medido": {
+        "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+        "bytes": 165444,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.6333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "manifesto": {
+        "status": "pronto",
+        "arquivoBate": true,
+        "divergencias": [],
+        "conforme": true
+      },
+      "decodificado": {
+        "quadros": 79,
+        "duracaoS": 2.6333,
+        "fpsEmpirico": 30,
+        "fundoMedido": [
+          13,
+          17,
+          13
+        ],
+        "fundoEsperado": [
+          18,
+          16,
+          16
+        ],
+        "fundoConforme": true,
+        "corPersonagem": [
+          153.8,
+          215.4,
+          197.6
+        ],
+        "distanciaAteTexturaOficial": 151,
+        "corConforme": false,
+        "emendaLoop": {
+          "diferencaPrimeiroUltimo": 4.991,
+          "diferencaPrimeiroSegundo": 0.006,
+          "diferencaPrimeiroMeio": 3.989
+        },
+        "fluxoFFmpeg": "(sem linha de fluxo emitida)",
+        "yuv420p": true
+      }
+    }
+  ],
+  "problemasTecnicos": [],
+  "achadosVisuais": [
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        108.7,
+        179.4,
+        148.6
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 107,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        153.3,
+        215.2,
+        197.3
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 150.7,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        102.2,
+        171.6,
+        142.2
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 102.9,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        149.2,
+        211.3,
+        193.3
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 145.6,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        105.6,
+        179.4,
+        150.1
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 109.7,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        150.8,
+        217.4,
+        200.8
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 155,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        98,
+        167.5,
+        139.4
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 102.1,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        146.1,
+        209.8,
+        191.6
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 143.8,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        115.4,
+        192.7,
+        161.7
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 119.9,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        161.1,
+        225.4,
+        211.1
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 167.3,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        108,
+        183.6,
+        153.8
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 113.1,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        153.6,
+        220.7,
+        204.4
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 159.6,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        116.7,
+        194.5,
+        163.2
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 121.5,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        163.4,
+        226.8,
+        213.1
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 169.7,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        118.2,
+        196,
+        164.5
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 122.7,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        165.2,
+        227.5,
+        214.5
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 171.2,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        105.8,
+        180,
+        150.6
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 110.3,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        152,
+        218.3,
+        201.8
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 156.2,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        110.6,
+        182.2,
+        151.3
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 109.3,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        157.3,
+        218.5,
+        201.8
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 155.9,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        109,
+        180.1,
+        149.1
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 107.6,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        154.3,
+        215.4,
+        197.7
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 151,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        102.7,
+        173,
+        143.7
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 104.2,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        148.1,
+        211.5,
+        194
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 146.4,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        102.8,
+        174.2,
+        145.3
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 105.7,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        150.5,
+        213.4,
+        196.4
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 149.2,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+      "corMedida": [
+        109,
+        179.7,
+        148.9
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 107.2,
+      "limite": 60
+    },
+    {
+      "tipo": "cor do personagem divergente da textura oficial",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+      "corMedida": [
+        153.8,
+        215.4,
+        197.6
+      ],
+      "referencia": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distancia": 151,
+      "limite": 60
+    }
+  ],
+  "resultado": {
+    "verificacoesTecnicas": "APROVADO",
+    "totalProblemasTecnicos": 0,
+    "totalAchadosVisuais": 28,
+    "videosConformes": 28,
+    "videosAnalisados": 28
+  }
+}
