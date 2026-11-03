@@ -1,0 +1,3840 @@
+{
+  "geradoEm": "2026-11-03T06:21:45.122Z",
+  "ferramenta": "tools/validar-videos-corrigidos.mjs",
+  "branch": "arena/4cf65613-forja",
+  "commitAntesDoPush": "e0a131fb4a308f7381803aee7dad9359fd8b6f94",
+  "manifesto": {
+    "arquivo": "assets/3d/apresentacao-exercicios.json",
+    "resumo": {
+      "totalExercicios": 37,
+      "comClipe3d": 14,
+      "comClipeEmRevisao": 15,
+      "semClipe3d": 23,
+      "comVideoPronto": 14,
+      "emPrevia3d": 0,
+      "pendentesDeAnimacao": 23,
+      "pendentesSemClipe": 8,
+      "pendentesComClipeEmRevisao": 15,
+      "totalClipesAuditados": 43,
+      "clipesComLoopFechado": 42,
+      "clipesComAtencaoDeLoop": 1,
+      "clipesComFalhaDeLoop": 0,
+      "clipesSemExercicio": 11
+    },
+    "exerciciosEmModoVideo": 14,
+    "grade14x2": [
+      {
+        "exercicioId": "cal-rotacao-ombros",
+        "clipeId": "rotacao-ombros",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "cal-mobilidade-quadril",
+        "clipeId": "mobilidade-quadril",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "cal-flexao",
+        "clipeId": "flexao",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "cal-agachamento",
+        "clipeId": "agachamento",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "cal-ponte",
+        "clipeId": "ponte-gluteo",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "cal-prancha-frontal",
+        "clipeId": "prancha",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "cal-abdominal-supra",
+        "clipeId": "abdominal-supra",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "cal-elevacao-pernas",
+        "clipeId": "elevacao-pernas",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "cal-mountain-climber",
+        "clipeId": "mountain-climber",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "mus-mobilidade-ombro",
+        "clipeId": "circulos-braco",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "mus-rosca-direta",
+        "clipeId": "rosca-direta",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "mus-triceps-polia",
+        "clipeId": "triceps",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "mus-flexora",
+        "clipeId": "flexao-joelho",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      },
+      {
+        "exercicioId": "mus-elevacao-lateral",
+        "clipeId": "elevacao-lateral",
+        "generos": [
+          {
+            "personagem": "masculino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+            "existe": true
+          },
+          {
+            "personagem": "feminino",
+            "status": "pronto",
+            "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+            "existe": true
+          }
+        ],
+        "completo": true
+      }
+    ],
+    "todasAsLinhasCompletas": true
+  },
+  "texturasOficiais": {
+    "masculino": [
+      167.2,
+      123.8,
+      78.3
+    ],
+    "feminino": [
+      253,
+      219.2,
+      156.8
+    ]
+  },
+  "inventario": {
+    "mp4NoDisco": 28,
+    "referenciasNoManifesto": 28,
+    "orfaos": [],
+    "todosForamRerenderizados": true,
+    "todosReceberamSombreamentoSuave": true,
+    "todosSemRastroEntreQuadros": true
+  },
+  "videos": [
+    {
+      "exercicioId": "cal-rotacao-ombros",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+          "bytes": 229274,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.4333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+      "bytes": 229274,
+      "sha256": "a1cdbc3df93e61c84d3aa4e4e8055040f52b04d8af09e8c52d66e61dc373d88c",
+      "sha256Anterior": "bc2ba5ce149eaa36d255a00613b5568b46629eff2ca45a29aa540813fe5de8b9",
+      "sha256Intermediario": "918ef94f7f534c4abc0d8c2418a7c1a0db54cb407eeae8c03546bf5422263c01",
+      "sha256SemLimpeza": "38056491629ce24dd74ec5cff2df9ec3dd5cad834b16d3f6d388374bf61ee301",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4",
+        "bytes": 229274,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.4333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.058,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          176.6,
+          150.1,
+          106.8
+        ],
+        "pixelsPersonagem": 12580,
+        "bbox": [
+          560,
+          34,
+          696,
+          654
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            176.6,
+            150.1,
+            106.8
+          ],
+          "distanciaCromaticidade": 0.058
+        },
+        {
+          "tempoS": 1.217,
+          "corPersonagem": [
+            168,
+            142.9,
+            103.3
+          ],
+          "pixelsPersonagem": 824,
+          "bbox": [
+            140,
+            8,
+            174,
+            162
+          ],
+          "distanciaCromaticidade": 0.061
+        },
+        {
+          "tempoS": 2.068,
+          "corPersonagem": [
+            167.9,
+            142.7,
+            103.3
+          ],
+          "pixelsPersonagem": 810,
+          "bbox": [
+            142,
+            8,
+            176,
+            162
+          ],
+          "distanciaCromaticidade": 0.061
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-rotacao-ombros",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+          "bytes": 236322,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.4333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+      "bytes": 236322,
+      "sha256": "8f0512b40afec12346b3c9113ddd34cf00784316953efdf05c2092fb03fb3411",
+      "sha256Anterior": "7ff8fa60435a52b4308244adfcc763c192115f7d8298d08f675692829fd99faf",
+      "sha256Intermediario": "ce0ca62a4176ef5385e27d0f674bb4871a584a34ea9d938bee229c826ae027bb",
+      "sha256SemLimpeza": "270b42d352ae07665144b32171df129d6e2d4f1e37391b7dbae6a9cbd41cdae1",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4",
+        "bytes": 236322,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.4333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0336,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          215.1,
+          202.1,
+          154.4
+        ],
+        "pixelsPersonagem": 12436,
+        "bbox": [
+          566,
+          34,
+          696,
+          656
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            215.1,
+            202.1,
+            154.4
+          ],
+          "distanciaCromaticidade": 0.0336
+        },
+        {
+          "tempoS": 1.217,
+          "corPersonagem": [
+            201.4,
+            189,
+            145.8
+          ],
+          "pixelsPersonagem": 829,
+          "bbox": [
+            142,
+            8,
+            174,
+            164
+          ],
+          "distanciaCromaticidade": 0.0352
+        },
+        {
+          "tempoS": 2.068,
+          "corPersonagem": [
+            200.6,
+            188,
+            145.1
+          ],
+          "pixelsPersonagem": 815,
+          "bbox": [
+            144,
+            8,
+            176,
+            164
+          ],
+          "distanciaCromaticidade": 0.0349
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-mobilidade-quadril",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+          "bytes": 361421,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 1.8333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+      "bytes": 361421,
+      "sha256": "d049b544a6afea2d88d82f406e11ac438fcfb1e82ed3d6b0e09b08af2d97362d",
+      "sha256Anterior": "4db6e1a8f4b447ab2474c4258cf531750130cc1eb9c37db0a9e79c8c07096663",
+      "sha256Intermediario": "9273e2a63f76d4b6450ca5d91a09b47d06795c90d5f83ef876c4810971e11659",
+      "sha256SemLimpeza": "193c6ac6ea519f8f0fdbaa9ce6353318c37a3d1242c7bb9081768b132922ba86",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4",
+        "bytes": 361421,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0563,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          171.9,
+          146.2,
+          102.9
+        ],
+        "pixelsPersonagem": 13685,
+        "bbox": [
+          488,
+          36,
+          786,
+          644
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            171.9,
+            146.2,
+            102.9
+          ],
+          "distanciaCromaticidade": 0.0563
+        },
+        {
+          "tempoS": 0.917,
+          "corPersonagem": [
+            160.8,
+            137,
+            97.7
+          ],
+          "pixelsPersonagem": 941,
+          "bbox": [
+            120,
+            10,
+            196,
+            160
+          ],
+          "distanciaCromaticidade": 0.059
+        },
+        {
+          "tempoS": 1.558,
+          "corPersonagem": [
+            162.4,
+            138.3,
+            98.5
+          ],
+          "pixelsPersonagem": 912,
+          "bbox": [
+            120,
+            10,
+            194,
+            160
+          ],
+          "distanciaCromaticidade": 0.0587
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-mobilidade-quadril",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+          "bytes": 383111,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 1.8333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+      "bytes": 383111,
+      "sha256": "510f1efbef823baf2c9c5c25210941c3d5524ed07baf175a02c11c363accfb63",
+      "sha256Anterior": "06eb2d0736ad682e4f378ef4a2e32cc6ba9d3e183f7bb69477fa00ce2da26de1",
+      "sha256Intermediario": "af84ae1f4e0d8194b0a903787a4f7ac956c66a2552f70d4318688f6cbadd0d7f",
+      "sha256SemLimpeza": "ae64b09c64214d2ff304ab1bfdaefc7d02ee99088a86f148572611169f16aad3",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4",
+        "bytes": 383111,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0312,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          211.9,
+          198.2,
+          150.4
+        ],
+        "pixelsPersonagem": 13815,
+        "bbox": [
+          486,
+          36,
+          788,
+          644
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            211.9,
+            198.2,
+            150.4
+          ],
+          "distanciaCromaticidade": 0.0312
+        },
+        {
+          "tempoS": 0.917,
+          "corPersonagem": [
+            196.3,
+            183.3,
+            140.1
+          ],
+          "pixelsPersonagem": 944,
+          "bbox": [
+            120,
+            10,
+            196,
+            160
+          ],
+          "distanciaCromaticidade": 0.0321
+        },
+        {
+          "tempoS": 1.558,
+          "corPersonagem": [
+            197.5,
+            184.4,
+            141.2
+          ],
+          "pixelsPersonagem": 928,
+          "bbox": [
+            118,
+            10,
+            196,
+            160
+          ],
+          "distanciaCromaticidade": 0.0324
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-flexao",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+          "bytes": 997501,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 6,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-flexao-masculino-horizontal-16x9.mp4",
+      "bytes": 997501,
+      "sha256": "7271d697591f3fc5bc15f953cccf28bb9e4c3eb865d36cd6afe9f5984c456734",
+      "sha256Anterior": "04418f6dc6a02a8cd525424e0b456303608e567a541bc3ecddeaf83e50a6c808",
+      "sha256Intermediario": "576e04b10c5b6995636dcb3e410f481f7316cb02f6fb53597a18acb7b1757404",
+      "sha256SemLimpeza": "d2d4fe43673d1bd1a75a111797e91ad987d0c5d0f7a689862c381a177f47a251",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
+        "bytes": 997501,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.057,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          177.7,
+          152.6,
+          106.1
+        ],
+        "pixelsPersonagem": 21435,
+        "bbox": [
+          298,
+          230,
+          1082,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            177.7,
+            152.6,
+            106.1
+          ],
+          "distanciaCromaticidade": 0.057
+        },
+        {
+          "tempoS": 3,
+          "corPersonagem": [
+            170.6,
+            146.5,
+            102.6
+          ],
+          "pixelsPersonagem": 1412,
+          "bbox": [
+            74,
+            58,
+            270,
+            170
+          ],
+          "distanciaCromaticidade": 0.0582
+        },
+        {
+          "tempoS": 5.1,
+          "corPersonagem": [
+            175.1,
+            150.5,
+            105.4
+          ],
+          "pixelsPersonagem": 1413,
+          "bbox": [
+            74,
+            86,
+            272,
+            170
+          ],
+          "distanciaCromaticidade": 0.0584
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-flexao",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+          "bytes": 1218356,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 6,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-flexao-feminino-horizontal-16x9.mp4",
+      "bytes": 1218356,
+      "sha256": "369150c1639cc68d2474568275d40c782a8a348c42d39e267e34d5ea82656b7e",
+      "sha256Anterior": "ecea52ad6cb984237f0ede61100c6c181d9e299c47becc39f5c51b795556d60f",
+      "sha256Intermediario": "7bed86d6950d2a59ae00006d997c01a21a14005535bfae02a43d0440ce8ab2b0",
+      "sha256SemLimpeza": "f8f7b362006780091e3f0a06e115691b6e297d41e44fe114a1635639157747b9",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4",
+        "bytes": 1218356,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0323,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          215.8,
+          204.9,
+          152.8
+        ],
+        "pixelsPersonagem": 24793,
+        "bbox": [
+          284,
+          214,
+          1120,
+          678
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            215.8,
+            204.9,
+            152.8
+          ],
+          "distanciaCromaticidade": 0.0323
+        },
+        {
+          "tempoS": 3,
+          "corPersonagem": [
+            206.8,
+            196.1,
+            146.9
+          ],
+          "pixelsPersonagem": 1622,
+          "bbox": [
+            70,
+            54,
+            280,
+            168
+          ],
+          "distanciaCromaticidade": 0.0327
+        },
+        {
+          "tempoS": 5.1,
+          "corPersonagem": [
+            212.3,
+            202.4,
+            152.2
+          ],
+          "pixelsPersonagem": 1614,
+          "bbox": [
+            72,
+            86,
+            282,
+            170
+          ],
+          "distanciaCromaticidade": 0.0348
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-agachamento",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+          "bytes": 449200,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 3.2,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-agachamento-masculino-horizontal-16x9.mp4",
+      "bytes": 449200,
+      "sha256": "7496b2242d4f4df6e01f2d3612977262d0a6170006d73eefaa5737674bece5fa",
+      "sha256Anterior": "4de557956ec7b6e3c986a31ada5369d72b5d6a41c2aeccbc406e26145fba6699",
+      "sha256Intermediario": "f439eddd96beecb65ead513e3e42801710dbcdd7ccb0ebc7abdf618b0bdab5ed",
+      "sha256SemLimpeza": "cfdbe07303a847194c15aa9a2ba0bb5237be8f9b6040e304da992f2e5dba4694",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+        "bytes": 449200,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3.2,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.054,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          168.6,
+          143.4,
+          99.5
+        ],
+        "pixelsPersonagem": 12346,
+        "bbox": [
+          560,
+          34,
+          760,
+          602
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            168.6,
+            143.4,
+            99.5
+          ],
+          "distanciaCromaticidade": 0.054
+        },
+        {
+          "tempoS": 1.6,
+          "corPersonagem": [
+            171,
+            145.6,
+            103.8
+          ],
+          "pixelsPersonagem": 618,
+          "bbox": [
+            132,
+            42,
+            186,
+            144
+          ],
+          "distanciaCromaticidade": 0.0588
+        },
+        {
+          "tempoS": 2.72,
+          "corPersonagem": [
+            157.7,
+            134.6,
+            95
+          ],
+          "pixelsPersonagem": 851,
+          "bbox": [
+            136,
+            12,
+            188,
+            148
+          ],
+          "distanciaCromaticidade": 0.0577
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-agachamento",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+          "bytes": 478139,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 3.2,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-agachamento-feminino-horizontal-16x9.mp4",
+      "bytes": 478139,
+      "sha256": "8bf0bfc5c1991d9aec7b2a1bb05a4c0f06b9ddb2fbe9a11bf153d98a9da320fc",
+      "sha256Anterior": "e7dc553dd34bfb530991b8ecc3d68923d064faa7f39ff412fe3672e74cc8be0f",
+      "sha256Intermediario": "585a77f8c8fb2d3bb7e458d5d995b03d13f6ef2e22f404abd11e275e2e2650c1",
+      "sha256SemLimpeza": "1cbf8690860c1d853a254f6ed4d7a9adc21c611d4f55f666569937cecbb3714b",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4",
+        "bytes": 478139,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3.2,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0283,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          210.2,
+          196.2,
+          146.9
+        ],
+        "pixelsPersonagem": 11681,
+        "bbox": [
+          562,
+          34,
+          756,
+          602
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            210.2,
+            196.2,
+            146.9
+          ],
+          "distanciaCromaticidade": 0.0283
+        },
+        {
+          "tempoS": 1.6,
+          "corPersonagem": [
+            203,
+            191.9,
+            147.5
+          ],
+          "pixelsPersonagem": 608,
+          "bbox": [
+            132,
+            42,
+            184,
+            144
+          ],
+          "distanciaCromaticidade": 0.0364
+        },
+        {
+          "tempoS": 2.72,
+          "corPersonagem": [
+            194.3,
+            181.7,
+            138.3
+          ],
+          "pixelsPersonagem": 802,
+          "bbox": [
+            138,
+            12,
+            184,
+            148
+          ],
+          "distanciaCromaticidade": 0.0317
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-ponte",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+          "bytes": 746948,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 4.1333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-ponte-masculino-horizontal-16x9.mp4",
+      "bytes": 746948,
+      "sha256": "24f01bc3e9227b703bf84ae03d4db5b4db5380f91cefe0a3185e2c99a2be1214",
+      "sha256Anterior": "9ebc6e4f608b64ca49c3606c25835d8879219d662d167465a9a5e8ced36bf6ef",
+      "sha256Intermediario": "d846a7a67627f3c2733a7d621c65e3147c58ae129b7cbe80ec304119f6555d11",
+      "sha256SemLimpeza": "0e9e11e70e0b8507f97e665d4b97512c96bfcdc828ce848ab16d001222ed59a3",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4",
+        "bytes": 746948,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0568,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          179.7,
+          154.2,
+          107.2
+        ],
+        "pixelsPersonagem": 40340,
+        "bbox": [
+          302,
+          198,
+          1092,
+          684
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            179.7,
+            154.2,
+            107.2
+          ],
+          "distanciaCromaticidade": 0.0568
+        },
+        {
+          "tempoS": 2.067,
+          "corPersonagem": [
+            172.7,
+            148.3,
+            102.9
+          ],
+          "pixelsPersonagem": 2766,
+          "bbox": [
+            82,
+            46,
+            292,
+            170
+          ],
+          "distanciaCromaticidade": 0.0567
+        },
+        {
+          "tempoS": 3.513,
+          "corPersonagem": [
+            174.3,
+            149.7,
+            104
+          ],
+          "pixelsPersonagem": 2450,
+          "bbox": [
+            76,
+            56,
+            280,
+            170
+          ],
+          "distanciaCromaticidade": 0.0569
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-ponte",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+          "bytes": 764881,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 4.1333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-ponte-feminino-horizontal-16x9.mp4",
+      "bytes": 764881,
+      "sha256": "82c5769f1cc74c67f600d506e7f058c80fa514bd8f7a60257133eba03546a2cb",
+      "sha256Anterior": "39124bc39a76c9c3b3fa97fff34d51c62fef80bbde4702ed6ead845a32c1e64e",
+      "sha256Intermediario": "0f636cfdff0c36e1a66d75d8e55a8e19393a970baae44f3718eebe1f21ff217a",
+      "sha256SemLimpeza": "5a4be0f4e764fd3c371a107945f7ef4bd63b7db270e1912885be8ec77911bf98",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4",
+        "bytes": 764881,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0334,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          217.1,
+          206.2,
+          154.7
+        ],
+        "pixelsPersonagem": 39103,
+        "bbox": [
+          304,
+          196,
+          1090,
+          684
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            217.1,
+            206.2,
+            154.7
+          ],
+          "distanciaCromaticidade": 0.0334
+        },
+        {
+          "tempoS": 2.067,
+          "corPersonagem": [
+            210.4,
+            199.7,
+            149.4
+          ],
+          "pixelsPersonagem": 2705,
+          "bbox": [
+            84,
+            46,
+            290,
+            170
+          ],
+          "distanciaCromaticidade": 0.0327
+        },
+        {
+          "tempoS": 3.513,
+          "corPersonagem": [
+            210.9,
+            200.3,
+            149.9
+          ],
+          "pixelsPersonagem": 2391,
+          "bbox": [
+            76,
+            56,
+            280,
+            170
+          ],
+          "distanciaCromaticidade": 0.033
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-prancha-frontal",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+          "bytes": 131422,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 6,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+      "bytes": 131422,
+      "sha256": "808de737f3d487e407f4e4e9c5cbfbab4cd4d22aef158f6bc261eddd6056873e",
+      "sha256Anterior": "9ba31146dfda7a470604bc007364b390d2e0cf6f3b855aceb7365af9f1374cf9",
+      "sha256Intermediario": "fe2e7831500b34f57163f70113b05278e45431a8df10cfa58bed081b05b10e6c",
+      "sha256SemLimpeza": "da4ea4e99fe2c9439546853c7958637430dd9cf03d4024c9258adb4c635e61e4",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4",
+        "bytes": 131422,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0573,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          181.3,
+          155.9,
+          108.3
+        ],
+        "pixelsPersonagem": 26358,
+        "bbox": [
+          262,
+          284,
+          1168,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            181.3,
+            155.9,
+            108.3
+          ],
+          "distanciaCromaticidade": 0.0573
+        },
+        {
+          "tempoS": 3,
+          "corPersonagem": [
+            173.6,
+            149.2,
+            104.4
+          ],
+          "pixelsPersonagem": 1726,
+          "bbox": [
+            66,
+            70,
+            290,
+            170
+          ],
+          "distanciaCromaticidade": 0.0583
+        },
+        {
+          "tempoS": 5.1,
+          "corPersonagem": [
+            173.3,
+            148.9,
+            104.2
+          ],
+          "pixelsPersonagem": 1729,
+          "bbox": [
+            66,
+            70,
+            290,
+            170
+          ],
+          "distanciaCromaticidade": 0.0582
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-prancha-frontal",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+          "bytes": 155652,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 6,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+      "bytes": 155652,
+      "sha256": "556eb3683e8747cf070aff33ec1258adac47fd506cd488928580f91e48fed773",
+      "sha256Anterior": "c0917f3b74702204deddaaed87568a85cf2dccbc6f54a7ab084441ba4d9e1a8a",
+      "sha256Intermediario": "c0fce203c505a3d4e11f4d2b038676a4cbc8b97bde9c7d573e3be1e419a2ee46",
+      "sha256SemLimpeza": "0156acde9aae5cca97718358d373ef9569e36817e296f4a918b8408681377d3e",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4",
+        "bytes": 155652,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 6,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0334,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          218.6,
+          208.3,
+          155.4
+        ],
+        "pixelsPersonagem": 31446,
+        "bbox": [
+          240,
+          274,
+          1210,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            218.6,
+            208.3,
+            155.4
+          ],
+          "distanciaCromaticidade": 0.0334
+        },
+        {
+          "tempoS": 3,
+          "corPersonagem": [
+            210.7,
+            200.3,
+            150.3
+          ],
+          "pixelsPersonagem": 2052,
+          "bbox": [
+            60,
+            68,
+            302,
+            170
+          ],
+          "distanciaCromaticidade": 0.0337
+        },
+        {
+          "tempoS": 5.1,
+          "corPersonagem": [
+            210.8,
+            200.5,
+            150.4
+          ],
+          "pixelsPersonagem": 2052,
+          "bbox": [
+            60,
+            68,
+            302,
+            170
+          ],
+          "distanciaCromaticidade": 0.0337
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-abdominal-supra",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+          "bytes": 557903,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 3,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+      "bytes": 557903,
+      "sha256": "b7c07c31b29bbcc8945c8ec37220df30a357b3a690455ab85813c36990bfb10a",
+      "sha256Anterior": "a34cddf9cf9179528736b98740b99a567a6ee0ea0417cb63f46fc887695488fa",
+      "sha256Intermediario": "1d64f6cea99766b15af5c1450db21e202cdea52d0f076e669d6140e359be7c80",
+      "sha256SemLimpeza": "b949725733b16e3e9a44ba20b2d1c9be1338fae4704c747f78d8a9edff69562f",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4",
+        "bytes": 557903,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0568,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          181.2,
+          155.9,
+          107.9
+        ],
+        "pixelsPersonagem": 35153,
+        "bbox": [
+          264,
+          280,
+          1200,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            181.2,
+            155.9,
+            107.9
+          ],
+          "distanciaCromaticidade": 0.0568
+        },
+        {
+          "tempoS": 1.5,
+          "corPersonagem": [
+            171.8,
+            147.3,
+            102.8
+          ],
+          "pixelsPersonagem": 2327,
+          "bbox": [
+            70,
+            40,
+            300,
+            170
+          ],
+          "distanciaCromaticidade": 0.0572
+        },
+        {
+          "tempoS": 2.55,
+          "corPersonagem": [
+            174.6,
+            150,
+            104.5
+          ],
+          "pixelsPersonagem": 2224,
+          "bbox": [
+            66,
+            64,
+            300,
+            170
+          ],
+          "distanciaCromaticidade": 0.0575
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-abdominal-supra",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+          "bytes": 561926,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 3,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+      "bytes": 561926,
+      "sha256": "804baba0079676b8b53cb8443eccdd85a7e0d49aeccea257c67267accc327e71",
+      "sha256Anterior": "3ca53716ddb25c51936ffa49e12e6121a845842c0011feaca20a2930517bc1f6",
+      "sha256Intermediario": "7cdc42a97cd873e4f53b02b7ba3fe264e24b8b303745c00bb9272c67f6728ba5",
+      "sha256SemLimpeza": "52d3282ae3999985b625db1d6783c3e90681c1d20898a1cc2088a3185d44c243",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4",
+        "bytes": 561926,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 3,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0339,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          218.9,
+          208.8,
+          156
+        ],
+        "pixelsPersonagem": 34251,
+        "bbox": [
+          266,
+          278,
+          1198,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            218.9,
+            208.8,
+            156
+          ],
+          "distanciaCromaticidade": 0.0339
+        },
+        {
+          "tempoS": 1.5,
+          "corPersonagem": [
+            208.8,
+            198.2,
+            149.1
+          ],
+          "pixelsPersonagem": 2283,
+          "bbox": [
+            72,
+            40,
+            298,
+            170
+          ],
+          "distanciaCromaticidade": 0.0337
+        },
+        {
+          "tempoS": 2.55,
+          "corPersonagem": [
+            209.3,
+            199,
+            149.6
+          ],
+          "pixelsPersonagem": 2211,
+          "bbox": [
+            66,
+            64,
+            298,
+            170
+          ],
+          "distanciaCromaticidade": 0.034
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-elevacao-pernas",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+          "bytes": 250159,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.7,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+      "bytes": 250159,
+      "sha256": "b7961fe687fda6043c571360cc43e615fa762a317b481a51fdef10965235d4c7",
+      "sha256Anterior": "e1c72669a431cdcc8c41e27673195900b2bfab180ab9335a0d93bd5b428fb5be",
+      "sha256Intermediario": "a860478b4d5da6adceb81f1b81fbfb8eca5c0a531a37c5d1406706b4c07f73fe",
+      "sha256SemLimpeza": "3baed6e2627705e8dfd2edab0ca31adaaac8028edeb2d022cdf8990ca771e410",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4",
+        "bytes": 250159,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.7,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0572,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          182.8,
+          157.3,
+          109.1
+        ],
+        "pixelsPersonagem": 22169,
+        "bbox": [
+          312,
+          358,
+          1080,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            182.8,
+            157.3,
+            109.1
+          ],
+          "distanciaCromaticidade": 0.0572
+        },
+        {
+          "tempoS": 1.35,
+          "corPersonagem": [
+            174,
+            149.4,
+            104.5
+          ],
+          "pixelsPersonagem": 1250,
+          "bbox": [
+            78,
+            46,
+            248,
+            148
+          ],
+          "distanciaCromaticidade": 0.0579
+        },
+        {
+          "tempoS": 2.295,
+          "corPersonagem": [
+            176.7,
+            152.3,
+            105.9
+          ],
+          "pixelsPersonagem": 1378,
+          "bbox": [
+            78,
+            90,
+            266,
+            148
+          ],
+          "distanciaCromaticidade": 0.0581
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-elevacao-pernas",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+          "bytes": 262249,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.7,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+      "bytes": 262249,
+      "sha256": "0c6f2682229e36484db1f0344bcaadd34b353c04b6314d32c033b992e2353a83",
+      "sha256Anterior": "8047e8b0f905866ee5d42202512c85b8f6dea9ea2022bf3fb5b564800bde5730",
+      "sha256Intermediario": "d16c04ff36c18e995d493bb4f433bc6983e17ff08ba45990b23bb0c74a418bc3",
+      "sha256SemLimpeza": "ca6b7ff6ddcdea7094ad45addc8ae4d3ae70666263b6d2de6764b628f1d41726",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4",
+        "bytes": 262249,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.7,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0348,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          221,
+          211.2,
+          158.2
+        ],
+        "pixelsPersonagem": 21543,
+        "bbox": [
+          316,
+          356,
+          1076,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            221,
+            211.2,
+            158.2
+          ],
+          "distanciaCromaticidade": 0.0348
+        },
+        {
+          "tempoS": 1.35,
+          "corPersonagem": [
+            206.9,
+            196.8,
+            148.4
+          ],
+          "pixelsPersonagem": 1208,
+          "bbox": [
+            80,
+            46,
+            246,
+            148
+          ],
+          "distanciaCromaticidade": 0.0346
+        },
+        {
+          "tempoS": 2.295,
+          "corPersonagem": [
+            210.9,
+            201.4,
+            151
+          ],
+          "pixelsPersonagem": 1341,
+          "bbox": [
+            80,
+            88,
+            266,
+            148
+          ],
+          "distanciaCromaticidade": 0.0348
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-mountain-climber",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+          "bytes": 504618,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 4.5,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-mountain-climber-masculino-horizontal-16x9.mp4",
+      "bytes": 504618,
+      "sha256": "06decb8565e48b49173bc9f2f06421cad9e3c8d0609de38029dc5d7263297dc9",
+      "sha256Anterior": "2c6e42c819ebd14b39e68e7c2b7f2b5d163cd07b50efb2379f139716cfc8e6e5",
+      "sha256Intermediario": "92fef152f02411a4b270345cc8a60d7a9be7d411188779a17fbd5d8f9d2a6b74",
+      "sha256SemLimpeza": "edfe18a0aa2596b471e3c497139e3576631025f33d71014ae5784c8bff4200fa",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4",
+        "bytes": 504618,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.5,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0571,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          178.1,
+          152.9,
+          106.4
+        ],
+        "pixelsPersonagem": 19733,
+        "bbox": [
+          308,
+          252,
+          1056,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            178.1,
+            152.9,
+            106.4
+          ],
+          "distanciaCromaticidade": 0.0571
+        },
+        {
+          "tempoS": 2.25,
+          "corPersonagem": [
+            170.2,
+            146.2,
+            102.5
+          ],
+          "pixelsPersonagem": 1281,
+          "bbox": [
+            76,
+            64,
+            264,
+            170
+          ],
+          "distanciaCromaticidade": 0.0584
+        },
+        {
+          "tempoS": 3.825,
+          "corPersonagem": [
+            169.5,
+            145.7,
+            102
+          ],
+          "pixelsPersonagem": 1274,
+          "bbox": [
+            76,
+            64,
+            264,
+            170
+          ],
+          "distanciaCromaticidade": 0.0584
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "cal-mountain-climber",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+          "bytes": 542832,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 4.5,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "cal-mountain-climber-feminino-horizontal-16x9.mp4",
+      "bytes": 542832,
+      "sha256": "a4acd5115edcd5aa32cf20e4c3e0b0fa0adfb3809bf9763e487393d1971b7e08",
+      "sha256Anterior": "72caca468a59ecc3a405eab1f993601197cfa472fc80c18d286e6d87f44faa0e",
+      "sha256Intermediario": "c994cb2904ca2be0d57eef35245f4926d45ad1347d4d4be6cf04225fbce259d7",
+      "sha256SemLimpeza": "28a9d6edb2131c4a08bf30eb7b4a8443f5bab8938e40cb4eef2dafc715ecc980",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4",
+        "bytes": 542832,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 4.5,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0328,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          216.6,
+          205.8,
+          153.8
+        ],
+        "pixelsPersonagem": 22057,
+        "bbox": [
+          282,
+          254,
+          1064,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            216.6,
+            205.8,
+            153.8
+          ],
+          "distanciaCromaticidade": 0.0328
+        },
+        {
+          "tempoS": 2.25,
+          "corPersonagem": [
+            206.1,
+            195.8,
+            146.9
+          ],
+          "pixelsPersonagem": 1440,
+          "bbox": [
+            70,
+            64,
+            266,
+            170
+          ],
+          "distanciaCromaticidade": 0.0334
+        },
+        {
+          "tempoS": 3.825,
+          "corPersonagem": [
+            205.2,
+            194.8,
+            146.3
+          ],
+          "pixelsPersonagem": 1419,
+          "bbox": [
+            70,
+            64,
+            266,
+            170
+          ],
+          "distanciaCromaticidade": 0.0334
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-mobilidade-ombro",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+          "bytes": 158413,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 1.8,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+      "bytes": 158413,
+      "sha256": "d4d9bd42e646a71712304da9566472816f12f0fceb439ae3c0849fdc7a22f21e",
+      "sha256Anterior": "4e7099b56ae072915ae89aba13e8e3e1bb7900a34bccd393f1b3d36b4a7143aa",
+      "sha256Intermediario": "dba99b7b8d40fa6da162a92804698a0ac1c74f9a8c0f760bfbda74fcc13bffaa",
+      "sha256SemLimpeza": "e6e6e12fac8467b5fdab877fcb48c3b873aa18b520ad63586dfac9166ab264e4",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4",
+        "bytes": 158413,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0588,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          179.1,
+          152.3,
+          108.8
+        ],
+        "pixelsPersonagem": 12591,
+        "bbox": [
+          406,
+          34,
+          792,
+          654
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            179.1,
+            152.3,
+            108.8
+          ],
+          "distanciaCromaticidade": 0.0588
+        },
+        {
+          "tempoS": 0.9,
+          "corPersonagem": [
+            170.4,
+            144.8,
+            104.9
+          ],
+          "pixelsPersonagem": 838,
+          "bbox": [
+            104,
+            8,
+            196,
+            162
+          ],
+          "distanciaCromaticidade": 0.0611
+        },
+        {
+          "tempoS": 1.53,
+          "corPersonagem": [
+            169.3,
+            143.7,
+            104.1
+          ],
+          "pixelsPersonagem": 830,
+          "bbox": [
+            102,
+            8,
+            198,
+            162
+          ],
+          "distanciaCromaticidade": 0.0608
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-mobilidade-ombro",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+          "bytes": 152917,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 1.8,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+      "bytes": 152917,
+      "sha256": "3b2718624a0b005ba7efb8d66d9138302c2e5556edec381dced1b11a9598d854",
+      "sha256Anterior": "eaa9ad3bb762ce7896ee42e5386b430ba0dea267d94c91069cf58feec1a0f8a9",
+      "sha256Intermediario": "aec9d7addd18765b8cea73e0ebc60f9761ec63e2afd5e9cf484940011af73618",
+      "sha256SemLimpeza": "1c8ff1a92ef84049b07c6e53a99b1ee83a7e7034a8e129b9aa78a3061c8212f1",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4",
+        "bytes": 152917,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0354,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          217.7,
+          205,
+          157.6
+        ],
+        "pixelsPersonagem": 12002,
+        "bbox": [
+          404,
+          34,
+          792,
+          656
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            217.7,
+            205,
+            157.6
+          ],
+          "distanciaCromaticidade": 0.0354
+        },
+        {
+          "tempoS": 0.9,
+          "corPersonagem": [
+            204,
+            192.1,
+            149.4
+          ],
+          "pixelsPersonagem": 812,
+          "bbox": [
+            104,
+            8,
+            196,
+            164
+          ],
+          "distanciaCromaticidade": 0.0376
+        },
+        {
+          "tempoS": 1.53,
+          "corPersonagem": [
+            202.3,
+            190.3,
+            147.9
+          ],
+          "pixelsPersonagem": 814,
+          "bbox": [
+            102,
+            8,
+            198,
+            164
+          ],
+          "distanciaCromaticidade": 0.0372
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-rosca-direta",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+          "bytes": 172439,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.3333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-rosca-direta-masculino-horizontal-16x9.mp4",
+      "bytes": 172439,
+      "sha256": "8e55b87baf62135d97781fec72dff2a7e7cc3b2a43f6a1dab7cdd8f3e25ab192",
+      "sha256Anterior": "169617fed620a9a682933781b645b1d98ca9cce7a821aa4dce4474aff5890108",
+      "sha256Intermediario": "1f948cf138fc5cf4bdbc21836a03d79935244e44acc64690d332d7acaf145f94",
+      "sha256SemLimpeza": "7dba55182039656f86c9449413df47a7d802ffb21b73a6d5242cf2797f1a378a",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4",
+        "bytes": 172439,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.3333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0583,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          177,
+          150.4,
+          107.3
+        ],
+        "pixelsPersonagem": 12090,
+        "bbox": [
+          524,
+          34,
+          662,
+          640
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            177,
+            150.4,
+            107.3
+          ],
+          "distanciaCromaticidade": 0.0583
+        },
+        {
+          "tempoS": 1.167,
+          "corPersonagem": [
+            163.7,
+            139.4,
+            99.9
+          ],
+          "pixelsPersonagem": 755,
+          "bbox": [
+            132,
+            8,
+            178,
+            160
+          ],
+          "distanciaCromaticidade": 0.0597
+        },
+        {
+          "tempoS": 1.983,
+          "corPersonagem": [
+            166.2,
+            141.6,
+            101.9
+          ],
+          "pixelsPersonagem": 777,
+          "bbox": [
+            132,
+            8,
+            178,
+            160
+          ],
+          "distanciaCromaticidade": 0.0606
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-rosca-direta",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+          "bytes": 174793,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.3333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-rosca-direta-feminino-horizontal-16x9.mp4",
+      "bytes": 174793,
+      "sha256": "94fba8222bd224a3de9df831834cd88072734204e68e621413750f4cce353374",
+      "sha256Anterior": "c7516e3fa45e10bea54ace8166601c50df17074a8dabfae1b03c22ad4dea6f06",
+      "sha256Intermediario": "b834fa4dbe2be046efb3a93ba844de96a194044a5a085cd40215b8335a9ef42e",
+      "sha256SemLimpeza": "280aa77f5f1b535389af7b3c3d83f196879d63bf00689fb18743e75a6b145e3e",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4",
+        "bytes": 174793,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.3333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0338,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          215.2,
+          202.2,
+          154.6
+        ],
+        "pixelsPersonagem": 11922,
+        "bbox": [
+          532,
+          34,
+          664,
+          640
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            215.2,
+            202.2,
+            154.6
+          ],
+          "distanciaCromaticidade": 0.0338
+        },
+        {
+          "tempoS": 1.167,
+          "corPersonagem": [
+            202.2,
+            190,
+            146.4
+          ],
+          "pixelsPersonagem": 758,
+          "bbox": [
+            132,
+            8,
+            178,
+            160
+          ],
+          "distanciaCromaticidade": 0.0353
+        },
+        {
+          "tempoS": 1.983,
+          "corPersonagem": [
+            203,
+            191.2,
+            147.7
+          ],
+          "pixelsPersonagem": 766,
+          "bbox": [
+            132,
+            8,
+            178,
+            160
+          ],
+          "distanciaCromaticidade": 0.0364
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-triceps-polia",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+          "bytes": 137611,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 1.8333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-triceps-polia-masculino-horizontal-16x9.mp4",
+      "bytes": 137611,
+      "sha256": "5f2875b00e167ee52e70388357d8f1cfa8f515e6d2908a4d3eba355f90e18198",
+      "sha256Anterior": "99f32808d3d4141cc85cd983606b7bce8a6a66cf2c9fff72f593ee2fd452e2ac",
+      "sha256Intermediario": "5eea84c0578d035e7ce6df4d5e49a26aad04fe41189d75ea1dee5b09eadf819d",
+      "sha256SemLimpeza": "e1aa306fd07d271e2b6314cfba543646b782b84207dee6d2a64dd22f05f8665b",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4",
+        "bytes": 137611,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0573,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          174.7,
+          149.2,
+          104.9
+        ],
+        "pixelsPersonagem": 14990,
+        "bbox": [
+          548,
+          40,
+          832,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            174.7,
+            149.2,
+            104.9
+          ],
+          "distanciaCromaticidade": 0.0573
+        },
+        {
+          "tempoS": 0.917,
+          "corPersonagem": [
+            165.5,
+            141.7,
+            100.5
+          ],
+          "pixelsPersonagem": 1003,
+          "bbox": [
+            104,
+            10,
+            208,
+            170
+          ],
+          "distanciaCromaticidade": 0.0594
+        },
+        {
+          "tempoS": 1.558,
+          "corPersonagem": [
+            165.9,
+            141.9,
+            101.1
+          ],
+          "pixelsPersonagem": 979,
+          "bbox": [
+            134,
+            10,
+            208,
+            170
+          ],
+          "distanciaCromaticidade": 0.0599
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-triceps-polia",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+          "bytes": 141799,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 1.8333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-triceps-polia-feminino-horizontal-16x9.mp4",
+      "bytes": 141799,
+      "sha256": "a9fdfe04455baf3b6cb3c381615617ccea67f39c67c54aa5a05bb736bb219c53",
+      "sha256Anterior": "3a0e29e8b68b9f969c88a3f3821ea63ca112ce68022b986fe1e7a66e18ed9e67",
+      "sha256Intermediario": "af399e147e3cf4e422f13d4b6dc4bfcd6d25efd6103f6601ef5f6e66d589a6b2",
+      "sha256SemLimpeza": "2be5204160c9f1084f3eb9f6a4cb73e684cbbce2e9c2124cd7bcf454b7575973",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4",
+        "bytes": 141799,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 1.8333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0336,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          214.3,
+          202.3,
+          153.5
+        ],
+        "pixelsPersonagem": 15102,
+        "bbox": [
+          548,
+          40,
+          828,
+          686
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            214.3,
+            202.3,
+            153.5
+          ],
+          "distanciaCromaticidade": 0.0336
+        },
+        {
+          "tempoS": 0.917,
+          "corPersonagem": [
+            202.2,
+            190.7,
+            145.6
+          ],
+          "pixelsPersonagem": 1026,
+          "bbox": [
+            104,
+            10,
+            206,
+            170
+          ],
+          "distanciaCromaticidade": 0.0345
+        },
+        {
+          "tempoS": 1.558,
+          "corPersonagem": [
+            203,
+            191.6,
+            146.3
+          ],
+          "pixelsPersonagem": 999,
+          "bbox": [
+            134,
+            10,
+            206,
+            170
+          ],
+          "distanciaCromaticidade": 0.0347
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-flexora",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+          "bytes": 82212,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.1333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-flexora-masculino-horizontal-16x9.mp4",
+      "bytes": 82212,
+      "sha256": "1080e880c3c3c4325c5835552a44c5f8317e8e4c44835c9f5f862dcd8166af10",
+      "sha256Anterior": "7918e6b4ef01b1b4e416bbaac5df7302a933a105f7a68feed7eeadccac56ddf0",
+      "sha256Intermediario": "f3af5d229fec955a99bfa9b9fb9b56da14f6e503c94c422b88fc7390923376b9",
+      "sha256SemLimpeza": "73e1b8540b8972b1387b831734abc618e08d6046db7bc59462014c19f52181e9",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4",
+        "bytes": 82212,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.0557,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          175.8,
+          149.6,
+          104.8
+        ],
+        "pixelsPersonagem": 11758,
+        "bbox": [
+          444,
+          32,
+          720,
+          630
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            175.8,
+            149.6,
+            104.8
+          ],
+          "distanciaCromaticidade": 0.0557
+        },
+        {
+          "tempoS": 1.067,
+          "corPersonagem": [
+            166.1,
+            141.4,
+            100.4
+          ],
+          "pixelsPersonagem": 745,
+          "bbox": [
+            110,
+            8,
+            180,
+            154
+          ],
+          "distanciaCromaticidade": 0.058
+        },
+        {
+          "tempoS": 1.813,
+          "corPersonagem": [
+            164.9,
+            140.5,
+            99.6
+          ],
+          "pixelsPersonagem": 773,
+          "bbox": [
+            110,
+            8,
+            180,
+            154
+          ],
+          "distanciaCromaticidade": 0.058
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-flexora",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+          "bytes": 91060,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.1333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-flexora-feminino-horizontal-16x9.mp4",
+      "bytes": 91060,
+      "sha256": "9b49553e0514afa392203dc30d8bef7b59f015547481e18d6c0f698f50641bcd",
+      "sha256Anterior": "1472ce3d3191a4e544708bc17ff56976f766d1383edc66db22fb95cbecc24300",
+      "sha256Intermediario": "c3a48726dd5b092eb5f51d4d5714e09550b0e4591276473686d3449bd3b53c2f",
+      "sha256SemLimpeza": "d6c96bcb2eab59e710f0fe021c42a67ff032b96aca1b1cdc39d0593c2106aaf3",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4",
+        "bytes": 91060,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.1333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0312,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          214.3,
+          201,
+          151.9
+        ],
+        "pixelsPersonagem": 11759,
+        "bbox": [
+          440,
+          34,
+          702,
+          628
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            214.3,
+            201,
+            151.9
+          ],
+          "distanciaCromaticidade": 0.0312
+        },
+        {
+          "tempoS": 1.067,
+          "corPersonagem": [
+            201.7,
+            188.8,
+            144.6
+          ],
+          "pixelsPersonagem": 730,
+          "bbox": [
+            110,
+            8,
+            174,
+            154
+          ],
+          "distanciaCromaticidade": 0.0331
+        },
+        {
+          "tempoS": 1.813,
+          "corPersonagem": [
+            200.4,
+            187.7,
+            143.5
+          ],
+          "pixelsPersonagem": 772,
+          "bbox": [
+            110,
+            8,
+            174,
+            154
+          ],
+          "distanciaCromaticidade": 0.0329
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-elevacao-lateral",
+      "personagem": "masculino",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+          "bytes": 234172,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.6333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+      "bytes": 234172,
+      "sha256": "2a0a52289bf7861a160bc1b9ed1a8c1c5c79e4455bad8ad75002358dd8767fa7",
+      "sha256Anterior": "44fb68097b45a543d78920ba79ab223ec301eaf9dd9c75ff38d78d8357aed35e",
+      "sha256Intermediario": "305f97f274e87cda79659305888475fb7bc0ed93ea98b4289fed25bc3e2421d4",
+      "sha256SemLimpeza": "adc67c7534503a2dac1128da5781d3dea787ce68bc87791d9381cd9b3d08fd28",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4",
+        "bytes": 234172,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.6333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        167.2,
+        123.8,
+        78.3
+      ],
+      "distanciaCromaticidade": 0.058,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          176.5,
+          150.2,
+          106.7
+        ],
+        "pixelsPersonagem": 12513,
+        "bbox": [
+          562,
+          34,
+          696,
+          654
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            176.5,
+            150.2,
+            106.7
+          ],
+          "distanciaCromaticidade": 0.058
+        },
+        {
+          "tempoS": 1.317,
+          "corPersonagem": [
+            170.2,
+            145.1,
+            105
+          ],
+          "pixelsPersonagem": 834,
+          "bbox": [
+            106,
+            8,
+            200,
+            162
+          ],
+          "distanciaCromaticidade": 0.0618
+        },
+        {
+          "tempoS": 2.238,
+          "corPersonagem": [
+            166.9,
+            142.5,
+            102.6
+          ],
+          "pixelsPersonagem": 854,
+          "bbox": [
+            132,
+            8,
+            182,
+            162
+          ],
+          "distanciaCromaticidade": 0.0613
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    },
+    {
+      "exercicioId": "mus-elevacao-lateral",
+      "personagem": "feminino",
+      "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+      "entrada": {
+        "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+        "status": "pronto",
+        "motivo": null,
+        "meta": {
+          "arquivo": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+          "bytes": 235142,
+          "largura": 1280,
+          "altura": 720,
+          "fps": 30,
+          "duracaoS": 2.6333,
+          "codec": "avc1",
+          "temVideo": true,
+          "temAudio": false,
+          "proporcao": 1.7778
+        }
+      },
+      "nome": "mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+      "bytes": 235142,
+      "sha256": "ab68ebdd91bb0fa64b99aaec090db6f9059247d7e1c87475d57d1fff2ed19cf3",
+      "sha256Anterior": "3d618590731d968476a4bb087143cb6deb371c35e5884eea20c34988395e544a",
+      "sha256Intermediario": "801aaf10b14f40ea76116e51d7b03585b0ce3f8da2e0d635949723da8a2657dc",
+      "sha256SemLimpeza": "c0ff71f0e96e377f269786f6ab18f2a68b4a1766ffbc174a7c1b157683a6b720",
+      "medido": {
+        "arquivo": "/home/user/forja/assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4",
+        "bytes": 235142,
+        "largura": 1280,
+        "altura": 720,
+        "fps": 30,
+        "duracaoS": 2.6333,
+        "codec": "avc1",
+        "temVideo": true,
+        "temAudio": false,
+        "proporcao": 1.7778
+      },
+      "divergenciasDoManifesto": [],
+      "corTexturaOficial": [
+        253,
+        219.2,
+        156.8
+      ],
+      "distanciaCromaticidade": 0.0336,
+      "quadro": {
+        "fundo": [
+          15,
+          16,
+          13
+        ],
+        "corPersonagem": [
+          215.1,
+          202.1,
+          154.4
+        ],
+        "pixelsPersonagem": 12312,
+        "bbox": [
+          566,
+          34,
+          696,
+          656
+        ]
+      },
+      "instantes": [
+        {
+          "tempoS": 0,
+          "corPersonagem": [
+            215.1,
+            202.1,
+            154.4
+          ],
+          "distanciaCromaticidade": 0.0336
+        },
+        {
+          "tempoS": 1.317,
+          "corPersonagem": [
+            203.4,
+            191.6,
+            148.7
+          ],
+          "pixelsPersonagem": 810,
+          "bbox": [
+            106,
+            8,
+            200,
+            164
+          ],
+          "distanciaCromaticidade": 0.0373
+        },
+        {
+          "tempoS": 2.238,
+          "corPersonagem": [
+            200.3,
+            188.4,
+            145.2
+          ],
+          "pixelsPersonagem": 853,
+          "bbox": [
+            132,
+            8,
+            182,
+            164
+          ],
+          "distanciaCromaticidade": 0.0356
+        }
+      ],
+      "checagens": {
+        "manifesto": true,
+        "especificacao": true,
+        "rerenderizado": true,
+        "sombreamentoAplicado": true,
+        "limpezaDeQuadroAplicada": true,
+        "corMadeira": true,
+        "fundo": true,
+        "enquadramento": true,
+        "corEmTodosOsInstantes": true
+      }
+    }
+  ],
+  "mosaicos": {
+    "comparativo": "mosaicos/mosaico-01-comparativo.png",
+    "porPersonagem": {
+      "masculino": {
+        "arquivo": "mosaicos/mosaico-02-corrigidos-masculino.png",
+        "ordem": [
+          {
+            "posicao": 1,
+            "exercicioId": "cal-rotacao-ombros",
+            "mp4": "assets/videos/exercicios/cal-rotacao-ombros-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 2,
+            "exercicioId": "cal-mobilidade-quadril",
+            "mp4": "assets/videos/exercicios/cal-mobilidade-quadril-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 3,
+            "exercicioId": "cal-flexao",
+            "mp4": "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 4,
+            "exercicioId": "cal-agachamento",
+            "mp4": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 5,
+            "exercicioId": "cal-ponte",
+            "mp4": "assets/videos/exercicios/cal-ponte-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 6,
+            "exercicioId": "cal-prancha-frontal",
+            "mp4": "assets/videos/exercicios/cal-prancha-frontal-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 7,
+            "exercicioId": "cal-abdominal-supra",
+            "mp4": "assets/videos/exercicios/cal-abdominal-supra-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 8,
+            "exercicioId": "cal-elevacao-pernas",
+            "mp4": "assets/videos/exercicios/cal-elevacao-pernas-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 9,
+            "exercicioId": "cal-mountain-climber",
+            "mp4": "assets/videos/exercicios/cal-mountain-climber-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 10,
+            "exercicioId": "mus-mobilidade-ombro",
+            "mp4": "assets/videos/exercicios/mus-mobilidade-ombro-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 11,
+            "exercicioId": "mus-rosca-direta",
+            "mp4": "assets/videos/exercicios/mus-rosca-direta-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 12,
+            "exercicioId": "mus-triceps-polia",
+            "mp4": "assets/videos/exercicios/mus-triceps-polia-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 13,
+            "exercicioId": "mus-flexora",
+            "mp4": "assets/videos/exercicios/mus-flexora-masculino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 14,
+            "exercicioId": "mus-elevacao-lateral",
+            "mp4": "assets/videos/exercicios/mus-elevacao-lateral-masculino-horizontal-16x9.mp4"
+          }
+        ],
+        "evolucao": "mosaicos/mosaico-04-evolucao-masculino.png"
+      },
+      "feminino": {
+        "arquivo": "mosaicos/mosaico-03-corrigidos-feminino.png",
+        "ordem": [
+          {
+            "posicao": 1,
+            "exercicioId": "cal-rotacao-ombros",
+            "mp4": "assets/videos/exercicios/cal-rotacao-ombros-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 2,
+            "exercicioId": "cal-mobilidade-quadril",
+            "mp4": "assets/videos/exercicios/cal-mobilidade-quadril-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 3,
+            "exercicioId": "cal-flexao",
+            "mp4": "assets/videos/exercicios/cal-flexao-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 4,
+            "exercicioId": "cal-agachamento",
+            "mp4": "assets/videos/exercicios/cal-agachamento-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 5,
+            "exercicioId": "cal-ponte",
+            "mp4": "assets/videos/exercicios/cal-ponte-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 6,
+            "exercicioId": "cal-prancha-frontal",
+            "mp4": "assets/videos/exercicios/cal-prancha-frontal-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 7,
+            "exercicioId": "cal-abdominal-supra",
+            "mp4": "assets/videos/exercicios/cal-abdominal-supra-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 8,
+            "exercicioId": "cal-elevacao-pernas",
+            "mp4": "assets/videos/exercicios/cal-elevacao-pernas-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 9,
+            "exercicioId": "cal-mountain-climber",
+            "mp4": "assets/videos/exercicios/cal-mountain-climber-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 10,
+            "exercicioId": "mus-mobilidade-ombro",
+            "mp4": "assets/videos/exercicios/mus-mobilidade-ombro-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 11,
+            "exercicioId": "mus-rosca-direta",
+            "mp4": "assets/videos/exercicios/mus-rosca-direta-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 12,
+            "exercicioId": "mus-triceps-polia",
+            "mp4": "assets/videos/exercicios/mus-triceps-polia-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 13,
+            "exercicioId": "mus-flexora",
+            "mp4": "assets/videos/exercicios/mus-flexora-feminino-horizontal-16x9.mp4"
+          },
+          {
+            "posicao": 14,
+            "exercicioId": "mus-elevacao-lateral",
+            "mp4": "assets/videos/exercicios/mus-elevacao-lateral-feminino-horizontal-16x9.mp4"
+          }
+        ],
+        "evolucao": "mosaicos/mosaico-05-evolucao-feminino.png"
+      }
+    }
+  },
+  "problemas": [],
+  "resultado": {
+    "analisados": 28,
+    "aprovados": 28,
+    "totalProblemas": 0
+  }
+}

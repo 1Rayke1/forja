@@ -1,0 +1,41 @@
+{
+  "geradoEm": "2026-11-03T02:24:39.180Z",
+  "quadroDeReferencia": "docs/validacao-3d/verificacao-28-videos/quadros/rasterizador-antes-do-encoder.png",
+  "mp4Publicado": "assets/videos/exercicios/cal-agachamento-masculino-horizontal-16x9.mp4",
+  "corDosPixelsClaros": {
+    "rasterizador": [
+      169.6,
+      142.6,
+      101.1
+    ],
+    "bmpCorrigido": [
+      166,
+      141.7,
+      98.4
+    ],
+    "bmpComoEscrito": [
+      98,
+      167.5,
+      139.4
+    ],
+    "mp4Publicado": [
+      98,
+      167.5,
+      139.4
+    ]
+  },
+  "distancias": {
+    "publicadoVsRasterizador": 84.9,
+    "publicadoVsBmpComoEscrito": 0,
+    "publicadoVsBmpCorrigido": 83.5,
+    "rasterizadorVsBmpCorrigido": 4.6
+  },
+  "bmp": {
+    "bytes": 2764854,
+    "primeiraDiferencaEntreWriters": 3894,
+    "offsetFimDaPrimeiraLinha": 3894,
+    "linha0Identica": true,
+    "deslocamentoAposLinha0": 2
+  },
+  "conclusao": "CONFIRMADO: o deslocamento de 2 bytes em bmpDeFrame gira os canais BGR e explica a cor verde-azulada dos 28 MP4."
+}

@@ -1,0 +1,34 @@
+=== 24 chromium ===
+Referência WebGL masculino: 49945 bytes
+Referência WebGL feminino: 46851 bytes
+cal-rotacao-ombros/masculino: 1280x720 28.73 fps | cor 175.5/146.9/103.6 (d=35.3) | movimento 1.334 | OK
+cal-rotacao-ombros/feminino: 1280x720 29.15 fps | cor 212.1/196/150.1 (d=47.5) | movimento 1.651 | OK
+cal-mobilidade-quadril/masculino: 1280x720 28.3 fps | cor 172.3/144/100.6 (d=30.5) | movimento 4.247 | OK
+cal-mobilidade-quadril/feminino: 1280x720 28.87 fps | cor 208.9/191.9/146.1 (d=53) | movimento 6.046 | OK
+cal-flexao/masculino: 1280x720 29.66 fps | cor 179/150.7/104.2 (d=39.2) | movimento 15.439 | OK
+cal-flexao/feminino: 1280x720 29.83 fps | cor 216.8/201.8/151.1 (d=40.6) | movimento 23.831 | OK
+cal-agachamento/masculino: 1280x720 29.04 fps | cor 167.8/140.4/96.3 (d=24.5) | movimento 5.85 | OK
+cal-agachamento/feminino: 1280x720 29.04 fps | cor 207/190/143.1 (d=56.2) | movimento 6.972 | OK
+cal-ponte/masculino: 1280x720 29.75 fps | cor 181.2/152.4/104.9 (d=41.5) | movimento 26.304 | OK
+cal-ponte/feminino: 1280x720 29.51 fps | cor 217.8/202.8/152.5 (d=39.1) | movimento 35.337 | OK
+cal-prancha-frontal/masculino: 1280x720 29.66 fps | cor 182.2/153.4/106.1 (d=43.3) | movimento 0.18 | OK
+cal-prancha-frontal/feminino: 1280x720 29.66 fps | cor 218.7/203.8/152.6 (d=37.8) | movimento 0.302 | OK
+cal-abdominal-supra/masculino: 1280x720 29.32 fps | cor 183.7/155/106.4 (d=45.1) | movimento 11.486 | OK
+cal-abdominal-supra/feminino: 1280x720 28.98 fps | cor 219.1/204.8/153.2 (d=37) | movimento 13.855 | OK
+cal-elevacao-pernas/masculino: 1280x720 29.62 fps | cor 183.3/154.6/106.3 (d=44.6) | movimento 5.406 | OK
+cal-elevacao-pernas/feminino: 1280x720 29.62 fps | cor 219.6/205.7/154.5 (d=36.1) | movimento 7.648 | OK
+cal-mountain-climber/masculino: 1280x720 29.32 fps | cor 178.3/150.2/104.3 (d=38.7) | movimento 3.556 | OK
+cal-mountain-climber/feminino: 1280x720 29.55 fps | cor 216.7/202.5/153.2 (d=40.1) | movimento 5.661 | OK
+mus-mobilidade-ombro/masculino: 1280x720 28.85 fps | cor 179/149.7/105.9 (d=39.6) | movimento 2.497 | OK
+mus-mobilidade-ombro/feminino: 1280x720 28.27 fps | cor 215/199.2/153.7 (d=43.1) | movimento 2.61 | OK
+mus-rosca-direta/masculino: 1280x720 29.12 fps | cor 176/147.2/104 (d=35.9) | movimento 1.088 | OK
+mus-rosca-direta/feminino: 1280x720 29.12 fps | cor 211.3/195.1/149.4 (d=48.7) | movimento 1.252 | OK
+mus-triceps-polia/masculino: 1280x720 29.43 fps | cor 174.8/146.6/102.1 (d=33.8) | movimento 1.266 | OK
+mus-triceps-polia/feminino: 1280x720 28.87 fps | cor 212.8/197.3/149.8 (d=46.3) | movimento 1.466 | OK
+mus-flexora/masculino: 1280x720 29.52 fps | cor 175.5/147/102.3 (d=34.4) | movimento 0.937 | OK
+mus-flexora/feminino: 1280x720 29.03 fps | cor 210.9/194.4/147.2 (d=49.8) | movimento 1.44 | OK
+mus-elevacao-lateral/masculino: 1280x720 29.61 fps | cor 175.5/146.9/103.6 (d=35.3) | movimento 2.722 | OK
+mus-elevacao-lateral/feminino: 1280x720 29.22 fps | cor 213.4/197.3/151.2 (d=45.6) | movimento 2.937 | OK
+
+Chromium: 28/28 aprovados, 0 problemas.
+chromium EXIT=0

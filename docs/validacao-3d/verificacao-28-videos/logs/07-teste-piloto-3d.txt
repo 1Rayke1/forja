@@ -1,0 +1,5 @@
+OK desktop: vídeo, controles, tela cheia e ausência de imagens; 1280 × 720 × 6
+OK android-emulado: vídeo, controles, tela cheia e ausência de imagens; 1280 × 720 × 6
+OK android-paisagem-emulado: vídeo, controles, tela cheia e ausência de imagens; 1280 × 720 × 6
+OK desktop: falha, nova falha, recuperação e controles
+OK android-emulado: falha, nova falha, recuperação e controles

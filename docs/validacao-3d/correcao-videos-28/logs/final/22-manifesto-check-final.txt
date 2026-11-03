@@ -1,0 +1,3 @@
+=== 22 manifesto --check ===
+Manifesto atualizado: 37 exercícios.
+check EXIT=0

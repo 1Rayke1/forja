@@ -1,0 +1,49 @@
+=== 21 test:e2e ===
+
+> forja@2.0.0 test:e2e
+> node tests/e2e.browser.mjs
+
+✅ Calendário e missões funcionam na página inicial
+✅ Nenhum erro de JavaScript, HTTP ou recurso ausente em todas as páginas
+✅ Sem rolagem horizontal em 320, 360, 390, 430, 768 e 1280 px em todas as páginas
+✅ Ação TREINO é compacta, acessível e cabe em 390 px
+✅ Atlas: exercício escolhido, figura anterior/posterior, filtro e detalhe na biblioteca
+✅ Atlas: prancha única íntegra, duas vistas alinhadas e destaques sobre o corpo
+✅ Alvos de toque principais têm pelo menos 44px de altura
+✅ Navegação por seções: início → TREINO → hub → CALISTENIA e MUSCULAÇÃO → voltar
+✅ Criar rotina de calistenia com exercício da biblioteca e personalizado por duração
+✅ Editar rotina e musculação mantém listas separadas
+✅ Iniciar rotina, cronômetro por duração, pausa e descanso
+✅ Sessão ativa sobrevive à navegação e ao recarregamento
+✅ Pausar sessão, descanso com pular e confirmação antes de descartar
+✅ Finalizar sessão mostra resumo e grava no histórico de progresso
+✅ Progresso: calendário, gráficos, recordes, metas e busca com histórico real
+✅ Configurações: exportar, rejeitar importação inválida, importar com confirmação e desfazer
+✅ Perfil: inicializa, checkboxes refletem o armazenado e abrir a página não grava nada
+✅ Perfil: exportar, rejeitar importação inválida, importar com confirmação e desfazer
+✅ Som e vibração: a mesma escolha vale em Perfil, Configurações, outra aba e no fim do descanso
+✅ Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explorar sob /forja/ em todas as páginas
+✅ Armazenamento local é informado em todas as páginas
+✅ Capturas visuais das páginas em mobile e desktop
+✅ Fluxo completo em navegador limpo: Home sem rotina, criação sem #editor-missing, rotação e exclusão
+✅ Home e gate: perfil obrigatório, 5 larguras, metas com unidades/modalidade, outra aba e pageshow
+✅ Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, conclusão e perfil persistente
+✅ D-01: importar 250 treinos avisa o limite, guarda os 200 mais recentes e não perde o novo
+✅ D-02: falha na restauração deixa o desfazer disponível na mesma tela
+✅ D-04/D-07: descanso sem anúncio por segundo, com as ações visíveis acima da barra
+✅ D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos em 320 px
+❌ Explorar — busca e resultados inline, filtros recolhidos e atlas em acesso único
+   Catálogo inline ausente
+✅ Evolução 1 — rotinas diretas, filtro e início com a modalidade correta
+✅ Evolução 1 — consulta e inclusão contextual preservam rascunho, ordem, foco e IDs
+✅ Evolução 1 — instruções preservam sessão, descanso, valores, pausa e recuperação
+✅ Demonstrações: imagem local decodifica, créditos visíveis e fallback sem rede
+✅ Demonstrações: seletor no editor persiste demoId e chega à execução
+✅ Nenhum erro de JavaScript durante todo o fluxo
+
+============================================================
+E2E navegador real — 35/36 verificações aprovadas
+Falhas: Explorar — busca e resultados inline, filtros recolhidos e atlas em acesso único
+============================================================
+Artefatos (screenshots/downloads): /tmp/forja-e2e-MiCMIm
+test:e2e EXIT=1

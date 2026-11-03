@@ -1,0 +1,117 @@
+{
+  "descricao": "Estado apos correcoes de BMP e UV, antes da correcao de sombreamento (flat shading)",
+  "arquivos": {
+    "cal-abdominal-supra-feminino-horizontal-16x9.mp4": {
+      "bytes": 624704,
+      "sha256": "7cdc42a97cd873e4f53b02b7ba3fe264e24b8b303745c00bb9272c67f6728ba5"
+    },
+    "cal-abdominal-supra-masculino-horizontal-16x9.mp4": {
+      "bytes": 529967,
+      "sha256": "1d64f6cea99766b15af5c1450db21e202cdea52d0f076e669d6140e359be7c80"
+    },
+    "cal-agachamento-feminino-horizontal-16x9.mp4": {
+      "bytes": 520455,
+      "sha256": "585a77f8c8fb2d3bb7e458d5d995b03d13f6ef2e22f404abd11e275e2e2650c1"
+    },
+    "cal-agachamento-masculino-horizontal-16x9.mp4": {
+      "bytes": 444987,
+      "sha256": "f439eddd96beecb65ead513e3e42801710dbcdd7ccb0ebc7abdf618b0bdab5ed"
+    },
+    "cal-elevacao-pernas-feminino-horizontal-16x9.mp4": {
+      "bytes": 324650,
+      "sha256": "d16c04ff36c18e995d493bb4f433bc6983e17ff08ba45990b23bb0c74a418bc3"
+    },
+    "cal-elevacao-pernas-masculino-horizontal-16x9.mp4": {
+      "bytes": 256701,
+      "sha256": "a860478b4d5da6adceb81f1b81fbfb8eca5c0a531a37c5d1406706b4c07f73fe"
+    },
+    "cal-flexao-feminino-horizontal-16x9.mp4": {
+      "bytes": 1365847,
+      "sha256": "7bed86d6950d2a59ae00006d997c01a21a14005535bfae02a43d0440ce8ab2b0"
+    },
+    "cal-flexao-masculino-horizontal-16x9.mp4": {
+      "bytes": 1044675,
+      "sha256": "576e04b10c5b6995636dcb3e410f481f7316cb02f6fb53597a18acb7b1757404"
+    },
+    "cal-mobilidade-quadril-feminino-horizontal-16x9.mp4": {
+      "bytes": 436716,
+      "sha256": "af84ae1f4e0d8194b0a903787a4f7ac956c66a2552f70d4318688f6cbadd0d7f"
+    },
+    "cal-mobilidade-quadril-masculino-horizontal-16x9.mp4": {
+      "bytes": 372945,
+      "sha256": "9273e2a63f76d4b6450ca5d91a09b47d06795c90d5f83ef876c4810971e11659"
+    },
+    "cal-mountain-climber-feminino-horizontal-16x9.mp4": {
+      "bytes": 573940,
+      "sha256": "c994cb2904ca2be0d57eef35245f4926d45ad1347d4d4be6cf04225fbce259d7"
+    },
+    "cal-mountain-climber-masculino-horizontal-16x9.mp4": {
+      "bytes": 446855,
+      "sha256": "92fef152f02411a4b270345cc8a60d7a9be7d411188779a17fbd5d8f9d2a6b74"
+    },
+    "cal-ponte-feminino-horizontal-16x9.mp4": {
+      "bytes": 876766,
+      "sha256": "0f636cfdff0c36e1a66d75d8e55a8e19393a970baae44f3718eebe1f21ff217a"
+    },
+    "cal-ponte-masculino-horizontal-16x9.mp4": {
+      "bytes": 717963,
+      "sha256": "d846a7a67627f3c2733a7d621c65e3147c58ae129b7cbe80ec304119f6555d11"
+    },
+    "cal-prancha-frontal-feminino-horizontal-16x9.mp4": {
+      "bytes": 164188,
+      "sha256": "c0fce203c505a3d4e11f4d2b038676a4cbc8b97bde9c7d573e3be1e419a2ee46"
+    },
+    "cal-prancha-frontal-masculino-horizontal-16x9.mp4": {
+      "bytes": 131078,
+      "sha256": "fe2e7831500b34f57163f70113b05278e45431a8df10cfa58bed081b05b10e6c"
+    },
+    "cal-rotacao-ombros-feminino-horizontal-16x9.mp4": {
+      "bytes": 227507,
+      "sha256": "ce0ca62a4176ef5385e27d0f674bb4871a584a34ea9d938bee229c826ae027bb"
+    },
+    "cal-rotacao-ombros-masculino-horizontal-16x9.mp4": {
+      "bytes": 207438,
+      "sha256": "918ef94f7f534c4abc0d8c2418a7c1a0db54cb407eeae8c03546bf5422263c01"
+    },
+    "mus-elevacao-lateral-feminino-horizontal-16x9.mp4": {
+      "bytes": 266108,
+      "sha256": "801aaf10b14f40ea76116e51d7b03585b0ce3f8da2e0d635949723da8a2657dc"
+    },
+    "mus-elevacao-lateral-masculino-horizontal-16x9.mp4": {
+      "bytes": 250098,
+      "sha256": "305f97f274e87cda79659305888475fb7bc0ed93ea98b4289fed25bc3e2421d4"
+    },
+    "mus-flexora-feminino-horizontal-16x9.mp4": {
+      "bytes": 100341,
+      "sha256": "c3a48726dd5b092eb5f51d4d5714e09550b0e4591276473686d3449bd3b53c2f"
+    },
+    "mus-flexora-masculino-horizontal-16x9.mp4": {
+      "bytes": 81283,
+      "sha256": "f3af5d229fec955a99bfa9b9fb9b56da14f6e503c94c422b88fc7390923376b9"
+    },
+    "mus-mobilidade-ombro-feminino-horizontal-16x9.mp4": {
+      "bytes": 173187,
+      "sha256": "aec9d7addd18765b8cea73e0ebc60f9761ec63e2afd5e9cf484940011af73618"
+    },
+    "mus-mobilidade-ombro-masculino-horizontal-16x9.mp4": {
+      "bytes": 173894,
+      "sha256": "dba99b7b8d40fa6da162a92804698a0ac1c74f9a8c0f760bfbda74fcc13bffaa"
+    },
+    "mus-rosca-direta-feminino-horizontal-16x9.mp4": {
+      "bytes": 184422,
+      "sha256": "b834fa4dbe2be046efb3a93ba844de96a194044a5a085cd40215b8335a9ef42e"
+    },
+    "mus-rosca-direta-masculino-horizontal-16x9.mp4": {
+      "bytes": 169802,
+      "sha256": "1f948cf138fc5cf4bdbc21836a03d79935244e44acc64690d332d7acaf145f94"
+    },
+    "mus-triceps-polia-feminino-horizontal-16x9.mp4": {
+      "bytes": 138207,
+      "sha256": "af399e147e3cf4e422f13d4b6dc4bfcd6d25efd6103f6601ef5f6e66d589a6b2"
+    },
+    "mus-triceps-polia-masculino-horizontal-16x9.mp4": {
+      "bytes": 120292,
+      "sha256": "5eea84c0578d035e7ce6df4d5e49a26aad04fe41189d75ea1dee5b09eadf819d"
+    }
+  }
+}

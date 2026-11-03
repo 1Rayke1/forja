@@ -1,0 +1,1 @@
+Gerado assets/3d/apresentacao-exercicios.json: 37 exercícios, 14 com clipe, 23 sem clipe.
