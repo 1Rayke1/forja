@@ -1,6 +1,7 @@
 # Recuperação, reconstrução e verificação dos 28 MP4 — laudo com evidências
 
 **Sessão:** `arena/4cf65613-forja` · **Base reconstruída:** `41a00c8` (mesmo commit de `origin/main`) · **Data:** 2026-11-03 (UTC)
+**PR de revisão:** [#52](https://github.com/1Rayke1/forja/pull/52) — aberto, **não mesclado**.
 **Status:** verificações técnicas **concluídas e aprovadas**; **1 achado visual bloqueante** para aceite dos vídeos e **1 falha pré-existente** no e2e opcional. Nada foi mesclado, publicado, re-renderizado ou descartado.
 
 ---
