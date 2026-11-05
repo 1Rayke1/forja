@@ -944,11 +944,7 @@
     if (exercise.load && draftModality === "weights") parts.push("Carga: " + exercise.load);
     if (exercise.notes) parts.push("com observações");
     if (exercise.youtubeVideo && exercise.youtubeVideo.videoId) {
-      parts.push(
-        exercise.youtubeVideo.framing === "zoom"
-          ? "Vídeo personalizado (zoom 16:9)"
-          : "Vídeo personalizado"
-      );
+      parts.push("Vídeo personalizado");
     }
     meta.textContent = parts.join(" · ");
 

@@ -428,20 +428,9 @@
 }
 
 /*
-  Zoom e corte proporcional para Shorts verticais (9:16 -> 16:9) em treinos
-  personalizados: dimensiona o iframe em 9:16 (altura = largura * 16/9 =
-  altura_16_9 * 256/81) centralizado no contêiner 16:9 com overflow: hidden.
-  Preenche 100% da largura horizontal eliminando faixas laterais, mantendo
-  proporção 1:1 dos pixels (sem esticar ou deformar o vídeo).
+  Nenhum recurso de zoom/corte: só entram vídeos convencionais horizontais
+  (16:9), sempre exibidos no enquadramento original do YouTube.
 */
-.video-demo-player.is-zoom-crop .video-demo-iframe {
-  inset: auto;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: calc(100% * 256 / 81);
-  transform: translateY(-50%);
-}
 
 .video-demo-meta {
   display: flex;
@@ -634,35 +623,39 @@
   color: var(--muted);
 }
 
-.video-picker-framing {
-  display: grid;
-  gap: 6px;
+/* Identificação do exercício selecionado no modal "Procurar vídeo". */
+.video-picker-exercise {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin: 0;
+  padding: 6px 10px;
   min-width: 0;
-  padding-top: 2px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  background: var(--panel2);
+  box-sizing: border-box;
 }
 
-.video-picker-framing-label {
-  font-size: 11px;
-  font-weight: 600;
+.video-picker-exercise-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
-.video-picker-framing-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  min-width: 0;
+.video-picker-exercise-name {
+  font-size: 13px;
+  color: var(--text);
+  overflow-wrap: anywhere;
 }
 
-.video-picker-framing-btn {
-  min-height: 44px;
-  flex: 1 1 140px;
-}
-
-.video-picker-framing-btn.is-active {
-  border-color: var(--gold);
-  color: var(--gold);
-  box-shadow: inset 0 0 0 1px var(--gold);
+.video-picker-exercise-mode {
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .video-picker-status,
@@ -682,6 +675,66 @@
 .video-picker-error {
   border-color: #9e4747;
   color: #f3b5b5;
+}
+
+.video-picker-status.is-loading {
+  border-color: var(--gold);
+  color: var(--text);
+}
+
+.video-picker-status.is-unconfigured,
+.video-picker-status.is-empty,
+.video-picker-status.is-cached {
+  border-style: dashed;
+}
+
+/* Carregamento durante a pesquisa (spinner discreto, sem áudio, sem autoplay). */
+.video-picker-loading,
+.video-picker-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 14px 10px;
+  min-height: 44px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+  box-sizing: border-box;
+}
+
+.video-picker-spinner {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  animation: video-picker-spin 0.9s linear infinite;
+}
+
+@keyframes video-picker-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-picker-spinner {
+    animation-duration: 2.4s;
+  }
+}
+
+.video-picker.is-busy .video-picker-results {
+  opacity: 0.75;
+}
+
+.video-picker-direct-note {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
 }
 
 .video-picker-results {

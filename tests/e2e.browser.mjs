@@ -22,6 +22,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { brotliDecompressSync, deflateSync } from 'node:zlib';
+import youtubeProxyHandler, { resetRuntimeState as resetYoutubeBackend } from '../netlify/functions/youtube-search.mjs';
 
 function makeSolidPng(width, height) {
   const crcTable = new Uint32Array(256);
@@ -245,13 +246,132 @@ const page = await browser.newPage();
 let currentLabel = 'carga';
 const errors = [];
 const youtubeE2EState = {
+  /* normal | empty | error | unconfigured | quota */
   mode: 'normal',
   unavailableIds: new Set(['RemovedVd00']),
-  expectExternalHttpError: false
+  expectBackendHttpError: false
 };
 
+/*
+  Fixtures do upstream do Google. Quem responde /api/youtube-search é a Netlify
+  Function real do repositório: o E2E exercita os mesmos filtros de duração,
+  orientação horizontal, exclusão de Shorts, cache e quota que vão para produção.
+*/
+const horizontalThumbs = () => ({
+  default: { width: 120, height: 90 },
+  medium: { width: 320, height: 180 },
+  high: { width: 480, height: 360 },
+  maxres: { width: 1280, height: 720 }
+});
+const E2E_UPSTREAM = {
+  searchIds: ['HorizVid001', 'ShortVert01', 'LongVid0001', 'SquareThmb1'],
+  videos: {
+    HorizVid001: {
+      id: 'HorizVid001',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT26S' },
+      snippet: {
+        title: 'Flexão Técnica Horizontal', channelTitle: 'Coach Lab',
+        description: 'Demonstração 16:9 do movimento completo.', thumbnails: horizontalThumbs()
+      }
+    },
+    ShortVert01: {
+      id: 'ShortVert01',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT18S' },
+      snippet: {
+        title: 'Flexão Dica Rápida #shorts', channelTitle: 'Calistenia Curtos',
+        description: '#shorts', thumbnails: { default: { width: 225, height: 400 }, high: { width: 360, height: 640 } }
+      }
+    },
+    LongVid0001: {
+      id: 'LongVid0001',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT1M35S' },
+      snippet: { title: 'Aula Longa', channelTitle: 'Coach Lab', thumbnails: horizontalThumbs() }
+    },
+    SquareThmb1: {
+      id: 'SquareThmb1',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT33S' },
+      snippet: {
+        title: 'Flexão na prática', channelTitle: 'Movimento Certo',
+        thumbnails: { high: { width: 480, height: 480 } }
+      }
+    },
+    LinkColad01: {
+      id: 'LinkColad01',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT21S' },
+      snippet: { title: 'Flexão colada por link', channelTitle: 'Coach Lab', thumbnails: horizontalThumbs() }
+    },
+    LegacyZoom1: {
+      id: 'LegacyZoom1',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT18S' },
+      snippet: { title: 'Vídeo antigo do treino', channelTitle: 'Canal Antigo', thumbnails: horizontalThumbs() }
+    }
+  },
+  oembed: {
+    SquareThmb1: { width: 480, height: 270, thumbnail_width: 480, thumbnail_height: 360, title: 'Flexão na prática' }
+  }
+};
+
+function upstreamJson(body, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    async json() { return body; }
+  };
+}
+
+function makeUpstreamFetch() {
+  return async upstreamUrl => {
+    const target = String(upstreamUrl);
+    if (youtubeE2EState.mode === 'error') {
+      return upstreamJson({ error: { message: 'Backend Error' } }, 500);
+    }
+    if (youtubeE2EState.mode === 'quota') {
+      return upstreamJson({ error: { message: 'Daily Limit Exceeded', errors: [{ reason: 'quotaExceeded' }] } }, 403);
+    }
+    if (target.includes('/youtube/v3/search')) {
+      if (youtubeE2EState.mode === 'empty') return upstreamJson({ items: [] }, 200);
+      return upstreamJson({ items: E2E_UPSTREAM.searchIds.map(videoId => ({ id: { videoId } })) }, 200);
+    }
+    if (target.includes('/youtube/v3/videos')) {
+      const ids = new URL(target).searchParams.get('id').split(',');
+      return upstreamJson({ items: ids.map(id => E2E_UPSTREAM.videos[id]).filter(Boolean) }, 200);
+    }
+    if (target.includes('youtube.com/oembed')) {
+      const watched = new URL(target).searchParams.get('url') || '';
+      const match = watched.match(/[?&]v=([^&]+)/);
+      const geometry = match ? E2E_UPSTREAM.oembed[match[1]] : null;
+      return geometry ? upstreamJson(geometry, 200) : upstreamJson({ error: 'not found' }, 404);
+    }
+    return upstreamJson({}, 404);
+  };
+}
+
+/* Executa a Function real contra o upstream simulado. */
+async function runYoutubeBackend(requestUrl) {
+  const query = requestUrl.includes('?') ? requestUrl.slice(requestUrl.indexOf('?')) : '';
+  process.env.YOUTUBE_API_KEY = youtubeE2EState.mode === 'unconfigured' ? '' : 'E2E_BACKEND_KEY';
+  process.env.YOUTUBE_DAILY_QUOTA_UNITS = '100000';
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = makeUpstreamFetch();
+  try {
+    const backendResponse = await youtubeProxyHandler(
+      new Request('https://forja.local/api/youtube-search' + query, { method: 'GET' }),
+      { ip: '203.0.113.7' }
+    );
+    return { status: backendResponse.status, body: await backendResponse.text() };
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+}
+
 await page.setRequestInterception(true);
-page.on('request', req => {
+page.on('request', async req => {
   const url = req.url();
   if (url.startsWith('https://www.youtube-nocookie.com/embed/')) {
     req.respond({
@@ -279,77 +399,23 @@ page.on('request', req => {
     });
     return;
   }
-  if (url.startsWith('https://www.googleapis.com/youtube/v3/search')) {
-    if (youtubeE2EState.mode === 'error') {
-      req.respond({
-        status: 503,
-        contentType: 'application/json; charset=utf-8',
-        body: JSON.stringify({ error: { message: 'Service Unavailable' } })
-      });
-      return;
-    }
-    if (youtubeE2EState.mode === 'empty') {
-      req.respond({
-        status: 200,
-        contentType: 'application/json; charset=utf-8',
-        body: JSON.stringify({ items: [] })
-      });
-      return;
-    }
-    req.respond({
-      status: 200,
-      contentType: 'application/json; charset=utf-8',
-      body: JSON.stringify({
-        items: [
-          { id: { videoId: 'CustHoriz01' } },
-          { id: { videoId: 'ShortVert01' } },
-          { id: { videoId: 'TooLongVd99' } }
-        ]
-      })
-    });
-    return;
-  }
-  if (url.startsWith('https://www.googleapis.com/youtube/v3/videos')) {
-    req.respond({
-      status: 200,
-      contentType: 'application/json; charset=utf-8',
-      body: JSON.stringify({
-        items: [
-          {
-            id: 'CustHoriz01',
-            status: { embeddable: true, privacyStatus: 'public' },
-            contentDetails: { duration: 'PT26S' },
-            snippet: {
-              title: 'Flexão Técnica Horizontal',
-              channelTitle: 'Coach Lab',
-              description: 'Demonstração 16:9',
-              thumbnails: { medium: { width: 320, height: 180 } }
-            }
-          },
-          {
-            id: 'ShortVert01',
-            status: { embeddable: true, privacyStatus: 'public' },
-            contentDetails: { duration: 'PT18S' },
-            snippet: {
-              title: 'Flexão Dica Rápida #shorts',
-              channelTitle: 'Calistenia Curtos',
-              description: '#shorts',
-              thumbnails: { high: { width: 480, height: 640 } }
-            }
-          },
-          {
-            id: 'TooLongVd99',
-            status: { embeddable: true, privacyStatus: 'public' },
-            contentDetails: { duration: 'PT1M35S' },
-            snippet: {
-              title: 'Aula Longa',
-              channelTitle: 'Coach Lab',
-              thumbnails: { medium: { width: 320, height: 180 } }
-            }
-          }
-        ]
-      })
-    });
+  if (/\/api\/youtube-search(\?|$)/.test(url)) {
+    (async () => {
+      try {
+        const backend = await runYoutubeBackend(url);
+        req.respond({
+          status: backend.status,
+          contentType: 'application/json; charset=utf-8',
+          body: backend.body
+        });
+      } catch (error) {
+        req.respond({
+          status: 502,
+          contentType: 'application/json; charset=utf-8',
+          body: JSON.stringify({ status: 'error', error: 'Falha no backend de teste: ' + error.message })
+        });
+      }
+    })();
     return;
   }
   req.continue();
@@ -357,7 +423,7 @@ page.on('request', req => {
 
 page.on('console', m => {
   if (m.type() !== 'error') return;
-  if (youtubeE2EState.expectExternalHttpError && /Failed to load resource.*503/i.test(m.text())) return;
+  if (youtubeE2EState.expectBackendHttpError && /Failed to load resource.*(429|500|502|503)/i.test(m.text())) return;
   errors.push(currentLabel + ' console: ' + m.text());
 });
 page.on('pageerror', e => errors.push(currentLabel + ' pageerror: ' + e.message));
@@ -2723,6 +2789,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
     assert.match(videoInfo.src, /^https:\/\/www\.youtube-nocookie\.com\/embed\/xBrI-N44QLc\?/);
     assert.match(videoInfo.src, /autoplay=0/);
     assert.match(videoInfo.src, /controls=1/);
+    assert.match(videoInfo.src, /[?&]mute=1(&|$)/, 'vídeo oficial precisa iniciar sem áudio');
     assert.ok(Math.abs(videoInfo.width / videoInfo.height - 16 / 9) < 0.08,
       'proporção do player não é 16:9: ' + videoInfo.width + 'x' + videoInfo.height);
     assert.equal(await page.$('.modal-3d'), null, 'nenhum elemento 3D pode existir');
@@ -2762,35 +2829,32 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
   }
 });
 
-await check('Vídeos YouTube: Procurar vídeo, Short vertical com zoom/corte 16:9 sem deformar, 2 rotinas, reload e backup', async () => {
+await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horizontais, Shorts recusados, 2 rotinas, reload e backup', async () => {
   const saved = await forjaRaw();
   const today = new Date().toISOString().slice(0, 10);
+  const exerciseBase = {
+    name: 'Flexão de braço', sets: 3, type: 'reps', reps: '10',
+    duration: 45, rest: 30, load: '', notes: '', section: 'main', libraryId: 'cal-flexao'
+  };
   const routines = {
     calisthenics: [
       {
-        id: 'rotina-vid-a', name: 'Treino Vídeo A', modality: 'calisthenics',
-        createdAt: 1, updatedAt: 1,
+        id: 'rotina-vid-a', name: 'Treino Vídeo A', modality: 'calisthenics', createdAt: 1, updatedAt: 1,
         sections: {
-          warmup: [],
-          main: [{
-            id: 'ex-a1', name: 'Flexão de braço', sets: 3, type: 'reps', reps: '10',
-            duration: 45, rest: 30, load: '', notes: '', section: 'main',
-            libraryId: 'cal-flexao'
-          }],
-          abs: [], finisher: []
+          warmup: [], abs: [], finisher: [],
+          main: [Object.assign({ id: 'ex-a1' }, exerciseBase)]
         }
       },
       {
-        id: 'rotina-vid-b', name: 'Treino Vídeo B', modality: 'calisthenics',
-        createdAt: 2, updatedAt: 2,
+        id: 'rotina-vid-b', name: 'Treino Vídeo B', modality: 'calisthenics', createdAt: 2, updatedAt: 2,
         sections: {
-          warmup: [],
-          main: [{
-            id: 'ex-b1', name: 'Flexão de braço', sets: 3, type: 'reps', reps: '10',
-            duration: 45, rest: 30, load: '', notes: '', section: 'main',
-            libraryId: 'cal-flexao'
-          }],
-          abs: [], finisher: []
+          warmup: [], abs: [], finisher: [],
+          main: [Object.assign({ id: 'ex-b1' }, exerciseBase, {
+            youtubeVideo: {
+              videoId: 'LegacyZoom1', title: 'Vídeo antigo do treino', channelTitle: 'Canal Antigo',
+              durationSeconds: 18, framing: 'zoom'
+            }
+          })]
         }
       }
     ],
@@ -2798,68 +2862,137 @@ await check('Vídeos YouTube: Procurar vídeo, Short vertical com zoom/corte 16:
   };
   try {
     youtubeE2EState.mode = 'normal';
+    resetYoutubeBackend();
     await restoreForjaRaw({});
     await page.evaluate(r => localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify(r)), routines);
 
-    /* Rotina A: seleciona vídeo horizontal CustHoriz01 com enquadramento original. */
+    /* Rotina A: modal "Procurar vídeo" pesquisando pelo proxy real do backend. */
     await go('treino/rotina.html?id=rotina-vid-a&modalidade=calisthenics');
-    await page.evaluate(() => { window.FORJA_YOUTUBE_CONFIG.apiKey = 'E2E_RESTRICTED_KEY'; });
     await clickCentered('.editor-exercise .video-row-button');
-    await page.waitForSelector('.video-result-card', { timeout: 4000 });
-    const resultIds = await page.$$eval('.video-result-card', els => els.map(e => e.dataset.videoId));
-    assert.deepEqual(resultIds, ['CustHoriz01', 'ShortVert01'], 'vídeo acima de 60s deve ser filtrado');
+    await page.waitForSelector('.video-result-card', { timeout: 6000 });
 
-    await jsClick('.video-result-card[data-video-id="CustHoriz01"]');
-    await page.waitForSelector('.video-picker-preview-iframe', { timeout: 4000 });
+    assert.equal(await text('#modal-title'), 'Procurar vídeo', 'nomenclatura padronizada');
+    assert.equal(await text('.video-picker-exercise-name'), 'Flexão de braço', 'exercício identificado no modal');
+    assert.match(await text('.modal-message'), /treino personalizado/);
+    assert.match(await text('.video-picker-intro'), /horizontal \(16:9\)/);
+    assert.match(await text('.video-picker-intro'), /60 segundos/);
+    assert.match(await text('.video-picker-intro'), /somente para este treino personalizado/);
+    assert.equal(await text('[data-modal-action="confirm"]'), 'Confirmar vídeo');
+    assert.equal(await text('[data-modal-action="cancel"]'), 'Cancelar');
+    assert.equal(await page.$eval('.video-picker-query', el => el.value), 'Flexão de braço');
+    assert.equal(await page.$('.video-picker-framing'), null, 'controle de enquadramento não pode existir');
+    assert.equal(await page.$('[data-framing-option="zoom"]'), null, 'opção de zoom/corte removida');
+
+    const resultIds = await page.$$eval('.video-result-card', els => els.map(el => el.dataset.videoId));
+    assert.deepEqual(resultIds, ['HorizVid001', 'SquareThmb1'],
+      'Short vertical e vídeo acima de 60s não podem aparecer nos resultados');
+
+    const resultsText = await text('.video-picker-results');
+    assert.match(resultsText, /Visualizar/, 'cada resultado oferece Visualizar');
+    assert.match(resultsText, /Horizontal 16:9/);
+    assert.equal(/Short/i.test(resultsText), false, 'resultados não mencionam Shorts');
+    assert.match(await text('.video-result-card[data-video-id="HorizVid001"]'), /0:26/);
+    assert.match(await text('.video-result-card[data-video-id="HorizVid001"]'), /Coach Lab/);
+    assert.match(await text('.video-result-card[data-video-id="HorizVid001"]'), /Flexão Técnica Horizontal/);
+
+    /* Confirmar sem visualizar é bloqueado. */
     await jsClick('[data-modal-action="confirm"]');
     await sleep(150);
-    await clickCentered('#save-routine-top');
-    await sleep(160);
+    assert.ok(await page.$('.modal-backdrop'), 'não pode confirmar sem vídeo selecionado');
+    assert.match(await text('.video-picker-error'), /Selecione e visualize/);
 
-    /* Rotina B: seleciona Short vertical ShortVert01 e ativa Zoom e corte 16:9 sem deformação. */
-    await go('treino/rotina.html?id=rotina-vid-b&modalidade=calisthenics');
-    await page.evaluate(() => { window.FORJA_YOUTUBE_CONFIG.apiKey = 'E2E_RESTRICTED_KEY'; });
-    await clickCentered('.editor-exercise .video-row-button');
-    await page.waitForSelector('.video-result-card[data-video-id="ShortVert01"]', { timeout: 4000 });
-    await jsClick('.video-result-card[data-video-id="ShortVert01"]');
-    await page.waitForSelector('.video-picker-preview-iframe', { timeout: 4000 });
-    await jsClick('[data-framing-option="zoom"]');
-    await sleep(80);
+    /* Link de Short colado: recusado sem prévia e sem confirmação. */
+    await page.evaluate(() => {
+      document.querySelector('.video-picker-url-input').value = 'https://www.youtube.com/shorts/ShortVert01';
+    });
+    await jsClick('.video-picker-url-btn');
+    await sleep(200);
+    assert.match(await text('.video-picker-error'), /YouTube Shorts não são aceitos/);
+    assert.equal(await page.$('.video-picker-preview-iframe'), null, 'Short não pode ganhar prévia');
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(150);
+    assert.ok(await page.$('.modal-backdrop'), 'não pode confirmar um Short');
 
-    /* Verifica geometria real no Chromium: contêiner 16:9 preenchido 100% na largura e iframe 9:16 proporcional (sem esticar). */
-    const cropGeom = await page.evaluate(() => {
-      const boxEl = document.querySelector('.video-picker-preview-frame');
-      const box = boxEl.getBoundingClientRect();
+    /* Short disfarçado de watch?v=: o backend identifica a orientação vertical. */
+    await page.evaluate(() => {
+      document.querySelector('.video-picker-url-input').value = 'https://www.youtube.com/watch?v=ShortVert01';
+    });
+    await jsClick('.video-picker-url-btn');
+    await sleep(500);
+    assert.match(await text('.video-picker-error'), /YouTube Shorts não são aceitos/);
+    assert.equal(await page.$('.video-picker-preview-iframe'), null);
+
+    /* Link convencional: inspeção do backend aprova e abre a prévia silenciosa. */
+    await page.evaluate(() => {
+      document.querySelector('.video-picker-url-input').value = 'https://www.youtube.com/watch?v=LinkColad01';
+    });
+    await jsClick('.video-picker-url-btn');
+    await page.waitForSelector('.video-picker-preview-iframe', { timeout: 6000 });
+    const pastedSrc = await page.$eval('.video-picker-preview-iframe', el => el.getAttribute('src'));
+    assert.match(pastedSrc, /youtube-nocookie\.com\/embed\/LinkColad01/);
+    assert.match(pastedSrc, /[?&]mute=1(&|$)/);
+    assert.match(pastedSrc, /autoplay=0/);
+
+    /* Seleção pela lista: prévia 16:9, silenciosa e sem corte. */
+    await jsClick('.video-result-card[data-video-id="HorizVid001"]');
+    await sleep(150);
+    const previewSrc = await page.$eval('.video-picker-preview-iframe', el => el.getAttribute('src'));
+    assert.match(previewSrc, /^https:\/\/www\.youtube-nocookie\.com\/embed\/HorizVid001\?/);
+    assert.match(previewSrc, /autoplay=0/);
+    assert.match(previewSrc, /controls=1/);
+    assert.match(previewSrc, /[?&]mute=1(&|$)/);
+
+    const previewGeom = await page.evaluate(() => {
+      const box = document.querySelector('.video-picker-preview-frame');
+      const rect = box.getBoundingClientRect();
       const frame = document.querySelector('.video-picker-preview-iframe').getBoundingClientRect();
       return {
-        boxW: box.width,
-        boxH: box.height,
-        boxInnerW: boxEl.clientWidth,
-        frameW: frame.width,
-        frameH: frame.height
+        ratio: rect.width / rect.height,
+        frameRatio: frame.width / frame.height,
+        zoom: box.classList.contains('is-zoom-crop')
       };
     });
-    assert.ok(Math.abs(cropGeom.boxW / cropGeom.boxH - 16 / 9) < 0.08, 'contêiner deve ser 16:9');
-    assert.ok(Math.abs(cropGeom.frameW - cropGeom.boxInnerW) < 1.5, 'iframe deve preencher 100% da largura horizontal');
-    assert.ok(Math.abs(cropGeom.frameH / cropGeom.frameW - 16 / 9) < 0.08,
-      'iframe deve manter proporção 9:16 sem esticar nem deformar');
+    assert.ok(Math.abs(previewGeom.ratio - 16 / 9) < 0.08, 'prévia precisa ser 16:9: ' + previewGeom.ratio);
+    assert.ok(Math.abs(previewGeom.frameRatio - 16 / 9) < 0.08,
+      'iframe ocupa o quadro 16:9 inteiro, sem zoom ou corte: ' + previewGeom.frameRatio);
+    assert.equal(previewGeom.zoom, false);
+    assert.match(await text('.video-picker-preview-meta'), /Horizontal 16:9/);
 
     await jsClick('[data-modal-action="confirm"]');
-    await sleep(150);
+    await sleep(250);
+    assert.equal(await page.$('.modal-backdrop'), null, 'modal deve fechar após confirmar');
     await clickCentered('#save-routine-top');
-    await sleep(160);
+    await sleep(220);
 
-    /* Verifica independência entre Rotina A, Rotina B e Biblioteca oficial. */
+    /* Rotina B: vídeo legado com framing "zoom" continua salvo, sem zoom/corte. */
+    await go('treino/rotina.html?id=rotina-vid-b&modalidade=calisthenics');
+    assert.match(await text('.editor-exercise-meta'), /Vídeo personalizado/);
+    assert.equal(/zoom/i.test(await text('.editor-exercise-meta')), false, 'meta não pode mencionar zoom');
+    await clickCentered('.editor-exercise .video-row-button');
+    await page.waitForSelector('.video-picker-preview-iframe', { timeout: 6000 });
+    assert.equal(await page.$('[data-framing-option="zoom"]'), null);
+    assert.equal(await text('[data-modal-action="clear"]'), 'Usar vídeo padrão');
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(250);
+    await clickCentered('#save-routine-top');
+    await sleep(220);
+
     const savedRoutines = await data('forja-treino-rotinas-v1');
-    assert.equal(savedRoutines.calisthenics[0].sections.main[0].youtubeVideo.videoId, 'CustHoriz01');
-    assert.equal(savedRoutines.calisthenics[0].sections.main[0].youtubeVideo.framing, 'original');
-    assert.equal(savedRoutines.calisthenics[1].sections.main[0].youtubeVideo.videoId, 'ShortVert01');
-    assert.equal(savedRoutines.calisthenics[1].sections.main[0].youtubeVideo.framing, 'zoom');
+    const savedA = savedRoutines.calisthenics[0].sections.main[0].youtubeVideo;
+    assert.equal(savedA.videoId, 'HorizVid001');
+    assert.equal(savedA.framing, 'original');
+    assert.equal(savedA.durationSeconds, 26);
+    assert.equal(savedA.channelTitle, 'Coach Lab');
+    assert.equal(Object.prototype.hasOwnProperty.call(savedA, 'orientation'), false,
+      'orientação é verificação de seleção, não dado persistido');
+    const savedB = savedRoutines.calisthenics[1].sections.main[0].youtubeVideo;
+    assert.equal(savedB.videoId, 'LegacyZoom1');
+    assert.equal(savedB.framing, 'original', 'zoom legado é normalizado ao salvar');
 
     /* Execução da Rotina B + persistência após reload real da página. */
     await page.evaluate((rB, day) => {
       const ex = rB.sections.main[0];
-      const sess = {
+      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
         version: 2, id: 's-vid-b', date: day, modality: 'calisthenics',
         routineId: rB.id, routineName: rB.name, startedAt: Date.now() - 1000,
         elapsedMs: 0, running: true, currentIndex: 0,
@@ -2868,18 +3001,23 @@ await check('Vídeos YouTube: Procurar vídeo, Short vertical com zoom/corte 16:
         restEndAt: null, restRemainingMs: 0, restPaused: false,
         pendingAdvance: false, restPlannedSeconds: 0, setTimer: null,
         setLogs: {}, logDraft: {}
-      };
-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify(sess));
+      }));
     }, savedRoutines.calisthenics[1], today);
 
     await go('treino/executar.html');
-    await page.waitForSelector('#execution-demo .video-demo-player.is-zoom-crop', { timeout: 4000 });
+    await page.waitForSelector('#execution-demo .video-demo-player', { timeout: 6000 });
+    assert.equal(await page.$('#execution-demo .video-demo-player.is-zoom-crop'), null,
+      'zoom/corte não pode existir na execução');
     await page.reload({ waitUntil: 'networkidle0' });
-    await page.waitForSelector('#execution-demo .video-demo-player.is-zoom-crop', { timeout: 4000 });
-    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoId), 'ShortVert01');
-    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoFraming), 'zoom');
+    await page.waitForSelector('#execution-demo .video-demo-iframe', { timeout: 6000 });
+    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoId), 'LegacyZoom1');
+    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoFraming), 'original');
+    const execSrc = await page.$eval('#execution-demo .video-demo-iframe', el => el.getAttribute('src'));
+    assert.match(execSrc, /[?&]mute=1(&|$)/, 'vídeo personalizado na execução inicia sem áudio');
+    assert.match(execSrc, /autoplay=0/);
+    assert.match(execSrc, /controls=1/);
 
-    /* Exportação e restauração de backup preservando vídeos e enquadramento por rotina. */
+    /* Exportação e restauração de backup preservando os vídeos por rotina. */
     await go('configuracoes/');
     const exportedJson = await page.evaluate(() => JSON.stringify(Forja.buildBackupObject()));
     const backupFile = artifactPath('backup-videos-e2e.json');
@@ -2892,45 +3030,44 @@ await check('Vídeos YouTube: Procurar vídeo, Short vertical com zoom/corte 16:
     await input.uploadFile(backupFile);
     await page.waitForSelector('[data-modal-action="restore"]', { timeout: 4000 });
     await jsClick('[data-modal-action="restore"]');
-    await sleep(300);
+    await sleep(400);
 
     const restored = await data('forja-treino-rotinas-v1');
-    assert.equal(restored.calisthenics[0].sections.main[0].youtubeVideo.videoId, 'CustHoriz01');
+    assert.equal(restored.calisthenics[0].sections.main[0].youtubeVideo.videoId, 'HorizVid001');
     assert.equal(restored.calisthenics[0].sections.main[0].youtubeVideo.framing, 'original');
-    assert.equal(restored.calisthenics[1].sections.main[0].youtubeVideo.videoId, 'ShortVert01');
-    assert.equal(restored.calisthenics[1].sections.main[0].youtubeVideo.framing, 'zoom');
+    assert.equal(restored.calisthenics[1].sections.main[0].youtubeVideo.videoId, 'LegacyZoom1');
+    assert.equal(restored.calisthenics[1].sections.main[0].youtubeVideo.framing, 'original');
   } finally {
     youtubeE2EState.mode = 'normal';
+    resetYoutubeBackend();
     await page.setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
 });
 
-await check('Vídeos YouTube: fallback de vídeo removido/indisponível, busca vazia e falha da API', async () => {
+await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend sem chave, quota e erro', async () => {
   const saved = await forjaRaw();
   const today = new Date().toISOString().slice(0, 10);
   const routineDead = {
     id: 'r-dead-e2e', name: 'Treino Indisponível', modality: 'calisthenics',
     createdAt: 1, updatedAt: 1,
     sections: {
-      warmup: [],
+      warmup: [], abs: [], finisher: [],
       main: [{
         id: 'ex-dead', name: 'Flexão de braço', sets: 2, type: 'reps', reps: '10',
         duration: 45, rest: 15, load: '', notes: '', section: 'main',
         libraryId: 'cal-flexao',
         youtubeVideo: {
-          videoId: 'RemovedVd00',
-          title: 'Vídeo Removido',
-          channelTitle: 'Canal',
-          durationSeconds: 20,
-          framing: 'original'
+          videoId: 'RemovedVd00', title: 'Vídeo Removido', channelTitle: 'Canal',
+          durationSeconds: 20, framing: 'original'
         }
-      }],
-      abs: [], finisher: []
+      }]
     }
   };
   try {
+    youtubeE2EState.mode = 'normal';
+    resetYoutubeBackend();
     await restoreForjaRaw({});
     await page.evaluate((r, day) => {
       localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [r], weights: [] }));
@@ -2946,12 +3083,12 @@ await check('Vídeos YouTube: fallback de vídeo removido/indisponível, busca v
       }));
     }, routineDead, today);
 
-    /* 1. Vídeo removido cai automaticamente na imagem de referência + mensagem discreta. */
+    /* 1. Vídeo removido cai automaticamente na imagem de referência + aviso discreto. */
     await go('treino/executar.html');
     await page.waitForFunction(() => {
       const stage = document.querySelector('#execution-demo .video-demo');
       return stage && stage.dataset.videoState === 'unavailable';
-    }, { timeout: 5000 });
+    }, { timeout: 6000 });
     assert.equal(await page.$('#execution-demo .video-demo-iframe'), null);
     assert.equal(await page.$eval('#execution-demo .demo-media', el => el.dataset.demoId), 'repdb:push-up');
     assert.equal(await text('#execution-demo .video-demo-unavailable'),
@@ -2959,23 +3096,51 @@ await check('Vídeos YouTube: fallback de vídeo removido/indisponível, busca v
 
     /* 2. Busca sem resultados. */
     youtubeE2EState.mode = 'empty';
+    resetYoutubeBackend();
     await go('treino/rotina.html?id=r-dead-e2e&modalidade=calisthenics');
-    await page.evaluate(() => { window.FORJA_YOUTUBE_CONFIG.apiKey = 'E2E_RESTRICTED_KEY'; });
     await clickCentered('.editor-exercise .video-row-button');
-    await page.waitForSelector('.video-picker-status.is-empty', { timeout: 4000 });
+    await page.waitForSelector('.video-picker-status.is-empty', { timeout: 6000 });
     assert.equal((await page.$$('.video-result-card')).length, 0);
-    assert.match(await text('.video-picker-status'), /Nenhum vídeo curto/i);
+    assert.match(await text('.video-picker-status'), /Nenhum vídeo convencional horizontal/i);
+    assert.match(await text('.video-picker-empty'), /60 segundos/i);
 
-    /* 3. Falha na conexão/serviço da API. */
-    youtubeE2EState.mode = 'error';
-    youtubeE2EState.expectExternalHttpError = true;
+    /* 3. Backend sem YOUTUBE_API_KEY: 503, nada é inventado. */
+    youtubeE2EState.mode = 'unconfigured';
+    youtubeE2EState.expectBackendHttpError = true;
+    resetYoutubeBackend();
+    await page.$eval('.video-picker-query', el => { el.value = 'agachamento livre'; });
     await jsClick('.video-picker-search-btn');
-    await page.waitForSelector('.video-picker-status.is-error', { timeout: 4000 });
-    assert.match(await text('.video-picker-status'), /Não foi possível consultar a YouTube Data API/i);
+    await page.waitForSelector('.video-picker-status.is-unconfigured', { timeout: 6000 });
+    assert.match(await text('.video-picker-status'), /YOUTUBE_API_KEY/);
+    assert.equal((await page.$$('.video-result-card')).length, 0);
+
+    /* 4. Quota diária do provedor esgotada: 429 sem novos resultados. */
+    youtubeE2EState.mode = 'quota';
+    resetYoutubeBackend();
+    await page.$eval('.video-picker-query', el => { el.value = 'remada curvada'; });
+    await jsClick('.video-picker-search-btn');
+    await page.waitForSelector('.video-picker-status.is-unconfigured', { timeout: 6000 });
+    assert.match(await text('.video-picker-status'), /orçamento diário/i);
+    assert.equal((await page.$$('.video-result-card')).length, 0);
+
+    /* 5. Falha no provedor: 502 com mensagem de erro tratada. */
+    youtubeE2EState.mode = 'error';
+    resetYoutubeBackend();
+    await page.$eval('.video-picker-query', el => { el.value = 'burpee completo'; });
+    await jsClick('.video-picker-search-btn');
+    await page.waitForSelector('.video-picker-status.is-error', { timeout: 6000 });
+    assert.match(await text('.video-picker-status'), /Não foi possível consultar a YouTube Data API v3/i);
+    assert.equal((await page.$$('.video-result-card')).length, 0);
+
+    youtubeE2EState.expectBackendHttpError = false;
     await jsClick('[data-modal-action="cancel"]');
+    await sleep(200);
+    assert.equal(await page.$('.modal-backdrop'), null);
   } finally {
     youtubeE2EState.mode = 'normal';
-    youtubeE2EState.expectExternalHttpError = false;
+    youtubeE2EState.expectBackendHttpError = false;
+    resetYoutubeBackend();
+    await page.setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
