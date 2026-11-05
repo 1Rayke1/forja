@@ -483,6 +483,8 @@
     if (record) {
       record.libraryId = origin;
       record.roles = normalizeRoles(exercise.roles) || (known && known.roles) || null;
+      const customVideo = F.normalizeYouTubeVideo(exercise.youtubeVideo);
+      if (customVideo) record.youtubeVideo = customVideo;
     }
     return record;
   }
@@ -778,23 +780,14 @@
       }
     }
 
-    /* A ilustração vem antes da figura de músculos, quando houver. */
-    if (demo && F.demos) {
+    /* Demonstração em vídeo (YouTube 16:9) + imagem de referência como fallback. */
+    let stageHandle = null;
+    if (F.videos) {
+      stageHandle = F.videos.createStage(record, record.mode, { compact: false });
+      details.insertBefore(stageHandle.node, details.firstChild);
+    } else if (demo && F.demos) {
       const media = F.demos.createMedia(record, record.mode, { eager: false });
       details.insertBefore(media.node, details.firstChild);
-    }
-
-    /*
-      Demonstração 3D no topo do detalhe. O container já nasce no documento para
-      que o painel meça a largura certa; a montagem só acontece depois que o
-      modal abre (o canvas precisa de um pai visível). Ao fechar, a cena é
-      destruída para não deixar um laço de render órfão.
-    */
-    let palco3d = null;
-    if (F.personagens3d) {
-      palco3d = document.createElement("div");
-      palco3d.className = "modal-3d";
-      details.insertBefore(palco3d, details.firstChild);
     }
 
     const abertura = F.showModal({
@@ -816,24 +809,11 @@
         ]
     });
 
-    /*
-      Monta o painel 3D só depois que o modal está no documento (o canvas mede o
-      container) e destrói ao fechar, para não sobrar laço de render ativo.
-    */
-    if (palco3d && F.personagens3d) {
-      const montarCena = () => {
-        if (!palco3d.isConnected) return;
-        F.personagens3d.montar(palco3d, record).catch(() => {
-          if (palco3d.parentNode) palco3d.parentNode.removeChild(palco3d);
-        });
-      };
-      if (typeof requestAnimationFrame === "function") requestAnimationFrame(montarCena);
-      else setTimeout(montarCena, 0);
-    }
-
     const result = await abertura;
 
-    if (palco3d) F.personagens3d.descartar(palco3d);
+    if (stageHandle && F.videos) {
+      F.videos.destroyStage(stageHandle.node);
+    }
 
     if (result.action !== "add") return;
 

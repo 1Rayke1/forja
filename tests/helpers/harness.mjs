@@ -26,6 +26,18 @@ export const BASE = "https://forja.test/forja/";
 export const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const interceptor = requestInterceptor(async request => {
+  if (request.url.startsWith("https://www.youtube-nocookie.com/embed/")) {
+    return new Response("<!doctype html><title>YouTube Embed</title>", {
+      status: 200,
+      headers: { "content-type": "text/html; charset=utf-8" }
+    });
+  }
+  if (request.url.startsWith("https://i.ytimg.com/vi/")) {
+    return new Response("", {
+      status: 200,
+      headers: { "content-type": "image/jpeg" }
+    });
+  }
   if (!request.url.startsWith(BASE)) {
     return new Response("", { status: 404 });
   }

@@ -194,6 +194,7 @@ function normalizeExercise(raw, fallbackSection) {
   const type = raw.type === "duration" ? "duration" : "reps";
   const section = SECTION_NAMES[raw.section] ? raw.section : fallbackSection;
   const demoId = F.normalizeDemoId(raw.demoId);
+  const youtubeVideo = F.normalizeYouTubeVideo(raw.youtubeVideo);
 
   return {
     id: typeof raw.id === "string" && raw.id ? raw.id : createId("exercise"),
@@ -222,7 +223,8 @@ function normalizeExercise(raw, fallbackSection) {
     instructions: normalizeOptionalText(raw.instructions, 600),
     /* Campo aditivo opcional (formato 3): escolha de demonstração visual.
        Só entra quando presente, para não mudar o formato dos dados antigos. */
-    ...(demoId ? { demoId } : {})
+    ...(demoId ? { demoId } : {}),
+    ...(youtubeVideo ? { youtubeVideo } : {})
   };
 }
 
@@ -1992,6 +1994,12 @@ function assertExerciseShape(exercise, where) {
   if (exercise.demoId !== undefined &&
       F.normalizeDemoId(exercise.demoId) !== exercise.demoId) {
     throw new Error("Exercício com demonstração visual inválida em " + where + ".");
+  }
+
+  if (exercise.youtubeVideo !== undefined &&
+      exercise.youtubeVideo !== null &&
+      !F.isValidYouTubeVideoShape(exercise.youtubeVideo)) {
+    throw new Error("Exercício com vídeo de demonstração inválido em " + where + ".");
   }
 
   return true;

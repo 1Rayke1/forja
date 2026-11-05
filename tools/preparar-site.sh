@@ -23,8 +23,7 @@ mkdir -p "$OUT"
 # Caminhos relativos idênticos aos do repositório: preserva data-root, F.url(),
 # navegação e imagens quando o site é servido sob /forja/.
 cp -R "$ROOT/index.html" \
-      "$ROOT/avaliacao-piloto-3d" \
-      "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
+      "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/onboarding" \
       "$ROOT/perfil" "$ROOT/progresso" "$ROOT/treino" \
       "$ROOT/assets" "$OUT/"
 
@@ -45,28 +44,15 @@ for p in tools tests docs design artifacts .github .git node_modules \
   fi
 done
 
-# Recursos obrigatórios do app, da avaliação do piloto 3D e dos créditos.
+# Recursos obrigatórios do app, vídeos/ilustrações de demonstração e créditos.
 for p in index.html \
-         avaliacao-piloto-3d/index.html \
-         exercicio/index.html \
-         assets/css/exercicio-3d.css \
-         assets/js/forja-exercicio-cena.js \
-         assets/js/forja-exercicio-3d.js \
-         assets/3d/apresentacao-exercicios.json \
-         avaliacao-piloto-3d/avaliacao-piloto-3d.css \
-         avaliacao-piloto-3d/avaliacao-piloto-3d.js \
-         avaliacao-piloto-3d/midia/abdominal-masculino-horizontal-16x9.mp4 \
-         avaliacao-piloto-3d/midia/abdominal-masculino-vertical-9x16.mp4 \
-         avaliacao-piloto-3d/midia/poster-horizontal-16x9.png \
-         avaliacao-piloto-3d/midia/poster-vertical-9x16.png \
-         avaliacao-piloto-3d/midia/horizontal-mosaico-5-fases.png \
-         avaliacao-piloto-3d/midia/vertical-mosaico-5-fases.png \
          configuracoes/index.html explorar/index.html explorar/atlas.html \
          onboarding/index.html perfil/index.html progresso/index.html \
          treino/index.html treino/rotina.html treino/executar.html \
          treino/biblioteca.html treino/calistenia.html treino/musculacao.html \
          assets/js/forja-app.js assets/js/forja-demonstracoes.js \
          assets/js/forja-demonstracoes-dados.js \
+         assets/js/forja-videos-dados.js assets/js/forja-videos.js \
          assets/css/demonstracoes.css \
          assets/demonstracoes/LICENSE-DATA.md \
          assets/demonstracoes/ATTRIBUTION.md \
