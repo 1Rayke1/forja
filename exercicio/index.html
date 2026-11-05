@@ -16,8 +16,7 @@
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/redesign.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
-<link rel="stylesheet" href="../assets/css/personagens-3d.css">
-<link rel="stylesheet" href="../assets/css/exercicio-3d.css">
+<link rel="stylesheet" href="../assets/css/exercicio.css">
 </head>
 
 <body data-page="exercicio" data-root="../">
@@ -44,7 +43,9 @@
       <!--
         Vídeo horizontal 16:9, mudo, em loop e sem controles. O atributo
         `controls` não existe de propósito; a barra nativa é desligada também
-        pelo CSS. Quando não há MP4 aprovado, o palco 3D ao lado assume.
+        pelo CSS. O palco aceita apenas MP4 aprovado: enquanto um exercício não
+        tiver o seu, a tela informa a pendência — não há demonstração por
+        personagem 3D.
       -->
       <video
         class="e3-video"
@@ -62,8 +63,6 @@
         aria-label="Demonstração do exercício em vídeo horizontal"
         hidden
       ></video>
-
-      <div class="e3-palco-3d" id="exercicio-3d" data-e3-3d hidden></div>
 
       <div class="e3-loading" id="exercicio-loading" data-e3-loading aria-live="polite">
         <span class="e3-loading-text">Carregando demonstração…</span>
@@ -119,8 +118,7 @@
 <script src="../assets/js/forja-dados.js" defer></script>
 <script src="../assets/js/forja-biblioteca.js" defer></script>
 <script src="../assets/js/forja-ui.js" defer></script>
-<script src="../assets/js/forja-exercicio-cena.js" defer></script>
-<script src="../assets/js/forja-exercicio-3d.js" defer></script>
+<script src="../assets/js/forja-exercicio.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>
