@@ -108,7 +108,7 @@ for p in tools tests docs design artifacts .github .git node_modules \
   fi
 done
 
-# Recursos obrigatórios do app e dos créditos.
+# Recursos obrigatórios do app, vídeos/ilustrações de demonstração e créditos.
 for p in index.html \
          exercicio/index.html \
          assets/css/exercicio.css \
@@ -120,6 +120,7 @@ for p in index.html \
          treino/biblioteca.html treino/calistenia.html treino/musculacao.html \
          assets/js/forja-app.js assets/js/forja-demonstracoes.js \
          assets/js/forja-demonstracoes-dados.js \
+         assets/js/forja-videos-dados.js assets/js/forja-videos.js \
          assets/css/demonstracoes.css \
          assets/demonstracoes/LICENSE-DATA.md \
          assets/demonstracoes/ATTRIBUTION.md \

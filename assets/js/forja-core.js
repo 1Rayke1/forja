@@ -104,6 +104,173 @@
   };
 
   /*
+    Vídeo de demonstração do YouTube associado ao exercício da rotina (formato 3,
+    aditivo). Fica no próprio exercício dentro da rotina — nenhuma chave nova de
+    localStorage é criada, garantindo independência por rotina e compatibilidade
+    com exportação/importação de backup.
+  */
+  F.YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/;
+  F.YOUTUBE_MAX_DURATION = 60;
+  F.YOUTUBE_FRAMING_VALUES = Object.freeze(["original", "zoom"]);
+
+  const YOUTUBE_HOSTS = Object.freeze([
+    "youtube.com",
+    "www.youtube.com",
+    "m.youtube.com",
+    "youtu.be",
+    "www.youtu.be",
+    "youtube-nocookie.com",
+    "www.youtube-nocookie.com"
+  ]);
+  const YOUTUBE_THUMB_RE =
+    /^https:\/\/(i\.ytimg\.com|img\.youtube\.com)\/vi\/[A-Za-z0-9_-]{11}\/[A-Za-z0-9_.-]+(\?[A-Za-z0-9_=&.-]*)?$/;
+  const YOUTUBE_ALLOWED_KEYS = Object.freeze([
+    "videoId",
+    "title",
+    "channelTitle",
+    "durationSeconds",
+    "thumbnailUrl",
+    "framing"
+  ]);
+
+  F.isValidYouTubeId = function isValidYouTubeId(value) {
+    return typeof value === "string" && F.YOUTUBE_ID_RE.test(value.trim());
+  };
+
+  F.parseYouTubeUrl = function parseYouTubeUrl(input) {
+    if (typeof input !== "string") return null;
+    const trimmed = input.trim();
+    if (!trimmed) return null;
+
+    if (F.YOUTUBE_ID_RE.test(trimmed)) {
+      return { videoId: trimmed, isShort: false };
+    }
+
+    let parsed;
+    try {
+      parsed = new URL(trimmed);
+    } catch (error) {
+      return null;
+    }
+
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
+    const host = parsed.hostname.toLowerCase();
+    if (YOUTUBE_HOSTS.indexOf(host) === -1) return null;
+
+    const pathname = parsed.pathname || "";
+    if (/\/(live|playlist|channel|c|user)(\/|$)/i.test(pathname)) {
+      return null;
+    }
+
+    let candidate = "";
+    let isShort = false;
+    if (host === "youtu.be" || host === "www.youtu.be") {
+      const parts = pathname.split("/").filter(Boolean);
+      if (parts.length !== 1) return null;
+      candidate = parts[0];
+    } else if (pathname === "/watch") {
+      candidate = parsed.searchParams.get("v") || "";
+    } else if (/^\/embed\/([^/?#]+)\/?$/.test(pathname)) {
+      candidate = pathname.replace(/^\/embed\//, "").replace(/\/$/, "");
+    } else if (/^\/shorts\/([^/?#]+)\/?$/i.test(pathname)) {
+      candidate = pathname.replace(/^\/shorts\//i, "").replace(/\/$/, "");
+      isShort = true;
+    } else {
+      return null;
+    }
+
+    if (!F.YOUTUBE_ID_RE.test(candidate)) return null;
+    return { videoId: candidate, isShort };
+  };
+
+  F.parseIsoDurationSeconds = function parseIsoDurationSeconds(iso) {
+    if (typeof iso !== "string") return null;
+    const match = iso.trim().match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/i);
+    if (!match) return null;
+    const hours = Number(match[1] || 0);
+    const minutes = Number(match[2] || 0);
+    const seconds = Number(match[3] || 0);
+    const total = hours * 3600 + minutes * 60 + seconds;
+    return total > 0 ? total : null;
+  };
+
+  F.isValidYouTubeVideoShape = function isValidYouTubeVideoShape(value) {
+    if (!F.isPlainObject(value)) return false;
+    const keys = Object.keys(value);
+    if (keys.some(key => YOUTUBE_ALLOWED_KEYS.indexOf(key) === -1)) return false;
+    if (typeof value.videoId !== "string" || !F.YOUTUBE_ID_RE.test(value.videoId)) {
+      return false;
+    }
+    if (value.title !== undefined &&
+        (typeof value.title !== "string" || value.title.length > 200)) {
+      return false;
+    }
+    if (value.channelTitle !== undefined &&
+        (typeof value.channelTitle !== "string" || value.channelTitle.length > 160)) {
+      return false;
+    }
+    if (value.durationSeconds !== undefined && value.durationSeconds !== null) {
+      const dur = Number(value.durationSeconds);
+      if (!Number.isInteger(dur) || dur < 1 || dur > F.YOUTUBE_MAX_DURATION) {
+        return false;
+      }
+    }
+    if (value.thumbnailUrl !== undefined &&
+        value.thumbnailUrl !== "" &&
+        (typeof value.thumbnailUrl !== "string" || !YOUTUBE_THUMB_RE.test(value.thumbnailUrl))) {
+      return false;
+    }
+    if (value.framing !== undefined &&
+        F.YOUTUBE_FRAMING_VALUES.indexOf(value.framing) === -1) {
+      return false;
+    }
+    return true;
+  };
+
+  F.normalizeYouTubeVideo = function normalizeYouTubeVideo(raw) {
+    if (!F.isPlainObject(raw)) return null;
+    const videoId = typeof raw.videoId === "string" ? raw.videoId.trim() : "";
+    if (!F.YOUTUBE_ID_RE.test(videoId)) return null;
+
+    let durationSeconds = null;
+    if (raw.durationSeconds !== undefined && raw.durationSeconds !== null && raw.durationSeconds !== "") {
+      const dur = Number(raw.durationSeconds);
+      if (!Number.isFinite(dur) || Math.round(dur) < 1 || Math.round(dur) > F.YOUTUBE_MAX_DURATION) {
+        return null;
+      }
+      durationSeconds = Math.round(dur);
+    }
+
+    if (raw.framing !== undefined &&
+        raw.framing !== null &&
+        raw.framing !== "" &&
+        F.YOUTUBE_FRAMING_VALUES.indexOf(raw.framing) === -1) {
+      return null;
+    }
+
+    const framing = raw.framing === "zoom" ? "zoom" : "original";
+    const title = typeof raw.title === "string" ? raw.title.trim().slice(0, 160) : "";
+    const channelTitle = typeof raw.channelTitle === "string"
+      ? raw.channelTitle.trim().slice(0, 120)
+      : "";
+    const rawThumb = typeof raw.thumbnailUrl === "string" ? raw.thumbnailUrl.trim() : "";
+    const thumbnailUrl = YOUTUBE_THUMB_RE.test(rawThumb)
+      ? rawThumb
+      : "https://i.ytimg.com/vi/" + videoId + "/mqdefault.jpg";
+
+    return Object.assign(
+      {
+        videoId,
+        title,
+        channelTitle,
+        thumbnailUrl,
+        framing
+      },
+      durationSeconds ? { durationSeconds } : {}
+    );
+  };
+
+  /*
     Como o exercício é medido. É orthogonal a `type` (que diz se a meta é por
     repetição ou por tempo) e define quais campos de registro aparecem durante
     a execução e o que entra no cálculo de volume.

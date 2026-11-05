@@ -483,6 +483,8 @@
     if (record) {
       record.libraryId = origin;
       record.roles = normalizeRoles(exercise.roles) || (known && known.roles) || null;
+      const customVideo = F.normalizeYouTubeVideo(exercise.youtubeVideo);
+      if (customVideo) record.youtubeVideo = customVideo;
     }
     return record;
   }
@@ -778,8 +780,12 @@
       }
     }
 
-    /* A ilustração vem antes da figura de músculos, quando houver. */
-    if (demo && F.demos) {
+    /* Demonstração em vídeo (YouTube 16:9) + imagem de referência como fallback. */
+    let stageHandle = null;
+    if (F.videos) {
+      stageHandle = F.videos.createStage(record, record.mode, { compact: false });
+      details.insertBefore(stageHandle.node, details.firstChild);
+    } else if (demo && F.demos) {
       const media = F.demos.createMedia(record, record.mode, { eager: false });
       details.insertBefore(media.node, details.firstChild);
     }
@@ -804,6 +810,10 @@
     });
 
     const result = await abertura;
+
+    if (stageHandle && F.videos) {
+      F.videos.destroyStage(stageHandle.node);
+    }
 
     if (result.action !== "add") return;
 

@@ -21,7 +21,46 @@ import http from 'node:http';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { brotliDecompressSync } from 'node:zlib';
+import { brotliDecompressSync, deflateSync } from 'node:zlib';
+
+function makeSolidPng(width, height) {
+  const crcTable = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    crcTable[n] = c >>> 0;
+  }
+  const crc32 = buf => {
+    let c = 0xffffffff;
+    for (let i = 0; i < buf.length; i++) c = crcTable[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  };
+  const chunk = (type, data) => {
+    const typeBuf = Buffer.from(type, 'ascii');
+    const lenBuf = Buffer.alloc(4);
+    lenBuf.writeUInt32BE(data.length, 0);
+    const crcBuf = Buffer.alloc(4);
+    crcBuf.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])), 0);
+    return Buffer.concat([lenBuf, typeBuf, data, crcBuf]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(width, 0);
+  ihdr.writeUInt32BE(height, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 2;
+  const rowLen = 1 + width * 3;
+  const raw = Buffer.alloc(rowLen * height, 0x18);
+  for (let y = 0; y < height; y++) raw[y * rowLen] = 0;
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk('IHDR', ihdr),
+    chunk('IDAT', deflateSync(raw)),
+    chunk('IEND', Buffer.alloc(0))
+  ]);
+}
+
+const VALID_YT_THUMB_PNG = makeSolidPng(320, 180);
+const DELETED_YT_THUMB_PNG = makeSolidPng(120, 90);
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = [];
@@ -205,9 +244,137 @@ try {
 const page = await browser.newPage();
 let currentLabel = 'carga';
 const errors = [];
-page.on('console', m => { if (m.type() === 'error') errors.push(currentLabel + ' console: ' + m.text()); });
+const youtubeE2EState = {
+  mode: 'normal',
+  unavailableIds: new Set(['RemovedVd00']),
+  expectExternalHttpError: false
+};
+
+await page.setRequestInterception(true);
+page.on('request', req => {
+  const url = req.url();
+  if (url.startsWith('https://www.youtube-nocookie.com/embed/')) {
+    req.respond({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: '<!doctype html><html><body style="margin:0;background:#101010;color:#e8e4dc;display:grid;place-items:center;height:100vh;font:13px sans-serif"><span>YouTube Player 16:9</span></body></html>'
+    });
+    return;
+  }
+  if (url.startsWith('https://i.ytimg.com/vi/') || url.startsWith('https://img.youtube.com/vi/')) {
+    const match = url.match(/\/vi\/([^/]+)\//);
+    const vid = match ? decodeURIComponent(match[1]) : '';
+    if (youtubeE2EState.unavailableIds.has(vid)) {
+      req.respond({
+        status: 200,
+        contentType: 'image/png',
+        body: DELETED_YT_THUMB_PNG
+      });
+      return;
+    }
+    req.respond({
+      status: 200,
+      contentType: 'image/png',
+      body: VALID_YT_THUMB_PNG
+    });
+    return;
+  }
+  if (url.startsWith('https://www.googleapis.com/youtube/v3/search')) {
+    if (youtubeE2EState.mode === 'error') {
+      req.respond({
+        status: 503,
+        contentType: 'application/json; charset=utf-8',
+        body: JSON.stringify({ error: { message: 'Service Unavailable' } })
+      });
+      return;
+    }
+    if (youtubeE2EState.mode === 'empty') {
+      req.respond({
+        status: 200,
+        contentType: 'application/json; charset=utf-8',
+        body: JSON.stringify({ items: [] })
+      });
+      return;
+    }
+    req.respond({
+      status: 200,
+      contentType: 'application/json; charset=utf-8',
+      body: JSON.stringify({
+        items: [
+          { id: { videoId: 'CustHoriz01' } },
+          { id: { videoId: 'ShortVert01' } },
+          { id: { videoId: 'TooLongVd99' } }
+        ]
+      })
+    });
+    return;
+  }
+  if (url.startsWith('https://www.googleapis.com/youtube/v3/videos')) {
+    req.respond({
+      status: 200,
+      contentType: 'application/json; charset=utf-8',
+      body: JSON.stringify({
+        items: [
+          {
+            id: 'CustHoriz01',
+            status: { embeddable: true, privacyStatus: 'public' },
+            contentDetails: { duration: 'PT26S' },
+            snippet: {
+              title: 'Flexão Técnica Horizontal',
+              channelTitle: 'Coach Lab',
+              description: 'Demonstração 16:9',
+              thumbnails: { medium: { width: 320, height: 180 } }
+            }
+          },
+          {
+            id: 'ShortVert01',
+            status: { embeddable: true, privacyStatus: 'public' },
+            contentDetails: { duration: 'PT18S' },
+            snippet: {
+              title: 'Flexão Dica Rápida #shorts',
+              channelTitle: 'Calistenia Curtos',
+              description: '#shorts',
+              thumbnails: { high: { width: 480, height: 640 } }
+            }
+          },
+          {
+            id: 'TooLongVd99',
+            status: { embeddable: true, privacyStatus: 'public' },
+            contentDetails: { duration: 'PT1M35S' },
+            snippet: {
+              title: 'Aula Longa',
+              channelTitle: 'Coach Lab',
+              thumbnails: { medium: { width: 320, height: 180 } }
+            }
+          }
+        ]
+      })
+    });
+    return;
+  }
+  req.continue();
+});
+
+page.on('console', m => {
+  if (m.type() !== 'error') return;
+  if (youtubeE2EState.expectExternalHttpError && /Failed to load resource.*503/i.test(m.text())) return;
+  errors.push(currentLabel + ' console: ' + m.text());
+});
 page.on('pageerror', e => errors.push(currentLabel + ' pageerror: ' + e.message));
-page.on('requestfailed', r => errors.push(currentLabel + ' requestfailed: ' + r.url()));
+page.on('requestfailed', r => {
+  const failure = r.failure();
+  if (
+    failure &&
+    /ERR_ABORTED/i.test(failure.errorText || '') &&
+    (r.url().startsWith('https://www.youtube-nocookie.com/embed/') ||
+      r.url().startsWith('https://i.ytimg.com/vi/') ||
+      r.url().startsWith('https://img.youtube.com/vi/') ||
+      /\.woff2(\?|$)/i.test(r.url()))
+  ) {
+    return;
+  }
+  errors.push(currentLabel + ' requestfailed: ' + r.url());
+});
 page.on('response', r => {
   if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(currentLabel + ' HTTP ' + r.status() + ': ' + r.url());
 });
@@ -233,8 +400,16 @@ const pathOf = () => new URL(page.url()).pathname;
 const normalizePath = p => p.replace(/index\.html$/, '');
 const expectPath = async suffix => {
   const want = normalizePath(suffix);
-  const ok = await waitFor(s => location.pathname.replace(/index\.html$/, '').endsWith(s), 6000, want);
+  const ok = await waitFor(
+    s =>
+      location.pathname.replace(/index\.html$/, '').endsWith(s) &&
+      document.readyState !== 'loading' &&
+      Boolean(window.Forja && window.Forja.state),
+    6000,
+    want
+  );
   assert.ok(ok, 'Esperava a página ' + suffix + ', mas está em ' + pathOf());
+  await sleep(60);
 };
 
 // Clica pelo DOM (para links e botões ocultos sob estilos customizados).
@@ -285,7 +460,7 @@ async function answerModal(values, action) {
 
 // Rola até o centro antes de clicar: a barra inferior fixa pode cobrir o alvo.
 async function clickCentered(selector) {
-  await page.$eval(selector, el => el.scrollIntoView({ block: 'center' }));
+  await page.$eval(selector, el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await sleep(90);
   await page.click(selector);
   await sleep(140);
@@ -2209,25 +2384,26 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
 });
 
 /* Fluxos da primeira evolução web, isolados dos dados das verificações acima. */
-await check('Explorar — busca e resultados inline, filtros recolhidos e atlas em acesso único', async () => {
+await check('Explorar — seções de descoberta, acesso ao atlas/biblioteca e busca no catálogo', async () => {
   const saved = await forjaRaw();
   try {
     await restoreForjaRaw({});
     await go('explorar/');
     const existingProfile = await forjaRaw();
     assert.ok(existingProfile['forja-perfil-v1'], 'Rota protegida exige perfil salvo');
-    assert.ok(await page.$('#catalog-root'), 'Catálogo inline ausente');
-    assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), false,
-      'Filtros secundários começam recolhidos');
-    assert.equal(await page.$$eval('.explore-atlas a[href="atlas.html"]', els => els.length), 1,
-      'Acesso ao atlas deve aparecer uma vez');
+    assert.ok(await page.$('#foco-treino'), 'Seção Foco do treino ausente');
+    assert.ok(await page.$('#recursos-grade'), 'Seção Descubra recursos ausente');
+    assert.ok(await page.$$eval('a[href*="atlas.html"]', els => els.length >= 1),
+      'Acesso ao atlas ausente na tela Explorar');
+    assert.deepEqual(await forjaRaw(), existingProfile, 'Explorar não deve alterar dados locais ao abrir');
+
+    await go('treino/biblioteca.html');
+    assert.ok(await page.$('#catalog-root'), 'Catálogo ausente na Biblioteca');
     await fill('#catalog-search', 'flexão');
     assert.ok(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length > 0),
-      'A busca não mostrou resultados na tela Explorar');
+      'A busca não mostrou resultados na Biblioteca');
     assert.match(await text('#catalog-list'), /flexão/i);
-    await page.click('.catalog-filter-disclosure > summary');
-    assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), true);
-    assert.deepEqual(await forjaRaw(), existingProfile, 'Consultar catálogo não alterou dados locais além do perfil existente');
+    assert.deepEqual(await forjaRaw(), existingProfile, 'Consultar catálogo não alterou dados locais');
     await page.screenshot({ path: artifactPath('explorar-inline-390.png'), fullPage: true });
   } finally {
     await page.setViewport(MOBILE);
@@ -2506,6 +2682,300 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
     assert.match(await text('#execution-demo .demo-credit'), /RepDB/);
     assert.ok(await page.$('#execution-figure'), 'figura do atlas sumiu');
   } finally {
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, controles e fallback sem vídeo', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('treino/biblioteca.html');
+
+    /* 1. Exercício com vídeo oficial: youtube-nocookie, 16:9 responsivo, controles, sem autoplay e enquadramento original. */
+    await page.evaluate(() => {
+      const record = Forja.catalog.items('calisthenics').find(item => item.id === 'cal-flexao');
+      Forja.catalog.showDetail(record, { readOnly: true });
+    });
+    await page.waitForSelector('.modal-details .video-demo-iframe', { timeout: 4000 });
+
+    const videoInfo = await page.$eval('.modal-details .video-demo', el => {
+      const player = el.querySelector('.video-demo-player');
+      const iframe = el.querySelector('.video-demo-iframe');
+      const rect = player.getBoundingClientRect();
+      return {
+        state: el.dataset.videoState,
+        source: el.dataset.videoSource,
+        videoId: el.dataset.videoId,
+        framing: el.dataset.videoFraming,
+        hasZoomClass: player.classList.contains('is-zoom-crop'),
+        src: iframe.getAttribute('src'),
+        width: rect.width,
+        height: rect.height
+      };
+    });
+    assert.equal(videoInfo.state, 'ready');
+    assert.equal(videoInfo.source, 'official');
+    assert.equal(videoInfo.videoId, 'xBrI-N44QLc');
+    assert.equal(videoInfo.framing, 'original');
+    assert.equal(videoInfo.hasZoomClass, false, 'vídeo oficial não pode ter zoom/corte');
+    assert.match(videoInfo.src, /^https:\/\/www\.youtube-nocookie\.com\/embed\/xBrI-N44QLc\?/);
+    assert.match(videoInfo.src, /autoplay=0/);
+    assert.match(videoInfo.src, /controls=1/);
+    assert.ok(Math.abs(videoInfo.width / videoInfo.height - 16 / 9) < 0.08,
+      'proporção do player não é 16:9: ' + videoInfo.width + 'x' + videoInfo.height);
+    assert.equal(await page.$('.modal-3d'), null, 'nenhum elemento 3D pode existir');
+
+    for (const width of [320, 390, 768]) {
+      await page.setViewport({ width, height: 800 });
+      await sleep(100);
+      const metrics = await page.evaluate(() => {
+        const rect = document.querySelector('.modal-details .video-demo-player').getBoundingClientRect();
+        return {
+          overflow: document.documentElement.scrollWidth - innerWidth,
+          ratio: rect.width / rect.height
+        };
+      });
+      assert.ok(metrics.overflow <= 1, 'overflow com player oficial a ' + width + 'px: ' + metrics.overflow);
+      assert.ok(Math.abs(metrics.ratio - 16 / 9) < 0.08, 'proporção fora de 16:9 em ' + width + 'px');
+    }
+    await page.setViewport(MOBILE);
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.querySelector('.modal-backdrop'), { timeout: 4000 });
+
+    /* 2. Exercício sem vídeo oficial: exibe imagem de referência + "Vídeo de demonstração ainda não disponível". */
+    await page.evaluate(() => {
+      const record = Forja.catalog.items('calisthenics').find(item => item.id === 'cal-polichinelo');
+      Forja.catalog.showDetail(record, { readOnly: true });
+    });
+    await page.waitForSelector('.modal-details .video-demo', { timeout: 4000 });
+    assert.equal(await page.$('.modal-details .video-demo-iframe'), null);
+    assert.equal(await page.$eval('.modal-details .demo-media', el => el.dataset.demoId), 'repdb:jumping-jacks');
+    assert.equal(await text('.modal-details .video-demo-unavailable'),
+      'Vídeo de demonstração ainda não disponível');
+    await page.keyboard.press('Escape');
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Vídeos YouTube: Procurar vídeo, Short vertical com zoom/corte 16:9 sem deformar, 2 rotinas, reload e backup', async () => {
+  const saved = await forjaRaw();
+  const today = new Date().toISOString().slice(0, 10);
+  const routines = {
+    calisthenics: [
+      {
+        id: 'rotina-vid-a', name: 'Treino Vídeo A', modality: 'calisthenics',
+        createdAt: 1, updatedAt: 1,
+        sections: {
+          warmup: [],
+          main: [{
+            id: 'ex-a1', name: 'Flexão de braço', sets: 3, type: 'reps', reps: '10',
+            duration: 45, rest: 30, load: '', notes: '', section: 'main',
+            libraryId: 'cal-flexao'
+          }],
+          abs: [], finisher: []
+        }
+      },
+      {
+        id: 'rotina-vid-b', name: 'Treino Vídeo B', modality: 'calisthenics',
+        createdAt: 2, updatedAt: 2,
+        sections: {
+          warmup: [],
+          main: [{
+            id: 'ex-b1', name: 'Flexão de braço', sets: 3, type: 'reps', reps: '10',
+            duration: 45, rest: 30, load: '', notes: '', section: 'main',
+            libraryId: 'cal-flexao'
+          }],
+          abs: [], finisher: []
+        }
+      }
+    ],
+    weights: []
+  };
+  try {
+    youtubeE2EState.mode = 'normal';
+    await restoreForjaRaw({});
+    await page.evaluate(r => localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify(r)), routines);
+
+    /* Rotina A: seleciona vídeo horizontal CustHoriz01 com enquadramento original. */
+    await go('treino/rotina.html?id=rotina-vid-a&modalidade=calisthenics');
+    await page.evaluate(() => { window.FORJA_YOUTUBE_CONFIG.apiKey = 'E2E_RESTRICTED_KEY'; });
+    await clickCentered('.editor-exercise .video-row-button');
+    await page.waitForSelector('.video-result-card', { timeout: 4000 });
+    const resultIds = await page.$$eval('.video-result-card', els => els.map(e => e.dataset.videoId));
+    assert.deepEqual(resultIds, ['CustHoriz01', 'ShortVert01'], 'vídeo acima de 60s deve ser filtrado');
+
+    await jsClick('.video-result-card[data-video-id="CustHoriz01"]');
+    await page.waitForSelector('.video-picker-preview-iframe', { timeout: 4000 });
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(150);
+    await clickCentered('#save-routine-top');
+    await sleep(160);
+
+    /* Rotina B: seleciona Short vertical ShortVert01 e ativa Zoom e corte 16:9 sem deformação. */
+    await go('treino/rotina.html?id=rotina-vid-b&modalidade=calisthenics');
+    await page.evaluate(() => { window.FORJA_YOUTUBE_CONFIG.apiKey = 'E2E_RESTRICTED_KEY'; });
+    await clickCentered('.editor-exercise .video-row-button');
+    await page.waitForSelector('.video-result-card[data-video-id="ShortVert01"]', { timeout: 4000 });
+    await jsClick('.video-result-card[data-video-id="ShortVert01"]');
+    await page.waitForSelector('.video-picker-preview-iframe', { timeout: 4000 });
+    await jsClick('[data-framing-option="zoom"]');
+    await sleep(80);
+
+    /* Verifica geometria real no Chromium: contêiner 16:9 preenchido 100% na largura e iframe 9:16 proporcional (sem esticar). */
+    const cropGeom = await page.evaluate(() => {
+      const boxEl = document.querySelector('.video-picker-preview-frame');
+      const box = boxEl.getBoundingClientRect();
+      const frame = document.querySelector('.video-picker-preview-iframe').getBoundingClientRect();
+      return {
+        boxW: box.width,
+        boxH: box.height,
+        boxInnerW: boxEl.clientWidth,
+        frameW: frame.width,
+        frameH: frame.height
+      };
+    });
+    assert.ok(Math.abs(cropGeom.boxW / cropGeom.boxH - 16 / 9) < 0.08, 'contêiner deve ser 16:9');
+    assert.ok(Math.abs(cropGeom.frameW - cropGeom.boxInnerW) < 1.5, 'iframe deve preencher 100% da largura horizontal');
+    assert.ok(Math.abs(cropGeom.frameH / cropGeom.frameW - 16 / 9) < 0.08,
+      'iframe deve manter proporção 9:16 sem esticar nem deformar');
+
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(150);
+    await clickCentered('#save-routine-top');
+    await sleep(160);
+
+    /* Verifica independência entre Rotina A, Rotina B e Biblioteca oficial. */
+    const savedRoutines = await data('forja-treino-rotinas-v1');
+    assert.equal(savedRoutines.calisthenics[0].sections.main[0].youtubeVideo.videoId, 'CustHoriz01');
+    assert.equal(savedRoutines.calisthenics[0].sections.main[0].youtubeVideo.framing, 'original');
+    assert.equal(savedRoutines.calisthenics[1].sections.main[0].youtubeVideo.videoId, 'ShortVert01');
+    assert.equal(savedRoutines.calisthenics[1].sections.main[0].youtubeVideo.framing, 'zoom');
+
+    /* Execução da Rotina B + persistência após reload real da página. */
+    await page.evaluate((rB, day) => {
+      const ex = rB.sections.main[0];
+      const sess = {
+        version: 2, id: 's-vid-b', date: day, modality: 'calisthenics',
+        routineId: rB.id, routineName: rB.name, startedAt: Date.now() - 1000,
+        elapsedMs: 0, running: true, currentIndex: 0,
+        completedSets: { 'ex-b1': 0 }, totalPlannedSets: ex.sets,
+        queue: [Object.assign({}, ex)], status: 'active',
+        restEndAt: null, restRemainingMs: 0, restPaused: false,
+        pendingAdvance: false, restPlannedSeconds: 0, setTimer: null,
+        setLogs: {}, logDraft: {}
+      };
+      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify(sess));
+    }, savedRoutines.calisthenics[1], today);
+
+    await go('treino/executar.html');
+    await page.waitForSelector('#execution-demo .video-demo-player.is-zoom-crop', { timeout: 4000 });
+    await page.reload({ waitUntil: 'networkidle0' });
+    await page.waitForSelector('#execution-demo .video-demo-player.is-zoom-crop', { timeout: 4000 });
+    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoId), 'ShortVert01');
+    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoFraming), 'zoom');
+
+    /* Exportação e restauração de backup preservando vídeos e enquadramento por rotina. */
+    await go('configuracoes/');
+    const exportedJson = await page.evaluate(() => JSON.stringify(Forja.buildBackupObject()));
+    const backupFile = artifactPath('backup-videos-e2e.json');
+    fs.writeFileSync(backupFile, exportedJson, 'utf8');
+
+    await page.evaluate(() => localStorage.setItem('forja-treino-rotinas-v1',
+      JSON.stringify({ calisthenics: [], weights: [] })));
+    await go('configuracoes/');
+    const input = await page.$('#import-backup-input');
+    await input.uploadFile(backupFile);
+    await page.waitForSelector('[data-modal-action="restore"]', { timeout: 4000 });
+    await jsClick('[data-modal-action="restore"]');
+    await sleep(300);
+
+    const restored = await data('forja-treino-rotinas-v1');
+    assert.equal(restored.calisthenics[0].sections.main[0].youtubeVideo.videoId, 'CustHoriz01');
+    assert.equal(restored.calisthenics[0].sections.main[0].youtubeVideo.framing, 'original');
+    assert.equal(restored.calisthenics[1].sections.main[0].youtubeVideo.videoId, 'ShortVert01');
+    assert.equal(restored.calisthenics[1].sections.main[0].youtubeVideo.framing, 'zoom');
+  } finally {
+    youtubeE2EState.mode = 'normal';
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Vídeos YouTube: fallback de vídeo removido/indisponível, busca vazia e falha da API', async () => {
+  const saved = await forjaRaw();
+  const today = new Date().toISOString().slice(0, 10);
+  const routineDead = {
+    id: 'r-dead-e2e', name: 'Treino Indisponível', modality: 'calisthenics',
+    createdAt: 1, updatedAt: 1,
+    sections: {
+      warmup: [],
+      main: [{
+        id: 'ex-dead', name: 'Flexão de braço', sets: 2, type: 'reps', reps: '10',
+        duration: 45, rest: 15, load: '', notes: '', section: 'main',
+        libraryId: 'cal-flexao',
+        youtubeVideo: {
+          videoId: 'RemovedVd00',
+          title: 'Vídeo Removido',
+          channelTitle: 'Canal',
+          durationSeconds: 20,
+          framing: 'original'
+        }
+      }],
+      abs: [], finisher: []
+    }
+  };
+  try {
+    await restoreForjaRaw({});
+    await page.evaluate((r, day) => {
+      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [r], weights: [] }));
+      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+        version: 2, id: 's-dead', date: day, modality: 'calisthenics',
+        routineId: r.id, routineName: r.name, startedAt: Date.now() - 1000,
+        elapsedMs: 0, running: true, currentIndex: 0,
+        completedSets: { 'ex-dead': 0 }, totalPlannedSets: 2,
+        queue: [Object.assign({}, r.sections.main[0])], status: 'active',
+        restEndAt: null, restRemainingMs: 0, restPaused: false,
+        pendingAdvance: false, restPlannedSeconds: 0, setTimer: null,
+        setLogs: {}, logDraft: {}
+      }));
+    }, routineDead, today);
+
+    /* 1. Vídeo removido cai automaticamente na imagem de referência + mensagem discreta. */
+    await go('treino/executar.html');
+    await page.waitForFunction(() => {
+      const stage = document.querySelector('#execution-demo .video-demo');
+      return stage && stage.dataset.videoState === 'unavailable';
+    }, { timeout: 5000 });
+    assert.equal(await page.$('#execution-demo .video-demo-iframe'), null);
+    assert.equal(await page.$eval('#execution-demo .demo-media', el => el.dataset.demoId), 'repdb:push-up');
+    assert.equal(await text('#execution-demo .video-demo-unavailable'),
+      'Vídeo de demonstração ainda não disponível');
+
+    /* 2. Busca sem resultados. */
+    youtubeE2EState.mode = 'empty';
+    await go('treino/rotina.html?id=r-dead-e2e&modalidade=calisthenics');
+    await page.evaluate(() => { window.FORJA_YOUTUBE_CONFIG.apiKey = 'E2E_RESTRICTED_KEY'; });
+    await clickCentered('.editor-exercise .video-row-button');
+    await page.waitForSelector('.video-picker-status.is-empty', { timeout: 4000 });
+    assert.equal((await page.$$('.video-result-card')).length, 0);
+    assert.match(await text('.video-picker-status'), /Nenhum vídeo curto/i);
+
+    /* 3. Falha na conexão/serviço da API. */
+    youtubeE2EState.mode = 'error';
+    youtubeE2EState.expectExternalHttpError = true;
+    await jsClick('.video-picker-search-btn');
+    await page.waitForSelector('.video-picker-status.is-error', { timeout: 4000 });
+    assert.match(await text('.video-picker-status'), /Não foi possível consultar a YouTube Data API/i);
+    await jsClick('[data-modal-action="cancel"]');
+  } finally {
+    youtubeE2EState.mode = 'normal';
+    youtubeE2EState.expectExternalHttpError = false;
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }

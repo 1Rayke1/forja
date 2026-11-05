@@ -44,18 +44,24 @@ A figura anatômica do atlas é um recurso separado, com aviso próprio em
 ## Demonstrações dos exercícios
 
 O FORJA **não tem personagens 3D**: não existe modelo, rig, clipe, visualizador
-nem dependência 3D no repositório. A demonstração de cada exercício será um
-**vídeo horizontal de uma pessoa real**, com no máximo 60 segundos, reproduzido
-na tela de apresentação do exercício (`exercicio/`).
+nem dependência 3D no repositório.
 
-- Especificação, nome do arquivo, curadoria de origem e manifesto:
-  [`assets/videos/exercicios/README.md`](assets/videos/exercicios/README.md).
-- Enquanto um exercício não tiver vídeo aprovado, a tela mostra o estado de
-  pendência — não há prévia 3D, não há movimento emprestado de outro exercício
-  e nenhuma busca automática é feita.
-- As ilustrações da RepDB continuam sendo a demonstração visual dentro do app
-  (biblioteca, treino e histórico). A tela de execução do treino mostra só a
-  ilustração e a figura anatômica; ela não tem player de vídeo.
+As demonstrações reais de execução funcionam por incorporação oficial do YouTube
+no modo de privacidade aprimorada (`youtube-nocookie.com`), em container `16:9`
+horizontal, sem reprodução automática e com controles visíveis:
+
+- **Vídeos oficiais**: mapeados em `assets/js/forja-videos-dados.js` (tutoriais
+  curtos de até 60 s em proporção `16:9`, sempre em enquadramento original).
+- **Treinos personalizados**: no editor de rotinas (`treino/rotina.html`), o
+  botão **"Procurar vídeo"** permite buscar vídeos curtos via YouTube Data API v3
+  (chave pública restrita opcional em `FORJA_YOUTUBE_CONFIG.apiKey`) ou colar o
+  link direto do YouTube/Shorts. Vídeos verticais (Shorts) oferecem ajuste
+  opcional de **zoom e corte proporcional 16:9** sem esticar nem deformar a
+  imagem, restrito exclusivamente a treinos personalizados.
+- **Fallback automático**: quando um exercício ainda não possui vídeo ou o
+  vídeo está indisponível/removido, o FORJA exibe automaticamente a ilustração
+  de referência da RepDB com aviso discreto (`"Vídeo de demonstração ainda não
+  disponível"`). Nenhum vídeo do YouTube é baixado ou salvo no repositório.
 
 ### Proibido: vídeo renderizado a partir de personagem 3D
 
