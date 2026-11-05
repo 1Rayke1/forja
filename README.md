@@ -41,19 +41,45 @@ generativa.
 A figura anatômica do atlas é um recurso separado, com aviso próprio em
 `assets/anatomia/NOTICE.md`.
 
-## Modelos 3D (Git LFS)
+## Demonstrações dos exercícios
 
-Modelos `.glb`, `.gltf`, `.fbx` e `.blend` ficam em [`FORJA_ASSETS_3D/`](FORJA_ASSETS_3D/README.md)
-e são versionados com **Git LFS** — até 2 GB por arquivo, em vez do limite de
-25 MB do envio de arquivos pelo navegador. O envio pelo celular é feito anexando
-os modelos a uma release; o workflow `Importar assets 3D (Release → LFS)` move
-tudo para a pasta já em LFS.
+O FORJA **não tem personagens 3D**: não existe modelo, rig, clipe, visualizador
+nem dependência 3D no repositório.
 
-- Passo a passo (Android, sem programar), limites e diagnóstico:
-  [`docs/assets-3d-git-lfs.md`](docs/assets-3d-git-lfs.md)
-- Conferência local: `bash tools/validar-assets-3d.sh`
-- A pasta **não** é publicada no GitHub Pages (o Pages não entrega conteúdo de
-  LFS), então o app publicado segue exatamente como está.
+As demonstrações reais de execução funcionam por incorporação oficial do YouTube
+no modo de privacidade aprimorada (`youtube-nocookie.com`), em container `16:9`
+horizontal, sem reprodução automática e com controles visíveis:
+
+- **Vídeos oficiais**: mapeados em `assets/js/forja-videos-dados.js` (tutoriais
+  curtos de até 60 s em proporção `16:9`, sempre em enquadramento original).
+- **Treinos personalizados**: no editor de rotinas (`treino/rotina.html`), o
+  botão **"Procurar vídeo"** permite buscar vídeos curtos via YouTube Data API v3
+  (chave pública restrita opcional em `FORJA_YOUTUBE_CONFIG.apiKey`) ou colar o
+  link direto do YouTube/Shorts. Vídeos verticais (Shorts) oferecem ajuste
+  opcional de **zoom e corte proporcional 16:9** sem esticar nem deformar a
+  imagem, restrito exclusivamente a treinos personalizados.
+- **Fallback automático**: quando um exercício ainda não possui vídeo ou o
+  vídeo está indisponível/removido, o FORJA exibe automaticamente a ilustração
+  de referência da RepDB com aviso discreto (`"Vídeo de demonstração ainda não
+  disponível"`). Nenhum vídeo do YouTube é baixado ou salvo no repositório.
+
+### Proibido: vídeo renderizado a partir de personagem 3D
+
+Nenhum vídeo gerado por Blender/Cycles, manequim, retarget de mocap ou
+renderizador 3D pode entrar em `assets/videos/exercicios/`. A regra é verificada
+automaticamente em três pontos:
+
+| Verificação | Onde |
+| --- | --- |
+| Nenhum arquivo de vídeo (`mp4`, `webm`, `mov`, `m4v`, `ogv`) pode existir sem estar listado no manifesto | `tests/exercicio-apresentacao.test.mjs` |
+| O pacote publicado é montado a partir do manifesto e recusa vídeo órfão | `tools/preparar-site.sh` |
+| A pasta de vídeos deve conter apenas `README.md` e `manifest.json` enquanto não houver vídeo aprovado | `tests/exercicio-apresentacao.test.mjs` |
+
+Na remoção do sistema 3D (2026-11) foram apagados **4 MP4** renderizados em
+Blender/Cycles a partir do personagem 3D masculino — dois do piloto abdominal
+(16:9 e 9:16) em `avaliacao-piloto-3d/midia/` e duas cópias idênticas em
+`docs/validacao-3d/piloto-abdominal-masculino/`. O relatório completo está em
+[`docs/remocao-sistema-3d.md`](docs/remocao-sistema-3d.md).
 
 ## Documentação
 

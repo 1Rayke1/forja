@@ -1234,8 +1234,8 @@ function goalsAreActive(goals) {
 
 /*
   Perfil opcional do usuário: objetivo, nível, equipamento disponível, dias
-  por semana, duração desejada, sexo informado (usado só para escolher o
-  personagem das demonstrações) e modalidade preferida. Todos os campos são
+  por semana, duração desejada, sexo informado (declarado, sem efeito sobre
+  treinos ou demonstrações) e modalidade preferida. Todos os campos são
   opcionais (ausente = 0 ou "") e editáveis depois. O perfil orienta sugestões
   futuras e nunca impede a criação manual de rotinas. A chave é aditiva: nada
   que já existe muda.
@@ -1297,26 +1297,15 @@ const PERFIL_ANO_MIN = 1900;
 
 /*
   Sexo informado pelo usuário. Só dois valores com efeito definido:
-  "masculino" e "feminino", que futuramente selecionam o personagem das
-  demonstrações. O vazio significa "não informado" (inclui "prefiro não
-  informar") e o app continua funcionando sem personagem. Nenhum outro valor
-  é aceito e nada é inferido por nome, aparência ou objetivo.
+  "masculino" e "feminino". O vazio significa "não informado" (inclui
+  "prefiro não informar"). Nenhum outro valor é aceito e nada é inferido por
+  nome, aparência ou objetivo. O campo é declarativo: nenhuma tela, cálculo ou
+  demonstração muda por causa dele.
 */
 const PERFIL_SEXOS = ["masculino", "feminino"];
 const PERFIL_MODALIDADES = ["calisthenics", "weights"];
 const PERFIL_MAX_DIAS = 7;
 const PERFIL_MAX_MINUTOS = 240;
-
-/*
-  Personagens de demonstração (3D entram numa etapa futura). Hoje existe só o
-  contrato: `resolvePersonagem(perfil)` devolve um destes objetos quando o sexo
-  informado é reconhecido e `null` em qualquer outro caso — quem desenhar o
-  personagem não deve exibir nada quando receber `null`.
-*/
-const PERSONAGENS = Object.freeze({
-  masculino: Object.freeze({ id: "masculino", label: "Personagem masculino" }),
-  feminino: Object.freeze({ id: "feminino", label: "Personagem feminino" })
-});
 
 const PERFIL_LABELS = {
   objetivo: {
@@ -1692,17 +1681,6 @@ function profileHasAnyAnswer(profile) {
     current.preferenciasTreino.length > 0 || current.consideracoes.length > 0 ||
     current.equipamentos.length > 0
   );
-}
-
-/*
-  Personagem das demonstrações. Retorna `null` enquanto o sexo não estiver
-  informado ou não for reconhecido — e nenhuma tela deve exibir personagem
-  nesse caso. Não olha nome, aparência, objetivo nem histórico.
-*/
-function resolvePersonagem(profile) {
-  const current = normalizeProfile(profile);
-  const personagem = PERSONAGENS[current.sexo];
-  return personagem ? Object.assign({}, personagem) : null;
 }
 
 /*
@@ -3400,7 +3378,6 @@ Object.assign(F, {
   profileIsConfigured,
   profileHasAnyAnswer,
   profileGoalSuggestion,
-  resolvePersonagem,
   PERFIL_OPTIONS,
   PERFIL_LABELS,
   PERFIL_OBJETIVOS,
@@ -3418,7 +3395,6 @@ Object.assign(F, {
   PERFIL_PESO_MIN_KG,
   PERFIL_PESO_MAX_KG,
   PERFIL_ANO_MIN,
-  PERSONAGENS,
   validateRoutinesStore,
   validateHistoryList,
   normalizeHistoryList,

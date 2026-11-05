@@ -364,11 +364,12 @@ page.on('pageerror', e => errors.push(currentLabel + ' pageerror: ' + e.message)
 page.on('requestfailed', r => {
   const failure = r.failure();
   if (
+    failure &&
+    /ERR_ABORTED/i.test(failure.errorText || '') &&
     (r.url().startsWith('https://www.youtube-nocookie.com/embed/') ||
       r.url().startsWith('https://i.ytimg.com/vi/') ||
-      r.url().startsWith('https://img.youtube.com/vi/')) &&
-    failure &&
-    /ERR_ABORTED/i.test(failure.errorText || '')
+      r.url().startsWith('https://img.youtube.com/vi/') ||
+      /\.woff2(\?|$)/i.test(r.url()))
   ) {
     return;
   }
@@ -399,8 +400,16 @@ const pathOf = () => new URL(page.url()).pathname;
 const normalizePath = p => p.replace(/index\.html$/, '');
 const expectPath = async suffix => {
   const want = normalizePath(suffix);
-  const ok = await waitFor(s => location.pathname.replace(/index\.html$/, '').endsWith(s), 6000, want);
+  const ok = await waitFor(
+    s =>
+      location.pathname.replace(/index\.html$/, '').endsWith(s) &&
+      document.readyState !== 'loading' &&
+      Boolean(window.Forja && window.Forja.state),
+    6000,
+    want
+  );
   assert.ok(ok, 'Esperava a página ' + suffix + ', mas está em ' + pathOf());
+  await sleep(60);
 };
 
 // Clica pelo DOM (para links e botões ocultos sob estilos customizados).

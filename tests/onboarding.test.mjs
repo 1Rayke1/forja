@@ -471,8 +471,6 @@ await runTest("5. Perfil antigo (v1) sem sexo carrega sem erro, sem personagem e
   assert.equal(perfil.F.state.profile.version, 3, "O modelo lido é v3 (aditivo)");
   assert.equal(perfil.F.state.profile.sexo, "", "Perfil antigo não ganha sexo inventado");
   assert.equal(perfil.F.state.profile.objetivo, "forca", "Os campos antigos continuam intactos");
-  assert.equal(perfil.F.resolvePersonagem(perfil.F.state.profile), null,
-    "Sem sexo, nenhum personagem é escolhido");
   assert.equal(perfil.d.getElementById("prof-sexo").value, "", "O formulário mostra 'Não informado'");
   assert.equal(perfil.d.getElementById("prof-dias").value, "3");
   assert.deepEqual(perfil.storageWrites, [], "Ler um perfil antigo não deve regravar nada");
@@ -638,21 +636,18 @@ await runTest("7. Edição posterior em Perfil grava o sexo e preserva o restant
 });
 
 /* ------------------------------------------------------------------ */
-/* 8. Persistência do sexo e resolução do personagem                    */
+/* 8. Persistência do sexo (declarativo, sem personagem)                */
 /* ------------------------------------------------------------------ */
 
-await runTest("8. Sexo persiste entre páginas e resolve o personagem só quando reconhecido", async () => {
+await runTest("8. Sexo persiste entre páginas e não escolhe personagem nenhum", async () => {
   const app = await boot({ [PROFILE_KEY]: perfilV1({ sexo: "feminino" }) }, "index.html");
   assertNoErrors(app);
 
-  const personagem = app.F.resolvePersonagem(app.F.state.profile);
-  assert.deepEqual(plain(personagem), { id: "feminino", label: "Personagem feminino" });
-  assert.deepEqual(plain(app.F.resolvePersonagem({ sexo: "masculino" })), { id: "masculino", label: "Personagem masculino" });
-
-  /* Nada é inferido de outros campos. */
-  assert.equal(app.F.resolvePersonagem({ objetivo: "hipertrofia", nivel: "avancado" }), null);
-  assert.equal(app.F.resolvePersonagem({ sexo: "outro" }), null);
-  assert.equal(app.F.resolvePersonagem(null), null);
+  /* O sistema de personagens 3D foi removido: não existe mais contrato de
+     resolução de personagem nem painel de demonstração. */
+  assert.equal(app.F.resolvePersonagem, undefined, "O contrato de personagem não deve existir");
+  assert.equal(app.F.personagens3d, undefined, "O módulo de personagens 3D não deve existir");
+  assert.equal(app.F.PERSONAGENS, undefined, "O vocabulário de personagens não deve existir");
 
   await app.go(BASE + "perfil/index.html");
   assert.equal(app.d.getElementById("prof-sexo").value, "feminino");
@@ -695,7 +690,6 @@ await runTest("9. 'Prefiro não informar' não seleciona personagem e o app func
   assert.equal(perfil.equipamento, "nenhum");
   assert.equal(perfil.modalidadePreferida, "", "'Quero descobrir' não vira modalidade inventada");
   assert.equal(app.raw(GOALS_KEY), null, "Sem dias/duração não há meta sugerida");
-  assert.equal(app.F.resolvePersonagem(app.F.state.profile), null);
   assertNoErrors(app, "home sem sexo");
   assert.ok(app.$("#home-primary-button"), "A Home continua funcional sem personagem");
 });

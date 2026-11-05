@@ -159,9 +159,12 @@ await runTest("V1. Catálogo cobre os 37 exercícios, sem vídeos locais, sem 3D
   /* Nenhum componente do antigo sistema 3D existe no projeto ou no runtime. */
   assert.equal(app.F.personagens3d, undefined);
   assert.equal(fs.existsSync(path.join(repoRoot, "assets/3d")), false);
+  assert.equal(fs.existsSync(path.join(repoRoot, "assets/vendor/three")), false);
   assert.equal(fs.existsSync(path.join(repoRoot, "assets/js/forja-personagens.js")), false);
+  assert.equal(fs.existsSync(path.join(repoRoot, "assets/js/forja-exercicio-3d.js")), false);
+  assert.equal(fs.existsSync(path.join(repoRoot, "assets/css/exercicio-3d.css")), false);
   assert.equal(fs.existsSync(path.join(repoRoot, "avaliacao-piloto-3d")), false);
-  assert.equal(fs.existsSync(path.join(repoRoot, "exercicio")), false);
+  assert.equal(fs.existsSync(path.join(repoRoot, "FORJA_ASSETS_3D")), false);
 
   /* Nenhum vídeo do YouTube baixado no repositório. */
   const walk = dir => {

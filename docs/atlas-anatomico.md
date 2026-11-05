@@ -115,8 +115,8 @@ Continuam intactos:
 - filtros por modalidade e estados vazios;
 - detalhe na biblioteca e consulta durante a execução;
 - armazenamento local, rotinas, sessões e histórico;
-- seleção de sexo no perfil, que continua escolhendo apenas o personagem das
-  demonstrações (ver `NOTICE.md`, seção 5);
+- seleção de sexo no perfil, que não escolhe nada no app e não afeta a prancha
+  (ver `NOTICE.md`, seção 5);
 - navegação e demais páginas.
 
 O Atlas continua apenas lendo a classificação. Não grava nem limpa dados do
@@ -138,9 +138,9 @@ O teste `ATLAS 3` verifica:
 - o texto alternativo lista só as regiões daquela vista;
 - clique, Enter e Espaço selecionam a região e o `aria-label` traz nome e papel.
 
-O teste `ATLAS 13` verifica que o sexo informado continua resolvendo o
-personagem e **não** altera a prancha, e que a referência feminina anterior
-segue preservada e inalterada.
+O teste `ATLAS 13` verifica que o sexo informado **não** altera a prancha (o
+contrato de personagem foi removido com o sistema 3D) e que a referência
+feminina anterior segue preservada e inalterada.
 
 O teste `ATLAS 11` guarda as regressões de pintura: exige
 `.figura-svg { overflow: hidden }`, proíbe `mix-blend-mode` nas camadas de

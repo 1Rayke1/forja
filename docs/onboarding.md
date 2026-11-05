@@ -292,24 +292,18 @@ porque nenhuma duração foi coletada. A duração continua editável em Perfil,
 a sugestão de Progresso pode gerar minutos quando esse campo clássico já
 estiver preenchido.
 
-## 5. Sexo, imagens e personagens
+## 5. Sexo, imagens e demonstrações
 
-- Valores persistidos com efeito definido: `masculino` e `feminino`.
+- Valores persistidos: `masculino` e `feminino`.
 - **“Prefiro não informar” grava `""`.** É uma escolha explícita, não um valor
   padrão silencioso.
 - Nenhum valor é inferido por nome, aparência, objetivo, modalidade ou
   histórico.
-- O campo continua alimentando apenas o contrato futuro de personagens:
-
-  ```js
-  Forja.resolvePersonagem(Forja.state.profile)
-  // → { id: "masculino", label: "Personagem masculino" }
-  // → { id: "feminino",  label: "Personagem feminino"  }
-  // → null  (não informado, desconhecido ou perfil ausente)
-  ```
-
-- Nenhuma tela atual renderiza personagem 3D. Quem implementar demonstrações
-  não deve renderizar personagem algum ao receber `null`.
+- O campo é apenas declarativo: não existe contrato de personagem e nenhuma
+  tela desenha modelo de demonstração. As demonstrações de exercício são, por
+  decisão de produto, vídeos horizontais de pessoas reais (até 60 s) — nunca
+  personagens 3D. Enquanto um exercício não tiver vídeo aprovado, a tela de
+  apresentação informa a pendência.
 - `sexo` não altera treino, carga, exercício, histórico, objetivo ou metas.
 - A edição clássica posterior continua disponível em Perfil (`#prof-sexo`).
 
