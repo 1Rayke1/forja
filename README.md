@@ -41,19 +41,39 @@ generativa.
 A figura anatômica do atlas é um recurso separado, com aviso próprio em
 `assets/anatomia/NOTICE.md`.
 
-## Modelos 3D (Git LFS)
+## Demonstrações dos exercícios
 
-Modelos `.glb`, `.gltf`, `.fbx` e `.blend` ficam em [`FORJA_ASSETS_3D/`](FORJA_ASSETS_3D/README.md)
-e são versionados com **Git LFS** — até 2 GB por arquivo, em vez do limite de
-25 MB do envio de arquivos pelo navegador. O envio pelo celular é feito anexando
-os modelos a uma release; o workflow `Importar assets 3D (Release → LFS)` move
-tudo para a pasta já em LFS.
+O FORJA **não tem personagens 3D**: não existe modelo, rig, clipe, visualizador
+nem dependência 3D no repositório. A demonstração de cada exercício será um
+**vídeo horizontal de uma pessoa real**, com no máximo 60 segundos, reproduzido
+na tela de apresentação do exercício (`exercicio/`).
 
-- Passo a passo (Android, sem programar), limites e diagnóstico:
-  [`docs/assets-3d-git-lfs.md`](docs/assets-3d-git-lfs.md)
-- Conferência local: `bash tools/validar-assets-3d.sh`
-- A pasta **não** é publicada no GitHub Pages (o Pages não entrega conteúdo de
-  LFS), então o app publicado segue exatamente como está.
+- Especificação, nome do arquivo, curadoria de origem e manifesto:
+  [`assets/videos/exercicios/README.md`](assets/videos/exercicios/README.md).
+- Enquanto um exercício não tiver vídeo aprovado, a tela mostra o estado de
+  pendência — não há prévia 3D, não há movimento emprestado de outro exercício
+  e nenhuma busca automática é feita.
+- As ilustrações da RepDB continuam sendo a demonstração visual dentro do app
+  (biblioteca, treino e histórico). A tela de execução do treino mostra só a
+  ilustração e a figura anatômica; ela não tem player de vídeo.
+
+### Proibido: vídeo renderizado a partir de personagem 3D
+
+Nenhum vídeo gerado por Blender/Cycles, manequim, retarget de mocap ou
+renderizador 3D pode entrar em `assets/videos/exercicios/`. A regra é verificada
+automaticamente em três pontos:
+
+| Verificação | Onde |
+| --- | --- |
+| Nenhum arquivo de vídeo (`mp4`, `webm`, `mov`, `m4v`, `ogv`) pode existir sem estar listado no manifesto | `tests/exercicio-apresentacao.test.mjs` |
+| O pacote publicado é montado a partir do manifesto e recusa vídeo órfão | `tools/preparar-site.sh` |
+| A pasta de vídeos deve conter apenas `README.md` e `manifest.json` enquanto não houver vídeo aprovado | `tests/exercicio-apresentacao.test.mjs` |
+
+Na remoção do sistema 3D (2026-11) foram apagados **4 MP4** renderizados em
+Blender/Cycles a partir do personagem 3D masculino — dois do piloto abdominal
+(16:9 e 9:16) em `avaliacao-piloto-3d/midia/` e duas cópias idênticas em
+`docs/validacao-3d/piloto-abdominal-masculino/`. O relatório completo está em
+[`docs/remocao-sistema-3d.md`](docs/remocao-sistema-3d.md).
 
 ## Documentação
 

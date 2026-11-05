@@ -1,54 +1,78 @@
-# Vídeos de apresentação dos exercícios
+# Vídeos de demonstração dos exercícios
 
-Esta pasta recebe o MP4 final de cada exercício. O gerador
-`tools/gerar-apresentacao-exercicios.mjs` varre os arquivos daqui e só marca
-`modo: "video"` quando o arquivo passa em todas as verificações.
+Esta pasta é o destino dos vídeos horizontais de **pessoas reais** que vão
+substituir as antigas demonstrações por personagens 3D. Nenhum vídeo foi
+adicionado ainda e nenhuma busca automática é feita: os arquivos entram aqui
+somente por curadoria manual, depois de aprovados.
 
-## Nome obrigatório
-
-```
-{exercicioId}-{personagem}-horizontal-16x9.mp4
-```
-
-- `exercicioId`: o `id` da biblioteca (`cal-flexao`, `mus-supino-reto`…).
-- `personagem`: `masculino` ou `feminino`.
-- Extensão `.mp4` (H.264, `yuv420p`, `+faststart`, sem trilha de áudio).
-
-Exemplo: `cal-flexao-masculino-horizontal-16x9.mp4`.
-
-## Especificação verificada
+## Especificação
 
 | Item | Valor |
 | --- | --- |
 | Proporção | 16:9 horizontal (9:16 é rejeitado) |
 | Resolução | 1280 × 720 |
 | FPS | 30 |
+| Duração | no máximo 60 segundos |
 | Fundo | `#121010` uniforme |
-| Câmera | ¾, quase lateral, azimute −58°, elevação 22°, FOV vertical 32° |
 | Corpo | inteiro visível, enquadramento consistente entre exercícios |
 | Áudio | nenhum |
-| Loop | infinito; a emenda qN→q0 deve ser visualmente contínua |
+| Loop | infinito; a emenda do último quadro ao primeiro deve ser contínua |
 
 O player da tela `exercicio/` é mudo, inline, com autoplay e loop, e não
 oferece controles. O arquivo continua sendo a fonte da verdade: se estiver
-fora da especificação, a tela não o exibe.
+fora da especificação, a tela não o exibe e informa a pendência.
+
+## Nome do arquivo
+
+```
+{exercicioId}-horizontal-16x9.mp4
+```
+
+`exercicioId` é o `id` da biblioteca (`cal-flexao`, `mus-supino-reto`…). Exemplo:
+`cal-flexao-horizontal-16x9.mp4`. O nome não leva modelo nem personagem: cada
+exercício tem um único vídeo horizontal.
+
+## Curadoria de origem (obrigatória)
+
+Só entra aqui vídeo de **pessoa real**, gravado ou licenciado para o FORJA.
+É proibido nesta pasta:
+
+- qualquer MP4 renderizado a partir de modelo 3D (`Blender`, `Cycles`, manequim,
+  retarget de mocap ou similar);
+- vídeo vertical (9:16) ou com áudio;
+- vídeo baixado de terceiros sem licença e atribuição registradas.
+
+O manifesto guarda `origem` (`autoral` | `licenciado`) e `fonte` (autor ou
+licença) por exercício, para que a origem seja auditável depois.
+
+## Manifesto
+
+`manifest.json` lista só os vídeos aprovados. Um exercício só aparece nele
+quando o MP4 existe nesta pasta e cumpre a especificação:
+
+```json
+{
+  "formato": "forja-videos-exercicios",
+  "versao": 1,
+  "especificacao": { "proporcao": "16:9", "largura": 1280, "altura": 720,
+                     "fps": 30, "duracaoMaximaS": 60, "audio": false },
+  "exercicios": [
+    {
+      "id": "cal-flexao",
+      "nome": "Flexão de braço",
+      "modalidade": "calisthenics",
+      "video": "assets/videos/exercicios/cal-flexao-horizontal-16x9.mp4",
+      "duracaoS": 12.5
+    }
+  ]
+}
+```
+
+O manifesto é opcional: sem ele (ou sem a entrada de um exercício) a tela de
+apresentação mostra o estado de pendência, sem quebrar a navegação.
 
 ## Estado atual
 
-Nenhum MP4 foi renderizado nesta etapa. Dos 37 exercícios:
-
-- **14** têm clipe próprio com `status: "exact"` e aparecem em prévia 3D;
-- **15** têm apenas um clipe `status: "review"` (aproximado, ainda não é o
-  movimento final) e aparecem como pendência de revisão técnica;
-- **8** não têm clipe próprio disponível e aparecem como pendência de animação.
-
-Nenhum clipe é reutilizado entre exercícios. Quando o catálogo lista o mesmo
-clipe em dois exercícios (prancha, elevação de pernas e caminhada), só o
-primeiro fica com ele; o outro entra como pendência explícita.
-
-A auditoria dos 43 GLBs encontrou **42 loops fechados e 1 exceção conhecida**:
-`caminhada`, com **2,1 mm** de deslocamento residual na raiz (`hips`). O clipe
-original é preservado sem correção automática; a continuidade visual no MP4
-renderizado ainda precisa ser inspecionada quadro a quadro.
-
-A renderização dos MP4 depende de aprovação explícita.
+Nenhum vídeo publicado. A lista `exercicios` está vazia e todos os exercícios
+da biblioteca aparecem na tela de apresentação como "ainda não tem vídeo de
+demonstração".
