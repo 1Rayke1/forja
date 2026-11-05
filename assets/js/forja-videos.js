@@ -82,7 +82,7 @@
       EMBED_HOST +
       "/embed/" +
       encodeURIComponent(clean) +
-      "?autoplay=0&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+      "?autoplay=0&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&mute=1"
     );
   }
 

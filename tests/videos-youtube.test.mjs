@@ -278,6 +278,7 @@ await runTest("V3. Exercício com vídeo oficial usa youtube-nocookie, sem autop
   assert.match(iframe.src, /^https:\/\/www\.youtube-nocookie\.com\/embed\/xBrI-N44QLc\?/);
   assert.match(iframe.src, /autoplay=0/);
   assert.match(iframe.src, /controls=1/);
+  assert.match(iframe.src, /[?&]mute=1(?:&|$)/);
   assert.equal(app.$(".modal-details .video-demo-unavailable").hidden, true);
   assert.equal(app.$(".modal-3d"), null, "nenhum palco 3D pode existir");
 
@@ -406,6 +407,7 @@ await runTest("V5. Fluxo 'Procurar vídeo' no editor: busca, prévia 16:9, confi
   assert.match(previewIframe.src, /youtube-nocookie\.com\/embed\/CustVideo01/);
   assert.match(previewIframe.src, /autoplay=0/);
   assert.match(previewIframe.src, /controls=1/);
+  assert.match(previewIframe.src, /[?&]mute=1(?:&|$)/);
 
   app.modalAction("confirm");
   await wait(30);
@@ -476,6 +478,13 @@ await runTest("V6. Short vertical em treino personalizado: opção de zoom e cor
   const previewBox = app.$(".video-picker-preview-frame");
   assert.equal(previewBox.classList.contains("is-zoom-crop"), false);
 
+  /* A prévia inicia silenciosa, sem autoplay e com controles. */
+  const previewIframe = app.$(".video-picker-preview-iframe");
+  assert.ok(previewIframe, "prévia do vídeo personalizado ausente");
+  assert.match(previewIframe.src, /[?&]mute=1(?:&|$)/);
+  assert.match(previewIframe.src, /[?&]autoplay=0(?:&|$)/);
+  assert.match(previewIframe.src, /[?&]controls=1(?:&|$)/);
+
   /* Ativa zoom e corte 16:9 e verifica atualização imediata na prévia. */
   app.click('[data-framing-option="zoom"]');
   await wait(15);
@@ -502,6 +511,13 @@ await runTest("V6. Short vertical em treino personalizado: opção de zoom e cor
     customStage.node.querySelector(".video-demo-player").classList.contains("is-zoom-crop"),
     true
   );
+
+  /* O vídeo personalizado confirmado mantém as mesmas garantias de reprodução. */
+  const customIframe = customStage.node.querySelector(".video-demo-iframe");
+  assert.ok(customIframe, "iframe do vídeo personalizado ausente");
+  assert.match(customIframe.src, /[?&]mute=1(?:&|$)/);
+  assert.match(customIframe.src, /[?&]autoplay=0(?:&|$)/);
+  assert.match(customIframe.src, /[?&]controls=1(?:&|$)/);
 
   const officialRecord = app.F.catalog.items("calisthenics").find(i => i.id === "cal-flexao");
   const officialStage = app.F.videos.createStage(officialRecord, "calisthenics");
