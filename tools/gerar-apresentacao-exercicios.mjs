@@ -34,6 +34,8 @@ const DIR_VIDEOS = path.join(raiz, "assets", "videos", "exercicios");
 const CAMINHO_CATALOGO = path.join(raiz, "assets", "3d", "catalogo.json");
 const DIR_ANIMACOES = path.join(raiz, "assets", "3d", "animacoes");
 const CAMINHO_BIBLIOTECA = path.join(raiz, "assets", "js", "forja-biblioteca.js");
+const CAMINHO_DADOS_CENTRAIS = path.join(raiz, "assets", "js", "forja-exercicios-dados.js");
+const CAMINHO_CATALOGO_CENTRAL = path.join(raiz, "assets", "js", "forja-catalogo-central.js");
 
 const ESPECIFICACAO = Object.freeze({
   proporcao: "16:9",
@@ -58,12 +60,40 @@ const ESPECIFICACAO = Object.freeze({
 });
 
 function lerBiblioteca() {
-  const codigo = fs.readFileSync(CAMINHO_BIBLIOTECA, "utf8");
   const sandbox = { window: { Forja: {} }, Object, console };
-  vm.runInNewContext(codigo, sandbox, { filename: CAMINHO_BIBLIOTECA });
+  sandbox.globalThis = sandbox.window;
+  vm.createContext(sandbox);
+  for (const caminho of [CAMINHO_DADOS_CENTRAIS, CAMINHO_CATALOGO_CENTRAL, CAMINHO_BIBLIOTECA]) {
+    vm.runInContext(fs.readFileSync(caminho, "utf8"), sandbox, { filename: caminho });
+  }
   const biblioteca = sandbox.window.Forja.EXERCISE_LIBRARY;
-  if (!biblioteca) throw new Error("forja-biblioteca.js não definiu EXERCISE_LIBRARY");
-  return biblioteca;
+  if (!biblioteca) throw new Error("O adaptador não definiu EXERCISE_LIBRARY");
+
+  /* A apresentação 3D é um módulo legado congelado nesta etapa. Manter os 37
+     registros e seus padrões históricos evita criar pendências 3D para os 128
+     exercícios novos; IDs e nomes ainda são resolvidos pelo catálogo central. */
+  const manifestoAtual = JSON.parse(fs.readFileSync(CAMINHO_SAIDA, "utf8"));
+  const aliases = sandbox.window.Forja.exerciseCatalog.legacyIdMap;
+  const todos = [...biblioteca.calisthenics, ...biblioteca.weights];
+  const historico = manifestoAtual.exercicios.map(antigo => {
+    const canonico = aliases[antigo.id] || antigo.id;
+    const atual = todos.find(item => item.id === canonico);
+    if (!atual) throw new Error("Exercício 3D histórico ausente no catálogo: " + antigo.id);
+    return Object.assign({}, atual, {
+      id: antigo.id,
+      name: antigo.nome,
+      mode: antigo.modalidade,
+      section: antigo.secao,
+      type: antigo.tipo,
+      sets: antigo.series,
+      reps: antigo.repeticoes,
+      duration: antigo.duracao
+    });
+  });
+  return {
+    calisthenics: historico.filter(item => item.mode === "calisthenics"),
+    weights: historico.filter(item => item.mode === "weights")
+  };
 }
 
 function modalidadeDe(secao) {

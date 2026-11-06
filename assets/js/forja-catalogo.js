@@ -294,7 +294,9 @@
       category,
       label: categoryLabel(category),
       roles,
-      muscles: muscles.slice(0, 6),
+      /* O catálogo central pode declarar mais de seis papéis; não truncar
+         secundários/estabilizadores na integração com o atlas e o plano. */
+      muscles: muscles.slice(0, 12),
       equipment: equipment.slice(0, 6),
       instructions: item.instructions || (meta && meta.instructions) || ""
     };
@@ -309,7 +311,12 @@
     const normalized = F.normalizeLibraryItem(raw, mode);
     if (!normalized) return null;
 
-    const meta = metadataFor(normalized);
+    /* normalizeLibraryItem preserva o contrato de armazenamento e, por isso,
+       não carrega roles. Os registros oficiais trazem essa classificação do
+       catálogo central; personalizados continuam sem papéis supostos. */
+    const meta = metadataFor(Object.assign({}, normalized, {
+      roles: source === "sugerido" ? raw.roles : null
+    }));
 
     return Object.assign(normalized, {
       mode,
@@ -467,7 +474,10 @@
      sessão/rotina têm precedência; só completamos metadados disponíveis. */
   function describeExercise(exercise, mode) {
     const origin = exercise.libraryId || exercise.id;
-    const known = items(mode).find(item => item.id === origin);
+    const canonical = F.exerciseCatalog && F.exerciseCatalog.legacyIdMap[origin]
+      ? F.exerciseCatalog.legacyIdMap[origin]
+      : origin;
+    const known = items().find(item => item.id === canonical);
     const merged = Object.assign({}, known || {}, exercise);
     if (known) {
       ["instructions", "category"].forEach(key => {
@@ -784,6 +794,15 @@
       details.insertBefore(media.node, details.firstChild);
     }
 
+    /* YouTube aprovado tem prioridade sobre a ilustração, nunca sobre o atlas.
+       Enquanto a consulta pública não responde, a referência local continua. */
+    let youtubeHost = null;
+    if (F.youtube && F.exerciseCatalog && F.exerciseCatalog.byId(record.libraryId || record.id)) {
+      youtubeHost = document.createElement("div");
+      youtubeHost.className = "youtube-detail";
+      details.insertBefore(youtubeHost, details.firstChild);
+    }
+
     /*
       Demonstração 3D no topo do detalhe. O container já nasce no documento para
       que o painel meça a largura certa; a montagem só acontece depois que o
@@ -815,6 +834,12 @@
           { id: "add", label: "Adicionar à rotina", className: "primary-button" }
         ]
     });
+
+    if (youtubeHost && F.youtube) {
+      setTimeout(() => {
+        if (youtubeHost.isConnected) F.youtube.render(record, youtubeHost);
+      }, 0);
+    }
 
     /*
       Monta o painel 3D só depois que o modal está no documento (o canvas mede o
@@ -1208,7 +1233,10 @@
   function findRecord(id) {
     if (!id) return null;
 
-    return F.catalog.items().find(record => record.libraryId === id || record.id === id) || null;
+    const canonical = F.exerciseCatalog && F.exerciseCatalog.legacyIdMap[id]
+      ? F.exerciseCatalog.legacyIdMap[id]
+      : id;
+    return F.catalog.items().find(record => record.libraryId === canonical || record.id === canonical) || null;
   }
 
   async function openRequestedExercise(id) {

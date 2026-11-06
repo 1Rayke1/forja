@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.ytimg.com; frame-src https://www.youtube-nocookie.com; connect-src 'self' https://prismatic-parfait-be3644.netlify.app; base-uri 'none'; form-action 'self'">
+  <title>FORJA — Administração de demonstrações</title>
+  <link rel="stylesheet" href="../assets/css/admin-exercicios.css">
+</head>
+<body>
+  <header class="admin-header">
+    <div><span class="brand">FORJA</span><h1>Demonstrações dos exercícios</h1></div>
+    <a href="../treino/biblioteca.html">Ver biblioteca pública</a>
+  </header>
+  <main>
+    <section class="panel auth-panel" aria-labelledby="auth-title">
+      <div><h2 id="auth-title">Sessão administrativa</h2><p>A credencial fica somente na memória desta aba e é enviada por HTTPS. Não é salva no navegador.</p></div>
+      <form id="auth-form"><label>Credencial administrativa<input id="admin-credential" type="password" required maxlength="512" autocomplete="off"></label><button class="primary" type="submit">Iniciar sessão</button></form>
+      <p id="session-status" role="status">Sessão não iniciada.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="report-title">
+      <div class="section-heading"><h2 id="report-title">Cobertura real</h2><button id="refresh-dashboard" class="secondary" disabled>Atualizar relatório</button></div>
+      <div id="report" class="report-grid"><p>Inicie a sessão para ler os dados persistidos.</p></div>
+    </section>
+
+    <div class="admin-layout">
+      <section class="panel" aria-labelledby="exercise-title">
+        <h2 id="exercise-title">1. Exercício</h2>
+        <div class="filters">
+          <label>Buscar<input id="exercise-search" type="search" placeholder="Nome, alias ou ID"></label>
+          <label>Grupo muscular<select id="muscle-filter"><option value="">Todos</option></select></label>
+          <label>Modalidade<select id="modality-filter"><option value="">Todas</option></select></label>
+          <label>Estado<select id="status-filter"><option value="">Todos</option><option value="pending">Pendente</option><option value="review">Em análise</option><option value="validated">Aprovado</option><option value="rejected">Rejeitado</option><option value="unavailable">Indisponível</option></select></label>
+        </div>
+        <p id="exercise-count"></p>
+        <div id="admin-exercise-items" class="admin-exercise-items"></div>
+      </section>
+
+      <section class="panel exercise-detail-panel" aria-labelledby="detail-title">
+        <h2 id="detail-title">2. Dados do exercício</h2>
+        <div id="exercise-detail"><p>Selecione um exercício.</p></div>
+        <div id="current-association"></div>
+      </section>
+    </div>
+
+    <section class="panel" aria-labelledby="search-title">
+      <h2 id="search-title">3. Pesquisa e revisão no YouTube</h2>
+      <form id="video-search-form" class="video-search"><label>Consulta<input id="video-query" type="search" maxlength="180" required></label><button class="primary" type="submit" disabled>Pesquisar vídeos</button></form>
+      <p class="hint">A correspondência de título nunca aprova automaticamente. Resultados idênticos usam cache por 12 horas para preservar cota.</p>
+      <div id="video-results" class="video-results"></div>
+      <div id="preview"></div>
+
+      <form id="review-form" class="review-form" hidden>
+        <h3>4. Confirmação visual obrigatória</h3>
+        <p id="selected-video"></p>
+        <label><input type="checkbox" name="matchesExercise"> O movimento corresponde exatamente ao exercício e à sua variação.</label>
+        <label><input type="checkbox" name="compatibleEquipment"> O equipamento e a modalidade são compatíveis.</label>
+        <label><input type="checkbox" name="visibleExecution"> A execução está visível e é compreensível.</label>
+        <label><input type="checkbox" name="horizontal"> O vídeo é horizontal, sem crop ou zoom artificial.</label>
+        <label><input type="checkbox" name="aspectRatio16x9"> A proporção visual é 16:9.</label>
+        <label><input type="checkbox" name="notShorts"> Confirmei que não é YouTube Shorts nem vídeo vertical.</label>
+        <div class="review-actions"><button id="save-review" class="secondary" type="button">Salvar em análise</button><button id="approve-video" class="primary" type="submit">Aprovar associação</button><button id="reject-video" class="danger" type="button">Rejeitar vídeo</button></div>
+      </form>
+      <p id="operation-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="missing-title"><h2 id="missing-title">Exercícios sem demonstração aprovada</h2><div id="missing-list" class="missing-list"><p>Inicie a sessão para consultar.</p></div></section>
+  </main>
+  <script src="../assets/js/forja-exercicios-dados.js"></script>
+  <script src="../assets/js/forja-catalogo-central.js"></script>
+  <script src="../assets/js/admin-exercicios.js"></script>
+</body>
+</html>

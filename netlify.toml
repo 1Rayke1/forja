@@ -7,3 +7,9 @@
   to = "/.netlify/functions/workout-plan"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/api/youtube-videos"
+  to = "/.netlify/functions/youtube-videos"
+  status = 200
+  force = true

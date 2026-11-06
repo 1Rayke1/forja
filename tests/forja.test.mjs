@@ -842,21 +842,17 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   const rows = () => app.$$("#catalog-list .ui-exercise-row");
   const total = () => app.F.catalog.items().length;
 
-  assert.equal(total(), 37, "Catálogo sugerido não carregou inteiro");
-  assert.match(app.text("#catalog-status"), /37 exercícios no catálogo/);
+  assert.equal(total(), app.F.exerciseCatalog.exercises.length, "Catálogo central não carregou inteiro");
+  assert.ok(total() > 37, "A expansão do catálogo não foi aplicada");
+  assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios no catálogo"));
   assert.equal(rows().length, 12, "A lista não veio em blocos para caber na tela");
-  assert.match(app.text(".catalog-more"), /Mostrar mais 12 de 25/, "Contador de 'mostrar mais' errado");
+  assert.match(app.text(".catalog-more"), new RegExp("Mostrar mais 12 de " + (total() - 12)), "Contador de 'mostrar mais' errado");
 
-  app.click(".catalog-more button");
-  await wait(15);
-  assert.equal(rows().length, 24, "Mostrar mais não revelou o bloco seguinte");
-  assert.match(app.text(".catalog-more"), /Mostrar mais 12 de 13/);
-  app.click(".catalog-more button");
-  await wait(15);
-  assert.match(app.text(".catalog-more"), /Mostrar mais 1 de 1/, "Último bloco não avisou que era o resto");
-  app.click(".catalog-more button");
-  await wait(15);
-  assert.equal(rows().length, 37, "Último bloco não mostrou o restante");
+  while (app.$(".catalog-more button")) {
+    app.click(".catalog-more button");
+    await wait(5);
+  }
+  assert.equal(rows().length, total(), "Paginação não mostrou o catálogo completo");
   assert.equal(app.$(".catalog-more"), null, "Botão 'Mostrar mais' ficou depois de tudo visível");
 
   /* Busca ignora acentos e considera nome, músculo, categoria e equipamento. */
@@ -866,7 +862,7 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   await wait(10);
   const found = rows().map(row => row.querySelector(".ui-exercise-name").textContent);
   assert.ok(found.includes("Flexão de braço"), "Busca sem acento não encontrou Flexão");
-  assert.ok(found.length < 37 && found.length > 0, "Busca não filtrou a lista");
+  assert.ok(found.length < total() && found.length > 0, "Busca não filtrou a lista");
 
   search.value = "peito";
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
@@ -878,22 +874,24 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
   await wait(10);
   assert.equal(rows().length, 12, "Limpar a busca não trouxe o catálogo de volta");
-  assert.match(app.text("#catalog-status"), /37 exercícios/);
+  assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios"));
 
   /* Filtros: modalidade, medição e categoria funcionam e mostram contagem. */
   const weightsSegment = app.$$("#catalog-controls .ui-segment").find(node => /Muscula/.test(node.textContent));
   weightsSegment.click();
   await wait(15);
-  assert.match(app.text("#catalog-status"), /19 exercícios/);
+  assert.match(app.text("#catalog-status"), new RegExp(app.F.EXERCISE_LIBRARY.weights.length + " exercícios"));
   assert.equal(rows().length, 12, "Filtro de modalidade não reiniciou o bloco visível");
-  app.click(".catalog-more button");
-  await wait(15);
-  assert.equal(rows().length, 19, "Filtro de modalidade não reduziu a lista");
+  while (app.$(".catalog-more button")) {
+    app.click(".catalog-more button");
+    await wait(5);
+  }
+  assert.equal(rows().length, app.F.EXERCISE_LIBRARY.weights.length, "Filtro de modalidade não reduziu a lista");
   assert.ok(rows().every(row => /Muscula/.test(row.textContent)), "Filtro de modalidade vazou itens de calistenia");
 
   app.$$("#catalog-controls .ui-segment")[0].click();
   await wait(15);
-  assert.match(app.text("#catalog-status"), /37 exercícios no catálogo/);
+  assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios no catálogo"));
   assert.equal(rows().length, 12, "Voltar para Todas não restaurou a lista");
 
   const measureRow = app.$('#catalog-controls [data-filter-group="measure"]');
@@ -901,7 +899,7 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   measureRow.querySelector('[data-value="time"]').click();
   await wait(15);
   const timed = app.F.catalog.filter({ measure: "time" });
-  assert.ok(timed.length > 0 && timed.length < 37, "Filtro de medição não funcionou");
+  assert.ok(timed.length > 0 && timed.length < total(), "Filtro de medição não funcionou");
   assert.equal(rows().length, Math.min(12, timed.length), "Filtro novo não reiniciou o bloco visível");
   /*
     `Array.from` no domínio do teste: os objetos vêm da janela jsdom e a
@@ -916,7 +914,7 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   app.$('#catalog-controls [data-filter-group="measure"] [data-value="null"]').click();
   await wait(15);
   assert.equal(rows().length, 12, "Limpeza do filtro não voltou ao primeiro bloco");
-  assert.match(app.text("#catalog-status"), /37 exercícios/);
+  assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios"));
 
   /* Detalhe traz instruções reais e a frase de histórico (sem inventar dado). */
   app.click('#catalog-list .ui-exercise-row [aria-label^="Ver detalhes"]');
@@ -1368,6 +1366,20 @@ function typeField(app, selector, value, eventName = "input") {
   field.value = value;
   field.dispatchEvent(new app.w.Event(eventName, { bubbles: true }));
 }
+
+await runTest("30d. Compatibilidade: mus-prancha resolve o registro canônico sem reescrever o ID antigo", async () => {
+  const app = await boot({}, "treino/biblioteca.html?exercicio=mus-prancha");
+  await wait(30);
+  assert.equal(app.text("#modal-title"), "Prancha frontal");
+  const described = app.F.catalog.describeExercise({
+    id: "instancia-antiga", libraryId: "mus-prancha", name: "Prancha frontal",
+    type: "duration", sets: 3, reps: "", duration: 40, rest: 45, section: "abs"
+  }, "weights");
+  assert.equal(described.libraryId, "mus-prancha", "O ID armazenado não pode ser substituído");
+  assert.equal(described.roles.primary[0], "abdômen");
+  assert.deepEqual(app.storageWrites, [], "Resolver compatibilidade não grava nem migra dados");
+  app.close();
+});
 
 await runTest("31. Execução: corrigir e remover uma série já registrada", async () => {
   const app = await bootExecution();

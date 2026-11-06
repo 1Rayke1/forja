@@ -203,11 +203,31 @@ try {
 }
 
 const page = await browser.newPage();
+/* O E2E é determinístico e não consome cota externa. A integração real fica
+   restrita ao backend; aqui o endpoint público começa sem aprovações. */
+await page.evaluateOnNewDocument(() => {
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    const url = typeof input === 'string' ? input : input.url;
+    if (url.includes('/.netlify/functions/youtube-videos') || url.includes('/api/youtube-videos')) {
+      return Promise.resolve(new Response(JSON.stringify({
+        associations: [],
+        report: { total: 165, approved: 0, pending: 165, review: 0, rejected: 0, unavailable: 0, coveragePercent: 0, withoutVideo: [], inconsistencies: [] }
+      }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    }
+    return originalFetch(input, init);
+  };
+});
 let currentLabel = 'carga';
 const errors = [];
 page.on('console', m => { if (m.type() === 'error') errors.push(currentLabel + ' console: ' + m.text()); });
 page.on('pageerror', e => errors.push(currentLabel + ' pageerror: ' + e.message));
-page.on('requestfailed', r => errors.push(currentLabel + ' requestfailed: ' + r.url()));
+page.on('requestfailed', r => {
+  /* Navegar pode cancelar fontes/imagens da página anterior; HTTP 404 e
+     demais falhas continuam registrados e reprovam a verificação. */
+  if (r.failure()?.errorText === 'net::ERR_ABORTED') return;
+  errors.push(currentLabel + ' requestfailed: ' + r.url());
+});
 page.on('response', r => {
   if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(currentLabel + ' HTTP ' + r.status() + ': ' + r.url());
 });
@@ -543,7 +563,8 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
 
   assert.equal((await page.$$('.figura-svg')).length, 2, 'O atlas precisa das duas vistas da silhueta');
   assert.equal((await page.$$('.figura-region')).length, 0, 'Região destacada sem exercício escolhido');
-  assert.equal(await page.$$eval('#atlas-exercise-select option', els => els.length), 38, 'Seletor deveria ter 37 exercícios + vazio');
+  assert.equal(await page.$$eval('#atlas-exercise-select option', els => els.length),
+    await page.evaluate(() => Forja.exerciseCatalog.exercises.length + 1), 'Seletor deveria ter todo o catálogo + vazio');
   assert.match(await text('.atlas-disclosure'), /não uma segmentação anatômica clínica/i);
   const navLabels = await page.$$eval('.bottom-nav-link', els => els.map(e => e.textContent.trim()));
   assert.equal(navLabels.length, 5, 'Barra inferior precisa manter 5 destinos');
@@ -560,15 +581,17 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   assert.match(await text('.atlas-legenda'), /Secundária/);
 
   await clickCentered('[data-group-chip="antebracos"]');
-  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Antebraços deveria listar 3 exercícios');
+  const forearmTotal = await page.evaluate(() => Forja.atlas.exercisesFor('antebracos').length);
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmTotal, 'Antebraços divergiu do catálogo');
   assert.match(await page.$eval('.atlas-exercise-list', el => el.textContent), /Principal/);
 
   await clickCentered('#atlas-modes [data-value="calisthenics"]');
-  assert.match(await text('.atlas-exercise-list .ui-empty-title'), /Nenhum exercício desta modalidade/);
-  await clickCentered('.atlas-exercise-list .ui-empty-actions .primary-button');
-  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Limpar filtro não restaurou a lista');
+  const forearmCalisthenics = await page.evaluate(() => Forja.atlas.exercisesFor('antebracos').filter(item => item.record.mode === 'calisthenics').length);
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmCalisthenics, 'Filtro de Calistenia divergiu');
+  await clickCentered('#atlas-modes [data-value="null"]');
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmTotal, 'Limpar filtro não restaurou a lista');
 
-  await clickCentered('[data-group-chip="panturrilha"]');
+  await clickCentered('[data-group-chip="quadril"]');
   assert.match(await text('.atlas-exercise-list .ui-empty-title'), /Nenhum exercício para este grupo/);
 
   await clickCentered('.atlas-inline-reset');
@@ -580,8 +603,10 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   assert.match(legendHref, /biblioteca\.html\?musculo=/);
   await jsClick('.atlas-legenda-item .atlas-legenda-link');
   await expectPath('/treino/biblioteca.html');
-  assert.equal(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length), 4,
-    'O filtro por peitoral deveria listar 4 exercícios');
+  const expectedChest = await page.evaluate(() => Math.min(12, Forja.catalog.filter({ muscle: 'peito' }).length));
+  await waitFor(total => document.querySelectorAll('#catalog-list .ui-exercise-row').length === total, 4000, expectedChest);
+  assert.equal(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length), expectedChest,
+    'O filtro por peitoral divergiu da primeira página do catálogo');
 
   /* Detalhe do exercício mostra a mesma figura. */
   await jsClick('#catalog-list .ui-exercise-row .ui-exercise-main button, #catalog-list .ui-exercise-row .ui-button');
@@ -1771,8 +1796,11 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, 
     };
 
     const avancar = async () => {
+      const anterior = (await etapa()).pergunta;
       await clickCentered('#onboarding-next');
-      await sleep(90);
+      await waitFor(antes => document.getElementById('onboarding-question')?.textContent.trim() !== antes ||
+        document.getElementById('onboarding-error')?.hidden === false, 1500, anterior);
+      await sleep(60);
     };
 
     let info = await etapa();
@@ -2209,24 +2237,22 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
 });
 
 /* Fluxos da primeira evolução web, isolados dos dados das verificações acima. */
-await check('Explorar — busca e resultados inline, filtros recolhidos e atlas em acesso único', async () => {
+await check('Explorar — focos filtram o catálogo real e atlas tem acesso único', async () => {
   const saved = await forjaRaw();
   try {
     await restoreForjaRaw({});
     await go('explorar/');
     const existingProfile = await forjaRaw();
     assert.ok(existingProfile['forja-perfil-v1'], 'Rota protegida exige perfil salvo');
-    assert.ok(await page.$('#catalog-root'), 'Catálogo inline ausente');
-    assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), false,
-      'Filtros secundários começam recolhidos');
-    assert.equal(await page.$$eval('.explore-atlas a[href="atlas.html"]', els => els.length), 1,
+    assert.ok(await page.$('#foco-treino .foco-lista'), 'Lista de foco ausente');
+    assert.equal(await page.$$eval('#recursos-grade a', els => els.filter(el => new URL(el.href).pathname.endsWith('/explorar/atlas.html')).length), 1,
       'Acesso ao atlas deve aparecer uma vez');
-    await fill('#catalog-search', 'flexão');
-    assert.ok(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length > 0),
-      'A busca não mostrou resultados na tela Explorar');
-    assert.match(await text('#catalog-list'), /flexão/i);
-    await page.click('.catalog-filter-disclosure > summary');
-    assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), true);
+    await jsClick('[data-foco="peito"]');
+    const chestCount = await page.evaluate(() => Forja.catalog.items().filter(record => record.muscles.includes('peito')).length);
+    await waitFor(total => document.querySelectorAll('#foco-treino .foco-card').length === total, 4000, chestCount);
+    assert.equal(await page.$$eval('#foco-treino .foco-card', els => els.length), chestCount,
+      'O foco Peito divergiu do catálogo');
+    assert.equal(await page.$eval('[data-foco="peito"]', el => el.getAttribute('aria-pressed')), 'true');
     assert.deepEqual(await forjaRaw(), existingProfile, 'Consultar catálogo não alterou dados locais além do perfil existente');
     await page.screenshot({ path: artifactPath('explorar-inline-390.png'), fullPage: true });
   } finally {

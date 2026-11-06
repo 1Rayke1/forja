@@ -24,7 +24,7 @@ mkdir -p "$OUT"
 # navegação e imagens quando o site é servido sob /forja/.
 cp -R "$ROOT/index.html" \
       "$ROOT/avaliacao-piloto-3d" \
-      "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
+      "$ROOT/admin" "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
       "$ROOT/perfil" "$ROOT/progresso" "$ROOT/treino" \
       "$ROOT/assets" "$OUT/"
 
@@ -47,6 +47,9 @@ done
 
 # Recursos obrigatórios do app, da avaliação do piloto 3D e dos créditos.
 for p in index.html \
+         admin/exercicios.html \
+         assets/js/admin-exercicios.js assets/css/admin-exercicios.css \
+         assets/js/forja-youtube.js \
          avaliacao-piloto-3d/index.html \
          exercicio/index.html \
          assets/css/exercicio-3d.css \
@@ -66,6 +69,8 @@ for p in index.html \
          treino/index.html treino/rotina.html treino/executar.html \
          treino/biblioteca.html treino/calistenia.html treino/musculacao.html \
          assets/js/forja-app.js assets/js/forja-demonstracoes.js \
+         assets/js/forja-exercicios-dados.js assets/js/forja-catalogo-central.js \
+         assets/js/forja-biblioteca.js \
          assets/js/forja-demonstracoes-dados.js \
          assets/css/demonstracoes.css \
          assets/demonstracoes/LICENSE-DATA.md \
