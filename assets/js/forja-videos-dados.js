@@ -36,6 +36,16 @@
     deste arquivo, o campo é descartado aqui: o navegador não envia chave
     nenhuma para o YouTube.
   */
+  /*
+    endpoint pode ser:
+      - "/api/youtube-search" (padrão): caminho absoluto do mesmo host. Funciona
+        na Netlify (que tem redirect para a Function) e no harness de teste.
+        Em hosts sem backend (GitHub Pages em 1rayke1.github.io, file://,
+        localhost sem Functions), F.apiUrl é aplicado em resolveEndpoint e
+        aponta para a Netlify de produção.
+      - uma URL absoluta (http://…, https://…): usada como está para ambientes
+        de desenvolvimento com Netlify CLI ou endpoints alternativos.
+  */
   const FORJA_YOUTUBE_DEFAULTS = {
     endpoint: "/api/youtube-search",
     maxDurationSeconds: 60,
