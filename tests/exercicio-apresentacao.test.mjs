@@ -363,12 +363,16 @@ await runTest("7. nenhum resquício do sistema 3D e nenhum vídeo 3D no reposit�
   assert.equal(existe("avaliacao-piloto-3d/midia/abdominal-masculino-vertical-9x16.mp4"),
     false, "o MP4 vertical do piloto abdominal voltou");
 
-  /* A biblioteca de exercícios continua completa: 18 calistenia + 19 musculação. */
+  /* A remoção do 3D não pode reduzir o catálogo central nem apagar aliases. */
+  const dados = read("assets/js/forja-exercicios-dados.js");
   const biblioteca = read("assets/js/forja-biblioteca.js");
-  assert.equal((biblioteca.match(/item\("/g) || []).length, 37,
-    "a biblioteca de exercícios mudou de tamanho");
-  assert.match(biblioteca, /cal-flexao/);
-  assert.match(biblioteca, /mus-supino-reto/);
+  assert.equal((dados.match(/\bex\(\{ id:/g) || []).length, 165,
+    "o catálogo central perdeu exercícios");
+  assert.match(biblioteca, /F\.exerciseCatalog\.exercises\.forEach/,
+    "a biblioteca deixou de ser o adaptador do catálogo central");
+  assert.match(dados, /"mus-prancha": "cal-prancha-frontal"/);
+  assert.match(dados, /id:"cal-flexao"/);
+  assert.match(dados, /id:"mus-supino-reto"/);
 });
 
 const falhas = results.filter(resultado => !resultado.ok);

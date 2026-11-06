@@ -1,72 +1,59 @@
 /*
-  FORJA — biblioteca de exercícios sugeridos (somente dados).
+  FORJA — adaptador de compatibilidade do catálogo central.
 
-  Cada item tem o mesmo formato de um exercício de rotina (ver
-  docs/forja-rotinas-e-backup.md). Ao adicionar um item a uma rotina, o
-  módulo de treino copia os campos e gera um id novo; nada aqui é alterado
-  pelo uso. Exercícios personalizados ficam em forja-treino-biblioteca-v1.
+  A fonte oficial é F.exerciseCatalog (forja-catalogo-central.js). Este módulo
+  apenas materializa o formato histórico consumido por rotinas, atlas, plano,
+  demonstrações e editor. Não grava nem migra localStorage.
+
+  - academia      -> weights
+  - calistenia    -> calisthenics
+  - peso-corporal -> calisthenics (somente na saída legada; os modelos centrais
+                     permanecem independentes e seus equipamentos não se misturam)
+
+  Exercícios personalizados continuam em forja-treino-biblioteca-v1 e são
+  acrescentados por F.catalog.items(), exatamente como antes.
 */
 (function (global) {
   "use strict";
 
   const F = global.Forja;
+  if (!F.exerciseCatalog) throw new Error("Carregue o catálogo central antes da biblioteca de compatibilidade.");
 
-  function item(id, name, section, fields) {
-    return Object.assign({
-      id,
-      name,
-      section,
-      type: "reps",
-      sets: 3,
-      reps: "10",
-      duration: 45,
-      rest: 60,
-      load: "",
-      notes: ""
-    }, fields);
-  }
-
-  F.EXERCISE_LIBRARY = Object.freeze({
-    calisthenics: Object.freeze([
-      item("cal-rotacao-ombros", "Rotação de ombros", "warmup", { type: "duration", sets: 2, duration: 30, rest: 15 }),
-      item("cal-mobilidade-quadril", "Mobilidade de quadril", "warmup", { type: "duration", sets: 2, duration: 30, rest: 15 }),
-      item("cal-polichinelo", "Polichinelo", "warmup", { sets: 2, reps: "20", rest: 30 }),
-      item("cal-flexao", "Flexão de braço", "main", { sets: 4, reps: "10", rest: 60 }),
-      item("cal-agachamento", "Agachamento livre", "main", { sets: 4, reps: "15", rest: 60 }),
-      item("cal-barra-fixa", "Barra fixa (pegada pronada)", "main", { sets: 4, reps: "6", rest: 90 }),
-      item("cal-remada-invertida", "Remada invertida", "main", { sets: 4, reps: "8", rest: 90 }),
-      item("cal-mergulho", "Paralela (mergulho)", "main", { sets: 3, reps: "8", rest: 75 }),
-      item("cal-afundo", "Afundo alternado", "main", { sets: 3, reps: "10 por perna", rest: 60 }),
-      item("cal-ponte", "Ponte de glúteo", "main", { sets: 3, reps: "15", rest: 45 }),
-      item("cal-prancha-frontal", "Prancha frontal", "abs", { type: "duration", sets: 3, duration: 30, rest: 45 }),
-      item("cal-prancha-lateral", "Prancha lateral", "abs", { type: "duration", sets: 2, duration: 30, rest: 30 }),
-      item("cal-abdominal-supra", "Abdominal supra", "abs", { sets: 3, reps: "15", rest: 45 }),
-      item("cal-elevacao-pernas", "Elevação de pernas", "abs", { sets: 3, reps: "10", rest: 45 }),
-      item("cal-abdominal-infra", "Abdominal infra", "abs", { sets: 3, reps: "12", rest: 45 }),
-      item("cal-burpee", "Burpee", "finisher", { sets: 3, reps: "10", rest: 45 }),
-      item("cal-mountain-climber", "Mountain climber", "finisher", { type: "duration", sets: 3, duration: 40, rest: 30 }),
-      item("cal-corrida-estacionaria", "Corrida estacionária", "finisher", { type: "duration", sets: 2, duration: 45, rest: 30 })
-    ]),
-    weights: Object.freeze([
-      item("mus-esteira", "Esteira em ritmo leve", "warmup", { type: "duration", sets: 1, duration: 300, rest: 0 }),
-      item("mus-mobilidade-ombro", "Mobilidade de ombro com elástico", "warmup", { type: "duration", sets: 2, duration: 60, rest: 15 }),
-      item("mus-supino-reto", "Supino reto com barra", "main", { sets: 4, reps: "10", rest: 90 }),
-      item("mus-agachamento-barra", "Agachamento livre com barra", "main", { sets: 4, reps: "8", rest: 120 }),
-      item("mus-terra", "Levantamento terra", "main", { sets: 3, reps: "5", rest: 150 }),
-      item("mus-puxada-frontal", "Puxada frontal", "main", { sets: 4, reps: "10", rest: 90 }),
-      item("mus-desenvolvimento", "Desenvolvimento com halteres", "main", { sets: 3, reps: "10", rest: 75 }),
-      item("mus-remada-curvada", "Remada curvada com barra", "main", { sets: 4, reps: "10", rest: 90 }),
-      item("mus-leg-press", "Leg press 45°", "main", { sets: 3, reps: "12", rest: 90 }),
-      item("mus-rosca-direta", "Rosca direta", "main", { sets: 3, reps: "12", rest: 60 }),
-      item("mus-triceps-polia", "Tríceps na polia", "main", { sets: 3, reps: "12", rest: 60 }),
-      item("mus-extensora", "Cadeira extensora", "main", { sets: 3, reps: "12", rest: 60 }),
-      item("mus-flexora", "Mesa flexora", "main", { sets: 3, reps: "12", rest: 60 }),
-      item("mus-elevacao-lateral", "Elevação lateral", "main", { sets: 3, reps: "15", rest: 45 }),
-      item("mus-abdominal-polia", "Abdominal na polia", "abs", { sets: 3, reps: "12", rest: 45 }),
-      item("mus-prancha", "Prancha frontal", "abs", { type: "duration", sets: 3, duration: 40, rest: 45 }),
-      item("mus-elevacao-barra", "Elevação de pernas na barra", "abs", { sets: 3, reps: "10", rest: 60 }),
-      item("mus-bicicleta", "Bicicleta ergométrica", "finisher", { type: "duration", sets: 1, duration: 300, rest: 0 }),
-      item("mus-farmer", "Farmer walk", "finisher", { type: "duration", sets: 3, duration: 40, rest: 60 })
-    ])
+  const library = { calisthenics: [], weights: [] };
+  F.exerciseCatalog.exercises.forEach(record => {
+    const legacy = F.exerciseCatalog.toLegacyExercise(record);
+    if (!legacy) throw new Error("Exercício sem modalidade de compatibilidade: " + record.id);
+    const mode = F.exerciseCatalog.modalityById(record.modality).legacyMode;
+    Object.freeze(legacy.roles.primary);
+    Object.freeze(legacy.roles.secondary);
+    Object.freeze(legacy.roles.stabilizers);
+    Object.freeze(legacy.roles);
+    Object.freeze(legacy.aliases);
+    Object.freeze(legacy.equipment);
+    Object.freeze(legacy.ranking);
+    Object.freeze(legacy);
+    library[mode].push(legacy);
   });
-})(window);
+
+  /* Mantém os registros históricos nos lugares já conhecidos pelos usuários;
+     a expansão vem depois, sem alterar seus IDs ou padrões de treino. */
+  const legacyOrder = [
+    "cal-rotacao-ombros", "cal-mobilidade-quadril", "cal-polichinelo", "cal-flexao",
+    "cal-agachamento", "cal-barra-fixa", "cal-remada-invertida", "cal-mergulho",
+    "cal-afundo", "cal-ponte", "cal-prancha-frontal", "cal-prancha-lateral",
+    "cal-abdominal-supra", "cal-elevacao-pernas", "cal-abdominal-infra", "cal-burpee",
+    "cal-mountain-climber", "cal-corrida-estacionaria", "mus-esteira",
+    "mus-mobilidade-ombro", "mus-supino-reto", "mus-agachamento-barra", "mus-terra",
+    "mus-puxada-frontal", "mus-desenvolvimento", "mus-remada-curvada", "mus-leg-press",
+    "mus-rosca-direta", "mus-triceps-polia", "mus-extensora", "mus-flexora",
+    "mus-elevacao-lateral", "mus-abdominal-polia", "mus-elevacao-barra", "mus-bicicleta", "mus-farmer"
+  ];
+  Object.values(library).forEach(list => list.sort((a, b) => {
+    const ai = legacyOrder.indexOf(a.id), bi = legacyOrder.indexOf(b.id);
+    return (ai < 0 ? 1000 : ai) - (bi < 0 ? 1000 : bi);
+  }));
+
+  Object.freeze(library.calisthenics);
+  Object.freeze(library.weights);
+  F.EXERCISE_LIBRARY = Object.freeze(library);
+})(typeof window !== "undefined" ? window : globalThis);

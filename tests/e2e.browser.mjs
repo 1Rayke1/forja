@@ -373,6 +373,14 @@ async function runYoutubeBackend(requestUrl) {
 await page.setRequestInterception(true);
 page.on('request', async req => {
   const url = req.url();
+  if (url.includes('/.netlify/functions/youtube-videos') || /\/api\/youtube-videos(\?|$)/.test(url)) {
+    req.respond({
+      status: 200,
+      contentType: 'application/json; charset=utf-8',
+      body: JSON.stringify({ associations: [], report: { total: 165, approved: 0, pending: 165, review: 0, rejected: 0, unavailable: 0, coveragePercent: 0, withoutVideo: [], inconsistencies: [] } })
+    });
+    return;
+  }
   if (url.startsWith('https://www.youtube-nocookie.com/embed/')) {
     req.respond({
       status: 200,
@@ -428,17 +436,9 @@ page.on('console', m => {
 });
 page.on('pageerror', e => errors.push(currentLabel + ' pageerror: ' + e.message));
 page.on('requestfailed', r => {
-  const failure = r.failure();
-  if (
-    failure &&
-    /ERR_ABORTED/i.test(failure.errorText || '') &&
-    (r.url().startsWith('https://www.youtube-nocookie.com/embed/') ||
-      r.url().startsWith('https://i.ytimg.com/vi/') ||
-      r.url().startsWith('https://img.youtube.com/vi/') ||
-      /\.woff2(\?|$)/i.test(r.url()))
-  ) {
-    return;
-  }
+  /* Navegar pode cancelar scripts, fontes, imagens ou players da página
+     anterior. Respostas HTTP com erro continuam registradas abaixo. */
+  if (/ERR_ABORTED/i.test(r.failure()?.errorText || '')) return;
   errors.push(currentLabel + ' requestfailed: ' + r.url());
 });
 page.on('response', r => {
@@ -784,7 +784,7 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
 
   assert.equal((await page.$$('.figura-svg')).length, 2, 'O atlas precisa das duas vistas da silhueta');
   assert.equal((await page.$$('.figura-region')).length, 0, 'Região destacada sem exercício escolhido');
-  assert.equal(await page.$$eval('#atlas-exercise-select option', els => els.length), 38, 'Seletor deveria ter 37 exercícios + vazio');
+  assert.equal(await page.$$eval('#atlas-exercise-select option', els => els.length), 166, 'Seletor deveria ter 165 exercícios + vazio');
   assert.match(await text('.atlas-disclosure'), /não uma segmentação anatômica clínica/i);
   const navLabels = await page.$$eval('.bottom-nav-link', els => els.map(e => e.textContent.trim()));
   assert.equal(navLabels.length, 5, 'Barra inferior precisa manter 5 destinos');
@@ -801,16 +801,23 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   assert.match(await text('.atlas-legenda'), /Secundária/);
 
   await clickCentered('[data-group-chip="antebracos"]');
-  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Antebraços deveria listar 3 exercícios');
+  const forearmCount = await page.evaluate(() => Forja.catalog.items().filter(item => item.muscles.includes('antebraços')).length);
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmCount,
+    'Antebraços divergiu do catálogo central');
   assert.match(await page.$eval('.atlas-exercise-list', el => el.textContent), /Principal/);
 
   await clickCentered('#atlas-modes [data-value="calisthenics"]');
-  assert.match(await text('.atlas-exercise-list .ui-empty-title'), /Nenhum exercício desta modalidade/);
-  await clickCentered('.atlas-exercise-list .ui-empty-actions .primary-button');
-  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Limpar filtro não restaurou a lista');
+  const forearmCalCount = await page.evaluate(() => Forja.catalog.items('calisthenics').filter(item => item.muscles.includes('antebraços')).length);
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmCalCount,
+    'O filtro de modalidade divergiu do catálogo central');
+  await clickCentered('#atlas-modes [data-value="null"]');
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmCount,
+    'Limpar modalidade não restaurou a lista');
 
   await clickCentered('[data-group-chip="panturrilha"]');
-  assert.match(await text('.atlas-exercise-list .ui-empty-title'), /Nenhum exercício para este grupo/);
+  const calfCount = await page.evaluate(() => Forja.catalog.items().filter(item => item.muscles.includes('panturrilha')).length);
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), calfCount,
+    'Panturrilha divergiu do catálogo central');
 
   await clickCentered('.atlas-inline-reset');
   assert.equal(await page.$$('.atlas-exercise-row').then(rows => rows.length), 0, 'Limpar o grupo não esvaziou a lista');
@@ -821,8 +828,12 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   assert.match(legendHref, /biblioteca\.html\?musculo=/);
   await jsClick('.atlas-legenda-item .atlas-legenda-link');
   await expectPath('/treino/biblioteca.html');
-  assert.equal(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length), 4,
-    'O filtro por peitoral deveria listar 4 exercícios');
+  const chestCount = await page.evaluate(() => Forja.catalog.items().filter(item => item.muscles.includes('peito')).length);
+  for (let pageCount = 0; pageCount < 4 && await page.$('.catalog-more button'); pageCount += 1) {
+    await jsClick('.catalog-more button');
+  }
+  assert.equal(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length), chestCount,
+    'O filtro por peitoral divergiu do catálogo central');
 
   /* Detalhe do exercício mostra a mesma figura. */
   await jsClick('#catalog-list .ui-exercise-row .ui-exercise-main button, #catalog-list .ui-exercise-row .ui-button');

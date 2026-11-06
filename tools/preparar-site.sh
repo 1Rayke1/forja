@@ -23,7 +23,7 @@ mkdir -p "$OUT"
 # Caminhos relativos idênticos aos do repositório: preserva data-root, F.url(),
 # navegação e imagens quando o site é servido sob /forja/.
 cp -R "$ROOT/index.html" \
-      "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
+      "$ROOT/admin" "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
       "$ROOT/perfil" "$ROOT/progresso" "$ROOT/treino" \
       "$ROOT/assets" "$OUT/"
 
@@ -110,6 +110,8 @@ done
 
 # Recursos obrigatórios do app, vídeos/ilustrações de demonstração e créditos.
 for p in index.html \
+         admin/exercicios.html assets/js/admin-exercicios.js assets/css/admin-exercicios.css \
+         assets/js/forja-youtube.js \
          exercicio/index.html \
          assets/css/exercicio.css \
          assets/js/forja-exercicio.js \

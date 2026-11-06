@@ -15,3 +15,10 @@
   to = "/.netlify/functions/youtube-search"
   status = 200
   force = true
+
+# Administração persistente das demonstrações do catálogo central.
+[[redirects]]
+  from = "/api/youtube-videos"
+  to = "/.netlify/functions/youtube-videos"
+  status = 200
+  force = true

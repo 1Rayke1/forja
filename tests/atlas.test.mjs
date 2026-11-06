@@ -128,16 +128,16 @@ await runTest("ATLAS 1. Página carrega escolha de exercício, modelo anterior/p
   assert.ok(app.$("#atlas-root"), "Contêiner do atlas ausente");
   assert.equal(app.$("#atlas-root").hasAttribute("aria-busy"), false, "aria-busy ficou preso");
 
-  /* Escolha do exercício: 37 sugeridos, separados por modalidade, sem seleção inicial. */
+  /* Escolha usa todo o catálogo central, separado pelos modos legados. */
   const select = app.$("#atlas-exercise-select");
   assert.ok(select, "Seletor de exercícios ausente");
-  assert.equal(select.options.length, 38, "Deveria haver 37 exercícios + a opção vazia");
+  assert.equal(select.options.length, app.F.exerciseCatalog.exercises.length + 1, "Cada exercício central deve ter uma opção");
   assert.equal(select.value, "", "O atlas não deve escolher um exercício por conta própria");
 
   const groups = app.$$("#atlas-exercise-select optgroup");
   assert.deepEqual(groups.map(node => node.label), ["Calistenia", "Musculação"]);
-  assert.equal(groups[0].children.length, 18);
-  assert.equal(groups[1].children.length, 19);
+  assert.equal(groups[0].children.length, app.F.EXERCISE_LIBRARY.calisthenics.length);
+  assert.equal(groups[1].children.length, app.F.EXERCISE_LIBRARY.weights.length);
 
   /* Duas vistas do mesmo modelo anatômico, nomeadas para leitores de tela. */
   const cells = app.$$(".atlas-figura-cell");
@@ -444,27 +444,24 @@ await runTest("ATLAS 4. Explorar por grupo: filtro por modalidade e mensagem de 
   assert.equal(app.text("#atlas-group-status"), "Grupo em foco: Antebraços · anterior e posterior");
   assert.equal(groupChip(app, "antebracos").getAttribute("aria-pressed"), "true");
   assert.equal(app.$$(".atlas-group-figure .figura-region").length, 1, "Figura de foco do grupo ausente");
-  assert.deepEqual(rows(app).map(row => row.name), ["Farmer walk", "Rosca direta", "Elevação de pernas na barra"]);
-  assert.match(app.text("#atlas-modes"), /Todas3/);
-  assert.match(app.text("#atlas-modes"), /Calistenia0/);
-  assert.match(app.text("#atlas-modes"), /Musculação3/);
+  const allForearms = app.F.atlas.exercisesFor("antebracos");
+  assert.ok(allForearms.length > 3, "A expansão de antebraços não chegou ao atlas");
+  assert.deepEqual(rows(app).map(row => row.name), Array.from(allForearms, entry => entry.record.name));
+  const calisthenicsTotal = allForearms.filter(entry => entry.record.mode === "calisthenics").length;
+  const weightsTotal = allForearms.filter(entry => entry.record.mode === "weights").length;
+  assert.match(app.text("#atlas-modes"), new RegExp("Todas" + allForearms.length));
+  assert.match(app.text("#atlas-modes"), new RegExp("Calistenia" + calisthenicsTotal));
+  assert.match(app.text("#atlas-modes"), new RegExp("Musculação" + weightsTotal));
 
   app.click(modeButton(app, "calisthenics"));
   await wait(20);
-
-  assert.equal(rows(app).length, 0, "Filtro vazio ainda listou exercícios");
-  assert.equal(app.text(".atlas-exercise-list .ui-empty-title"), "Nenhum exercício desta modalidade");
-  assert.match(app.text("#atlas-exercises-status"), /Nenhum exercício de calistenia/i);
-  assert.match(app.text("#atlas-modes"), /Todas3/);
-
-  app.click(app.$(".atlas-exercise-list .ui-empty-actions .primary-button"));
-  await wait(20);
-  assert.equal(rows(app).length, 3, "Limpar o filtro não trouxe a lista");
+  assert.equal(rows(app).length, calisthenicsTotal, "Filtro de Calistenia divergiu do catálogo");
+  rows(app).forEach(row => assert.match(row.text, /Calistenia/));
 
   app.click(modeButton(app, "weights"));
   await wait(20);
   const weightsRows = rows(app);
-  assert.equal(weightsRows.length, 3);
+  assert.equal(weightsRows.length, weightsTotal);
   weightsRows.forEach(row => {
     assert.match(row.text, /Musculação/, "Linha sem modalidade: " + row.name);
     assert.match(row.text, /Principal|Secundária|Estabilizador|Informado/, "Linha sem papel muscular");
@@ -492,7 +489,7 @@ await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis do cat�
   await wait(20);
 
   const items = app.F.catalog.items();
-  assert.equal(items.length, 37, "Catálogo sugerido incompleto");
+  assert.equal(items.length, app.F.exerciseCatalog.exercises.length, "Catálogo central incompleto");
 
   const groupIds = app.F.atlas.GROUPS.map(group => group.id);
   assert.equal(new Set(groupIds).size, groupIds.length, "Ids de grupo repetidos");
@@ -552,24 +549,25 @@ await runTest("ATLAS 5. Relação entre grupos e exercícios com papéis do cat�
 /* 6. Ausência de resultados                                          */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 6. Grupo sem exercícios mostra mensagem honesta e panturrilha com contorno completo", async () => {
-  const app = await boot({}, ATLAS + "?grupo=panturrilha");
+await runTest("ATLAS 6. Grupo sem exercícios mostra mensagem honesta e panturrilha tem contorno e exercícios", async () => {
+  const app = await boot({}, ATLAS + "?grupo=quadril");
   await wait(20);
 
-  assert.equal(app.F.atlas.exercisesFor("panturrilha").length, 0);
+  assert.ok(app.F.atlas.exercisesFor("panturrilha").length > 0, "Panturrilha expandida não chegou ao atlas");
   assert.ok(app.F.figura.REGIONS.panturrilha.back && app.F.figura.REGIONS.panturrilha.back.length > 0, "Panturrilha tem contorno completo na vista posterior");
   assert.equal(app.F.figura.REGIONS.panturrilha.outsideFrame, undefined, "Panturrilha não está mais fora do recorte");
+  assert.equal(app.F.atlas.exercisesFor("quadril").length, 0);
   const grupoFigura = app.$(".atlas-group-figure");
-  assert.equal(grupoFigura.querySelectorAll(".figura-region").length, 1, "Figura do grupo destaca a panturrilha em foco");
+  assert.equal(grupoFigura.querySelectorAll(".figura-region").length, 1, "Figura do grupo destaca o quadril em foco");
   const regiaoGrupo = grupoFigura.querySelector(".figura-region");
-  assert.equal(regiaoGrupo.getAttribute("data-region"), "panturrilha");
+  assert.equal(regiaoGrupo.getAttribute("data-region"), "quadril");
   assert.equal(regiaoGrupo.getAttribute("data-role"), "focus");
   assert.equal(app.$("[data-atlas-framing-note]"), null, "Sem aviso de enquadramento: a prancha cobre da cabeça aos pés");
   assert.equal(rows(app).length, 0, "Grupo sem metadados listou exercícios");
   assert.equal(app.text(".atlas-exercise-list .ui-empty-title"), "Nenhum exercício para este grupo");
   assert.match(app.text(".atlas-exercise-list .ui-empty-text"), /não tem exercícios classificados/i);
   assert.match(app.text(".atlas-exercise-list .ui-empty-text"), /não inventa vínculos/i);
-  assert.match(app.text("#atlas-exercises-status"), /Nenhum exercício do catálogo para Panturrilha/i);
+  assert.match(app.text("#atlas-exercises-status"), /Nenhum exercício do catálogo para Quadril/i);
 
   /* Nenhum dado falso é exibido para preencher a tela. */
   assert.doesNotMatch(app.text("#atlas-root"), /\b0 exercícios?\b/);
@@ -600,10 +598,13 @@ await runTest("ATLAS 7. Legenda leva à biblioteca filtrada e o detalhe mostra a
   await wait(250);
   assert.equal(app.d.body.dataset.page, "biblioteca", "O link não abriu a biblioteca");
   const filtered = app.$$("#catalog-list .ui-exercise-row").map(row => row.textContent);
-  assert.equal(filtered.length, 4, "Filtro por músculo não aplicou os 4 exercícios de peito");
+  const expectedChest = app.F.catalog.filter({ muscle: "peito" }).length;
+  assert.equal(filtered.length, Math.min(12, expectedChest), "Filtro por músculo divergiu do catálogo");
   assert.doesNotMatch(app.d.body.textContent, /não está mais no catálogo/,
     "Abrir a biblioteca filtrando por músculo não deve avisar de exercício ausente");
-  assert.equal(filtered.every(text => /Flexão|Paralela|Burpee|Supino/.test(text)), true);
+  const expectedNames = Array.from(app.F.catalog.filter({ muscle: "peito" }).slice(0, 12), record => record.name);
+  const visibleNames = app.$$("#catalog-list .ui-exercise-name").map(node => node.textContent);
+  assert.deepEqual(visibleNames, expectedNames, "Resultado diferente do filtro de Peitoral: " + JSON.stringify({ visibleNames, expectedNames }));
 
   /* Detalhe do exercício: figura + legenda, sem alterar a rotina. */
   app.click('#catalog-list .ui-exercise-row .ui-exercise-main button, #catalog-list .ui-exercise-row .ui-button');

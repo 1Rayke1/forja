@@ -240,15 +240,18 @@ await runTest("V1. Catálogo oficial, sem 3D, sem vídeos locais e sem chave no 
   const allExercises = app.F.catalog
     .items("calisthenics")
     .concat(app.F.catalog.items("weights"));
-  assert.equal(allExercises.length, 37);
+  assert.equal(allExercises.length, 165, "a expansão do catálogo central deve ser preservada");
   assert.equal(Object.keys(V.exercicios).length, 37);
 
   let withVideo = 0;
   let withoutVideo = 0;
-  allExercises.forEach(item => {
-    const key = item.mode + ":" + item.id;
-    assert.ok(Object.prototype.hasOwnProperty.call(V.exercicios, key), "chave ausente: " + key);
-    const entry = V.exercicios[key];
+  Object.entries(V.exercicios).forEach(([key, entry]) => {
+    const [mode, legacyId] = key.split(":");
+    const canonical = app.F.exerciseCatalog.byId(legacyId);
+    assert.ok(canonical, "vídeo aponta para exercício inexistente: " + key);
+    const base = allExercises.find(item => item.id === canonical.id);
+    assert.ok(base, "registro legado não materializado: " + key);
+    const item = Object.assign({}, base, { id: legacyId, libraryId: legacyId, mode });
     if (entry === null) {
       withoutVideo += 1;
       assert.ok(

@@ -1,4 +1,8 @@
 node_modules/
+.netlify/
+.env
+.env.*
+!.env.example
 .DS_Store
 
 # Segredos do backend: nenhuma chave real é versionada.
@@ -7,3 +11,6 @@ node_modules/
 .env.*
 !.env.example
 .netlify/
+
+# Artefato local do GitHub Pages; gerado por tools/preparar-site.sh.
+.site-publish/

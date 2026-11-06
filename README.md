@@ -101,6 +101,8 @@ Blender/Cycles a partir do personagem 3D masculino — dois do piloto abdominal
 
 - `docs/videos-youtube.md` — vídeos de demonstração, pesquisa via YouTube Data API v3, segurança da chave, exclusão de Shorts e quota.
 - `docs/forja-rotinas-e-backup.md` — formato de dados, migração e backup JSON.
+- `docs/catalogo-exercicios.md` — catálogo central, critérios editoriais, distribuição e compatibilidade de IDs.
+- `docs/youtube-exercicios.md` — administração segura, Netlify Blobs, revisão e player de demonstrações YouTube.
 - `docs/fotografias-exercicios.md` — contrato de fotos do catálogo (nenhuma publicada).
 - `docs/fotografias-explorar.md` — fotografias reais da tela Explorar: procedência, licença, contrato e validação.
 - `docs/atlas-anatomico.md` — classificação muscular e figuras.
