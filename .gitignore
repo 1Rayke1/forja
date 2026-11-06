@@ -4,3 +4,13 @@ node_modules/
 .env.*
 !.env.example
 .DS_Store
+
+# Segredos do backend: nenhuma chave real é versionada.
+# `.env.example` (modelo sem valores) continua no repositório.
+.env
+.env.*
+!.env.example
+.netlify/
+
+# Artefato local do GitHub Pages; gerado por tools/preparar-site.sh.
+.site-publish/

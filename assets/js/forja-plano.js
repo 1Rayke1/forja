@@ -279,7 +279,7 @@
     /* Não encaminha exercícios personalizados: seus nomes e instruções podem conter informação do usuário. */
     const providerRecords = records.filter(record => record.suggested === true);
     if (!providerRecords.length) throw new Error("Catálogo público indisponível para solicitar IA.");
-    const response = await global.fetch("/api/workout-plan", {
+    const response = await global.fetch(F.apiUrl("api/workout-plan"), {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(publicPayload(profile, providerRecords, previous))
     });

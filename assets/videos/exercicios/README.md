@@ -1,54 +1,21 @@
-# Vídeos de apresentação dos exercícios
+# Demonstrações em vídeo dos exercícios
 
-Esta pasta recebe o MP4 final de cada exercício. O gerador
-`tools/gerar-apresentacao-exercicios.mjs` varre os arquivos daqui e só marca
-`modo: "video"` quando o arquivo passa em todas as verificações.
+O FORJA exibe demonstrações reais dos exercícios nas telas do aplicativo por incorporação oficial do YouTube (`youtube-nocookie.com`), sem baixar nem armazenar vídeos de terceiros no repositório:
 
-## Nome obrigatório
+- `assets/js/forja-videos-dados.js` — registro dos vídeos oficiais curtos (até 60 s, proporção 16:9 e enquadramento original) para os exercícios da biblioteca.
+- `assets/js/forja-videos.js` — resolvedor de prioridade (vídeo do treino personalizado → vídeo oficial → imagem de referência RepDB), player 16:9 com controles, sem reprodução automática e sempre silencioso (`mute=1`), além do seletor **"Procurar vídeo"** no editor de rotinas.
+- `netlify/functions/youtube-search.mjs` — proxy seguro da YouTube Data API v3 usado pela pesquisa de vídeos personalizados (`YOUTUBE_API_KEY` só no backend).
 
-```
-{exercicioId}-{personagem}-horizontal-16x9.mp4
-```
+Somente vídeos **convencionais horizontais** (16:9) de até 60 s podem ser escolhidos; YouTube Shorts não são aceitos e não existe zoom/corte de enquadramento. Detalhes em `docs/videos-youtube.md`.
 
-- `exercicioId`: o `id` da biblioteca (`cal-flexao`, `mus-supino-reto`…).
-- `personagem`: `masculino` ou `feminino`.
-- Extensão `.mp4` (H.264, `yuv420p`, `+faststart`, sem trilha de áudio).
+## Manifesto local da tela `exercicio/`
 
-Exemplo: `cal-flexao-masculino-horizontal-16x9.mp4`.
+Esta pasta também mantém `manifest.json` para a tela dedicada `exercicio/`, caso vídeos locais horizontais (`16:9`, até 60 s, de pessoas reais) sejam curados manualmente no futuro.
 
-## Especificação verificada
+É proibido nesta pasta:
 
-| Item | Valor |
-| --- | --- |
-| Proporção | 16:9 horizontal (9:16 é rejeitado) |
-| Resolução | 1280 × 720 |
-| FPS | 30 |
-| Fundo | `#121010` uniforme |
-| Câmera | ¾, quase lateral, azimute −58°, elevação 22°, FOV vertical 32° |
-| Corpo | inteiro visível, enquadramento consistente entre exercícios |
-| Áudio | nenhum |
-| Loop | infinito; a emenda qN→q0 deve ser visualmente contínua |
+- qualquer MP4 renderizado a partir de modelo 3D (`Blender`, `Cycles`, manequim, retarget de mocap ou similar);
+- vídeo vertical (9:16) ou fora do manifesto `manifest.json`;
+- vídeo baixado do YouTube ou de terceiros sem licença explícita.
 
-O player da tela `exercicio/` é mudo, inline, com autoplay e loop, e não
-oferece controles. O arquivo continua sendo a fonte da verdade: se estiver
-fora da especificação, a tela não o exibe.
-
-## Estado atual
-
-Nenhum MP4 foi renderizado nesta etapa. Dos 37 exercícios:
-
-- **14** têm clipe próprio com `status: "exact"` e aparecem em prévia 3D;
-- **15** têm apenas um clipe `status: "review"` (aproximado, ainda não é o
-  movimento final) e aparecem como pendência de revisão técnica;
-- **8** não têm clipe próprio disponível e aparecem como pendência de animação.
-
-Nenhum clipe é reutilizado entre exercícios. Quando o catálogo lista o mesmo
-clipe em dois exercícios (prancha, elevação de pernas e caminhada), só o
-primeiro fica com ele; o outro entra como pendência explícita.
-
-A auditoria dos 43 GLBs encontrou **42 loops fechados e 1 exceção conhecida**:
-`caminhada`, com **2,1 mm** de deslocamento residual na raiz (`hips`). O clipe
-original é preservado sem correção automática; a continuidade visual no MP4
-renderizado ainda precisa ser inspecionada quadro a quadro.
-
-A renderização dos MP4 depende de aprovação explícita.
+Enquanto `exercicios` estiver vazio em `manifest.json`, esta pasta contém apenas `README.md` e `manifest.json`.

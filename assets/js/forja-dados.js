@@ -194,6 +194,7 @@ function normalizeExercise(raw, fallbackSection) {
   const type = raw.type === "duration" ? "duration" : "reps";
   const section = SECTION_NAMES[raw.section] ? raw.section : fallbackSection;
   const demoId = F.normalizeDemoId(raw.demoId);
+  const youtubeVideo = F.normalizeYouTubeVideo(raw.youtubeVideo);
 
   return {
     id: typeof raw.id === "string" && raw.id ? raw.id : createId("exercise"),
@@ -222,7 +223,8 @@ function normalizeExercise(raw, fallbackSection) {
     instructions: normalizeOptionalText(raw.instructions, 600),
     /* Campo aditivo opcional (formato 3): escolha de demonstração visual.
        Só entra quando presente, para não mudar o formato dos dados antigos. */
-    ...(demoId ? { demoId } : {})
+    ...(demoId ? { demoId } : {}),
+    ...(youtubeVideo ? { youtubeVideo } : {})
   };
 }
 
@@ -1232,8 +1234,8 @@ function goalsAreActive(goals) {
 
 /*
   Perfil opcional do usuário: objetivo, nível, equipamento disponível, dias
-  por semana, duração desejada, sexo informado (usado só para escolher o
-  personagem das demonstrações) e modalidade preferida. Todos os campos são
+  por semana, duração desejada, sexo informado (declarado, sem efeito sobre
+  treinos ou demonstrações) e modalidade preferida. Todos os campos são
   opcionais (ausente = 0 ou "") e editáveis depois. O perfil orienta sugestões
   futuras e nunca impede a criação manual de rotinas. A chave é aditiva: nada
   que já existe muda.
@@ -1295,26 +1297,15 @@ const PERFIL_ANO_MIN = 1900;
 
 /*
   Sexo informado pelo usuário. Só dois valores com efeito definido:
-  "masculino" e "feminino", que futuramente selecionam o personagem das
-  demonstrações. O vazio significa "não informado" (inclui "prefiro não
-  informar") e o app continua funcionando sem personagem. Nenhum outro valor
-  é aceito e nada é inferido por nome, aparência ou objetivo.
+  "masculino" e "feminino". O vazio significa "não informado" (inclui
+  "prefiro não informar"). Nenhum outro valor é aceito e nada é inferido por
+  nome, aparência ou objetivo. O campo é declarativo: nenhuma tela, cálculo ou
+  demonstração muda por causa dele.
 */
 const PERFIL_SEXOS = ["masculino", "feminino"];
 const PERFIL_MODALIDADES = ["calisthenics", "weights"];
 const PERFIL_MAX_DIAS = 7;
 const PERFIL_MAX_MINUTOS = 240;
-
-/*
-  Personagens de demonstração (3D entram numa etapa futura). Hoje existe só o
-  contrato: `resolvePersonagem(perfil)` devolve um destes objetos quando o sexo
-  informado é reconhecido e `null` em qualquer outro caso — quem desenhar o
-  personagem não deve exibir nada quando receber `null`.
-*/
-const PERSONAGENS = Object.freeze({
-  masculino: Object.freeze({ id: "masculino", label: "Personagem masculino" }),
-  feminino: Object.freeze({ id: "feminino", label: "Personagem feminino" })
-});
 
 const PERFIL_LABELS = {
   objetivo: {
@@ -1693,17 +1684,6 @@ function profileHasAnyAnswer(profile) {
 }
 
 /*
-  Personagem das demonstrações. Retorna `null` enquanto o sexo não estiver
-  informado ou não for reconhecido — e nenhuma tela deve exibir personagem
-  nesse caso. Não olha nome, aparência, objetivo nem histórico.
-*/
-function resolvePersonagem(profile) {
-  const current = normalizeProfile(profile);
-  const personagem = PERSONAGENS[current.sexo];
-  return personagem ? Object.assign({}, personagem) : null;
-}
-
-/*
   Sugestão de metas semanais a partir do perfil: treinos por semana = dias
   respondidos; minutos = dias × duração da sessão. É só uma sugestão — quem
   grava é a tela de metas, depois da confirmação do usuário.
@@ -1992,6 +1972,12 @@ function assertExerciseShape(exercise, where) {
   if (exercise.demoId !== undefined &&
       F.normalizeDemoId(exercise.demoId) !== exercise.demoId) {
     throw new Error("Exercício com demonstração visual inválida em " + where + ".");
+  }
+
+  if (exercise.youtubeVideo !== undefined &&
+      exercise.youtubeVideo !== null &&
+      !F.isValidYouTubeVideoShape(exercise.youtubeVideo)) {
+    throw new Error("Exercício com vídeo de demonstração inválido em " + where + ".");
   }
 
   return true;
@@ -3392,7 +3378,6 @@ Object.assign(F, {
   profileIsConfigured,
   profileHasAnyAnswer,
   profileGoalSuggestion,
-  resolvePersonagem,
   PERFIL_OPTIONS,
   PERFIL_LABELS,
   PERFIL_OBJETIVOS,
@@ -3410,7 +3395,6 @@ Object.assign(F, {
   PERFIL_PESO_MIN_KG,
   PERFIL_PESO_MAX_KG,
   PERFIL_ANO_MIN,
-  PERSONAGENS,
   validateRoutinesStore,
   validateHistoryList,
   normalizeHistoryList,

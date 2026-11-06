@@ -50,7 +50,7 @@
       "Demonstração indisponível. A imagem de referência foi mantida e a revisão administrativa é necessária.");
     host.appendChild(note);
     const modal = host.closest(".modal-details");
-    modal?.querySelectorAll(".demo-media, .demo-fallback").forEach(node => { node.hidden = false; });
+    modal?.querySelectorAll(".demo-media, .demo-fallback, .video-demo").forEach(node => { node.hidden = false; });
   }
 
   function playerNode(record, association, host) {
@@ -97,7 +97,7 @@
     if (!association) { host.replaceChildren(); return; }
     host.replaceChildren(playerNode(record, association, host));
     const modal = host.closest(".modal-details");
-    modal?.querySelectorAll(".demo-media, .demo-fallback").forEach(node => { node.hidden = true; });
+    modal?.querySelectorAll(".demo-media, .demo-fallback, .video-demo").forEach(node => { node.hidden = true; });
   }
 
   F.youtube = Object.freeze({

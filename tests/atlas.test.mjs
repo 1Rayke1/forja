@@ -881,22 +881,15 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
 /* 11b. Seleção de sexo: preservada e sem efeito sobre a prancha       */
 /* ------------------------------------------------------------------ */
 
-await runTest("ATLAS 13. Seleção de sexo continua igual e não muda a prancha anatômica", async () => {
+await runTest("ATLAS 13. Seleção de sexo continua no perfil e não muda a prancha anatômica", async () => {
   const app = await boot({}, ATLAS + "?exercicio=cal-flexao");
   await wait(20);
 
-  /* O sexo informado já existia no FORJA e escolhe o personagem das
-     demonstrações — não a prancha. Este teste protege os dois lados: o
-     contrato continua valendo e a figura não depende do sexo. */
-  const personagens = {};
-  ["masculino", "feminino", ""].forEach(sexo => {
-    personagens[sexo || "vazio"] = app.F.resolvePersonagem ? app.F.resolvePersonagem({ sexo }) : null;
-  });
-  if (app.F.resolvePersonagem) {
-    assert.equal(personagens.masculino.id, "masculino");
-    assert.equal(personagens.feminino.id, "feminino");
-    assert.equal(personagens.vazio, null, "Sem sexo informado não deve haver personagem");
-  }
+  /* O campo `sexo` continua no perfil como informação declarada, mas o
+     contrato de personagem foi removido junto com o sistema 3D: nada escolhe
+     modelo de demonstração e a prancha anatômica segue indiferente ao valor. */
+  assert.equal(app.F.resolvePersonagem, undefined,
+    "O contrato de personagem foi removido com o sistema 3D");
 
   const signature = () => {
     const figure = app.$(".atlas-figura-cell[data-view=\"front\"] .figura-svg");

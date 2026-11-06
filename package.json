@@ -4,22 +4,22 @@
   "private": true,
   "description": "FORJA — disciplina diária: calendário, missões e treinos com rotinas A/B/C.",
   "scripts": {
-    "test": "node tests/catalogo-central.test.mjs && node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs && node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/personagens3d.test.mjs && node tests/mapeamento3d.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/transferencia3d.test.mjs && node tests/pose-autoral3d.test.mjs",
+    "test": "node tests/catalogo-central.test.mjs && node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs && node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/videos-youtube.test.mjs && node tests/youtube-proxy.test.mjs",
     "test:plan": "node tests/plan.test.mjs",
-    "test:youtube": "node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs",
-    "catalogo:validar": "node tools/relatorio-catalogo.mjs && node tests/catalogo-central.test.mjs",
     "test:e2e": "node tests/e2e.browser.mjs",
     "serve": "python3 -m http.server 8080 --bind 127.0.0.1",
     "test:onboarding": "node tests/onboarding.test.mjs",
-    "test:3d": "node tests/personagens3d.test.mjs",
-    "test:exercicio": "node tests/exercicio-apresentacao.test.mjs"
+    "test:exercicio": "node tests/exercicio-apresentacao.test.mjs",
+    "test:videos": "node tests/videos-youtube.test.mjs",
+    "test:youtube-proxy": "node tests/youtube-proxy.test.mjs",
+    "test:youtube": "node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs",
+    "catalogo:validar": "node tools/relatorio-catalogo.mjs && node tests/catalogo-central.test.mjs"
   },
   "devDependencies": {
     "@sparticuz/chromium": "^138.0.2",
     "fflate": "^0.8.3",
     "jsdom": "^30.0.0",
-    "puppeteer-core": "^24.43.1",
-    "three": "^0.180.0"
+    "puppeteer-core": "^24.43.1"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.7"

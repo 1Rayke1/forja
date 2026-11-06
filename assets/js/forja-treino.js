@@ -735,8 +735,9 @@
   let draftDirty = false;
   let editingRef = null;
   /* Escolha de demonstração feita no FORMULÁRIO (ainda não aplicada ao draft).
-     undefined = sem alteração pendente; null = remover escolha; string = id. */
+     undefined = sem alteração pendente; null = remover escolha; string/objeto = valor. */
   let formDemoId;
+  let formYoutubeVideo;
   let librarySearchValue = "";
   /* Base da abertura do editor, para detectar mudanças externas (C3). */
   let editorRoutinesRawAtOpen = null;
@@ -832,6 +833,21 @@
     };
   }
 
+  function videoPickerRecord(exercise) {
+    const typedName = byId("exercise-name").value.trim();
+    if (exercise) {
+      return Object.assign({}, exercise, {
+        name: typedName || exercise.name,
+        youtubeVideo: formYoutubeVideo !== undefined ? formYoutubeVideo : exercise.youtubeVideo
+      });
+    }
+    return {
+      id: "novo-exercicio",
+      name: typedName || "Novo exercício",
+      youtubeVideo: formYoutubeVideo
+    };
+  }
+
   function formExercise() {
     if (!editingRef || !draft) return null;
     const list = draft.sections[editingRef.section] || [];
@@ -857,6 +873,27 @@
     });
   }
 
+  function openVideoPickerForRow(section, exerciseId) {
+    if (!draft || !F.videos) return;
+    const list = draft.sections[section] || [];
+    const exercise = list.find(item => item.id === exerciseId);
+    if (!exercise) return;
+
+    F.videos.openPicker({
+      exercise,
+      mode: draftModality,
+      onConfirm(value) {
+        if (value === null) delete exercise.youtubeVideo;
+        else exercise.youtubeVideo = F.normalizeYouTubeVideo(value);
+        markDirty();
+        renderEditorSections();
+        showToast(value === null
+          ? "Vídeo personalizado removido deste treino. Salve a rotina para confirmar."
+          : "Vídeo associado a este treino. Salve a rotina para confirmar.");
+      }
+    });
+  }
+
   function openDemoPickerForForm() {
     if (!draft || !F.demos) return;
     const original = formExercise();
@@ -870,6 +907,21 @@
           : value === null
             ? "Escolha removida; volta ao padrão do catálogo. Confirme o exercício."
             : "Imagem selecionada. Confirme o exercício.");
+      }
+    });
+  }
+
+  function openVideoPickerForForm() {
+    if (!draft || !F.videos) return;
+    const original = formExercise();
+    F.videos.openPicker({
+      exercise: videoPickerRecord(original),
+      mode: draftModality,
+      onConfirm(value) {
+        formYoutubeVideo = value ? F.normalizeYouTubeVideo(value) : null;
+        showToast(value === null
+          ? "Vídeo padrão restaurado. Confirme o exercício."
+          : "Vídeo selecionado. Confirme o exercício para adicionar à rotina.");
       }
     });
   }
@@ -891,6 +943,9 @@
     const parts = [formatExerciseMeta(exercise), "Descanso: " + formatRest(exercise.rest)];
     if (exercise.load && draftModality === "weights") parts.push("Carga: " + exercise.load);
     if (exercise.notes) parts.push("com observações");
+    if (exercise.youtubeVideo && exercise.youtubeVideo.videoId) {
+      parts.push("Vídeo personalizado");
+    }
     meta.textContent = parts.join(" · ");
 
     main.append(name, meta);
@@ -903,6 +958,12 @@
     });
     details.setAttribute("aria-label", "Ver detalhes de " + exercise.name);
     tools.appendChild(details);
+
+    const videoButton = makeToolButton("Procurar vídeo", () =>
+      openVideoPickerForRow(section, exercise.id));
+    videoButton.setAttribute("aria-label", "Procurar vídeo para " + exercise.name);
+    videoButton.classList.add("video-row-button");
+    tools.appendChild(videoButton);
 
     const images = makeToolButton("Buscar outra imagem", () =>
       openDemoPickerForRow(section, exercise.id));
@@ -987,6 +1048,7 @@
   function resetExerciseForm(section) {
     editingRef = null;
     formDemoId = undefined;
+    formYoutubeVideo = undefined;
     byId("exercise-form").reset();
     byId("exercise-section").value = SECTION_NAMES[section] ? section : "main";
     byId("exercise-sets").value = 4;
@@ -1093,9 +1155,9 @@
       const original = draft.sections[editingRef.section]
         .find(item => item.id === editingRef.id);
       if (original) {
-        ["measure", "distance", "distanceUnit", "libraryId", "instructions", "demoId"]
+        ["measure", "distance", "distanceUnit", "libraryId", "instructions", "demoId", "youtubeVideo"]
           .forEach(field => {
-            if (original[field] !== undefined) exercise[field] = original[field];
+            if (original[field] !== undefined) exercise[field] = F.cloneData(original[field]);
           });
       }
 
@@ -1103,6 +1165,10 @@
       if (formDemoId !== undefined) {
         if (formDemoId === null) delete exercise.demoId;
         else exercise.demoId = formDemoId;
+      }
+      if (formYoutubeVideo !== undefined) {
+        if (formYoutubeVideo === null) delete exercise.youtubeVideo;
+        else exercise.youtubeVideo = F.normalizeYouTubeVideo(formYoutubeVideo);
       }
 
       const origin = draft.sections[editingRef.section];
@@ -1116,6 +1182,10 @@
       }
     } else {
       if (formDemoId !== undefined && formDemoId !== null) exercise.demoId = formDemoId;
+      if (formYoutubeVideo !== undefined && formYoutubeVideo !== null) {
+        const cleanVideo = F.normalizeYouTubeVideo(formYoutubeVideo);
+        if (cleanVideo) exercise.youtubeVideo = cleanVideo;
+      }
       draft.sections[exercise.section].push(exercise);
     }
 
@@ -1671,6 +1741,7 @@
     }
 
     byId("exercise-form").addEventListener("submit", handleExerciseSubmit);
+    byId("exercise-video-button").addEventListener("click", openVideoPickerForForm);
     byId("exercise-demo-button").addEventListener("click", openDemoPickerForForm);
     byId("cancel-exercise-edit").addEventListener("click", () => resetExerciseForm("main"));
     ["exercise-type-reps", "exercise-type-duration"].forEach(id => {

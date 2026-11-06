@@ -15,7 +15,6 @@
 <link rel="stylesheet" href="../assets/css/system.css">
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
-<link rel="stylesheet" href="../assets/css/personagens-3d.css">
 </head>
 
 <body data-page="configuracoes" data-root="../">
@@ -77,20 +76,6 @@
       <input type="checkbox" id="pref-vibrate">
       <span>Vibrar quando o descanso terminar (se o aparelho permitir)</span>
     </label>
-  </section>
-
-  <section class="storage-panel perfil-personagem" id="personagem-3d" aria-labelledby="personagem-3d-heading">
-    <h2 class="section-title" id="personagem-3d-heading">Personagem das demonstrações 3D</h2>
-    <p class="credits-hint">A escolha vale só para as demonstrações 3D dos exercícios. Ela não altera treinos, cargas, metas, histórico nem progresso — e pode ser trocada a qualquer momento.</p>
-    <div class="seletor-personagem" data-seletor-personagem></div>
-  </section>
-
-  <section class="storage-panel" id="avaliacao-piloto-3d-config" aria-labelledby="avaliacao-piloto-3d-config-heading">
-    <h2 class="section-title" id="avaliacao-piloto-3d-config-heading">Avaliação do Piloto 3D</h2>
-    <p class="credits-hint">Tela temporária isolada para inspecionar os vídeos Horizontal (16:9) e Vertical (9:16) do piloto Abdominal tradicional — Modelo masculino, sem alterar demonstrações publicadas.</p>
-    <div class="backup-actions">
-      <a class="secondary-button" id="config-open-avaliacao-piloto-3d" href="../avaliacao-piloto-3d/">Abrir Avaliação do Piloto 3D</a>
-    </div>
   </section>
 
   <section class="storage-panel" aria-labelledby="storage-heading">
@@ -156,33 +141,15 @@
     </div>
   </section>
 
-  <section class="storage-panel credits-panel" id="creditos-3d" aria-labelledby="creditos-3d-heading">
-    <h2 class="section-title" id="creditos-3d-heading">Créditos e licenças dos modelos 3D</h2>
+  <section class="storage-panel credits-panel" id="creditos-videos" aria-labelledby="creditos-videos-heading">
+    <h2 class="section-title" id="creditos-videos-heading">Demonstrações em vídeo (YouTube)</h2>
     <div class="credits-block">
-      <h3>DeskBreak — manequim de madeira (MIT)</h3>
-      <p>Os personagens masculino e feminino foram construídos a partir do manequim
-        de madeira e do rig de 16 ossos do projeto
-        <strong><a href="https://github.com/shlomorsh/desk-break" target="_blank" rel="noopener noreferrer" data-external-credit="deskbreak">DeskBreak</a></strong>,
-        de autoria de Shlomy Reshef, usado sob a <strong>licença MIT</strong>. A malha foi
-        reescalada em duas proporções (1,83 m e 1,69 m), manteve os materiais originais
-        e recebeu as animações de execução próprias do pacote.</p>
-      <ul>
-        <li><a href="../assets/vendor/three/LICENSE">Licença MIT do three.js neste app</a> ·
-          <a href="../assets/3d/catalogo.json">catálogo com o arquivo e o tamanho de cada peça</a></li>
-        <li>As animações de execução dos 16 ossos são do próprio DeskBreak (MIT) e foram
-          exportadas uma a uma para <code>assets/3d/animacoes/</code>.</li>
-      </ul>
-      <h3>Mocap Pack — Fitness and Workout</h3>
-      <p>Os clipes retargetados do pacote de captura de movimento aparecem com o selo
-        <strong>“Movimento aproximado”</strong>. O pacote não declara licença no arquivo
-        distribuído: a publicação desses clipes fica condicionada à confirmação do
-        titular. Enquanto isso, eles são tratados como demonstração aproximada — a
-        ilustração do exercício continua sendo a referência visual principal.</p>
-      <h3>three.js (MIT)</h3>
-      <p>O visualizador 3D usa <strong>three.js r180</strong>, distribuído sob licença MIT,
-        servido do próprio app em <code>assets/vendor/three/</code> — sem CDN, sem
-        rastreamento e sem dependência de rede além do próprio FORJA.</p>
-      <p>Nenhuma animação 3D é orientação médica. Se algum movimento causar dor, pare.</p>
+      <h3>Incorporação oficial (youtube-nocookie.com)</h3>
+      <p>Os vídeos de demonstração são reproduzidos exclusivamente por incorporação oficial do YouTube no modo de privacidade aprimorada (<code>youtube-nocookie.com</code>), em formato horizontal 16:9, com controles visíveis, sem reprodução automática e sempre sem áudio (<code>mute=1</code>) — no treino, na biblioteca e na prévia do seletor. Nenhum arquivo de vídeo é baixado ou armazenado no repositório.</p>
+      <p>Quando um exercício ainda não possui vídeo ou o vídeo está indisponível, o FORJA exibe automaticamente a ilustração de referência correspondente.</p>
+      <h3>Pesquisa de vídeos personalizados</h3>
+      <p>O seletor <strong>Procurar vídeo</strong>, no editor de rotinas, pesquisa vídeos convencionais horizontais (16:9) de até 60 segundos pela YouTube Data API v3. A consulta passa por um proxy do próprio backend (<code>/api/youtube-search</code>), que guarda a chave de API no ambiente do servidor: nenhuma credencial é enviada ao navegador. A escolha vale somente para o treino personalizado em que foi feita.</p>
+      <p>Somente vídeos com orientação horizontal confirmada podem ser selecionados; vídeos verticais não são aceitos e não são re-enquadrados. Sem backend configurado, a pesquisa fica indisponível e o campo de link direto continua funcionando.</p>
     </div>
   </section>
 </main>
@@ -240,7 +207,8 @@
 <script src="../assets/js/forja-youtube.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
-<script src="../assets/js/forja-personagens.js" defer></script>
+<script src="../assets/js/forja-videos-dados.js" defer></script>
+<script src="../assets/js/forja-videos.js" defer></script>
 <script src="../assets/js/forja-fotografias-dados.js" defer></script>
 <script src="../assets/js/forja-fotografias.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>

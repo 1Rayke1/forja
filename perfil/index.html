@@ -43,9 +43,6 @@
     <span class="eyebrow">Perfil</span>
     <h1 class="screen-title">Perfil</h1>
     <p class="screen-subtitle">Seu plano de treino, preferências e dados — tudo permanece neste navegador.</p>
-    <p class="profile-onboarding-cta">
-      <a class="secondary-button small-button" id="open-avaliacao-piloto-3d-top" href="../avaliacao-piloto-3d/">Avaliação do Piloto 3D</a>
-    </p>
   </div>
 
   <section class="profile-group preferences-panel" aria-labelledby="perfil-treino-heading">
@@ -71,7 +68,7 @@
         <div class="field-block">
           <label class="field-label" for="prof-sexo">Sexo informado</label>
           <select id="prof-sexo" class="field-input"></select>
-          <p class="field-hint">Serve apenas para escolher o personagem das demonstrações dos exercícios. Enquanto estiver em "Não informado", nenhum personagem é exibido — e nada no seu treino muda.</p>
+          <p class="field-hint">Opcional e sem efeito nos seus treinos, cargas, metas, histórico ou progresso. Enquanto estiver em "Não informado", nada muda no app.</p>
         </div>
         <div class="field-block">
           <label class="field-label" for="prof-modalidade">Modalidade preferida</label>
@@ -123,14 +120,6 @@
     </div>
     <input type="file" id="import-backup-input" accept=".json,application/json" hidden>
     <div class="backup-meta" id="backup-status">Seus dados permanecem apenas neste navegador. Faça backups regulares.</div>
-  </section>
-
-  <section class="profile-group preferences-panel" id="avaliacao-piloto-3d-panel" aria-labelledby="avaliacao-piloto-3d-heading">
-    <h2 class="section-title" id="avaliacao-piloto-3d-heading">Avaliação do Piloto 3D</h2>
-    <p class="profile-data-note">Tela temporária isolada para avaliar no aparelho os vídeos Horizontal (16:9) e Vertical (9:16) do exercício Abdominal tradicional — Modelo masculino.</p>
-    <div class="backup-actions">
-      <a class="secondary-button" id="open-avaliacao-piloto-3d" href="../avaliacao-piloto-3d/">Abrir Avaliação do Piloto 3D</a>
-    </div>
   </section>
 </main>
 
@@ -187,6 +176,8 @@
 <script src="../assets/js/forja-youtube.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
+<script src="../assets/js/forja-videos-dados.js" defer></script>
+<script src="../assets/js/forja-videos.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

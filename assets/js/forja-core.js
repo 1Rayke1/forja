@@ -104,6 +104,254 @@
   };
 
   /*
+    Vídeo de demonstração do YouTube associado ao exercício da rotina (formato 3,
+    aditivo). Fica no próprio exercício dentro da rotina — nenhuma chave nova de
+    localStorage é criada, garantindo independência por rotina e compatibilidade
+    com exportação/importação de backup.
+
+    Só entram vídeos CONVENCIONAIS e HORIZONTAIS (16:9) de até 60 segundos.
+    YouTube Shorts não são aceitos em nenhuma etapa: nem por pesquisa, nem por
+    link colado, e nenhum recurso de zoom/corte é usado para transformar um
+    vídeo vertical em horizontal.
+  */
+  F.YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/;
+  F.YOUTUBE_MAX_DURATION = 60;
+  /* Único enquadramento produzido hoje: o original do vídeo. */
+  F.YOUTUBE_FRAMING_VALUES = Object.freeze(["original"]);
+  /*
+    "zoom" existiu para Shorts verticais e foi removido do produto. Continua
+    sendo ACEITO na leitura de dados já salvos (rotinas e backups antigos) para
+    não invalidar um treino do usuário; ao normalizar, vira "original".
+  */
+  F.YOUTUBE_LEGACY_FRAMING_VALUES = Object.freeze(["original", "zoom"]);
+  F.YOUTUBE_ORIENTATIONS = Object.freeze(["horizontal", "vertical", "unknown"]);
+  F.YOUTUBE_ORIENTATION_REQUIRED = "horizontal";
+  /* #shorts, ou um link /shorts/ citado no título, descrição ou tags. */
+  F.YOUTUBE_SHORTS_MARKER_RE = /(?:#shorts?\b|(?:youtube\.com|youtu\.be)\/shorts\/)/i;
+
+  const YOUTUBE_HOSTS = Object.freeze([
+    "youtube.com",
+    "www.youtube.com",
+    "m.youtube.com",
+    "youtu.be",
+    "www.youtu.be",
+    "youtube-nocookie.com",
+    "www.youtube-nocookie.com"
+  ]);
+  const YOUTUBE_THUMB_RE =
+    /^https:\/\/(i\.ytimg\.com|img\.youtube\.com)\/vi\/[A-Za-z0-9_-]{11}\/[A-Za-z0-9_.-]+(\?[A-Za-z0-9_=&.-]*)?$/;
+  const YOUTUBE_ALLOWED_KEYS = Object.freeze([
+    "videoId",
+    "title",
+    "channelTitle",
+    "durationSeconds",
+    "thumbnailUrl",
+    "framing"
+  ]);
+
+  F.isValidYouTubeId = function isValidYouTubeId(value) {
+    return typeof value === "string" && F.YOUTUBE_ID_RE.test(value.trim());
+  };
+
+  F.parseYouTubeUrl = function parseYouTubeUrl(input) {
+    if (typeof input !== "string") return null;
+    const trimmed = input.trim();
+    if (!trimmed) return null;
+
+    if (F.YOUTUBE_ID_RE.test(trimmed)) {
+      return { videoId: trimmed, isShort: false };
+    }
+
+    let parsed;
+    try {
+      parsed = new URL(trimmed);
+    } catch (error) {
+      return null;
+    }
+
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
+    const host = parsed.hostname.toLowerCase();
+    if (YOUTUBE_HOSTS.indexOf(host) === -1) return null;
+
+    const pathname = parsed.pathname || "";
+    if (/\/(live|playlist|channel|c|user)(\/|$)/i.test(pathname)) {
+      return null;
+    }
+
+    let candidate = "";
+    let isShort = false;
+    if (host === "youtu.be" || host === "www.youtu.be") {
+      const parts = pathname.split("/").filter(Boolean);
+      if (parts.length !== 1) return null;
+      candidate = parts[0];
+    } else if (pathname === "/watch") {
+      candidate = parsed.searchParams.get("v") || "";
+    } else if (/^\/embed\/([^/?#]+)\/?$/.test(pathname)) {
+      candidate = pathname.replace(/^\/embed\//, "").replace(/\/$/, "");
+    } else if (/^\/shorts\/([^/?#]+)\/?$/i.test(pathname)) {
+      candidate = pathname.replace(/^\/shorts\//i, "").replace(/\/$/, "");
+      isShort = true;
+    } else {
+      return null;
+    }
+
+    if (!F.YOUTUBE_ID_RE.test(candidate)) return null;
+    return { videoId: candidate, isShort };
+  };
+
+  F.parseIsoDurationSeconds = function parseIsoDurationSeconds(iso) {
+    if (typeof iso !== "string") return null;
+    const match = iso.trim().match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/i);
+    if (!match) return null;
+    const hours = Number(match[1] || 0);
+    const minutes = Number(match[2] || 0);
+    const seconds = Number(match[3] || 0);
+    const total = hours * 3600 + minutes * 60 + seconds;
+    return total > 0 ? total : null;
+  };
+
+  F.isValidYouTubeVideoShape = function isValidYouTubeVideoShape(value) {
+    if (!F.isPlainObject(value)) return false;
+    const keys = Object.keys(value);
+    if (keys.some(key => YOUTUBE_ALLOWED_KEYS.indexOf(key) === -1)) return false;
+    if (typeof value.videoId !== "string" || !F.YOUTUBE_ID_RE.test(value.videoId)) {
+      return false;
+    }
+    if (value.title !== undefined &&
+        (typeof value.title !== "string" || value.title.length > 200)) {
+      return false;
+    }
+    if (value.channelTitle !== undefined &&
+        (typeof value.channelTitle !== "string" || value.channelTitle.length > 160)) {
+      return false;
+    }
+    if (value.durationSeconds !== undefined && value.durationSeconds !== null) {
+      const dur = Number(value.durationSeconds);
+      if (!Number.isInteger(dur) || dur < 1 || dur > F.YOUTUBE_MAX_DURATION) {
+        return false;
+      }
+    }
+    if (value.thumbnailUrl !== undefined &&
+        value.thumbnailUrl !== "" &&
+        (typeof value.thumbnailUrl !== "string" || !YOUTUBE_THUMB_RE.test(value.thumbnailUrl))) {
+      return false;
+    }
+    if (value.framing !== undefined &&
+        F.YOUTUBE_LEGACY_FRAMING_VALUES.indexOf(value.framing) === -1) {
+      return false;
+    }
+    return true;
+  };
+
+  F.normalizeYouTubeVideo = function normalizeYouTubeVideo(raw) {
+    if (!F.isPlainObject(raw)) return null;
+    const videoId = typeof raw.videoId === "string" ? raw.videoId.trim() : "";
+    if (!F.YOUTUBE_ID_RE.test(videoId)) return null;
+
+    let durationSeconds = null;
+    if (raw.durationSeconds !== undefined && raw.durationSeconds !== null && raw.durationSeconds !== "") {
+      const dur = Number(raw.durationSeconds);
+      if (!Number.isFinite(dur) || Math.round(dur) < 1 || Math.round(dur) > F.YOUTUBE_MAX_DURATION) {
+        return null;
+      }
+      durationSeconds = Math.round(dur);
+    }
+
+    if (raw.framing !== undefined &&
+        raw.framing !== null &&
+        raw.framing !== "" &&
+        F.YOUTUBE_LEGACY_FRAMING_VALUES.indexOf(raw.framing) === -1) {
+      return null;
+    }
+
+    /*
+      "zoom" (herança dos Shorts) é aceito na leitura, mas nunca reproduzido:
+      todo vídeo normalizado volta ao enquadramento original.
+    */
+    const framing = "original";
+    const title = typeof raw.title === "string" ? raw.title.trim().slice(0, 160) : "";
+    const channelTitle = typeof raw.channelTitle === "string"
+      ? raw.channelTitle.trim().slice(0, 120)
+      : "";
+    const rawThumb = typeof raw.thumbnailUrl === "string" ? raw.thumbnailUrl.trim() : "";
+    const thumbnailUrl = YOUTUBE_THUMB_RE.test(rawThumb)
+      ? rawThumb
+      : "https://i.ytimg.com/vi/" + videoId + "/mqdefault.jpg";
+
+    return Object.assign(
+      {
+        videoId,
+        title,
+        channelTitle,
+        thumbnailUrl,
+        framing
+      },
+      durationSeconds ? { durationSeconds } : {}
+    );
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* Shorts: detecção e exigência de orientação horizontal confirmada     */
+  /* ------------------------------------------------------------------ */
+
+  /* Marcador textual de Short (#shorts ou link /shorts/ em título/descrição/tags). */
+  F.hasYouTubeShortsMarker = function hasYouTubeShortsMarker(...texts) {
+    return texts.some(text => typeof text === "string" && F.YOUTUBE_SHORTS_MARKER_RE.test(text));
+  };
+
+  /* Um link /shorts/ é reconhecido só pelo endereço, sem depender da API. */
+  F.isYouTubeShortsUrl = function isYouTubeShortsUrl(input) {
+    const parsed = F.parseYouTubeUrl(input);
+    return Boolean(parsed && parsed.isShort);
+  };
+
+  /*
+    Amostras de miniatura com largura/altura numéricas, na ordem de qualidade.
+    Vídeos convencionais devolvem a escada padrão do YouTube (120x90, 320x180,
+    480x360, 640x480, 1280x720 — sempre mais larga do que alta); Shorts devolvem
+    miniaturas verticais.
+  */
+  F.youtubeThumbnailSamples = function youtubeThumbnailSamples(thumbnails) {
+    if (!F.isPlainObject(thumbnails)) return [];
+    const samples = [];
+    ["maxres", "standard", "high", "medium", "default"].forEach(key => {
+      const thumb = thumbnails[key];
+      if (!F.isPlainObject(thumb)) return;
+      const width = Number(thumb.width);
+      const height = Number(thumb.height);
+      if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return;
+      samples.push({ key, width, height, ratio: width / height });
+    });
+    return samples;
+  };
+
+  /*
+    Confirmação exigida antes de oferecer um vídeo para seleção: só um vídeo
+    explicitamente horizontal passa. Sem o campo `orientation`, com orientação
+    "vertical"/"unknown", com marcador de Short ou com qualquer miniatura mais
+    alta do que larga, o resultado é recusado — nada de "talvez".
+  */
+  F.isConfirmedHorizontalVideo = function isConfirmedHorizontalVideo(value) {
+    if (!F.isPlainObject(value)) return false;
+    if (value.orientation !== F.YOUTUBE_ORIENTATION_REQUIRED) return false;
+    if (F.hasYouTubeShortsMarker(value.title, value.description, value.channelTitle)) return false;
+
+    const samples = F.youtubeThumbnailSamples(value.thumbnails);
+    if (samples.some(sample => sample.ratio < 1)) return false;
+
+    const width = Number(value.width);
+    const height = Number(value.height);
+    if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+      if (height > width) return false;
+    }
+
+    const duration = Number(value.durationSeconds);
+    if (Number.isFinite(duration) && duration > 0 && duration > F.YOUTUBE_MAX_DURATION) return false;
+
+    return F.isValidYouTubeId(value.videoId);
+  };
+
+  /*
     Como o exercício é medido. É orthogonal a `type` (que diz se a meta é por
     repetição ou por tempo) e define quais campos de registro aparecem durante
     a execução e o que entra no cálculo de volume.
@@ -386,6 +634,42 @@
 
   F.modalityUrl = function modalityUrl(modality) {
     return F.url(F.MODE_PAGES[modality] || "treino");
+  };
+
+  /*
+    Resolve a URL de um endpoint de backend (/api/*).
+
+    - Se o site está hospedado na Netlify de produção
+      (prismatic-parfait-be3644.netlify.app), usa caminhos relativos — a
+      Netlify os redireciona para /.netlify/functions/*.
+    - Se está no GitHub Pages (1rayke1.github.io/forja/), em localhost,
+      file:// ou qualquer outro host estático, aponta para a URL absoluta do
+      backend de produção da Netlify. Isso evita que chamadas como
+      /api/workout-plan ou /api/youtube-search sejam resolvidas contra o host
+      estático do Pages (que não executa funções e serviria /forja/api/...).
+
+    O valor pode ser sobrescrito em desenvolvimento com
+    `window.FORJA_API_BASE` antes do carregamento dos scripts.
+  */
+  F.apiUrl = function apiUrl(path) {
+    const cleanPath = path.replace(/^\/+/, "");
+    // Sobrescrita explícita para desenvolvimento/testes:
+    //   window.FORJA_API_BASE = "http://localhost:8888"  → absoluta
+    //   window.FORJA_API_BASE = ""                        → mesmo host (caminho relativo /)
+    if (global.FORJA_API_BASE != null) {
+      const base = String(global.FORJA_API_BASE).replace(/\/$/, "");
+      return base ? base + "/" + cleanPath : "/" + cleanPath;
+    }
+
+    const host = (global.location && global.location.hostname) || "";
+    const isNetlifyProd = host === "prismatic-parfait-be3644.netlify.app";
+    // No domínio de teste jsdom (harness) usamos caminhos relativos para que os
+    // interceptores de fetch do teste funcionem como no domínio da Netlify.
+    const isTestHarness = host === "forja.test";
+    if (isNetlifyProd || isTestHarness) {
+      return "/" + cleanPath;
+    }
+    return "https://prismatic-parfait-be3644.netlify.app/" + cleanPath;
   };
 
   /*
