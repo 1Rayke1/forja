@@ -74,7 +74,9 @@ link foi colado no modal e responde `ok`, `vertical`, `duration`, `unconfirmed`,
   a mesma proteção;
 - `referrer-policy: no-referrer` e `x-content-type-options: nosniff` saem em
   todas as respostas; CORS só é liberado para origens listadas em
-  `FORJA_ALLOWED_ORIGINS`;
+  `FORJA_ALLOWED_ORIGINS` (padrão de produção:
+  `https://prismatic-parfait-be3644.netlify.app,https://1rayke1.github.io`,
+  liberando o site da Netlify e o GitHub Pages);
 - a restrição da chave à YouTube Data API v3 configurada no Google Cloud é
   preservada: o proxy só chama `search.list`, `videos.list` e o oEmbed público.
 

@@ -637,6 +637,42 @@
   };
 
   /*
+    Resolve a URL de um endpoint de backend (/api/*).
+
+    - Se o site está hospedado na Netlify de produção
+      (prismatic-parfait-be3644.netlify.app), usa caminhos relativos — a
+      Netlify os redireciona para /.netlify/functions/*.
+    - Se está no GitHub Pages (1rayke1.github.io/forja/), em localhost,
+      file:// ou qualquer outro host estático, aponta para a URL absoluta do
+      backend de produção da Netlify. Isso evita que chamadas como
+      /api/workout-plan ou /api/youtube-search sejam resolvidas contra o host
+      estático do Pages (que não executa funções e serviria /forja/api/...).
+
+    O valor pode ser sobrescrito em desenvolvimento com
+    `window.FORJA_API_BASE` antes do carregamento dos scripts.
+  */
+  F.apiUrl = function apiUrl(path) {
+    const cleanPath = path.replace(/^\/+/, "");
+    // Sobrescrita explícita para desenvolvimento/testes:
+    //   window.FORJA_API_BASE = "http://localhost:8888"  → absoluta
+    //   window.FORJA_API_BASE = ""                        → mesmo host (caminho relativo /)
+    if (global.FORJA_API_BASE != null) {
+      const base = String(global.FORJA_API_BASE).replace(/\/$/, "");
+      return base ? base + "/" + cleanPath : "/" + cleanPath;
+    }
+
+    const host = (global.location && global.location.hostname) || "";
+    const isNetlifyProd = host === "prismatic-parfait-be3644.netlify.app";
+    // No domínio de teste jsdom (harness) usamos caminhos relativos para que os
+    // interceptores de fetch do teste funcionem como no domínio da Netlify.
+    const isTestHarness = host === "forja.test";
+    if (isNetlifyProd || isTestHarness) {
+      return "/" + cleanPath;
+    }
+    return "https://prismatic-parfait-be3644.netlify.app/" + cleanPath;
+  };
+
+  /*
     Navegação real entre páginas: um link programático, clicado pelo próprio
     navegador. Assim o comportamento é idêntico ao de um link comum.
   */

@@ -2,7 +2,7 @@
 
 Aplicativo estático de treinos, calendário e missões. Funciona sem build,
 sem backend e sem conta: os dados ficam no `localStorage` do navegador.
-Publicável diretamente no GitHub Pages (inclusive sob `/forja/`). O perfil guiado é obrigatório para entrar nas páginas do app; o onboarding e o plano local não exigem backend. A integração de IA real é opcional e requer uma Function/backend configurado (veja `docs/planejamento-inteligente.md`).
+Publicável diretamente no GitHub Pages (inclusive sob `/forja/`). O perfil guiado é obrigatório para entrar nas páginas do app; o onboarding e o plano local não exigem backend. As integrações opcionais de IA real e da busca de vídeos do YouTube usam as Netlify Functions (veja `docs/planejamento-inteligente.md`, `docs/videos-youtube.md` e `docs/backend-e-cors.md`): em produção o frontend resolve automaticamente os endpoints da Netlify, tanto no site dela quanto no GitHub Pages.
 
 ## Executar
 

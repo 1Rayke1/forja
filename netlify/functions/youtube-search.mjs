@@ -101,7 +101,7 @@ export function readConfig(env = process.env) {
     oembedCheck: env.YOUTUBE_OEMBED_CHECK !== "0",
     allowedOrigins: typeof env.FORJA_ALLOWED_ORIGINS === "string"
       ? env.FORJA_ALLOWED_ORIGINS.split(",").map(item => item.trim()).filter(Boolean)
-      : []
+      : ["https://prismatic-parfait-be3644.netlify.app", "https://1rayke1.github.io"]
   };
 }
 
@@ -332,19 +332,32 @@ function cacheWrite(key, result, ttlSeconds, now = Date.now()) {
 /* Respostas                                                            */
 /* ------------------------------------------------------------------ */
 
-function baseHeaders(config, request) {
-  const headers = {
-    "content-type": "application/json; charset=utf-8",
-    "x-content-type-options": "nosniff",
-    "referrer-policy": "no-referrer"
-  };
+function corsHeadersFor(config, request) {
+  const headers = {};
   const origin = request && request.headers && typeof request.headers.get === "function"
     ? request.headers.get("origin")
     : "";
   if (origin && config.allowedOrigins.indexOf(origin) !== -1) {
     headers["access-control-allow-origin"] = origin;
+    headers["access-control-allow-methods"] = "GET, HEAD, OPTIONS";
+    headers["access-control-allow-headers"] = "Content-Type";
+    headers["access-control-max-age"] = "600";
+    headers.vary = "Origin";
+  } else {
     headers.vary = "Origin";
   }
+  return headers;
+}
+
+function baseHeaders(config, request) {
+  const headers = Object.assign(
+    {
+      "content-type": "application/json; charset=utf-8",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer"
+    },
+    corsHeadersFor(config, request)
+  );
   return headers;
 }
 
@@ -369,7 +382,11 @@ function serialize(payload, apiKey) {
 function toResponse(result, apiKey) {
   const headers = Object.assign({}, result.headers);
   if (!headers["cache-control"]) headers["cache-control"] = "no-store";
-  return new Response(serialize(result.payload, apiKey), { status: result.status, headers });
+  // Respostas 204 (ex.: preflight CORS) não devem ter corpo.
+  const body = result.payload == null || result.status === 204
+    ? null
+    : serialize(result.payload, apiKey);
+  return new Response(body, { status: result.status, headers });
 }
 
 /* ------------------------------------------------------------------ */
@@ -753,11 +770,23 @@ export default async function handler(request, context = {}) {
   const config = readConfig();
   const method = String(request.method || "GET").toUpperCase();
 
+  // Preflight CORS: responde antes de qualquer validação (não exige chave).
+  if (method === "OPTIONS") {
+    return toResponse(
+      {
+        status: 204,
+        headers: Object.assign(baseHeaders(config, request), { allow: "GET, HEAD, OPTIONS" }),
+        payload: null
+      },
+      config.apiKey
+    );
+  }
+
   if (method !== "GET" && method !== "HEAD") {
     return toResponse(
       {
         status: 405,
-        headers: Object.assign(baseHeaders(config, request), { allow: "GET, HEAD" }),
+        headers: Object.assign(baseHeaders(config, request), { allow: "GET, HEAD, OPTIONS" }),
         payload: { status: "error", error: "Método não permitido. Use GET." }
       },
       config.apiKey

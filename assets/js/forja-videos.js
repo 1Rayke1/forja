@@ -28,7 +28,14 @@
 
   const UNAVAILABLE_TEXT = "Vídeo de demonstração ainda não disponível";
   const EMBED_HOST = "https://www.youtube-nocookie.com";
-  const DEFAULT_SEARCH_ENDPOINT = "/api/youtube-search";
+  const DEFAULT_SEARCH_PATH = "api/youtube-search";
+  function defaultSearchEndpoint() {
+    // F.apiUrl resolve para /api/youtube-search na Netlify e para a URL
+    // absoluta do backend quando o site roda no GitHub Pages, localhost etc.
+    return (F && typeof F.apiUrl === "function")
+      ? F.apiUrl(DEFAULT_SEARCH_PATH)
+      : "/api/youtube-search";
+  }
   const DEFAULT_CACHE_TTL_MS = 600000;
   const DEFAULT_MAX_RESULTS = 10;
   const CACHE_MAX_ENTRIES = 60;
@@ -563,10 +570,23 @@
   /* Pesquisa de vídeos via proxy do backend (YouTube Data API v3)        */
   /* ------------------------------------------------------------------ */
 
+  function resolveEndpoint(raw) {
+    if (!raw) return "";
+    // URL absoluta (http/https) — usar como está (desenvolvimento com Netlify
+    // CLI, endpoint alternativo etc.).
+    if (/^https?:\/\//i.test(raw)) return raw;
+    // Demais casos: normaliza para "api/..." (sem barra inicial) e passa por
+    // F.apiUrl, que decide se usa o mesmo host ou a Netlify de produção.
+    const clean = raw.replace(/^\/+/, "");
+    return (F && typeof F.apiUrl === "function") ? F.apiUrl(clean) : "/" + clean;
+  }
+
   function searchSettings() {
     const cfg = getConfig();
     const rawEndpoint = typeof cfg.endpoint === "string" ? cfg.endpoint.trim() : "";
-    const endpoint = cfg.disabled === true ? "" : rawEndpoint || DEFAULT_SEARCH_ENDPOINT;
+    const endpoint = cfg.disabled === true
+      ? ""
+      : resolveEndpoint(rawEndpoint) || defaultSearchEndpoint();
 
     const maxDuration = Number.isFinite(Number(cfg.maxDurationSeconds)) && Number(cfg.maxDurationSeconds) > 0
       ? Math.min(F.YOUTUBE_MAX_DURATION, Math.max(1, Math.round(Number(cfg.maxDurationSeconds))))
@@ -1468,7 +1488,7 @@
     UNAVAILABLE_TEXT,
     EMBED_HOST,
     EMBED_PARAMS,
-    DEFAULT_SEARCH_ENDPOINT,
+    DEFAULT_SEARCH_ENDPOINT: defaultSearchEndpoint(),
     MESSAGES,
     available,
     officialFor,

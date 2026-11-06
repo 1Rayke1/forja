@@ -203,7 +203,8 @@ await runTest("P2. Método e parâmetros: 405 em POST e 400 sem q/id", async () 
   const post = await call("q=flexao", { method: "POST" });
   assert.equal(post.status, 405);
   assert.equal(post.body.status, "error");
-  assert.equal(post.response.headers.get("allow"), "GET, HEAD");
+  // OPTIONS é aceito para preflight CORS (exigido pelo GitHub Pages).
+  assert.equal(post.response.headers.get("allow"), "GET, HEAD, OPTIONS");
 
   const noParams = await call("");
   assert.equal(noParams.status, 400);
