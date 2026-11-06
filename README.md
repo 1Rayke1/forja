@@ -9,9 +9,14 @@ Publicável diretamente no GitHub Pages (inclusive sob `/forja/`). O perfil guia
 ```sh
 npm install
 npm run serve          # http://127.0.0.1:8080/
-npm test               # métricas, forja, onboarding, atlas, paridade, demonstrações
+npm test               # métricas, forja, onboarding, atlas, paridade, demonstrações, vídeos e proxy YouTube
 npm run test:e2e       # Chromium real, servindo o repo sob /forja/
 ```
+
+A pesquisa de vídeos por API exige backend (Netlify Functions) e a variável
+`YOUTUBE_API_KEY` no ambiente privado — veja `.env.example` e
+[`docs/videos-youtube.md`](docs/videos-youtube.md). Sem backend, o app continua
+funcionando com os vídeos oficiais e as ilustrações de referência.
 
 ## Ilustrações de exercícios
 
@@ -48,16 +53,27 @@ nem dependência 3D no repositório.
 
 As demonstrações reais de execução funcionam por incorporação oficial do YouTube
 no modo de privacidade aprimorada (`youtube-nocookie.com`), em container `16:9`
-horizontal, sem reprodução automática e com controles visíveis:
+horizontal, sem reprodução automática, com controles visíveis e **sempre sem
+áudio** (`mute=1`):
 
-- **Vídeos oficiais**: mapeados em `assets/js/forja-videos-dados.js` (tutoriais
-  curtos de até 60 s em proporção `16:9`, sempre em enquadramento original).
+- **Vídeos oficiais**: 26 tutoriais curtos (até 60 s, `16:9`, enquadramento
+  original) mapeados em `assets/js/forja-videos-dados.js`. Não são substituídos
+  pela pesquisa.
 - **Treinos personalizados**: no editor de rotinas (`treino/rotina.html`), o
-  botão **"Procurar vídeo"** permite buscar vídeos curtos via YouTube Data API v3
-  (chave pública restrita opcional em `FORJA_YOUTUBE_CONFIG.apiKey`) ou colar o
-  link direto do YouTube/Shorts. Vídeos verticais (Shorts) oferecem ajuste
-  opcional de **zoom e corte proporcional 16:9** sem esticar nem deformar a
-  imagem, restrito exclusivamente a treinos personalizados.
+  botão **"Procurar vídeo"** abre um modal com o exercício identificado, campo de
+  pesquisa por nome/termo relacionado, resultados com título, miniatura, canal e
+  duração, prévia `16:9` silenciosa e os botões **Visualizar**, **Cancelar** e
+  **Confirmar vídeo**. A escolha vale somente para aquele treino.
+- **Pesquisa via YouTube Data API v3**: feita exclusivamente pelo proxy
+  `netlify/functions/youtube-search.mjs` (rota `/api/youtube-search`), que guarda
+  `YOUTUBE_API_KEY` no ambiente do backend, aplica cache, controla a quota diária
+  e trata erros. Nenhuma chave existe no JavaScript público. Detalhes,
+  configuração externa pendente e limitações em
+  [`docs/videos-youtube.md`](docs/videos-youtube.md).
+- **Somente vídeos convencionais horizontais**: YouTube Shorts **não** são
+  aceitos — nem nos resultados, nem por link colado — e o antigo ajuste de "zoom
+  e corte 16:9" foi removido. Um vídeo cuja orientação horizontal não puder ser
+  confirmada não é oferecido para seleção.
 - **Fallback automático**: quando um exercício ainda não possui vídeo ou o
   vídeo está indisponível/removido, o FORJA exibe automaticamente a ilustração
   de referência da RepDB com aviso discreto (`"Vídeo de demonstração ainda não
@@ -83,6 +99,7 @@ Blender/Cycles a partir do personagem 3D masculino — dois do piloto abdominal
 
 ## Documentação
 
+- `docs/videos-youtube.md` — vídeos de demonstração, pesquisa via YouTube Data API v3, segurança da chave, exclusão de Shorts e quota.
 - `docs/forja-rotinas-e-backup.md` — formato de dados, migração e backup JSON.
 - `docs/fotografias-exercicios.md` — contrato de fotos do catálogo (nenhuma publicada).
 - `docs/fotografias-explorar.md` — fotografias reais da tela Explorar: procedência, licença, contrato e validação.

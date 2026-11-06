@@ -1418,8 +1418,7 @@
       exercise.id || "",
       exercise.libraryId || "",
       exercise.demoId || "",
-      exercise.youtubeVideo ? exercise.youtubeVideo.videoId : "",
-      exercise.youtubeVideo ? exercise.youtubeVideo.framing || "original" : ""
+      exercise.youtubeVideo ? exercise.youtubeVideo.videoId : ""
     ].join("|");
 
     /* Evita recriar o iframe a cada tique de cronômetro/série do mesmo exercício. */

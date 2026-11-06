@@ -108,10 +108,26 @@
     aditivo). Fica no próprio exercício dentro da rotina — nenhuma chave nova de
     localStorage é criada, garantindo independência por rotina e compatibilidade
     com exportação/importação de backup.
+
+    Só entram vídeos CONVENCIONAIS e HORIZONTAIS (16:9) de até 60 segundos.
+    YouTube Shorts não são aceitos em nenhuma etapa: nem por pesquisa, nem por
+    link colado, e nenhum recurso de zoom/corte é usado para transformar um
+    vídeo vertical em horizontal.
   */
   F.YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/;
   F.YOUTUBE_MAX_DURATION = 60;
-  F.YOUTUBE_FRAMING_VALUES = Object.freeze(["original", "zoom"]);
+  /* Único enquadramento produzido hoje: o original do vídeo. */
+  F.YOUTUBE_FRAMING_VALUES = Object.freeze(["original"]);
+  /*
+    "zoom" existiu para Shorts verticais e foi removido do produto. Continua
+    sendo ACEITO na leitura de dados já salvos (rotinas e backups antigos) para
+    não invalidar um treino do usuário; ao normalizar, vira "original".
+  */
+  F.YOUTUBE_LEGACY_FRAMING_VALUES = Object.freeze(["original", "zoom"]);
+  F.YOUTUBE_ORIENTATIONS = Object.freeze(["horizontal", "vertical", "unknown"]);
+  F.YOUTUBE_ORIENTATION_REQUIRED = "horizontal";
+  /* #shorts, ou um link /shorts/ citado no título, descrição ou tags. */
+  F.YOUTUBE_SHORTS_MARKER_RE = /(?:#shorts?\b|(?:youtube\.com|youtu\.be)\/shorts\/)/i;
 
   const YOUTUBE_HOSTS = Object.freeze([
     "youtube.com",
@@ -221,7 +237,7 @@
       return false;
     }
     if (value.framing !== undefined &&
-        F.YOUTUBE_FRAMING_VALUES.indexOf(value.framing) === -1) {
+        F.YOUTUBE_LEGACY_FRAMING_VALUES.indexOf(value.framing) === -1) {
       return false;
     }
     return true;
@@ -244,11 +260,15 @@
     if (raw.framing !== undefined &&
         raw.framing !== null &&
         raw.framing !== "" &&
-        F.YOUTUBE_FRAMING_VALUES.indexOf(raw.framing) === -1) {
+        F.YOUTUBE_LEGACY_FRAMING_VALUES.indexOf(raw.framing) === -1) {
       return null;
     }
 
-    const framing = raw.framing === "zoom" ? "zoom" : "original";
+    /*
+      "zoom" (herança dos Shorts) é aceito na leitura, mas nunca reproduzido:
+      todo vídeo normalizado volta ao enquadramento original.
+    */
+    const framing = "original";
     const title = typeof raw.title === "string" ? raw.title.trim().slice(0, 160) : "";
     const channelTitle = typeof raw.channelTitle === "string"
       ? raw.channelTitle.trim().slice(0, 120)
@@ -268,6 +288,67 @@
       },
       durationSeconds ? { durationSeconds } : {}
     );
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* Shorts: detecção e exigência de orientação horizontal confirmada     */
+  /* ------------------------------------------------------------------ */
+
+  /* Marcador textual de Short (#shorts ou link /shorts/ em título/descrição/tags). */
+  F.hasYouTubeShortsMarker = function hasYouTubeShortsMarker(...texts) {
+    return texts.some(text => typeof text === "string" && F.YOUTUBE_SHORTS_MARKER_RE.test(text));
+  };
+
+  /* Um link /shorts/ é reconhecido só pelo endereço, sem depender da API. */
+  F.isYouTubeShortsUrl = function isYouTubeShortsUrl(input) {
+    const parsed = F.parseYouTubeUrl(input);
+    return Boolean(parsed && parsed.isShort);
+  };
+
+  /*
+    Amostras de miniatura com largura/altura numéricas, na ordem de qualidade.
+    Vídeos convencionais devolvem a escada padrão do YouTube (120x90, 320x180,
+    480x360, 640x480, 1280x720 — sempre mais larga do que alta); Shorts devolvem
+    miniaturas verticais.
+  */
+  F.youtubeThumbnailSamples = function youtubeThumbnailSamples(thumbnails) {
+    if (!F.isPlainObject(thumbnails)) return [];
+    const samples = [];
+    ["maxres", "standard", "high", "medium", "default"].forEach(key => {
+      const thumb = thumbnails[key];
+      if (!F.isPlainObject(thumb)) return;
+      const width = Number(thumb.width);
+      const height = Number(thumb.height);
+      if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return;
+      samples.push({ key, width, height, ratio: width / height });
+    });
+    return samples;
+  };
+
+  /*
+    Confirmação exigida antes de oferecer um vídeo para seleção: só um vídeo
+    explicitamente horizontal passa. Sem o campo `orientation`, com orientação
+    "vertical"/"unknown", com marcador de Short ou com qualquer miniatura mais
+    alta do que larga, o resultado é recusado — nada de "talvez".
+  */
+  F.isConfirmedHorizontalVideo = function isConfirmedHorizontalVideo(value) {
+    if (!F.isPlainObject(value)) return false;
+    if (value.orientation !== F.YOUTUBE_ORIENTATION_REQUIRED) return false;
+    if (F.hasYouTubeShortsMarker(value.title, value.description, value.channelTitle)) return false;
+
+    const samples = F.youtubeThumbnailSamples(value.thumbnails);
+    if (samples.some(sample => sample.ratio < 1)) return false;
+
+    const width = Number(value.width);
+    const height = Number(value.height);
+    if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+      if (height > width) return false;
+    }
+
+    const duration = Number(value.durationSeconds);
+    if (Number.isFinite(duration) && duration > 0 && duration > F.YOUTUBE_MAX_DURATION) return false;
+
+    return F.isValidYouTubeId(value.videoId);
   };
 
   /*

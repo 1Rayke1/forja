@@ -3,7 +3,10 @@
 O FORJA exibe demonstrações reais dos exercícios nas telas do aplicativo por incorporação oficial do YouTube (`youtube-nocookie.com`), sem baixar nem armazenar vídeos de terceiros no repositório:
 
 - `assets/js/forja-videos-dados.js` — registro dos vídeos oficiais curtos (até 60 s, proporção 16:9 e enquadramento original) para os exercícios da biblioteca.
-- `assets/js/forja-videos.js` — resolvedor de prioridade (vídeo do treino personalizado → vídeo oficial → imagem de referência RepDB), player 16:9 com controles e sem reprodução automática, ajuste opcional de zoom e corte 16:9 sem deformação para Shorts verticais exclusivamente em treinos personalizados e seletor **"Procurar vídeo"** no editor de rotinas.
+- `assets/js/forja-videos.js` — resolvedor de prioridade (vídeo do treino personalizado → vídeo oficial → imagem de referência RepDB), player 16:9 com controles, sem reprodução automática e sempre silencioso (`mute=1`), além do seletor **"Procurar vídeo"** no editor de rotinas.
+- `netlify/functions/youtube-search.mjs` — proxy seguro da YouTube Data API v3 usado pela pesquisa de vídeos personalizados (`YOUTUBE_API_KEY` só no backend).
+
+Somente vídeos **convencionais horizontais** (16:9) de até 60 s podem ser escolhidos; YouTube Shorts não são aceitos e não existe zoom/corte de enquadramento. Detalhes em `docs/videos-youtube.md`.
 
 ## Manifesto local da tela `exercicio/`
 

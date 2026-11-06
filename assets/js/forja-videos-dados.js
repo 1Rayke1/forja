@@ -4,16 +4,18 @@
   Regras editoriais e técnicas:
   - Nenhum arquivo de vídeo é baixado ou armazenado no repositório.
   - A reprodução usa sempre incorporação oficial via youtube-nocookie.com,
-    formato horizontal 16:9, controles visíveis e sem reprodução automática.
+    formato horizontal 16:9, controles visíveis, sem reprodução automática
+    e SEMPRE silenciosa (mute=1).
   - Vídeos curtos (máximo de 60 segundos), públicos e verificados em 16:9.
   - Entradas com valor `null` usam automaticamente a imagem de referência do
     exercício e exibem "Vídeo de demonstração ainda não disponível", podendo
     receber um vídeo oficial no futuro sem alterar a estrutura do exercício.
-  - Nenhuma chave irrestrita ou segredo é incluído no código público. Para
-    ativar a busca ao vivo via YouTube Data API v3 em hospedagem estática
-    (GitHub Pages), defina `window.FORJA_YOUTUBE_CONFIG = { apiKey: "..." }`
-    com uma chave restrita por domínio HTTP referrer e quota limitada à
-    YouTube Data API v3, ou aponte `endpoint` para um proxy próprio.
+  - Nenhuma chave de API existe neste arquivo nem em qualquer JavaScript
+    público. A pesquisa de vídeos personalizados passa exclusivamente pelo
+    proxy do backend (`endpoint` abaixo), que guarda YOUTUBE_API_KEY no
+    ambiente do servidor — veja docs/videos-youtube.md.
+  - YouTube Shorts não fazem parte do produto: a pesquisa só aceita vídeos
+    convencionais horizontais e nenhum zoom/corte é aplicado.
 */
 (function (global) {
   "use strict";
@@ -28,14 +30,24 @@
     });
   }
 
-  global.FORJA_YOUTUBE_CONFIG = Object.assign(
-    {
-      apiKey: "",
-      endpoint: "",
-      maxDurationSeconds: 60
-    },
-    global.FORJA_YOUTUBE_CONFIG || {}
-  );
+  /*
+    Configuração pública da pesquisa. Contém apenas o endereço do proxy do
+    próprio domínio — nunca uma credencial. Se alguém definir `apiKey` antes
+    deste arquivo, o campo é descartado aqui: o navegador não envia chave
+    nenhuma para o YouTube.
+  */
+  const FORJA_YOUTUBE_DEFAULTS = {
+    endpoint: "/api/youtube-search",
+    maxDurationSeconds: 60,
+    maxResults: 10,
+    cacheTtlMs: 600000
+  };
+
+  const provided = global.FORJA_YOUTUBE_CONFIG;
+  const merged = Object.assign({}, FORJA_YOUTUBE_DEFAULTS,
+    provided && typeof provided === "object" ? provided : {});
+  delete merged.apiKey;
+  global.FORJA_YOUTUBE_CONFIG = merged;
 
   global.FORJA_VIDEOS_DATA = Object.freeze({
     version: 1,

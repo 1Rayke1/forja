@@ -1,2 +1,9 @@
 node_modules/
 .DS_Store
+
+# Segredos do backend: nenhuma chave real é versionada.
+# `.env.example` (modelo sem valores) continua no repositório.
+.env
+.env.*
+!.env.example
+.netlify/

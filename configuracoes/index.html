@@ -145,8 +145,11 @@
     <h2 class="section-title" id="creditos-videos-heading">Demonstrações em vídeo (YouTube)</h2>
     <div class="credits-block">
       <h3>Incorporação oficial (youtube-nocookie.com)</h3>
-      <p>Os vídeos de demonstração são reproduzidos exclusivamente por incorporação oficial do YouTube no modo de privacidade aprimorada (<code>youtube-nocookie.com</code>), em formato horizontal 16:9, com controles visíveis e sem reprodução automática. Nenhum arquivo de vídeo é baixado ou armazenado no repositório.</p>
+      <p>Os vídeos de demonstração são reproduzidos exclusivamente por incorporação oficial do YouTube no modo de privacidade aprimorada (<code>youtube-nocookie.com</code>), em formato horizontal 16:9, com controles visíveis, sem reprodução automática e sempre sem áudio (<code>mute=1</code>) — no treino, na biblioteca e na prévia do seletor. Nenhum arquivo de vídeo é baixado ou armazenado no repositório.</p>
       <p>Quando um exercício ainda não possui vídeo ou o vídeo está indisponível, o FORJA exibe automaticamente a ilustração de referência correspondente.</p>
+      <h3>Pesquisa de vídeos personalizados</h3>
+      <p>O seletor <strong>Procurar vídeo</strong>, no editor de rotinas, pesquisa vídeos convencionais horizontais (16:9) de até 60 segundos pela YouTube Data API v3. A consulta passa por um proxy do próprio backend (<code>/api/youtube-search</code>), que guarda a chave de API no ambiente do servidor: nenhuma credencial é enviada ao navegador. A escolha vale somente para o treino personalizado em que foi feita.</p>
+      <p>Somente vídeos com orientação horizontal confirmada podem ser selecionados; vídeos verticais não são aceitos e não são re-enquadrados. Sem backend configurado, a pesquisa fica indisponível e o campo de link direto continua funcionando.</p>
     </div>
   </section>
 </main>
