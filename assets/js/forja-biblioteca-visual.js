@@ -560,15 +560,6 @@
     return (words[0][0] + words[1][0]).toUpperCase();
   }
 
-  function videoBadge() {
-    const badge = el("span", "bl-video-badge");
-    badge.setAttribute("aria-label", "Demonstração em vídeo disponível");
-    badge.title = "Demonstração em vídeo disponível";
-    badge.appendChild(F.ui.icon("play"));
-    badge.appendChild(el("span", "bl-video-label", "Vídeo"));
-    return badge;
-  }
-
   /*
     Mídia do card horizontal: a foto do exercício (ou o espaço reservado) à
     esquerda, com a posição no ranking e o selo de vídeo discretos.

@@ -658,26 +658,25 @@
     personalizado não tem registro central: o detalhe mostra somente o que o
     usuário informou, sem inventar classificação.
   */
+  /*
+    Ponte entre os dois vocabulários de dados do app.
+
+    - `F.MODES` / `record.mode` são strings históricas: "weights" e
+      "calisthenics" (as rotinas, sessões e o histórico usam isso).
+    - `F.exerciseCatalog` / `F.EXERCISE_LIBRARY` são registros com `modality`
+      ("academia", "calistenia", "peso-corporal"), `primaryMuscle`, `equipment`
+      e `media`.
+
+    A identidade de um exercício é o `libraryId` (nunca o nome digitado); o
+    `legacyIdMap` do catálogo resolve os IDs antigos. Este helper devolve o
+    registro central correspondente a uma cópia de rotina/sessão, ou null para
+    exercícios personalizados que não existem no catálogo.
+  */
   function centralRecordFor(record) {
     if (!record || !F.exerciseCatalog) return null;
     const origin = record.libraryId || record.id;
     if (!origin) return null;
     return F.exerciseCatalog.byId(origin);
-  }
-
-  /*
-    Imagem de referência aprovada do catálogo central. Só existe quando o
-    registro central traz um arquivo local — nada é baixado nem inventado.
-  */
-  function referenceImageFor(record, central) {
-    const media = central && central.media && central.media.image;
-    if (!media || !media.src) return null;
-    return {
-      src: media.src,
-      url: F.url(media.src),
-      status: media.status,
-      alt: "Imagem de referência do exercício " + record.name
-    };
   }
 
   function detailSection(title, key) {
