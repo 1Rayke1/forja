@@ -315,8 +315,8 @@
   Vive aqui, e não em biblioteca.css, porque o painel de detalhe é único e
   aparece em mais de uma tela. Nenhum token histórico é redefinido.
 */
-.bl-detail-sections { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
-.bl-detail-section { display: grid; gap: 6px; padding-top: var(--space-3); border-top: 1px solid var(--line-soft); }
+.bl-detail-sections { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+.bl-detail-section { display: grid; gap: 6px; padding-top: var(--space-2); border-top: 1px solid var(--line-soft); }
 .bl-detail-section:first-child { padding-top: 0; border-top: 0; }
 .bl-detail-heading {
   margin: 0;

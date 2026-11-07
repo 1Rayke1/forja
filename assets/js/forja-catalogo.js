@@ -961,6 +961,11 @@
       media.appendChild(figure);
     }
 
+    /*
+      Sem ilustração local, o detalhe diz isso com todas as letras. O aviso do
+      palco de vídeo fala de vídeo; este fala da demonstração visual — são
+      ausências diferentes e nenhuma delas fica implícita.
+    */
     if (!demo && !photoFor(record) && !reference) {
       media.appendChild(detailText(F.demos
         ? F.demos.fallbackText(record)

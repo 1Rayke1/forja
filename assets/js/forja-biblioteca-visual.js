@@ -115,6 +115,15 @@
     2. ilustração do sistema de demonstrações (F.demos), por identidade;
     3. nenhuma — o card usa o estado de fallback.
   */
+  /*
+    Fundo da moldura: as ilustrações RepDB são quadradas e opacas, com fundo
+    azul-claro próprio. Quando a imagem vem dessa família, a moldura usa a
+    mesma cor para a ilustração inteira aparecer sem barras escuras.
+  */
+  function backdropFor(src) {
+    return /(^|\/)demonstracoes\//.test(String(src || "")) ? "light" : "dark";
+  }
+
   function imageFor(central, legacy) {
     if (central && central.media && central.media.image && central.media.image.src) {
       const media = central.media.image;
@@ -122,7 +131,8 @@
         src: media.src,
         url: F.url(media.src),
         status: media.status,
-        source: "catalogo"
+        source: "catalogo",
+        backdrop: backdropFor(media.src)
       };
     }
 
@@ -133,7 +143,8 @@
           src: demo.thumb.file,
           url: demo.thumb.url,
           status: "demo",
-          source: "demo"
+          source: "demo",
+          backdrop: "light"
         };
       }
     }
@@ -541,6 +552,7 @@
   function cardMedia(entry) {
     const media = el("div", "bl-card-media");
     media.setAttribute("data-media", entry.image ? entry.image.source : "fallback");
+    media.setAttribute("data-backdrop", entry.image ? entry.image.backdrop : "dark");
 
     const button = el("button", "bl-card-open");
     button.type = "button";
@@ -558,6 +570,7 @@
       image.addEventListener("error", () => {
         media.classList.add("is-fallback");
         media.setAttribute("data-media", "fallback");
+        media.setAttribute("data-backdrop", "dark");
         if (image.parentNode) image.parentNode.removeChild(image);
         if (!button.querySelector(".bl-card-fallback")) button.appendChild(fallbackBody(entry));
       });
@@ -576,7 +589,7 @@
       media.appendChild(badge);
     }
 
-    if (entry.origin === "pessoal") {
+    if (entry.origin === "pessoal" && entry.position === null) {
       media.appendChild(el("span", "bl-origin-badge", "Seu exercício"));
     }
 
@@ -630,7 +643,6 @@
     const tags = el("div", "ui-exercise-tags");
     if (entry.categoryLabel) tags.appendChild(F.ui.chip(entry.categoryLabel, "muted"));
     if (entry.position !== null) tags.appendChild(F.ui.chip(positionLabel(entry.position) + " lugar", "accent"));
-    if (entry.origin === "pessoal") tags.appendChild(F.ui.chip("Seu exercício", "muted"));
 
     if (tags.childNodes.length) main.appendChild(tags);
 
@@ -998,8 +1010,8 @@
   }
 
   function renderRankingFilters() {
-    if (!dom.rankingFilters) return;
-    const container = dom.rankingFilters;
+    if (!dom.rankingsFilters) return;
+    const container = dom.rankingsFilters;
     while (container.firstChild) container.removeChild(container.firstChild);
 
     container.appendChild(filterGroup("ranking-muscle", "Grupo muscular",
@@ -1039,14 +1051,17 @@
     while (container.firstChild) container.removeChild(container.firstChild);
 
     const userCount = entries().filter(entry => entry.origin === "pessoal").length;
+    const videos = officialVideoCount();
     const stats = [
-      { value: totalExercises(), label: "exercícios no catálogo" },
+      { value: totalExercises(), label: totalExercises() === 1 ? "exercício no catálogo" : "exercícios no catálogo" },
       { value: CATALOG.muscleGroups.length, label: "grupos musculares" },
-      { value: CATALOG.modalities.length, label: "modalidades" },
-      { value: officialVideoCount(), label: "com demonstração oficial" }
+      { value: CATALOG.modalities.length, label: CATALOG.modalities.length === 1 ? "modalidade" : "modalidades" },
+      { value: videos, label: videos === 1 ? "com demonstração oficial" : "com demonstração oficial" }
     ];
 
-    if (userCount > 0) stats.push({ value: userCount, label: "seus exercícios" });
+    if (userCount > 0) {
+      stats.push({ value: userCount, label: userCount === 1 ? "seu exercício" : "seus exercícios" });
+    }
 
     stats.forEach(stat => {
       const box = el("div", "bl-stat");
