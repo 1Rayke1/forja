@@ -179,23 +179,37 @@ await test("B2. Busca por nome e por nome alternativo filtra enquanto digita", a
 
 await test("B3. Três modalidades, sem 'Todas', e 'Sem equipamentos' só com corpo e chão", async () => {
   const app = await boot({}, "treino/biblioteca.html");
+
+  /*
+    Os filtros de modalidade agora são pílulas. A pílula "" é só o atalho para
+    "sem filtro" (Todos), não uma quarta modalidade: o catálogo continua com as
+    três de sempre.
+  */
   const group = app.$('#catalog-controls [data-filter-group="modality"]');
-  const labels = Array.from(group.querySelectorAll("[data-value]")).map(node => node.textContent.trim());
-  assert.deepEqual(labels, ["Musculação", "Calistenia", "Sem equipamentos"]);
-  assert.equal(group.querySelector('[data-value=""]'), null, "não deve existir chip 'Todas'");
+  const pilulas = Array.from(group.querySelectorAll("[data-value]"))
+    .map(node => ({ valor: node.getAttribute("data-value"), texto: node.textContent.trim() }));
+  assert.deepEqual(pilulas.map(item => item.valor), ["", "academia", "calistenia", "peso-corporal"]);
+  assert.deepEqual(pilulas.map(item => item.texto),
+    ["Todos", "Musculação", "Calistenia", "Sem equip."]);
+  assert.equal(app.F.exerciseCatalog.modalities.length, 3, "o catálogo tem três modalidades");
+  assert.equal(pilulas.filter(item => /todas/i.test(item.texto) && item.valor).length, 0,
+    "não deve existir modalidade 'Todas'");
 
   /* Nenhum exercício se mistura entre modalidades. */
-  for (const [value, expected] of [["academia", "academia"], ["calistenia", "calistenia"], ["peso-corporal", "peso-corporal"]]) {
+  for (const value of ["academia", "calistenia", "peso-corporal"]) {
     chip(app, "modality", value).click();
     await wait(30);
     const cards = rows(app);
     assert.ok(cards.length > 0, "modalidade " + value + " sem resultados");
-    cards.forEach(card => assert.equal(card.getAttribute("data-modality"), expected));
+    cards.forEach(card => assert.equal(card.getAttribute("data-modality"), value));
     /* O contador visível é o do catálogo central para a mesma modalidade. */
     const total = app.F.exerciseCatalog.filter({ modality: value }).length;
     assert.match(app.text("#catalog-status"), new RegExp("^" + total + " exercícios"));
-    chip(app, "modality", value).click();
+    assert.equal(app.text("#bl-contador strong"), String(total));
+    /* "Todos" é o único jeito de sair do filtro. */
+    chip(app, "modality", "").click();
     await wait(30);
+    assert.equal(app.$$("#catalog-list .ui-exercise-row").length, 12);
   }
 
   /* "Sem equipamentos" não aceita máquina, barra, haltere nem acessório. */
@@ -216,23 +230,49 @@ await test("B3. Três modalidades, sem 'Todas', e 'Sem equipamentos' só com cor
 
 await test("B4. Os 13 grupos musculares filtram pelo músculo principal", async () => {
   const app = await boot({}, "treino/biblioteca.html");
-  const group = app.$('#catalog-controls [data-filter-group="muscle"]');
-  const values = Array.from(group.querySelectorAll("[data-value]")).map(node => node.getAttribute("data-value"));
-  assert.deepEqual(values, Array.from(app.F.exerciseCatalog.muscleGroups, item => item.id));
-  assert.equal(values.length, 13);
+  const catalogo = app.F.exerciseCatalog;
+  const grupos = Array.from(catalogo.muscleGroups, item => item.id);
 
-  chip(app, "muscle", "peitoral").click();
-  await wait(30);
-  const cards = rows(app);
-  assert.ok(cards.length > 0);
-  cards.forEach(card => assert.equal(card.getAttribute("data-muscle"), "peitoral"));
-  const expected = app.F.exerciseCatalog.filter({ primaryMuscle: "peitoral" }).length;
-  assert.match(app.text("#catalog-status"), new RegExp("^" + expected + " exercícios"));
+  /*
+    O caminho agora é região → grupo: abrir cada card revela os grupos oficiais
+    daquela região, e o filtro continua sendo pelo músculo principal. Somando os
+    sete cards, os 13 grupos são alcançáveis.
+  */
+  const regioes = app.F.biblioteca.categorias;
+  const vistos = [];
+  let conferidos = 0;
 
-  /* Tocar de novo no chip ativo remove o filtro. */
-  chip(app, "muscle", "peitoral").click();
-  await wait(30);
-  assert.match(app.text("#catalog-status"), /no catálogo$/);
+  for (const regiao of regioes) {
+    app.$('.grupo-card[data-categoria="' + regiao.id + '"]').click();
+    await wait(30);
+
+    const visiveis = Array.from(app.$$('#catalog-controls [data-filter-group="muscle"] [data-value]'),
+      node => node.getAttribute("data-value"));
+    assert.deepEqual(visiveis, [""].concat(Array.from(regiao.grupos)),
+      "a região " + regiao.id + " deveria revelar só os grupos dela");
+
+    for (const grupo of regiao.grupos) {
+      chip(app, "muscle", grupo).click();
+      await wait(20);
+      vistos.push(grupo);
+      const cards = rows(app);
+      assert.ok(cards.length > 0, "grupo " + grupo + " sem resultados");
+      cards.forEach(card => assert.equal(card.getAttribute("data-muscle"), grupo));
+      const esperado = catalogo.filter({ primaryMuscle: grupo }).length;
+      assert.equal(app.text("#bl-contador strong"), String(esperado),
+        "contador do grupo " + grupo);
+      conferidos += 1;
+    }
+
+    /* Tocar no card de novo fecha a região e volta ao catálogo inteiro. */
+    app.$('.grupo-card[data-categoria="' + regiao.id + '"]').click();
+    await wait(20);
+    assert.match(app.text("#catalog-status"), /no catálogo$/);
+  }
+
+  assert.deepEqual(conferidos, 13, "os sete cards precisam alcançar os 13 grupos");
+  assert.deepEqual(vistos.slice().sort(), grupos.slice().sort(),
+    "faltou grupo muscular alcançável pelos cards");
   assertNoErrors(app, "filtro de grupo muscular");
 });
 
@@ -247,6 +287,8 @@ await test("B5. Modalidade + grupo + ranking combinam, aparecem como filtros ati
 
   chip(app, "modality", "peso-corporal").click();
   await wait(30);
+  app.$('.grupo-card[data-categoria="peitoral"]').click();
+  await wait(30);
   chip(app, "muscle", "peitoral").click();
   await wait(30);
 
@@ -255,6 +297,7 @@ await test("B5. Modalidade + grupo + ranking combinam, aparecem como filtros ati
   assert.equal(active.hasAttribute("hidden"), false);
   assert.ok(active.querySelector('[data-active-filter="modality"]'), "modalidade não aparece nos filtros ativos");
   assert.ok(active.querySelector('[data-active-filter="muscle"]'), "grupo não aparece nos filtros ativos");
+  assert.ok(active.querySelector('[data-active-filter="categoria"]'), "região não aparece nos filtros ativos");
   assert.ok(active.querySelector("[data-clear-filters]"), "faltou o 'Limpar tudo'");
 
   /* O ranking só existe dentro da combinação. */
@@ -279,6 +322,8 @@ await test("B5. Modalidade + grupo + ranking combinam, aparecem como filtros ati
   await wait(30);
   assert.match(app.text("#catalog-status"), /^165 exercícios no catálogo$/);
   assert.equal(app.$("#bl-active-filters").hasAttribute("hidden"), true);
+  assert.equal(app.$$('#catalog-controls .grupo-card[aria-pressed="true"]').length, 0,
+    "nenhuma região deveria continuar aberta");
 
   /* Busca também entra nos filtros ativos e é removível. */
   search(app, "flexao");

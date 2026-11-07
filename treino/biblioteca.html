@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
 <link rel="stylesheet" href="../assets/css/biblioteca.css">
+<link rel="stylesheet" href="../assets/css/biblioteca-grupos.css">
 </head>
 
 <body data-page="biblioteca" data-root="../">
@@ -24,7 +25,10 @@
 <header class="site-header">
   <div class="container site-header-inner">
     <a class="logo" href="../index.html">FORJA</a>
-    <div class="tagline">DISCIPLINA DIÁRIA</div>
+    <div class="tagline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg>
+      DISCIPLINA DIÁRIA
+    </div>
   </div>
 </header>
 
@@ -42,11 +46,10 @@
 
   <section class="bl-hero" aria-labelledby="catalog-heading">
     <span class="eyebrow">Explorar · Biblioteca</span>
-    <h1 id="catalog-heading" class="ui-section-title">Biblioteca de exercícios</h1>
-    <p class="bl-subtitle">
-      Busque pelo nome, filtre por grupo muscular e modalidade e veja a demonstração em
-      vídeo de cada exercício.
-    </p>
+    <!-- O espaço dentro do primeiro span mantém o texto "Biblioteca de exercícios"
+         para leitores de tela, testes e links, mesmo com as duas cores. -->
+    <h1 id="catalog-heading" class="ui-section-title"><span class="bl-titulo-linha">Biblioteca de </span><span class="bl-titulo-destaque">exercícios</span></h1>
+    <p class="bl-subtitle">Encontre o exercício ideal para o seu treino.</p>
     <div class="bl-hero-stats" id="bl-hero-stats" aria-label="Números do catálogo"></div>
   </section>
 

@@ -906,6 +906,16 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
     Classificação só existe dentro de uma combinação: escolhido o grupo e a
     modalidade, a lista vira o ranking daquela combinação.
   */
+  /*
+    O grupo muscular agora mora dentro da região: os sete cards são a porta de
+    entrada e o card aberto revela os grupos oficiais que ele agrupa.
+  */
+  const regionRow = app.$('#catalog-controls [data-filter-group="categoria"]');
+  assert.ok(regionRow, "Cards das regiões ausentes");
+  assert.equal(regionRow.querySelectorAll(".grupo-card").length, 7, "Deveriam existir 7 regiões");
+  app.$('#catalog-controls [data-filter-group="categoria"] [data-value="peitoral"]').click();
+  await wait(15);
+
   const muscleRow = app.$('#catalog-controls [data-filter-group="muscle"]');
   assert.ok(muscleRow, "Filtro de grupo muscular ausente");
   app.$('#catalog-controls [data-filter-group="modality"] [data-value="academia"]').click();

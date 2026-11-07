@@ -377,8 +377,12 @@
       ? "catalogo"
       : state.origin === "personalizado" ? "pessoal" : null;
 
+    const categoria = categoriaPorId(state.categoria);
+
     const list = entries().filter(entry => {
       if (origin && entry.origin !== origin) return false;
+      /* Região escolhida nos cards: vale o músculo principal do exercício. */
+      if (categoria && !muscle && categoria.grupos.indexOf(entry.muscleId) === -1) return false;
       if (muscle && entry.muscleId !== muscle) return false;
       /* Envolvimento vem da legenda do atlas: qualquer papel muscular conta,
          inclusive secundários e estabilizadores. */
@@ -463,6 +467,219 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* As sete regiões da tela                                              */
+  /* ------------------------------------------------------------------ */
+
+  /*
+    Cada card da tela é uma porta de entrada para um ou mais dos 13 grupos
+    oficiais do catálogo central — nenhum grupo fica de fora e nenhum exercício
+    muda de classificação. O filtro do card é por músculo *principal*: somados,
+    os sete cards cobrem os 165 exercícios exatamente uma vez.
+  */
+  const CATEGORIAS = Object.freeze([
+    Object.freeze({
+      id: "peitoral",
+      rotulo: "Peitoral",
+      descricao: "Exercícios para o peito",
+      grupos: Object.freeze(["peitoral"]),
+      figura: { view: "front", regioes: ["peito"] }
+    }),
+    Object.freeze({
+      id: "costas",
+      rotulo: "Costas",
+      descricao: "Exercícios para as costas",
+      grupos: Object.freeze(["costas"]),
+      /* Dorso superior + grande dorsal: juntos dão a silhueta das costas. */
+      figura: { view: "back", regioes: ["costas", "dorsais"] }
+    }),
+    Object.freeze({
+      id: "ombros",
+      rotulo: "Ombros",
+      descricao: "Exercícios para os ombros",
+      grupos: Object.freeze(["ombros", "trapezio"]),
+      figura: { view: "front", regioes: ["ombros"] }
+    }),
+    Object.freeze({
+      id: "bracos",
+      rotulo: "Braços",
+      descricao: "Exercícios para os braços",
+      grupos: Object.freeze(["biceps", "triceps", "antebracos"]),
+      figura: { view: "front", regioes: ["biceps", "antebracos"] }
+    }),
+    Object.freeze({
+      id: "abdomen",
+      rotulo: "Abdômen",
+      descricao: "Exercícios para o abdômen",
+      grupos: Object.freeze(["abdomen", "obliquos"]),
+      /* Reto abdominal em lima; o oblíquo entra como subgrupo, não como borrão. */
+      figura: { view: "front", regioes: ["abdomem"] }
+    }),
+    Object.freeze({
+      id: "pernas",
+      rotulo: "Pernas",
+      descricao: "Exercícios para as pernas",
+      grupos: Object.freeze(["quadriceps", "posteriores", "panturrilhas"]),
+      figura: { view: "front", regioes: ["quadriceps"] }
+    }),
+    Object.freeze({
+      id: "gluteos",
+      rotulo: "Glúteos",
+      descricao: "Exercícios para os glúteos",
+      grupos: Object.freeze(["gluteos"]),
+      figura: { view: "back", regioes: ["gluteos"] }
+    })
+  ]);
+
+  function categoriaPorId(id) {
+    if (!id) return null;
+    return CATEGORIAS.find(categoria => categoria.id === id) || null;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Miniatura anatômica dos cards (mesma prancha e regiões do atlas)     */
+  /* ------------------------------------------------------------------ */
+
+  const PROPORCAO_FIGURA = 1.1;      /* largura / altura da área da imagem */
+  const FOLGA_FIGURA = 0.06;         /* respiro proporcional à região */
+  const MARGEM_FIGURA = 18;          /* respiro mínimo, em unidades da prancha */
+  const ALTURA_MINIMA_FIGURA = 0.24; /* fração da prancha sempre visível */
+
+  function figurasDisponiveis() {
+    return Boolean(F.figura && typeof F.figura.render === "function" && F.figura.REGIONS);
+  }
+
+  function regioesVisiveis(categoria) {
+    const view = categoria.figura.view;
+    const regioes = categoria.figura.regioes || [];
+    if (!F.figura.REGIONS) return [];
+    return regioes.filter(id => Boolean(F.figura.shapesFor(id, view)));
+  }
+
+  /*
+    Limites de um caminho autoral. Os caminhos de `forja-figura.js` só usam M/Q
+    com pontos, então os números vêm em pares (x, y). Nada é desenhado aqui: os
+    limites servem apenas para enquadrar a região na miniatura.
+  */
+  function limitesDoCaminho(d) {
+    const numeros = String(d || "").match(/-?\d+(?:\.\d+)?/g);
+    if (!numeros || numeros.length < 4) return null;
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (let i = 0; i + 1 < numeros.length; i += 2) {
+      const x = Number(numeros[i]);
+      const y = Number(numeros[i + 1]);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+
+    return Number.isFinite(minX) ? { minX, minY, maxX, maxY } : null;
+  }
+
+  function limitesDasRegioes(regioes, view) {
+    let caixa = null;
+
+    regioes.forEach(id => {
+      const caminhos = F.figura.shapesFor(id, view) || [];
+      caminhos.forEach(d => {
+        const limites = limitesDoCaminho(d);
+        if (!limites) return;
+        if (!caixa) {
+          caixa = Object.assign({}, limites);
+          return;
+        }
+        caixa.minX = Math.min(caixa.minX, limites.minX);
+        caixa.minY = Math.min(caixa.minY, limites.minY);
+        caixa.maxX = Math.max(caixa.maxX, limites.maxX);
+        caixa.maxY = Math.max(caixa.maxY, limites.maxY);
+      });
+    });
+
+    return caixa;
+  }
+
+  function arredondar(value) {
+    return Math.round(value * 10) / 10;
+  }
+
+  /*
+    Janela de exibição da miniatura: envolve as regiões do card com folga,
+    ajusta para a proporção da área da imagem e prende dentro da prancha.
+  */
+  function enquadramentoDaCategoria(categoria) {
+    const view = categoria.figura.view;
+    const caixa = limitesDasRegioes(regioesVisiveis(categoria), view);
+    const limite = F.figura.VIEWBOX || { width: 600, height: 1024 };
+    if (!caixa) return null;
+
+    const larguraRegiao = caixa.maxX - caixa.minX;
+    const alturaRegiao = caixa.maxY - caixa.minY;
+    const margem = Math.max(MARGEM_FIGURA, Math.max(larguraRegiao, alturaRegiao) * FOLGA_FIGURA);
+
+    let largura = larguraRegiao + margem * 2;
+    let altura = alturaRegiao + margem * 2;
+
+    if (largura / altura < PROPORCAO_FIGURA) largura = altura * PROPORCAO_FIGURA;
+    else altura = largura / PROPORCAO_FIGURA;
+
+    const alturaMinima = limite.height * ALTURA_MINIMA_FIGURA;
+    if (altura < alturaMinima) {
+      altura = alturaMinima;
+      largura = altura * PROPORCAO_FIGURA;
+    }
+
+    if (largura > limite.width) {
+      largura = limite.width;
+      altura = largura / PROPORCAO_FIGURA;
+    }
+    if (altura > limite.height) {
+      altura = limite.height;
+      largura = altura * PROPORCAO_FIGURA;
+    }
+
+    let x = (caixa.minX + caixa.maxX) / 2 - largura / 2;
+    let y = (caixa.minY + caixa.maxY) / 2 - altura / 2;
+
+    x = Math.max(0, Math.min(limite.width - largura, x));
+    y = Math.max(0, Math.min(limite.height - altura, y));
+
+    return [arredondar(x), arredondar(y), arredondar(largura), arredondar(altura)];
+  }
+
+  /*
+    A prancha aprovada com as regiões do card em lima. O enquadramento é um
+    recorte da própria prancha (viewBox), sem gerar arquivo de imagem novo.
+  */
+  function figuraDaCategoria(categoria) {
+    if (!figurasDisponiveis()) return null;
+
+    const view = categoria.figura.view;
+    const regioes = regioesVisiveis(categoria);
+    if (regioes.length === 0) return null;
+
+    const destaques = Object.create(null);
+    regioes.forEach(id => { destaques[id] = "primary"; });
+
+    const figura = F.figura.render({ view, highlights: destaques });
+    const svg = figura.querySelector("svg");
+    const caixa = enquadramentoDaCategoria(categoria);
+
+    if (svg && caixa) {
+      svg.setAttribute("viewBox", caixa.join(" "));
+      svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
+    }
+
+    figura.classList.add("grupo-figura-anatomia");
+    return figura;
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Estado da tela                                                       */
   /* ------------------------------------------------------------------ */
 
@@ -475,7 +692,9 @@
     equipment: null,
     origin: null,
     /* "Envolve o grupo": qualquer papel muscular — vem da legenda do atlas. */
-    involve: null
+    involve: null,
+    /* Região escolhida nos 7 cards (agrupa os 13 grupos oficiais). */
+    categoria: null
   };
 
   let visible = PAGE_SIZE;
@@ -484,6 +703,7 @@
   function signature() {
     return JSON.stringify({
       query: state.query,
+      categoria: state.categoria,
       muscle: state.muscle,
       modality: state.modality,
       ranking: state.ranking,
@@ -499,8 +719,8 @@
   function hasActiveFilters() {
     return Boolean(
       CATALOG.normalizeText(state.query) ||
-      state.muscle || state.modality || state.ranking || state.equipment || state.origin ||
-      state.involve
+      state.categoria || state.muscle || state.modality || state.ranking || state.equipment ||
+      state.origin || state.involve
     );
   }
 
@@ -508,6 +728,9 @@
     const previousMuscle = state.muscle;
     const previousModality = state.modality;
     Object.assign(state, patch);
+
+    /* Trocar de região zera o subgrupo: os chips são sempre os da região aberta. */
+    if (patch.categoria !== undefined && patch.muscle === undefined) state.muscle = null;
 
     /* A classificação pertence a uma combinação: se o grupo ou a modalidade
        mudou, a posição escolhida deixa de existir e é removida. */
@@ -523,6 +746,7 @@
 
   function resetAll() {
     state.query = "";
+    state.categoria = null;
     state.muscle = null;
     state.modality = null;
     state.ranking = null;
@@ -767,30 +991,184 @@
     Não existe chip "Todas": para voltar à lista inteira basta tocar de novo no
     chip ativo ou usar "Limpar tudo". Isso evita um botão que filtra por nada.
   */
-  function modalityFilter() {
-    const items = CATALOG.modalities.map(mode => ({
-      value: mode.id,
-      label: mode.name,
-      active: state.modality === mode.id
-    }));
+  /*
+    Modalidades em pílulas com ícone, como na referência: "Todos" (sem filtro)
+    mais as três modalidades do catálogo. A pílula ativa é lima; o estado vive
+    em `aria-pressed`, não só na cor.
+  */
+  const ICONES_MODALIDADE = Object.freeze({
+    todos: "dumbbell",
+    academia: "barbell",
+    calistenia: "corpo",
+    "peso-corporal": "sem-equipamento"
+  });
 
-    return filterGroup("modality", "Modalidade", items, value => {
-      apply({ modality: state.modality === value ? null : value });
-    }, "Sem equipamentos não usa máquina, barra, haltere ou acessório");
+  const ICONES_EXTRA = Object.freeze({
+    barbell: "M3 8v8M6 6.5v11M18 6.5v11M21 8v8M6 12h12",
+    corpo: "M12 4.5a2 2 0 1 0 0-.001M12 7v6M12 9.5 8 7.5M12 9.5l4-2M12 13l-3 7M12 13l3 7",
+    "sem-equipamento": "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M6.5 6.5l11 11"
+  });
+
+  function iconeDaModalidade(chave, extraClass) {
+    const nome = ICONES_MODALIDADE[chave] || "dumbbell";
+    if (F.ui.ICON_PATHS && F.ui.ICON_PATHS[nome]) return F.ui.icon(nome, extraClass);
+
+    const span = el("span", "modalidade-icone" + (extraClass ? " " + extraClass : ""));
+    span.setAttribute("aria-hidden", "true");
+    span.setAttribute("focusable", "false");
+
+    const svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+
+    const path = doc.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", ICONES_EXTRA[nome] || ICONES_EXTRA["sem-equipamento"]);
+    svg.appendChild(path);
+    span.appendChild(svg);
+    return span;
   }
 
-  function muscleFilter() {
-    const items = CATALOG.muscleGroups.map(group => ({
-      value: group.id,
-      label: group.name,
-      active: state.muscle === group.id
+  function modalidadePills() {
+    const group = el("div", "catalog-filter bl-filter bl-filter-modalidade");
+    group.setAttribute("data-filter-group", "modality");
+
+    const head = el("div", "bl-filter-head");
+    head.appendChild(el("span", "catalog-filter-label", "Modalidade"));
+    group.appendChild(head);
+
+    const linha = el("div", "modalidade-linha");
+    linha.setAttribute("role", "group");
+    linha.setAttribute("aria-label", "Modalidade");
+
+    /* "Sem equipamentos" é o nome do catálogo; na pílula cabe "Sem equip.",
+       igual à referência. O filtro continua sendo o mesmo id. */
+    const opcoes = [{ id: null, label: "Todos" }].concat(
+      CATALOG.modalities.map(mode => ({
+        id: mode.id,
+        label: mode.id === "peso-corporal" ? "Sem equip." : mode.name
+      })));
+
+    opcoes.forEach(opcao => {
+      const ativo = opcao.id ? state.modality === opcao.id : !state.modality;
+      const button = el("button", "modalidade-opcao");
+      button.type = "button";
+      button.setAttribute("data-value", opcao.id === null ? "" : String(opcao.id));
+      button.setAttribute("aria-pressed", String(Boolean(ativo)));
+      button.appendChild(iconeDaModalidade(opcao.id === null ? "todos" : opcao.id));
+      button.appendChild(el("span", null, opcao.label));
+      button.addEventListener("click", () => {
+        apply({ modality: opcao.id, ranking: null });
+      });
+      linha.appendChild(button);
+    });
+
+    group.appendChild(linha);
+    return group;
+  }
+
+  /* Cards das sete regiões: a porta de entrada da biblioteca. */
+  function grupoCards() {
+    const wrap = el("div", "bl-grupos");
+    wrap.setAttribute("role", "group");
+    wrap.setAttribute("aria-label", "Regiões do corpo");
+    wrap.setAttribute("data-filter-group", "categoria");
+
+    CATEGORIAS.forEach(categoria => {
+      const ativo = state.categoria === categoria.id;
+      const button = el("button", "grupo-card");
+      button.type = "button";
+      button.setAttribute("data-value", categoria.id);
+      button.setAttribute("data-categoria", categoria.id);
+      button.setAttribute("aria-pressed", String(ativo));
+      button.setAttribute("aria-label", categoria.rotulo + " — " + categoria.descricao);
+
+      const figura = el("span", "grupo-figura");
+      const desenho = figuraDaCategoria(categoria);
+      if (desenho) figura.appendChild(desenho);
+      else figura.appendChild(F.ui.icon("target", "grupo-figura-fallback"));
+
+      const texto = el("span", "grupo-texto");
+      texto.appendChild(el("span", "grupo-nome", categoria.rotulo));
+      texto.appendChild(el("span", "grupo-descricao", categoria.descricao));
+
+      const seta = el("span", "grupo-seta");
+      seta.appendChild(F.ui.icon("chevron-right"));
+
+      button.append(figura, texto, seta);
+      button.addEventListener("click", () => {
+        apply({ categoria: ativo ? null : categoria.id, muscle: null, ranking: null });
+      });
+
+      wrap.appendChild(button);
+    });
+
+    return wrap;
+  }
+
+  /* Os grupos oficiais da região aberta, um a um (nunca mistura principal). */
+  function subgrupoChips(categoria) {
+    const group = el("div", "catalog-filter bl-filter bl-subgrupos");
+    group.setAttribute("data-filter-group", "muscle");
+
+    const head = el("div", "bl-filter-head");
+    head.appendChild(el("span", "catalog-filter-label", "Grupo muscular"));
+    group.appendChild(head);
+
+    group.appendChild(chipRow({
+      label: "Grupo muscular",
+      items: [{ value: null, label: "Todos", active: !state.muscle }].concat(
+        categoria.grupos.map(id => ({
+          value: id,
+          label: CATALOG.muscleName(id),
+          active: state.muscle === id
+        }))),
+      onPick: value => apply({ muscle: value, ranking: null })
     }));
 
-    const group = filterGroup("muscle", "Grupo muscular", items, value => {
-      apply({ muscle: state.muscle === value ? null : value });
-    });
-    group.classList.add("bl-filter-muscles");
     return group;
+  }
+
+  /* Painel do contador: sempre calculado do catálogo e do filtro atual. */
+  function rotuloDoContador(total) {
+    const substantivo = total === 1 ? "exercício" : "exercícios";
+    const partes = [];
+
+    const query = state.query.trim();
+    if (query) partes.push("para “" + query + "”");
+
+    const categoria = categoriaPorId(state.categoria);
+    if (categoria) partes.push("em " + categoria.rotulo);
+    else if (state.muscle) partes.push("em " + CATALOG.muscleName(groupIdFrom(state.muscle)));
+
+    if (state.modality) partes.push("em " + CATALOG.modalityName(modalityIdFrom(state.modality)));
+
+    if (!partes.length) return substantivo + " disponíveis";
+    return substantivo + " " + partes.join(" · ");
+  }
+
+  function counterNode(total) {
+    const box = el("div", "bl-contador");
+    box.id = "bl-contador";
+    box.setAttribute("aria-live", "polite");
+
+    box.appendChild(F.ui.icon("info"));
+
+    const texto = el("p", "bl-contador-texto");
+    texto.appendChild(el("strong", null, String(total)));
+    texto.appendChild(doc.createTextNode(" " + rotuloDoContador(total)));
+
+    if (hasActiveFilters()) {
+      const catalogo = totalExercises();
+      texto.appendChild(el("span", "bl-contador-complemento",
+        " de " + catalogo + (catalogo === 1 ? " exercício" : " exercícios") + " no catálogo"));
+    }
+
+    box.appendChild(texto);
+    return box;
   }
 
   function rankingFilter() {
@@ -873,6 +1251,7 @@
     const query = state.query.trim();
     if (query) chips.push({ key: "query", label: "Busca: " + query, patch: { query: "" } });
     if (state.involve) chips.push({ key: "involve", label: "Envolve: " + CATALOG.muscleName(groupIdFrom(state.involve)), patch: { involve: null } });
+    if (state.categoria) chips.push({ key: "categoria", label: "Região: " + (categoriaPorId(state.categoria) || {}).rotulo, patch: { categoria: null, muscle: null, ranking: null } });
     if (state.muscle) chips.push({ key: "muscle", label: "Grupo: " + CATALOG.muscleName(groupIdFrom(state.muscle)), patch: { muscle: null, ranking: null } });
     if (state.modality) chips.push({ key: "modality", label: "Modalidade: " + CATALOG.modalityName(modalityIdFrom(state.modality)), patch: { modality: null, ranking: null } });
     if (state.ranking !== null) chips.push({ key: "ranking", label: "Classificação: " + positionLabel(Number(state.ranking)) + " lugar", patch: { ranking: null } });
@@ -1087,8 +1466,11 @@
 
     const userCount = entries().filter(entry => entry.origin === "pessoal").length;
     const videos = officialVideoCount();
+    /*
+      O total do catálogo saiu daqui: quem mostra o número agora é o painel do
+      contador, logo abaixo dos cards, já refletindo busca, modalidade e região.
+    */
     const stats = [
-      { value: totalExercises(), label: totalExercises() === 1 ? "exercício no catálogo" : "exercícios no catálogo" },
       { value: CATALOG.muscleGroups.length, label: "grupos musculares" },
       { value: CATALOG.modalities.length, label: CATALOG.modalities.length === 1 ? "modalidade" : "modalidades" },
       { value: videos, label: videos === 1 ? "com demonstração oficial" : "com demonstração oficial" }
@@ -1187,8 +1569,13 @@
       Ordem pedida para a tela: modalidade, grupo muscular, combinação,
       filtros ativos e, por último, o que é menos usado no dia a dia.
     */
-    dom.controls.appendChild(modalityFilter());
-    dom.controls.appendChild(muscleFilter());
+    dom.controls.appendChild(modalidadePills());
+    dom.controls.appendChild(grupoCards());
+
+    const regiao = categoriaPorId(state.categoria);
+    if (regiao) dom.controls.appendChild(subgrupoChips(regiao));
+
+    dom.controls.appendChild(counterNode(found.length));
 
     /* A classificação só entra quando o grupo + modalidade têm ranking. */
     if (state.muscle && state.modality && rankingPositions(state).length) {
@@ -1351,6 +1738,10 @@
     const muscle = groupIdFrom(params.get("grupo"));
     if (muscle) state.muscle = muscle;
 
+    /* `regiao` abre uma das sete portas (e o card já aparece selecionado). */
+    const regiao = categoriaPorId(params.get("regiao"));
+    if (regiao) state.categoria = regiao.id;
+
     const resolvedModality = modalityIdFrom(params.get("modalidade"));
     if (resolvedModality) state.modality = resolvedModality;
 
@@ -1429,6 +1820,10 @@
   F.biblioteca = Object.freeze({
     entries,
     filter,
+    apply,
+    resetAll,
+    categorias: CATEGORIAS,
+    categoriaPorId,
     facets,
     rankings,
     rankingPositions,
