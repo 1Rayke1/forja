@@ -21,7 +21,9 @@
 */
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import {
   assertNoErrors,
   boot,
@@ -564,6 +566,31 @@ await runTest("18. Barra inferior com cinco itens e Explorar ativa", async () =>
   assert.match(css, /body\[data-page="grupo"\]/, "A folha nova precisa ser escopada");
 
   assertNoErrors(app, "barra inferior");
+});
+
+/* ------------------------------------------------------------------ */
+/* 19. Artefato publicado                                              */
+/* ------------------------------------------------------------------ */
+
+await runTest("19. O artefato do Pages leva a tela do grupo e não tem link quebrado", async () => {
+  /*
+    O workflow de publicação monta o site com tools/preparar-site.sh, que
+    recusa link relativo apontando para arquivo fora do artefato. Uma tela nova
+    com caminho escrito à mão derrubou o deploy uma vez; este teste roda o mesmo
+    script e falha antes do push.
+  */
+  const destino = fs.mkdtempSync(path.join(os.tmpdir(), "forja-site-"));
+  execFileSync("bash", [path.join(repoRoot, "tools/preparar-site.sh"), destino], { stdio: "pipe" });
+
+  ["treino/grupo.html", "assets/js/forja-grupo.js", "assets/css/grupo.css"].forEach(rel => {
+    assert.ok(fs.existsSync(path.join(destino, rel)), "O artefato publicado ficou sem " + rel);
+  });
+
+  /* A tela nova não pode carregar nada de fora do artefato. */
+  const html = fs.readFileSync(path.join(destino, "treino/grupo.html"), "utf8");
+  assert.equal(/3d|three|personagens-3d/i.test(html), false, "A tela do grupo carrega resíduo 3D");
+
+  fs.rmSync(destino, { recursive: true, force: true });
 });
 
 /* ------------------------------------------------------------------ */

@@ -585,7 +585,8 @@
       const vazio = el("div", "gr-vazio");
       vazio.appendChild(el("p", "gr-vazio-titulo", "Escolha um grupo na Biblioteca"));
       const voltar = el("a", "gr-vazio-acao", "Abrir a Biblioteca");
-      voltar.href = "biblioteca.html";
+      /* F.url resolve o caminho a partir de data-root, como nas outras telas. */
+      voltar.href = F.url("biblioteca");
       vazio.appendChild(voltar);
       dom.lista.appendChild(vazio);
       dom.contador.replaceChildren();
