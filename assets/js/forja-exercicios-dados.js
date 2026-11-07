@@ -24,10 +24,15 @@
     { id: "antebracos", name: "Antebraços", description: "Pegada e movimentos de punho e dedos." }
   ];
 
+  /*
+    Nomes de exibição das modalidades. Os IDs são permanentes e não mudam com
+    o rótulo; estes três nomes são os mesmos que a biblioteca mostra nos
+    filtros, nos cartões e no detalhe.
+  */
   const modalities = [
-    { id: "academia", name: "Academia", legacyMode: "weights", description: "Exercícios com máquinas, pesos livres, cabos ou acessórios de musculação." },
+    { id: "academia", name: "Musculação", legacyMode: "weights", description: "Exercícios com máquinas, pesos livres, cabos ou acessórios de musculação." },
     { id: "calistenia", name: "Calistenia", legacyMode: "calisthenics", description: "Exercícios com peso corporal que utilizam barras, paralelas, argolas ou estruturas." },
-    { id: "peso-corporal", name: "Peso corporal", legacyMode: "calisthenics", description: "Exercícios executáveis somente com o corpo e o espaço disponível, sem equipamentos." }
+    { id: "peso-corporal", name: "Sem equipamentos", legacyMode: "calisthenics", description: "Exercícios executáveis somente com o corpo e o espaço disponível, sem equipamentos." }
   ];
 
   function ex(raw) {

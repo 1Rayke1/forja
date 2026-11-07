@@ -1743,6 +1743,7 @@ await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explor
           .map(node => [node.getAttribute('data-nav'), getComputedStyle(node).color])),
         perfil: target('perfil').pathname,
         explorar: target('explorar').pathname,
+        descobrir: target('descobrir').pathname,
         perfilStatus: await status(target('perfil').href),
         explorarStatus: await status(target('explorar').href)
       };
@@ -1756,7 +1757,8 @@ await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explor
       if (nav !== want) assert.notEqual(color, state.colors[want], 'CSS: ' + nav + ' também destacado em ' + where);
     }
     assert.equal(state.perfil, basePath + 'perfil/index.html', 'F.url("perfil") em ' + where);
-    assert.equal(state.explorar, basePath + 'explorar/index.html', 'F.url("explorar") em ' + where);
+    assert.equal(state.explorar, basePath + 'treino/biblioteca.html', 'F.url("explorar") em ' + where);
+    assert.equal(state.descobrir, basePath + 'explorar/index.html', 'F.url("descobrir") em ' + where);
     assert.equal(state.perfilStatus, 200, 'Destino de F.url("perfil") não carrega a partir de ' + where);
     assert.equal(state.explorarStatus, 200, 'Destino de F.url("explorar") não carrega a partir de ' + where);
   }
@@ -2659,7 +2661,7 @@ await check('Demonstrações: imagem local decodifica, créditos visíveis e fal
     Forja.catalog.showDetail(record, { readOnly: true });
   });
   await page.waitForSelector('.modal-backdrop .modal-details', { timeout: 4000 });
-  assert.match(await text('.modal-backdrop .modal-details'), /Demonstração visual ainda não disponível/);
+  assert.match(await text('.modal-backdrop .modal-details'), /Imagem ainda não disponível/);
   assert.equal(await page.$('.demo-media'), null, 'exercício sem correspondência ganhou imagem');
   await page.keyboard.press('Escape');
 
@@ -2822,7 +2824,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => !document.querySelector('.modal-backdrop'), { timeout: 4000 });
 
-    /* 2. Exercício sem vídeo oficial: exibe imagem de referência + "Vídeo de demonstração ainda não disponível". */
+    /* 2. Exercício sem vídeo oficial: exibe imagem de referência + "Demonstração em vídeo ainda não disponível para este exercício.". */
     await page.evaluate(() => {
       const record = Forja.catalog.items('calisthenics').find(item => item.id === 'cal-polichinelo');
       Forja.catalog.showDetail(record, { readOnly: true });
@@ -2831,7 +2833,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
     assert.equal(await page.$('.modal-details .video-demo-iframe'), null);
     assert.equal(await page.$eval('.modal-details .demo-media', el => el.dataset.demoId), 'repdb:jumping-jacks');
     assert.equal(await text('.modal-details .video-demo-unavailable'),
-      'Vídeo de demonstração ainda não disponível');
+      'Demonstração em vídeo ainda não disponível para este exercício.');
     await page.keyboard.press('Escape');
   } finally {
     await page.setViewport(MOBILE);
@@ -3103,7 +3105,7 @@ await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend 
     assert.equal(await page.$('#execution-demo .video-demo-iframe'), null);
     assert.equal(await page.$eval('#execution-demo .demo-media', el => el.dataset.demoId), 'repdb:push-up');
     assert.equal(await text('#execution-demo .video-demo-unavailable'),
-      'Vídeo de demonstração ainda não disponível');
+      'Demonstração em vídeo ainda não disponível para este exercício.');
 
     /* 2. Busca sem resultados. */
     youtubeE2EState.mode = 'empty';

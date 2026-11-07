@@ -745,23 +745,11 @@
       ? (F.exerciseCatalog.modalityById(central.modality) || {}).name
       : F.MODE_NAMES[mode];
 
-    /* 1. Identificação: grupo principal, modalidade e resumo editorial. */
-    const identification = detailSection("Identificação", "identificacao");
-    if (central) {
-      const group = F.exerciseCatalog.groupById(central.primaryMuscle);
-      identification.appendChild(detailText(
-        "Grupo muscular principal: " + (group ? group.name : central.primaryMuscle) + ".",
-        "bl-detail-strong"));
-      if (central.description) identification.appendChild(detailText(central.description));
-      identification.appendChild(detailText("Modalidade: " + (modeName || "") +
-        " · dificuldade " + difficultyLabel(central.difficulty) +
-        " · " + central.exerciseType + "."));
-    } else {
-      identification.appendChild(detailText("Grupo muscular principal: não informado.", "bl-detail-strong"));
-      identification.appendChild(detailText("Modalidade: " + (modeName || "") + "."));
-      if (record.instructions) identification.appendChild(detailText(record.instructions));
-    }
-    wrap.appendChild(identification);
+    /*
+      A identificação (nome, grupo, modalidade, foto) fica no topo do detalhe,
+      montada por `identificationBlock`. Aqui começam as informações
+      complementares — nada de repetir o mesmo dado duas vezes na tela.
+    */
 
     /* 2. Classificação no ranking, quando existente. */
     const ranking = rankingLine(central);
@@ -915,123 +903,322 @@
     return wrap;
   }
 
-  async function showDetail(record, options = {}) {
-    const central = centralRecordFor(record);
-    const reference = referenceImageFor(record, central);
-    const demo = F.demos && F.demos.available()
-      ? F.demos.resolve(record, record.mode)
-      : null;
+  /*
+    Foto do exercício no detalhe. Só entra imagem do próprio identificador:
 
-    /*
-      Contêiner único do detalhe: mídia primeiro (vídeo 16:9 ou imagem de
-      referência), depois as seções editoriais e, por fim, a figura do atlas.
-      Nunca há dois players — uma associação administrativa aprovada substitui
-      o vídeo oficial e esconde o palco padrão (regra da Etapa 3).
-    */
-    const details = F.ui.el("div", "modal-details");
-    const media = detailSection("Demonstração", "midia");
+    1. foto aprovada do manifesto editorial (`PHOTO_MANIFEST`), quando existir;
+    2. imagem aprovada do catálogo central, buscada pelo ID do exercício;
+    3. associação do catálogo ainda em revisão — exibida com o aviso explícito;
+    4. ilustração que o usuário escolheu para o exercício personalizado.
+
+    Sem nenhuma delas não existe foto inventada: o detalhe mostra o espaço
+    reservado com "Imagem ainda não disponível".
+  */
+  function detailPhotoFor(record, central) {
+    const approved = photoFor(record);
+    if (approved && approved.src) {
+      return {
+        src: approved.src,
+        url: F.url(approved.src),
+        alt: approved.alt || ("Foto do exercício " + record.name),
+        status: "approved",
+        caption: null
+      };
+    }
+
+    const media = central && central.media && central.media.image;
+    if (media && media.src) {
+      return {
+        src: media.src,
+        url: F.url(media.src),
+        alt: "Foto do exercício " + record.name,
+        status: media.status,
+        caption: media.status === "validated"
+          ? null
+          : "Associação em revisão editorial: a foto é do mesmo movimento, mas ainda não foi validada."
+      };
+    }
+
+    return null;
+  }
+
+  /*
+    Escolha explícita de demonstração feita pelo usuário para este exercício.
+    Vale mais que a imagem padrão do catálogo: é o dado dele.
+  */
+  function explicitDemoFor(record) {
+    if (!F.demos || !F.demos.available()) return null;
+    const demo = F.demos.resolve(record, record.mode);
+    return demo && demo.explicit && demo.thumb && demo.thumb.url ? demo : null;
+  }
+
+  /*
+    A foto é renderizada pelo mesmo componente de demonstração da Etapa 3
+    quando a imagem aprovada é exatamente a ilustração daquele exercício — o
+    arquivo é o mesmo, e assim o crédito obrigatório (RepDB) viaja junto.
+  */
+  function photoBlock(record, central) {
+    const explicit = explicitDemoFor(record);
+    const photo = explicit
+      ? {
+        src: explicit.thumb.file,
+        url: explicit.thumb.url,
+        alt: "Imagem escolhida para " + record.name,
+        status: "escolhida",
+        caption: null
+      }
+      : detailPhotoFor(record, central);
+    const figure = doc.createElement("figure");
+    figure.className = "bl-detail-photo";
+    figure.setAttribute("data-photo", photo ? "ok" : "missing");
+
+    let demoMedia = null;
+
+    if (photo && F.demos && F.demos.available()) {
+      const demo = F.demos.resolve(record, record.mode);
+      /* `thumb.file` é o nome do arquivo; `media.image.src` traz o caminho. */
+      const sameFile = value => String(value || "").split("/").pop();
+      if (demo && demo.thumb && sameFile(demo.thumb.file) === sameFile(photo.src)) {
+        demoMedia = F.demos.createMedia(record, record.mode, { eager: false });
+      }
+    }
+
+    if (demoMedia && demoMedia.node) {
+      figure.classList.add("has-demo-media");
+      figure.appendChild(demoMedia.node);
+    } else if (photo) {
+      const image = doc.createElement("img");
+      image.className = "bl-detail-photo-image";
+      image.src = photo.url;
+      image.alt = photo.alt;
+      image.width = 512;
+      image.height = 512;
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.setAttribute("data-image-status", photo.status);
+      /* Arquivo ausente não deixa ícone de imagem quebrada na tela. */
+      image.addEventListener("error", () => {
+        figure.setAttribute("data-photo", "missing");
+        image.remove();
+        if (!figure.querySelector(".bl-detail-photo-missing")) {
+          figure.insertBefore(photoMissing(record), figure.firstChild);
+        }
+      });
+      figure.appendChild(image);
+    } else {
+      figure.appendChild(photoMissing(record));
+    }
+
+    if (photo) {
+      const caption = doc.createElement("figcaption");
+      caption.className = "bl-detail-photo-caption";
+      caption.textContent = photo.caption || "";
+      if (photo.caption) figure.appendChild(caption);
+    } else {
+      const caption = doc.createElement("figcaption");
+      caption.className = "bl-detail-photo-caption";
+      caption.textContent = "A foto só aparece quando existe uma imagem aprovada do próprio movimento.";
+      figure.appendChild(caption);
+    }
+
+    return figure;
+  }
+
+  function photoMissing(record) {
+    const box = F.ui.el("div", "bl-detail-photo-missing");
+    box.appendChild(F.ui.el("strong", "bl-detail-photo-missing-title", "Imagem ainda não disponível"));
+    box.appendChild(F.ui.el("span", "bl-detail-photo-missing-text",
+      "Não há foto aprovada de " + record.name + "; a demonstração abaixo continua valendo."));
+    return box;
+  }
+
+  /*
+    Identificação: nome (já no título do diálogo), grupo muscular, modalidade,
+    dificuldade, a foto do exercício e o resumo editorial do catálogo.
+  */
+  function identificationBlock(record, central) {
+    const section = detailSection("Identificação", "identificacao");
+    section.classList.add("bl-detail-ident");
+
+    const group = central ? F.exerciseCatalog.groupById(central.primaryMuscle) : null;
+    const modeName = central
+      ? (F.exerciseCatalog.modalityById(central.modality) || {}).name
+      : F.MODE_NAMES[record.mode];
+
+    const chips = F.ui.el("div", "ui-exercise-tags bl-detail-tags bl-detail-ident-tags");
+    if (central) chips.appendChild(F.ui.chip(group ? group.name : central.primaryMuscle, "accent"));
+    chips.appendChild(F.ui.chip(modeName || "", "muted"));
+    if (central && central.difficulty) chips.appendChild(F.ui.chip("dificuldade " + difficultyLabel(central.difficulty), "muted"));
+    section.appendChild(chips);
+
+    section.appendChild(photoBlock(record, central));
+
+    if (central && central.description) {
+      section.appendChild(detailText(central.description));
+    } else if (!central && record.instructions) {
+      section.appendChild(detailText(record.instructions));
+    }
+
+    return section;
+  }
+
+  /*
+    Demonstração em vídeo. O palco é o mesmo da Etapa 3 (16:9, nocookie, sem
+    autoplay, sem som inicial, controles visíveis). A foto já está logo acima,
+    então o palco entra sem repetir a ilustração: quando não há vídeo ele diz,
+    com todas as letras, que a demonstração em vídeo não existe.
+  */
+  function videoBlock(record) {
+    const section = detailSection("Demonstração em vídeo", "video");
+    section.classList.add("bl-detail-video");
 
     let stageHandle = null;
     if (F.videos) {
-      stageHandle = F.videos.createStage(record, record.mode, { compact: false });
-      media.appendChild(stageHandle.node);
-    } else if (demo && F.demos) {
+      stageHandle = F.videos.createStage(record, record.mode, { compact: false, reference: false });
+      section.appendChild(stageHandle.node);
+    } else if (F.demos) {
       const demoMedia = F.demos.createMedia(record, record.mode, { eager: false });
-      media.appendChild(demoMedia.node);
+      section.appendChild(demoMedia.node);
     }
 
-    /* Imagem de referência do catálogo central: entra quando o palco não tem
-       uma imagem própria (quando há vídeo, ou quando não há ilustração). */
-    if (reference && (!demo || (stageHandle && stageHandle.hasVideo))) {
-      const figure = doc.createElement("figure");
-      figure.className = "bl-detail-reference";
-      const image = doc.createElement("img");
-      image.className = "bl-detail-reference-image";
-      image.src = reference.url;
-      image.alt = reference.alt;
-      image.loading = "lazy";
-      image.decoding = "async";
-      image.setAttribute("data-image-status", reference.status);
-      figure.appendChild(image);
-      const caption = doc.createElement("figcaption");
-      caption.className = "bl-detail-reference-caption";
-      caption.textContent = "Imagem de referência" +
-        (reference.status === "validated" ? "" : " (associação em revisão editorial)");
-      figure.appendChild(caption);
-      media.appendChild(figure);
-    }
-
-    /*
-      Sem ilustração local, o detalhe diz isso com todas as letras. O aviso do
-      palco de vídeo fala de vídeo; este fala da demonstração visual — são
-      ausências diferentes e nenhuma delas fica implícita.
-    */
-    if (!demo && !photoFor(record) && !reference) {
-      media.appendChild(detailText(F.demos
-        ? F.demos.fallbackText(record)
-        : "Fotografia demonstrativa ainda não disponível."));
-    }
-
-    details.appendChild(media);
-
-    /* Associação aprovada no painel administrativo tem prioridade sobre a
-       mídia padrão. Sem ela, o vídeo oficial/ilustração permanece intacto. */
+    /* Associação aprovada no administrativo tem prioridade sobre a mídia
+       padrão (regra da Etapa 3); sem ela, o palco padrão permanece. */
     let youtubeHost = null;
+
     if (F.youtube && F.exerciseCatalog && F.exerciseCatalog.byId(record.libraryId || record.id)) {
       youtubeHost = doc.createElement("div");
       youtubeHost.className = "youtube-detail";
-      media.appendChild(youtubeHost);
+      section.appendChild(youtubeHost);
+    }
+
+    return { section, stageHandle, youtubeHost };
+  }
+
+  /* Botão principal do detalhe: leva ao fluxo de rotina já existente. */
+  function addToTrainingBlock(record) {
+    const wrap = F.ui.el("div", "bl-detail-cta");
+    wrap.setAttribute("data-detail-section", "adicionar");
+
+    const button = F.ui.button({
+      label: "Adicionar ao treino",
+      icon: "plus",
+      variant: "primary-button",
+      className: "full-width",
+      ariaLabel: "Adicionar " + record.name + " ao treino",
+      onClick() {
+        /*
+          Fecha o detalhe devolvendo a ação "add": o fluxo de rotina da Etapa 5
+          continua sendo o único caminho de escrita, sem um segundo sistema.
+        */
+        F.closeOpenModal({ action: "add", values: {} });
+      }
+    });
+    button.id = "detail-add-to-training";
+    wrap.appendChild(button);
+
+    wrap.appendChild(F.ui.el("p", "bl-detail-cta-hint",
+      "Escolha a rotina e a seção na próxima etapa. O exercício entra no fim da seção e pode ser reordenado no editor."));
+
+    return wrap;
+  }
+
+  /*
+    Atlas anatômico: mesma peça do atlas, com o principal em destaque e os
+    papéis secundários diferenciados por cor e por legenda escrita.
+  */
+  function atlasBlock(record) {
+    if (!F.atlas || !F.atlas.figurePair) return null;
+
+    const highlights = F.atlas.highlightsFor(record);
+    if (Object.keys(highlights).length === 0) return null;
+
+    const section = detailSection("Atlas anatômico", "atlas");
+    section.classList.add("bl-detail-atlas");
+
+    const figure = document.createElement("div");
+    figure.className = "modal-figure";
+    figure.appendChild(F.atlas.figurePair(highlights));
+    figure.appendChild(F.atlas.legendNode(highlights, { compact: true }));
+    section.appendChild(figure);
+
+    /*
+      A legenda escrita só lista os papéis que realmente aparecem na figura:
+      nada de explicar "estabilizador" quando nenhum músculo tem esse papel.
+    */
+    const present = {};
+    Object.keys(highlights).forEach(id => {
+      present[highlights[id]] = (present[highlights[id]] || 0) + 1;
+    });
+
+    const key = F.ui.el("ul", "bl-detail-atlas-key");
+    const items = [];
+    if (present.primary) items.push(["is-primary", "Principal", "conduz o movimento"]);
+    if (present.secondary) items.push(["is-secondary", "Secundário", "ajuda a executar o movimento"]);
+    if (present.stabilizer) items.push(["is-stabilizer", "Estabilizador", "mantém a posição do corpo"]);
+    if (present.informed) items.push(["is-informed", "Informado", "grupo citado na ficha, sem papel definido"]);
+
+    items.forEach(item => {
+      const li = F.ui.el("li", "bl-detail-atlas-key-item " + item[0]);
+      li.setAttribute("data-atlas-role", item[0]);
+      li.appendChild(F.ui.el("span", "bl-detail-atlas-dot"));
+      li.appendChild(F.ui.el("strong", null, item[1]));
+      li.appendChild(F.ui.el("span", "bl-detail-atlas-key-text", " — " + item[2]));
+      key.appendChild(li);
+    });
+
+    section.appendChild(key);
+    section.appendChild(F.ui.el("p", "bl-detail-note",
+      "As cores vêm do Atlas do FORJA e descrevem o papel de cada músculo neste exercício, não a intensidade do trabalho."));
+
+    return section;
+  }
+
+  async function showDetail(record, options = {}) {
+    const central = centralRecordFor(record);
+    const details = F.ui.el("div", "modal-details bl-detail");
+
+    /*
+      Uma única tela, sem abas e sem menu escondido:
+      identificação e foto → demonstração em vídeo → adicionar ao treino →
+      atlas anatômico → informações complementares.
+    */
+    details.appendChild(identificationBlock(record, central));
+
+    const video = videoBlock(record);
+    details.appendChild(video.section);
+
+    if (!options.readOnly) details.appendChild(addToTrainingBlock(record));
+
+    if (!options.readOnly) {
+      const atlas = atlasBlock(record);
+      if (atlas) details.appendChild(atlas);
     }
 
     details.appendChild(detailSections(record, central, options));
-
-    /* Figura das regiões trabalhadas (mesma peça do atlas). */
-    if (!options.readOnly && F.atlas && F.atlas.figurePair) {
-      const highlights = F.atlas.highlightsFor(record);
-
-      if (Object.keys(highlights).length > 0) {
-        const figure = document.createElement("div");
-        figure.className = "modal-figure";
-        figure.appendChild(F.atlas.figurePair(highlights));
-        figure.appendChild(F.atlas.legendNode(highlights, { compact: true }));
-        details.appendChild(figure);
-      }
-    }
 
     const abertura = F.showModal({
       title: record.name,
       message: F.catalog.summary(record),
       details,
-      fields: options.readOnly ? [] : [{
-        id: "section",
-        label: "Adicionar na seção",
-        type: "select",
-        value: record.section,
-        options: SECTIONS.map(section => ({ value: section, label: F.SECTION_NAMES[section] }))
-      }],
-      actions: options.readOnly
-        ? [{ id: "cancel", label: "Fechar", className: "secondary-button" }]
-        : [
-          { id: "cancel", label: "Fechar", className: "secondary-button" },
-          { id: "add", label: "Adicionar à rotina", className: "primary-button" }
-        ]
+      fields: [],
+      actions: [{ id: "cancel", label: "Fechar", className: "secondary-button" }]
     });
 
-    if (youtubeHost) {
+    if (video.youtubeHost) {
       setTimeout(() => {
-        if (youtubeHost.isConnected) F.youtube.render(record, youtubeHost);
+        if (video.youtubeHost.isConnected) F.youtube.render(record, video.youtubeHost);
       }, 0);
     }
 
     const result = await abertura;
 
-    if (stageHandle && F.videos) {
-      F.videos.destroyStage(stageHandle.node);
+    if (video.stageHandle && F.videos) {
+      F.videos.destroyStage(video.stageHandle.node);
     }
 
     if (result.action !== "add") return;
 
-    await commitAdd(record, result.values.section || record.section);
+    await commitAdd(record, (result.values && result.values.section) || record.section);
   }
 
   /*

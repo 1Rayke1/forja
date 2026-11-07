@@ -243,7 +243,8 @@ body[data-page="biblioteca"] .bl-active-filters {
   flex-wrap: wrap;
   align-items: center;
   gap: 7px;
-  margin: 0 0 12px;
+  /* fica dentro do painel de filtros, logo depois dos grupos */
+  margin: 0;
   padding: 10px 12px;
   border: 1px dashed var(--bl-linha-forte);
   border-radius: 13px;
@@ -440,9 +441,15 @@ body[data-page="biblioteca"] .catalog-more { grid-column: 1 / -1; }
 
 /* Cards --------------------------------------------------------------- */
 
+/*
+  Card horizontal: a foto ocupa uma coluna estreita à esquerda e o texto
+  (nome, grupo muscular, modalidade, posição) fica ao lado, com as ações
+  embaixo. Cabe inteiro numa tela de 390 px e continua legível no desktop.
+*/
 body[data-page="biblioteca"] .bl-card {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: stretch;
   gap: 0;
   padding: 0;
   overflow: hidden;
@@ -462,7 +469,8 @@ body[data-page="biblioteca"] .bl-card:focus-within {
 
 body[data-page="biblioteca"] .bl-card-media {
   position: relative;
-  aspect-ratio: 16 / 10;
+  min-height: 116px;
+  height: 100%;
   background:
     radial-gradient(70% 80% at 50% 20%, rgba(183, 243, 74, 0.06) 0%, transparent 62%),
     linear-gradient(180deg, #0E1719 0%, #0A1112 100%);
@@ -513,27 +521,24 @@ body[data-page="biblioteca"] .bl-card-fallback {
   width: 100%;
   height: 100%;
   /* espaço para as insígnias dos cantos, que nunca cobrem o conteúdo */
-  padding: 36px 12px 30px;
+  padding: 28px 6px 22px;
   background:
     radial-gradient(80% 90% at 50% 10%, rgba(183, 243, 74, 0.12) 0%, transparent 62%),
     repeating-linear-gradient(135deg, rgba(243, 247, 245, 0.03) 0 2px, transparent 2px 9px),
     #0A1112;
 }
 
-body[data-page="biblioteca"] .bl-card-fallback-initials {
-  color: rgba(243, 247, 245, 0.28);
-  font-size: 24px;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-}
+/* Na coluna estreita do card horizontal o espaço reservado é só o texto. */
+body[data-page="biblioteca"] .bl-card-fallback-initials { display: none; }
 
 body[data-page="biblioteca"] .bl-card-fallback-label {
   max-width: 100%;
+  padding: 0 6px;
   color: var(--bl-suave);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  line-height: 1.3;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.35;
   text-align: center;
   text-transform: uppercase;
 }
@@ -575,24 +580,21 @@ body[data-page="biblioteca"] .bl-rank-badge.is-third {
 
 body[data-page="biblioteca"] .bl-video-badge {
   position: absolute;
-  right: 9px;
-  top: 9px;
+  right: 6px;
+  bottom: 6px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: 26px;
-  padding: 0 9px 0 6px;
-  border-radius: 999px;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
   border: 1px solid var(--bl-lima-linha);
-  background: rgba(8, 12, 13, 0.84);
+  background: rgba(8, 12, 13, 0.86);
   color: var(--bl-lima);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
-body[data-page="biblioteca"] .bl-video-badge .ui-icon svg { width: 13px; height: 13px; }
+body[data-page="biblioteca"] .bl-video-badge .ui-icon svg { width: 12px; height: 12px; }
 
 body[data-page="biblioteca"] .bl-origin-badge {
   position: absolute;
@@ -612,13 +614,22 @@ body[data-page="biblioteca"] .bl-origin-badge {
   text-transform: uppercase;
 }
 
+body[data-page="biblioteca"] .bl-card-body {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px 12px 10px 12px;
+}
+
 body[data-page="biblioteca"] .bl-card .ui-exercise-main {
   display: grid;
   align-content: start;
-  gap: 6px;
+  gap: 4px;
+  min-width: 0;
   /* a linha da lista usa flex-basis; no card o bloco de texto não estica */
   flex: 0 0 auto;
-  padding: 12px 13px 4px;
+  padding: 0;
 }
 
 body[data-page="biblioteca"] .bl-card .ui-exercise-name {
@@ -659,14 +670,14 @@ body[data-page="biblioteca"] .bl-card .ui-chip-accent {
 body[data-page="biblioteca"] .bl-card .ui-exercise-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
   margin-top: auto;
-  padding: 10px 13px 13px;
+  padding: 0;
 }
 
 body[data-page="biblioteca"] .bl-card .ui-exercise-actions .ui-button {
-  min-height: 42px;
-  padding: 8px 10px;
+  min-height: 38px;
+  padding: 7px 10px;
   border-radius: 11px;
   border: 1px solid var(--bl-linha-forte);
   background: transparent;
@@ -705,6 +716,40 @@ body[data-page="biblioteca"] .catalog-more .ui-button:hover {
   border-color: var(--bl-lima-linha);
   color: var(--bl-lima);
 }
+
+/* Recursos ------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-resources { margin: 26px 0 0; }
+body[data-page="biblioteca"] .bl-resource-grid { display: grid; gap: 10px; margin-top: 10px; }
+
+body[data-page="biblioteca"] .bl-resource-card {
+  display: grid;
+  gap: 3px;
+  padding: 14px 15px;
+  border: 1px solid var(--bl-linha);
+  border-radius: var(--bl-raio);
+  background: linear-gradient(180deg, #0C1416 0%, #0A1012 100%);
+  color: var(--bl-branco);
+  text-decoration: none;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+body[data-page="biblioteca"] .bl-resource-card:hover,
+body[data-page="biblioteca"] .bl-resource-card:focus-visible {
+  border-color: var(--bl-lima-linha);
+  background: rgba(183, 243, 74, 0.06);
+}
+
+body[data-page="biblioteca"] .bl-resource-eyebrow {
+  color: var(--bl-lima);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] .bl-resource-title { font-size: 15px; font-weight: 800; }
+body[data-page="biblioteca"] .bl-resource-text { color: var(--bl-suave); font-size: 12.5px; line-height: 1.45; }
 
 /* Rankings ------------------------------------------------------------ */
 
@@ -925,43 +970,39 @@ body[data-page="biblioteca"] .bottom-nav-link[aria-current="page"] { color: var(
 }
 
 @media (min-width: 900px) {
-  body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-  body[data-page="biblioteca"] .bl-filters {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
-    align-items: start;
-  }
-  body[data-page="biblioteca"] .bl-advanced { grid-column: 1 / -1; }
+  body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  body[data-page="biblioteca"] .bl-card { grid-template-columns: 124px minmax(0, 1fr); }
+  body[data-page="biblioteca"] .bl-resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@media (min-width: 1100px) {
-  body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (min-width: 1180px) {
+  body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 560px) {
-  body[data-page="biblioteca"] .bl-hero { padding: 18px 15px; border-radius: 18px; }
-  body[data-page="biblioteca"] .bl-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body[data-page="biblioteca"] .bl-hero { padding: 16px 15px; border-radius: 18px; }
+  body[data-page="biblioteca"] .bl-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  body[data-page="biblioteca"] .bl-stat { padding: 8px 10px; gap: 0; }
+  body[data-page="biblioteca"] .bl-stat-value { font-size: 21px; }
+  body[data-page="biblioteca"] .bl-stat-label { font-size: 10.5px; line-height: 1.25; }
   body[data-page="biblioteca"] .bl-tabs { display: flex; width: 100%; }
   body[data-page="biblioteca"] .bl-tab { flex: 1 1 auto; padding: 0 12px; }
   body[data-page="biblioteca"] .bl-filters { padding: 12px; }
   /*
-    No bolso os filtros viram uma faixa deslizante: todos os grupos continuam
-    alcançáveis, mas o painel não empurra a lista para fora da primeira tela.
+    No bolso os chips continuam quebrando linha em vez de virar faixa
+    deslizante: os 13 grupos musculares ficam todos à vista, sem esconder
+    opção nenhuma atrás de rolagem horizontal.
   */
-  body[data-page="biblioteca"] .bl-chips {
-    flex-wrap: nowrap;
-    gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  body[data-page="biblioteca"] .bl-chips::-webkit-scrollbar { display: none; }
+  body[data-page="biblioteca"] .bl-chips { gap: 6px; }
   body[data-page="biblioteca"] .bl-chips .ui-chip-toggle {
-    flex: 0 0 auto;
-    min-height: 40px;
-    padding: 7px 11px;
+    min-height: 36px;
+    padding: 6px 10px;
+    font-size: 12px;
   }
-  body[data-page="biblioteca"] .bl-card .ui-exercise-actions { grid-template-columns: 1fr; }
+  body[data-page="biblioteca"] .bl-card { grid-template-columns: 96px minmax(0, 1fr); }
+  body[data-page="biblioteca"] .bl-card-body { padding: 9px 10px; }
+  body[data-page="biblioteca"] .bl-card .ui-exercise-name { font-size: 14.5px; }
+  body[data-page="biblioteca"] .bl-card .ui-exercise-actions .ui-button { min-height: 36px; padding: 6px 8px; font-size: 12px; }
   body[data-page="biblioteca"] .bl-clear-all { margin-left: 0; }
 }
 

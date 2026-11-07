@@ -110,12 +110,6 @@
   }
 
   /*
-    Imagem de referência, sempre de um arquivo do repositório:
-    1. imagem aprovada/associada no catálogo central;
-    2. ilustração do sistema de demonstrações (F.demos), por identidade;
-    3. nenhuma — o card usa o estado de fallback.
-  */
-  /*
     Fundo da moldura: as ilustrações RepDB são quadradas e opacas, com fundo
     azul-claro próprio. Quando a imagem vem dessa família, a moldura usa a
     mesma cor para a ilustração inteira aparecer sem barras escuras.
@@ -124,25 +118,49 @@
     return /(^|\/)demonstracoes\//.test(String(src || "")) ? "light" : "dark";
   }
 
-  function imageFor(central, legacy) {
-    if (central && central.media && central.media.image && central.media.image.src) {
-      const media = central.media.image;
-      return {
-        src: media.src,
-        url: F.url(media.src),
-        status: media.status,
-        source: "catalogo",
-        backdrop: backdropFor(media.src)
-      };
-    }
+  /*
+    Imagem do exercício. Regras que valem aqui:
 
-    if (legacy) {
-      const demo = F.demos && F.demos.available() ? F.demos.resolve(legacy, legacy.mode) : null;
-      if (demo && demo.thumb && demo.thumb.url) {
+    1. A imagem vem do próprio registro central do exercício e é procurada
+       pelo ID dele — nunca por semelhança de nome.
+    2. Só entra imagem **aprovada** (`status: "validated"`). Uma associação
+       pendente continua pendente: o card mostra o espaço reservado em vez de
+       apresentar como definitiva uma imagem em revisão.
+    3. Exercício do usuário só mostra imagem que ele mesmo escolheu
+       (`demoId`); nenhuma ilustração é atribuída por suposição.
+  */
+  function approvedImage(central) {
+    const media = central && central.media && central.media.image;
+    if (!media || !media.src) return null;
+    if (media.status !== "validated") return null;
+    return {
+      src: media.src,
+      url: F.url(media.src),
+      status: media.status,
+      source: "catalogo",
+      backdrop: backdropFor(media.src)
+    };
+  }
+
+  /* Associação existente no catálogo que ainda está em revisão editorial. */
+  function pendingImage(central) {
+    const media = central && central.media && central.media.image;
+    if (!media || !media.src || media.status === "validated") return null;
+    return { src: media.src, status: media.status };
+  }
+
+  function imageFor(central, legacy) {
+    const approved = approvedImage(central);
+    if (approved) return approved;
+
+    /* Exercício do usuário: só a demonstração que ele escolheu. */
+    if (!central && legacy && F.demos && F.demos.available()) {
+      const demo = F.demos.resolve(legacy, legacy.mode);
+      if (demo && demo.explicit && demo.thumb && demo.thumb.url) {
         return {
           src: demo.thumb.file,
           url: demo.thumb.url,
-          status: "demo",
+          status: "escolhida",
           source: "demo",
           backdrop: "light"
         };
@@ -180,6 +198,7 @@
       equipmentIds: record.equipment.slice(),
       equipment: record.equipment.map(item => CATALOG.equipmentLabel(item)),
       image: imageFor(record, legacy),
+      pendingImage: pendingImage(record),
       hasOfficialVideo: Boolean(officialVideoFor(legacy)),
       hasApprovedVideo: false,
       section: legacy ? legacy.section : "main"
@@ -239,6 +258,7 @@
       equipmentIds: [],
       equipment: Array.isArray(legacy.equipment) ? legacy.equipment.slice() : [],
       image: imageFor(null, legacy),
+      pendingImage: null,
       hasOfficialVideo: Boolean(officialVideoFor(legacy)),
       hasApprovedVideo: false,
       section: legacy.section || "main"
@@ -549,10 +569,15 @@
     return badge;
   }
 
+  /*
+    Mídia do card horizontal: a foto do exercício (ou o espaço reservado) à
+    esquerda, com a posição no ranking e o selo de vídeo discretos.
+  */
   function cardMedia(entry) {
     const media = el("div", "bl-card-media");
     media.setAttribute("data-media", entry.image ? entry.image.source : "fallback");
     media.setAttribute("data-backdrop", entry.image ? entry.image.backdrop : "dark");
+    media.setAttribute("data-image", entry.image ? "ok" : (entry.pendingImage ? "review" : "missing"));
 
     const button = el("button", "bl-card-open");
     button.type = "button";
@@ -563,14 +588,18 @@
       const image = doc.createElement("img");
       image.className = "bl-card-image";
       image.src = entry.image.url;
-      image.alt = "Imagem de referência de " + entry.name;
+      image.alt = "Imagem do exercício " + entry.name;
+      image.width = 512;
+      image.height = 512;
       image.loading = "lazy";
       image.decoding = "async";
       image.setAttribute("data-image-status", entry.image.status);
+      /* Arquivo ausente no repositório não vira imagem quebrada. */
       image.addEventListener("error", () => {
         media.classList.add("is-fallback");
         media.setAttribute("data-media", "fallback");
         media.setAttribute("data-backdrop", "dark");
+        media.setAttribute("data-image", "missing");
         if (image.parentNode) image.parentNode.removeChild(image);
         if (!button.querySelector(".bl-card-fallback")) button.appendChild(fallbackBody(entry));
       });
@@ -589,22 +618,35 @@
       media.appendChild(badge);
     }
 
-    if (entry.origin === "pessoal" && entry.position === null) {
-      media.appendChild(el("span", "bl-origin-badge", "Seu exercício"));
+    if (entry.hasOfficialVideo || entry.hasApprovedVideo) {
+      const badge = el("span", "bl-video-badge");
+      badge.setAttribute("aria-label", "Demonstração em vídeo disponível");
+      badge.title = "Demonstração em vídeo disponível";
+      badge.appendChild(F.ui.icon("play"));
+      media.appendChild(badge);
     }
-
-    if (entry.hasOfficialVideo || entry.hasApprovedVideo) media.appendChild(videoBadge());
 
     return media;
   }
 
+  /*
+    Espaço reservado do card. Quando existe associação de imagem ainda em
+    revisão editorial, o texto diz isso: nada de apresentar como definitiva uma
+    foto que ninguém validou, nem de esconder que ela existe.
+  */
   function fallbackBody(entry) {
     const fallback = el("div", "bl-card-fallback");
     fallback.appendChild(el("span", "bl-card-fallback-initials", initials(entry.name)));
-    fallback.appendChild(el("span", "bl-card-fallback-label", "Sem imagem de referência"));
+    fallback.appendChild(el("span", "bl-card-fallback-label",
+      entry.pendingImage ? "Imagem em revisão" : "Imagem ainda não disponível"));
     return fallback;
   }
 
+  /*
+    Card horizontal da lista: foto de um lado; nome, grupo muscular, modalidade
+    e posição no ranking do outro. Os dois botões continuam sendo Detalhes e
+    Adicionar — os mesmos fluxos de antes, sem duplicar telas.
+  */
   function card(entry) {
     const article = el("article", "ui-exercise-row bl-card");
     article.setAttribute("data-exercise-id", entry.id);
@@ -613,15 +655,18 @@
     article.setAttribute("data-modality", entry.modalityId || "");
     article.setAttribute("data-ranking-position", entry.position === null ? "" : String(entry.position));
     article.setAttribute("data-has-video", entry.hasOfficialVideo || entry.hasApprovedVideo ? "true" : "false");
+    article.setAttribute("data-has-image", entry.image ? "true" : (entry.pendingImage ? "review" : "false"));
 
     article.appendChild(cardMedia(entry));
+
+    const body = el("div", "bl-card-body");
 
     const main = el("div", "ui-exercise-main");
     main.appendChild(el("h3", "ui-exercise-name", entry.name));
 
     /*
-      Linha de metadados. Num exercício do usuário mostramos os músculos que
-      ele mesmo declarou, como digitou: é o dado dele, não uma tradução nossa.
+      Linha de metadados: grupo muscular e modalidade. Num exercício do
+      usuário mostramos os músculos que ele mesmo declarou, como digitou.
     */
     const meta = [];
     const declared = entry.origin === "pessoal" && entry.legacy && Array.isArray(entry.legacy.muscles)
@@ -630,23 +675,20 @@
 
     if (declared.length) meta.push(declared.join(", "));
     else if (entry.muscleName) meta.push(entry.muscleName);
-
     if (entry.modalityName) meta.push(entry.modalityName);
     if (!meta.length) meta.push("Sem classificação no catálogo");
     main.appendChild(el("p", "ui-exercise-meta", meta.join(" · ")));
 
     /*
-      Etiquetas: categoria, posição no ranking e os músculos declarados pelo
-      usuário. Grupo e modalidade já estão na linha de metadados logo acima —
-      repetir aqui gastaria espaço sem informar nada.
+      A posição no ranking já aparece na insígnia sobre a foto; aqui só entra o
+      que é exclusivo do exercício do usuário, para não repetir informação.
     */
     const tags = el("div", "ui-exercise-tags");
-    if (entry.categoryLabel) tags.appendChild(F.ui.chip(entry.categoryLabel, "muted"));
-    if (entry.position !== null) tags.appendChild(F.ui.chip(positionLabel(entry.position) + " lugar", "accent"));
-
+    if (entry.origin === "pessoal") tags.appendChild(F.ui.chip("Seu exercício", "muted"));
+    if (entry.categoryLabel && entry.origin === "pessoal") tags.appendChild(F.ui.chip(entry.categoryLabel, "muted"));
     if (tags.childNodes.length) main.appendChild(tags);
 
-    article.appendChild(main);
+    body.appendChild(main);
 
     const actions = el("div", "ui-exercise-actions");
     actions.appendChild(F.ui.button({
@@ -665,7 +707,9 @@
       ariaLabel: "Adicionar " + entry.name + " a uma rotina",
       onClick: () => addEntry(entry)
     }));
-    article.appendChild(actions);
+    body.appendChild(actions);
+
+    article.appendChild(body);
 
     return article;
   }
@@ -725,38 +769,36 @@
     return group;
   }
 
-  function muscleFilter(counts) {
-    const items = [{ value: null, label: "Todos", active: !state.muscle }];
-
-    CATALOG.muscleGroups.forEach(group => {
-      items.push({
-        value: group.id,
-        label: group.name,
-        count: counts.muscles.get(group.id) || 0,
-        active: state.muscle === group.id
-      });
-    });
-
-    return filterGroup("muscle", "Grupo muscular", items, value => {
-      apply({ muscle: state.muscle === value ? null : value });
-    });
-  }
-
-  function modalityFilter(counts) {
-    const items = [{ value: null, label: "Todas", active: !state.modality }];
-
-    CATALOG.modalities.forEach(mode => {
-      items.push({
-        value: mode.id,
-        label: mode.name,
-        count: counts.modalities.get(mode.id) || 0,
-        active: state.modality === mode.id
-      });
-    });
+  /*
+    Modalidades: exatamente três, sempre no mesmo nome do catálogo — Academia
+    aparece como "Musculação" e "Peso corporal" como "Sem equipamentos".
+    Não existe chip "Todas": para voltar à lista inteira basta tocar de novo no
+    chip ativo ou usar "Limpar tudo". Isso evita um botão que filtra por nada.
+  */
+  function modalityFilter() {
+    const items = CATALOG.modalities.map(mode => ({
+      value: mode.id,
+      label: mode.name,
+      active: state.modality === mode.id
+    }));
 
     return filterGroup("modality", "Modalidade", items, value => {
       apply({ modality: state.modality === value ? null : value });
-    }, "Peso corporal só aceita exercícios sem equipamento");
+    }, "Sem equipamentos não usa máquina, barra, haltere ou acessório");
+  }
+
+  function muscleFilter() {
+    const items = CATALOG.muscleGroups.map(group => ({
+      value: group.id,
+      label: group.name,
+      active: state.muscle === group.id
+    }));
+
+    const group = filterGroup("muscle", "Grupo muscular", items, value => {
+      apply({ muscle: state.muscle === value ? null : value });
+    });
+    group.classList.add("bl-filter-muscles");
+    return group;
   }
 
   function rankingFilter() {
@@ -788,7 +830,8 @@
 
     return filterGroup("ranking", "Classificação", items, value => {
       apply({ ranking: value === null ? null : Number(value) });
-    }, CATALOG.muscleName(groupIdFrom(state.muscle)) + " · " + CATALOG.modalityName(modalityIdFrom(state.modality)));
+    }, "Ranking de " + CATALOG.muscleName(groupIdFrom(state.muscle)) + " · " +
+      CATALOG.modalityName(modalityIdFrom(state.modality)));
   }
 
   function advancedFilters(counts) {
@@ -1148,16 +1191,22 @@
 
     while (dom.controls.firstChild) dom.controls.removeChild(dom.controls.firstChild);
 
-    dom.controls.appendChild(muscleFilter(counts));
-    dom.controls.appendChild(modalityFilter(counts));
-    dom.controls.appendChild(rankingFilter());
-    dom.controls.appendChild(advancedFilters(counts));
+    /*
+      Ordem pedida para a tela: modalidade, grupo muscular, combinação,
+      filtros ativos e, por último, o que é menos usado no dia a dia.
+    */
+    dom.controls.appendChild(modalityFilter());
+    dom.controls.appendChild(muscleFilter());
 
-    const activeWrap = activeFilterChips();
-    if (dom.activeFilters.parentNode) {
-      dom.activeFilters.parentNode.replaceChild(activeWrap, dom.activeFilters);
+    /* A classificação só entra quando o grupo + modalidade têm ranking. */
+    if (state.muscle && state.modality && rankingPositions(state).length) {
+      dom.controls.appendChild(rankingFilter());
     }
-    dom.activeFilters = activeWrap;
+
+    dom.activeFilters = activeFilterChips();
+    dom.controls.appendChild(dom.activeFilters);
+
+    dom.controls.appendChild(advancedFilters(counts));
 
     if (dom.searchClear) dom.searchClear.hidden = !state.query;
 
@@ -1183,9 +1232,9 @@
     input.type = "search";
     input.id = "catalog-search";
     input.className = "catalog-search";
-    input.placeholder = "Buscar exercício por nome";
+    input.placeholder = "Buscar exercício pelo nome…";
     input.autocomplete = "off";
-    input.setAttribute("aria-label", "Buscar exercício por nome");
+    input.setAttribute("aria-label", "Buscar exercício pelo nome");
     input.setAttribute("aria-describedby", "catalog-status");
     input.value = state.query;
 
@@ -1242,12 +1291,12 @@
       rankingModality: null
     };
 
+    /* Busca primeiro: é o caminho mais rápido para achar um exercício. */
     root.appendChild(buildSearch());
 
     dom.activeFilters = el("div", "bl-active-filters");
     dom.activeFilters.id = "bl-active-filters";
     dom.activeFilters.setAttribute("hidden", "");
-    root.appendChild(dom.activeFilters);
 
     dom.controls = el("div", "catalog-controls bl-filters");
     dom.controls.id = "catalog-controls";

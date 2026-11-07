@@ -334,17 +334,85 @@
 .bl-detail-roles { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr); gap: 4px 12px; margin: 4px 0 0; font-size: var(--font-sm); }
 .bl-detail-roles dt { color: var(--muted); font-weight: 700; }
 .bl-detail-roles dd { margin: 0; color: var(--text); }
-.bl-detail-reference { display: grid; gap: 6px; margin: 0; }
-.bl-detail-reference-image {
-  display: block;
-  width: 100%;
-  max-height: 320px;
-  object-fit: cover;
+/*
+  Detalhe em uma única tela: identificação com foto, demonstração em vídeo,
+  botão de adicionar, atlas e informações complementares. Nada em abas.
+*/
+.bl-detail { display: grid; gap: var(--space-3); }
+.bl-detail > .bl-detail-section:first-child { border-top: 0; padding-top: 0; }
+
+.bl-detail-photo {
+  display: grid;
+  gap: 6px;
+  margin: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: var(--surface-sunken);
+  background: #DAF1FD;
+  overflow: hidden;
 }
-.bl-detail-reference-caption { color: var(--muted); font-size: var(--font-xs); }
+.bl-detail-photo[data-photo="missing"] { background: var(--surface-sunken); border-style: dashed; }
+/* A ilustração RepDB tem fundo claro: o bloco de foto inteiro acompanha. */
+.bl-detail-photo .demo-media { margin: 0; border: 0; border-radius: 0; background: #DAF1FD; }
+.bl-detail-photo .demo-frame { max-width: 300px; margin: 0 auto; border-bottom: 0; background: #DAF1FD; }
+.bl-detail-photo .demo-caption { color: #17323D; }
+.bl-detail-photo .demo-credit a { color: #0B4A63; }
+.bl-detail-photo .demo-credit-sep { color: #17323D; }
+.bl-detail-photo .demo-pose-button {
+  background: rgba(8, 12, 13, 0.86);
+  border-color: rgba(8, 12, 13, 0.24);
+  color: #E8F3F7;
+}
+.bl-detail-photo .demo-pose-button[aria-pressed="true"] {
+  background: #0A1305;
+  border-color: #0A1305;
+  color: var(--lime);
+}
+.bl-detail-photo .demo-badge { border-color: #0A1305; background: transparent; color: #0A1305; }
+.bl-detail-photo .demo-note { color: #7A3E00; }
+.bl-detail-photo .demo-image,
+.bl-detail-photo-image {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  background: #DAF1FD;
+}
+.bl-detail-photo-caption {
+  padding: 0 12px 10px;
+  color: var(--muted);
+  font-size: var(--font-xs);
+  line-height: 1.45;
+}
+.bl-detail-photo-caption:empty { display: none; }
+.bl-detail-photo-missing { display: grid; gap: 4px; padding: 26px 16px; text-align: center; }
+.bl-detail-photo-missing-title { color: var(--text); font-size: var(--font-sm); font-weight: 800; }
+.bl-detail-photo-missing-text { color: var(--muted); font-size: var(--font-xs); line-height: 1.45; }
+
+.bl-detail-cta { display: grid; gap: 6px; }
+.bl-detail-cta .ui-button { min-height: 52px; font-size: var(--font-md); font-weight: 800; }
+.bl-detail-cta-hint { margin: 0; color: var(--muted); font-size: var(--font-xs); line-height: 1.45; }
+
+.bl-detail-video .video-demo { margin: 0; }
+
+.bl-detail-atlas .modal-figure { margin: 0; padding-bottom: 0; border-bottom: 0; }
+.bl-detail-atlas-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-xs);
+}
+.bl-detail-atlas-key-item { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+.bl-detail-atlas-key-item strong { color: var(--text); font-weight: 700; }
+.bl-detail-atlas-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: 0 0 auto; }
+/* Mesma paleta de papéis do Atlas (assets/css/atlas.css). */
+.bl-detail-atlas-key-item.is-primary .bl-detail-atlas-dot { background: #b7f34a; }
+.bl-detail-atlas-key-item.is-secondary .bl-detail-atlas-dot { background: #f2b84b; }
+.bl-detail-atlas-key-item.is-stabilizer .bl-detail-atlas-dot { background: #8cc0e0; }
+.bl-detail-atlas-key-item.is-informed .bl-detail-atlas-dot { background: #a0a69f; }
+.bl-detail-note { margin: 6px 0 0; color: var(--muted); font-size: var(--font-xs); line-height: 1.45; }
 
 @media (max-width: 560px) {
   .bl-detail-roles { grid-template-columns: 1fr; gap: 2px; }

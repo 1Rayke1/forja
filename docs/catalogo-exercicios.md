@@ -92,9 +92,13 @@ Gerado e conferido com `node tools/relatorio-catalogo.mjs`.
 
 | Modalidade | Quantidade |
 | --- | ---: |
-| Academia | 80 |
-| Calistenia | 31 |
-| Peso corporal | 54 |
+| Musculação (`academia`) | 80 |
+| Calistenia (`calistenia`) | 31 |
+| Sem equipamentos (`peso-corporal`) | 54 |
+
+Os IDs (`academia`, `calistenia`, `peso-corporal`) são permanentes; só o nome de
+exibição mudou: "Academia" passou a "Musculação" e "Peso corporal" a "Sem
+equipamentos", o mesmo rótulo usado na biblioteca, no detalhe e no Atlas.
 
 ### Integridade e mídia
 
@@ -159,7 +163,7 @@ de classificação está ativo (posição crescente) ou quando há busca (alfab�
 | --- | --- |
 | Busca | nome, aliases, grupo muscular, modalidade, categoria e equipamento, sem acento e sem caixa |
 | Grupo muscular | músculo **principal** do registro central |
-| Modalidade | `academia`, `calistenia` ou `peso-corporal` |
+| Modalidade | `academia`, `calistenia` ou `peso-corporal` — na tela: Musculação, Calistenia e Sem equipamentos |
 | Classificação | só existe junto de grupo + modalidade, porque o ranking é de cada combinação |
 | Envolvimento | qualquer papel muscular (principal, secundário ou estabilizador) — vem da legenda do atlas |
 | Equipamento | equipamentos do registro central |
@@ -190,9 +194,80 @@ aprovada no painel administrativo só é consultada quando o detalhe abre. A
 única escrita continua sendo `F.catalog.addToRoutine`, que insere o exercício
 em uma rotina existente.
 
+## Explorar é a Biblioteca (Etapa 5)
+
+A aba **Explorar** da barra inferior abre `treino/biblioteca.html` direto: não
+existe tela intermediária, botão de desvio nem segunda biblioteca.
+
+| Onde | O que aponta |
+| --- | --- |
+| `F.ROUTES.explorar` | `treino/biblioteca.html` |
+| `F.ROUTES.biblioteca` | `treino/biblioteca.html` (mesma tela) |
+| `F.ROUTES.descobrir` | `explorar/index.html` — o antigo hub de descoberta continua vivo como recurso, sem ocupar a aba |
+| `explorar/atlas.html` | Atlas anatômico, alcançável pela Biblioteca e pelo hub |
+
+As 14 páginas com barra inferior foram atualizadas no HTML estático **e** o
+`markCurrentNav` continua marcando o item pelo `data-page`, então o estado ativo
+não depende da ordem de carregamento dos scripts.
+
+### Ordem da tela
+
+1. Cabeçalho: título, descrição curta e os números do catálogo.
+2. Busca: "Buscar exercício pelo nome…", filtrando a cada tecla.
+3. Três modalidades. Não existe chip "Todas": tocar de novo no chip ativo remove
+   o filtro, e "Limpar tudo" zera todos de uma vez.
+4. Os 13 grupos musculares, todos visíveis (os chips quebram linha em vez de
+   virar faixa deslizante, para nenhum grupo ficar escondido no celular).
+5. Classificação, quando o par grupo + modalidade tem ranking.
+6. Filtros ativos, cada um removível, com "Limpar tudo".
+7. "Mais filtros": equipamento e origem.
+8. Lista de cards horizontais e, no fim, os atalhos para Descobrir e Atlas.
+
+### Card
+
+Foto à esquerda; à direita o nome, o grupo muscular principal, a modalidade e a
+posição no ranking (insígnia sobre a foto). Duas ações, as mesmas de antes:
+**Detalhes** (abre o painel) e **Adicionar** (fluxo de rotina).
+
+### Detalhe, em uma única tela
+
+| Ordem | Bloco | Regra |
+| --- | --- | --- |
+| 1 | Identificação | nome (título), grupo, modalidade, dificuldade e a **foto do exercício** |
+| 2 | Demonstração em vídeo | palco da Etapa 3 (16:9, `youtube-nocookie.com`, `autoplay=0`, `mute=1`, controles, sem Shorts e sem zoom/corte) |
+| 3 | Adicionar ao treino | botão que abre o fluxo de rotina já existente (`F.catalog.addToRoutine`) |
+| 4 | Atlas anatômico | figura do Atlas com o principal em destaque, secundários e estabilizadores em cores próprias e legenda escrita |
+| 5 | Informações complementares | ranking, equipamento, execução, técnica, cuidados, músculos, observações e histórico real |
+
+Sem abas e sem menu escondido. O detalhe só é somente leitura em execução e no
+editor, onde o botão de adicionar e o atlas não fazem sentido.
+
+### Imagens
+
+- A foto vem do registro central **pelo ID do exercício**, nunca por semelhança
+  de nome.
+- No card entra apenas imagem `validated`. Associação `pending` aparece como
+  "Imagem em revisão"; ausência de imagem aparece como "Imagem ainda não
+  disponível" — nunca a foto de outro movimento.
+- No detalhe, a associação pendente é exibida com a ressalva escrita
+  ("associação em revisão editorial"), porque ali há espaço para explicar.
+- Nenhum arquivo é compartilhado por dois exercícios (`tests/biblioteca-detalhe`
+  B6 verifica isso no catálogo inteiro).
+
+### Quando não há vídeo
+
+A mensagem é única em todo o produto: **"Demonstração em vídeo ainda não
+disponível para este exercício."** Ela vem de
+`FORJA_VIDEOS_DATA.unavailableMessage` / `F.videos` e a foto continua visível no
+bloco de identificação (o palco é criado com `reference: false` para não repetir
+a mesma ilustração duas vezes).
+
 ### Contratos verificados
 
-`tests/forja.test.mjs` (27, 27b, 28, 29, 30, 55, 77h, 80), `tests/atlas.test.mjs`
-(ATLAS 7) e `tests/e2e.browser.mjs` cobrem a lista de 12 em 12, a busca sem
-acento, as facetas, o detalhe com histórico real, a inserção em rotina e a
-figura do atlas no painel.
+`tests/forja.test.mjs` (27, 27b, 28, 29, 30, 50, 55, 77h, 80),
+`tests/biblioteca-detalhe.test.mjs` (B1–B13), `tests/atlas.test.mjs` (ATLAS 7),
+`tests/demonstracoes.test.mjs` (D8) e `tests/e2e.browser.mjs` cobrem a lista de 12
+em 12, a busca sem acento e por alias, as três modalidades, os 13 grupos, os
+filtros combinados, a foto por identificador, o vídeo do próprio exercício, o
+estado sem vídeo, a inserção em rotina, o Atlas do detalhe e a aba Explorar
+abrindo a Biblioteca em todas as páginas.

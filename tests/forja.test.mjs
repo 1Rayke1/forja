@@ -2698,11 +2698,17 @@ await runTest("50. F.url(\"perfil\") e F.url(\"explorar\") resolvem sob /forja/ 
   for (const page of PAGES) {
     const app = await boot({}, page);
     assert.equal(app.F.ROUTES.perfil, "perfil/index.html");
-    assert.equal(app.F.ROUTES.explorar, "explorar/index.html");
+    /*
+      "Explorar" é a Biblioteca: a aba abre direto a lista de exercícios.
+      O hub antigo continua existindo como "descobrir".
+    */
+    assert.equal(app.F.ROUTES.explorar, "treino/biblioteca.html");
+    assert.equal(app.F.ROUTES.descobrir, "explorar/index.html");
 
     for (const [name, file] of [
       ["perfil", "perfil/index.html"],
-      ["explorar", "explorar/index.html"],
+      ["explorar", "treino/biblioteca.html"],
+      ["descobrir", "explorar/index.html"],
       ["configuracoes", "configuracoes/index.html"]
     ]) {
       const href = app.F.url(name);
