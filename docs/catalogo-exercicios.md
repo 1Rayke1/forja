@@ -135,3 +135,64 @@ node tests/catalogo-central.test.mjs       # regras e compatibilidade
 Ao acrescentar exercícios, informar manualmente ID, ranking e conteúdo completo.
 Não gerar IDs pelo nome, reutilizar posições, associar vídeos pendentes ou
 classificar exercícios com equipamento como Peso corporal.
+
+## Biblioteca visual (Etapa 4)
+
+A tela `treino/biblioteca.html` lê o catálogo central como fonte única. Duas
+peças, com papéis separados:
+
+| Arquivo | Papel |
+| --- | --- |
+| `assets/js/forja-biblioteca-visual.js` | tela: busca, filtros, cards, rankings e carregamento progressivo |
+| `assets/js/forja-catalogo.js` | dados (`F.catalog`) e detalhe compartilhado (`F.catalog.showDetail`), inclusive `addToRoutine` |
+| `assets/css/biblioteca.css` | estilos da tela, escopados em `body[data-page="biblioteca"]` |
+| `assets/css/system.css` (`.bl-detail-*`) | seções do detalhe, que abrem em mais de uma página |
+
+### Ordem e consulta
+
+Os exercícios do usuário abrem a lista (é o que ele criou e vai procurar
+primeiro); depois vêm os sugeridos na ordem já conhecida do app e, por fim, o
+resto do catálogo na ordem do próprio catálogo. A ordem só muda quando o filtro
+de classificação está ativo (posição crescente) ou quando há busca (alfabética).
+
+| Faceta | Regra |
+| --- | --- |
+| Busca | nome, aliases, grupo muscular, modalidade, categoria e equipamento, sem acento e sem caixa |
+| Grupo muscular | músculo **principal** do registro central |
+| Modalidade | `academia`, `calistenia` ou `peso-corporal` |
+| Classificação | só existe junto de grupo + modalidade, porque o ranking é de cada combinação |
+| Envolvimento | qualquer papel muscular (principal, secundário ou estabilizador) — vem da legenda do atlas |
+| Equipamento | equipamentos do registro central |
+| Origem | sugeridos do catálogo ou exercícios do usuário |
+
+Exercício personalizado não recebe classificação por suposição: o grupo vem do
+que o usuário declarou, a modalidade é a do lugar onde ele criou o item e a
+posição no ranking não existe.
+
+### Parâmetros de URL
+
+| Parâmetro | Efeito |
+| --- | --- |
+| `?musculo=` | envolvimento muscular (legenda do atlas) |
+| `?grupo=` | grupo muscular principal |
+| `?modalidade=` | `academia`, `calistenia` ou `peso-corporal` |
+| `?ranking=` | posição na combinação escolhida |
+| `?equipamento=`, `?origem=` | filtros avançados |
+| `?exercicio=` | abre o detalhe (aceita ID antigo via `legacyIdMap`) |
+| `?busca=`, `?q=` | termo de busca |
+| `?visao=rankings` ou `#rankings` | abre a aba de rankings |
+
+### Leitura sem escrita
+
+Abrir, buscar e filtrar a biblioteca não grava nada e não faz requisição de
+rede. O selo de vídeo do cartão vem do catálogo oficial local; a associação
+aprovada no painel administrativo só é consultada quando o detalhe abre. A
+única escrita continua sendo `F.catalog.addToRoutine`, que insere o exercício
+em uma rotina existente.
+
+### Contratos verificados
+
+`tests/forja.test.mjs` (27, 27b, 28, 29, 30, 55, 77h, 80), `tests/atlas.test.mjs`
+(ATLAS 7) e `tests/e2e.browser.mjs` cobrem a lista de 12 em 12, a busca sem
+acento, as facetas, o detalhe com histórico real, a inserção em rotina e a
+figura do atlas no painel.
