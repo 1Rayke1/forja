@@ -310,6 +310,47 @@
 .modal-detail-line { margin: 0 0 6px; font-size: var(--font-sm); line-height: 1.55; }
 .modal-detail-line:last-child { margin-bottom: 0; }
 
+/*
+  Detalhe do exercício em seções (biblioteca, atlas, editor e execução).
+  Vive aqui, e não em biblioteca.css, porque o painel de detalhe é único e
+  aparece em mais de uma tela. Nenhum token histórico é redefinido.
+*/
+.bl-detail-sections { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
+.bl-detail-section { display: grid; gap: 6px; padding-top: var(--space-3); border-top: 1px solid var(--line-soft); }
+.bl-detail-section:first-child { padding-top: 0; border-top: 0; }
+.bl-detail-heading {
+  margin: 0;
+  color: var(--lime);
+  font-size: var(--font-xs);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.bl-detail-strong { color: var(--text); font-weight: 700; }
+.bl-detail-list { display: grid; gap: 5px; margin: 0; padding-left: 18px; font-size: var(--font-sm); line-height: 1.55; }
+.bl-detail-list.bl-detail-steps { padding-left: 20px; }
+.bl-detail-list li { margin: 0; }
+.bl-detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.bl-detail-roles { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr); gap: 4px 12px; margin: 4px 0 0; font-size: var(--font-sm); }
+.bl-detail-roles dt { color: var(--muted); font-weight: 700; }
+.bl-detail-roles dd { margin: 0; color: var(--text); }
+.bl-detail-reference { display: grid; gap: 6px; margin: 0; }
+.bl-detail-reference-image {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+.bl-detail-reference-caption { color: var(--muted); font-size: var(--font-xs); }
+
+@media (max-width: 560px) {
+  .bl-detail-roles { grid-template-columns: 1fr; gap: 2px; }
+  .bl-detail-roles dd { margin-bottom: 6px; }
+}
+
 @media (max-width: 560px) {
   .catalog-controls { gap: var(--space-2); }
   .ui-exercise-actions { width: 100%; }

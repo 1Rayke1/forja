@@ -271,6 +271,13 @@
     return DATA.exercises.find(record => record.id === canonical) || null;
   }
 
+  /* Nome e aliases, sem acento e sem caixa — a busca da biblioteca usa só isto. */
+  function matchesQuery(record, query) {
+    if (!query) return true;
+    const names = [record.name].concat(record.aliases).map(normalizeText);
+    return query.split(/\s+/).filter(Boolean).every(term => names.some(name => name.includes(term)));
+  }
+
   function filter(options = {}) {
     const query = normalizeText(options.query);
     return DATA.exercises.filter(record => {
@@ -279,13 +286,109 @@
       if (options.modality && record.modality !== options.modality) return false;
       if (options.difficulty && record.difficulty !== options.difficulty) return false;
       if (options.equipment && !record.equipment.includes(options.equipment)) return false;
-      if (!query) return true;
-      const names = [record.name].concat(record.aliases).map(normalizeText);
-      return query.split(/\s+/).filter(Boolean).every(term => names.some(name => name.includes(term)));
+      /* Filtro de classificação: só faz sentido dentro de um grupo e modalidade. */
+      if (options.rankingPosition) {
+        if (!options.comboMuscle || !options.comboModality) return false;
+        if (record.primaryMuscle !== options.comboMuscle || record.modality !== options.comboModality) return false;
+        if (record.ranking.position !== options.rankingPosition) return false;
+      }
+      return matchesQuery(record, query);
     }).sort((a, b) => {
       if (options.primaryMuscle && options.modality) return a.ranking.position - b.ranking.position;
       return a.name.localeCompare(b.name, "pt-BR");
     });
+  }
+
+  /*
+    Posições realmente existentes em uma combinação grupo + modalidade.
+    Nunca completa lacunas: devolve só o que o catálogo tem.
+  */
+  function rankingPositions(muscle, modality) {
+    if (!muscle || !modality) return [];
+    return DATA.exercises
+      .filter(record => record.primaryMuscle === muscle && record.modality === modality)
+      .map(record => record.ranking.position)
+      .sort((a, b) => a - b);
+  }
+
+  /*
+    As combinações de ranking do catálogo, na ordem dos grupos musculares e das
+    modalidades. Cada combinação é independente: nunca mistura grupo muscular
+    nem modalidade, e as posições saem em ordem crescente.
+  */
+  function rankings(options = {}) {
+    const groups = new Map();
+
+    DATA.exercises.forEach(record => {
+      if (options.muscle && record.primaryMuscle !== options.muscle) return;
+      if (options.modality && record.modality !== options.modality) return;
+      const key = record.primaryMuscle + "|" + record.modality;
+      if (!groups.has(key)) {
+        groups.set(key, {
+          key,
+          muscleId: record.primaryMuscle,
+          modalityId: record.modality,
+          entries: []
+        });
+      }
+      groups.get(key).entries.push(record);
+    });
+
+    const muscleOrder = DATA.muscleGroups.map(group => group.id);
+    const modalityOrder = DATA.modalities.map(mode => mode.id);
+
+    return Array.from(groups.values()).map(group => {
+      const muscle = groupById(group.muscleId);
+      const modality = modalityById(group.modalityId);
+
+      return {
+        key: group.key,
+        muscleId: group.muscleId,
+        muscleName: muscle ? muscle.name : group.muscleId,
+        modalityId: group.modalityId,
+        modalityName: modality ? modality.name : group.modalityId,
+        entries: group.entries.slice().sort((a, b) => a.ranking.position - b.ranking.position)
+      };
+    }).sort((a, b) => {
+      const byMuscle = muscleOrder.indexOf(a.muscleId) - muscleOrder.indexOf(b.muscleId);
+      if (byMuscle !== 0) return byMuscle;
+      return modalityOrder.indexOf(a.modalityId) - modalityOrder.indexOf(b.modalityId);
+    });
+  }
+
+  /* Rótulos de exibição. Os ids são estáveis; o texto é só apresentação. */
+  const EQUIPMENT_LABELS = Object.freeze({
+    anilhas: "Anilhas", argolas: "Argolas", banco: "Banco", barra: "Barra",
+    "barra-fixa": "Barra fixa", "barra-t": "Barra T", bicicleta: "Bicicleta",
+    bola: "Bola suíça", "cadeira-extensora": "Cadeira extensora", corda: "Corda",
+    elastico: "Elástico", estrutura: "Estrutura", gripper: "Hand grip",
+    halteres: "Halteres", kettlebell: "Kettlebell", "leg-press": "Leg press",
+    maquina: "Máquina", "maquina-smith": "Máquina Smith", "mesa-flexora": "Mesa flexora",
+    paralelas: "Paralelas", "peck-deck": "Peck deck", plataforma: "Plataforma",
+    polia: "Polia", rack: "Rack", esteira: "Esteira", toalha: "Toalha"
+  });
+
+  function equipmentLabel(id) {
+    return EQUIPMENT_LABELS[id] || String(id || "").replace(/-/g, " ");
+  }
+
+  /*
+    Nome do músculo no vocabulário antigo (o mesmo da legenda do atlas e dos
+    exercícios já salvos): "peitoral" → "peito", "costas" → "dorsais". Serve
+    para manter as frases de resumo idênticas ao que o app sempre mostrou.
+  */
+  function legacyMuscleName(id) {
+    return LEGACY_MUSCLES[id] || String(id || "");
+  }
+
+  function muscleName(id) {
+    const group = groupById(id);
+    return group ? group.name : String(id || "");
+  }
+
+  function modalityName(id) {
+    const mode = modalityById(id);
+    return mode ? mode.name : String(id || "");
   }
 
   function report() {
@@ -375,7 +478,14 @@
     byId,
     groupById,
     modalityById,
+    muscleName,
+    legacyMuscleName,
+    modalityName,
+    equipmentLabel,
+    matchesQuery,
     filter,
+    rankingPositions,
+    rankings,
     report,
     toLegacyExercise
   });
