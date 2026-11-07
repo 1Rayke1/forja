@@ -330,7 +330,14 @@ body[data-page="biblioteca"] .grupo-card:active {
   transform: scale(0.995);
 }
 
-body[data-page="biblioteca"] .grupo-card[aria-pressed="true"] {
+/* O card é um link para a tela do grupo: some o sublinhado e o toque azul. */
+body[data-page="biblioteca"] .grupo-card {
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Região de onde o usuário veio (volta da tela do grupo). */
+body[data-page="biblioteca"] .grupo-card.is-atual {
   border-color: rgba(183, 243, 74, 0.62);
   background: linear-gradient(100deg, #131c14, #16201a 72%);
 }
@@ -509,6 +516,48 @@ body[data-page="biblioteca"] .bl-subgrupos .ui-chip-toggle.is-active {
   border-color: var(--lime);
   background: rgba(183, 243, 74, 0.14);
   color: var(--lime);
+}
+
+/* ------------------------------------------------------------------ */
+/* Catálogo completo (recolhido por padrão)                            */
+/* ------------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-catalog-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 0 16px;
+  border: 1px solid #2a3234;
+  border-radius: 999px;
+  background: #101617;
+  color: #cfd8d4;
+  font-family: var(--fj-fonte-texto);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+body[data-page="biblioteca"] .bl-catalog-toggle:hover {
+  border-color: rgba(183, 243, 74, 0.45);
+  color: var(--lime);
+}
+
+body[data-page="biblioteca"] .bl-catalog-toggle svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+body[data-page="biblioteca"] .bl-catalog-toggle[hidden] {
+  display: none;
+}
+
+body[data-page="biblioteca"] .bl-results[hidden] {
+  display: none;
 }
 
 /* ------------------------------------------------------------------ */

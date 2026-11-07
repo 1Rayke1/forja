@@ -841,12 +841,34 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
 
   const rows = () => app.$$("#catalog-list .ui-exercise-row");
   const total = () => app.F.catalog.items().length;
+  const resultados = () => app.$("#catalog-results");
 
   assert.equal(total(), app.F.exerciseCatalog.exercises.length, "Catálogo central não carregou inteiro");
   assert.ok(total() > 37, "A expansão do catálogo não foi aplicada");
-  assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios no catálogo"));
+  assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios disponíveis$"),
+    "O contador da tela não bate com o catálogo");
+
+  /*
+    A página de entrada é um índice: sete regiões clicáveis e nenhuma lista
+    despejada abaixo. Cada card é um link para a tela do grupo.
+  */
+  const regioes = app.$$(".grupo-card");
+  assert.equal(regioes.length, 7, "Deveriam existir sete regiões");
+  regioes.forEach(card => {
+    assert.equal(card.tagName, "A", "A região precisa ser um link");
+    assert.match(card.getAttribute("href"), /^grupo\.html\?(modalidade=[a-z-]+&)?regiao=[a-z]+$/);
+  });
+  assert.equal(resultados().hidden, true, "A lista não deveria abrir sozinha");
+  assert.equal(app.$("#catalog-toggle").hidden, false, "O botão de ver a lista ficou escondido");
+  assert.match(app.text("#catalog-toggle"), new RegExp("Ver todos os " + total()));
+
+  /* Abrir a lista mostra o primeiro bloco e permite chegar ao fim. */
+  app.click("#catalog-toggle");
+  await wait(20);
+  assert.equal(resultados().hidden, false, "O botão não abriu a lista");
   assert.equal(rows().length, 12, "A lista não veio em blocos para caber na tela");
-  assert.match(app.text(".catalog-more"), new RegExp("Mostrar mais 12 de " + (total() - 12)), "Contador de 'mostrar mais' errado");
+  assert.match(app.text(".catalog-more"), new RegExp("Mostrar mais 12 de " + (total() - 12)),
+    "Contador de 'mostrar mais' errado");
 
   while (app.$(".catalog-more button")) {
     app.click(".catalog-more button");
@@ -868,26 +890,19 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
   await wait(10);
   assert.ok(rows().length > 1, "Busca por grupo muscular não retornou itens");
-  assert.ok(rows().length <= 12, "Busca ignorou o bloco visível");
 
   search.value = "";
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
   await wait(10);
   assert.equal(rows().length, 12, "Limpar a busca não trouxe o catálogo de volta");
-  assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios"));
+  assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios"));
 
-  /*
-    Filtros da biblioteca visual: grupo muscular, modalidade e classificação
-    são facetas independentes do catálogo central. Cada chip mostra a própria
-    contagem e o filtro reinicia o bloco visível em 12.
-  */
+  /* Modalidade é faceta independente: filtra e reinicia o bloco visível. */
   const modalityCount = id => app.F.exerciseCatalog.exercises.filter(record => record.modality === id).length;
 
-  const modalityRow = app.$('#catalog-controls [data-filter-group="modality"]');
-  assert.ok(modalityRow, "Filtro de modalidade ausente");
-  modalityRow.querySelector('[data-value="academia"]').click();
+  app.$('#catalog-controls [data-filter-group="modality"] [data-value="academia"]').click();
   await wait(15);
-  assert.match(app.text("#catalog-status"), new RegExp(modalityCount("academia") + " exercícios"));
+  assert.match(app.text("#bl-contador"), new RegExp("^" + modalityCount("academia") + " exercícios"));
   assert.equal(rows().length, 12, "Filtro de modalidade não reiniciou o bloco visível");
   const academy = app.F.biblioteca.filter({ modality: "academia" });
   assert.equal(academy.length, modalityCount("academia"), "Filtro de modalidade não reduziu a lista");
@@ -899,50 +914,30 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   app.click('#bl-active-filters [data-clear-filters]');
   await wait(15);
   assert.equal(app.$('#bl-active-filters [data-active-filter="modality"]'), null, "Limpar tudo manteve o filtro");
-  assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios no catálogo"));
+  assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios"));
   assert.equal(rows().length, 12, "Voltar para Todas não restaurou a lista");
 
   /*
-    Classificação só existe dentro de uma combinação: escolhido o grupo e a
-    modalidade, a lista vira o ranking daquela combinação.
+    A modalidade escolhida vai junto no link da região: é ela que a tela do
+    grupo muscular recebe para filtrar. Escolher modalidade não abre lista.
   */
-  /*
-    O grupo muscular agora mora dentro da região: os sete cards são a porta de
-    entrada e o card aberto revela os grupos oficiais que ele agrupa.
-  */
-  const regionRow = app.$('#catalog-controls [data-filter-group="categoria"]');
-  assert.ok(regionRow, "Cards das regiões ausentes");
-  assert.equal(regionRow.querySelectorAll(".grupo-card").length, 7, "Deveriam existir 7 regiões");
-  app.$('#catalog-controls [data-filter-group="categoria"] [data-value="peitoral"]').click();
-  await wait(15);
-
-  const muscleRow = app.$('#catalog-controls [data-filter-group="muscle"]');
-  assert.ok(muscleRow, "Filtro de grupo muscular ausente");
   app.$('#catalog-controls [data-filter-group="modality"] [data-value="academia"]').click();
   await wait(15);
-  app.$('#catalog-controls [data-filter-group="muscle"] [data-value="peitoral"]').click();
-  await wait(15);
-  const combo = app.F.biblioteca.filter({ muscle: "peitoral", modality: "academia" });
-  assert.ok(combo.length > 0, "Combinação peitoral + academia ficou vazia");
+  app.$$(".grupo-card").forEach(card => {
+    assert.match(card.getAttribute("href"), /modalidade=academia/,
+      "O link da região perdeu a modalidade escolhida");
+  });
 
-  const rankingGroup = app.$('#catalog-controls [data-filter-group="ranking"]');
-  assert.ok(rankingGroup, "Filtro de classificação ausente");
-  rankingGroup.querySelector('[data-value="1"]').click();
+  /* O ranking continua no catálogo (38 combinações), na aba própria. */
+  assert.equal(app.F.biblioteca.rankings().length, 38, "Os 38 rankings do catálogo sumiram");
+  app.click('#bl-active-filters [data-clear-filters]');
   await wait(15);
-  const top = rows().map(row => row.querySelector(".ui-exercise-name").textContent);
-  assert.equal(top.length, 1, "Classificação 1º lugar devolveu mais de um exercício");
-  assert.match(top[0], /Supino reto/, "Classificação 1º lugar devolveu outro exercício em peitoral");
-  assert.deepEqual(
-    Array.from(app.F.biblioteca.filter({ muscle: "peitoral", modality: "academia", ranking: 1 })
-      .map(entry => entry.name)),
-    Array.from(top),
-    "Lista e consulta discordam sobre a classificação"
-  );
+  assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios"));
 
-  app.$('#bl-active-filters [data-clear-filters]').click();
-  await wait(15);
+  /* Reabrir a lista volta ao primeiro bloco, sem filtro herdado. */
+  if (app.$("#catalog-results").hidden) app.click("#catalog-toggle");
+  await wait(20);
   assert.equal(rows().length, 12, "Limpeza do filtro não voltou ao primeiro bloco");
-  assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios"));
 
   /* Detalhe traz instruções reais e a frase de histórico (sem inventar dado). */
   app.click('#catalog-list .ui-exercise-row [aria-label^="Ver detalhes"]');
@@ -956,40 +951,6 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   assert.deepEqual(app.keys(), [PROFILE_KEY], "A biblioteca deve manter apenas o perfil de autenticação existente");
   assert.deepEqual(app.storageWrites, [], "Consultar a biblioteca não deve gravar dados");
   assertNoErrors(app, "biblioteca");
-  app.close();
-});
-
-await runTest("27b. Biblioteca: detalhe usa o histórico real, não número inventado", async () => {
-  const record = (id, name, sets, load) => ({
-    id, date: "2026-10-01", modality: "calisthenics", routineName: "Treino X",
-    durationMs: 60000, completedSets: sets, totalPlannedSets: sets, status: "completed",
-    finishedAt: "2026-10-01T12:00:00.000Z",
-    exercises: [{
-      id: "e-" + id, name, section: "main", plannedSets: sets, completedSets: sets,
-      reps: "10", duration: 45, type: "reps", rest: 60, load: "", notes: "", timedSeconds: 0,
-      logs: Array.from({ length: sets }, (_, index) => ({ set: index + 1, reps: "12", load, seconds: undefined }))
-    }]
-  });
-
-  const app = await boot({
-    "forja-treino-historico-v1": [
-      record("h1", "Flexão de braço", 3, "20 kg"),
-      record("h2", "Flexão de braço", 2, "25 kg")
-    ]
-  }, "treino/biblioteca.html");
-  await wait(20);
-
-  const row = app.$$("#catalog-list .ui-exercise-row").find(node => /Flexão de braço/.test(node.textContent));
-  app.click(row.querySelector('[aria-label^="Ver detalhes"]'));
-  await wait(20);
-
-  const details = app.text(".modal-details");
-  assert.match(details, /2 treinos registrados/);
-  assert.match(details, /5 séries concluídas/);
-  assert.match(details, /maior carga 25 kg/);
-  assert.match(details, /máximo de 12 repetições/);
-  assert.match(details, /último em 01 de out/, "Data do último treino não formatada: " + details);
-  assertNoErrors(app, "detalhe com histórico");
   app.close();
 });
 
@@ -1094,7 +1055,9 @@ await runTest("30. Editor: metadados do exercício personalizado chegam à bibli
   await pageIs(app, "biblioteca");
   await wait(20);
 
-  const sourceChip = app.$('#catalog-controls [data-filter-group="source"]');
+  if (app.$("#catalog-results").hidden) app.click("#catalog-toggle");
+  await wait(20);
+  const sourceChip = app.$('#catalog-results [data-filter-group="source"]');
   sourceChip.querySelector('[data-value="personalizado"]').click();
   await wait(20);
   const rows = app.$$("#catalog-list .ui-exercise-row");

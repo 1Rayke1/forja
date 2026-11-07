@@ -1,0 +1,577 @@
+/*
+  FORJA — Tela do grupo muscular (treino/grupo.html).
+
+  Segunda tela da Biblioteca: apresentação anatômica do grupo, filtros de
+  equipamento calculados do catálogo e os exercícios em cards horizontais.
+
+  Regras de convivência com as outras camadas:
+
+  - Tudo escopado em `body[data-page="grupo"]`: nenhuma outra tela é alcançada.
+  - Tokens (--lime, --fj-*, --bl-*) apenas consumidos, nunca redefinidos.
+  - `!important` só onde camadas antigas (performance.css) já usam `!important`
+    em botões e inputs.
+*/
+
+/* ------------------------------------------------------------------ */
+/* Estrutura da página                                                 */
+/* ------------------------------------------------------------------ */
+
+body[data-page="grupo"] .gr-main {
+  /* Espaço para a barra inferior: o último card nunca fica escondido. */
+  padding-bottom: 112px;
+}
+
+body[data-page="grupo"] .site-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+body[data-page="grupo"] .gr-voltar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #2a3234;
+  border-radius: 50%;
+  background: #101617;
+  color: #e8eee9;
+  text-decoration: none;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+body[data-page="grupo"] .gr-voltar:hover {
+  border-color: rgba(183, 243, 74, 0.5);
+  color: var(--lime);
+}
+
+body[data-page="grupo"] .gr-voltar svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+body[data-page="grupo"] .tagline {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  color: #8b9693;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+  white-space: nowrap;
+}
+
+body[data-page="grupo"] .tagline svg {
+  width: 21px;
+  height: 21px;
+  display: block;
+  color: var(--lime);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cabeçalho do grupo: etiqueta, título, descrição e prancha           */
+/* ------------------------------------------------------------------ */
+
+body[data-page="grupo"] .gr-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46%;
+  align-items: center;
+  gap: 4px;
+  min-height: 236px;
+  margin: 6px 0 4px;
+  overflow: hidden;
+}
+
+/* Faixa diagonal em lima, como na referência, sem competir com o texto. */
+body[data-page="grupo"] .gr-hero::before {
+  content: "";
+  position: absolute;
+  inset: -30% -60% auto 42%;
+  height: 170%;
+  transform: rotate(-16deg);
+  background:
+    linear-gradient(180deg, rgba(183, 243, 74, 0.16), rgba(183, 243, 74, 0) 62%),
+    linear-gradient(180deg, rgba(183, 243, 74, 0.08), transparent 80%);
+  pointer-events: none;
+}
+
+body[data-page="grupo"] .gr-hero-texto {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  padding: 10px 0 14px;
+}
+
+body[data-page="grupo"] .gr-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--lime);
+  color: #11170b;
+  font-family: var(--fj-fonte-texto);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+body[data-page="grupo"] .gr-badge[data-modalidade="todas"] {
+  background: rgba(183, 243, 74, 0.16);
+  color: var(--lime);
+}
+
+body[data-page="grupo"] .gr-titulo {
+  margin: 12px 0 8px;
+  color: #ffffff;
+  font-family: var(--fj-fonte-titulo);
+  font-size: clamp(34px, 9.4vw, 44px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+body[data-page="grupo"] .gr-descricao {
+  margin: 0;
+  max-width: 22ch;
+  color: #a7b2af;
+  font-family: var(--fj-fonte-texto);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+/*
+  A prancha é uma imagem raster com fundo próprio: um retângulo preto. Em vez
+  de colar uma moldura na tela, o desenho é esmaecido nas bordas — vertical no
+  contêiner, horizontal no SVG — para fundir com o fundo da página sem costura.
+*/
+body[data-page="grupo"] .gr-hero-figura {
+  position: relative;
+  align-self: stretch;
+  min-height: 236px;
+  margin-right: -14px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 11%, #000 89%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 11%, #000 89%, transparent 100%);
+}
+
+body[data-page="grupo"] .gr-hero-figura .figura {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 15%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 15%, #000 100%);
+}
+
+body[data-page="grupo"] .gr-hero-figura .figura {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  max-width: none;
+}
+
+body[data-page="grupo"] .gr-hero-figura .figura-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* A prancha é de linha clara: na tela do grupo ela fica um pouco mais
+   apagada para o verde das regiões destacadas ser o foco. */
+body[data-page="grupo"] .gr-hero-figura .figura-plate {
+  opacity: 0.62;
+}
+
+body[data-page="grupo"] .gr-hero-figura .figura-region.is-primary .figura-region-shape {
+  fill-opacity: 0.88;
+}
+
+body[data-page="grupo"] .gr-hero-figura .figura-region.is-primary .figura-region-outline {
+  stroke-width: 1.2;
+}
+
+body[data-page="grupo"] .gr-prancha-vazia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: rgba(183, 243, 74, 0.4);
+}
+
+body[data-page="grupo"] .gr-prancha-vazia svg {
+  width: 64px;
+  height: 64px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Filtros horizontais                                                 */
+/* ------------------------------------------------------------------ */
+
+body[data-page="grupo"] .gr-filtros {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 4px;
+}
+
+body[data-page="grupo"] .gr-filtros[hidden] {
+  display: none;
+}
+
+body[data-page="grupo"] .gr-filtro-linha {
+  display: flex;
+  min-width: 0;
+}
+
+/* Uma linha só, com rolagem horizontal: como na referência, os filtros
+   nunca quebram para a linha de baixo. */
+body[data-page="grupo"] .gr-chips {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x proximity;
+}
+
+body[data-page="grupo"] .gr-chips::-webkit-scrollbar {
+  display: none;
+}
+
+body[data-page="grupo"] .gr-pilula {
+  flex: 0 0 auto;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px !important;
+  padding: 0 16px !important;
+  border: 1px solid #2a3234 !important;
+  border-radius: 999px !important;
+  background: #12181a !important;
+  color: #e8eee9 !important;
+  font-family: var(--fj-fonte-texto) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+body[data-page="grupo"] .gr-pilula-icone,
+body[data-page="grupo"] .gr-pilula .gr-icone {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+body[data-page="grupo"] .gr-pilula svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+body[data-page="grupo"] .gr-pilula-contagem {
+  color: #7f8b88;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="grupo"] .gr-pilula.is-active,
+body[data-page="grupo"] .gr-pilula[aria-pressed="true"] {
+  border-color: var(--lime) !important;
+  background: var(--lime) !important;
+  color: #11170b !important;
+  font-weight: 800 !important;
+}
+
+body[data-page="grupo"] .gr-pilula.is-active .gr-pilula-contagem,
+body[data-page="grupo"] .gr-pilula[aria-pressed="true"] .gr-pilula-contagem {
+  color: rgba(17, 23, 11, 0.62);
+}
+
+body[data-page="grupo"] .gr-pilula:hover:not(.is-active) {
+  border-color: rgba(183, 243, 74, 0.42) !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards dos exercícios                                                */
+/* ------------------------------------------------------------------ */
+
+body[data-page="grupo"] .gr-lista {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0 0;
+}
+
+body[data-page="grupo"] .gr-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr) 22px;
+  align-items: center;
+  gap: 12px;
+  height: 96px;
+  padding: 0 12px 0 0;
+  overflow: hidden;
+  border: 1px solid #232b2d;
+  border-radius: 14px;
+  background: linear-gradient(100deg, #0e1415, #141b1c 78%);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+body[data-page="grupo"] .gr-card:hover {
+  border-color: rgba(183, 243, 74, 0.4);
+}
+
+body[data-page="grupo"] .gr-card:active {
+  transform: scale(0.995);
+}
+
+/* Faixa vertical em lima na lateral esquerda, como na referência. */
+body[data-page="grupo"] .gr-card-faixa {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--lime);
+}
+
+body[data-page="grupo"] .gr-card-figura {
+  position: relative;
+  display: block;
+  align-self: stretch;
+  overflow: hidden;
+  background: #080d0e;
+}
+
+body[data-page="grupo"] .gr-card-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+body[data-page="grupo"] .gr-card-vazio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 14px;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at 50% 34%, rgba(183, 243, 74, 0.1), transparent 66%),
+    #080d0e;
+}
+
+body[data-page="grupo"] .gr-card-vazio-icone {
+  display: inline-flex;
+  color: rgba(183, 243, 74, 0.28);
+}
+
+body[data-page="grupo"] .gr-card-vazio-icone svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+body[data-page="grupo"] .gr-card-vazio-texto {
+  position: absolute;
+  inset: auto 2px 4px 2px;
+  padding-top: 10px;
+  background: linear-gradient(180deg, rgba(8, 13, 14, 0), rgba(8, 13, 14, 0.92) 55%);
+  color: #8b9693;
+  font-family: var(--fj-fonte-texto);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+body[data-page="grupo"] .gr-card-texto {
+  display: block;
+  min-width: 0;
+}
+
+body[data-page="grupo"] .gr-card-nome {
+  display: block;
+  color: #f7faf8;
+  font-family: var(--fj-fonte-titulo);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+body[data-page="grupo"] .gr-card-grupo {
+  display: block;
+  margin-top: 4px;
+  color: #9aa6a3;
+  font-family: var(--fj-fonte-texto);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+body[data-page="grupo"] .gr-card-seta {
+  display: inline-flex;
+  justify-content: flex-end;
+  color: #8d9996;
+}
+
+body[data-page="grupo"] .gr-card-seta svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* Contador e estados                                                  */
+/* ------------------------------------------------------------------ */
+
+/* Contador discreto acima da lista: é o cabeçalho do resultado, não um aviso. */
+body[data-page="grupo"] .gr-contador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 2px 0;
+  padding: 0;
+  color: #9aa6a3;
+  font-family: var(--fj-fonte-texto);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+body[data-page="grupo"] .gr-contador .ui-icon {
+  display: inline-flex;
+  color: var(--lime);
+}
+
+body[data-page="grupo"] .gr-contador .ui-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+body[data-page="grupo"] .gr-carregando {
+  margin: 8px 0;
+  color: #8b9693;
+  font-size: 13px;
+}
+
+body[data-page="grupo"] .gr-vazio {
+  padding: 22px 18px;
+  border: 1px dashed #2a3234;
+  border-radius: 14px;
+  background: #0c1213;
+  text-align: center;
+}
+
+body[data-page="grupo"] .gr-vazio-titulo {
+  margin: 0 0 6px;
+  color: #f4f8f4;
+  font-family: var(--fj-fonte-titulo);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+body[data-page="grupo"] .gr-vazio-texto {
+  margin: 0;
+  color: #9aa6a3;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+body[data-page="grupo"] .gr-vazio-acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--lime);
+  color: #11170b;
+  font-weight: 800;
+  font-size: 13.5px;
+  text-decoration: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Telas                                                               */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 359px) {
+  body[data-page="grupo"] .gr-hero {
+    grid-template-columns: minmax(0, 1fr) 42%;
+    min-height: 214px;
+  }
+
+  body[data-page="grupo"] .gr-hero-figura {
+    min-height: 214px;
+  }
+
+  body[data-page="grupo"] .gr-card {
+    grid-template-columns: 96px minmax(0, 1fr) 20px;
+    height: 92px;
+  }
+
+  body[data-page="grupo"] .gr-pilula {
+    padding: 0 13px !important;
+    font-size: 12.5px !important;
+  }
+}
+
+@media (min-width: 760px) {
+  body[data-page="grupo"] .gr-hero {
+    grid-template-columns: minmax(0, 1fr) 38%;
+    min-height: 290px;
+  }
+
+  body[data-page="grupo"] .gr-hero-figura {
+    min-height: 290px;
+  }
+
+  body[data-page="grupo"] .gr-descricao {
+    max-width: 34ch;
+    font-size: 15px;
+  }
+
+  body[data-page="grupo"] .gr-lista {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  body[data-page="grupo"] .gr-card {
+    grid-template-columns: 132px minmax(0, 1fr) 22px;
+    height: 104px;
+  }
+
+  body[data-page="grupo"] .gr-pilula {
+    padding: 0 18px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-page="grupo"] .gr-card,
+  body[data-page="grupo"] .gr-pilula,
+  body[data-page="grupo"] .gr-voltar {
+    transition: none;
+  }
+}
