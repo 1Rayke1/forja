@@ -119,7 +119,7 @@ for p in index.html \
          configuracoes/index.html explorar/index.html explorar/atlas.html \
          onboarding/index.html perfil/index.html progresso/index.html \
          treino/index.html treino/rotina.html treino/executar.html \
-         treino/biblioteca.html treino/calistenia.html treino/musculacao.html \
+         treino/biblioteca.html treino/grupo.html treino/calistenia.html treino/musculacao.html \
          assets/js/forja-app.js assets/js/forja-demonstracoes.js \
          assets/js/forja-demonstracoes-dados.js \
          assets/js/forja-videos-dados.js assets/js/forja-videos.js \
