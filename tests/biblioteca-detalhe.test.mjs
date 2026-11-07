@@ -234,96 +234,91 @@ await test("B4. Os 13 grupos musculares filtram pelo músculo principal", async 
   const grupos = Array.from(catalogo.muscleGroups, item => item.id);
 
   /*
-    O caminho agora é região → grupo: abrir cada card revela os grupos oficiais
-    daquela região, e o filtro continua sendo pelo músculo principal. Somando os
-    sete cards, os 13 grupos são alcançáveis.
+    O caminho é região → tela do grupo. Somando as sete regiões, os 13 grupos
+    oficiais precisam ficar alcançáveis, e o filtro continua sendo pelo
+    músculo principal do catálogo.
   */
   const regioes = app.F.biblioteca.categorias;
   const vistos = [];
   let conferidos = 0;
 
   for (const regiao of regioes) {
-    app.$('.grupo-card[data-categoria="' + regiao.id + '"]').click();
-    await wait(30);
+    const card = app.$('.grupo-card[data-categoria="' + regiao.id + '"]');
+    await app.go(card.getAttribute("href"));
+    await wait(160);
 
-    const visiveis = Array.from(app.$$('#catalog-controls [data-filter-group="muscle"] [data-value]'),
-      node => node.getAttribute("data-value"));
-    assert.deepEqual(visiveis, [""].concat(Array.from(regiao.grupos)),
-      "a região " + regiao.id + " deveria revelar só os grupos dela");
+    assert.equal(app.d.body.dataset.page, "grupo", "O card da região não abriu a tela do grupo");
+
+    /* Região de um grupo só não precisa de escolha: já entra filtrada. */
+    if (regiao.grupos.length > 1) {
+      const visiveis = app.$$('#grupo-filtros [data-linha="grupo"] .gr-pilula')
+        .map(node => node.getAttribute("data-value"));
+      assert.deepEqual(visiveis, [""].concat(Array.from(regiao.grupos)),
+        "a região " + regiao.id + " deveria revelar só os grupos dela");
+    }
 
     for (const grupo of regiao.grupos) {
-      chip(app, "muscle", grupo).click();
-      await wait(20);
+      if (regiao.grupos.length > 1) {
+        app.click('#grupo-filtros [data-linha="grupo"] .gr-pilula[data-value="' + grupo + '"]');
+        await wait(60);
+      }
+
       vistos.push(grupo);
-      const cards = rows(app);
+      const cards = app.$$("#grupo-lista .gr-card");
       assert.ok(cards.length > 0, "grupo " + grupo + " sem resultados");
       cards.forEach(card => assert.equal(card.getAttribute("data-muscle"), grupo));
       const esperado = catalogo.filter({ primaryMuscle: grupo }).length;
-      assert.equal(app.text("#bl-contador strong"), String(esperado),
+      assert.equal(app.$("#grupo-contador").getAttribute("data-total"), String(esperado),
         "contador do grupo " + grupo);
       conferidos += 1;
     }
 
-    /* Tocar no card de novo fecha a região e volta ao catálogo inteiro. */
-    app.$('.grupo-card[data-categoria="' + regiao.id + '"]').click();
-    await wait(20);
-    assert.match(app.text("#catalog-status"), /no catálogo$/);
+    await app.go("biblioteca.html");
+    await wait(140);
   }
 
-  assert.deepEqual(conferidos, 13, "os sete cards precisam alcançar os 13 grupos");
+  assert.equal(conferidos, 13, "os sete cards precisam alcançar os 13 grupos");
   assert.deepEqual(vistos.slice().sort(), grupos.slice().sort(),
     "faltou grupo muscular alcançável pelos cards");
   assertNoErrors(app, "filtro de grupo muscular");
 });
 
-/* ------------------------------------------------------------------ */
-/* 5. Combinação, filtros ativos e limpeza                             */
-/* ------------------------------------------------------------------ */
-
-await test("B5. Modalidade + grupo + ranking combinam, aparecem como filtros ativos e somem", async () => {
+await test("B5. Modalidade + região combinam, aparecem como filtros ativos e somem", async () => {
   const app = await boot({}, "treino/biblioteca.html");
 
   assert.equal(app.$("#bl-active-filters").hasAttribute("hidden"), true, "filtros ativos começaram visíveis");
 
   chip(app, "modality", "peso-corporal").click();
   await wait(30);
-  app.$('.grupo-card[data-categoria="peitoral"]').click();
-  await wait(30);
-  chip(app, "muscle", "peitoral").click();
-  await wait(30);
 
-  assert.match(app.text("#catalog-status"), /com os filtros atuais$/);
   const active = app.$("#bl-active-filters");
   assert.equal(active.hasAttribute("hidden"), false);
   assert.ok(active.querySelector('[data-active-filter="modality"]'), "modalidade não aparece nos filtros ativos");
-  assert.ok(active.querySelector('[data-active-filter="muscle"]'), "grupo não aparece nos filtros ativos");
-  assert.ok(active.querySelector('[data-active-filter="categoria"]'), "região não aparece nos filtros ativos");
   assert.ok(active.querySelector("[data-clear-filters]"), "faltou o 'Limpar tudo'");
 
-  /* O ranking só existe dentro da combinação. */
-  const ranking = app.$('#catalog-controls [data-filter-group="ranking"]');
-  assert.ok(ranking, "filtro de classificação ausente com grupo + modalidade");
-  chip(app, "ranking", "1").click();
-  await wait(30);
-  const cards = rows(app);
-  assert.ok(cards.length > 0);
-  cards.forEach(card => assert.equal(card.getAttribute("data-ranking-position"), "1"));
-  assert.ok(app.$('#bl-active-filters [data-active-filter="ranking"]'));
+  /* A modalidade viaja no link da região: é ela que a tela do grupo usa. */
+  const card = app.$('.grupo-card[data-categoria="peitoral"]');
+  assert.match(card.getAttribute("href"), /modalidade=peso-corporal/);
+  await app.go(card.getAttribute("href"));
+  await wait(160);
 
-  /* Remover um filtro pelo chip mantém os outros. */
-  app.$('#bl-active-filters [data-active-filter="ranking"]').click();
-  await wait(30);
-  assert.equal(app.$('#bl-active-filters [data-active-filter="ranking"]'), null);
-  assert.match(app.text("#catalog-status"), /com os filtros atuais$/);
+  assert.equal(app.d.body.dataset.page, "grupo");
+  assert.equal(app.text("#grupo-titulo"), "Peitoral");
+  assert.match(app.text("#grupo-modalidade"), /Sem equipamentos/i,
+    "a modalidade escolhida não chegou à tela do grupo");
+
+  /* Voltar devolve a biblioteca com a modalidade ainda escolhida. */
+  app.click("#grupo-voltar");
+  await wait(200);
+  assert.equal(app.d.body.dataset.page, "biblioteca");
+  assert.equal(app.$('.modalidade-opcao[data-value="peso-corporal"]').getAttribute("aria-pressed"), "true");
   assert.ok(app.$('#bl-active-filters [data-active-filter="modality"]'));
 
   /* Limpar tudo volta ao catálogo inteiro. */
   app.$("#bl-active-filters [data-clear-filters]").click();
   await wait(30);
-  assert.match(app.text("#catalog-status"), /^165 exercícios no catálogo$/);
+  assert.match(app.text("#bl-contador"), /^165 exercícios/);
   assert.equal(app.$("#bl-active-filters").hasAttribute("hidden"), true);
-  assert.equal(app.$$('#catalog-controls .grupo-card[aria-pressed="true"]').length, 0,
-    "nenhuma região deveria continuar aberta");
 
   /* Busca também entra nos filtros ativos e é removível. */
   search(app, "flexao");
@@ -335,10 +330,6 @@ await test("B5. Modalidade + grupo + ranking combinam, aparecem como filtros ati
   assert.equal(app.$("#catalog-search").value, "");
   assertNoErrors(app, "filtros combinados");
 });
-
-/* ------------------------------------------------------------------ */
-/* 6. Foto ↔ identificador                                             */
-/* ------------------------------------------------------------------ */
 
 await test("B6. Cada card usa a foto do próprio exercício, sem compartilhar arquivo", async () => {
   const app = await boot({}, "treino/biblioteca.html");
@@ -427,7 +418,9 @@ await test("B7. Sem foto aprovada não há foto emprestada; associação pendent
       weights: []
     }
   }, "treino/biblioteca.html");
-  custom.$('#catalog-controls [data-filter-group="source"] [data-value="personalizado"]').click();
+  custom.click("#catalog-toggle");
+  await wait(30);
+  custom.$('#catalog-results [data-filter-group="source"] [data-value="personalizado"]').click();
   await wait(30);
   const customCard = rows(custom).find(node => node.getAttribute("data-origin") === "pessoal");
   assert.ok(customCard, "exercício personalizado não apareceu na lista");

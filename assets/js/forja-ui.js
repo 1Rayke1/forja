@@ -469,6 +469,7 @@
       calistenia: "treino",
       musculacao: "treino",
       biblioteca: "explorar",
+      grupo: "explorar",
       atlas: "explorar",
       rotina: "treino",
       executar: "treino",

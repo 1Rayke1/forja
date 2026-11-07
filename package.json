@@ -4,7 +4,7 @@
   "private": true,
   "description": "FORJA — disciplina diária: calendário, missões e treinos com rotinas A/B/C.",
   "scripts": {
-    "test": "node tests/catalogo-central.test.mjs && node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs && node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/videos-youtube.test.mjs && node tests/youtube-proxy.test.mjs && node tests/biblioteca-detalhe.test.mjs && node tests/biblioteca-grupos.test.mjs",
+    "test": "node tests/catalogo-central.test.mjs && node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs && node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/videos-youtube.test.mjs && node tests/youtube-proxy.test.mjs && node tests/biblioteca-detalhe.test.mjs && node tests/biblioteca-grupos.test.mjs && node tests/grupo-muscular.test.mjs",
     "test:plan": "node tests/plan.test.mjs",
     "test:e2e": "node tests/e2e.browser.mjs",
     "serve": "python3 -m http.server 8080 --bind 127.0.0.1",

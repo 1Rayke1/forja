@@ -157,26 +157,28 @@ await runTest("2. Biblioteca: sete regiões, na ordem, com descrição e chevron
     const id = card.getAttribute("data-categoria");
     const regiao = REGIOES.find(item => item.id === id);
     assert.ok(regiao, "Card sem região conhecida: " + id);
+
+    /* Região é porta de entrada: um link para a tela do grupo. */
+    assert.equal(card.tagName, "A", "O card da região precisa ser um link");
+    assert.match(card.getAttribute("href"), new RegExp("^grupo\\.html\\?(modalidade=[a-z-]+&)?regiao=" + id + "$"),
+      "O link da região não leva à tela do grupo muscular");
+
     assert.match(card.querySelector(".grupo-descricao").textContent, /^Exercícios para/,
       "Toda região precisa de uma descrição de uma linha");
     assert.ok(card.querySelector(".grupo-seta svg"), "O chevron do card sumiu");
-    assert.equal(card.getAttribute("aria-pressed"), "false",
-      "Nenhuma região deveria começar aberta");
+    assert.equal(card.hasAttribute("aria-pressed"), false,
+      "Link não é botão: o card não deveria anunciar estado pressionado");
     assert.match(card.getAttribute("aria-label"), new RegExp(regiao.rotulo),
       "O card precisa de rótulo acessível com o nome da região");
   });
 
-  /* Altura uniforme: o CSS define uma altura mínima única para todos. */
+  /* Altura uniforme: o CSS define uma altura única para todos. */
   const css = fs.readFileSync(path.join(repoRoot, "assets/css/biblioteca-grupos.css"), "utf8");
   assert.match(css, /\.grupo-card\s*\{[^}]*height:\s*96px/s,
     "Os cards precisam de altura única (96 px)");
 
   assertNoErrors(app, "cards de região");
 });
-
-/* ------------------------------------------------------------------ */
-/* 3. Prancha anatômica por região                                     */
-/* ------------------------------------------------------------------ */
 
 await runTest("3. Biblioteca: cada região tem prancha própria, com o músculo em lima", async () => {
   const app = await boot({}, PAGE);
@@ -316,55 +318,57 @@ await runTest("6. Biblioteca: as quatro pílulas de modalidade filtram o catálo
 /* 7. Região aberta e subgrupos                                        */
 /* ------------------------------------------------------------------ */
 
-await runTest("7. Biblioteca: abrir uma região mostra só os subgrupos oficiais dela", async () => {
+await runTest("7. Biblioteca: abrir uma região leva aos subgrupos oficiais dela", async () => {
   const app = await boot({}, PAGE);
   await wait(200);
 
   const regiao = REGIOES.find(item => item.grupos.length === 3);
-  cardPorRegiao(app, regiao.id).click();
-  await wait(40);
+  await app.go(cardPorRegiao(app, regiao.id).getAttribute("href"));
+  await wait(160);
 
-  assert.equal(cardPorRegiao(app, regiao.id).getAttribute("aria-pressed"), "true",
-    "O card aberto deveria ficar marcado");
-  assert.equal(app.$$("#catalog-controls .grupo-card[aria-pressed=\"true\"]").length, 1,
-    "Só uma região pode ficar aberta por vez");
+  /* É a tela do grupo que revela os subgrupos da região. */
+  assert.equal(app.d.body.dataset.page, "grupo", "A região não abriu a tela do grupo");
+  assert.equal(app.text("#grupo-titulo"), regiao.rotulo);
 
-  const chips = app.$$("#catalog-controls [data-filter-group=\"muscle\"] .ui-chip-toggle");
+  const chips = app.$$('#grupo-filtros [data-linha="grupo"] .gr-pilula');
   assert.deepEqual(chips.map(chip => chave(chip.textContent)),
     ["todos"].concat(regiao.grupos.map(grupo => chave(app.F.exerciseCatalog.groupById(grupo).name))),
     "Os subgrupos deveriam ser só os grupos oficiais daquela região");
 
   const esperado = contarPorGrupo(app, regiao.grupos);
-  assert.equal(counterNumber(app), esperado, "O contador não seguiu a região");
+  assert.equal(Number(app.$("#grupo-contador").getAttribute("data-total")), esperado,
+    "O contador não seguiu a região");
   assert.ok(esperado > 0, "A região escolhida não tem exercícios");
 
-  rows(app).forEach(row => {
-    assert.ok(regiao.grupos.includes(row.getAttribute("data-muscle")),
-      "A lista mostrou exercício de fora da região (" + row.getAttribute("data-muscle") + ")");
+  app.$$("#grupo-lista .gr-card").forEach(card => {
+    assert.ok(regiao.grupos.includes(card.getAttribute("data-muscle")),
+      "A lista mostrou exercício de fora da região (" + card.getAttribute("data-muscle") + ")");
   });
 
   /* Escolher o subgrupo mantém o músculo principal identificado. */
   const subgrupo = regiao.grupos[regiao.grupos.length - 1];
-  app.click('#catalog-controls [data-filter-group="muscle"] .ui-chip-toggle[data-value="' + subgrupo + '"]');
-  await wait(30);
-  assert.equal(counterNumber(app), contarPorGrupo(app, [subgrupo]),
+  app.click('#grupo-filtros [data-linha="grupo"] .gr-pilula[data-value="' + subgrupo + '"]');
+  await wait(60);
+  assert.equal(Number(app.$("#grupo-contador").getAttribute("data-total")), contarPorGrupo(app, [subgrupo]),
     "O subgrupo não filtrou pelo músculo principal");
-  rows(app).forEach(row => assert.equal(row.getAttribute("data-muscle"), subgrupo,
+  app.$$("#grupo-lista .gr-card").forEach(card => assert.equal(card.getAttribute("data-muscle"), subgrupo,
     "A lista misturou subgrupos"));
 
-  /* Clicar no card de novo fecha a região. */
-  cardPorRegiao(app, regiao.id).click();
-  await wait(30);
-  assert.equal(counterNumber(app), total(app), "Fechar a região deveria voltar ao catálogo");
-  assert.equal(app.$$("#catalog-controls [data-filter-group=\"muscle\"]").length, 0,
-    "Sem região aberta não deveria haver subgrupos");
+  /* O endereço da tela guarda a escolha: recarregar mantém o subgrupo. */
+  assert.match(app.w.location.search, new RegExp("grupo=" + subgrupo));
+  await app.reload();
+  await wait(160);
+  assert.equal(Number(app.$("#grupo-contador").getAttribute("data-total")), contarPorGrupo(app, [subgrupo]),
+    "Recarregar perdeu o subgrupo escolhido");
+
+  /* Voltar reabre a Biblioteca, sem lista despejada. */
+  app.click("#grupo-voltar");
+  await wait(200);
+  assert.equal(app.d.body.dataset.page, "biblioteca");
+  assert.equal(app.$("#catalog-results").hidden, true);
 
   assertNoErrors(app, "região e subgrupos");
 });
-
-/* ------------------------------------------------------------------ */
-/* 8. Contador calculado                                               */
-/* ------------------------------------------------------------------ */
 
 await runTest("8. Biblioteca: contador sempre calculado e coerente com a lista", async () => {
   const app = await boot({}, PAGE);
@@ -417,25 +421,36 @@ await runTest("8. Biblioteca: contador sempre calculado e coerente com a lista",
 /* 9. Combinações e estado vazio                                       */
 /* ------------------------------------------------------------------ */
 
-await runTest("9. Biblioteca: busca, região e modalidade combinam; vazio avisa", async () => {
+await runTest("9. Biblioteca: busca e modalidade combinam; vazio avisa", async () => {
   const app = await boot({}, PAGE);
   await wait(200);
 
-  cardPorRegiao(app, "pernas").click();
-  await wait(40);
-  const daRegiao = counterNumber(app);
-
+  const totalGeral = counterNumber(app);
   app.click('.modalidade-opcao[data-value="academia"]');
   await wait(40);
   const combinado = counterNumber(app);
-  assert.ok(combinado > 0 && combinado < daRegiao, "Região + modalidade deveria reduzir");
+  assert.ok(combinado > 0 && combinado < totalGeral, "A modalidade deveria reduzir o catálogo");
 
-  rows(app).forEach(row => {
-    assert.equal(row.getAttribute("data-modality"), "academia");
-    assert.ok(REGIOES.find(item => item.id === "pernas").grupos.includes(row.getAttribute("data-muscle")));
+  if (app.$("#catalog-results").hidden) app.click("#catalog-toggle");
+  await wait(20);
+  rows(app).forEach(row => assert.equal(row.getAttribute("data-modality"), "academia"));
+
+  /* A modalidade escolhida vai junto para a tela do grupo. */
+  const href = cardPorRegiao(app, "pernas").getAttribute("href");
+  assert.match(href, /modalidade=academia&regiao=pernas/);
+  await app.go(href);
+  await wait(160);
+  assert.equal(app.d.body.dataset.page, "grupo");
+  assert.match(app.text("#grupo-modalidade"), /Musculação/i);
+
+  app.$$("#grupo-lista .gr-card").forEach(card => {
+    assert.equal(card.getAttribute("data-modality"), "academia");
+    assert.ok(REGIOES.find(item => item.id === "pernas").grupos.includes(card.getAttribute("data-muscle")));
   });
 
   /* Busca sem resultado: contador zerado e mensagem clara. */
+  await app.go("biblioteca.html");
+  await wait(160);
   search(app, "exercício que não existe");
   await wait(40);
   assert.equal(counterNumber(app), 0, "Sem resultado, o contador deveria zerar");
@@ -446,24 +461,18 @@ await runTest("9. Biblioteca: busca, região e modalidade combinam; vazio avisa"
   assertNoErrors(app, "combinações");
 });
 
-/* ------------------------------------------------------------------ */
-/* 10. Limpar tudo                                                     */
-/* ------------------------------------------------------------------ */
-
 await runTest("10. Biblioteca: “Limpar tudo” devolve o catálogo inteiro", async () => {
   const app = await boot({}, PAGE);
   await wait(200);
 
   search(app, "supino");
   await wait(30);
-  cardPorRegiao(app, "peitoral").click();
-  await wait(30);
   app.click('.modalidade-opcao[data-value="academia"]');
   await wait(30);
   assert.ok(counterNumber(app) < total(app), "Os filtros deveriam reduzir a lista");
 
   const ativos = app.$$("#bl-active-filters [data-active-filter]");
-  assert.ok(ativos.length >= 3, "Os filtros ativos deveriam aparecer para remoção");
+  assert.ok(ativos.length >= 2, "Os filtros ativos deveriam aparecer para remoção");
 
   app.click("#bl-active-filters [data-clear-filters]");
   await wait(40);
@@ -472,17 +481,15 @@ await runTest("10. Biblioteca: “Limpar tudo” devolve o catálogo inteiro", a
   assert.equal(app.$("#catalog-search").value, "", "A busca deveria ser limpa");
   assert.equal(app.$$("#bl-active-filters [data-active-filter]").length, 0,
     "Não deveria sobrar filtro ativo");
-  assert.equal(app.$$("#catalog-controls .grupo-card[aria-pressed=\"true\"]").length, 0,
-    "Nenhuma região deveria continuar aberta");
   assert.equal(app.$('.modalidade-opcao[data-value=""]').getAttribute("aria-pressed"), "true",
     "“Todos” deveria voltar a ser a modalidade ativa");
 
+  /* Nenhuma região fica marcada: a Biblioteca é um índice, não um filtro. */
+  assert.equal(app.$$(".grupo-card.is-atual").length, 0,
+    "Nenhuma região deveria continuar marcada");
+
   assertNoErrors(app, "limpar filtros");
 });
-
-/* ------------------------------------------------------------------ */
-/* 11. Rankings                                                        */
-/* ------------------------------------------------------------------ */
 
 await runTest("11. Biblioteca: os rankings continuam valendo para os 165", async () => {
   const app = await boot({}, PAGE);
@@ -575,8 +582,6 @@ await runTest("13. Biblioteca: navegar e filtrar não grava no armazenamento", a
   const antes = app.keys().sort().join("|");
   search(app, "remada");
   await wait(30);
-  cardPorRegiao(app, "costas").click();
-  await wait(30);
   app.click('.modalidade-opcao[data-value="academia"]');
   await wait(30);
   app.click('.bl-tab[data-view="rankings"]');
@@ -586,15 +591,19 @@ await runTest("13. Biblioteca: navegar e filtrar não grava no armazenamento", a
   app.click("#bl-active-filters [data-clear-filters]");
   await wait(40);
 
+  /* Abrir a tela do grupo e voltar também não escreve nada. */
+  await app.go(cardPorRegiao(app, "costas").getAttribute("href"));
+  await wait(160);
+  app.click('.gr-pilula[data-value=""]');
+  await wait(40);
+  app.click("#grupo-voltar");
+  await wait(200);
+
   assert.equal(app.keys().sort().join("|"), antes,
     "A tela não pode gravar nada no armazenamento");
 
   assertNoErrors(app, "sem gravação");
 });
-
-/* ------------------------------------------------------------------ */
-/* 14. Folha de estilo escopada                                        */
-/* ------------------------------------------------------------------ */
 
 await runTest("14. Biblioteca: folha nova escopada, com regras de 390 px e desktop", async () => {
   const html = fs.readFileSync(path.join(repoRoot, PAGE), "utf8");

@@ -2538,43 +2538,154 @@ await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e ca
     await sleep(120);
     await page.screenshot({ path: artifactPath('biblioteca-7-regioes-390.png'), fullPage: true });
 
-    /* Abrir Costas: subgrupos oficiais, contador e lista coerentes. */
-    const costas = await page.evaluate(() => {
-      const grupo = window.Forja.exerciseCatalog.muscleGroups.find(item => item.id === 'costas');
-      return window.Forja.biblioteca.entries().filter(entry => entry.muscleId === 'costas').length;
-    });
+    /* Abrir Costas leva à tela do grupo, já filtrada pela região. */
+    const costas = await page.evaluate(() => window.Forja.biblioteca.entries()
+      .filter(entry => entry.muscleId === 'costas').length);
     await clickCentered('.grupo-card[data-categoria="costas"]');
-    assert.equal(await page.$eval('.grupo-card[data-categoria="costas"]', el => el.getAttribute('aria-pressed')), 'true');
-    assert.match(await text('#bl-contador'), new RegExp('^' + costas + ' exercícios em Costas'), 'O contador não seguiu a região');
-    assert.ok(await page.$$eval('#catalog-list .ui-exercise-row', els => els.every(el => el.getAttribute('data-muscle') === 'costas')),
-      'A lista misturou regiões');
-    assert.equal(await page.$$eval('#catalog-controls [data-filter-group="muscle"] .ui-chip-toggle', els => els.length), 2,
-      'Costas deveria revelar "Todos" e o próprio grupo');
-    await page.screenshot({ path: artifactPath('biblioteca-costas-390.png'), fullPage: true });
+    await expectPath('/treino/grupo.html');
+    assert.match(await page.evaluate(() => location.search), /regiao=costas/,
+      'A região não viajou no endereço da tela do grupo');
+    assert.match(await text('#grupo-titulo'), /Costas/, 'A tela não abriu na região escolhida');
+    assert.equal(await page.$eval('#grupo-contador', el => el.getAttribute('data-total')), String(costas),
+      'O contador da tela do grupo não bateu com o catálogo');
+    assert.ok(await page.$$eval('#grupo-lista .gr-card',
+      els => els.every(el => el.getAttribute('data-muscle') === 'costas')),
+    'A tela do grupo misturou regiões');
+    await page.screenshot({ path: artifactPath('grupo-costas-390.png') });
 
-    /* Modalidade combinada com a região. */
+    /* Voltar devolve a Biblioteca sem lista despejada. */
+    await clickCentered('#grupo-voltar');
+    await expectPath('/treino/biblioteca.html');
+    assert.equal(await page.$eval('#catalog-results', el => el.hidden), true,
+      'Voltar não deveria abrir a lista do catálogo');
+
+    /* Modalidade escolhida vai junto no link e filtra a tela do grupo. */
     await clickCentered('.modalidade-opcao[data-value="academia"]');
-    assert.ok(await page.$$eval('#catalog-list .ui-exercise-row', els => els.every(el =>
-      el.getAttribute('data-modality') === 'academia' && el.getAttribute('data-muscle') === 'costas')),
-    'Região + modalidade não combinaram');
+    const hrefComModalidade = await page.$eval('.grupo-card[data-categoria="costas"]', el => el.getAttribute('href'));
+    assert.match(hrefComModalidade, /modalidade=academia/, 'A modalidade não entrou no link da região');
+    await clickCentered('.grupo-card[data-categoria="costas"]');
+    await expectPath('/treino/grupo.html');
+    assert.ok(await page.$$eval('#grupo-lista .gr-card',
+      els => els.every(el => el.getAttribute('data-modality') === 'academia')),
+    'Região + modalidade não combinaram na tela do grupo');
 
     /* Desktop: os cards ficam em duas colunas e a página continua sem estouro. */
     await page.setViewport({ width: 1280, height: 900 });
     await sleep(160);
-    const colunas = await page.$$eval('.grupo-card', els => {
-      const topo = els.map(el => Math.round(el.getBoundingClientRect().top));
-      return new Set(topo).size;
-    });
-    assert.ok(colunas <= 4, 'No desktop os sete cards deveriam se distribuir em duas colunas: ' + colunas + ' linhas');
+    const colunas = await page.$$eval('.gr-card', els =>
+      new Set(els.map(el => Math.round(el.getBoundingClientRect().left))).size);
+    assert.equal(colunas, 2, 'No desktop os cards deveriam se distribuir em duas colunas: ' + colunas);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       'A Biblioteca estoura na horizontal no desktop');
-    await page.screenshot({ path: artifactPath('biblioteca-7-regioes-desktop.png'), fullPage: true });
+    await page.screenshot({ path: artifactPath('grupo-costas-desktop.png'), fullPage: true });
 
     /* Nada foi gravado por navegar. */
     await page.setViewport(MOBILE);
     await go('treino/biblioteca.html');
     const perfil = await forjaRaw();
     assert.ok(perfil['forja-perfil-v1'], 'A Biblioteca não deve apagar o perfil');
+  } finally {
+    await page.setViewport(MOBILE);
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Tela do grupo muscular — 13 grupos, filtros, cards e ficha', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('treino/grupo.html?modalidade=academia&regiao=bracos');
+    await sleep(200);
+
+    /* Cabeçalho, herói e prancha com o músculo em destaque. */
+    assert.match(await text('#grupo-modalidade'), /Musculação/i, 'A modalidade não apareceu no selo');
+    assert.match(await text('#grupo-titulo'), /Braços/, 'O título da região não apareceu');
+    assert.ok((await text('#grupo-descricao')).length > 20, 'A tela precisa da descrição contextual');
+    assert.ok(await page.$('#grupo-figura svg .figura-region.is-primary'), 'A prancha não destacou o músculo');
+
+    /* Filtros derivados do catálogo: grupos da região e equipamentos reais. */
+    const grupos = await page.$$eval('#grupo-filtros [data-linha="grupo"] .gr-pilula',
+      els => els.map(el => el.getAttribute('data-value')));
+    assert.deepEqual(grupos, ['', 'biceps', 'triceps', 'antebracos'],
+      'Braços deveria oferecer Todos e os três grupos oficiais');
+    const equipamentos = await page.$$eval('#grupo-filtros [data-linha="equipamento"] .gr-pilula',
+      els => els.map(el => el.getAttribute('data-value')));
+    assert.ok(equipamentos.length > 1, 'Braços + musculação deveria ter filtros de equipamento');
+    assert.equal(equipamentos[0], '', '"Todos" precisa abrir a linha de equipamento');
+
+    /* O filtro restringe de verdade e o contador acompanha. */
+    const todos = await page.evaluate(() => Number(document.querySelector('#grupo-contador').dataset.total));
+    await clickCentered('#grupo-filtros [data-linha="equipamento"] .gr-pilula[data-value="halteres"]');
+    const comHalteres = await page.evaluate(() => Number(document.querySelector('#grupo-contador').dataset.total));
+    assert.ok(comHalteres > 0 && comHalteres < todos,
+      'O filtro de halteres deveria reduzir a lista (' + comHalteres + ' de ' + todos + ')');
+    assert.equal(await page.$$eval('#grupo-lista .gr-card', els => els.length), comHalteres,
+      'O contador não bateu com o número de cards');
+
+    /* Cada card é um exercício com imagem própria ou estado sem imagem. */
+    const cards = await page.$$eval('#grupo-lista .gr-card', els => els.map(el => ({
+      id: el.getAttribute('data-exercise-id'),
+      imagem: el.querySelector('img') ? el.querySelector('img').getAttribute('src') : null,
+      altura: Math.round(el.getBoundingClientRect().height)
+    })));
+    assert.ok(cards.length > 0, 'Nenhum card na tela');
+    assert.equal(new Set(cards.map(card => card.id)).size, cards.length, 'Cards repetidos na lista');
+    const usadas = cards.map(card => card.imagem).filter(Boolean);
+    assert.equal(new Set(usadas).size, usadas.length, 'Dois cards usaram a mesma imagem');
+
+    /* Telemóveis: 320/360/390/430 sem estouro horizontal. */
+    for (const width of [320, 360, 390, 430]) {
+      await page.setViewport({ width, height: 844 });
+      await sleep(140);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        'A tela do grupo estoura na horizontal em ' + width + ' px');
+      const hero = await page.$eval('#grupo-titulo', el => el.getBoundingClientRect().height);
+      assert.ok(hero > 24, 'O nome do grupo sumiu em ' + width + ' px');
+      const barra = await page.$eval('#grupo-filtros', el => el.getBoundingClientRect().height);
+      assert.ok(barra > 30, 'Os filtros sumiram em ' + width + ' px');
+    }
+    await page.setViewport(MOBILE);
+    await sleep(140);
+
+    /* O último card não fica atrás da barra inferior. */
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await sleep(200);
+    const atrasDaBarra = await page.evaluate(() => {
+      const nav = document.querySelector('.bottom-nav');
+      const ultimo = document.querySelector('#grupo-lista .gr-card:last-of-type');
+      if (!nav || !ultimo) return false;
+      return ultimo.getBoundingClientRect().bottom > nav.getBoundingClientRect().top;
+    });
+    assert.equal(atrasDaBarra, false, 'O último card ficou escondido atrás da barra inferior');
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: artifactPath('grupo-bracos-halteres-390.png'), fullPage: true });
+
+    /* Tocar no card abre a ficha existente, com vídeo, atlas e adicionar. */
+    const esperado = await page.$eval('#grupo-lista .gr-card .gr-card-nome', el => el.textContent.trim());
+    await clickCentered('#grupo-lista .gr-card');
+    await sleep(220);
+    assert.match(await text('#modal-title'), new RegExp(esperado.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+      'A ficha abriu em outro exercício');
+    assert.ok(await page.$('[data-detail-section="video"]'), 'A ficha perdeu o vídeo');
+    assert.ok(await page.$('[data-detail-section="atlas"]'), 'A ficha perdeu o atlas');
+    assert.ok(await page.$('#detail-add-to-training'), 'A ficha perdeu “Adicionar ao treino”');
+    await page.screenshot({ path: artifactPath('grupo-ficha-390.png') });
+    await page.keyboard.press('Escape');
+    await sleep(160);
+
+    /* Navegação inferior: cinco itens, Explorar ativa. */
+    assert.equal(await page.$$eval('.bottom-nav-link', els => els.length), 5, 'A barra inferior perdeu itens');
+    assert.match(await text('.bottom-nav-link[aria-current="page"]'), /Explorar/);
+
+    /* Sem equipamentos não existe filtro de equipamento. */
+    await go('treino/grupo.html?modalidade=peso-corporal&regiao=abdomen');
+    await sleep(200);
+    assert.equal(await page.$$('#grupo-filtros [data-linha="equipamento"] .gr-pilula').then(list => list.length), 0,
+      'Sem equipamentos não deveria oferecer filtro de equipamento');
+    await go('treino/grupo.html?modalidade=calistenia&regiao=gluteos');
+    await sleep(200);
+    assert.match(await text('#grupo-lista'), /Nenhum exercício/, 'Combinação vazia precisa avisar');
+    assert.equal(await page.$eval('#grupo-contador', el => el.dataset.total), '0');
   } finally {
     await page.setViewport(MOBILE);
     await restoreForjaRaw(saved);

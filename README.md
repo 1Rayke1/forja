@@ -106,4 +106,5 @@ Blender/Cycles a partir do personagem 3D masculino — dois do piloto abdominal
 - `docs/fotografias-exercicios.md` — contrato de fotos do catálogo (nenhuma publicada).
 - `docs/fotografias-explorar.md` — fotografias reais da tela Explorar: procedência, licença, contrato e validação.
 - `docs/atlas-anatomico.md` — classificação muscular e figuras.
+- `docs/tela-grupo-muscular.md` — tela do grupo (região → grupo), filtros derivados do catálogo e contrato de endereço.
 - `docs/testes-paridade.md` — suíte de paridade.
