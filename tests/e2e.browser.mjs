@@ -2491,6 +2491,96 @@ await check('Explorar — seções de descoberta, acesso ao atlas/biblioteca e b
   }
 });
 
+await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e cabem em 390 px', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('treino/biblioteca.html');
+
+    /* A conta é a do catálogo carregado na página, não um número escrito aqui. */
+    const total = await page.evaluate(() => window.Forja.biblioteca.entries().length);
+    assert.ok(total > 0, 'Catálogo vazio na Biblioteca');
+
+    const cards = await page.$$eval('#catalog-controls .grupo-card', els => els.map(el => ({
+      id: el.getAttribute('data-categoria'),
+      nome: el.querySelector('.grupo-nome').textContent.trim(),
+      altura: Math.round(el.getBoundingClientRect().height),
+      figura: Boolean(el.querySelector('.grupo-figura svg'))
+    })));
+    assert.equal(cards.length, 7, 'A tela precisa dos sete cards de região');
+    assert.deepEqual(cards.map(card => card.nome),
+      ['Peitoral', 'Costas', 'Ombros', 'Braços', 'Abdômen', 'Pernas', 'Glúteos']);
+    assert.ok(cards.every(card => card.figura), 'Todo card precisa da prancha anatômica');
+    assert.equal(new Set(cards.map(card => card.altura)).size, 1,
+      'Os sete cards precisam ter a mesma altura: ' + cards.map(card => card.altura).join(', '));
+
+    /* Sete recortes diferentes: nenhuma imagem repetida entre os cards. */
+    const recortes = await page.$$eval('.grupo-card .grupo-figura svg', els => els.map(el => el.getAttribute('viewBox')));
+    assert.equal(new Set(recortes).size, 7, 'As regiões repetiram a mesma imagem');
+
+    /* Contador no total do catálogo. */
+    assert.match(await text('#bl-contador'), new RegExp('^' + total + ' exercícios'), 'Contador fora do total');
+
+    /* Pílulas de modalidade: quatro, com "Todos" ativa. */
+    assert.deepEqual(await page.$$eval('.modalidade-opcao', els => els.map(el => el.textContent.trim())),
+      ['Todos', 'Musculação', 'Calistenia', 'Sem equip.']);
+
+    /* 390 px: nada estoura na horizontal e o título continua legível. */
+    for (const width of [320, 390]) {
+      await page.setViewport({ width, height: 844 });
+      await sleep(120);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        'A Biblioteca estoura na horizontal em ' + width + ' px');
+      const titulo = await page.$eval('#catalog-heading', el => el.getBoundingClientRect().height);
+      assert.ok(titulo > 40, 'O título sumiu em ' + width + ' px');
+    }
+    await page.setViewport(MOBILE);
+    await sleep(120);
+    await page.screenshot({ path: artifactPath('biblioteca-7-regioes-390.png'), fullPage: true });
+
+    /* Abrir Costas: subgrupos oficiais, contador e lista coerentes. */
+    const costas = await page.evaluate(() => {
+      const grupo = window.Forja.exerciseCatalog.muscleGroups.find(item => item.id === 'costas');
+      return window.Forja.biblioteca.entries().filter(entry => entry.muscleId === 'costas').length;
+    });
+    await clickCentered('.grupo-card[data-categoria="costas"]');
+    assert.equal(await page.$eval('.grupo-card[data-categoria="costas"]', el => el.getAttribute('aria-pressed')), 'true');
+    assert.match(await text('#bl-contador'), new RegExp('^' + costas + ' exercícios em Costas'), 'O contador não seguiu a região');
+    assert.ok(await page.$$eval('#catalog-list .ui-exercise-row', els => els.every(el => el.getAttribute('data-muscle') === 'costas')),
+      'A lista misturou regiões');
+    assert.equal(await page.$$eval('#catalog-controls [data-filter-group="muscle"] .ui-chip-toggle', els => els.length), 2,
+      'Costas deveria revelar "Todos" e o próprio grupo');
+    await page.screenshot({ path: artifactPath('biblioteca-costas-390.png'), fullPage: true });
+
+    /* Modalidade combinada com a região. */
+    await clickCentered('.modalidade-opcao[data-value="academia"]');
+    assert.ok(await page.$$eval('#catalog-list .ui-exercise-row', els => els.every(el =>
+      el.getAttribute('data-modality') === 'academia' && el.getAttribute('data-muscle') === 'costas')),
+    'Região + modalidade não combinaram');
+
+    /* Desktop: os cards ficam em duas colunas e a página continua sem estouro. */
+    await page.setViewport({ width: 1280, height: 900 });
+    await sleep(160);
+    const colunas = await page.$$eval('.grupo-card', els => {
+      const topo = els.map(el => Math.round(el.getBoundingClientRect().top));
+      return new Set(topo).size;
+    });
+    assert.ok(colunas <= 4, 'No desktop os sete cards deveriam se distribuir em duas colunas: ' + colunas + ' linhas');
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      'A Biblioteca estoura na horizontal no desktop');
+    await page.screenshot({ path: artifactPath('biblioteca-7-regioes-desktop.png'), fullPage: true });
+
+    /* Nada foi gravado por navegar. */
+    await page.setViewport(MOBILE);
+    await go('treino/biblioteca.html');
+    const perfil = await forjaRaw();
+    assert.ok(perfil['forja-perfil-v1'], 'A Biblioteca não deve apagar o perfil');
+  } finally {
+    await page.setViewport(MOBILE);
+    await restoreForjaRaw(saved);
+  }
+});
+
 await check('Evolução 1 — rotinas diretas, filtro e início com a modalidade correta', async () => {
   const saved = await forjaRaw();
   try {
