@@ -8,13 +8,14 @@
   entram ao lado dos oficiais, marcados como "Seus", sem receber ranking nem
   classificação por suposição.
 
-  Contrato da tela:
-  - busca por nome (sem acento, sem caixa) combinável com os filtros;
+  Contrato da tela (é a tela da aba "Explorar" — F.ROUTES.explorar):
+  - busca por nome e por nome alternativo (sem acento, sem caixa), combinável
+    com os filtros;
   - três filtros independentes: grupo muscular (os 13 oficiais), modalidade
-    (Academia, Calistenia, Peso corporal) e classificação no ranking;
+    (Musculação, Calistenia, Sem equipamentos) e classificação no ranking;
   - filtros ativos visíveis, removíveis um a um, e "limpar tudo";
-  - cards com imagem de referência ou estado de fallback, nome, grupo,
-    modalidade, posição no ranking e indicador de demonstração em vídeo;
+  - cards horizontais com a foto aprovada do próprio exercício (ou o espaço
+    reservado), nome, grupo, modalidade, posição no ranking e selo de vídeo;
   - rankings de aproveitamento por grupo + modalidade, sem misturar categorias;
   - detalhe completo no painel único (`F.catalog.showDetail`);
   - carregamento progressivo de 12 em 12, como antes.
