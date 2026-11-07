@@ -65,7 +65,10 @@ await test("YF04. Falha do endpoint não remove o fallback nem grava dados", asy
 await test("YF05. Exercício personalizado nunca recebe vídeo por semelhança de nome", async () => {
   const app = await boot({ "forja-treino-biblioteca-v1": { calisthenics: [{ id: "custom-flexao", name: "Flexão de braço", mode: "calisthenics", section: "main", type: "reps", sets: 3, reps: "10", rest: 60 }], weights: [] } }, "treino/biblioteca.html");
   app.w.fetch = async () => json({ associations: [approvedFixture], report: emptyReport });
-  const row = app.$$("#catalog-list .ui-exercise-row").find(node => node.textContent.includes("seu exercício"));
+  /* O cartão do usuário é identificado pelo dado, não por semelhança de nome. */
+  const row = app.$('#catalog-list .ui-exercise-row[data-origin="pessoal"]');
+  assert.ok(row, "Exercício personalizado não apareceu na biblioteca");
+  assert.match(row.textContent, /Seu exercício/, "O cartão do usuário precisa se identificar como dele");
   row.querySelector("button").click(); await wait(30);
   assert.equal(app.$(".youtube-player"), null); app.close();
 });

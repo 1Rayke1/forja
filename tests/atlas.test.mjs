@@ -598,12 +598,20 @@ await runTest("ATLAS 7. Legenda leva à biblioteca filtrada e o detalhe mostra a
   await wait(250);
   assert.equal(app.d.body.dataset.page, "biblioteca", "O link não abriu a biblioteca");
   const filtered = app.$$("#catalog-list .ui-exercise-row").map(row => row.textContent);
-  const expectedChest = app.F.catalog.filter({ muscle: "peito" }).length;
-  assert.equal(filtered.length, Math.min(12, expectedChest), "Filtro por músculo divergiu do catálogo");
+  /*
+    A legenda do atlas significa "envolve este grupo" (principal, secundário
+    ou estabilizador), então o conjunto esperado é o do filtro de
+    envolvimento da biblioteca, não o do grupo principal.
+  */
+  const expectedChest = app.F.biblioteca.filter({ involve: "peito" });
+  assert.ok(expectedChest.length > 0, "Nenhum exercício envolve peitoral no catálogo");
+  assert.equal(filtered.length, Math.min(12, expectedChest.length), "Filtro por músculo divergiu do catálogo");
   assert.doesNotMatch(app.d.body.textContent, /não está mais no catálogo/,
     "Abrir a biblioteca filtrando por músculo não deve avisar de exercício ausente");
-  const expectedNames = Array.from(app.F.catalog.filter({ muscle: "peito" }).slice(0, 12), record => record.name);
-  const visibleNames = app.$$("#catalog-list .ui-exercise-name").map(node => node.textContent);
+  assert.ok(app.$('#bl-active-filters [data-active-filter="involve"]'),
+    "O filtro vindo do atlas precisa aparecer removível na biblioteca");
+  const expectedNames = Array.from(expectedChest.slice(0, 12), entry => entry.name);
+  const visibleNames = Array.from(app.$$("#catalog-list .ui-exercise-name").map(node => node.textContent));
   assert.deepEqual(visibleNames, expectedNames, "Resultado diferente do filtro de Peitoral: " + JSON.stringify({ visibleNames, expectedNames }));
 
   /* Detalhe do exercício: figura + legenda, sem alterar a rotina. */

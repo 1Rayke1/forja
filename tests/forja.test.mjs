@@ -876,42 +876,60 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   assert.equal(rows().length, 12, "Limpar a busca não trouxe o catálogo de volta");
   assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios"));
 
-  /* Filtros: modalidade, medição e categoria funcionam e mostram contagem. */
-  const weightsSegment = app.$$("#catalog-controls .ui-segment").find(node => /Muscula/.test(node.textContent));
-  weightsSegment.click();
-  await wait(15);
-  assert.match(app.text("#catalog-status"), new RegExp(app.F.EXERCISE_LIBRARY.weights.length + " exercícios"));
-  assert.equal(rows().length, 12, "Filtro de modalidade não reiniciou o bloco visível");
-  while (app.$(".catalog-more button")) {
-    app.click(".catalog-more button");
-    await wait(5);
-  }
-  assert.equal(rows().length, app.F.EXERCISE_LIBRARY.weights.length, "Filtro de modalidade não reduziu a lista");
-  assert.ok(rows().every(row => /Muscula/.test(row.textContent)), "Filtro de modalidade vazou itens de calistenia");
+  /*
+    Filtros da biblioteca visual: grupo muscular, modalidade e classificação
+    são facetas independentes do catálogo central. Cada chip mostra a própria
+    contagem e o filtro reinicia o bloco visível em 12.
+  */
+  const modalityCount = id => app.F.exerciseCatalog.exercises.filter(record => record.modality === id).length;
 
-  app.$$("#catalog-controls .ui-segment")[0].click();
+  const modalityRow = app.$('#catalog-controls [data-filter-group="modality"]');
+  assert.ok(modalityRow, "Filtro de modalidade ausente");
+  modalityRow.querySelector('[data-value="academia"]').click();
   await wait(15);
+  assert.match(app.text("#catalog-status"), new RegExp(modalityCount("academia") + " exercícios"));
+  assert.equal(rows().length, 12, "Filtro de modalidade não reiniciou o bloco visível");
+  const academy = app.F.biblioteca.filter({ modality: "academia" });
+  assert.equal(academy.length, modalityCount("academia"), "Filtro de modalidade não reduziu a lista");
+  assert.ok(academy.every(entry => entry.modalityId === "academia"), "Filtro de modalidade vazou outra modalidade");
+
+  /* Um filtro ativo aparece removível e "Limpar tudo" volta ao catálogo. */
+  const activeChip = app.$('#bl-active-filters [data-active-filter="modality"]');
+  assert.ok(activeChip, "Filtro ativo não ficou visível para remoção");
+  app.click('#bl-active-filters [data-clear-filters]');
+  await wait(15);
+  assert.equal(app.$('#bl-active-filters [data-active-filter="modality"]'), null, "Limpar tudo manteve o filtro");
   assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios no catálogo"));
   assert.equal(rows().length, 12, "Voltar para Todas não restaurou a lista");
 
-  const measureRow = app.$('#catalog-controls [data-filter-group="measure"]');
-  assert.ok(measureRow, "Filtro de medição ausente");
-  measureRow.querySelector('[data-value="time"]').click();
-  await wait(15);
-  const timed = app.F.catalog.filter({ measure: "time" });
-  assert.ok(timed.length > 0 && timed.length < total(), "Filtro de medição não funcionou");
-  assert.equal(rows().length, Math.min(12, timed.length), "Filtro novo não reiniciou o bloco visível");
   /*
-    `Array.from` no domínio do teste: os objetos vêm da janela jsdom e a
-    comparação estrita de arrays também compara protótipos.
+    Classificação só existe dentro de uma combinação: escolhido o grupo e a
+    modalidade, a lista vira o ranking daquela combinação.
   */
+  const muscleRow = app.$('#catalog-controls [data-filter-group="muscle"]');
+  assert.ok(muscleRow, "Filtro de grupo muscular ausente");
+  app.$('#catalog-controls [data-filter-group="modality"] [data-value="academia"]').click();
+  await wait(15);
+  app.$('#catalog-controls [data-filter-group="muscle"] [data-value="peitoral"]').click();
+  await wait(15);
+  const combo = app.F.biblioteca.filter({ muscle: "peitoral", modality: "academia" });
+  assert.ok(combo.length > 0, "Combinação peitoral + academia ficou vazia");
+
+  const rankingGroup = app.$('#catalog-controls [data-filter-group="ranking"]');
+  assert.ok(rankingGroup, "Filtro de classificação ausente");
+  rankingGroup.querySelector('[data-value="1"]').click();
+  await wait(15);
+  const top = rows().map(row => row.querySelector(".ui-exercise-name").textContent);
+  assert.equal(top.length, 1, "Classificação 1º lugar devolveu mais de um exercício");
+  assert.match(top[0], /Supino reto/, "Classificação 1º lugar devolveu outro exercício em peitoral");
   assert.deepEqual(
-    rows().map(row => row.querySelector(".ui-exercise-name").textContent),
-    Array.from(timed.slice(0, 12), record => record.name),
-    "Filtro de medição listou itens diferentes dos que têm medição por tempo"
+    Array.from(app.F.biblioteca.filter({ muscle: "peitoral", modality: "academia", ranking: 1 })
+      .map(entry => entry.name)),
+    Array.from(top),
+    "Lista e consulta discordam sobre a classificação"
   );
 
-  app.$('#catalog-controls [data-filter-group="measure"] [data-value="null"]').click();
+  app.$('#bl-active-filters [data-clear-filters]').click();
   await wait(15);
   assert.equal(rows().length, 12, "Limpeza do filtro não voltou ao primeiro bloco");
   assert.match(app.text("#catalog-status"), new RegExp(total() + " exercícios"));
