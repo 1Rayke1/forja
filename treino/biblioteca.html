@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101010">
+<meta name="theme-color" content="#080C0D">
 <title>Biblioteca · FORJA</title>
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/treino.css">
@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="../assets/css/atlas.css">
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
+<link rel="stylesheet" href="../assets/css/biblioteca.css">
 </head>
 
 <body data-page="biblioteca" data-root="../">
@@ -27,7 +28,7 @@
   </div>
 </header>
 
-<main class="container" id="conteudo">
+<main class="container bl-main" id="conteudo">
   <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
     <div class="active-session-text">
       <strong>Treino em andamento</strong>
@@ -39,28 +40,78 @@
     </div>
   </section>
 
-  <div class="page-head">
-    <span class="eyebrow">Treino · Biblioteca</span>
-  </div>
-
-  <div id="catalog-root">
-    <p class="screen-subtitle">Carregando a biblioteca…</p>
-  </div>
-
-  <section class="catalog-help">
-    <h2 class="section-title">Como a biblioteca funciona</h2>
-    <p class="screen-subtitle">
-      Os itens <strong>sugeridos</strong> vêm com o app e servem de ponto de partida: você copia
-      um deles para a rotina e ajusta séries, repetições, duração e descanso como quiser.
-      Os itens <strong>seus</strong> são os exercícios personalizados, salvos somente neste
-      navegador — junto com tudo o mais do FORJA.
+  <section class="bl-hero" aria-labelledby="catalog-heading">
+    <span class="eyebrow">Explorar · Biblioteca</span>
+    <h1 id="catalog-heading" class="ui-section-title">Biblioteca de exercícios</h1>
+    <p class="bl-subtitle">
+      Busque pelo nome, filtre por grupo muscular e modalidade e veja a demonstração em
+      vídeo de cada exercício.
     </p>
-    <p class="screen-subtitle">
-      Adicionar um exercício não inicia nem altera um treino em andamento. Ele entra no fim da
-      seção escolhida e aparece na rotina quando você abrir o editor.
-    </p>
+    <div class="bl-hero-stats" id="bl-hero-stats" aria-label="Números do catálogo"></div>
   </section>
 
+  <div class="bl-tabs-host" id="bl-tabs"></div>
+
+  <section class="bl-view" id="bl-view-biblioteca" aria-label="Explorar exercícios">
+    <div id="catalog-root">
+      <p class="screen-subtitle">Carregando a biblioteca…</p>
+    </div>
+  </section>
+
+  <section class="bl-view" id="bl-view-rankings" aria-label="Rankings por grupo muscular" hidden>
+    <header class="bl-rankings-head">
+      <h2 class="bl-section-title">Rankings de aproveitamento</h2>
+      <p class="screen-subtitle">
+        Cada combinação de grupo muscular e modalidade tem o seu próprio ranking — as
+        posições nunca misturam categorias e só aparecem as que existem no catálogo. A
+        classificação é editorial: não representa percentual de ativação muscular.
+      </p>
+    </header>
+
+    <p class="catalog-status" id="rankings-status" aria-live="polite"></p>
+
+    <div class="bl-rankings-filters" id="rankings-filters"></div>
+
+    <div class="bl-rankings" id="rankings-list"></div>
+  </section>
+
+  <section class="bl-resources" id="bl-recursos" aria-labelledby="bl-recursos-title">
+    <h2 class="bl-section-title" id="bl-recursos-title">Continue explorando</h2>
+    <div class="bl-resource-grid">
+      <a class="bl-resource-card" href="../explorar/index.html" id="bl-link-descobrir">
+        <span class="bl-resource-eyebrow">Descobrir</span>
+        <strong class="bl-resource-title">Ideias para o treino de hoje</strong>
+        <span class="bl-resource-text">Planos em destaque, foco do dia e sugestões para a semana.</span>
+      </a>
+      <a class="bl-resource-card" href="../explorar/atlas.html" id="bl-link-atlas">
+        <span class="bl-resource-eyebrow">Atlas anatômico</span>
+        <strong class="bl-resource-title">Mapa dos músculos</strong>
+        <span class="bl-resource-text">Veja quais exercícios trabalham cada músculo do corpo.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="bl-help catalog-help">
+    <h2 class="section-title">Como a biblioteca funciona</h2>
+    <p class="screen-subtitle">
+      Os exercícios do catálogo vêm com o app e servem de ponto de partida: você leva um
+      deles para a rotina e ajusta séries, repetições, duração e descanso como quiser. Os
+      itens marcados como <strong>seus</strong> são os exercícios personalizados, salvos
+      somente neste navegador — junto com tudo o mais do FORJA.
+    </p>
+    <p class="screen-subtitle">
+      Adicionar um exercício não inicia nem altera um treino em andamento. Ele entra no
+      fim da seção escolhida e aparece na rotina quando você abrir o editor. Consultar a
+      biblioteca não grava nada: só a inserção em uma rotina existente escreve no seu
+      armazenamento.
+    </p>
+    <p class="screen-subtitle">
+      As demonstrações são vídeos oficiais do YouTube (sem rastreamento até você apertar
+      o play) ou ilustrações locais. Cada imagem pertence a um exercício específico: quando
+      não existe imagem aprovada para aquele identificador, o cartão mostra “imagem ainda
+      não disponível” em vez de reaproveitar a foto de outro movimento.
+    </p>
+  </section>
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">
@@ -73,7 +124,7 @@
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
       <span class="bottom-nav-label">Treinos</span>
     </a>
-    <a class="bottom-nav-link is-active" href="../explorar/index.html" data-nav="explorar" aria-current="page">
+    <a class="bottom-nav-link is-active" href="biblioteca.html" data-nav="explorar" aria-current="page">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
       <span class="bottom-nav-label">Explorar</span>
     </a>
@@ -97,6 +148,7 @@
 </footer>
 
 <div id="modal-root"></div>
+<div id="catalog-modal"></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="../assets/js/forja-core.js" defer></script>
@@ -120,6 +172,7 @@
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
 <script src="../assets/js/forja-videos-dados.js" defer></script>
 <script src="../assets/js/forja-videos.js" defer></script>
+<script src="../assets/js/forja-biblioteca-visual.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

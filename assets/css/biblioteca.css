@@ -1,0 +1,1023 @@
+/* ==========================================================================
+   FORJA — Biblioteca visual de exercícios (Etapa 4)
+   --------------------------------------------------------------------------
+   Folha carregada SOMENTE por treino/biblioteca.html. Tudo aqui vive sob
+   `body[data-page="biblioteca"]`, então nenhuma outra tela é alcançada: o
+   Atlas, a execução, o editor e o Explorar continuam com a camada de marca
+   intacta (nenhum token histórico é redefinido no :root).
+
+   Identidade desta tela (conceito aprovado da marca):
+     fundo carvão   #080C0D
+     verde-lima     #B7F34A
+     branco         #F3F7F5
+
+   Estrutura: herói com os números do catálogo → abas (Explorar | Rankings) →
+   busca → filtros combináveis → cards → carregamento progressivo. O detalhe do
+   exercício usa o modal compartilhado e é estilizado por `.bl-detail-*` em
+   system.css, porque o mesmo painel abre em outras telas.
+   ========================================================================== */
+
+body[data-page="biblioteca"] {
+  --bl-carvao: #080C0D;
+  --bl-carvao-alto: #0C1315;
+  --bl-superficie: #0F1719;
+  --bl-superficie-2: #131E20;
+  --bl-linha: rgba(243, 247, 245, 0.10);
+  --bl-linha-forte: rgba(243, 247, 245, 0.18);
+  --bl-branco: #F3F7F5;
+  --bl-suave: #A6B4B2;
+  --bl-lima: #B7F34A;
+  --bl-lima-fraca: rgba(183, 243, 74, 0.12);
+  --bl-lima-linha: rgba(183, 243, 74, 0.42);
+  --bl-raio: 16px;
+
+  background: var(--bl-carvao);
+  color: var(--bl-branco);
+}
+
+/* Casco -------------------------------------------------------------- */
+
+body[data-page="biblioteca"] .site-header {
+  background: rgba(8, 12, 13, 0.92);
+  border-bottom: 1px solid var(--bl-linha);
+}
+
+body[data-page="biblioteca"] .logo { color: var(--bl-branco); }
+body[data-page="biblioteca"] .tagline { color: var(--bl-lima); }
+
+body[data-page="biblioteca"] .bl-main.container {
+  width: min(100% - 28px, 1160px);
+  padding-bottom: 34px;
+}
+
+body[data-page="biblioteca"] .site-footer {
+  border-top: 1px solid var(--bl-linha);
+  color: var(--bl-suave);
+}
+
+body[data-page="biblioteca"] .site-footer a { color: var(--bl-lima); }
+
+/* Herói -------------------------------------------------------------- */
+
+body[data-page="biblioteca"] .bl-hero {
+  position: relative;
+  margin: 18px 0 14px;
+  padding: 22px 20px 20px;
+  border: 1px solid var(--bl-linha);
+  border-radius: 22px;
+  background:
+    radial-gradient(120% 140% at 12% -20%, rgba(183, 243, 74, 0.16) 0%, transparent 58%),
+    linear-gradient(160deg, #0E1719 0%, #0A1012 62%, #080C0D 100%);
+  overflow: hidden;
+}
+
+body[data-page="biblioteca"] .bl-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -40px -80px auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(183, 243, 74, 0.16), transparent 68%);
+  pointer-events: none;
+}
+
+body[data-page="biblioteca"] .bl-hero .eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--bl-lima);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] #catalog-heading {
+  margin: 0 0 8px;
+  color: var(--bl-branco);
+  font-size: clamp(26px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+body[data-page="biblioteca"] .bl-subtitle {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--bl-suave);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+body[data-page="biblioteca"] .bl-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(122px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+body[data-page="biblioteca"] .bl-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 11px 13px;
+  border: 1px solid var(--bl-linha);
+  border-radius: 13px;
+  background: rgba(8, 12, 13, 0.55);
+}
+
+body[data-page="biblioteca"] .bl-stat-value {
+  color: var(--bl-branco);
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+body[data-page="biblioteca"] .bl-stat-label {
+  color: var(--bl-suave);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+
+/* Abas --------------------------------------------------------------- */
+
+body[data-page="biblioteca"] .bl-tabs-host { margin: 4px 0 14px; }
+
+body[data-page="biblioteca"] .bl-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--bl-linha);
+  border-radius: 999px;
+  background: var(--bl-carvao-alto);
+}
+
+body[data-page="biblioteca"] .bl-tab {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bl-suave);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+body[data-page="biblioteca"] .bl-tab:hover { color: var(--bl-branco); }
+
+body[data-page="biblioteca"] .bl-tab.is-active,
+body[data-page="biblioteca"] .bl-tab[aria-pressed="true"] {
+  background: var(--bl-lima);
+  border-color: var(--bl-lima);
+  color: #0A1305;
+}
+
+body[data-page="biblioteca"] .bl-tab:focus-visible {
+  outline: 2px solid var(--bl-lima);
+  outline-offset: 2px;
+}
+
+/* Busca -------------------------------------------------------------- */
+
+body[data-page="biblioteca"] .bl-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 0 12px;
+}
+
+body[data-page="biblioteca"] .bl-search .ui-icon {
+  position: absolute;
+  left: 15px;
+  color: var(--bl-suave);
+  pointer-events: none;
+}
+
+body[data-page="biblioteca"] #catalog-search {
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 52px 14px 46px;
+  border: 1px solid var(--bl-linha-forte);
+  border-radius: 15px;
+  background: var(--bl-superficie);
+  color: var(--bl-branco);
+  font-size: 16px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+body[data-page="biblioteca"] #catalog-search::placeholder { color: #7E8C8A; }
+
+body[data-page="biblioteca"] #catalog-search:focus {
+  outline: none;
+  border-color: var(--bl-lima-linha);
+  box-shadow: 0 0 0 3px rgba(183, 243, 74, 0.16);
+}
+
+body[data-page="biblioteca"] .bl-search-clear {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--bl-linha);
+  border-radius: 50%;
+  background: var(--bl-superficie-2);
+  color: var(--bl-branco);
+  cursor: pointer;
+}
+
+body[data-page="biblioteca"] .bl-search-clear:hover {
+  border-color: var(--bl-lima-linha);
+  color: var(--bl-lima);
+}
+
+/* Filtros ativos ------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  /* fica dentro do painel de filtros, logo depois dos grupos */
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--bl-linha-forte);
+  border-radius: 13px;
+  background: rgba(183, 243, 74, 0.04);
+}
+
+body[data-page="biblioteca"] .bl-active-label {
+  color: var(--bl-lima);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] .bl-active-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--bl-lima-linha);
+  border-radius: 999px;
+  background: var(--bl-lima-fraca);
+  color: var(--bl-branco);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body[data-page="biblioteca"] .bl-active-chip .ui-icon svg { width: 13px; height: 13px; }
+body[data-page="biblioteca"] .bl-active-chip:hover { background: rgba(183, 243, 74, 0.22); }
+
+body[data-page="biblioteca"] .bl-clear-all {
+  min-height: 34px;
+  margin-left: auto;
+  padding: 6px 12px;
+  border: 1px solid var(--bl-linha-forte);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bl-branco);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+body[data-page="biblioteca"] .bl-clear-all:hover {
+  border-color: var(--bl-lima-linha);
+  color: var(--bl-lima);
+}
+
+/* Filtros ------------------------------------------------------------- */
+
+body[data-page="biblioteca"] .bl-filters {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 12px;
+  padding: 14px;
+  border: 1px solid var(--bl-linha);
+  border-radius: var(--bl-raio);
+  background: linear-gradient(180deg, #0C1416 0%, #0A1012 100%);
+}
+
+body[data-page="biblioteca"] .bl-filter { display: grid; gap: 8px; min-width: 0; }
+
+body[data-page="biblioteca"] .bl-filter-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+body[data-page="biblioteca"] .bl-filter .catalog-filter-label {
+  color: var(--bl-branco);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] .bl-filter-hint {
+  color: var(--bl-suave);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+body[data-page="biblioteca"] .bl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+body[data-page="biblioteca"] .bl-chips .ui-chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 1px solid var(--bl-linha-forte);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bl-branco);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
+}
+
+body[data-page="biblioteca"] .bl-chips .ui-chip-toggle:hover {
+  border-color: var(--bl-lima-linha);
+  color: var(--bl-lima);
+}
+
+body[data-page="biblioteca"] .bl-chips .ui-chip-toggle[aria-pressed="true"] {
+  background: var(--bl-lima);
+  border-color: var(--bl-lima);
+  color: #0A1305;
+}
+
+body[data-page="biblioteca"] .bl-chips .ui-chip-toggle:focus-visible {
+  outline: 2px solid var(--bl-lima);
+  outline-offset: 2px;
+}
+
+body[data-page="biblioteca"] .bl-chip-count {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(243, 247, 245, 0.08);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="biblioteca"] .bl-chips .ui-chip-toggle[aria-pressed="true"] .bl-chip-count {
+  background: rgba(8, 12, 13, 0.24);
+}
+
+body[data-page="biblioteca"] .bl-filter.is-disabled { opacity: 0.62; }
+body[data-page="biblioteca"] .bl-filter.is-disabled .ui-chip-toggle { cursor: not-allowed; }
+
+body[data-page="biblioteca"] .bl-advanced {
+  border-top: 1px solid var(--bl-linha);
+  padding-top: 10px;
+}
+
+body[data-page="biblioteca"] .bl-advanced > summary {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--bl-suave);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+body[data-page="biblioteca"] .bl-advanced > summary::-webkit-details-marker { display: none; }
+
+body[data-page="biblioteca"] .bl-advanced > summary::before {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  border: 1px solid var(--bl-linha-forte);
+  border-radius: 50%;
+  color: var(--bl-lima);
+  font-weight: 800;
+}
+
+body[data-page="biblioteca"] .bl-advanced[open] > summary::before { content: "−"; }
+
+body[data-page="biblioteca"] .bl-advanced-body { display: grid; gap: 14px; padding: 6px 0 4px; }
+
+/* Status + lista ------------------------------------------------------ */
+
+body[data-page="biblioteca"] .catalog-status {
+  margin: 0 0 12px;
+  color: var(--bl-suave);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+}
+
+body[data-page="biblioteca"] .catalog-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-content: start;
+}
+
+body[data-page="biblioteca"] .catalog-more { grid-column: 1 / -1; }
+
+/* Cards --------------------------------------------------------------- */
+
+/*
+  Card horizontal: a foto ocupa uma coluna estreita à esquerda e o texto
+  (nome, grupo muscular, modalidade, posição) fica ao lado, com as ações
+  embaixo. Cabe inteiro numa tela de 390 px e continua legível no desktop.
+*/
+body[data-page="biblioteca"] .bl-card {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--bl-linha);
+  border-radius: var(--bl-raio);
+  background: linear-gradient(180deg, #0E1618 0%, #0A1012 100%);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+body[data-page="biblioteca"] .bl-card:hover,
+body[data-page="biblioteca"] .bl-card:focus-within {
+  transform: translateY(-2px);
+  border-color: var(--bl-lima-linha);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.34);
+}
+
+body[data-page="biblioteca"] .bl-card-media {
+  position: relative;
+  min-height: 116px;
+  height: 100%;
+  background:
+    radial-gradient(70% 80% at 50% 20%, rgba(183, 243, 74, 0.06) 0%, transparent 62%),
+    linear-gradient(180deg, #0E1719 0%, #0A1112 100%);
+  overflow: hidden;
+}
+
+body[data-page="biblioteca"] .bl-card-open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+body[data-page="biblioteca"] .bl-card-open:focus-visible {
+  outline: 2px solid var(--bl-lima);
+  outline-offset: -3px;
+}
+
+/*
+  As ilustrações RepDB são quadradas e trazem o próprio fundo azul-claro
+  (#DAF1FD). Igualar o fundo da moldura a essa cor deixa a imagem inteira
+  visível, sem barras escuras e sem cortar cabeça ou pés.
+*/
+body[data-page="biblioteca"] .bl-card-media[data-backdrop="light"] {
+  background: #DAF1FD;
+}
+
+body[data-page="biblioteca"] .bl-card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* a ilustração inteira, sem cortar cabeça ou pés */
+  object-fit: contain;
+  transition: transform 320ms ease;
+}
+
+body[data-page="biblioteca"] .bl-card:hover .bl-card-image { transform: scale(1.035); }
+
+body[data-page="biblioteca"] .bl-card-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  /* espaço para as insígnias dos cantos, que nunca cobrem o conteúdo */
+  padding: 28px 6px 22px;
+  background:
+    radial-gradient(80% 90% at 50% 10%, rgba(183, 243, 74, 0.12) 0%, transparent 62%),
+    repeating-linear-gradient(135deg, rgba(243, 247, 245, 0.03) 0 2px, transparent 2px 9px),
+    #0A1112;
+}
+
+/* Na coluna estreita do card horizontal o espaço reservado é só o texto. */
+body[data-page="biblioteca"] .bl-card-fallback-initials { display: none; }
+
+body[data-page="biblioteca"] .bl-card-fallback-label {
+  max-width: 100%;
+  padding: 0 6px;
+  color: var(--bl-suave);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.35;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] .bl-rank-badge {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--bl-linha-forte);
+  background: rgba(8, 12, 13, 0.82);
+  color: var(--bl-branco);
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="biblioteca"] .bl-rank-badge.is-first {
+  background: var(--bl-lima);
+  border-color: var(--bl-lima);
+  color: #0A1305;
+}
+
+body[data-page="biblioteca"] .bl-rank-badge.is-second {
+  border-color: rgba(243, 247, 245, 0.55);
+  color: var(--bl-branco);
+}
+
+body[data-page="biblioteca"] .bl-rank-badge.is-third {
+  border-color: rgba(243, 247, 245, 0.34);
+  color: #D9E2DE;
+}
+
+body[data-page="biblioteca"] .bl-video-badge {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--bl-lima-linha);
+  background: rgba(8, 12, 13, 0.86);
+  color: var(--bl-lima);
+}
+
+body[data-page="biblioteca"] .bl-video-badge .ui-icon svg { width: 12px; height: 12px; }
+
+body[data-page="biblioteca"] .bl-origin-badge {
+  position: absolute;
+  left: 9px;
+  bottom: 9px;
+  height: 24px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--bl-linha-forte);
+  background: rgba(8, 12, 13, 0.84);
+  color: var(--bl-branco);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] .bl-card-body {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px 12px 10px 12px;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-main {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  /* a linha da lista usa flex-basis; no card o bloco de texto não estica */
+  flex: 0 0 auto;
+  padding: 0;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-name {
+  margin: 0;
+  color: var(--bl-branco);
+  font-size: 15.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-meta {
+  margin: 0;
+  color: var(--bl-suave);
+  font-size: 12px;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-tags { gap: 5px; }
+
+body[data-page="biblioteca"] .bl-card .ui-chip {
+  padding: 3px 8px;
+  border: 1px solid var(--bl-linha);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bl-suave);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-chip-accent {
+  border-color: var(--bl-lima-linha);
+  color: var(--bl-lima);
+  background: rgba(183, 243, 74, 0.08);
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: auto;
+  padding: 0;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-actions .ui-button {
+  min-height: 38px;
+  padding: 7px 10px;
+  border-radius: 11px;
+  border: 1px solid var(--bl-linha-forte);
+  background: transparent;
+  color: var(--bl-branco);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-actions .ui-button:hover {
+  border-color: var(--bl-lima-linha);
+  color: var(--bl-lima);
+  background: rgba(183, 243, 74, 0.08);
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-actions .ui-button:last-child {
+  border-color: var(--bl-lima);
+  background: var(--bl-lima);
+  color: #0A1305;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-actions .ui-button:last-child:hover {
+  filter: brightness(1.06);
+  color: #0A1305;
+}
+
+body[data-page="biblioteca"] .catalog-more .ui-button {
+  min-height: 48px;
+  border: 1px solid var(--bl-linha-forte);
+  border-radius: 13px;
+  background: var(--bl-superficie);
+  color: var(--bl-branco);
+  font-weight: 700;
+}
+
+body[data-page="biblioteca"] .catalog-more .ui-button:hover {
+  border-color: var(--bl-lima-linha);
+  color: var(--bl-lima);
+}
+
+/* Recursos ------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-resources { margin: 26px 0 0; }
+body[data-page="biblioteca"] .bl-resource-grid { display: grid; gap: 10px; margin-top: 10px; }
+
+body[data-page="biblioteca"] .bl-resource-card {
+  display: grid;
+  gap: 3px;
+  padding: 14px 15px;
+  border: 1px solid var(--bl-linha);
+  border-radius: var(--bl-raio);
+  background: linear-gradient(180deg, #0C1416 0%, #0A1012 100%);
+  color: var(--bl-branco);
+  text-decoration: none;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+body[data-page="biblioteca"] .bl-resource-card:hover,
+body[data-page="biblioteca"] .bl-resource-card:focus-visible {
+  border-color: var(--bl-lima-linha);
+  background: rgba(183, 243, 74, 0.06);
+}
+
+body[data-page="biblioteca"] .bl-resource-eyebrow {
+  color: var(--bl-lima);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] .bl-resource-title { font-size: 15px; font-weight: 800; }
+body[data-page="biblioteca"] .bl-resource-text { color: var(--bl-suave); font-size: 12.5px; line-height: 1.45; }
+
+/* Rankings ------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-section-title {
+  margin: 0 0 6px;
+  color: var(--bl-branco);
+  font-size: clamp(19px, 3.4vw, 24px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+body[data-page="biblioteca"] .bl-rankings-head { margin: 4px 0 14px; }
+
+body[data-page="biblioteca"] .bl-rankings-head .screen-subtitle {
+  margin: 0;
+  color: var(--bl-suave);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+body[data-page="biblioteca"] .bl-rankings-filters {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 14px;
+  border: 1px solid var(--bl-linha);
+  border-radius: var(--bl-raio);
+  background: var(--bl-carvao-alto);
+}
+
+body[data-page="biblioteca"] .bl-rankings {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+body[data-page="biblioteca"] .bl-ranking-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--bl-linha);
+  border-radius: var(--bl-raio);
+  background: linear-gradient(180deg, #0E1618 0%, #0A1012 100%);
+}
+
+body[data-page="biblioteca"] .bl-ranking-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--bl-linha);
+}
+
+body[data-page="biblioteca"] .bl-ranking-title {
+  margin: 0;
+  color: var(--bl-branco);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+body[data-page="biblioteca"] .bl-ranking-modality {
+  padding: 2px 9px;
+  border: 1px solid var(--bl-lima-linha);
+  border-radius: 999px;
+  color: var(--bl-lima);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+body[data-page="biblioteca"] .bl-ranking-count {
+  margin-left: auto;
+  color: var(--bl-suave);
+  font-size: 11.5px;
+}
+
+body[data-page="biblioteca"] .bl-ranking-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body[data-page="biblioteca"] .bl-ranking-item {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+
+body[data-page="biblioteca"] .bl-ranking-item.is-first {
+  border-color: var(--bl-lima-linha);
+  background: rgba(183, 243, 74, 0.09);
+}
+
+body[data-page="biblioteca"] .bl-ranking-item.is-second,
+body[data-page="biblioteca"] .bl-ranking-item.is-third {
+  border-color: var(--bl-linha);
+  background: rgba(243, 247, 245, 0.03);
+}
+
+body[data-page="biblioteca"] .bl-ranking-position {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid var(--bl-linha-forte);
+  color: var(--bl-suave);
+  font-size: 11.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="biblioteca"] .bl-ranking-item.is-first .bl-ranking-position {
+  background: var(--bl-lima);
+  border-color: var(--bl-lima);
+  color: #0A1305;
+}
+
+body[data-page="biblioteca"] .bl-ranking-item.is-second .bl-ranking-position,
+body[data-page="biblioteca"] .bl-ranking-item.is-third .bl-ranking-position {
+  border-color: rgba(243, 247, 245, 0.4);
+  color: var(--bl-branco);
+}
+
+body[data-page="biblioteca"] .bl-ranking-open {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--bl-branco);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+body[data-page="biblioteca"] .bl-ranking-open:hover { color: var(--bl-lima); }
+
+body[data-page="biblioteca"] .bl-ranking-open:focus-visible {
+  outline: 2px solid var(--bl-lima);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+body[data-page="biblioteca"] .bl-ranking-actions { display: flex; justify-content: flex-end; }
+
+body[data-page="biblioteca"] .bl-ranking-actions .ui-button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--bl-linha-forte);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--bl-branco);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+body[data-page="biblioteca"] .bl-ranking-actions .ui-button:hover {
+  border-color: var(--bl-lima-linha);
+  color: var(--bl-lima);
+}
+
+/* Ajuda --------------------------------------------------------------- */
+
+body[data-page="biblioteca"] .bl-help {
+  margin: 26px 0 0;
+  padding: 16px;
+  border: 1px solid var(--bl-linha);
+  border-radius: var(--bl-raio);
+  background: var(--bl-carvao-alto);
+}
+
+body[data-page="biblioteca"] .bl-help .screen-subtitle {
+  margin: 0 0 8px;
+  color: var(--bl-suave);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+body[data-page="biblioteca"] .bl-help .screen-subtitle:last-child { margin-bottom: 0; }
+
+/* Estado vazio -------------------------------------------------------- */
+
+body[data-page="biblioteca"] .ui-empty {
+  border: 1px dashed var(--bl-linha-forte);
+  border-radius: var(--bl-raio);
+  background: var(--bl-carvao-alto);
+}
+
+body[data-page="biblioteca"] .ui-empty-title { color: var(--bl-branco); }
+body[data-page="biblioteca"] .ui-empty-text { color: var(--bl-suave); }
+
+/* Barra inferior ------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bottom-nav {
+  border-top: 1px solid var(--bl-linha);
+  background: rgba(8, 12, 13, 0.96);
+}
+
+body[data-page="biblioteca"] .bottom-nav-link.is-active,
+body[data-page="biblioteca"] .bottom-nav-link[aria-current="page"] { color: var(--bl-lima); }
+
+/* Responsivo ---------------------------------------------------------- */
+
+@media (min-width: 560px) {
+  body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body[data-page="biblioteca"] .bl-rankings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 900px) {
+  body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  body[data-page="biblioteca"] .bl-card { grid-template-columns: 124px minmax(0, 1fr); }
+  body[data-page="biblioteca"] .bl-resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1180px) {
+  body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  body[data-page="biblioteca"] .bl-hero { padding: 16px 15px; border-radius: 18px; }
+  body[data-page="biblioteca"] .bl-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  body[data-page="biblioteca"] .bl-stat { padding: 8px 10px; gap: 0; }
+  body[data-page="biblioteca"] .bl-stat-value { font-size: 21px; }
+  body[data-page="biblioteca"] .bl-stat-label { font-size: 10.5px; line-height: 1.25; }
+  body[data-page="biblioteca"] .bl-tabs { display: flex; width: 100%; }
+  body[data-page="biblioteca"] .bl-tab { flex: 1 1 auto; padding: 0 12px; }
+  body[data-page="biblioteca"] .bl-filters { padding: 12px; }
+  /*
+    No bolso os chips continuam quebrando linha em vez de virar faixa
+    deslizante: os 13 grupos musculares ficam todos à vista, sem esconder
+    opção nenhuma atrás de rolagem horizontal.
+  */
+  body[data-page="biblioteca"] .bl-chips { gap: 6px; }
+  body[data-page="biblioteca"] .bl-chips .ui-chip-toggle {
+    min-height: 36px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  body[data-page="biblioteca"] .bl-card { grid-template-columns: 96px minmax(0, 1fr); }
+  body[data-page="biblioteca"] .bl-card-body { padding: 9px 10px; }
+  body[data-page="biblioteca"] .bl-card .ui-exercise-name { font-size: 14.5px; }
+  body[data-page="biblioteca"] .bl-card .ui-exercise-actions .ui-button { min-height: 36px; padding: 6px 8px; font-size: 12px; }
+  body[data-page="biblioteca"] .bl-clear-all { margin-left: 0; }
+}
+
+@media (max-width: 380px) {
+  body[data-page="biblioteca"] .bl-stat-value { font-size: 19px; }
+  body[data-page="biblioteca"] .bl-chips .ui-chip-toggle { font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-page="biblioteca"] .bl-card,
+  body[data-page="biblioteca"] .bl-card-image,
+  body[data-page="biblioteca"] .bl-tab,
+  body[data-page="biblioteca"] .bl-chips .ui-chip-toggle {
+    transition: none;
+  }
+  body[data-page="biblioteca"] .bl-card:hover { transform: none; }
+  body[data-page="biblioteca"] .bl-card:hover .bl-card-image { transform: none; }
+}

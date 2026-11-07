@@ -1,5 +1,5 @@
 /*
-  FORJA — catálogo de exercícios (dados de referência e a tela Biblioteca).
+  FORJA — catálogo de exercícios (leitura do catálogo e detalhe do exercício).
 
   Duas responsabilidades, separadas do módulo de treino:
 
@@ -8,8 +8,15 @@
      catálogo (categoria, grupos musculares, equipamento, execução) e oferece
      busca com normalização e contagem por faceta. Não grava nada sozinho.
 
-  2. `F.pages.biblioteca`: a tela completa — busca, filtros, detalhe com
-     instruções e ação real de adicionar o exercício a uma rotina existente.
+  2. `F.catalog.showDetail`: o detalhe de um exercício em seções, usado pela
+     biblioteca visual (`forja-biblioteca-visual.js`), pelo atlas, pelo editor
+     de rotina e pela tela de execução. As seções editoriais vêm do catálogo
+     central; um exercício personalizado mostra só o que o usuário informou.
+
+  A tela da biblioteca (Etapa 4) vive em `forja-biblioteca-visual.js` e lê o
+  catálogo central (`forja-catalogo-central.js`) como fonte única. A inserção
+  em uma rotina continua aqui (`addToRoutine`), para existir um único caminho
+  de escrita.
 
   Os metadados abaixo são conteúdo do app (não estatística do usuário): eles
   descrevem o exercício sugerido. Um item personalizado sem metadados aparece
@@ -518,6 +525,21 @@
       ? photo : null;
   }
 
+  /*
+    Gancho de redesenho da tela que exibe o catálogo. Fica nulo nas páginas que
+    só consomem o catálogo (execução, editor, atlas).
+  */
+  let pageRefresh = null;
+
+  function notifyPageRefresh() {
+    if (typeof pageRefresh !== "function") return;
+    try {
+      pageRefresh();
+    } catch (error) {
+      console.error("Falha ao atualizar a biblioteca:", error);
+    }
+  }
+
   F.catalog = {
     CATEGORY_NAMES: Object.assign({}, CATEGORY_NAMES, EXTRA_CATEGORIES),
     categoryLabel,
@@ -533,8 +555,13 @@
     describeExercise,
     showDetail,
     renderRow: recordRow,
+    addToRoutine,
     PHOTO_MANIFEST,
     photoFor,
+    /* A página aberta registra aqui o próprio redesenho. */
+    setPageRefresh(listener) {
+      pageRefresh = typeof listener === "function" ? listener : null;
+    },
     /* Categorias presentes no catálogo atual (para o formulário). */
     categories(mode) {
       const used = countBy(items(mode), record => [record.category]);
@@ -543,120 +570,6 @@
       return keys.sort((a, b) => categoryLabel(a).localeCompare(categoryLabel(b), "pt-BR"));
     }
   };
-
-  /* ------------------------------------------------------------------ */
-  /* Página: treino/biblioteca.html                                       */
-  /* ------------------------------------------------------------------ */
-
-  const state = {
-    query: "",
-    mode: null,
-    section: null,
-    measure: null,
-    category: null,
-    muscle: null,
-    equipment: null,
-    source: null
-  };
-
-  /*
-    Divulgação progressiva: a tela cabe no bolso antes de rolar 37 cartões.
-    O limite é do desenho, não dos dados — "Mostrar mais" revela o resto e o
-    contador diz exatamente quantos faltam.
-  */
-  const PAGE_SIZE = 12;
-  let visible = PAGE_SIZE;
-  let lastSignature = "";
-
-  function signature() {
-    return JSON.stringify(state);
-  }
-
-  function applyFilters(patch) {
-    Object.assign(state, patch);
-    if (signature() !== lastSignature) visible = PAGE_SIZE;
-    update();
-  }
-
-  const FILTER_KEYS = ["section", "measure", "category", "muscle", "equipment", "source"];
-
-  let host = null;
-  let controls = null;
-  let status = null;
-  let list = null;
-  let search = null;
-
-  function clear(node) {
-    while (node.firstChild) node.removeChild(node.firstChild);
-    return node;
-  }
-
-  function activeFilterCount() {
-    return FILTER_KEYS.filter(key => state[key]).length +
-      (state.mode ? 1 : 0) +
-      (F.catalog.normalizeText(state.query) ? 1 : 0);
-  }
-
-  function resetFilters() {
-    state.query = "";
-    state.mode = null;
-    FILTER_KEYS.forEach(key => { state[key] = null; });
-    if (search) search.value = "";
-    visible = PAGE_SIZE;
-    update();
-    if (search) search.focus();
-  }
-
-  /*
-    Fábrica de linha de filtro. O wrapper guarda a chave do filtro para que,
-    depois de redesenhar, o foco volte ao mesmo botão (importante no teclado).
-  */
-  function filterRow(key, label, entries, hint) {
-    if (entries.length === 0) return null;
-
-    const wrap = F.ui.el("div", "catalog-filter");
-    wrap.setAttribute("data-filter-group", key);
-    wrap.appendChild(F.ui.el("span", "catalog-filter-label", label));
-    wrap.appendChild(F.ui.filterChips({
-      label: label + (hint ? " — " + hint : ""),
-      options: [{ label: "Todos", value: null, active: !state[key] }].concat(entries.map(entry => ({
-        label: entry.label,
-        value: entry.value,
-        count: entry.count,
-        active: entry.value === state[key]
-      }))),
-      onChange(value) {
-        applyFilters({ [key]: state[key] === value ? null : value });
-      }
-    }));
-
-    return wrap;
-  }
-
-  function rememberFocus() {
-    const node = doc.activeElement;
-    if (!node || !node.closest || !controls) return null;
-
-    const group = node.closest("[data-filter-group]");
-    if (!group || !controls.contains(group)) return null;
-
-    return {
-      group: group.getAttribute("data-filter-group"),
-      value: node.getAttribute("data-value")
-    };
-  }
-
-  function restoreFocus(target) {
-    if (!target || !controls) return;
-
-    const group = controls.querySelector('[data-filter-group="' + target.group + '"]');
-    if (!group) return;
-
-    const match = Array.prototype.slice.call(group.querySelectorAll("[data-value]"))
-      .find(node => node.getAttribute("data-value") === target.value);
-
-    if (match && typeof match.focus === "function") match.focus();
-  }
 
   /*
     Etiquetas da linha. Na tela do bolso o que identifica o exercício precisa
@@ -722,18 +635,6 @@
     return row;
   }
 
-  function linesNode(lines, fallback) {
-    const details = F.ui.el("div", "modal-details");
-
-    if (lines.length === 0) {
-      details.appendChild(F.ui.el("p", "modal-detail-line", fallback));
-      return details;
-    }
-
-    lines.forEach(line => details.appendChild(F.ui.el("p", "modal-detail-line", line)));
-    return details;
-  }
-
   /* Leitura dos níveis musculares no detalhe da biblioteca (fonte: catálogo). */
   function roleSummary(roles) {
     if (!roles) return "";
@@ -746,103 +647,577 @@
     return parts.join(" · ");
   }
 
-  async function showDetail(record, options = {}) {
-    const lines = [];
+  /* ------------------------------------------------------------------ */
+  /* Detalhe do exercício                                               */
+  /* (biblioteca visual, atlas, editor de rotina e tela de execução)     */
+  /* ------------------------------------------------------------------ */
 
-    if (record.instructions) lines.push(record.instructions);
-    if (!record.instructions) lines.push("Nenhuma instrução salva para este exercício.");
-    if (record.equipment && record.equipment.length) lines.push("Equipamento: " + record.equipment.join(", ") + ".");
-    if (record.roles) lines.push("Grupos musculares — " + roleSummary(record.roles) + ".");
-    else if (record.muscles && record.muscles.length) lines.push("Grupos musculares informados: " + record.muscles.join(", ") + ".");
-    if (record.notes) lines.push("Observação salva: " + record.notes);
-    if (record.mode === "weights" && record.load) lines.push("Carga de referência digitada: " + record.load);
-    if (!options.readOnly) lines.push(historyLine(record));
+  /*
+    Registro central do exercício, quando existe. É a fonte editorial das
+    seções do detalhe (ranking, músculos, equipamento, técnica). Um exercício
+    personalizado não tem registro central: o detalhe mostra somente o que o
+    usuário informou, sem inventar classificação.
+  */
+  /*
+    Ponte entre os dois vocabulários de dados do app.
+
+    - `F.MODES` / `record.mode` são strings históricas: "weights" e
+      "calisthenics" (as rotinas, sessões e o histórico usam isso).
+    - `F.exerciseCatalog` / `F.EXERCISE_LIBRARY` são registros com `modality`
+      ("academia", "calistenia", "peso-corporal"), `primaryMuscle`, `equipment`
+      e `media`.
+
+    A identidade de um exercício é o `libraryId` (nunca o nome digitado); o
+    `legacyIdMap` do catálogo resolve os IDs antigos. Este helper devolve o
+    registro central correspondente a uma cópia de rotina/sessão, ou null para
+    exercícios personalizados que não existem no catálogo.
+  */
+  function centralRecordFor(record) {
+    if (!record || !F.exerciseCatalog) return null;
+    const origin = record.libraryId || record.id;
+    if (!origin) return null;
+    return F.exerciseCatalog.byId(origin);
+  }
+
+  function detailSection(title, key) {
+    const section = F.ui.el("section", "bl-detail-section");
+    if (key) section.setAttribute("data-detail-section", key);
+
+    section.appendChild(F.ui.el("h3", "bl-detail-heading", title));
+    return section;
+  }
+
+  function detailText(text, className) {
+    return F.ui.el("p", "modal-detail-line" + (className ? " " + className : ""), text);
+  }
+
+  function detailList(items, className) {
+    const list = doc.createElement("ul");
+    list.className = "bl-detail-list" + (className ? " " + className : "");
+
+    items.forEach(item => {
+      list.appendChild(F.ui.el("li", null, item));
+    });
+
+    return list;
+  }
+
+  function detailChips(values) {
+    const row = F.ui.el("div", "ui-exercise-tags bl-detail-tags");
+    values.forEach(value => row.appendChild(F.ui.chip(value, "muted")));
+    return row;
+  }
+
+  /* Posição no ranking editorial da combinação (grupo + modalidade). */
+  function rankingLine(central) {
+    if (!central || !central.ranking) return null;
+
+    const muscle = F.exerciseCatalog.groupById(central.primaryMuscle);
+    const modality = F.exerciseCatalog.modalityById(central.modality);
+    const position = central.ranking.position;
+
+    return {
+      position,
+      label: position + "º lugar",
+      context: (muscle ? muscle.name : "") + (modality ? " · " + modality.name : ""),
+      editorial: central.ranking.type === "editorial",
+      criteriaVersion: central.ranking.criteriaVersion || "1"
+    };
+  }
+
+  function difficultyLabel(value) {
+    if (value === "avancado") return "avançado";
+    if (value === "intermediario") return "intermediário";
+    if (value === "iniciante") return "iniciante";
+    return String(value || "");
+  }
+
+  /*
+    Seções do detalhe, montadas a partir do catálogo central quando houver
+    registro oficial. Todo texto exibido vem de um campo existente: a seção
+    não aparece quando o dado não existe.
+  */
+  function detailSections(record, central, options) {
+    const wrap = F.ui.el("div", "bl-detail-sections");
+    const mode = record.mode;
+    const modeName = central
+      ? (F.exerciseCatalog.modalityById(central.modality) || {}).name
+      : F.MODE_NAMES[mode];
 
     /*
-      Demonstração visual (ilustrações RepDB locais). `photoFor` continua
-      sendo o contrato congelado do piloto de FOTOS: nenhuma foto publicada.
-      As ilustrações são resolvidas por identidade (libraryId), nunca por nome.
+      A identificação (nome, grupo, modalidade, foto) fica no topo do detalhe,
+      montada por `identificationBlock`. Aqui começam as informações
+      complementares — nada de repetir o mesmo dado duas vezes na tela.
     */
-    const demo = F.demos && F.demos.available()
-      ? F.demos.resolve(record, record.mode)
-      : null;
-    if (!demo && !photoFor(record)) {
-      lines.push(F.demos ? F.demos.fallbackText(record) : "Fotografia demonstrativa ainda não disponível.");
+
+    /* 2. Classificação no ranking, quando existente. */
+    const ranking = rankingLine(central);
+    if (ranking || options.alwaysShowRanking) {
+      const section = detailSection("Classificação no ranking", "ranking");
+      if (ranking) {
+        section.appendChild(detailText(ranking.label + " — " + ranking.context + ".", "bl-detail-strong"));
+        if (ranking.editorial) {
+          section.appendChild(detailText("Classificação editorial do catálogo (critérios v" +
+            ranking.criteriaVersion + "). Não representa percentual de ativação muscular."));
+        }
+      } else {
+        section.appendChild(detailText("Este exercício não tem posição no ranking: ele é seu, e a classificação existe somente para o catálogo central."));
+      }
+      wrap.appendChild(section);
     }
 
-    const details = linesNode(lines,
-      "Nenhuma instrução salva para este exercício. Ao criar um item personalizado você pode escrever o passo a passo e ele aparece aqui.");
+    /* 3. Equipamento necessário. */
+    if (central) {
+      const section = detailSection("Equipamentos", "equipamento");
+      if (central.equipment.length === 0) {
+        section.appendChild(detailText("Sem equipamento: apenas o corpo e o espaço disponível."));
+      } else {
+        section.appendChild(detailChips(central.equipment.map(item => F.exerciseCatalog.equipmentLabel(item))));
+      }
+      wrap.appendChild(section);
+    } else if (record.equipment && record.equipment.length) {
+      const section = detailSection("Equipamentos", "equipamento");
+      section.appendChild(detailChips(record.equipment));
+      wrap.appendChild(section);
+    }
 
     /*
-      Figura das regiões trabalhadas (mesma peça do atlas). Só entra quando o
-      módulo do atlas está carregado e o exercício tem classificação — nada é
-      desenhado por suposição.
+      4. Execução, técnica e cuidados. Uma cópia de rotina/sessão carrega as
+      instruções do próprio exercício: elas vêm do usuário e têm precedência
+      sobre o texto editorial (ele pode ter ajustado o passo a passo).
     */
-    if (!options.readOnly && F.atlas && F.atlas.figurePair) {
-      const highlights = F.atlas.highlightsFor(record);
+    const isCopy = Boolean(record.libraryId && record.id && record.id !== record.libraryId);
 
-      if (Object.keys(highlights).length > 0) {
-        const figure = document.createElement("div");
-        figure.className = "modal-figure";
-        figure.appendChild(F.atlas.figurePair(highlights));
-        figure.appendChild(F.atlas.legendNode(highlights, { compact: true }));
-        details.insertBefore(figure, details.firstChild);
+    if (central && !isCopy) {
+      if (central.instructions.length) {
+        const section = detailSection("Execução", "execucao");
+        section.appendChild(detailList(central.instructions, "bl-detail-steps"));
+        wrap.appendChild(section);
+      }
+      if (central.technique.length) {
+        const section = detailSection("Técnica", "tecnica");
+        section.appendChild(detailList(central.technique));
+        wrap.appendChild(section);
+      }
+      if (central.cautions.length) {
+        const section = detailSection("Cuidados", "cuidados");
+        section.appendChild(detailList(central.cautions));
+        wrap.appendChild(section);
+      }
+    } else {
+      if (record.instructions) {
+        const section = detailSection("Execução", "execucao");
+        section.appendChild(detailText(record.instructions));
+        wrap.appendChild(section);
+      }
+      if (central && central.technique.length) {
+        const section = detailSection("Técnica", "tecnica");
+        section.appendChild(detailList(central.technique));
+        wrap.appendChild(section);
+      }
+      if (central && central.cautions.length) {
+        const section = detailSection("Cuidados", "cuidados");
+        section.appendChild(detailList(central.cautions));
+        wrap.appendChild(section);
       }
     }
 
-    /* Demonstração em vídeo (YouTube 16:9) + imagem de referência como fallback. */
-    let stageHandle = null;
-    if (F.videos) {
-      stageHandle = F.videos.createStage(record, record.mode, { compact: false });
-      details.insertBefore(stageHandle.node, details.firstChild);
-    } else if (demo && F.demos) {
-      const media = F.demos.createMedia(record, record.mode, { eager: false });
-      details.insertBefore(media.node, details.firstChild);
+    /*
+      5. Informações musculares do catálogo (papel de cada grupo). A frase de
+      resumo usa o vocabulário antigo ("peito", "dorsais") — o mesmo da
+      legenda do atlas e dos exercícios já salvos —, e a tabela abaixo mostra
+      os nomes de exibição do catálogo.
+    */
+    const centralRoles = central
+      ? {
+        primary: [central.primaryMuscle],
+        secondary: central.secondaryMuscles.slice(),
+        stabilizers: central.stabilizers.slice()
+      }
+      : null;
+
+    const greeting = id => (centralRoles
+      ? F.exerciseCatalog.legacyMuscleName(id)
+      : (F.exerciseCatalog.legacyMuscleName(id) || id));
+
+    const legacyRoles = centralRoles
+      ? {
+        primary: centralRoles.primary.map(greeting),
+        secondary: centralRoles.secondary.map(greeting),
+        stabilizers: centralRoles.stabilizers.map(greeting)
+      }
+      : record.roles;
+
+    const roles = centralRoles
+      ? {
+        primary: centralRoles.primary.map(id => F.exerciseCatalog.muscleName(id)),
+        secondary: centralRoles.secondary.map(id => F.exerciseCatalog.muscleName(id)),
+        stabilizers: centralRoles.stabilizers.map(id => F.exerciseCatalog.muscleName(id))
+      }
+      : record.roles;
+
+    if (roles && (roles.primary.length || roles.secondary.length || roles.stabilizers.length)) {
+      const section = detailSection("Músculos", "musculos");
+      const parts = [];
+      const summary = legacyRoles || roles;
+      if (summary.primary.length) parts.push("principal: " + summary.primary.join(", "));
+      if (summary.secondary.length) parts.push("secundários: " + summary.secondary.join(", "));
+      if (summary.stabilizers.length) parts.push("estabilizadores: " + summary.stabilizers.join(", "));
+      section.appendChild(detailText("Grupos musculares — " + parts.join(" · ") + ".", "bl-detail-strong"));
+
+      const rows = [];
+      if (roles.primary.length) rows.push(["Principal", roles.primary.join(", ")]);
+      if (roles.secondary.length) rows.push(["Secundários", roles.secondary.join(", ")]);
+      if (roles.stabilizers.length) rows.push(["Estabilizadores", roles.stabilizers.join(", ")]);
+
+      const list = doc.createElement("dl");
+      list.className = "bl-detail-roles";
+      rows.forEach(pair => {
+        list.appendChild(F.ui.el("dt", null, pair[0]));
+        list.appendChild(F.ui.el("dd", null, pair[1]));
+      });
+      section.appendChild(list);
+      wrap.appendChild(section);
+    } else if (record.muscles && record.muscles.length) {
+      const section = detailSection("Músculos", "musculos");
+      section.appendChild(detailText("Grupos musculares informados: " + record.muscles.join(", ") + "."));
+      wrap.appendChild(section);
     }
 
-    /* Uma associação aprovada no painel tem prioridade sobre a mídia padrão.
-       Sem ela, o vídeo oficial/ilustração da F.videos permanece intacto. */
-    let youtubeHost = null;
-    if (F.youtube && F.exerciseCatalog && F.exerciseCatalog.byId(record.libraryId || record.id)) {
-      youtubeHost = document.createElement("div");
-      youtubeHost.className = "youtube-detail";
-      details.insertBefore(youtubeHost, details.firstChild);
+    /* 6. Observações e carga digitadas pelo usuário (nunca inventadas). */
+    if (record.notes || (mode === "weights" && record.load)) {
+      const section = detailSection("Suas observações", "observacoes");
+      if (record.notes) section.appendChild(detailText("Observação salva: " + record.notes));
+      if (mode === "weights" && record.load) section.appendChild(detailText("Carga de referência digitada: " + record.load));
+      wrap.appendChild(section);
     }
+
+    /* 7. Histórico real do navegador para este exercício. */
+    if (!options.readOnly) {
+      const section = detailSection("No seu histórico", "historico");
+      section.appendChild(detailText(historyLine(record)));
+      wrap.appendChild(section);
+    }
+
+    return wrap;
+  }
+
+  /*
+    Foto do exercício no detalhe. Só entra imagem do próprio identificador:
+
+    1. foto aprovada do manifesto editorial (`PHOTO_MANIFEST`), quando existir;
+    2. imagem aprovada do catálogo central, buscada pelo ID do exercício;
+    3. associação do catálogo ainda em revisão — exibida com o aviso explícito;
+    4. ilustração que o usuário escolheu para o exercício personalizado.
+
+    Sem nenhuma delas não existe foto inventada: o detalhe mostra o espaço
+    reservado com "Imagem ainda não disponível".
+  */
+  function detailPhotoFor(record, central) {
+    const approved = photoFor(record);
+    if (approved && approved.src) {
+      return {
+        src: approved.src,
+        url: F.url(approved.src),
+        alt: approved.alt || ("Foto do exercício " + record.name),
+        status: "approved",
+        caption: null
+      };
+    }
+
+    const media = central && central.media && central.media.image;
+    if (media && media.src) {
+      return {
+        src: media.src,
+        url: F.url(media.src),
+        alt: "Foto do exercício " + record.name,
+        status: media.status,
+        caption: media.status === "validated"
+          ? null
+          : "Associação em revisão editorial: a foto é do mesmo movimento, mas ainda não foi validada."
+      };
+    }
+
+    return null;
+  }
+
+  /*
+    Escolha explícita de demonstração feita pelo usuário para este exercício.
+    Vale mais que a imagem padrão do catálogo: é o dado dele.
+  */
+  function explicitDemoFor(record) {
+    if (!F.demos || !F.demos.available()) return null;
+    const demo = F.demos.resolve(record, record.mode);
+    return demo && demo.explicit && demo.thumb && demo.thumb.url ? demo : null;
+  }
+
+  /*
+    A foto é renderizada pelo mesmo componente de demonstração da Etapa 3
+    quando a imagem aprovada é exatamente a ilustração daquele exercício — o
+    arquivo é o mesmo, e assim o crédito obrigatório (RepDB) viaja junto.
+  */
+  function photoBlock(record, central) {
+    const explicit = explicitDemoFor(record);
+    const photo = explicit
+      ? {
+        src: explicit.thumb.file,
+        url: explicit.thumb.url,
+        alt: "Imagem escolhida para " + record.name,
+        status: "escolhida",
+        caption: null
+      }
+      : detailPhotoFor(record, central);
+    const figure = doc.createElement("figure");
+    figure.className = "bl-detail-photo";
+    figure.setAttribute("data-photo", photo ? "ok" : "missing");
+
+    let demoMedia = null;
+
+    if (photo && F.demos && F.demos.available()) {
+      const demo = F.demos.resolve(record, record.mode);
+      /* `thumb.file` é o nome do arquivo; `media.image.src` traz o caminho. */
+      const sameFile = value => String(value || "").split("/").pop();
+      if (demo && demo.thumb && sameFile(demo.thumb.file) === sameFile(photo.src)) {
+        demoMedia = F.demos.createMedia(record, record.mode, { eager: false });
+      }
+    }
+
+    if (demoMedia && demoMedia.node) {
+      figure.classList.add("has-demo-media");
+      figure.appendChild(demoMedia.node);
+    } else if (photo) {
+      const image = doc.createElement("img");
+      image.className = "bl-detail-photo-image";
+      image.src = photo.url;
+      image.alt = photo.alt;
+      image.width = 512;
+      image.height = 512;
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.setAttribute("data-image-status", photo.status);
+      /* Arquivo ausente não deixa ícone de imagem quebrada na tela. */
+      image.addEventListener("error", () => {
+        figure.setAttribute("data-photo", "missing");
+        image.remove();
+        if (!figure.querySelector(".bl-detail-photo-missing")) {
+          figure.insertBefore(photoMissing(record), figure.firstChild);
+        }
+      });
+      figure.appendChild(image);
+    } else {
+      figure.appendChild(photoMissing(record));
+    }
+
+    if (photo) {
+      const caption = doc.createElement("figcaption");
+      caption.className = "bl-detail-photo-caption";
+      caption.textContent = photo.caption || "";
+      if (photo.caption) figure.appendChild(caption);
+    } else {
+      const caption = doc.createElement("figcaption");
+      caption.className = "bl-detail-photo-caption";
+      caption.textContent = "A foto só aparece quando existe uma imagem aprovada do próprio movimento.";
+      figure.appendChild(caption);
+    }
+
+    return figure;
+  }
+
+  function photoMissing(record) {
+    const box = F.ui.el("div", "bl-detail-photo-missing");
+    box.appendChild(F.ui.el("strong", "bl-detail-photo-missing-title", "Imagem ainda não disponível"));
+    box.appendChild(F.ui.el("span", "bl-detail-photo-missing-text",
+      "Não há foto aprovada de " + record.name + "; a demonstração abaixo continua valendo."));
+    return box;
+  }
+
+  /*
+    Identificação: nome (já no título do diálogo), grupo muscular, modalidade,
+    dificuldade, a foto do exercício e o resumo editorial do catálogo.
+  */
+  function identificationBlock(record, central) {
+    const section = detailSection("Identificação", "identificacao");
+    section.classList.add("bl-detail-ident");
+
+    const group = central ? F.exerciseCatalog.groupById(central.primaryMuscle) : null;
+    const modeName = central
+      ? (F.exerciseCatalog.modalityById(central.modality) || {}).name
+      : F.MODE_NAMES[record.mode];
+
+    const chips = F.ui.el("div", "ui-exercise-tags bl-detail-tags bl-detail-ident-tags");
+    if (central) chips.appendChild(F.ui.chip(group ? group.name : central.primaryMuscle, "accent"));
+    chips.appendChild(F.ui.chip(modeName || "", "muted"));
+    if (central && central.difficulty) chips.appendChild(F.ui.chip("dificuldade " + difficultyLabel(central.difficulty), "muted"));
+    section.appendChild(chips);
+
+    section.appendChild(photoBlock(record, central));
+
+    if (central && central.description) {
+      section.appendChild(detailText(central.description));
+    } else if (!central && record.instructions) {
+      section.appendChild(detailText(record.instructions));
+    }
+
+    return section;
+  }
+
+  /*
+    Demonstração em vídeo. O palco é o mesmo da Etapa 3 (16:9, nocookie, sem
+    autoplay, sem som inicial, controles visíveis). A foto já está logo acima,
+    então o palco entra sem repetir a ilustração: quando não há vídeo ele diz,
+    com todas as letras, que a demonstração em vídeo não existe.
+  */
+  function videoBlock(record) {
+    const section = detailSection("Demonstração em vídeo", "video");
+    section.classList.add("bl-detail-video");
+
+    let stageHandle = null;
+    if (F.videos) {
+      stageHandle = F.videos.createStage(record, record.mode, { compact: false, reference: false });
+      section.appendChild(stageHandle.node);
+    } else if (F.demos) {
+      const demoMedia = F.demos.createMedia(record, record.mode, { eager: false });
+      section.appendChild(demoMedia.node);
+    }
+
+    /* Associação aprovada no administrativo tem prioridade sobre a mídia
+       padrão (regra da Etapa 3); sem ela, o palco padrão permanece. */
+    let youtubeHost = null;
+
+    if (F.youtube && F.exerciseCatalog && F.exerciseCatalog.byId(record.libraryId || record.id)) {
+      youtubeHost = doc.createElement("div");
+      youtubeHost.className = "youtube-detail";
+      section.appendChild(youtubeHost);
+    }
+
+    return { section, stageHandle, youtubeHost };
+  }
+
+  /* Botão principal do detalhe: leva ao fluxo de rotina já existente. */
+  function addToTrainingBlock(record) {
+    const wrap = F.ui.el("div", "bl-detail-cta");
+    wrap.setAttribute("data-detail-section", "adicionar");
+
+    const button = F.ui.button({
+      label: "Adicionar ao treino",
+      icon: "plus",
+      variant: "primary-button",
+      className: "full-width",
+      ariaLabel: "Adicionar " + record.name + " ao treino",
+      onClick() {
+        /*
+          Fecha o detalhe devolvendo a ação "add": o fluxo de rotina da Etapa 5
+          continua sendo o único caminho de escrita, sem um segundo sistema.
+        */
+        F.closeOpenModal({ action: "add", values: {} });
+      }
+    });
+    button.id = "detail-add-to-training";
+    wrap.appendChild(button);
+
+    wrap.appendChild(F.ui.el("p", "bl-detail-cta-hint",
+      "Escolha a rotina e a seção na próxima etapa. O exercício entra no fim da seção e pode ser reordenado no editor."));
+
+    return wrap;
+  }
+
+  /*
+    Atlas anatômico: mesma peça do atlas, com o principal em destaque e os
+    papéis secundários diferenciados por cor e por legenda escrita.
+  */
+  function atlasBlock(record) {
+    if (!F.atlas || !F.atlas.figurePair) return null;
+
+    const highlights = F.atlas.highlightsFor(record);
+    if (Object.keys(highlights).length === 0) return null;
+
+    const section = detailSection("Atlas anatômico", "atlas");
+    section.classList.add("bl-detail-atlas");
+
+    const figure = document.createElement("div");
+    figure.className = "modal-figure";
+    figure.appendChild(F.atlas.figurePair(highlights));
+    figure.appendChild(F.atlas.legendNode(highlights, { compact: true }));
+    section.appendChild(figure);
+
+    /*
+      A legenda escrita só lista os papéis que realmente aparecem na figura:
+      nada de explicar "estabilizador" quando nenhum músculo tem esse papel.
+    */
+    const present = {};
+    Object.keys(highlights).forEach(id => {
+      present[highlights[id]] = (present[highlights[id]] || 0) + 1;
+    });
+
+    const key = F.ui.el("ul", "bl-detail-atlas-key");
+    const items = [];
+    if (present.primary) items.push(["is-primary", "Principal", "conduz o movimento"]);
+    if (present.secondary) items.push(["is-secondary", "Secundário", "ajuda a executar o movimento"]);
+    if (present.stabilizer) items.push(["is-stabilizer", "Estabilizador", "mantém a posição do corpo"]);
+    if (present.informed) items.push(["is-informed", "Informado", "grupo citado na ficha, sem papel definido"]);
+
+    items.forEach(item => {
+      const li = F.ui.el("li", "bl-detail-atlas-key-item " + item[0]);
+      li.setAttribute("data-atlas-role", item[0]);
+      li.appendChild(F.ui.el("span", "bl-detail-atlas-dot"));
+      li.appendChild(F.ui.el("strong", null, item[1]));
+      li.appendChild(F.ui.el("span", "bl-detail-atlas-key-text", " — " + item[2]));
+      key.appendChild(li);
+    });
+
+    section.appendChild(key);
+    section.appendChild(F.ui.el("p", "bl-detail-note",
+      "As cores vêm do Atlas do FORJA e descrevem o papel de cada músculo neste exercício, não a intensidade do trabalho."));
+
+    return section;
+  }
+
+  async function showDetail(record, options = {}) {
+    const central = centralRecordFor(record);
+    const details = F.ui.el("div", "modal-details bl-detail");
+
+    /*
+      Uma única tela, sem abas e sem menu escondido:
+      identificação e foto → demonstração em vídeo → adicionar ao treino →
+      atlas anatômico → informações complementares.
+    */
+    details.appendChild(identificationBlock(record, central));
+
+    const video = videoBlock(record);
+    details.appendChild(video.section);
+
+    if (!options.readOnly) details.appendChild(addToTrainingBlock(record));
+
+    if (!options.readOnly) {
+      const atlas = atlasBlock(record);
+      if (atlas) details.appendChild(atlas);
+    }
+
+    details.appendChild(detailSections(record, central, options));
 
     const abertura = F.showModal({
       title: record.name,
       message: F.catalog.summary(record),
       details,
-      fields: options.readOnly ? [] : [{
-        id: "section",
-        label: "Adicionar na seção",
-        type: "select",
-        value: record.section,
-        options: SECTIONS.map(section => ({ value: section, label: F.SECTION_NAMES[section] }))
-      }],
-      actions: options.readOnly
-        ? [{ id: "cancel", label: "Fechar", className: "secondary-button" }]
-        : [
-          { id: "cancel", label: "Fechar", className: "secondary-button" },
-          { id: "add", label: "Adicionar à rotina", className: "primary-button" }
-        ]
+      fields: [],
+      actions: [{ id: "cancel", label: "Fechar", className: "secondary-button" }]
     });
 
-    if (youtubeHost) {
+    if (video.youtubeHost) {
       setTimeout(() => {
-        if (youtubeHost.isConnected) F.youtube.render(record, youtubeHost);
+        if (video.youtubeHost.isConnected) F.youtube.render(record, video.youtubeHost);
       }, 0);
     }
 
     const result = await abertura;
 
-    if (stageHandle && F.videos) {
-      F.videos.destroyStage(stageHandle.node);
+    if (video.stageHandle && F.videos) {
+      F.videos.destroyStage(video.stageHandle.node);
     }
 
     if (result.action !== "add") return;
 
-    await commitAdd(record, result.values.section || record.section);
+    await commitAdd(record, (result.values && result.values.section) || record.section);
   }
 
   /*
@@ -1027,258 +1402,7 @@
 
     F.ui.announce(record.name + " adicionado em " + routine.name + ", seção " + F.SECTION_NAMES[targetSection] + ".");
     F.showToast(record.name + " entrou em " + routine.name + " · " + F.SECTION_NAMES[targetSection] + ".");
-    update();
+    notifyPageRefresh();
   }
 
-  function update() {
-    if (!host) return;
-
-    const found = F.catalog.filter(state);
-    const counts = F.catalog.facets(state);
-    const focus = rememberFocus();
-
-    clear(controls);
-
-    controls.appendChild(F.ui.segmented({
-      label: "Modalidade dos exercícios",
-      value: state.mode,
-      options: [{ value: null, label: "Todas", count: F.catalog.items().length }].concat(MODES.map(mode => ({
-        value: mode,
-        label: F.MODE_NAMES[mode],
-        count: F.catalog.items(mode).length
-      }))),
-      onChange(value) {
-        applyFilters({ mode: state.mode === value ? null : value });
-      }
-    }));
-
-    [
-      filterRow("section", "Seção", SECTIONS
-        .filter(section => counts.sectionValues.get(section))
-        .map(section => ({ value: section, label: F.SECTION_NAMES[section], count: counts.sectionValues.get(section) }))),
-      filterRow("measure", "Medição", Object.keys(F.MEASURE_NAMES)
-        .filter(measure => counts.measureValues.get(measure))
-        .map(measure => ({ value: measure, label: F.MEASURE_NAMES[measure], count: counts.measureValues.get(measure) }))),
-      filterRow("category", "Categoria", counts.categoryValues.size
-        ? Array.from(counts.categoryValues.keys())
-          .sort((a, b) => F.catalog.categoryLabel(a).localeCompare(F.catalog.categoryLabel(b), "pt-BR"))
-          .map(value => ({ value, label: F.catalog.categoryLabel(value), count: counts.categoryValues.get(value) }))
-        : []),
-      filterRow("muscle", "Grupo muscular", Array.from(counts.muscles.keys())
-        .sort((a, b) => a.localeCompare(b, "pt-BR"))
-        .map(value => ({ value, label: value, count: counts.muscles.get(value) })), "filtre para reduzir a lista"),
-      filterRow("equipment", "Equipamento", Array.from(counts.equipment.keys())
-        .sort((a, b) => a.localeCompare(b, "pt-BR"))
-        .map(value => ({ value, label: value, count: counts.equipment.get(value) })), "filtre para reduzir a lista"),
-      filterRow("source", "Origem", [
-        { value: "sugerido", label: "Sugerido", count: counts.sources.get("sugerido") || 0 },
-        { value: "personalizado", label: "Seus", count: counts.sources.get("personalizado") || 0 }
-      ].filter(entry => entry.count > 0))
-    ].forEach(row => { if (row) controls.appendChild(row); });
-
-    if (activeFilterCount() > 0) {
-      const tools = F.ui.el("div", "catalog-tools");
-      tools.appendChild(F.ui.button({
-        label: "Limpar filtros",
-        icon: "close",
-        variant: "secondary-button",
-        className: "small-button",
-        onClick: resetFilters
-      }));
-      controls.appendChild(tools);
-    }
-
-    status.textContent = found.length === 0
-      ? "Nenhum exercício com esses critérios"
-      : found.length + (found.length === 1 ? " exercício" : " exercícios") +
-        (activeFilterCount() > 0 ? " com os filtros atuais" : " no catálogo");
-
-    clear(list);
-    lastSignature = signature();
-    const shown = found.slice(0, visible);
-
-    if (found.length === 0) {
-      const targetMode = state.mode || "calisthenics";
-      const existingRoutines = F.state.routines[targetMode] || [];
-      const editorTarget = existingRoutines.length > 0
-        ? F.url("rotina", { modalidade: targetMode, id: existingRoutines[0].id })
-        : F.url("rotina", { modalidade: targetMode });
-
-      list.appendChild(F.ui.empty({
-        icon: "search",
-        title: "Nenhum exercício com esses critérios",
-        text: "Limpe a busca ou troque um filtro. Se o movimento que você faz não estiver na lista, crie-o no editor de rotina: ele entra na sua biblioteca pessoal e passa a aparecer aqui.",
-        actions: [
-          { label: "Limpar filtros", variant: "primary-button", icon: "close", onClick: resetFilters },
-          {
-            label: "Abrir editor de rotina",
-            href: editorTarget,
-            variant: "secondary-button",
-            icon: "edit"
-          }
-        ]
-      }));
-      restoreFocus(focus);
-      return;
-    }
-
-    shown.forEach(record => list.appendChild(recordRow(record)));
-
-    const remaining = found.length - shown.length;
-
-    if (remaining > 0) {
-      const more = F.ui.el("div", "catalog-more");
-      more.appendChild(F.ui.button({
-        label: "Mostrar mais " + Math.min(PAGE_SIZE, remaining) + " de " + remaining,
-        icon: "chevron-right",
-        variant: "secondary-button",
-        className: "full-width",
-        onClick() {
-          visible += PAGE_SIZE;
-          update();
-          /* Mantém o novo bloco à vista quando o ambiente tem layout. */
-          if (list && typeof list.scrollIntoView === "function") list.scrollIntoView({ block: "nearest" });
-        }
-      }));
-      list.appendChild(more);
-    }
-
-    restoreFocus(focus);
-  }
-
-  function mount() {
-    host = doc.getElementById("catalog-root");
-    if (!host) return;
-
-    clear(host);
-
-    host.appendChild(F.ui.sectionHead({
-      id: "catalog-heading",
-      headingLevel: doc.body && doc.body.getAttribute("data-page") === "explorar" ? "h2" : "h1",
-      title: "Biblioteca de exercícios",
-      note: "Lista os exercícios sugeridos e os seus, com instruções, grupos musculares e equipamento. Consultar não altera nada: o único botão que muda uma rotina é Adicionar."
-    }));
-
-    search = doc.createElement("input");
-    search.type = "search";
-    search.id = "catalog-search";
-    search.className = "catalog-search";
-    search.placeholder = "Ex.: flexão, dorsais, barra";
-    search.autocomplete = "off";
-    search.setAttribute("aria-label", "Buscar exercícios por nome, músculo, categoria ou equipamento");
-    search.value = state.query;
-    search.addEventListener("input", () => {
-      state.query = search.value;
-      applyFilters({});
-    });
-
-    const searchWrap = F.ui.el("div", "ui-search-field catalog-search-wrap");
-    searchWrap.appendChild(F.ui.icon("search"));
-    searchWrap.appendChild(search);
-    host.appendChild(searchWrap);
-
-    controls = F.ui.el("div", "catalog-controls");
-    controls.id = "catalog-controls";
-    if (doc.body && doc.body.getAttribute("data-page") === "explorar") {
-      const filterDisclosure = doc.createElement("details");
-      filterDisclosure.className = "catalog-filter-disclosure";
-      const summary = doc.createElement("summary");
-      summary.textContent = "Filtros adicionais";
-      filterDisclosure.append(summary, controls);
-      host.appendChild(filterDisclosure);
-    } else {
-      host.appendChild(controls);
-    }
-
-    status = F.ui.el("p", "catalog-status");
-    status.id = "catalog-status";
-    status.setAttribute("aria-live", "polite");
-    host.appendChild(status);
-
-    list = F.ui.el("div", "catalog-list");
-    list.id = "catalog-list";
-    host.appendChild(list);
-
-    if (F.state.activeWorkout) {
-      host.appendChild(F.ui.el("p", "ui-inline-note catalog-session-note",
-        "Há uma sessão de treino em andamento. Adicionar um exercício aqui não muda a sessão já iniciada — ele vale para os próximos treinos."));
-    }
-  }
-
-  /*
-    Link direto para o detalhe de um exercício (usado pelo atlas). Procura pelo
-    id de catálogo e, se não achar, pelo id do próprio item. Se o link estiver
-    velho, avisa sem erro e deixa a biblioteca normal na tela — nada é criado.
-  */
-  function findRecord(id) {
-    if (!id) return null;
-
-    const canonical = F.exerciseCatalog && F.exerciseCatalog.legacyIdMap[id]
-      ? F.exerciseCatalog.legacyIdMap[id]
-      : id;
-    return F.catalog.items().find(record => record.libraryId === canonical || record.id === canonical) || null;
-  }
-
-  async function openRequestedExercise(id) {
-    if (!id) return;
-
-    const record = findRecord(id);
-
-    if (!record) {
-      F.showToast("O exercício do link não está mais no catálogo. A biblioteca foi aberta completa.", "info", 6000);
-      return;
-    }
-
-    await showDetail(record);
-  }
-
-  function initBiblioteca() {
-    const params = new URLSearchParams(global.location.search);
-    const mode = params.get("modalidade");
-
-    if (MODES.indexOf(mode) !== -1) state.mode = mode;
-
-    /* `?musculo=peito` chega dos links do atlas (legenda de regiões). */
-    const muscle = params.get("musculo");
-    if (muscle) {
-      const known = F.catalog.items().some(record =>
-        record.muscles.some(name => normalizeText(name) === normalizeText(muscle)));
-      if (known) state.muscle = muscle;
-    }
-
-    mount();
-    update();
-    F.onDataChanged(() => update());
-
-    /*
-      Outra aba pode mudar rotinas, biblioteca ou histórico: sincroniza só a
-      memória (sem gravar nada) e redesenha a lista com os dados frescos.
-    */
-    const watchedKeys = F.KEYS
-      ? [F.KEYS.routines, F.KEYS.library, F.KEYS.legacyExercises, F.KEYS.history, F.KEYS.active]
-      : [];
-    global.addEventListener("storage", event => {
-      if (!event) return;
-      if (event.key !== null && watchedKeys.indexOf(event.key) === -1) return;
-      if (typeof F.syncStateFromStorage === "function") {
-        F.syncStateFromStorage(event.key);
-      }
-      update();
-    });
-    global.addEventListener("pageshow", event => {
-      if (!event || !event.persisted) return;
-      if (typeof F.syncStateFromStorage === "function") {
-        F.syncStateFromStorage(null);
-      }
-      update();
-    });
-
-    /* `?exercicio=<id>` abre o detalhe depois que a lista está montada.
-       Sem esse parâmetro (ex.: `?musculo=peito` vindo do atlas), nada abre. */
-    const requested = params.get("exercicio");
-    if (requested) openRequestedExercise(requested);
-  }
-
-  F.pages.biblioteca = initBiblioteca;
-  F.pages.explorar = initBiblioteca;
 })(window);

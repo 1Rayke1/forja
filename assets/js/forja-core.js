@@ -23,7 +23,13 @@
     calistenia: "treino/calistenia.html",
     musculacao: "treino/musculacao.html",
     biblioteca: "treino/biblioteca.html",
-    explorar: "explorar/index.html",
+    /*
+      "Explorar" é a Biblioteca: a aba da barra inferior abre direto a lista
+      de exercícios, sem tela intermediária. O antigo hub de descoberta
+      continua existindo em `descobrir`.
+    */
+    explorar: "treino/biblioteca.html",
+    descobrir: "explorar/index.html",
     atlas: "explorar/atlas.html",
     rotina: "treino/rotina.html",
     executar: "treino/executar.html",

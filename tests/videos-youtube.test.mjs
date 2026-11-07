@@ -5,7 +5,7 @@
   - Catálogo oficial, ausência total do antigo sistema 3D e zero chaves no repositório
   - Validação de URLs/IDs, detecção de Shorts, duração <= 60s e orientação confirmada
   - Exercício com vídeo oficial (youtube-nocookie.com, sem autoplay, controles, silencioso)
-  - Exercício sem vídeo exibindo imagem de referência + "Vídeo de demonstração ainda não disponível"
+  - Exercício sem vídeo exibindo imagem de referência + "Demonstração em vídeo ainda não disponível para este exercício."
   - Fluxo "Procurar vídeo" no editor de rotinas (nomenclatura, busca via proxy,
     carregamento, prévia 16:9, confirmação e persistência)
   - Shorts fora da seleção: pesquisa, link colado e orientação não confirmada
@@ -481,7 +481,7 @@ await runTest("V4. Exercício sem vídeo exibe imagem de referência corresponde
 
   const note = app.$("#execution-demo .video-demo-unavailable");
   assert.ok(note && !note.hidden, "aviso discreto ausente");
-  assert.equal(note.textContent, "Vídeo de demonstração ainda não disponível");
+  assert.equal(note.textContent, "Demonstração em vídeo ainda não disponível para este exercício.");
   assertNoErrors(app, "exercício sem vídeo na execução");
 });
 
@@ -995,7 +995,7 @@ await runTest("V12. Vídeo removido, privado ou com erro cai automaticamente na 
   assert.equal(stage.node.querySelector(".demo-media").getAttribute("data-demo-id"), "repdb:push-up");
   assert.equal(
     stage.node.querySelector(".video-demo-unavailable").textContent,
-    "Vídeo de demonstração ainda não disponível"
+    "Demonstração em vídeo ainda não disponível para este exercício."
   );
   stage.node.remove();
 

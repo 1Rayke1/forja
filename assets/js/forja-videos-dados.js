@@ -8,7 +8,8 @@
     e SEMPRE silenciosa (mute=1).
   - Vídeos curtos (máximo de 60 segundos), públicos e verificados em 16:9.
   - Entradas com valor `null` usam automaticamente a imagem de referência do
-    exercício e exibem "Vídeo de demonstração ainda não disponível", podendo
+    exercício e exibem "Demonstração em vídeo ainda não disponível para este
+    exercício.", podendo
     receber um vídeo oficial no futuro sem alterar a estrutura do exercício.
   - Nenhuma chave de API existe neste arquivo nem em qualquer JavaScript
     público. A pesquisa de vídeos personalizados passa exclusivamente pelo
@@ -63,7 +64,7 @@
     version: 1,
     embedHost: "https://www.youtube-nocookie.com",
     maxDurationSeconds: 60,
-    unavailableMessage: "Vídeo de demonstração ainda não disponível",
+    unavailableMessage: "Demonstração em vídeo ainda não disponível para este exercício.",
     exercicios: Object.freeze({
       /* Calistenia (18 exercícios) */
       "calisthenics:cal-rotacao-ombros": entry(

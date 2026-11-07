@@ -5,7 +5,10 @@
   1. Vídeo personalizado associado ao exercício dentro da rotina específica.
   2. Vídeo oficial do exercício no catálogo (`FORJA_VIDEOS_DATA`).
   3. Imagem de referência correspondente do exercício (`F.demos`) acompanhada
-     do aviso discreto "Vídeo de demonstração ainda não disponível".
+     do aviso "Demonstração em vídeo ainda não disponível para este
+     exercício.". No detalhe da biblioteca a foto fica no bloco de
+     identificação, então o palco é criado com `reference: false` para não
+     repetir a mesma ilustração.
 
   Garantias:
   - Reprodução somente via `youtube-nocookie.com/embed/...` em proporção 16:9,
@@ -26,7 +29,7 @@
   const F = global.Forja;
   if (!F) return;
 
-  const UNAVAILABLE_TEXT = "Vídeo de demonstração ainda não disponível";
+  const UNAVAILABLE_TEXT = "Demonstração em vídeo ainda não disponível para este exercício.";
   const EMBED_HOST = "https://www.youtube-nocookie.com";
   const DEFAULT_SEARCH_PATH = "api/youtube-search";
   function defaultSearchEndpoint() {
@@ -413,7 +416,7 @@
       discretos + imagem de referência recolhível (atribuição RepDB intacta).
     - Sem vídeo ou com vídeo indisponível/removido: imagem de referência do
       exercício (ou cartão visual neutro se não houver ilustração) + aviso
-      discreto "Vídeo de demonstração ainda não disponível".
+      "Demonstração em vídeo ainda não disponível para este exercício.".
   */
   function createStage(record, mode, options = {}) {
     ensureMessageListener();
@@ -438,10 +441,17 @@
       stage.removeAttribute("data-video-framing");
       while (stage.firstChild) stage.removeChild(stage.firstChild);
 
-      if (repDbMedia && repDbMedia.node) {
-        stage.appendChild(repDbMedia.node);
-      } else {
-        stage.appendChild(createVisualPlaceholder(record, m));
+      /*
+        No detalhe da biblioteca a foto do exercício já aparece na
+        identificação: com `reference: false` o palco não repete a ilustração e
+        mostra apenas o aviso de que a demonstração em vídeo não existe.
+      */
+      if (options.reference !== false) {
+        if (repDbMedia && repDbMedia.node) {
+          stage.appendChild(repDbMedia.node);
+        } else {
+          stage.appendChild(createVisualPlaceholder(record, m));
+        }
       }
       unavailableNote.hidden = false;
       stage.appendChild(unavailableNote);
@@ -509,7 +519,7 @@
     stage.appendChild(playerWrap);
     stage.appendChild(meta);
 
-    if (repDbMedia && repDbMedia.node) {
+    if (repDbMedia && repDbMedia.node && options.reference !== false) {
       const refDetails = doc.createElement("details");
       refDetails.className = "video-demo-reference";
       const summary = doc.createElement("summary");
