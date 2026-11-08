@@ -9,6 +9,8 @@
 
   const F = global.Forja;
   const PLAN_KEY = "forja-plano-semanal-v1";
+  const PREFERENCES_KEY = "forja-planejamento-preferencias-v1";
+  const DEFAULT_PREFERENCES = Object.freeze({ goal: "massa", level: "intermediario", days: 4, time: "medium", equipment: "none" });
   const CATEGORY_TO_MUSCLE = Object.freeze({
     pernas: ["legs"], peito: ["push"], bracos: ["push", "pull"],
     abdomen: ["core"], corpoTodo: ["legs", "push", "pull", "core"]
@@ -44,24 +46,23 @@
   }
 
   function equipmentAllowed(record, profile) {
-    const equipment = safeArray(record.equipment).map(item => String(item).toLowerCase());
-    if (!equipment.length || equipment.includes("peso corporal")) return true;
-    const detail = safeArray(profile.equipamentos);
+    const equipment = safeArray(record.equipment);
+    const preference = profile.planPreferences && profile.planPreferences.equipment;
+    /* Sem equipamento e em casa são deliberadamente estritos: somente [] do catálogo central passa. */
+    if (preference === "none" || preference === "home") return equipment.length === 0;
+    if (preference === "gym") return true;
+    /* Compatibilidade com perfis antigos, fora do novo planejador. */
     const legacy = profile.equipamento;
-    if (detail.includes("nenhum") || legacy === "nenhum") return false;
-    if (detail.includes("academiaCompleta") || legacy === "academia" || legacy === "ambos") return true;
-    const aliases = {
-      halteres: ["halteres"], barraAnilhas: ["barra", "anilhas", "rack", "banco"],
-      elasticos: ["elástico", "elasticos"], maquinas: ["máquina", "maquinas", "polia", "leg press", "cadeira", "mesa", "esteira", "bicicleta"],
-      outros: []
-    };
-    const allowed = detail.flatMap(key => aliases[key] || []);
-    if (legacy === "casa") allowed.push("halteres", "elástico", "elasticos");
-    return equipment.every(item => allowed.some(token => item.includes(token)));
+    if (!equipment.length || equipment.includes("peso corporal")) return true;
+    if (legacy === "nenhum") return false;
+    if (legacy === "academia" || legacy === "ambos") return true;
+    return false;
   }
 
   function compatibleCatalog(profile) {
-    const modes = supportedModes(profile);
+    const equipmentPreference = profile.planPreferences && profile.planPreferences.equipment;
+    const modes = equipmentPreference === "gym" ? ["weights", "calisthenics"] :
+      (equipmentPreference === "home" || equipmentPreference === "none") ? ["calisthenics", "weights"] : supportedModes(profile);
     let records = modes.flatMap(mode => F.catalog.items(mode));
     records = records.filter(record => equipmentAllowed(record, profile));
     const prefs = safeArray(profile.preferenciasTreino);
@@ -69,8 +70,7 @@
       records = records.filter(record => record.category === "cardio" || record.category === "mobility");
     }
     if (safeArray(profile.consideracoes).includes("baixoImpacto")) {
-      records = records.filter(record => record.category !== "cardio" ||
-        !/burpee|polichinelo|salto|jump/i.test(record.name));
+      records = records.filter(record => record.category !== "cardio" || !/burpee|polichinelo|salto|jump/i.test(record.name));
     }
     return records;
   }
@@ -104,58 +104,57 @@
       highEffort: rpes.length > 0 && rpes.reduce((sum, value) => sum + value, 0) / rpes.length >= 8, recentExerciseCounts };
   }
 
-  function selectSessionRecords(records, profile, sessionIndex, feedback, signals) {
-    const target = focusCategories(profile);
+  function sessionFocus(profile, index, count) {
+    const objective = profile.planPreferences && profile.planPreferences.goal;
+    if (objective === "condicionamento") return index % 2 === 0 ? ["cardio", "legs", "core"] : ["cardio", "push", "pull"];
+    if (objective === "emagrecer") return index % 2 === 0 ? ["legs", "cardio", "core", "push"] : ["push", "pull", "cardio", "legs"];
+    const splits = [
+      ["push", "pull", "legs", "core"],
+      ["legs", "push", "pull", "core"],
+      ["pull", "legs", "core", "push"],
+      ["legs", "core", "push", "pull"]
+    ];
+    return splits[index % splits.length];
+  }
+
+  function selectSessionRecords(records, profile, sessionIndex, feedback, signals, alreadyUsed) {
+    const focus = sessionFocus(profile, sessionIndex, Number(profile.diasPorSemana) || 3);
+    const preference = profile.planPreferences || {};
+    const maxExercises = preference.time === "short" ? 3 : 5;
     const avoidHighVolume = ["iniciante", "retornando", ""].includes(profile.nivel) ||
-      ["comecando", "basicos"].includes(profile.experienciaAtual) ||
-      safeArray(profile.consideracoes).includes("adaptarNivel");
-    const maxExercises = avoidHighVolume ? 4 : 5;
-    const ordered = records.filter(item => item.section === "main" && item.category !== "mobility");
-    const affinity = record => target.includes(record.category) ? 0 : 1;
+      ["comecando", "basicos"].includes(profile.experienciaAtual) || safeArray(profile.consideracoes).includes("adaptarNivel");
+    const ordered = records.filter(item => item.section === "main" || item.section === "abs" || item.section === "finisher");
+    const affinity = record => { const rank = focus.indexOf(record.category); return rank < 0 ? focus.length + 1 : rank; };
     ordered.sort((a, b) => {
       const aId = a.libraryId || a.id, bId = b.libraryId || b.id;
-      const aUse = signals && signals.recentExerciseCounts[aId] || 0;
-      const bUse = signals && signals.recentExerciseCounts[bId] || 0;
-      return affinity(a) - affinity(b) || aUse - bUse || a.name.localeCompare(b.name, "pt-BR");
+      const usedA = alreadyUsed.has(aId) ? 1 : 0, usedB = alreadyUsed.has(bId) ? 1 : 0;
+      const aUse = signals && signals.recentExerciseCounts[aId] || 0, bUse = signals && signals.recentExerciseCounts[bId] || 0;
+      return usedA - usedB || affinity(a) - affinity(b) || aUse - bUse || a.name.localeCompare(b.name, "pt-BR");
     });
-    const picked = [];
-    const categories = new Set();
-    const rotate = sessionIndex % Math.max(ordered.length, 1);
-    const candidates = ordered.slice(rotate).concat(ordered.slice(0, rotate));
-    candidates.forEach(record => {
-      if (picked.length >= maxExercises) return;
-      if (picked.some(item => item.libraryId === record.libraryId)) return;
-      const preferCategory = target.includes(record.category);
-      if (!preferCategory && categories.size < 3) return;
-      if (categories.has(record.category) && picked.length < 3) return;
-      picked.push(record);
-      categories.add(record.category);
-    });
-    if (picked.length < Math.min(3, maxExercises)) {
-      candidates.forEach(record => {
-        if (picked.length < Math.min(3, maxExercises) && !picked.some(item => item.libraryId === record.libraryId)) picked.push(record);
-      });
+    const picked = [], categories = new Set();
+    for (const record of ordered) {
+      if (picked.length >= maxExercises) break;
+      const id = record.libraryId || record.id;
+      if (picked.some(item => (item.libraryId || item.id) === id)) continue;
+      /* Não enche uma sessão com várias variações do mesmo padrão quando há outras categorias. */
+      if (categories.has(record.category) && categories.size < Math.min(3, maxExercises)) continue;
+      picked.push(record); categories.add(record.category);
     }
-    const warmup = records.find(item => item.section === "warmup" && item.category !== "cardio") || null;
-    const abs = records.find(item => item.section === "abs") || null;
-    const combined = (warmup ? [warmup] : []).concat(picked, abs ? [abs] : []);
     const easy = avoidHighVolume || feedback === "muito-dificil" || Boolean(signals && signals.highEffort);
-    const targetSets = feedback === "facil" && !avoidHighVolume && !(signals && signals.highEffort) ? 3 : (easy ? 2 : 3);
-    return combined.map(record => {
-      const hold = record.type === "duration";
-      const sets = Math.max(2, Math.min(record.sets || 3, targetSets));
+    const targetSets = easy ? 2 : (preference.time === "long" && profile.nivel !== "iniciante" ? 3 : 2);
+    return picked.map(record => {
       const clone = F.catalog.toExercise(record, record.section);
       if (!clone) return null;
       clone.catalogId = record.libraryId || record.id;
       clone.muscles = safeArray(record.muscles).slice();
       clone.equipment = safeArray(record.equipment).slice();
       clone.instructions = cleanString(record.instructions, 600);
-      clone.sets = sets;
-      clone.rest = Math.max(record.rest || 45, easy ? 60 : 45);
-      if (hold) clone.duration = Math.min(record.duration || 30, easy ? 30 : 45);
-      else clone.reps = easy ? "8–10" : (profile.objetivo === "forca" ? "6–8" : "8–12");
-      const alternative = records.find(other => other.category === record.category && other.libraryId !== record.libraryId);
-      clone.notes = [cleanString(record.instructions, 180), alternative ? "Alternativa compatível: " + cleanString(alternative.name, 90) : ""].filter(Boolean).join(" ");
+      clone.sets = Math.max(2, Math.min(Number(record.sets) || 3, targetSets));
+      clone.rest = Math.max(Number(record.rest) || 45, profile.nivel === "avancado" ? 75 : 60);
+      if (record.type === "duration") clone.duration = Math.min(Number(record.duration) || 30, 45);
+      else clone.reps = preference.goal === "condicionamento" ? "10–15" : profile.nivel === "iniciante" ? "8–10" : profile.nivel === "avancado" ? "6–10" : "8–12";
+      const alternative = records.find(other => other.category === record.category && (other.libraryId || other.id) !== clone.catalogId);
+      clone.notes = alternative ? "Alternativa compatível: " + cleanString(alternative.name, 90) : "";
       return clone;
     }).filter(Boolean);
   }
@@ -171,35 +170,43 @@
       (signals && signals.recentSessions ? " Considera " + signals.recentSessions + " sessão(ões) recentes e o feedback de esforço disponível." : " Ainda não há histórico recente para orientar os ajustes.");
   }
 
+  function trainingDays(count) {
+    const map = { 2:[0,3], 3:[0,2,4], 4:[0,2,4,6], 5:[0,1,3,4,6], 6:[0,1,2,4,5,6] };
+    return map[count] || map[3];
+  }
+
+  function estimateSessionMinutes(exercises) {
+    const seconds = exercises.reduce((sum, exercise) => {
+      const work = exercise.type === "duration" ? Number(exercise.duration) || 30 : 40;
+      return sum + Number(exercise.sets || 2) * work + Math.max(0, Number(exercise.sets || 2) - 1) * Number(exercise.rest || 60) + 90;
+    }, 360);
+    return Math.max(10, Math.round((seconds * 1.12) / 60 / 5) * 5);
+  }
+
   function localPlan(profile, previous) {
-    const count = Math.min(6, Math.max(1, Number(profile.diasPorSemana) || 3));
+    const count = Math.min(6, Math.max(2, Number(profile.diasPorSemana) || 3));
     const records = compatibleCatalog(profile);
     const signals = trainingSignals(records);
     const existingFeedback = previous && previous.feedback ? previous.feedback : {};
-    const sessions = [];
-    for (let index = 0; index < count; index += 1) {
-      const dayRecords = selectSessionRecords(records, profile, index, existingFeedback["session-" + index], signals);
-      if (!dayRecords.length) throw new Error("Não há exercícios compatíveis disponíveis no catálogo para este perfil.");
-      const slot = [0, 2, 4, 1, 3, 5][index % 6];
-      sessions.push({
-        id: "session-" + index,
-        day: DAYS[slot],
-        title: ["Treino A", "Treino B", "Treino C"][index % 3],
-        rationale: "Sessão de corpo inteiro com exercícios disponíveis e foco em recuperação entre dias.",
-        exercises: dayRecords,
-        scheduleDate: null
-      });
+    if (!records.some(record => ["main", "abs", "finisher"].includes(record.section))) {
+      throw new Error("Não encontramos exercícios compatíveis no catálogo com essa disponibilidade. O FORJA não vai incluir equipamentos que você não selecionou.");
     }
-    return {
-      version: 1,
-      id: previous && previous.id || "plan-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-      engine: "rules",
-      createdAt: new Date().toISOString(),
-      summary: rationale(profile, count, signals),
-      weeklyDays: count,
-      sessions,
-      feedback: existingFeedback
-    };
+    const days = trainingDays(count), sessions = [], used = new Set();
+    for (let index = 0; index < count; index += 1) {
+      const dayRecords = selectSessionRecords(records, profile, index, existingFeedback["session-" + index], signals, used);
+      if (!dayRecords.length) throw new Error("Não há exercícios compatíveis disponíveis no catálogo para este perfil.");
+      dayRecords.forEach(exercise => used.add(exercise.catalogId));
+      const focus = sessionFocus(profile, index, count);
+      const labels = { push:"Empurrar", pull:"Puxar", legs:"Pernas", core:"Core", cardio:"Condicionamento" };
+      const focusLabel = focus.slice(0, 2).map(key => labels[key]).join(" e ");
+      sessions.push({ id:"session-" + index, day:DAYS[days[index]], title: profile.planPreferences && profile.planPreferences.goal === "condicionamento" ? "Condicionamento " + String.fromCharCode(65 + index) : "Treino " + focusLabel,
+        rationale:"Sessão moderada, organizada para alternar grupos musculares e preservar recuperação entre os estímulos.", exercises:dayRecords, scheduleDate:null,
+        estimatedMinutes:estimateSessionMinutes(dayRecords) });
+    }
+    const goalLabels = { massa:"ganho de massa", emagrecer:"emagrecimento", condicionamento:"condicionamento" };
+    return { version:1, id:previous && previous.id || "plan-" + Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+      engine:"rules", createdAt:new Date().toISOString(), summary:"Proposta de " + count + " sessões para " + (goalLabels[profile.planPreferences && profile.planPreferences.goal] || "seu objetivo") + ". A estimativa de duração é aproximada; revise exercícios, séries e repetições antes de salvar." + (signals.recentSessions ? " Considera " + signals.recentSessions + " sessão(ões) recente e o feedback de esforço disponível." : " Ainda não há histórico recente para orientar ajustes."),
+      weeklyDays:count, sessions, feedback:existingFeedback, preferences:Object.assign({}, profile.planPreferences || {}) };
   }
 
   function publicPayload(profile, records, previous) {
@@ -335,7 +342,8 @@
 
   function routinesForPlan(plan) {
     const state = F.state.routines;
-    const next = { calisthenics: state.calisthenics.slice(), weights: state.weights.slice() };
+    const prefix = "forja-plan-session-" + plan.id + "-";
+    const next = { calisthenics: state.calisthenics.filter(item => !String(item.id).startsWith(prefix)), weights: state.weights.filter(item => !String(item.id).startsWith(prefix)) };
     plan.sessions.forEach((session, index) => {
       const mode = session.exercises.some(exercise => exercise.mode === "weights") ? "weights" : "calisthenics";
       const routine = { id: "forja-plan-session-" + plan.id + "-" + index, name: "Plano FORJA · " + session.title,
@@ -372,65 +380,115 @@
     node.textContent = value == null ? "" : String(value); return node;
   }
 
+  function readPreferences() {
+    /* As escolhas deste planejador são próprias; não sobrescrevem o perfil nem herdam suas metas. */
+    const fallback = Object.assign({}, DEFAULT_PREFERENCES);
+    try {
+      const stored = JSON.parse(global.localStorage.getItem(PREFERENCES_KEY) || "null");
+      const value = Object.assign({}, fallback, F.isPlainObject(stored) ? stored : {});
+      if (!["massa","emagrecer","condicionamento"].includes(value.goal)) value.goal = fallback.goal;
+      if (!["iniciante","intermediario","avancado"].includes(value.level)) value.level = fallback.level;
+      if (![2,3,4,5,6].includes(Number(value.days))) value.days = fallback.days; else value.days = Number(value.days);
+      if (!["short","medium","long"].includes(value.time)) value.time = fallback.time;
+      if (!["gym","home","none"].includes(value.equipment)) value.equipment = fallback.equipment;
+      return value;
+    } catch (_) { return fallback; }
+  }
+
+  function profileForPreferences(preferences) {
+    const goals = { massa:"hipertrofia", emagrecer:"perderPeso", condicionamento:"resistencia" };
+    const levels = { iniciante:"iniciante", intermediario:"intermediario", avancado:"avancado" };
+    return { objetivo:goals[preferences.goal] || goals.massa, nivel:levels[preferences.level] || levels.intermediario,
+      experienciaAtual:preferences.level === "iniciante" ? "basicos" : "experiente", diasPorSemana:Number(preferences.days) || 4,
+      equipamento:preferences.equipment === "gym" ? "academia" : "nenhum", equipamentos:preferences.equipment === "gym" ? ["academiaCompleta"] : [],
+      preferenciasTreino:preferences.equipment === "gym" ? ["musculacao","calistenia"] : ["calistenia"],
+      areaFoco:"corpoTodo", localTreino:preferences.equipment === "gym" ? "academia" : "casa", consideracoes:[], planPreferences:Object.assign({}, preferences) };
+  }
+
+  function renderPreferenceState(preferences) {
+    document.querySelectorAll("[data-pref]").forEach(button => {
+      button.setAttribute("aria-pressed", String(String(preferences[button.dataset.pref]) === button.dataset.value));
+    });
+  }
+
   function renderPlan(plan, saved) {
     const host = el("training-plan-preview"); if (!host) return;
     host.replaceChildren();
-    if (!plan) { host.appendChild(text("p", "field-hint", "Nenhum plano salvo. Gere uma prévia para revisar as sessões.")); return; }
+    if (!plan) return;
     const header = document.createElement("div"); header.className = "plan-summary";
-    header.append(text("p", "plan-summary-text", plan.summary));
-    header.append(text("p", "field-hint", saved ? "Plano salvo · sessões também aparecem no calendário e em Minhas rotinas." : "Prévia não salva. Confira os exercícios antes de aplicar."));
+    header.append(text("h3", "plan-summary-text", "Seu planejamento semanal"));
+    header.append(text("p", "field-hint", saved ? "Plano salvo · sessões disponíveis em Minhas rotinas e no calendário." : plan.summary));
     host.appendChild(header);
-    plan.sessions.forEach(session => {
+    const schedule = document.createElement("div"); schedule.className = "week-schedule"; schedule.setAttribute("aria-label", "Semana de treino e recuperação");
+    DAYS.forEach(day => {
+      const session = plan.sessions.find(item => item.day === day);
+      const cell = document.createElement("div"); cell.className = "week-schedule-day" + (session ? " is-training" : " is-rest");
+      cell.append(text("strong", "", day.slice(0,3)), text("span", "", session ? "Treino" : "Recuperação"));
+      schedule.appendChild(cell);
+    });
+    host.appendChild(schedule);
+    plan.sessions.forEach((session, sessionIndex) => {
       const card = document.createElement("article"); card.className = "plan-session-card";
       const head = document.createElement("div"); head.className = "plan-session-head";
-      head.append(text("div", "plan-session-day", session.day + (session.scheduleDate ? " · " + session.scheduleDate : "")));
-      head.append(text("h3", "plan-session-title", session.title));
-      card.appendChild(head);
-      card.appendChild(text("p", "plan-rationale", session.rationale));
+      head.append(text("div", "plan-session-day", session.day));
+      const title = document.createElement("input"); title.className = "plan-session-title plan-title-input"; title.value = session.title; title.setAttribute("aria-label", "Nome da sessão de " + session.day); title.disabled = saved;
+      title.addEventListener("input", () => { session.title = title.value.slice(0,50); });
+      head.appendChild(title); card.appendChild(head);
+      const groups = [...new Set(session.exercises.flatMap(exercise => safeArray(exercise.muscles)))];
+      const duration = estimateSessionMinutes(session.exercises);
+      session.estimatedMinutes = duration;
+      card.appendChild(text("p", "plan-rationale", groups.join(" · ") + " · " + session.exercises.length + " exercícios · cerca de " + duration + " min"));
       const list = document.createElement("ul"); list.className = "plan-exercise-list";
-      session.exercises.forEach(exercise => {
+      session.exercises.forEach((exercise, exerciseIndex) => {
         const item = document.createElement("li");
-        const details = exercise.type === "duration" ? (exercise.duration + " s") : (exercise.reps + " repetições");
-        const muscles = safeArray(exercise.muscles).length ? safeArray(exercise.muscles).join(", ") : "grupos não classificados";
         item.appendChild(text("strong", "", exercise.name));
-        item.appendChild(text("span", "", exercise.sets + " séries · " + details + " · descanso " + exercise.rest + " s · " + muscles));
-        if (exercise.notes) item.appendChild(text("small", "", exercise.notes));
+        if (!saved) {
+          const tools = document.createElement("div"); tools.className = "plan-exercise-tools";
+          const compatible = compatibleCatalog(profileForPreferences(plan.preferences || readPreferences())).filter(record => record.category === exercise.category && (record.libraryId || record.id) !== exercise.catalogId);
+          if (compatible.length) {
+            const replace = document.createElement("select"); replace.setAttribute("aria-label", "Substituir " + exercise.name); replace.title = "Substituir exercício";
+            const placeholder = document.createElement("option"); placeholder.value = ""; placeholder.textContent = "Trocar"; replace.appendChild(placeholder);
+            compatible.forEach(record => { const option = document.createElement("option"); option.value = record.libraryId || record.id; option.textContent = record.name; replace.appendChild(option); });
+            replace.addEventListener("change", () => {
+              const record = compatible.find(candidate => (candidate.libraryId || candidate.id) === replace.value); if (!record) return;
+              const replacement = F.catalog.toExercise(record, record.section); replacement.catalogId = record.libraryId || record.id;
+              replacement.muscles = safeArray(record.muscles).slice(); replacement.equipment = safeArray(record.equipment).slice();
+              replacement.sets = exercise.sets; replacement.reps = exercise.reps; replacement.rest = exercise.rest;
+              session.exercises[exerciseIndex] = replacement; renderPlan(plan, false);
+            });
+            tools.appendChild(replace);
+          }
+          const remove = document.createElement("button"); remove.type = "button"; remove.className = "secondary-button small-button"; remove.textContent = "Remover"; remove.setAttribute("aria-label", "Remover " + exercise.name);
+          remove.addEventListener("click", () => { session.exercises.splice(exerciseIndex,1); if (!session.exercises.length) plan.sessions.splice(sessionIndex,1); renderPlan(plan,false); });
+          tools.appendChild(remove); item.appendChild(tools);
+        }
+        const details = document.createElement("span");
+        details.textContent = exercise.type === "duration" ? exercise.sets + " séries · " + exercise.duration + " s · descanso " + exercise.rest + " s" : exercise.sets + " séries · " + exercise.reps + " repetições · descanso " + exercise.rest + " s";
+        item.appendChild(details);
+        if (exercise.instructions) item.appendChild(text("small", "", exercise.instructions));
+        if (!saved) {
+          const adjust = document.createElement("div"); adjust.className = "plan-exercise-tools plan-adjust-tools";
+          const sets = document.createElement("input"); sets.type="number"; sets.min="1"; sets.max="5"; sets.value=exercise.sets; sets.setAttribute("aria-label","Séries de " + exercise.name); sets.addEventListener("change",()=>{ exercise.sets=Math.max(1,Math.min(5,Number(sets.value)||1)); renderPlan(plan,false); });
+          adjust.appendChild(sets);
+          if (exercise.type === "duration") {
+            const durationInput=document.createElement("input"); durationInput.type="number"; durationInput.min="10"; durationInput.max="600"; durationInput.value=exercise.duration; durationInput.setAttribute("aria-label","Duração em segundos de " + exercise.name); durationInput.addEventListener("change",()=>{exercise.duration=Math.max(10,Math.min(600,Number(durationInput.value)||30));renderPlan(plan,false);}); adjust.appendChild(durationInput);
+          } else {
+            const reps=document.createElement("input"); reps.type="text"; reps.maxLength=30; reps.value=exercise.reps; reps.setAttribute("aria-label","Repetições de " + exercise.name); reps.addEventListener("change",()=>{exercise.reps=reps.value.trim().slice(0,30)||"8";renderPlan(plan,false);}); adjust.appendChild(reps);
+          }
+          const rest=document.createElement("input"); rest.type="number"; rest.min="0"; rest.max="300"; rest.value=exercise.rest; rest.setAttribute("aria-label","Descanso em segundos de " + exercise.name); rest.addEventListener("change",()=>{exercise.rest=Math.max(0,Math.min(300,Number(rest.value)||0));renderPlan(plan,false);}); adjust.appendChild(rest);
+          item.appendChild(adjust);
+        }
         list.appendChild(item);
       });
       card.appendChild(list);
-      if (saved) {
-        const actions = document.createElement("div"); actions.className = "plan-session-actions";
-        const start = document.createElement("button"); start.type = "button"; start.className = "primary-button"; start.textContent = "Iniciar sessão";
-        start.addEventListener("click", () => {
-          const mode = session.exercises.some(exercise => exercise.mode === "weights") ? "weights" : "calisthenics";
-          const routineId = "forja-plan-session-" + plan.id + "-" + plan.sessions.indexOf(session);
-          F.startRoutine(mode, routineId);
-        });
-        const rating = document.createElement("select"); rating.className = "field-input plan-feedback"; rating.setAttribute("aria-label", "Dificuldade desta sessão para ajustes futuros");
-        [["", "Dificuldade"], ["facil", "Fácil"], ["adequado", "Adequado"], ["muito-dificil", "Muito difícil"]].forEach(([value, label]) => {
-          const option = document.createElement("option"); option.value = value; option.textContent = label; rating.appendChild(option);
-        });
-        rating.value = plan.feedback && plan.feedback[session.id] || "";
-        rating.addEventListener("change", () => {
-          if (!rating.value) return;
-          const latest = readPlan(); if (!latest) return;
-          latest.feedback = Object.assign({}, latest.feedback, { [session.id]: rating.value, updatedAt: new Date().toISOString() });
-          writePlan(latest);
-          F.showToast("Feedback salvo. Será considerado em ajustes futuros, sem alterar seu histórico.", "info", 4500);
-        });
-        actions.append(start, rating); card.appendChild(actions);
-      }
       host.appendChild(card);
     });
     if (!saved) {
-      const save = document.createElement("button"); save.type = "button"; save.className = "primary-button plan-save"; save.textContent = "Salvar plano e adicionar ao calendário";
+      const save = document.createElement("button"); save.type="button"; save.className="primary-button plan-save"; save.textContent="Salvar meu planejamento";
       save.addEventListener("click", () => {
-        try {
-          const stored = savePlan(plan);
-          renderPlan(stored, true);
-          el("regenerate-plan").hidden = false;
-          F.showToast("Plano salvo. Sessões adicionadas às rotinas e ao calendário.", "info", 4500);
-        } catch (error) { showError(error.message); }
+        if (!plan.sessions.length || plan.sessions.some(session => !session.exercises.length)) { showError("Cada sessão precisa conter pelo menos um exercício."); return; }
+        try { const stored=savePlan(plan); renderPlan(stored,true); el("regenerate-plan").hidden=false; F.showToast("Planejamento salvo em Minhas rotinas e no calendário.","info",4500); }
+        catch(error) { showError(error.message); }
       });
       host.appendChild(save);
     }
@@ -440,36 +498,37 @@
 
   function init() {
     if (F.pageName() !== "treino" || !el("training-plan-preview")) return;
-    const existing = readPlan();
-    const badge = el("plan-engine-badge");
-    if (existing) {
-      badge.textContent = existing.engine === "ai" ? "Gerado por IA" : "Gerador local por regras";
-      renderPlan(existing, true);
-      el("regenerate-plan").hidden = false;
-    } else renderPlan(null, false);
-    const run = async () => {
-      const button = el("generate-plan"); button.disabled = true; el("plan-error").hidden = true;
-      const profile = F.state.profile || {};
-      const records = compatibleCatalog(profile);
+    let preferences = readPreferences();
+    renderPreferenceState(preferences);
+    document.querySelectorAll("[data-pref]").forEach(button => button.addEventListener("click", () => {
+      const key = button.dataset.pref, value = button.dataset.value;
+      if (key === "days") preferences[key] = Number(value); else preferences[key] = value;
+      renderPreferenceState(preferences);
+      try { global.localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences)); } catch (_) {}
+    }));
+    const existing = readPlan(), badge = el("plan-engine-badge");
+    if (existing) { renderPlan(existing,true); el("regenerate-plan").hidden=false; }
+    const run = () => {
+      const button=el("generate-plan"); button.disabled=true; el("plan-error").hidden=true;
       try {
-        let plan;
-        try {
-          plan = await requestAI(profile, records, readPlan());
-          badge.textContent = "IA via serviço seguro";
-        } catch (apiError) {
-          plan = localPlan(profile, readPlan());
-          badge.textContent = "Gerador local por regras";
-          if (apiError && apiError.message) el("plan-intro").textContent = "Serviço de IA indisponível; prévia criada localmente por regras, sem chamada simulada. " + apiError.message;
+        preferences=readPreferences();
+        const profile=profileForPreferences(preferences);
+        const records=compatibleCatalog(profile);
+        if (!records.some(record => ["main","abs","finisher"].includes(record.section))) {
+          throw new Error("Não encontramos exercícios compatíveis no catálogo com essa disponibilidade. O FORJA só usa exercícios catalogados e não presume acessórios.");
         }
-        renderPlan(plan, false);
-      } catch (error) { showError(error.message || "Não foi possível gerar o plano."); }
-      finally { button.disabled = false; }
+        const proposal=localPlan(profile,readPlan());
+        proposal.preferences=Object.assign({},preferences);
+        badge.textContent="Gerador local por regras · catálogo FORJA";
+        renderPlan(proposal,false);
+      } catch(error) { showError(error.message || "Não foi possível gerar um plano."); }
+      finally { button.disabled=false; }
     };
-    el("generate-plan").addEventListener("click", run);
-    el("regenerate-plan").addEventListener("click", run);
+    el("generate-plan").addEventListener("click",run);
+    el("regenerate-plan").addEventListener("click",run);
   }
 
-  F.plan = { storageKey: PLAN_KEY, read: readPlan, compatibleCatalog, validateModelOutput, generateLocal: localPlan, save: savePlan };
+  F.plan = { storageKey: PLAN_KEY, preferencesKey:PREFERENCES_KEY, read:readPlan, readPreferences, profileForPreferences, compatibleCatalog, validateModelOutput, generateLocal:localPlan, save:savePlan, trainingDays, estimateSessionMinutes };
   F.pages.treinoPlan = init;
   /* Hub já possui initializer; adicionamos a integração sem substituir a tela. */
   const previousHub = F.pages.treino;

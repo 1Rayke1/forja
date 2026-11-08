@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101010">
-<title>Treino · FORJA</title>
+<meta name="theme-color" content="#080b09">
+<title>Treinos · FORJA</title>
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/treino.css">
 <link rel="stylesheet" href="../assets/css/plano.css">
@@ -17,125 +17,69 @@
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/redesign.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
+<link rel="stylesheet" href="../assets/css/treino-planejamento.css">
 </head>
-
 <body data-page="treino" data-root="../">
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
-<header class="site-header">
-  <div class="container site-header-inner">
-    <a class="logo" href="../index.html">FORJA</a>
-    <div class="tagline">DISCIPLINA DIÁRIA</div>
-  </div>
-</header>
-
-<main class="container" id="conteudo">
+<header class="site-header"><div class="container site-header-inner"><a class="logo" href="../index.html">FORJA</a><div class="tagline">DISCIPLINA DIÁRIA</div></div></header>
+<main class="container training-hub" id="conteudo">
+  <h1 class="ui-visually-hidden">TREINO</h1>
   <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
-    <div class="active-session-text">
-      <strong>Treino em andamento</strong>
-      <span id="active-session-summary"></span>
-    </div>
-    <div class="active-session-actions">
-      <a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a>
-      <a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a>
-    </div>
+    <div class="active-session-text"><strong>Treino em andamento</strong><span id="active-session-summary"></span></div>
+    <div class="active-session-actions"><a class="primary-button" id="resume-active-session" href="../treino/executar.html">Retomar</a><a class="secondary-button" id="end-active-session" href="../treino/executar.html?encerrar=1">Encerrar</a></div>
   </section>
 
-  <div class="page-head">
-    <span class="eyebrow">Início · Treino</span>
-    <h1 class="screen-title">TREINO</h1>
-    <p class="screen-subtitle">Encontre sua rotina e comece. Use a modalidade para filtrar quando precisar.</p>
-  </div>
+  <section class="planning-hero" aria-labelledby="training-plan-heading">
+    <div class="planning-hero-copy">
+      <span class="planning-eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3 6.2 6.8 1-4.9 4.8 1.2 6.8L12 17.6l-6.1 3.2 1.2-6.8L2.2 9.2l6.8-1L12 2Z"/></svg>Planejamento personalizado</span>
+      <h2 id="training-plan-heading">Seu plano semanal</h2>
+      <p>Configure suas preferências e deixe o FORJA criar um plano sob medida para você.</p>
+    </div>
+    <svg class="planning-calendar" viewBox="0 0 120 120" role="img" aria-label="Calendário com confirmação"><path d="M27 24h66a9 9 0 0 1 9 9v64a9 9 0 0 1-9 9H27a9 9 0 0 1-9-9V33a9 9 0 0 1 9-9Z"/><path d="M39 15v19M81 15v19M19 46h82M39 69l13 13 29-30"/></svg>
+  </section>
 
-  <section class="hub-routines plan-builder" aria-labelledby="training-plan-heading">
-    <div class="home-week-head">
-      <div>
-        <span class="eyebrow">Planejamento personalizado</span>
-        <h2 class="section-title" id="training-plan-heading">Seu plano semanal</h2>
-      </div>
-      <span class="plan-engine-badge" id="plan-engine-badge">Gerador local por regras</span>
-    </div>
-    <p class="screen-subtitle" id="plan-intro">Gera sessões com exercícios reais da biblioteca. Revise antes de salvar. Se a integração segura com IA estiver ativa, só envia dados de treino não identificáveis e IDs/metadados do catálogo; caso contrário, informa e usa regras locais — nunca chama esse modo de IA generativa.</p>
-    <div class="plan-actions">
-      <button type="button" class="primary-button" id="generate-plan">Gerar meu plano</button>
-      <button type="button" class="secondary-button" id="regenerate-plan" hidden>Regenerar plano</button>
-    </div>
+  <section class="hub-routines plan-builder" aria-labelledby="preferences-heading">
+    <div class="preferences-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 13.5 1.3 1-1.4 2.4-1.6-.5a7.8 7.8 0 0 1-1.4.8l-.3 1.7h-2.8l-.4-1.7a7.8 7.8 0 0 1-1.5-.8l-1.5.5-1.4-2.4 1.3-1a8 8 0 0 1 0-1.7l-1.3-1 1.4-2.4 1.6.5a7.8 7.8 0 0 1 1.4-.8l.3-1.7h2.8l.4 1.7a7.8 7.8 0 0 1 1.5.8l1.5-.5 1.4 2.4-1.3 1a8 8 0 0 1 0 1.7Z"/></svg><h2 id="preferences-heading">Suas preferências</h2></div>
+    <div class="preference-field"><h3>Objetivo principal</h3><div class="choice-grid objective-choices" role="group" aria-label="Objetivo principal">
+      <button class="preference-choice" data-pref="goal" data-value="massa" aria-pressed="true"><span class="choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg></span><span>Ganhar massa</span></button>
+      <button class="preference-choice" data-pref="goal" data-value="emagrecer" aria-pressed="false"><span class="choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22c4 0 7-3 7-7 0-3-2-5-3-7-.3 2-1 3-2 4 0-5-3-8-5-10 0 4-1 6-3 9-1 1-1 3-1 4 0 4 3 7 7 7Z"/></svg></span><span>Emagrecer</span></button>
+      <button class="preference-choice" data-pref="goal" data-value="condicionamento" aria-pressed="false"><span class="choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.3-8.8 11-8.8 11s-8.8-5.7-8.8-11A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.8 2.1Z"/><path d="M3 12h5l2-3 3.3 6 2-3H21"/></svg></span><span>Melhorar o condicionamento</span></button>
+    </div></div>
+    <div class="preference-field"><h3>Nível de experiência</h3><div class="choice-grid level-choices" role="group" aria-label="Nível de experiência">
+      <button class="preference-choice" data-pref="level" data-value="iniciante" aria-pressed="false"><span>Iniciante</span></button>
+      <button class="preference-choice" data-pref="level" data-value="intermediario" aria-pressed="true"><span class="choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19v-4M10 19V9M16 19V5M22 19V2"/></svg></span><span>Intermediário</span></button>
+      <button class="preference-choice" data-pref="level" data-value="avancado" aria-pressed="false"><span class="choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h10v5a5 5 0 0 1-10 0V3ZM7 5H3v2a5 5 0 0 0 5 5M17 5h4v2a5 5 0 0 1-5 5M12 13v5m-4 3h8m-6-3h4"/></svg></span><span>Avançado</span></button>
+    </div></div>
+    <div class="preference-field compact-pref"><h3><span class="pref-symbol" aria-hidden="true">▦</span>Dias por semana</h3><div class="choice-grid day-choices" role="group" aria-label="Dias por semana">
+      <button class="preference-choice" data-pref="days" data-value="2" aria-pressed="false">2</button><button class="preference-choice" data-pref="days" data-value="3" aria-pressed="false">3</button><button class="preference-choice" data-pref="days" data-value="4" aria-pressed="true">4</button><button class="preference-choice" data-pref="days" data-value="5" aria-pressed="false">5</button><button class="preference-choice" data-pref="days" data-value="6" aria-pressed="false">6</button>
+    </div></div>
+    <div class="preference-field"><h3><span class="pref-symbol" aria-hidden="true">◷</span>Tempo por treino</h3><div class="choice-grid time-choices" role="group" aria-label="Tempo por treino">
+      <button class="preference-choice" data-pref="time" data-value="short" aria-pressed="false">Até 30 min</button><button class="preference-choice" data-pref="time" data-value="medium" aria-pressed="true">30–45 min</button><button class="preference-choice" data-pref="time" data-value="long" aria-pressed="false">45–60 min</button>
+    </div></div>
+    <div class="preference-field"><h3><span class="pref-symbol" aria-hidden="true">⚊</span>Equipamentos disponíveis</h3><div class="choice-grid equipment-choices" role="group" aria-label="Equipamentos disponíveis">
+      <button class="preference-choice" data-pref="equipment" data-value="gym" aria-pressed="false"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg></span>Academia</button><button class="preference-choice" data-pref="equipment" data-value="home" aria-pressed="false"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10h-6v-6H9v6H3z"/></svg></span>Em casa</button><button class="preference-choice" data-pref="equipment" data-value="none" aria-pressed="true"><span aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="m9 21 1-6-4 2-2-4m11 8-1-6 4 2 2-4m-10 0 2-3 3 3m-5 0-3-1m8 0 3-1"/></svg></span>Sem equipamento</button>
+    </div><p class="preference-hint">Em casa considera apenas exercícios sem equipamento externo; nenhum acessório é presumido.</p></div>
+    <div class="plan-actions"><button type="button" class="primary-button generate-plan-button" id="generate-plan"><span aria-hidden="true">✣</span>Gerar meu plano<span class="plan-arrow" aria-hidden="true">›</span></button><button type="button" class="secondary-button" id="regenerate-plan" hidden>Gerar nova proposta</button></div>
+    <p class="plan-engine-badge" id="plan-engine-badge">Gerador local por regras · catálogo FORJA</p>
     <p class="field-error" id="plan-error" role="alert" hidden></p>
     <div id="training-plan-preview" class="training-plan-preview" aria-live="polite"></div>
   </section>
 
-  <section aria-labelledby="hub-routines-heading" class="hub-routines">
-    <div class="home-week-head">
-      <h2 class="section-title" id="hub-routines-heading">Minhas rotinas</h2>
-      <a class="secondary-button" id="hub-create-routine" href="rotina.html?nova=1">Criar nova rotina</a>
-    </div>
-    <label class="field-label" for="hub-modality">Modalidade</label>
-    <select class="field-input" id="hub-modality">
-      <option value="">Todas</option>
-      <option value="calisthenics">Calistenia</option>
-      <option value="weights">Musculação</option>
-    </select>
-    <p class="field-hint" id="hub-modality-hint" hidden></p>
+  <section aria-labelledby="hub-routines-heading" class="hub-routines routines-section">
+    <div class="home-week-head"><h2 class="section-title" id="hub-routines-heading">Minhas rotinas</h2><a class="secondary-button" id="hub-create-routine" href="rotina.html?nova=1"><span aria-hidden="true">＋</span> Criar nova rotina</a></div>
+    <label class="field-label" for="hub-modality">Modalidade</label><select class="field-input" id="hub-modality" aria-label="Filtrar rotinas por modalidade"><option value="">Todas</option><option value="calisthenics">Calistenia</option><option value="weights">Musculação</option></select><p class="field-hint" id="hub-modality-hint" hidden></p>
     <div class="routine-list" id="hub-routine-list"></div>
   </section>
-
-  <nav class="hub-footer-links" aria-label="Organizar por modalidade">
-    <a class="secondary-button" href="calistenia.html" id="mode-calisthenics">Calistenia · <span id="home-calisthenics-meta"></span></a>
-    <a class="secondary-button" href="musculacao.html" id="mode-weights">Musculação · <span id="home-weights-meta"></span></a>
-  </nav>
-
+  <nav class="hub-footer-links" aria-label="Modalidades de treino" hidden><a href="calistenia.html" id="mode-calisthenics">Calistenia</a><a href="musculacao.html" id="mode-weights">Musculação</a></nav>
 </main>
-
-<nav class="bottom-nav" aria-label="Navegação principal">
-  <div class="bottom-nav-inner">
-    <a class="bottom-nav-link" href="../index.html" data-nav="inicio">
-      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5Z"/><path d="M9 21V11h6v10"/></svg></span>
-      <span class="bottom-nav-label">Início</span>
-    </a>
-    <a class="bottom-nav-link is-active" href="index.html" data-nav="treino" aria-current="page">
-      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
-      <span class="bottom-nav-label">Treinos</span>
-    </a>
-    <a class="bottom-nav-link" href="../explorar/index.html" data-nav="explorar">
-      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
-      <span class="bottom-nav-label">Explorar</span>
-    </a>
-    <a class="bottom-nav-link" href="../progresso/index.html" data-nav="progresso">
-      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
-      <span class="bottom-nav-label">Progresso</span>
-    </a>
-    <a class="bottom-nav-link" href="../perfil/index.html" data-nav="perfil">
-      <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
-      <span class="bottom-nav-label">Perfil</span>
-    </a>
-  </div>
-</nav>
-
-<footer class="site-footer">
-  <div class="container">
-    <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
-    <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
-  </div>
-</footer>
-
-<div id="modal-root"></div>
-<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-
-<script src="../assets/js/forja-core.js" defer></script>
-<script src="../assets/js/forja-store.js" defer></script>
-<script src="../assets/js/forja-dados.js" defer></script>
-<script src="../assets/js/forja-metricas.js" defer></script>
-<script src="../assets/js/forja-biblioteca.js" defer></script>
-<script src="../assets/js/forja-sessao.js" defer></script>
-<script src="../assets/js/forja-treino.js" defer></script>
-<script src="../assets/js/forja-progresso.js" defer></script>
-<script src="../assets/js/forja-backup.js" defer></script>
-<script src="../assets/js/forja-ui.js" defer></script>
-<script src="../assets/js/forja-graficos.js" defer></script>
-<script src="../assets/js/forja-catalogo.js" defer></script>
-<script src="../assets/js/forja-plano.js" defer></script>
-<script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
-<script src="../assets/js/forja-demonstracoes.js" defer></script>
-<script src="../assets/js/forja-app.js" defer></script>
-</body>
-</html>
+<nav class="bottom-nav" aria-label="Navegação principal"><div class="bottom-nav-inner">
+  <a class="bottom-nav-link" href="../index.html" data-nav="inicio"><span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 10 12 3l9 7v10h-6v-6H9v6H3z"/></svg></span><span class="bottom-nav-label">Início</span></a>
+  <a class="bottom-nav-link is-active" href="index.html" data-nav="treino" aria-current="page"><span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6v12M18 6v12M3 9v6m18-6v6M6 12h12"/></svg></span><span class="bottom-nav-label">Treinos</span></a>
+  <a class="bottom-nav-link" href="../explorar/index.html" data-nav="explorar"><span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span><span class="bottom-nav-label">Explorar</span></a>
+  <a class="bottom-nav-link" href="../progresso/index.html" data-nav="progresso"><span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span><span class="bottom-nav-label">Evolução<span class="ui-visually-hidden"> Progresso</span></span></a>
+  <a class="bottom-nav-link" href="../perfil/index.html" data-nav="perfil"><span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3-6 8-6s8 2 8 6"/></svg></span><span class="bottom-nav-label">Perfil</span></a>
+</div></nav>
+<footer class="site-footer"><div class="container"><p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p><p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p><p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p></div></footer>
+<div id="modal-root"></div><div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script src="../assets/js/forja-core.js" defer></script><script src="../assets/js/forja-store.js" defer></script><script src="../assets/js/forja-dados.js" defer></script><script src="../assets/js/forja-metricas.js" defer></script><script src="../assets/js/forja-biblioteca.js" defer></script><script src="../assets/js/forja-sessao.js" defer></script><script src="../assets/js/forja-treino.js" defer></script><script src="../assets/js/forja-progresso.js" defer></script><script src="../assets/js/forja-backup.js" defer></script><script src="../assets/js/forja-ui.js" defer></script><script src="../assets/js/forja-graficos.js" defer></script><script src="../assets/js/forja-catalogo.js" defer></script><script src="../assets/js/forja-plano.js" defer></script><script src="../assets/js/forja-demonstracoes-dados.js" defer></script><script src="../assets/js/forja-demonstracoes.js" defer></script><script src="../assets/js/forja-app.js" defer></script>
+</body></html>

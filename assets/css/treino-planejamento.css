@@ -1,0 +1,164 @@
+/* FORJA · planejamento personalizado: referências escuras, verde-limão e mobile-first. */
+body[data-page="treino"] { --plan-lime:#8df322; --plan-lime2:#a1ff32; --plan-dark:#080b09; background:radial-gradient(ellipse at 82% 5%,rgba(52,130,20,.12),transparent 28rem),#080b09; }
+body[data-page="treino"] .site-header { display:none; }
+body[data-page="treino"] main.container { width:min(100% - 32px, 980px); padding-top:18px; padding-bottom:calc(var(--bottom-nav-height, 69px) + 36px + env(safe-area-inset-bottom,0px)); }
+body[data-page="treino"] .planning-hero { position:relative; display:flex; align-items:center; justify-content:space-between; min-height:176px; margin:0 0 18px; padding:16px 14px; overflow:hidden; isolation:isolate; }
+body[data-page="treino"] .planning-hero::before { content:""; position:absolute; inset:-70% -10% -50% 48%; z-index:-1; background:repeating-linear-gradient(132deg,transparent 0 40px,rgba(98,255,39,.09) 42px,transparent 45px 86px); transform:rotate(-2deg); }
+.planning-hero-copy { min-width:0; max-width:690px; }
+.planning-eyebrow { display:flex; gap:10px; align-items:center; margin-bottom:8px; color:var(--plan-lime); font-size:clamp(13px,2vw,18px); font-weight:850; text-transform:uppercase; letter-spacing:.015em; }
+.planning-eyebrow svg { width:26px; height:26px; fill:none; stroke:currentColor; stroke-width:2.8; stroke-linejoin:round; }
+.planning-hero h2 { margin:0; color:#f7f8f7; font-size:clamp(32px,5.6vw,52px); line-height:1.05; letter-spacing:-.045em; }
+.planning-hero p { max-width:590px; margin:12px 0 0; color:#d2d6d3; font-size:clamp(15px,2.2vw,20px); line-height:1.4; }
+.planning-calendar { flex:none; width:clamp(78px,15vw,142px); margin:0 2px 0 15px; fill:none; stroke:var(--plan-lime); stroke-width:6; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 14px rgba(141,243,34,.35)); transform:rotate(5deg); }
+body[data-page="treino"] .plan-builder { margin:0; padding:0 0 15px; overflow:hidden; border:1px solid rgba(231,242,232,.17); border-radius:27px; background:linear-gradient(150deg,rgba(255,255,255,.045),transparent 35%),#101312; box-shadow:0 15px 42px rgba(0,0,0,.31); }
+.preferences-title { display:flex; align-items:center; gap:16px; min-height:76px; padding:13px 22px; background:rgba(255,255,255,.045); }
+.preferences-title svg { width:48px; height:48px; flex:none; fill:var(--plan-lime); stroke:var(--plan-lime); stroke-width:1.4; }
+.preferences-title h2 { margin:0; color:#f6f8f6; font-size:clamp(21px,3vw,28px); letter-spacing:-.025em; }
+.preference-field { padding:12px 24px 5px; }
+.preference-field h3 { display:flex; align-items:center; gap:12px; margin:0 0 10px; color:#f2f4f2; font-size:clamp(16px,2.4vw,20px); font-weight:750; }
+.choice-grid { display:grid; gap:10px; }
+.objective-choices,.level-choices,.equipment-choices { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.time-choices { grid-template-columns:1.05fr 1fr 1.05fr; }
+.preference-choice { display:flex; align-items:center; justify-content:center; gap:9px; min-width:0; min-height:58px; padding:10px 12px; border:1px solid rgba(235,243,237,.2); border-radius:999px; background:linear-gradient(140deg,rgba(255,255,255,.055),rgba(255,255,255,.015)); color:#f4f5f4; text-align:center; font-size:clamp(14px,2vw,18px); line-height:1.15; font-weight:500; cursor:pointer; transition:background .16s ease,border-color .16s ease,transform .16s ease; }
+.preference-choice:hover { border-color:rgba(141,243,34,.65); }
+.preference-choice[aria-pressed="true"] { border-color:var(--plan-lime); background:linear-gradient(135deg,#a5ff39,#84ed1b); color:#10160b; font-weight:850; box-shadow:0 0 22px rgba(113,244,32,.2); }
+.preference-choice:focus-visible { outline:3px solid white; outline-offset:2px; }
+.choice-icon { display:flex; align-items:center; justify-content:center; font-size:25px; font-weight:900; line-height:1; }
+.choice-icon svg,.equipment-choices .preference-choice > span svg { width:26px; height:26px; fill:none; stroke:currentColor; stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round; }
+.preferences-title svg { fill-rule:evenodd; }
+.objective-choices .preference-choice { min-height:67px; }
+.level-choices .preference-choice { min-height:60px; }
+.compact-pref { padding-top:16px; }
+.pref-symbol { width:27px; color:var(--plan-lime); font-size:27px; line-height:1; text-align:center; }
+.day-choices { grid-template-columns:repeat(5,minmax(0,1fr)); padding:0 14px; }
+.day-choices .preference-choice { min-height:54px; border-radius:19px; font-size:25px; font-weight:800; }
+.time-choices .preference-choice { min-height:56px; }
+.equipment-choices .preference-choice { min-height:56px; }
+.equipment-choices .preference-choice > span { font-size:23px; color:var(--plan-lime); }
+.equipment-choices .preference-choice[aria-pressed="true"] > span { color:#13200b; }
+.preference-hint { margin:8px 2px 2px; color:#9ca49e; font-size:12px; }
+body[data-page="treino"] .plan-actions { display:block; margin:9px 0 0; padding:0 18px; }
+.generate-plan-button { position:relative; display:flex; align-items:center; justify-content:center; gap:14px; width:100%; min-height:72px; border-radius:999px!important; background:linear-gradient(110deg,#a2ff35,#82ee19)!important; color:#10170b!important; font-size:clamp(20px,3vw,27px); box-shadow:0 8px 26px rgba(119,241,32,.19)!important; }
+.generate-plan-button > span:first-child { font-size:26px; }
+.generate-plan-button .plan-arrow { position:absolute; right:25px; font-size:40px; font-weight:400; line-height:1; }
+.plan-engine-badge { margin:9px 24px 0; padding:0; border:0; border-radius:0; color:#828b84; font-size:11px; }
+body[data-page="treino"] .field-error { margin:12px 24px; color:#ff9696; }
+.training-plan-preview { display:grid; gap:12px; padding:14px 18px 0; }
+.plan-summary { padding:2px 5px 0; }
+.plan-summary-text { color:#f3f6f3; font-size:18px; font-weight:700; }
+.week-schedule { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; }
+.week-schedule-day { display:grid; gap:5px; justify-items:center; min-width:0; padding:9px 3px; border:1px solid rgba(255,255,255,.13); border-radius:12px; background:#171b19; text-align:center; }
+.week-schedule-day strong { color:#d9e2d9; font-size:12px; }
+.week-schedule-day span { color:#9ba49c; font-size:10px; line-height:1.15; }
+.week-schedule-day.is-training { border-color:rgba(141,243,34,.42); background:rgba(141,243,34,.08); }
+.week-schedule-day.is-training strong,.week-schedule-day.is-training span { color:var(--plan-lime); }
+.plan-title-input { width:100%; min-height:42px; padding:5px 8px; border:1px solid rgba(255,255,255,.12)!important; border-radius:9px!important; background:rgba(255,255,255,.04)!important; color:#f6f8f6!important; font-weight:750; }
+.plan-title-input:disabled { border-color:transparent!important; background:transparent!important; padding-left:0; }
+.plan-exercise-tools select { max-width:112px; min-height:40px; }
+.plan-adjust-tools { justify-content:flex-start; grid-column:1 / -1; }
+.plan-adjust-tools::before { content:"Séries · repetições/tempo · descanso (s)"; align-self:center; margin-right:5px; color:#9da79f; font-size:11px; }
+body[data-page="treino"] #hub-routine-list .routine-actions { grid-template-columns:minmax(0,1fr) 52px 52px; }
+body[data-page="treino"] #hub-routine-list .routine-actions > .secondary-button { min-height:50px; padding:6px; font-size:13px; }
+body[data-page="treino"] #hub-routine-list .routine-actions > .danger-button { min-height:50px; padding:6px; color:#ffb2aa!important; }
+body[data-page="treino"] .routine-details-disclosure { margin-left:9px; }
+body[data-page="treino"] .routine-more-actions { margin-left:9px; color:#9ba59d; font-size:12px; }
+body[data-page="treino"] .routine-more-actions summary { padding:6px 0; cursor:pointer; }
+body[data-page="treino"] .routine-more-actions .routine-tools { display:flex; flex-wrap:wrap; padding:4px 0 8px; }
+body[data-page="treino"] .routine-more-actions .routine-tools button { flex:1; min-height:42px; }
+body[data-page="treino"] #hub-routine-list .routine-more-actions { display:block; }
+.plan-session-card { padding:15px; border-color:rgba(235,244,235,.16); border-radius:17px; background:#171b19; }
+.plan-session-day { color:var(--plan-lime); }
+.plan-session-title { margin-top:3px; }
+.plan-rationale { font-size:13px; }
+.plan-session-head { grid-template-columns:1fr; }
+.plan-session-title { grid-column:1; }
+.plan-exercise-list li { grid-template-columns:minmax(0,1fr) auto; gap:8px 12px; }
+.plan-exercise-list li > strong { align-self:center; }
+.plan-exercise-list li > span,.plan-exercise-list li > small { grid-column:1 / -1; }
+.plan-exercise-tools { display:flex; gap:6px; align-items:center; justify-content:flex-end; }
+.plan-exercise-tools button { min-width:42px; min-height:40px; }
+.plan-exercise-tools input { width:56px; min-height:40px; padding:4px; text-align:center; }
+.plan-session-actions { margin-top:14px; }
+.plan-save { justify-self:stretch; width:100%; min-height:56px; border-radius:999px!important; }
+body[data-page="treino"] .routines-section { margin:24px 0 0; padding:0 0 12px; overflow:hidden; border:1px solid rgba(231,242,232,.17); border-radius:25px; background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 48%),#101312; }
+body[data-page="treino"] .routines-section > .home-week-head { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:17px 18px; border:0; border-radius:0; background:transparent; }
+body[data-page="treino"] .routines-section .section-title { margin:0; font-size:clamp(21px,3vw,28px); }
+body[data-page="treino"] #hub-create-routine { display:flex; align-items:center; justify-content:center; min-height:48px; padding:9px 17px; border:1px solid rgba(237,244,239,.35)!important; border-radius:999px!important; background:transparent!important; font-weight:700; text-decoration:none; }
+body[data-page="treino"] #hub-create-routine span { color:var(--plan-lime); font-size:22px; }
+body[data-page="treino"] .routines-section > .field-label { display:none!important; }
+body[data-page="treino"] #hub-modality { display:block!important; width:auto; max-width:210px; min-height:42px; margin:0 18px 12px; padding:7px 34px 7px 12px; border-radius:999px!important; font-size:13px; }
+body[data-page="treino"] #hub-modality-hint { margin:0 18px 10px; color:#98a19a; font-size:12px; }
+body[data-page="treino"] #hub-routine-list { display:grid; gap:0; padding:0 14px; }
+body[data-page="treino"] #hub-routine-list .routine-card { position:relative; display:grid; grid-template-columns:minmax(0,1fr); gap:10px; margin:0 0 12px; padding:16px 15px 14px 22px; border:1px solid rgba(231,242,232,.18); border-radius:22px; background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018)); }
+body[data-page="treino"] #hub-routine-list .routine-card::before { content:""; position:absolute; left:12px; top:14px; bottom:14px; width:5px; border-radius:6px; background:var(--plan-lime); }
+body[data-page="treino"] #hub-routine-list .routine-card-header { padding:0 0 0 9px; border:0; }
+body[data-page="treino"] #hub-routine-list .routine-card-header .routine-name { font-size:21px; }
+body[data-page="treino"] #hub-routine-list .routine-card-header .routine-meta { color:#b4bbb6; line-height:1.45; }
+body[data-page="treino"] .routine-equipment-meta { padding-left:9px; color:#d3d9d4; font-size:13px; }
+body[data-page="treino"] .routine-exercise-preview { display:none; }
+body[data-page="treino"] .routine-details-toggle { margin:0 0 0 9px; padding:0; border:0; background:transparent; color:var(--plan-lime); text-align:left; font-size:13px; }
+body[data-page="treino"] .routine-details-list { display:grid; gap:7px; margin:0 0 0 9px; padding:10px 0 0; border-top:1px solid rgba(255,255,255,.1); list-style:none; color:#dce0dc; font-size:13px; }
+body[data-page="treino"] .routine-details-list li { display:flex; justify-content:space-between; gap:10px; }
+body[data-page="treino"] #hub-routine-list .routine-actions { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:9px; align-items:center; }
+body[data-page="treino"] #hub-routine-list .routine-start { min-height:54px; border-radius:999px!important; font-size:17px; }
+body[data-page="treino"] #hub-routine-list .routine-actions > .secondary-button { min-height:48px; }
+body[data-page="treino"] #hub-routine-list .routine-tools { display:flex; gap:8px; grid-column:1/-1; }
+body[data-page="treino"] #hub-routine-list .routine-tools button { flex:1; min-height:46px; }
+body[data-page="treino"] #hub-routine-list .routine-more-actions { display:none; }
+body[data-page="treino"] .empty-card { margin:0 0 12px; border-radius:17px; }
+body[data-page="treino"] .hub-footer-links { display:none; }
+body[data-page="treino"] .bottom-nav-link { position:relative; }
+body[data-page="treino"] .bottom-nav-link[aria-current="page"] { background:transparent; }
+body[data-page="treino"] .bottom-nav-link[aria-current="page"]::after { content:""; position:absolute; right:8%; bottom:-2px; left:8%; height:3px; border-radius:4px; background:var(--plan-lime); box-shadow:0 0 12px rgba(141,243,34,.42); }
+body[data-page="treino"] .site-footer { margin-bottom:10px; }
+@media(max-width:540px) {
+ body[data-page="treino"] main.container { width:calc(100% - 24px); }
+ body[data-page="treino"] .planning-hero { min-height:142px; padding:10px 4px; }
+ .planning-calendar { width:74px; margin-left:8px; }
+ .planning-eyebrow { font-size:12px; gap:7px; }
+ .planning-eyebrow svg { width:21px;height:21px; }
+ .planning-hero h2 { font-size:clamp(30px,8vw,40px); }
+ .planning-hero p { max-width:290px; font-size:15px; }
+ .preferences-title { min-height:67px; padding:10px 16px; gap:12px; }
+ .preferences-title svg { width:41px;height:41px; }
+ .preference-field { padding:11px 14px 4px; }
+ .preference-field h3 { font-size:16px; margin-bottom:9px; }
+ .choice-grid { gap:7px; }
+ .preference-choice { min-height:52px; padding:8px 6px; font-size:clamp(12px,3.55vw,15px); gap:5px; }
+ .objective-choices .preference-choice { min-height:62px; flex-direction:column; }
+ .objective-choices .preference-choice:last-child { font-size:12px; }
+ .choice-icon { font-size:20px; }
+ .level-choices .preference-choice { min-height:56px; }
+ .day-choices { padding:0; gap:7px; }
+ .day-choices .preference-choice { min-height:49px; border-radius:15px; font-size:22px; }
+ .time-choices { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .time-choices .preference-choice { min-height:52px; }
+ .equipment-choices .preference-choice { min-height:52px; flex-direction:column; }
+ .equipment-choices .preference-choice > span { font-size:19px; }
+ body[data-page="treino"] .plan-actions { padding:0 12px; }
+ .generate-plan-button { min-height:62px; font-size:20px; }
+ .generate-plan-button .plan-arrow { right:17px; font-size:34px; }
+ .training-plan-preview { padding:12px 12px 0; }
+ body[data-page="treino"] .routines-section > .home-week-head { padding:15px 13px; }
+ body[data-page="treino"] #hub-create-routine { padding:8px 12px; font-size:13px; }
+ body[data-page="treino"] #hub-routine-list { padding:0 9px; }
+ body[data-page="treino"] #hub-routine-list .routine-card { padding-right:11px; }
+}
+@media(max-width:360px) {
+ body[data-page="treino"] main.container { width:calc(100% - 20px); }
+ .planning-calendar { width:62px; }
+ .planning-hero p { max-width:235px; font-size:14px; }
+ .objective-choices .preference-choice:last-child { font-size:11px; }
+ .preference-choice { padding-inline:3px; }
+ .day-choices { gap:5px; }
+ .time-choices .preference-choice { font-size:12px; }
+ .equipment-choices .preference-choice { font-size:12px; }
+}
+@media(min-width:760px) {
+ body[data-page="treino"] .plan-builder { padding-bottom:20px; }
+ .preference-field { padding-left:28px; padding-right:28px; }
+ .objective-choices { max-width:850px; }
+ .day-choices { max-width:740px; }
+ body[data-page="treino"] #hub-routine-list .routine-card { grid-template-columns:minmax(0,1fr); }
+}
+@media(prefers-reduced-motion:reduce) { .preference-choice { transition:none; } }
