@@ -1,0 +1,999 @@
+/* ==========================================================================
+   FORJA — Início (painel central)
+   --------------------------------------------------------------------------
+   Última camada carregada, e só em index.html. Tudo aqui está preso a
+   `body[data-page="inicio"]`, então nenhuma outra tela muda de aparência.
+
+   Referência visual: fundo preto, cartões cinza-escuro, verde-limão como
+   acento único de ação, títulos brancos e textos secundários em cinza.
+   As cores saem dos tokens do app (--lime, --bg, --panel, --muted, --border);
+   os quatro indicadores usam acentos próprios, como na referência.
+
+   Regras de layout:
+   - mobile primeiro; 2 colunas nos indicadores e no Explorar até 560 px,
+     4 colunas acima disso;
+   - nada de rolagem horizontal em 320 px (textos quebram, imagens encolhem);
+   - a imagem do treino do dia é fundo decorativo com máscara: nunca empurra
+     nem cobre o título, e some se o arquivo não carregar;
+   - alvos de toque com pelo menos 44 px.
+   ========================================================================== */
+
+body[data-page="inicio"] {
+  --home-accent: var(--lime, #b7f34a);
+  --home-surface: #151614;
+  --home-surface-2: #1b1d1a;
+  --home-line: rgba(255, 255, 255, 0.07);
+  --home-line-strong: rgba(255, 255, 255, 0.12);
+  --home-ink: #ffffff;
+  --home-ink-soft: #a7ada4;
+  --home-radius: 18px;
+  --home-gap: 12px;
+  --home-blue: #6fa8ff;
+  --home-violet: #a583ff;
+  --home-ember: #ff9a3d;
+  background: #000;
+}
+
+/*
+  A Home é uma pilha de uma coluna em qualquer largura. `redesign.css` monta
+  um grid de duas colunas em `main.container`, o que espremia os blocos novos
+  em metade da tela; aqui a coluna é única e as grades internas é que abrem.
+*/
+body[data-page="inicio"] main.container {
+  display: block;
+  width: min(100% - 28px, 1040px);
+  max-width: 1040px;
+  padding-top: 6px;
+}
+
+body[data-page="inicio"] #conteudo {
+  width: min(100% - 28px, 1040px);
+  max-width: 1040px;
+  padding-top: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   1. Cabeçalho: marca, slogan, sino e avatar
+   -------------------------------------------------------------------------- */
+
+body[data-page="inicio"] .site-header {
+  background: #000;
+  border-bottom: 0;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+body[data-page="inicio"] .home-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 60px;
+  padding-top: 10px;
+  padding-bottom: 8px;
+  width: min(100% - 28px, 1040px);
+}
+
+.home-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  text-decoration: none;
+  color: var(--home-ink);
+  min-width: 0;
+}
+
+.home-brand-mark {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  color: var(--home-accent);
+}
+
+.home-brand-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.home-brand-name {
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--home-ink);
+}
+
+.home-brand-tagline {
+  font-family: var(--fj-fonte-texto, "Inter", sans-serif);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  color: var(--home-accent);
+  white-space: nowrap;
+}
+
+.home-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.home-icon-button,
+.home-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--home-ink);
+  text-decoration: none;
+}
+
+.home-icon-button svg { width: 25px; height: 25px; }
+
+.home-icon-dot {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff5252;
+  box-shadow: 0 0 0 2px #000;
+}
+
+.home-avatar {
+  background: #2a2d29;
+  color: #cfd4cc;
+  border-color: var(--home-line-strong);
+}
+
+.home-avatar svg { width: 26px; height: 26px; }
+
+.home-icon-button:hover,
+.home-avatar:hover { background: rgba(255, 255, 255, 0.06); }
+
+/* --------------------------------------------------------------------------
+   2. Saudação personalizada
+   -------------------------------------------------------------------------- */
+
+body[data-page="inicio"] .home-greeting {
+  margin: 10px 0 16px;
+}
+
+body[data-page="inicio"] .home-title {
+  margin: 0 0 4px;
+  max-width: none;
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: clamp(28px, 7.6vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
+  color: var(--home-ink);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+body[data-page="inicio"] .home-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  max-width: 46ch;
+  font-size: clamp(14px, 4vw, 16px);
+  color: var(--home-ink-soft);
+  line-height: 1.45;
+}
+
+body[data-page="inicio"] .home-eyebrow {
+  margin: 8px 0 0;
+  color: #7f867d;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   3. Treino do dia — o cartão de maior destaque
+   -------------------------------------------------------------------------- */
+
+#home-action { margin: 0 0 14px; }
+
+#home-action .home-action-card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  overflow: hidden;
+  border: 1px solid var(--home-line);
+  border-radius: var(--home-radius);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(183, 243, 74, 0.10), transparent 58%),
+    linear-gradient(160deg, #1c1e1a 0%, #121311 78%);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+#home-action .home-action-card.is-empty {
+  border-style: solid;
+  border-color: var(--home-line);
+  background: linear-gradient(160deg, #171916 0%, #101110 100%);
+}
+
+.home-today-main {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+#home-action .home-action-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--home-accent);
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.home-action-eyebrow-icon { width: 22px; height: 22px; }
+.home-action-eyebrow-icon svg { width: 22px; height: 22px; }
+
+#home-action .home-action-title {
+  margin: 0;
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: clamp(24px, 6.6vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--home-ink);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+#home-action .home-action-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 2px 0 0;
+  color: #c9cec6;
+  font-family: var(--fj-fonte-texto, "Inter", sans-serif);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.home-action-meta-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  vertical-align: -3px;
+  color: #9aa096;
+}
+
+.home-action-meta-icon svg { width: 16px; height: 16px; }
+
+.home-action-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 12px;
+  border-left: 1px solid var(--home-line-strong);
+}
+
+/* Imagem de contexto à direita, atrás do texto e recortada pela máscara. */
+.home-today-media {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 76px;
+  width: 46%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 46%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 46%);
+}
+
+.home-today-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  opacity: 0.62;
+  filter: grayscale(0.35) contrast(1.05);
+}
+
+.home-today-media.is-empty { display: none; }
+
+/* Crédito da fotografia: discreto, mas legível e fora da área mascarada. */
+.home-today-credit {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  z-index: 2;
+  max-width: 52%;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sem fotografia: textura de marca discreta no lugar da imagem. */
+.home-today-media.sem-foto {
+  background:
+    repeating-linear-gradient(115deg, rgba(183, 243, 74, 0.05) 0 2px, transparent 2px 16px);
+}
+
+#home-action .home-today-open {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--home-ink);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--home-line-strong);
+  text-decoration: none;
+}
+
+#home-action .home-today-open svg { width: 20px; height: 20px; }
+#home-action .home-today-open:hover { background: rgba(0, 0, 0, 0.6); }
+
+/* CTA verde-limão de largura total, como na referência. */
+#home-action .home-action-button {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 18px;
+  margin: 4px 0 0;
+  border: 1px solid var(--home-accent);
+  border-radius: 14px;
+  background: var(--home-accent);
+  color: #0d1405;
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 10px 26px rgba(183, 243, 74, 0.18);
+}
+
+#home-action .home-action-button:hover { filter: brightness(1.05); }
+#home-action .home-action-button:active { transform: scale(0.99); }
+
+.home-action-play {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+}
+
+.home-action-play svg { width: 18px; height: 18px; fill: currentColor; stroke: none; }
+
+#home-action .home-action-hint {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  color: #8a9087;
+  font-family: var(--fj-fonte-texto, "Inter", sans-serif);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   4. Indicadores
+   -------------------------------------------------------------------------- */
+
+body[data-page="inicio"] .home-metrics { margin: 0 0 8px; }
+
+.home-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.home-metric {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 10px;
+  border: 1px solid var(--home-line);
+  border-radius: 15px;
+  background: var(--home-surface);
+  text-align: center;
+}
+
+.home-metric-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  color: var(--home-accent);
+}
+
+.home-metric-icon svg { width: 24px; height: 24px; }
+
+.home-metric.is-time .home-metric-icon { color: var(--home-blue); }
+.home-metric.is-strength .home-metric-icon { color: var(--home-violet); }
+.home-metric.is-kcal .home-metric-icon { color: var(--home-ember); }
+
+.home-metric-value {
+  font-family: var(--fj-fonte-numero, var(--fj-fonte-titulo, "Archivo", sans-serif));
+  font-size: clamp(21px, 5.6vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--home-ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.home-metric-label {
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--home-ink-soft);
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.home-metric-hint {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.home-metrics-note {
+  margin: 10px 0 0;
+  color: #868c84;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   5. Seu progresso
+   -------------------------------------------------------------------------- */
+
+body[data-page="inicio"] .home-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 10px;
+}
+
+body[data-page="inicio"] .home-block-title {
+  margin: 0;
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--home-ink);
+}
+
+body[data-page="inicio"] .home-block-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+  padding: 0 2px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--home-accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+body[data-page="inicio"] .home-block-link:hover { text-decoration: underline; }
+
+body[data-page="inicio"] .home-progress-body {
+  min-width: 0;
+}
+
+.home-progress-grid {
+  display: grid;
+  gap: 12px;
+  align-items: start;
+}
+
+.home-progress-chart {
+  min-width: 0;
+  padding: 10px 12px 4px;
+  border: 1px solid var(--home-line);
+  border-radius: var(--home-radius);
+  background: var(--home-surface);
+}
+
+/* O gráfico do sistema já é acessível; aqui só ganha mais respiro. */
+body[data-page="inicio"] .home-progress-chart .ui-line-svg {
+  height: 132px;
+}
+
+body[data-page="inicio"] .home-progress-chart .ui-line-path {
+  stroke: var(--home-accent);
+  stroke-width: 2.5;
+}
+
+body[data-page="inicio"] .home-progress-chart .ui-line-area {
+  fill: rgba(183, 243, 74, 0.14);
+}
+
+body[data-page="inicio"] .home-progress-chart .ui-line-dot {
+  fill: var(--home-accent);
+  stroke: #0d0f0c;
+  stroke-width: 2;
+}
+
+body[data-page="inicio"] .home-progress-chart .ui-line-axis {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+body[data-page="inicio"] .home-progress-chart .ui-line-edge {
+  color: #7f867d;
+  font-size: 10.5px;
+}
+
+body[data-page="inicio"] .home-progress-chart .ui-chart-caption {
+  color: #7f867d;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+/* Conquista: só existe com recorde real. */
+.home-achievement {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  align-self: start;
+  padding: 14px;
+  border: 1px solid rgba(183, 243, 74, 0.26);
+  border-radius: var(--home-radius);
+  background:
+    radial-gradient(90% 120% at 0% 0%, rgba(183, 243, 74, 0.16), transparent 62%),
+    var(--home-surface-2);
+}
+
+.home-achievement.is-fresh { border-color: rgba(183, 243, 74, 0.42); }
+
+.home-achievement-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--home-accent);
+}
+
+.home-achievement-icon { width: 17px; height: 17px; color: var(--home-accent); }
+.home-achievement-icon svg { width: 17px; height: 17px; }
+
+.home-achievement-value {
+  margin: 0;
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--home-ink);
+  overflow-wrap: anywhere;
+}
+
+.home-achievement-date {
+  margin: 0;
+  font-size: 11px;
+  color: var(--home-ink-soft);
+}
+
+.home-progress-note,
+.home-progress-criteria {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--home-line-strong);
+  border-radius: var(--home-radius);
+  color: #8f958c;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.home-progress-criteria {
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  color: #7b817a;
+  font-size: 11px;
+}
+
+.home-progress-empty {
+  display: grid;
+  gap: 12px;
+  padding: 18px 16px;
+  border: 1px dashed var(--home-line-strong);
+  border-radius: var(--home-radius);
+  background: var(--home-surface);
+}
+
+.home-progress-empty-text strong {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--home-ink);
+}
+
+.home-progress-empty-text p {
+  margin: 0;
+  color: var(--home-ink-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+body[data-page="inicio"] .home-progress-cta {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  color: var(--home-accent);
+  border: 1px solid rgba(183, 243, 74, 0.4);
+  background: rgba(183, 243, 74, 0.08);
+  font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. Explore o FORJA
+   -------------------------------------------------------------------------- */
+
+body[data-page="inicio"] .home-explore-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.home-explore-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px 10px;
+  border: 1px solid var(--home-line);
+  border-radius: 15px;
+  background: var(--home-surface);
+  color: var(--home-ink);
+  text-decoration: none;
+  text-align: center;
+}
+
+.home-explore-card:hover { border-color: var(--home-line-strong); background: var(--home-surface-2); }
+
+.home-explore-art {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--home-accent);
+}
+
+.home-explore-art svg { width: 30px; height: 30px; }
+.home-explore-art.is-anatomy { color: #ff7a6b; }
+
+.home-explore-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #e6e9e3;
+  overflow-wrap: anywhere;
+}
+
+.home-explore-card.is-unavailable {
+  cursor: not-allowed;
+  opacity: 0.62;
+  border-style: dashed;
+  background: #111210;
+}
+
+.home-explore-card.is-unavailable .home-explore-art { color: #7d8479; }
+
+.home-explore-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8d938a;
+  border: 1px solid var(--home-line-strong);
+  border-radius: 99px;
+  padding: 2px 7px;
+}
+
+body[data-page="inicio"] .home-explore-note {
+  margin: 10px 0 0;
+  color: #7b817a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   7. Blocos herdados abaixo do painel (semana, metas, último treino,
+      calendário e missões). Continuam funcionando; só não competem com o topo.
+   -------------------------------------------------------------------------- */
+
+body[data-page="inicio"] .home-deep {
+  margin-top: 26px;
+  padding-top: 6px;
+  border-top: 1px solid var(--home-line);
+}
+
+body[data-page="inicio"] .home-overview { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+
+body[data-page="inicio"] .home-week,
+body[data-page="inicio"] .home-goals,
+body[data-page="inicio"] .home-recent {
+  min-width: 0;
+  margin: 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--home-line);
+  border-bottom: 0;
+}
+
+body[data-page="inicio"] .home-overview .home-week { border-top: 0; }
+
+body[data-page="inicio"] .home-week-head,
+body[data-page="inicio"] .home-recent-head {
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+body[data-page="inicio"] .home-week-title,
+body[data-page="inicio"] .home-recent-title {
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--home-ink);
+}
+
+body[data-page="inicio"] .home-week-link,
+body[data-page="inicio"] .home-recent-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--home-accent);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+body[data-page="inicio"] .home-week-stats { gap: 8px; }
+
+body[data-page="inicio"] .home-week-stat {
+  padding: 10px;
+  border: 1px solid var(--home-line);
+  border-radius: 12px;
+  background: var(--home-surface);
+  text-align: left;
+}
+
+body[data-page="inicio"] .home-week-stat-value {
+  color: var(--home-ink);
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+body[data-page="inicio"] .home-week-stat-label {
+  margin-top: 4px;
+  color: #8b918a;
+  font-size: 10.5px;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+
+body[data-page="inicio"] .home-week-note,
+body[data-page="inicio"] .home-recent-note,
+body[data-page="inicio"] .home-goals-period,
+body[data-page="inicio"] .home-goals-note {
+  color: #868c84;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+body[data-page="inicio"] .home-goal-track { background: #2b2f2a; }
+body[data-page="inicio"] .home-goal-fill { background: var(--home-accent); }
+body[data-page="inicio"] .home-goal-value { color: var(--home-ink); }
+body[data-page="inicio"] .home-goal-head { color: #cdd2c9; }
+
+/* Histórico recente: uma coluna só; o resto vira uma sanfona discreta. */
+body[data-page="inicio"] .home-recent-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+body[data-page="inicio"] .home-recent-archive {
+  margin-top: 4px;
+  border-top: 1px solid var(--home-line);
+}
+
+body[data-page="inicio"] .home-recent-archive > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--home-ink-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+body[data-page="inicio"] .home-recent-archive > summary::-webkit-details-marker { display: none; }
+
+body[data-page="inicio"] .home-recent-archive > summary::after {
+  content: "+";
+  color: var(--home-accent);
+  font-size: 17px;
+  line-height: 1;
+}
+
+body[data-page="inicio"] .home-recent-archive[open] > summary::after { content: "\2212"; }
+
+body[data-page="inicio"] .home-recent-item {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--home-line);
+  color: var(--home-ink);
+}
+
+body[data-page="inicio"] .home-recent-name { font-size: 14px; font-weight: 700; }
+body[data-page="inicio"] .home-recent-meta { color: #868c84; font-size: 12px; }
+
+body[data-page="inicio"] .home-secondary { gap: 8px; margin-top: 8px; }
+
+body[data-page="inicio"] .home-disclosure {
+  border-top: 1px solid var(--home-line);
+  border-bottom: 0;
+}
+
+body[data-page="inicio"] .home-disclosure > summary {
+  min-height: 52px;
+  color: var(--home-ink);
+  font-family: var(--fj-fonte-titulo, "Archivo", sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+body[data-page="inicio"] .home-disclosure .calendar-panel,
+body[data-page="inicio"] .home-disclosure .missions-panel {
+  padding-bottom: 16px;
+  color: var(--home-ink);
+}
+
+body[data-page="inicio"] .disclosure-hint { color: #868c84; font-size: 11.5px; }
+
+/* --------------------------------------------------------------------------
+   8. Ajustes por largura
+   -------------------------------------------------------------------------- */
+
+/* Espaço curto: a imagem recua e o texto ganha a linha inteira. */
+@media (max-width: 400px) {
+  #home-action .home-action-card { padding: 14px; gap: 10px; }
+
+  .home-today-media { width: 40%; bottom: 82px; }
+
+  .home-today-main { padding-right: 8px; }
+
+  #home-action .home-action-title { font-size: clamp(22px, 6.4vw, 27px); }
+
+  #home-action .home-action-meta { font-size: 12.5px; gap: 4px 10px; }
+
+  .home-action-time { padding-left: 10px; }
+}
+
+@media (max-width: 340px) {
+  body[data-page="inicio"] #conteudo { width: calc(100% - 20px); }
+  body[data-page="inicio"] .home-header-inner { width: calc(100% - 20px); }
+
+  .home-brand-name { font-size: 22px; }
+  .home-brand-tagline { font-size: 7.5px; letter-spacing: 0.08em; }
+  .home-today-media { display: none; }
+
+  .home-metric { padding: 12px 6px; }
+  .home-metric-value { font-size: 19px; }
+  .home-metric-label { font-size: 10.5px; }
+
+  .home-explore-label { font-size: 11.5px; }
+}
+
+/* 4 colunas quando há espaço (indicadores e atalhos). */
+@media (min-width: 560px) {
+  .home-metrics-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body[data-page="inicio"] .home-explore-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .home-metric { padding: 16px 12px; }
+  .home-metric-value { font-size: clamp(23px, 3.4vw, 28px); }
+  .home-metric-label { font-size: 12px; }
+
+  .home-explore-card { padding: 18px 12px; }
+  .home-explore-label { font-size: 13px; }
+}
+
+/* Telas largas: treino do dia e progresso em duas colunas internas. */
+@media (min-width: 768px) {
+  #home-action .home-action-card { padding: 22px; gap: 14px; }
+
+  #home-action .home-action-title { font-size: 34px; }
+
+  .home-today-media { width: 42%; bottom: 88px; }
+
+  .home-progress-grid { grid-template-columns: minmax(0, 1fr) minmax(180px, 232px); align-items: stretch; }
+
+  .home-progress-chart { padding: 14px 16px 6px; }
+
+  body[data-page="inicio"] .home-progress-chart .ui-line-svg { height: 168px; }
+
+  #home-action .home-action-button { max-width: 420px; }
+
+  body[data-page="inicio"] .home-overview { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+}
+
+@media (min-width: 1024px) {
+  body[data-page="inicio"] .home-greeting { margin: 16px 0 20px; }
+
+  #home-action .home-action-card { padding: 26px; }
+
+  #home-action .home-action-title { font-size: 38px; }
+
+  .home-today-media { width: 40%; bottom: 96px; }
+}
+
+/* Movimento reduzido: nenhuma transição fica pendurada. */
+@media (prefers-reduced-motion: reduce) {
+  .home-explore-card,
+  #home-action .home-action-button,
+  .home-icon-button,
+  .home-avatar { transition: none; }
+}

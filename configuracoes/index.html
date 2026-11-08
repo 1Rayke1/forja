@@ -66,6 +66,27 @@
     </div>
   </section>
 
+  <section class="profile-group preferences-panel display-name-panel" id="nome-exibicao" aria-labelledby="nome-exibicao-heading">
+    <h2 class="section-title" id="nome-exibicao-heading">Nome de exibição</h2>
+    <p class="screen-subtitle">Escolha como deseja ser chamado pelo FORJA.</p>
+    <form id="profile-name-form" class="goals-form" novalidate>
+      <div class="goals-fields">
+        <div class="field-block">
+          <label class="field-label" for="prof-nome">Nome de exibição</label>
+          <input id="prof-nome" class="field-input" type="text" maxlength="24"
+            placeholder="Digite seu nome" autocomplete="nickname" spellcheck="false">
+          <p class="field-hint">Aparece só na saudação da Home. Fica neste navegador, junto do seu perfil.</p>
+        </div>
+      </div>
+      <p class="field-error" id="prof-nome-error" role="status" hidden></p>
+      <div class="goals-actions">
+        <button type="submit" id="prof-nome-save" class="primary-button">Salvar nome</button>
+        <button type="button" id="prof-nome-clear" class="secondary-button small-button" hidden>Apagar nome</button>
+        <span class="limit-note" id="prof-nome-status" aria-live="polite"></span>
+      </div>
+    </form>
+  </section>
+
   <section class="preferences-panel" aria-labelledby="preferences-heading">
     <h2 class="section-title" id="preferences-heading">Preferências do descanso</h2>
     <label class="check-row">
@@ -170,7 +191,7 @@
     </a>
     <a class="bottom-nav-link" href="../progresso/index.html" data-nav="progresso">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
-      <span class="bottom-nav-label">Progresso</span>
+      <span class="bottom-nav-label">Evolução</span>
     </a>
     <a class="bottom-nav-link is-active" href="../perfil/index.html" data-nav="perfil" aria-current="page">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>

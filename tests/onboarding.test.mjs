@@ -352,7 +352,8 @@ await runTest("2. Conclusão de todas as etapas: confirmação, perfil completo 
     mobilidade: "pernas",
     recuperacaoEsforco: "algumTempo",
     celebracao: "evolucao",
-    acompanhamento: "forca"
+    acompanhamento: "forca",
+    nomeExibicao: ""
   });
   assert.ok(Date.parse(perfil.updatedAt), "updatedAt deve ser uma data ISO");
   assert.ok(Date.parse(perfil.onboardingConcluidoEm), "onboardingConcluidoEm deve ser uma data ISO");
@@ -498,7 +499,7 @@ await runTest("6. Normalização: valores ausentes, desconhecidos e fora de faix
     tipoCorpo: "", anoNascimento: 0, rotinaDiaria: "", localTreino: "",
     preferenciasTreino: [], experienciaAtual: "", consideracoes: [],
     equipamentos: [], flexoes: "", mobilidade: "", recuperacaoEsforco: "",
-    celebracao: "", acompanhamento: ""
+    celebracao: "", acompanhamento: "", nomeExibicao: ""
   });
 
   const invalido = plain(F.normalizeProfile({
