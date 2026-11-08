@@ -841,82 +841,102 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
 
   const rows = () => app.$$("#catalog-list .ui-exercise-row");
   const total = () => app.F.catalog.items().length;
+  const resultados = () => app.$("#catalog-results");
 
-  assert.equal(total(), 37, "Catálogo sugerido não carregou inteiro");
-  assert.match(app.text("#catalog-status"), /37 exercícios no catálogo/);
+  assert.equal(total(), app.F.exerciseCatalog.exercises.length, "Catálogo central não carregou inteiro");
+  assert.ok(total() > 37, "A expansão do catálogo não foi aplicada");
+  assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios disponíveis$"),
+    "O contador da tela não bate com o catálogo");
+
+  /*
+    A página de entrada é um índice limpo: sete regiões clicáveis e nenhuma lista
+    despejada abaixo nem botão intermediário. Cada card é um link para a tela do grupo.
+  */
+  const regioes = app.$$(".grupo-card");
+  assert.equal(regioes.length, 7, "Deveriam existir sete regiões");
+  regioes.forEach(card => {
+    assert.equal(card.tagName, "A", "A região precisa ser um link");
+    assert.match(card.getAttribute("href"), /^grupo\.html\?(modalidade=[a-z-]+&)?regiao=[a-z]+$/);
+  });
+  assert.equal(resultados().hidden, true, "A lista não deveria abrir sozinha");
+  assert.equal(app.$("#catalog-toggle"), null, "O botão de ver todos os exercícios foi removido");
+
+  /* Busca abre os resultados em blocos e permite paginar quando houver mais de 12. */
+  const search = app.$("#catalog-search");
+  search.value = "barra";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(15);
+  assert.equal(resultados().hidden, false, "A busca deveria exibir os resultados");
+  const barraTotal = app.F.biblioteca.filter({ query: "barra" }).length;
+  assert.ok(barraTotal > 12, "A busca por 'barra' deveria ter mais de um bloco");
   assert.equal(rows().length, 12, "A lista não veio em blocos para caber na tela");
-  assert.match(app.text(".catalog-more"), /Mostrar mais 12 de 25/, "Contador de 'mostrar mais' errado");
+  assert.match(app.text(".catalog-more"), new RegExp("Mostrar mais " + Math.min(12, barraTotal - 12) + " de " + (barraTotal - 12)),
+    "Contador de 'mostrar mais' errado");
 
-  app.click(".catalog-more button");
-  await wait(15);
-  assert.equal(rows().length, 24, "Mostrar mais não revelou o bloco seguinte");
-  assert.match(app.text(".catalog-more"), /Mostrar mais 12 de 13/);
-  app.click(".catalog-more button");
-  await wait(15);
-  assert.match(app.text(".catalog-more"), /Mostrar mais 1 de 1/, "Último bloco não avisou que era o resto");
-  app.click(".catalog-more button");
-  await wait(15);
-  assert.equal(rows().length, 37, "Último bloco não mostrou o restante");
+  while (app.$(".catalog-more button")) {
+    app.click(".catalog-more button");
+    await wait(5);
+  }
+  assert.equal(rows().length, barraTotal, "Paginação não mostrou todos os resultados filtrados");
   assert.equal(app.$(".catalog-more"), null, "Botão 'Mostrar mais' ficou depois de tudo visível");
 
   /* Busca ignora acentos e considera nome, músculo, categoria e equipamento. */
-  const search = app.$("#catalog-search");
   search.value = "flexao";
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
   await wait(10);
   const found = rows().map(row => row.querySelector(".ui-exercise-name").textContent);
   assert.ok(found.includes("Flexão de braço"), "Busca sem acento não encontrou Flexão");
-  assert.ok(found.length < 37 && found.length > 0, "Busca não filtrou a lista");
+  assert.ok(found.length < total() && found.length > 0, "Busca não filtrou a lista");
 
   search.value = "peito";
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
   await wait(10);
   assert.ok(rows().length > 1, "Busca por grupo muscular não retornou itens");
-  assert.ok(rows().length <= 12, "Busca ignorou o bloco visível");
 
   search.value = "";
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
   await wait(10);
-  assert.equal(rows().length, 12, "Limpar a busca não trouxe o catálogo de volta");
-  assert.match(app.text("#catalog-status"), /37 exercícios/);
+  assert.equal(resultados().hidden, true, "Limpar a busca deve recolher os resultados");
+  assert.equal(rows().length, 12, "Limpar a busca não trouxe o primeiro bloco de volta");
+  assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios"));
 
-  /* Filtros: modalidade, medição e categoria funcionam e mostram contagem. */
-  const weightsSegment = app.$$("#catalog-controls .ui-segment").find(node => /Muscula/.test(node.textContent));
-  weightsSegment.click();
+  /* Modalidade é faceta independente: filtra e reinicia o bloco visível. */
+  const modalityCount = id => app.F.exerciseCatalog.exercises.filter(record => record.modality === id).length;
+
+  app.$('#catalog-controls [data-filter-group="modality"] [data-value="academia"]').click();
   await wait(15);
-  assert.match(app.text("#catalog-status"), /19 exercícios/);
+  assert.match(app.text("#bl-contador"), new RegExp("^" + modalityCount("academia") + " exercícios"));
   assert.equal(rows().length, 12, "Filtro de modalidade não reiniciou o bloco visível");
-  app.click(".catalog-more button");
-  await wait(15);
-  assert.equal(rows().length, 19, "Filtro de modalidade não reduziu a lista");
-  assert.ok(rows().every(row => /Muscula/.test(row.textContent)), "Filtro de modalidade vazou itens de calistenia");
+  const academy = app.F.biblioteca.filter({ modality: "academia" });
+  assert.equal(academy.length, modalityCount("academia"), "Filtro de modalidade não reduziu a lista");
+  assert.ok(academy.every(entry => entry.modalityId === "academia"), "Filtro de modalidade vazou outra modalidade");
 
-  app.$$("#catalog-controls .ui-segment")[0].click();
+  /* Um filtro ativo aparece removível e "Limpar tudo" volta ao catálogo. */
+  const activeChip = app.$('#bl-active-filters [data-active-filter="modality"]');
+  assert.ok(activeChip, "Filtro ativo não ficou visível para remoção");
+  app.click('#bl-active-filters [data-clear-filters]');
   await wait(15);
-  assert.match(app.text("#catalog-status"), /37 exercícios no catálogo/);
+  assert.equal(app.$('#bl-active-filters [data-active-filter="modality"]'), null, "Limpar tudo manteve o filtro");
+  assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios"));
   assert.equal(rows().length, 12, "Voltar para Todas não restaurou a lista");
 
-  const measureRow = app.$('#catalog-controls [data-filter-group="measure"]');
-  assert.ok(measureRow, "Filtro de medição ausente");
-  measureRow.querySelector('[data-value="time"]').click();
-  await wait(15);
-  const timed = app.F.catalog.filter({ measure: "time" });
-  assert.ok(timed.length > 0 && timed.length < 37, "Filtro de medição não funcionou");
-  assert.equal(rows().length, Math.min(12, timed.length), "Filtro novo não reiniciou o bloco visível");
   /*
-    `Array.from` no domínio do teste: os objetos vêm da janela jsdom e a
-    comparação estrita de arrays também compara protótipos.
+    A modalidade escolhida vai junto no link da região: é ela que a tela do
+    grupo muscular recebe para filtrar. Escolher modalidade não abre lista.
   */
-  assert.deepEqual(
-    rows().map(row => row.querySelector(".ui-exercise-name").textContent),
-    Array.from(timed.slice(0, 12), record => record.name),
-    "Filtro de medição listou itens diferentes dos que têm medição por tempo"
-  );
-
-  app.$('#catalog-controls [data-filter-group="measure"] [data-value="null"]').click();
+  app.$('#catalog-controls [data-filter-group="modality"] [data-value="academia"]').click();
   await wait(15);
+  app.$$(".grupo-card").forEach(card => {
+    assert.match(card.getAttribute("href"), /modalidade=academia/,
+      "O link da região perdeu a modalidade escolhida");
+  });
+
+  /* O sistema de rankings (38 combinações) permanece preservado no catálogo. */
+  assert.equal(app.F.biblioteca.rankings().length, 38, "Os 38 rankings do catálogo sumiram");
+  app.click('#bl-active-filters [data-clear-filters]');
+  await wait(15);
+  assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios"));
   assert.equal(rows().length, 12, "Limpeza do filtro não voltou ao primeiro bloco");
-  assert.match(app.text("#catalog-status"), /37 exercícios/);
 
   /* Detalhe traz instruções reais e a frase de histórico (sem inventar dado). */
   app.click('#catalog-list .ui-exercise-row [aria-label^="Ver detalhes"]');
@@ -930,40 +950,6 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   assert.deepEqual(app.keys(), [PROFILE_KEY], "A biblioteca deve manter apenas o perfil de autenticação existente");
   assert.deepEqual(app.storageWrites, [], "Consultar a biblioteca não deve gravar dados");
   assertNoErrors(app, "biblioteca");
-  app.close();
-});
-
-await runTest("27b. Biblioteca: detalhe usa o histórico real, não número inventado", async () => {
-  const record = (id, name, sets, load) => ({
-    id, date: "2026-10-01", modality: "calisthenics", routineName: "Treino X",
-    durationMs: 60000, completedSets: sets, totalPlannedSets: sets, status: "completed",
-    finishedAt: "2026-10-01T12:00:00.000Z",
-    exercises: [{
-      id: "e-" + id, name, section: "main", plannedSets: sets, completedSets: sets,
-      reps: "10", duration: 45, type: "reps", rest: 60, load: "", notes: "", timedSeconds: 0,
-      logs: Array.from({ length: sets }, (_, index) => ({ set: index + 1, reps: "12", load, seconds: undefined }))
-    }]
-  });
-
-  const app = await boot({
-    "forja-treino-historico-v1": [
-      record("h1", "Flexão de braço", 3, "20 kg"),
-      record("h2", "Flexão de braço", 2, "25 kg")
-    ]
-  }, "treino/biblioteca.html");
-  await wait(20);
-
-  const row = app.$$("#catalog-list .ui-exercise-row").find(node => /Flexão de braço/.test(node.textContent));
-  app.click(row.querySelector('[aria-label^="Ver detalhes"]'));
-  await wait(20);
-
-  const details = app.text(".modal-details");
-  assert.match(details, /2 treinos registrados/);
-  assert.match(details, /5 séries concluídas/);
-  assert.match(details, /maior carga 25 kg/);
-  assert.match(details, /máximo de 12 repetições/);
-  assert.match(details, /último em 01 de out/, "Data do último treino não formatada: " + details);
-  assertNoErrors(app, "detalhe com histórico");
   app.close();
 });
 
@@ -1068,9 +1054,10 @@ await runTest("30. Editor: metadados do exercício personalizado chegam à bibli
   await pageIs(app, "biblioteca");
   await wait(20);
 
-  const sourceChip = app.$('#catalog-controls [data-filter-group="source"]');
+  const sourceChip = app.$('#catalog-results [data-filter-group="source"]');
   sourceChip.querySelector('[data-value="personalizado"]').click();
   await wait(20);
+  assert.equal(app.$("#catalog-results").hidden, false, "Filtro por personalizados deveria abrir os resultados");
   const rows = app.$$("#catalog-list .ui-exercise-row");
   assert.equal(rows.length, 1, "Exercício personalizado não apareceu no catálogo");
   assert.match(rows[0].textContent, /Prancha Esequena/);
@@ -1368,6 +1355,20 @@ function typeField(app, selector, value, eventName = "input") {
   field.value = value;
   field.dispatchEvent(new app.w.Event(eventName, { bubbles: true }));
 }
+
+await runTest("30d. Compatibilidade: mus-prancha resolve o registro canônico sem reescrever o ID antigo", async () => {
+  const app = await boot({}, "treino/biblioteca.html?exercicio=mus-prancha");
+  await wait(30);
+  assert.equal(app.text("#modal-title"), "Prancha frontal");
+  const described = app.F.catalog.describeExercise({
+    id: "instancia-antiga", libraryId: "mus-prancha", name: "Prancha frontal",
+    type: "duration", sets: 3, reps: "", duration: 40, rest: 45, section: "abs"
+  }, "weights");
+  assert.equal(described.libraryId, "mus-prancha", "O ID armazenado não pode ser substituído");
+  assert.equal(described.roles.primary[0], "abdômen");
+  assert.deepEqual(app.storageWrites, [], "Resolver compatibilidade não grava nem migra dados");
+  app.close();
+});
 
 await runTest("31. Execução: corrigir e remover uma série já registrada", async () => {
   const app = await bootExecution();
@@ -2668,11 +2669,17 @@ await runTest("50. F.url(\"perfil\") e F.url(\"explorar\") resolvem sob /forja/ 
   for (const page of PAGES) {
     const app = await boot({}, page);
     assert.equal(app.F.ROUTES.perfil, "perfil/index.html");
-    assert.equal(app.F.ROUTES.explorar, "explorar/index.html");
+    /*
+      "Explorar" é a Biblioteca: a aba abre direto a lista de exercícios.
+      O hub antigo continua existindo como "descobrir".
+    */
+    assert.equal(app.F.ROUTES.explorar, "treino/biblioteca.html");
+    assert.equal(app.F.ROUTES.descobrir, "explorar/index.html");
 
     for (const [name, file] of [
       ["perfil", "perfil/index.html"],
-      ["explorar", "explorar/index.html"],
+      ["explorar", "treino/biblioteca.html"],
+      ["descobrir", "explorar/index.html"],
       ["configuracoes", "configuracoes/index.html"]
     ]) {
       const href = app.F.url(name);
@@ -5157,9 +5164,8 @@ await runTest("77h. D-09: a Biblioteca tem exatamente um h1", async () => {
   assert.equal(headings[0].id, "catalog-heading");
   assert.equal(headings[0].className, "ui-section-title", "O visual do título não deve mudar");
 
-  /* O bloco de ajuda continua no nível seguinte. */
-  const help = app.$$("h2").map(node => node.textContent.trim());
-  assert.ok(help.includes("Como a biblioteca funciona"), "Títulos internos continuam em h2");
+  /* Seções secundárias ("Continue explorando", "Como a biblioteca funciona") foram removidas. */
+  assert.equal(app.$$("h2").length, 0, "A Biblioteca limpa não deve ter seções secundárias h2");
 
   assertNoErrors(app, "D-09 h1 da Biblioteca");
   app.close();

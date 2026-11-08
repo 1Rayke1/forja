@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101010">
+<meta name="theme-color" content="#080C0D">
 <title>Biblioteca · FORJA</title>
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/treino.css">
@@ -16,7 +16,8 @@
 <link rel="stylesheet" href="../assets/css/atlas.css">
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
-<link rel="stylesheet" href="../assets/css/personagens-3d.css">
+<link rel="stylesheet" href="../assets/css/biblioteca.css">
+<link rel="stylesheet" href="../assets/css/biblioteca-grupos.css">
 </head>
 
 <body data-page="biblioteca" data-root="../">
@@ -24,11 +25,14 @@
 <header class="site-header">
   <div class="container site-header-inner">
     <a class="logo" href="../index.html">FORJA</a>
-    <div class="tagline">DISCIPLINA DIÁRIA</div>
+    <div class="tagline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg>
+      DISCIPLINA DIÁRIA
+    </div>
   </div>
 </header>
 
-<main class="container" id="conteudo">
+<main class="container bl-main" id="conteudo">
   <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
     <div class="active-session-text">
       <strong>Treino em andamento</strong>
@@ -40,28 +44,17 @@
     </div>
   </section>
 
-  <div class="page-head">
-    <span class="eyebrow">Treino · Biblioteca</span>
-  </div>
+  <section class="bl-hero" aria-labelledby="catalog-heading">
+    <span class="eyebrow">Explorar · Biblioteca</span>
+    <!-- O espaço dentro do primeiro span mantém o texto "Biblioteca de exercícios"
+         para leitores de tela, testes e links, mesmo com as duas cores. -->
+    <h1 id="catalog-heading" class="ui-section-title"><span class="bl-titulo-linha">Biblioteca de </span><span class="bl-titulo-destaque">exercícios</span></h1>
+    <p class="bl-subtitle">Encontre o exercício ideal para o seu treino.</p>
+  </section>
 
   <div id="catalog-root">
     <p class="screen-subtitle">Carregando a biblioteca…</p>
   </div>
-
-  <section class="catalog-help">
-    <h2 class="section-title">Como a biblioteca funciona</h2>
-    <p class="screen-subtitle">
-      Os itens <strong>sugeridos</strong> vêm com o app e servem de ponto de partida: você copia
-      um deles para a rotina e ajusta séries, repetições, duração e descanso como quiser.
-      Os itens <strong>seus</strong> são os exercícios personalizados, salvos somente neste
-      navegador — junto com tudo o mais do FORJA.
-    </p>
-    <p class="screen-subtitle">
-      Adicionar um exercício não inicia nem altera um treino em andamento. Ele entra no fim da
-      seção escolhida e aparece na rotina quando você abrir o editor.
-    </p>
-  </section>
-
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">
@@ -74,7 +67,7 @@
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
       <span class="bottom-nav-label">Treinos</span>
     </a>
-    <a class="bottom-nav-link is-active" href="../explorar/index.html" data-nav="explorar" aria-current="page">
+    <a class="bottom-nav-link is-active" href="biblioteca.html" data-nav="explorar" aria-current="page">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
       <span class="bottom-nav-label">Explorar</span>
     </a>
@@ -98,12 +91,15 @@
 </footer>
 
 <div id="modal-root"></div>
+<div id="catalog-modal"></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="../assets/js/forja-core.js" defer></script>
 <script src="../assets/js/forja-store.js" defer></script>
 <script src="../assets/js/forja-dados.js" defer></script>
 <script src="../assets/js/forja-metricas.js" defer></script>
+<script src="../assets/js/forja-exercicios-dados.js" defer></script>
+<script src="../assets/js/forja-catalogo-central.js" defer></script>
 <script src="../assets/js/forja-biblioteca.js" defer></script>
 <script src="../assets/js/forja-sessao.js" defer></script>
 <script src="../assets/js/forja-treino.js" defer></script>
@@ -112,11 +108,14 @@
 <script src="../assets/js/forja-ui.js" defer></script>
 <script src="../assets/js/forja-graficos.js" defer></script>
 <script src="../assets/js/forja-catalogo.js" defer></script>
+<script src="../assets/js/forja-youtube.js" defer></script>
 <script src="../assets/js/forja-figura.js" defer></script>
 <script src="../assets/js/forja-atlas.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
-<script src="../assets/js/forja-personagens.js" defer></script>
+<script src="../assets/js/forja-videos-dados.js" defer></script>
+<script src="../assets/js/forja-videos.js" defer></script>
+<script src="../assets/js/forja-biblioteca-visual.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

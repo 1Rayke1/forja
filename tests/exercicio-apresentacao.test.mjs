@@ -1,29 +1,30 @@
 /*
-  Contrato da tela de apresentação do exercício (V2).
+  Contrato da tela de apresentação do exercício (sem personagens 3D).
 
   Não testa WebGL nem renderização: testa o que a tela promete ao usuário.
-    1. O manifesto cobre a biblioteca inteira e declara a especificação.
-    2. Nenhum exercício usa o clipe abdominal por empréstimo.
-    3. A auditoria tem 42 loops fechados + 1 exceção conhecida (caminhada).
-    4. A página tem só título + palco; o vídeo nasce mudo, inline, em loop e
-       sem controles.
-    5. O controlador mostra vídeo quando existe MP4 aprovado.
-    6. Sem MP4, mostra a prévia 3D do clipe EXATO do exercício.
-    7. Sem clipe, mostra a pendência — sem inventar movimento.
-    8. Perfil feminino chega ao título e ao palco.
-    9. O gerador está atualizado (`--check`).
-   10. A página está ligada ao gerador/ponte e não carrega o painel interativo.
+    1. A página tem só título + palco 16:9; o vídeo nasce mudo, inline, em
+       loop e sem controles, e não existe palco de personagem 3D.
+    2. O manifesto de vídeos declara a especificação e a lista aprovada.
+    3. Com MP4 aprovado, o vídeo é o único conteúdo do palco.
+    4. Sem MP4, a tela informa a pendência — sem prévia 3D e sem movimento
+       emprestado de outro exercício.
+    5. Vídeo fora da especificação (duração acima de 60 s) não é exibido.
+    6. Exercício ausente, exercício desconhecido e manifesto indisponível
+       degradam para um estado explícito, sem tela em branco.
+    7. Nenhum resquício do sistema de personagens 3D sobrou no repositório e
+       nenhum vídeo renderizado em 3D pode existir: o manifesto é a única fonte
+       da verdade, e a biblioteca de exercícios continua intacta.
 */
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { JSDOM, VirtualConsole } from "jsdom";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = rel => fs.readFileSync(path.join(repoRoot, rel), "utf8");
-const manifesto = JSON.parse(read("assets/3d/apresentacao-exercicios.json"));
+const existe = rel => fs.existsSync(path.join(repoRoot, rel));
+const manifesto = JSON.parse(read("assets/videos/exercicios/manifest.json"));
 
 const results = [];
 
@@ -43,20 +44,36 @@ async function runTest(name, fn) {
 const ESQUELETO = `<!doctype html><html><body>
   <div id="exercicio-stage" data-e3-stage></div>
   <video id="exercicio-video" hidden></video>
-  <div id="exercicio-3d" hidden></div>
   <div id="exercicio-loading"></div>
   <p id="exercicio-error" hidden></p>
   <h1 id="exercicio-title"></h1>
   <a id="exercicio-voltar"></a>
 </body></html>`;
 
+/*
+  Manifesto usado pelo controlador nos testes. Quando o teste pede um exercício
+  específico, o manifesto começa vazio e recebe só ele — assim o cenário não
+  depende do estado real de `assets/videos/exercicios/manifest.json`.
+*/
+function manifestoDeTeste(opcoes) {
+  const dados = JSON.parse(JSON.stringify(manifesto));
+  if (opcoes.exercicio) {
+    dados.exercicios = [opcoes.exercicio];
+  }
+  return dados;
+}
+
 async function abrirControlador(exercicioId, opcoes = {}) {
   const virtualConsole = new VirtualConsole();
   const errosJsdom = [];
   virtualConsole.on("jsdomError", erro => errosJsdom.push(erro));
 
+  const consulta = exercicioId === null
+    ? ""
+    : "?exercicio=" + encodeURIComponent(exercicioId);
+
   const dom = new JSDOM(ESQUELETO, {
-    url: "https://forja.test/forja/exercicio/index.html?exercicio=" + encodeURIComponent(exercicioId),
+    url: "https://forja.test/forja/exercicio/index.html" + consulta,
     runScripts: "outside-only",
     pretendToBeVisual: true,
     virtualConsole
@@ -67,9 +84,7 @@ async function abrirControlador(exercicioId, opcoes = {}) {
   w.HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
   w.HTMLMediaElement.prototype.pause = function () {};
 
-  const chamadas = [];
-  const dados = JSON.parse(JSON.stringify(manifesto));
-  if (typeof opcoes.alterar === "function") opcoes.alterar(dados);
+  const dados = manifestoDeTeste(opcoes);
 
   w.fetch = async () => {
     if (opcoes.semManifesto) throw new Error("sem rede");
@@ -78,157 +93,50 @@ async function abrirControlador(exercicioId, opcoes = {}) {
 
   w.Forja = {
     pages: {},
-    state: {
-      profile: Object.assign(
-        { version: 3, objetivo: "hipertrofia" },
-        opcoes.personagem ? { sexo: opcoes.personagem } : { sexo: "masculino" }
-      )
-    },
-    resolvePersonagem: perfil => ({
-      id: perfil && perfil.sexo === "feminino" ? "feminino" : "masculino"
-    }),
+    state: { profile: { version: 3, objetivo: "hipertrofia", sexo: "masculino" }, library: {} },
+    ROUTES: { biblioteca: "treino/biblioteca.html" },
     EXERCISE_LIBRARY: {
       calisthenics: [
         { id: "cal-flexao", name: "Flexão de braço" },
         { id: "cal-barra-fixa", name: "Barra fixa (pegada pronada)" }
       ],
       weights: []
-    },
-    exercicio3d: {
-      montar: async (container, dados) => {
-        chamadas.push({ container, dados });
-        return {
-          estado: { erro: null, carregado: true, tocando: true },
-          especificacao: {
-            camera: {
-              azimuteGraus: -58,
-              elevacaoGraus: 22,
-              campoVisaoVerticalGraus: 32
-            }
-          },
-          destruir() {}
-        };
-      }
     }
   };
 
-  w.eval(read("assets/js/forja-exercicio-3d.js"));
+  w.eval(read("assets/js/forja-exercicio.js"));
   await w.Forja.pages.exercicio();
 
-  return { dom, w, chamadas, errosJsdom };
+  return { dom, w, errosJsdom };
 }
 
-await runTest("1. manifesto cobre a biblioteca e declara 16:9 / 1280×720 / 30 FPS / #121010", () => {
-  assert.equal(manifesto.formato, "forja-apresentacao-exercicios");
-  assert.equal(manifesto.exercicios.length, 37);
-  assert.equal(manifesto.resumo.totalExercicios, 37);
-  assert.equal(manifesto.resumo.comClipe3d + manifesto.resumo.semClipe3d, 37);
-  assert.equal(manifesto.resumo.comClipe3d, 14);
-  assert.equal(manifesto.resumo.comClipeEmRevisao, 15);
-  assert.equal(manifesto.resumo.emPrevia3d, 14);
-  assert.equal(manifesto.resumo.pendentesDeAnimacao, 23);
-  assert.equal(manifesto.resumo.pendentesSemClipe, 8);
-  assert.equal(manifesto.resumo.pendentesComClipeEmRevisao, 15);
-
-  const especificacao = manifesto.especificacao;
-  assert.equal(especificacao.proporcao, "16:9");
-  assert.equal(especificacao.orientacao, "horizontal");
-  assert.equal(especificacao.largura, 1280);
-  assert.equal(especificacao.altura, 720);
-  assert.equal(especificacao.fps, 30);
-  assert.equal(especificacao.fundo, "#121010");
-  assert.equal(especificacao.loop, "infinito");
-  assert.equal(especificacao.audio, false);
-  assert.equal(especificacao.controles, false);
-  assert.equal(especificacao.autoplay, true);
-  assert.equal(especificacao.reproduzirInline, true);
-  assert.equal(especificacao.camera.azimuteGraus, -58);
-  assert.equal(especificacao.camera.elevacaoGraus, 22);
-  assert.equal(especificacao.camera.campoVisaoVerticalGraus, 32);
-
-  const ids = manifesto.exercicios.map(item => item.id);
-  assert.equal(new Set(ids).size, ids.length, "id de exercício repetido no manifesto");
-  assert.equal(manifesto.resumo.comVideoPronto, 0, "nenhum MP4 foi renderizado nesta etapa");
-
-  /* O manifesto precisa ser idêntico em qualquer worktree. Caminho absoluto
-     do ambiente de geração vazaria para o JSON e quebraria o --check. */
-  const json = JSON.stringify(manifesto);
-  assert.ok(!json.includes("/home/"), "manifesto contém caminho absoluto /home/");
-  assert.ok(!json.includes("/tmp/"), "manifesto contém caminho absoluto /tmp/");
-});
-
-await runTest("2. nenhum exercício pega o clipe abdominal emprestado", () => {
-  const comAbdominal = manifesto.exercicios.filter(item => item.clipeId === "abdominal-supra");
-  assert.deepEqual(comAbdominal.map(item => item.id), ["cal-abdominal-supra"]);
-
+await runTest("1. manifesto de vídeos declara 16:9 / 1280×720 / 30 FPS / até 60 s", () => {
+  assert.equal(manifesto.formato, "forja-videos-exercicios");
+  assert.equal(manifesto.versao, 1);
+  assert.deepEqual(manifesto.especificacao, {
+    proporcao: "16:9",
+    largura: 1280,
+    altura: 720,
+    fps: 30,
+    duracaoMaximaS: 60,
+    fundo: "#121010",
+    audio: false,
+    loop: "infinito"
+  });
+  assert.ok(Array.isArray(manifesto.exercicios), "lista de exercícios deve existir");
   manifesto.exercicios.forEach(item => {
-    if (item.clipeId) assert.equal(item.clipeQualidade, "exact");
-    if (item.clipeRevisao) {
-      assert.equal(item.clipeId, null);
-      assert.equal(item.clipeRevisao.status, "review");
-      assert.equal(item.personagens.masculino, null);
-      assert.equal(item.personagens.feminino, null);
-    }
-    if (!item.clipeId) return;
-    assert.ok(
-      item.personagens.masculino && item.personagens.feminino,
-      item.id + " tem clipe sem os dois personagens"
-    );
-    assert.ok(
-      item.personagens.masculino.modelo.endsWith("masculino.glb"),
-      item.id + " aponta para o modelo errado"
-    );
-    assert.ok(
-      item.personagens.feminino.modelo.endsWith("feminino.glb"),
-      item.id + " aponta para o modelo errado"
-    );
+    assert.ok(item.id, "todo vídeo precisa do id do exercício");
+    assert.match(item.video, /^assets\/videos\/exercicios\/.+\.mp4$/);
+    assert.ok(!/9x16|vertical/.test(item.video), "só vídeo horizontal");
+    assert.ok(!item.duracaoS || item.duracaoS <= 60, "duração máxima de 60 s");
   });
 });
 
-await runTest("2b. nenhum clipe é reutilizado entre exercícios", () => {
-  assert.match(manifesto.mapeamento.regra, /no máximo um exercício/);
-  assert.equal(manifesto.mapeamento.conflitos.length, 3);
-
-  const usados = [];
-  manifesto.exercicios.forEach(item => {
-    if (item.clipeId) usados.push(item.clipeId);
-    if (item.clipeRevisao) usados.push(item.clipeRevisao.id);
-  });
-  assert.equal(new Set(usados).size, usados.length, "clipe repetido no manifesto");
-
-  const conflitos = new Map(manifesto.mapeamento.conflitos.map(item => [item.exercicioId, item]));
-  assert.deepEqual([...conflitos.keys()].sort(), ["mus-elevacao-barra", "mus-farmer", "mus-prancha"]);
-  conflitos.forEach((conflito, id) => {
-    const item = manifesto.exercicios.find(entrada => entrada.id === id);
-    assert.equal(item.modo, "pendente-animacao");
-    assert.equal(item.clipeId, null);
-    assert.equal(item.clipeRevisao, null);
-    assert.ok(item.pendencias.some(texto => /já é usado por outro exercício/.test(texto)));
-  });
-});
-
-await runTest("3. auditoria: 42 loops fechados + 1 exceção conhecida (caminhada)", () => {
-  const resumo = manifesto.fontes.auditoriaLoop.resumo;
-  assert.equal(resumo.total, 43);
-  assert.equal(resumo.fechados, 42);
-  assert.equal(resumo.atencao, 1);
-  assert.equal(resumo.falhas, 0);
-  assert.equal(manifesto.resumo.clipesComLoopFechado, 42);
-  assert.equal(manifesto.resumo.clipesComAtencaoDeLoop, 1);
-  assert.equal(manifesto.resumo.clipesComFalhaDeLoop, 0);
-
-  const caminhada = manifesto.fontes.auditoriaLoop.arquivos["caminhada.glb"];
-  assert.equal(caminhada.status, "atencao");
-  assert.equal(caminhada.statusOriginal, "fechado");
-  assert.equal(caminhada.excecao.noRaiz, "hips");
-  assert.ok(Math.abs(caminhada.excecao.residualRaizM - 0.0021) < 0.0001);
-  assert.match(caminhada.excecao.motivo, /preservado sem correção/);
-});
-
-await runTest("4. a página tem só título + palco; o vídeo não nasce com controles", () => {
+await runTest("2. a página tem só título + palco; nenhum resto de personagem 3D", () => {
   const dom = new JSDOM(read("exercicio/index.html"));
   const d = dom.window.document;
   const video = d.querySelector("#exercicio-video");
+  const html = read("exercicio/index.html");
 
   assert.ok(d.querySelector("#exercicio-title"), "título ausente");
   assert.ok(d.querySelector("#exercicio-stage"), "palco ausente");
@@ -239,125 +147,232 @@ await runTest("4. a página tem só título + palco; o vídeo não nasce com con
   assert.equal(video.hasAttribute("loop"), true);
   assert.equal(video.hasAttribute("playsinline"), true);
   assert.equal(video.hasAttribute("controls"), false, "controles nativos não podem existir");
-  assert.equal(video.controls, false);
-
   assert.equal(d.querySelectorAll("button, select, input, progress").length, 0,
     "a tela não pode ter botão, seletor ou barra de progresso");
   assert.equal(d.querySelectorAll("video").length, 1, "só um vídeo");
-  assert.ok(!read("exercicio/index.html").includes("9x16"), "não há variante vertical");
-  assert.ok(!read("exercicio/index.html").includes("9:16"), "não há variante vertical");
 
-  const css = read("assets/css/exercicio-3d.css");
+  /* Nenhum palco, script ou folha de estilo do sistema 3D. */
+  assert.equal(d.querySelector("#exercicio-3d"), null, "palco 3D ainda presente");
+  assert.equal(d.querySelectorAll(".e3-palco-3d, .modal-3d, canvas").length, 0,
+    "não pode existir área de renderização 3D");
+  assert.ok(!/personagens-3d\.css/.test(html), "CSS de personagens ainda referenciado");
+  assert.ok(!/forja-3d-cena|forja-personagens|forja-exercicio-cena|forja-exercicio-3d/.test(html),
+    "script do sistema 3D ainda referenciado");
+  assert.match(html, /forja-exercicio\.js/, "a página precisa do controlador de vídeo");
+
+  assert.ok(!html.includes("9x16"), "não há variante vertical");
+  assert.ok(!html.includes("9:16"), "não há variante vertical");
+
+  const css = read("assets/css/exercicio.css");
   assert.match(css, /aspect-ratio:\s*16\s*\/\s*9/);
   assert.ok(!/aspect-ratio:\s*9\s*\/\s*16/.test(css));
   assert.match(css, /::-webkit-media-controls/);
+  assert.ok(!/e3-palco-3d/.test(css), "CSS do palco 3D ainda existe");
 });
 
-await runTest("5. MP4 aprovado: autoplay, mudo, loop, inline e sem controles", async () => {
-  const { dom, w, chamadas } = await abrirControlador("cal-flexao", {
-    alterar: dados => {
-      const item = dados.exercicios.find(entrada => entrada.id === "cal-flexao");
-      item.video.masculino = {
-        status: "pronto",
-        arquivo: "assets/videos/exercicios/cal-flexao-masculino-horizontal-16x9.mp4",
-        meta: { largura: 1280, altura: 720, fps: 30, duracaoS: 6, temAudio: false }
-      };
+await runTest("3. MP4 aprovado: autoplay, mudo, loop, inline e sem controles", async () => {
+  const { dom, w } = await abrirControlador("cal-flexao", {
+    exercicio: {
+      id: "cal-flexao",
+      nome: "Flexão de braço",
+      modalidade: "calisthenics",
+      video: "assets/videos/exercicios/cal-flexao-horizontal-16x9.mp4",
+      duracaoS: 12.5
     }
   });
 
   const d = w.document;
   const video = d.querySelector("#exercicio-video");
-  Object.defineProperty(video, "videoWidth", { value: 1280, configurable: true });
-  Object.defineProperty(video, "videoHeight", { value: 720, configurable: true });
-  video.dispatchEvent(new w.Event("loadedmetadata"));
-  video.dispatchEvent(new w.Event("playing"));
 
-  assert.match(video.getAttribute("src"), /cal-flexao-masculino-horizontal-16x9\.mp4$/);
+  assert.match(video.getAttribute("src"), /cal-flexao-horizontal-16x9\.mp4$/);
   assert.equal(video.controls, false);
   assert.equal(video.hasAttribute("controls"), false);
   assert.equal(video.muted, true);
   assert.equal(video.loop, true);
   assert.equal(video.playsInline, true);
-  assert.equal(video.autoplay, true);
+
+  video.dispatchEvent(new w.Event("playing"));
+
   assert.equal(d.querySelector("#exercicio-stage").dataset.modo, "video");
-  assert.equal(chamadas.length, 0, "com vídeo pronto, o palco 3D não é montado");
-  assert.match(d.querySelector("#exercicio-title").textContent, /Flexão de braço — modelo masculino/);
   assert.equal(video.hidden, false);
+  assert.equal(d.querySelector("#exercicio-title").textContent, "Flexão de braço");
+  assert.equal(d.querySelector("#exercicio-title").textContent.includes("modelo"), false,
+    "o título não menciona personagem");
+  assert.equal(d.querySelector("#exercicio-stage").dataset.duracaoMaxima, "60");
   dom.window.close();
 });
 
-await runTest("6. sem MP4: prévia 3D com modelo e clipe EXATOS do exercício", async () => {
-  const { dom, w, chamadas } = await abrirControlador("cal-flexao");
+await runTest("4. sem MP4: pendência explícita, sem prévia 3D", async () => {
+  const { dom, w } = await abrirControlador("cal-barra-fixa");
 
-  assert.equal(chamadas.length, 1);
-  const { dados } = chamadas[0];
-  assert.match(dados.modelo, /assets\/3d\/personagens\/masculino\.glb$/);
-  assert.match(dados.clipeArquivo, /assets\/3d\/animacoes\/flexao\.glb$/);
-  assert.equal(dados.clipeId, "flexao");
-  assert.equal(dados.personagem, "masculino");
-  assert.equal(w.document.querySelector("#exercicio-stage").dataset.modo, "3d");
-  assert.equal(w.document.querySelector("#exercicio-video").hidden, true);
+  const d = w.document;
+  assert.equal(d.querySelector("#exercicio-stage").dataset.modo, "pendente");
+  assert.match(d.querySelector("#exercicio-error").textContent, /ainda não tem vídeo de demonstração/);
+  assert.equal(d.querySelector("#exercicio-video").hidden, true);
+  assert.equal(d.querySelector("#exercicio-video").hasAttribute("src"), false);
+  assert.equal(d.querySelector("#exercicio-video").hasAttribute("controls"), false);
   dom.window.close();
 });
 
-await runTest("7. sem clipe: pendência explícita, sem movimento inventado", async () => {
-  const { dom, w, chamadas } = await abrirControlador("cal-barra-fixa");
-
-  assert.equal(chamadas.length, 0);
-  assert.equal(w.document.querySelector("#exercicio-stage").dataset.modo, "pendente");
-  assert.match(w.document.querySelector("#exercicio-error").textContent, /ainda não tem animação 3D própria/);
-  assert.equal(w.document.querySelector("#exercicio-video").hasAttribute("controls"), false);
-  dom.window.close();
-});
-
-await runTest("7b. clipe em revisão não vira demonstração: pendência com motivo", async () => {
-  const { dom, w, chamadas } = await abrirControlador("cal-polichinelo");
-
-  assert.equal(chamadas.length, 0, "clipe review não pode ser montado como se fosse o exercício");
-  assert.equal(w.document.querySelector("#exercicio-stage").dataset.modo, "pendente");
-  assert.match(w.document.querySelector("#exercicio-error").textContent, /revisão técnica/);
-  dom.window.close();
-});
-
-await runTest("7c. clipe já usado por outro exercício: pendência, sem reutilização", async () => {
-  const { dom, w, chamadas } = await abrirControlador("mus-prancha");
-
-  assert.equal(chamadas.length, 0, "não pode montar a prancha de outro exercício");
-  assert.equal(w.document.querySelector("#exercicio-stage").dataset.modo, "pendente");
-  assert.match(w.document.querySelector("#exercicio-error").textContent, /já é usado por outro exercício/);
-  dom.window.close();
-});
-
-await runTest("8. perfil feminino chega ao título e ao modelo", async () => {
-  const { dom, w, chamadas } = await abrirControlador("cal-flexao", { personagem: "feminino" });
-
-  assert.match(w.document.querySelector("#exercicio-title").textContent, /modelo feminino/);
-  assert.equal(chamadas.length, 1);
-  assert.equal(chamadas[0].dados.personagem, "feminino");
-  assert.match(chamadas[0].dados.modelo, /feminino\.glb$/);
-  dom.window.close();
-});
-
-await runTest("9. manifesto indisponível degrada para a biblioteca, sem tela em branco", async () => {
-  const { dom, w } = await abrirControlador("cal-flexao", { semManifesto: true });
-
-  assert.equal(w.document.querySelector("#exercicio-stage").dataset.modo, "pendente");
-  assert.match(w.document.querySelector("#exercicio-title").textContent, /Flexão de braço/);
-  dom.window.close();
-});
-
-await runTest("10. gerador atualizado e página de apresentação presente", () => {
-  const saida = execFileSync(process.execPath, ["tools/gerar-apresentacao-exercicios.mjs", "--check"], {
-    cwd: repoRoot,
-    encoding: "utf8"
+await runTest("5. vídeo fora da especificação (mais de 60 s) não é exibido", async () => {
+  const { dom, w } = await abrirControlador("cal-flexao", {
+    exercicio: {
+      id: "cal-flexao",
+      nome: "Flexão de braço",
+      modalidade: "calisthenics",
+      video: "assets/videos/exercicios/cal-flexao-horizontal-16x9.mp4",
+      duracaoS: 95
+    }
   });
-  assert.match(saida, /Manifesto atualizado: 37 exercícios/);
 
-  assert.ok(fs.existsSync(path.join(repoRoot, "exercicio/index.html")));
-  assert.match(read("assets/js/forja-exercicio-cena.js"), /modoApresentacao:\s*true/);
-  assert.match(read("exercicio/index.html"), /forja-exercicio-cena\.js/);
-  assert.ok(!read("exercicio/index.html").includes("forja-personagens.js"),
-    "a tela não deve carregar o painel 3D interativo");
+  const d = w.document;
+  assert.equal(d.querySelector("#exercicio-stage").dataset.modo, "pendente");
+  assert.match(d.querySelector("#exercicio-error").textContent, /fora da especificação/);
+  assert.equal(d.querySelector("#exercicio-video").hidden, true);
+  dom.window.close();
+});
+
+await runTest("6. exercício desconhecido, sem id e sem manifesto degradam sem tela em branco", async () => {
+  const desconhecido = await abrirControlador("nao-existe");
+  assert.equal(desconhecido.w.document.querySelector("#exercicio-stage").dataset.modo, "erro");
+  assert.match(desconhecido.w.document.querySelector("#exercicio-error").textContent,
+    /não encontrado na biblioteca/);
+  desconhecido.dom.window.close();
+
+  const semId = await abrirControlador(null);
+  assert.equal(semId.w.document.querySelector("#exercicio-stage").dataset.modo, "erro");
+  assert.match(semId.w.document.querySelector("#exercicio-error").textContent,
+    /Escolha um exercício na biblioteca/);
+  semId.dom.window.close();
+
+  const semManifesto = await abrirControlador("cal-flexao", { semManifesto: true });
+  assert.equal(semManifesto.w.document.querySelector("#exercicio-stage").dataset.modo, "pendente");
+  assert.match(semManifesto.w.document.querySelector("#exercicio-title").textContent,
+    /Flexão de braço/);
+  semManifesto.dom.window.close();
+});
+
+await runTest("7. nenhum resquício do sistema 3D e nenhum vídeo 3D no repositório", () => {
+  const removidos = [
+    "assets/3d",
+    "assets/vendor/three",
+    "assets/js/forja-personagens.js",
+    "assets/js/forja-3d-cena.js",
+    "assets/js/forja-exercicio-cena.js",
+    "assets/js/forja-exercicio-3d.js",
+    "assets/css/personagens-3d.css",
+    "assets/css/exercicio-3d.css",
+    "avaliacao-piloto-3d",
+    "FORJA_ASSETS_3D",
+    "tools/blender",
+    "tools/fontes-3d",
+    "docs/validacao-3d",
+    "docs/assets-3d",
+    "tests/personagens3d.test.mjs",
+    "tests/mapeamento3d.test.mjs",
+    "tests/transferencia3d.test.mjs",
+    "tests/pose-autoral3d.test.mjs",
+    "tests/avaliacao-piloto-3d.test.mjs"
+  ];
+  removidos.forEach(item => assert.equal(existe(item), false, "ainda existe: " + item));
+
+  /* Nenhuma página do app carrega módulo, folha de estilo ou dado 3D. */
+  const paginas = [];
+  const varrer = (dir) => {
+    fs.readdirSync(path.join(repoRoot, dir), { withFileTypes: true }).forEach(entrada => {
+      const rel = path.posix.join(dir, entrada.name);
+      if (entrada.isDirectory()) {
+        if (["assets", "node_modules", ".git", "tests", "tools", "docs", "design", "artifacts"].includes(rel)) return;
+        varrer(rel);
+      } else if (entrada.name.endsWith(".html")) {
+        paginas.push(rel);
+      }
+    });
+  };
+  varrer(".");
+  assert.ok(paginas.length >= 10, "espera-se as páginas do app, encontradas: " + paginas.length);
+
+  const proibido = /personagens-3d\.css|forja-personagens\.js|forja-3d-cena\.js|forja-exercicio-cena\.js|forja-exercicio-3d\.js|vendor\/three|assets\/3d\/|avaliacao-piloto-3d/;
+  paginas.forEach(pagina => {
+    const html = read(pagina);
+    const achado = html.match(proibido);
+    assert.equal(achado, null, pagina + " ainda referencia " + (achado && achado[0]));
+  });
+
+  /*
+    Trava contra o retorno de vídeo renderizado em 3D.
+
+    A regra não é "nenhum vídeo pode existir": a próxima etapa vai acrescentar
+    vídeos de pessoas reais. A regra é que o manifesto seja a única fonte da
+    verdade — todo arquivo de vídeo do repositório precisa estar listado nele,
+    e todo item do manifesto precisa apontar para um arquivo real, horizontal
+    e com no máximo 60 s. Assim, um MP4 3D largado na pasta (ou um render novo
+    copiado para `docs/`) reprova o teste em vez de passar silenciosamente.
+  */
+  const pastaVideos = "assets/videos/exercicios";
+  const permitidosNoManifesto = new Set(
+    manifesto.exercicios.map(item => item.video.replace(/^assets\/videos\/exercicios\//, ""))
+  );
+
+  const videosNoRepo = [];
+  const varrerVideos = (dir) => {
+    fs.readdirSync(path.join(repoRoot, dir), { withFileTypes: true }).forEach(entrada => {
+      const rel = path.posix.join(dir, entrada.name);
+      if (entrada.isDirectory()) {
+        if (["node_modules", ".git"].includes(rel)) return;
+        varrerVideos(rel);
+        return;
+      }
+      if (/[.](mp4|webm|mov|m4v|ogv)$/i.test(entrada.name)) videosNoRepo.push(rel);
+    });
+  };
+  varrerVideos(".");
+
+  const foraDoManifesto = videosNoRepo.filter(
+    rel => !(rel.startsWith(pastaVideos + "/") && permitidosNoManifesto.has(path.posix.basename(rel)))
+  );
+  assert.deepEqual(foraDoManifesto, [],
+    "vídeo fora do manifesto de vídeos aprovados: " + foraDoManifesto.join(", "));
+
+  const ausentes = manifesto.exercicios.filter(item => !existe(item.video));
+  assert.deepEqual(ausentes.map(item => item.video), [],
+    "o manifesto lista vídeo que não existe no repositório");
+
+  /* Sem vídeo aprovado, a pasta tem só documentação e manifesto. */
+  const arquivosNaPasta = fs.readdirSync(path.join(repoRoot, pastaVideos)).sort();
+  const esperados = manifesto.exercicios.length
+    ? arquivosNaPasta
+    : ["README.md", "manifest.json"];
+  assert.deepEqual(arquivosNaPasta, esperados);
+
+  /*
+    Estado desta entrega: nenhum vídeo aprovado e nenhum render 3D. Os quatro
+    MP4 do piloto abdominal (Blender/Cycles) foram removidos — este assert é o
+    que impede que eles (ou qualquer render novo) voltem.
+  */
+  if (manifesto.exercicios.length === 0) {
+    assert.deepEqual(videosNoRepo, [],
+      "vide o de demonstração inesperado no repositório: " + videosNoRepo.join(", "));
+  }
+
+  /* A pasta antiga do piloto 3D e seus renders não podem reaparecer. */
+  ["avaliacao-piloto-3d", "docs/validacao-3d", "docs/assets-3d", "assets/3d", "FORJA_ASSETS_3D"]
+    .forEach(item => assert.equal(existe(item), false, "pasta do sistema 3D reapareceu: " + item));
+  assert.equal(existe("docs/validacao-3d/piloto-abdominal-masculino/abdominal-masculino-horizontal-16x9.mp4"),
+    false, "o MP4 do piloto abdominal voltou");
+  assert.equal(existe("avaliacao-piloto-3d/midia/abdominal-masculino-vertical-9x16.mp4"),
+    false, "o MP4 vertical do piloto abdominal voltou");
+
+  /* A remoção do 3D não pode reduzir o catálogo central nem apagar aliases. */
+  const dados = read("assets/js/forja-exercicios-dados.js");
+  const biblioteca = read("assets/js/forja-biblioteca.js");
+  assert.equal((dados.match(/\bex\(\{ id:/g) || []).length, 165,
+    "o catálogo central perdeu exercícios");
+  assert.match(biblioteca, /F\.exerciseCatalog\.exercises\.forEach/,
+    "a biblioteca deixou de ser o adaptador do catálogo central");
+  assert.match(dados, /"mus-prancha": "cal-prancha-frontal"/);
+  assert.match(dados, /id:"cal-flexao"/);
+  assert.match(dados, /id:"mus-supino-reto"/);
 });
 
 const falhas = results.filter(resultado => !resultado.ok);

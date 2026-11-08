@@ -1395,37 +1395,47 @@
     tem classificação muscular — a sessão continua idêntica.
   */
   /*
-    Ilustração do movimento (RepDB local). Irmã, não substituta, da figura
-    anatômica: aquela mostra MÚSCULOS, esta mostra o MOVIMENTO. Sem imagem
-    disponível o bloco fica oculto e o fluxo de treino segue intacto.
+    Demonstração do movimento na execução: vídeo oficial ou personalizado em
+    16:9 (sem autoplay e com controles) e fallback automático para a ilustração
+    de referência correspondente (RepDB) quando não há vídeo disponível.
   */
+  let currentExecutionDemoKey = "";
   function renderExerciseDemo(exercise) {
     const box = byId("execution-demo");
     if (!box) return;
+
+    const activeSession = session();
+    const modality = activeSession ? activeSession.modality : null;
+    if (!exercise) {
+      currentExecutionDemoKey = "";
+      if (F.videos) F.videos.destroyStage(box);
+      box.hidden = true;
+      return;
+    }
+
+    const nextKey = [
+      activeSession ? activeSession.id : "",
+      exercise.id || "",
+      exercise.libraryId || "",
+      exercise.demoId || "",
+      exercise.youtubeVideo ? exercise.youtubeVideo.videoId : ""
+    ].join("|");
+
+    /* Evita recriar o iframe a cada tique de cronômetro/série do mesmo exercício. */
+    if (nextKey === currentExecutionDemoKey && box.firstChild && !box.hidden) {
+      return;
+    }
+    currentExecutionDemoKey = nextKey;
+
+    if (F.videos) {
+      F.videos.renderStage(box, exercise, modality, { compact: true });
+      return;
+    }
+
     if (!F.demos || !F.demos.available()) {
       box.hidden = true;
     } else {
-      const activeSession = session();
-      F.demos.renderMedia(box, exercise, activeSession ? activeSession.modality : null, { eager: true });
-    }
-
-    /*
-      Demonstração 3D: camada adicional, nunca substituta. Ela só aparece quando
-      o módulo está carregado, existe personagem escolhido no perfil e existe
-      animação para o exercício — caso contrário o painel fica oculto e a
-      ilustração acima segue sendo a demonstração. Nenhum erro aqui pode
-      interromper a sessão.
-    */
-    const palco = byId("execution-3d");
-    if (!palco) return;
-    if (!F.personagens3d) {
-      palco.hidden = true;
-      return;
-    }
-    try {
-      F.personagens3d.montarEmExecucao(exercise);
-    } catch (erro) {
-      palco.hidden = true;
+      F.demos.renderMedia(box, exercise, modality, { eager: true });
     }
   }
 

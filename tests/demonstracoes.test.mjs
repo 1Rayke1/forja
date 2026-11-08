@@ -315,7 +315,7 @@ await runTest("D7. Candidatos: ordenação, selos e catálogo manual para person
 /* 3. Interface                                                         */
 /* ------------------------------------------------------------------ */
 
-await runTest("D8. Detalhe do catálogo mostra ilustração, créditos e fallback", async () => {
+await runTest("D8. Detalhe do catálogo mostra a foto do exercício, o crédito e o espaço reservado", async () => {
   const app = await boot({}, "treino/biblioteca.html");
   const items = app.F.catalog.items("calisthenics");
   const flexao = items.find(item => item.id === "cal-flexao");
@@ -323,18 +323,28 @@ await runTest("D8. Detalhe do catálogo mostra ilustração, créditos e fallbac
 
   app.F.catalog.showDetail(flexao, { readOnly: true });
   await wait(20);
-  assert.ok(app.$(".modal-details .demo-media"), "sem ilustração");
-  assert.equal(app.$(".demo-media").getAttribute("data-demo-id"), "repdb:push-up");
-  assert.equal(app.$(".demo-media").getAttribute("data-confirmation"), "confirmed");
-  assert.match(app.text(".demo-credit"), /RepDB/);
-  assert.ok(!app.text(".modal-details").includes("Demonstração visual ainda não disponível"));
+
+  /* A foto fica no bloco de identificação, com o crédito do RepDB junto. */
+  const photo = app.$(".modal-details [data-detail-section='identificacao'] .bl-detail-photo");
+  assert.ok(photo, "detalhe sem bloco de foto");
+  assert.equal(photo.getAttribute("data-photo"), "ok");
+  assert.ok(photo.querySelector(".demo-media"), "a foto é a ilustração do próprio exercício");
+  assert.equal(photo.querySelector(".demo-media").getAttribute("data-demo-id"), "repdb:push-up");
+  assert.equal(photo.querySelector(".demo-media").getAttribute("data-confirmation"), "confirmed");
+  assert.match(app.text(".modal-details .demo-credit"), /RepDB/);
+  assert.ok(!app.text(".modal-details").includes("Imagem ainda não disponível"));
+
+  /* A foto não é repetida dentro do bloco de vídeo. */
+  assert.equal(app.$$("[data-detail-section='video'] .demo-media").length, 0);
   app.modalAction("cancel");
   await wait(25);
 
   app.F.catalog.showDetail(none, { readOnly: true });
   await wait(20);
   assert.equal(app.$(".modal-details .demo-media"), null);
-  assert.match(app.text(".modal-details"), /Demonstração visual ainda não disponível/);
+  const missing = app.$(".modal-details .bl-detail-photo");
+  assert.equal(missing.getAttribute("data-photo"), "missing");
+  assert.match(app.text(".modal-details .bl-detail-photo"), /Imagem ainda não disponível/);
   app.modalAction("cancel");
   await wait(25);
   app.close();

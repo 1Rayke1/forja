@@ -23,8 +23,8 @@
     (`derivarEquipamento`, `derivarModalidade`) — nunca um cálculo escondido.
   - Altura, peso e ano são guardados exatamente como declarados, em unidade
     canônica (cm, kg, ano). Nenhum IMC, idade ou meta é calculado nem exibido.
-  - O sexo informado só escolhe o personagem das demonstrações no futuro. Não
-    altera treino, histórico, carga ou objetivo.
+  - O sexo informado é apenas declarado: não altera treino, histórico, carga,
+    objetivo nem qualquer demonstração do app.
   - Pergunta pulada (opção "Prefiro pular" ou botão de pular de uma etapa
     opcional) não entra no patch final: concluir sem responder preserva o que
     já estava salvo, em vez de apagar.
@@ -99,8 +99,8 @@
       obrigatorio: true,
       rotuloCurto: "Sexo",
       titulo: "Vamos personalizar seu treino.",
-      descricao: "Escolha uma opção para começarmos. Ela serve apenas para escolher o " +
-        "personagem das demonstrações — não muda treinos, cargas nem objetivos.",
+      descricao: "Escolha uma opção para começarmos. É só uma informação do seu perfil: " +
+        "não muda treinos, cargas, metas nem a forma como o app funciona.",
       erroObrigatorio: "Escolha uma opção para continuar. Se preferir não responder, " +
         "selecione \"Prefiro não informar\".",
       opcoes: [
@@ -119,7 +119,7 @@
         {
           valor: "",
           titulo: "Prefiro não informar",
-          texto: "O FORJA segue funcionando normalmente, sem personagem."
+          texto: "O FORJA funciona exatamente igual sem essa informação."
         }
       ]
     },

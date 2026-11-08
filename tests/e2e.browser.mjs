@@ -21,7 +21,47 @@ import http from 'node:http';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { brotliDecompressSync } from 'node:zlib';
+import { brotliDecompressSync, deflateSync } from 'node:zlib';
+import youtubeProxyHandler, { resetRuntimeState as resetYoutubeBackend } from '../netlify/functions/youtube-search.mjs';
+
+function makeSolidPng(width, height) {
+  const crcTable = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    crcTable[n] = c >>> 0;
+  }
+  const crc32 = buf => {
+    let c = 0xffffffff;
+    for (let i = 0; i < buf.length; i++) c = crcTable[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  };
+  const chunk = (type, data) => {
+    const typeBuf = Buffer.from(type, 'ascii');
+    const lenBuf = Buffer.alloc(4);
+    lenBuf.writeUInt32BE(data.length, 0);
+    const crcBuf = Buffer.alloc(4);
+    crcBuf.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])), 0);
+    return Buffer.concat([lenBuf, typeBuf, data, crcBuf]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(width, 0);
+  ihdr.writeUInt32BE(height, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 2;
+  const rowLen = 1 + width * 3;
+  const raw = Buffer.alloc(rowLen * height, 0x18);
+  for (let y = 0; y < height; y++) raw[y * rowLen] = 0;
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk('IHDR', ihdr),
+    chunk('IDAT', deflateSync(raw)),
+    chunk('IEND', Buffer.alloc(0))
+  ]);
+}
+
+const VALID_YT_THUMB_PNG = makeSolidPng(320, 180);
+const DELETED_YT_THUMB_PNG = makeSolidPng(120, 90);
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = [];
@@ -205,9 +245,202 @@ try {
 const page = await browser.newPage();
 let currentLabel = 'carga';
 const errors = [];
-page.on('console', m => { if (m.type() === 'error') errors.push(currentLabel + ' console: ' + m.text()); });
+const youtubeE2EState = {
+  /* normal | empty | error | unconfigured | quota */
+  mode: 'normal',
+  unavailableIds: new Set(['RemovedVd00']),
+  expectBackendHttpError: false
+};
+
+/*
+  Fixtures do upstream do Google. Quem responde /api/youtube-search é a Netlify
+  Function real do repositório: o E2E exercita os mesmos filtros de duração,
+  orientação horizontal, exclusão de Shorts, cache e quota que vão para produção.
+*/
+const horizontalThumbs = () => ({
+  default: { width: 120, height: 90 },
+  medium: { width: 320, height: 180 },
+  high: { width: 480, height: 360 },
+  maxres: { width: 1280, height: 720 }
+});
+const E2E_UPSTREAM = {
+  searchIds: ['HorizVid001', 'ShortVert01', 'LongVid0001', 'SquareThmb1'],
+  videos: {
+    HorizVid001: {
+      id: 'HorizVid001',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT26S' },
+      snippet: {
+        title: 'Flexão Técnica Horizontal', channelTitle: 'Coach Lab',
+        description: 'Demonstração 16:9 do movimento completo.', thumbnails: horizontalThumbs()
+      }
+    },
+    ShortVert01: {
+      id: 'ShortVert01',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT18S' },
+      snippet: {
+        title: 'Flexão Dica Rápida #shorts', channelTitle: 'Calistenia Curtos',
+        description: '#shorts', thumbnails: { default: { width: 225, height: 400 }, high: { width: 360, height: 640 } }
+      }
+    },
+    LongVid0001: {
+      id: 'LongVid0001',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT1M35S' },
+      snippet: { title: 'Aula Longa', channelTitle: 'Coach Lab', thumbnails: horizontalThumbs() }
+    },
+    SquareThmb1: {
+      id: 'SquareThmb1',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT33S' },
+      snippet: {
+        title: 'Flexão na prática', channelTitle: 'Movimento Certo',
+        thumbnails: { high: { width: 480, height: 480 } }
+      }
+    },
+    LinkColad01: {
+      id: 'LinkColad01',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT21S' },
+      snippet: { title: 'Flexão colada por link', channelTitle: 'Coach Lab', thumbnails: horizontalThumbs() }
+    },
+    LegacyZoom1: {
+      id: 'LegacyZoom1',
+      status: { embeddable: true, privacyStatus: 'public' },
+      contentDetails: { duration: 'PT18S' },
+      snippet: { title: 'Vídeo antigo do treino', channelTitle: 'Canal Antigo', thumbnails: horizontalThumbs() }
+    }
+  },
+  oembed: {
+    SquareThmb1: { width: 480, height: 270, thumbnail_width: 480, thumbnail_height: 360, title: 'Flexão na prática' }
+  }
+};
+
+function upstreamJson(body, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    async json() { return body; }
+  };
+}
+
+function makeUpstreamFetch() {
+  return async upstreamUrl => {
+    const target = String(upstreamUrl);
+    if (youtubeE2EState.mode === 'error') {
+      return upstreamJson({ error: { message: 'Backend Error' } }, 500);
+    }
+    if (youtubeE2EState.mode === 'quota') {
+      return upstreamJson({ error: { message: 'Daily Limit Exceeded', errors: [{ reason: 'quotaExceeded' }] } }, 403);
+    }
+    if (target.includes('/youtube/v3/search')) {
+      if (youtubeE2EState.mode === 'empty') return upstreamJson({ items: [] }, 200);
+      return upstreamJson({ items: E2E_UPSTREAM.searchIds.map(videoId => ({ id: { videoId } })) }, 200);
+    }
+    if (target.includes('/youtube/v3/videos')) {
+      const ids = new URL(target).searchParams.get('id').split(',');
+      return upstreamJson({ items: ids.map(id => E2E_UPSTREAM.videos[id]).filter(Boolean) }, 200);
+    }
+    if (target.includes('youtube.com/oembed')) {
+      const watched = new URL(target).searchParams.get('url') || '';
+      const match = watched.match(/[?&]v=([^&]+)/);
+      const geometry = match ? E2E_UPSTREAM.oembed[match[1]] : null;
+      return geometry ? upstreamJson(geometry, 200) : upstreamJson({ error: 'not found' }, 404);
+    }
+    return upstreamJson({}, 404);
+  };
+}
+
+/* Executa a Function real contra o upstream simulado. */
+async function runYoutubeBackend(requestUrl) {
+  const query = requestUrl.includes('?') ? requestUrl.slice(requestUrl.indexOf('?')) : '';
+  process.env.YOUTUBE_API_KEY = youtubeE2EState.mode === 'unconfigured' ? '' : 'E2E_BACKEND_KEY';
+  process.env.YOUTUBE_DAILY_QUOTA_UNITS = '100000';
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = makeUpstreamFetch();
+  try {
+    const backendResponse = await youtubeProxyHandler(
+      new Request('https://forja.local/api/youtube-search' + query, { method: 'GET' }),
+      { ip: '203.0.113.7' }
+    );
+    return { status: backendResponse.status, body: await backendResponse.text() };
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+}
+
+await page.setRequestInterception(true);
+page.on('request', async req => {
+  const url = req.url();
+  if (url.includes('/.netlify/functions/youtube-videos') || /\/api\/youtube-videos(\?|$)/.test(url)) {
+    req.respond({
+      status: 200,
+      contentType: 'application/json; charset=utf-8',
+      body: JSON.stringify({ associations: [], report: { total: 165, approved: 0, pending: 165, review: 0, rejected: 0, unavailable: 0, coveragePercent: 0, withoutVideo: [], inconsistencies: [] } })
+    });
+    return;
+  }
+  if (url.startsWith('https://www.youtube-nocookie.com/embed/')) {
+    req.respond({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: '<!doctype html><html><body style="margin:0;background:#101010;color:#e8e4dc;display:grid;place-items:center;height:100vh;font:13px sans-serif"><span>YouTube Player 16:9</span></body></html>'
+    });
+    return;
+  }
+  if (url.startsWith('https://i.ytimg.com/vi/') || url.startsWith('https://img.youtube.com/vi/')) {
+    const match = url.match(/\/vi\/([^/]+)\//);
+    const vid = match ? decodeURIComponent(match[1]) : '';
+    if (youtubeE2EState.unavailableIds.has(vid)) {
+      req.respond({
+        status: 200,
+        contentType: 'image/png',
+        body: DELETED_YT_THUMB_PNG
+      });
+      return;
+    }
+    req.respond({
+      status: 200,
+      contentType: 'image/png',
+      body: VALID_YT_THUMB_PNG
+    });
+    return;
+  }
+  if (/\/api\/youtube-search(\?|$)/.test(url)) {
+    (async () => {
+      try {
+        const backend = await runYoutubeBackend(url);
+        req.respond({
+          status: backend.status,
+          contentType: 'application/json; charset=utf-8',
+          body: backend.body
+        });
+      } catch (error) {
+        req.respond({
+          status: 502,
+          contentType: 'application/json; charset=utf-8',
+          body: JSON.stringify({ status: 'error', error: 'Falha no backend de teste: ' + error.message })
+        });
+      }
+    })();
+    return;
+  }
+  req.continue();
+});
+
+page.on('console', m => {
+  if (m.type() !== 'error') return;
+  if (youtubeE2EState.expectBackendHttpError && /Failed to load resource.*(429|500|502|503)/i.test(m.text())) return;
+  errors.push(currentLabel + ' console: ' + m.text());
+});
 page.on('pageerror', e => errors.push(currentLabel + ' pageerror: ' + e.message));
-page.on('requestfailed', r => errors.push(currentLabel + ' requestfailed: ' + r.url()));
+page.on('requestfailed', r => {
+  /* Navegar pode cancelar scripts, fontes, imagens ou players da página
+     anterior. Respostas HTTP com erro continuam registradas abaixo. */
+  if (/ERR_ABORTED/i.test(r.failure()?.errorText || '')) return;
+  errors.push(currentLabel + ' requestfailed: ' + r.url());
+});
 page.on('response', r => {
   if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(currentLabel + ' HTTP ' + r.status() + ': ' + r.url());
 });
@@ -233,8 +466,16 @@ const pathOf = () => new URL(page.url()).pathname;
 const normalizePath = p => p.replace(/index\.html$/, '');
 const expectPath = async suffix => {
   const want = normalizePath(suffix);
-  const ok = await waitFor(s => location.pathname.replace(/index\.html$/, '').endsWith(s), 6000, want);
+  const ok = await waitFor(
+    s =>
+      location.pathname.replace(/index\.html$/, '').endsWith(s) &&
+      document.readyState !== 'loading' &&
+      Boolean(window.Forja && window.Forja.state),
+    6000,
+    want
+  );
   assert.ok(ok, 'Esperava a página ' + suffix + ', mas está em ' + pathOf());
+  await sleep(60);
 };
 
 // Clica pelo DOM (para links e botões ocultos sob estilos customizados).
@@ -285,7 +526,7 @@ async function answerModal(values, action) {
 
 // Rola até o centro antes de clicar: a barra inferior fixa pode cobrir o alvo.
 async function clickCentered(selector) {
-  await page.$eval(selector, el => el.scrollIntoView({ block: 'center' }));
+  await page.$eval(selector, el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await sleep(90);
   await page.click(selector);
   await sleep(140);
@@ -543,7 +784,7 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
 
   assert.equal((await page.$$('.figura-svg')).length, 2, 'O atlas precisa das duas vistas da silhueta');
   assert.equal((await page.$$('.figura-region')).length, 0, 'Região destacada sem exercício escolhido');
-  assert.equal(await page.$$eval('#atlas-exercise-select option', els => els.length), 38, 'Seletor deveria ter 37 exercícios + vazio');
+  assert.equal(await page.$$eval('#atlas-exercise-select option', els => els.length), 166, 'Seletor deveria ter 165 exercícios + vazio');
   assert.match(await text('.atlas-disclosure'), /não uma segmentação anatômica clínica/i);
   const navLabels = await page.$$eval('.bottom-nav-link', els => els.map(e => e.textContent.trim()));
   assert.equal(navLabels.length, 5, 'Barra inferior precisa manter 5 destinos');
@@ -560,16 +801,23 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   assert.match(await text('.atlas-legenda'), /Secundária/);
 
   await clickCentered('[data-group-chip="antebracos"]');
-  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Antebraços deveria listar 3 exercícios');
+  const forearmCount = await page.evaluate(() => Forja.catalog.items().filter(item => item.muscles.includes('antebraços')).length);
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmCount,
+    'Antebraços divergiu do catálogo central');
   assert.match(await page.$eval('.atlas-exercise-list', el => el.textContent), /Principal/);
 
   await clickCentered('#atlas-modes [data-value="calisthenics"]');
-  assert.match(await text('.atlas-exercise-list .ui-empty-title'), /Nenhum exercício desta modalidade/);
-  await clickCentered('.atlas-exercise-list .ui-empty-actions .primary-button');
-  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), 3, 'Limpar filtro não restaurou a lista');
+  const forearmCalCount = await page.evaluate(() => Forja.catalog.items('calisthenics').filter(item => item.muscles.includes('antebraços')).length);
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmCalCount,
+    'O filtro de modalidade divergiu do catálogo central');
+  await clickCentered('#atlas-modes [data-value="null"]');
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), forearmCount,
+    'Limpar modalidade não restaurou a lista');
 
   await clickCentered('[data-group-chip="panturrilha"]');
-  assert.match(await text('.atlas-exercise-list .ui-empty-title'), /Nenhum exercício para este grupo/);
+  const calfCount = await page.evaluate(() => Forja.catalog.items().filter(item => item.muscles.includes('panturrilha')).length);
+  assert.equal(await page.$$eval('.atlas-exercise-row', els => els.length), calfCount,
+    'Panturrilha divergiu do catálogo central');
 
   await clickCentered('.atlas-inline-reset');
   assert.equal(await page.$$('.atlas-exercise-row').then(rows => rows.length), 0, 'Limpar o grupo não esvaziou a lista');
@@ -580,8 +828,12 @@ await check('Atlas: exercício escolhido, figura anterior/posterior, filtro e de
   assert.match(legendHref, /biblioteca\.html\?musculo=/);
   await jsClick('.atlas-legenda-item .atlas-legenda-link');
   await expectPath('/treino/biblioteca.html');
-  assert.equal(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length), 4,
-    'O filtro por peitoral deveria listar 4 exercícios');
+  const chestCount = await page.evaluate(() => Forja.catalog.items().filter(item => item.muscles.includes('peito')).length);
+  for (let pageCount = 0; pageCount < 4 && await page.$('.catalog-more button'); pageCount += 1) {
+    await jsClick('.catalog-more button');
+  }
+  assert.equal(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length), chestCount,
+    'O filtro por peitoral divergiu do catálogo central');
 
   /* Detalhe do exercício mostra a mesma figura. */
   await jsClick('#catalog-list .ui-exercise-row .ui-exercise-main button, #catalog-list .ui-exercise-row .ui-button');
@@ -1491,6 +1743,7 @@ await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explor
           .map(node => [node.getAttribute('data-nav'), getComputedStyle(node).color])),
         perfil: target('perfil').pathname,
         explorar: target('explorar').pathname,
+        descobrir: target('descobrir').pathname,
         perfilStatus: await status(target('perfil').href),
         explorarStatus: await status(target('explorar').href)
       };
@@ -1504,7 +1757,8 @@ await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explor
       if (nav !== want) assert.notEqual(color, state.colors[want], 'CSS: ' + nav + ' também destacado em ' + where);
     }
     assert.equal(state.perfil, basePath + 'perfil/index.html', 'F.url("perfil") em ' + where);
-    assert.equal(state.explorar, basePath + 'explorar/index.html', 'F.url("explorar") em ' + where);
+    assert.equal(state.explorar, basePath + 'treino/biblioteca.html', 'F.url("explorar") em ' + where);
+    assert.equal(state.descobrir, basePath + 'explorar/index.html', 'F.url("descobrir") em ' + where);
     assert.equal(state.perfilStatus, 200, 'Destino de F.url("perfil") não carrega a partir de ' + where);
     assert.equal(state.explorarStatus, 200, 'Destino de F.url("explorar") não carrega a partir de ' + where);
   }
@@ -2209,29 +2463,248 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
 });
 
 /* Fluxos da primeira evolução web, isolados dos dados das verificações acima. */
-await check('Explorar — busca e resultados inline, filtros recolhidos e atlas em acesso único', async () => {
+await check('Explorar — seções de descoberta, acesso ao atlas/biblioteca e busca no catálogo', async () => {
   const saved = await forjaRaw();
   try {
     await restoreForjaRaw({});
     await go('explorar/');
     const existingProfile = await forjaRaw();
     assert.ok(existingProfile['forja-perfil-v1'], 'Rota protegida exige perfil salvo');
-    assert.ok(await page.$('#catalog-root'), 'Catálogo inline ausente');
-    assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), false,
-      'Filtros secundários começam recolhidos');
-    assert.equal(await page.$$eval('.explore-atlas a[href="atlas.html"]', els => els.length), 1,
-      'Acesso ao atlas deve aparecer uma vez');
+    assert.ok(await page.$('#foco-treino'), 'Seção Foco do treino ausente');
+    assert.ok(await page.$('#recursos-grade'), 'Seção Descubra recursos ausente');
+    assert.ok(await page.$$eval('a[href*="atlas.html"]', els => els.length >= 1),
+      'Acesso ao atlas ausente na tela Explorar');
+    assert.deepEqual(await forjaRaw(), existingProfile, 'Explorar não deve alterar dados locais ao abrir');
+
+    await go('treino/biblioteca.html');
+    assert.ok(await page.$('#catalog-root'), 'Catálogo ausente na Biblioteca');
     await fill('#catalog-search', 'flexão');
     assert.ok(await page.$$eval('#catalog-list .ui-exercise-row', els => els.length > 0),
-      'A busca não mostrou resultados na tela Explorar');
+      'A busca não mostrou resultados na Biblioteca');
     assert.match(await text('#catalog-list'), /flexão/i);
-    await page.click('.catalog-filter-disclosure > summary');
-    assert.equal(await page.$eval('#catalog-controls', el => el.closest('details').open), true);
-    assert.deepEqual(await forjaRaw(), existingProfile, 'Consultar catálogo não alterou dados locais além do perfil existente');
+    assert.deepEqual(await forjaRaw(), existingProfile, 'Consultar catálogo não alterou dados locais');
     await page.screenshot({ path: artifactPath('explorar-inline-390.png'), fullPage: true });
   } finally {
     await page.setViewport(MOBILE);
     await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e cabem em 390 px', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('treino/biblioteca.html');
+
+    /* A conta é a do catálogo carregado na página, não um número escrito aqui. */
+    const total = await page.evaluate(() => window.Forja.biblioteca.entries().length);
+    assert.ok(total > 0, 'Catálogo vazio na Biblioteca');
+
+    const cards = await page.$$eval('#catalog-controls .grupo-card', els => els.map(el => ({
+      id: el.getAttribute('data-categoria'),
+      nome: el.querySelector('.grupo-nome').textContent.trim(),
+      altura: Math.round(el.getBoundingClientRect().height),
+      figura: Boolean(el.querySelector('.grupo-figura svg'))
+    })));
+    assert.equal(cards.length, 7, 'A tela precisa dos sete cards de região');
+    assert.deepEqual(cards.map(card => card.nome),
+      ['Peitoral', 'Costas', 'Ombros', 'Braços', 'Abdômen', 'Pernas', 'Glúteos']);
+    assert.ok(cards.every(card => card.figura), 'Todo card precisa da prancha anatômica');
+    assert.equal(new Set(cards.map(card => card.altura)).size, 1,
+      'Os sete cards precisam ter a mesma altura: ' + cards.map(card => card.altura).join(', '));
+
+    /* Sete recortes diferentes: nenhuma imagem repetida entre os cards. */
+    const recortes = await page.$$eval('.grupo-card .grupo-figura svg', els => els.map(el => el.getAttribute('viewBox')));
+    assert.equal(new Set(recortes).size, 7, 'As regiões repetiram a mesma imagem');
+
+    /* Contador no total do catálogo. */
+    assert.match(await text('#bl-contador'), new RegExp('^' + total + ' exercícios'), 'Contador fora do total');
+
+    /* Pílulas de modalidade: quatro, com "Todos" ativa. */
+    assert.deepEqual(await page.$$eval('.modalidade-opcao', els => els.map(el => el.textContent.trim())),
+      ['Todos', 'Musculação', 'Calistenia', 'Sem equip.']);
+
+    /* Nenhum elemento removido continua no DOM da tela Explorar. */
+    const removidos = await page.evaluate(() => [
+      '#bl-hero-stats', '.bl-stat', '#bl-tabs', '.bl-tab', '#bl-view-rankings',
+      '#catalog-toggle', '#bl-recursos', '.bl-help'
+    ].filter(sel => Boolean(document.querySelector(sel))));
+    assert.deepEqual(removidos, [], 'Elementos removidos permaneceram na Biblioteca: ' + removidos.join(', '));
+    const textosProibidos = await page.evaluate(() => [
+      'com demonstração oficial',
+      'Explorar exercícios',
+      'Ver todos os 165 exercícios',
+      'Continue explorando',
+      'Ideias para o treino de hoje',
+      'Mapa dos músculos',
+      'Como a biblioteca funciona'
+    ].filter(t => document.body.innerText.includes(t)));
+    assert.deepEqual(textosProibidos, [], 'Textos removidos permaneceram visíveis: ' + textosProibidos.join(', '));
+
+    /* 320, 360, 390 e 430 px: nada estoura na horizontal e o título continua legível. */
+    for (const width of [320, 360, 390, 430]) {
+      await page.setViewport({ width, height: 844 });
+      await sleep(120);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        'A Biblioteca estoura na horizontal em ' + width + ' px');
+      const titulo = await page.$eval('#catalog-heading', el => el.getBoundingClientRect().height);
+      assert.ok(titulo > 40, 'O título sumiu em ' + width + ' px');
+    }
+    await page.setViewport(MOBILE);
+    await sleep(120);
+    await page.screenshot({ path: artifactPath('biblioteca-7-regioes-390.png'), fullPage: true });
+
+    /* Abrir Costas leva à tela do grupo, já filtrada pela região. */
+    const costas = await page.evaluate(() => window.Forja.biblioteca.entries()
+      .filter(entry => entry.muscleId === 'costas').length);
+    await clickCentered('.grupo-card[data-categoria="costas"]');
+    await expectPath('/treino/grupo.html');
+    assert.match(await page.evaluate(() => location.search), /regiao=costas/,
+      'A região não viajou no endereço da tela do grupo');
+    assert.match(await text('#grupo-titulo'), /Costas/, 'A tela não abriu na região escolhida');
+    assert.equal(await page.$eval('#grupo-contador', el => el.getAttribute('data-total')), String(costas),
+      'O contador da tela do grupo não bateu com o catálogo');
+    assert.ok(await page.$$eval('#grupo-lista .gr-card',
+      els => els.every(el => el.getAttribute('data-muscle') === 'costas')),
+    'A tela do grupo misturou regiões');
+    await page.screenshot({ path: artifactPath('grupo-costas-390.png') });
+
+    /* Voltar devolve a Biblioteca sem lista despejada. */
+    await clickCentered('#grupo-voltar');
+    await expectPath('/treino/biblioteca.html');
+    assert.equal(await page.$eval('#catalog-results', el => el.hidden), true,
+      'Voltar não deveria abrir a lista do catálogo');
+
+    /* Modalidade escolhida vai junto no link e filtra a tela do grupo. */
+    await clickCentered('.modalidade-opcao[data-value="academia"]');
+    const hrefComModalidade = await page.$eval('.grupo-card[data-categoria="costas"]', el => el.getAttribute('href'));
+    assert.match(hrefComModalidade, /modalidade=academia/, 'A modalidade não entrou no link da região');
+    await clickCentered('.grupo-card[data-categoria="costas"]');
+    await expectPath('/treino/grupo.html');
+    assert.ok(await page.$$eval('#grupo-lista .gr-card',
+      els => els.every(el => el.getAttribute('data-modality') === 'academia')),
+    'Região + modalidade não combinaram na tela do grupo');
+
+    /* Desktop: os cards ficam em duas colunas e a página continua sem estouro. */
+    await page.setViewport({ width: 1280, height: 900 });
+    await sleep(160);
+    const colunas = await page.$$eval('.gr-card', els =>
+      new Set(els.map(el => Math.round(el.getBoundingClientRect().left))).size);
+    assert.equal(colunas, 2, 'No desktop os cards deveriam se distribuir em duas colunas: ' + colunas);
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      'A Biblioteca estoura na horizontal no desktop');
+    await page.screenshot({ path: artifactPath('grupo-costas-desktop.png'), fullPage: true });
+
+    /* Nada foi gravado por navegar. */
+    await page.setViewport(MOBILE);
+    await go('treino/biblioteca.html');
+    const perfil = await forjaRaw();
+    assert.ok(perfil['forja-perfil-v1'], 'A Biblioteca não deve apagar o perfil');
+  } finally {
+    await page.setViewport(MOBILE);
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Tela do grupo muscular — 13 grupos, filtros, cards e ficha', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('treino/grupo.html?modalidade=academia&regiao=bracos');
+    await sleep(200);
+
+    /* Cabeçalho, herói e prancha com o músculo em destaque. */
+    assert.match(await text('#grupo-modalidade'), /Musculação/i, 'A modalidade não apareceu no selo');
+    assert.match(await text('#grupo-titulo'), /Braços/, 'O título da região não apareceu');
+    assert.ok((await text('#grupo-descricao')).length > 20, 'A tela precisa da descrição contextual');
+    assert.ok(await page.$('#grupo-figura svg .figura-region.is-primary'), 'A prancha não destacou o músculo');
+
+    /* Filtros derivados do catálogo: grupos da região e equipamentos reais. */
+    const grupos = await page.$$eval('#grupo-filtros [data-linha="grupo"] .gr-pilula',
+      els => els.map(el => el.getAttribute('data-value')));
+    assert.deepEqual(grupos, ['', 'biceps', 'triceps', 'antebracos'],
+      'Braços deveria oferecer Todos e os três grupos oficiais');
+    const equipamentos = await page.$$eval('#grupo-filtros [data-linha="equipamento"] .gr-pilula',
+      els => els.map(el => el.getAttribute('data-value')));
+    assert.ok(equipamentos.length > 1, 'Braços + musculação deveria ter filtros de equipamento');
+    assert.equal(equipamentos[0], '', '"Todos" precisa abrir a linha de equipamento');
+
+    /* O filtro restringe de verdade e o contador acompanha. */
+    const todos = await page.evaluate(() => Number(document.querySelector('#grupo-contador').dataset.total));
+    await clickCentered('#grupo-filtros [data-linha="equipamento"] .gr-pilula[data-value="halteres"]');
+    const comHalteres = await page.evaluate(() => Number(document.querySelector('#grupo-contador').dataset.total));
+    assert.ok(comHalteres > 0 && comHalteres < todos,
+      'O filtro de halteres deveria reduzir a lista (' + comHalteres + ' de ' + todos + ')');
+    assert.equal(await page.$$eval('#grupo-lista .gr-card', els => els.length), comHalteres,
+      'O contador não bateu com o número de cards');
+
+    /* Cada card é um exercício com imagem própria ou estado sem imagem. */
+    const cards = await page.$$eval('#grupo-lista .gr-card', els => els.map(el => ({
+      id: el.getAttribute('data-exercise-id'),
+      imagem: el.querySelector('img') ? el.querySelector('img').getAttribute('src') : null,
+      altura: Math.round(el.getBoundingClientRect().height)
+    })));
+    assert.ok(cards.length > 0, 'Nenhum card na tela');
+    assert.equal(new Set(cards.map(card => card.id)).size, cards.length, 'Cards repetidos na lista');
+    const usadas = cards.map(card => card.imagem).filter(Boolean);
+    assert.equal(new Set(usadas).size, usadas.length, 'Dois cards usaram a mesma imagem');
+
+    /* Telemóveis: 320/360/390/430 sem estouro horizontal. */
+    for (const width of [320, 360, 390, 430]) {
+      await page.setViewport({ width, height: 844 });
+      await sleep(140);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        'A tela do grupo estoura na horizontal em ' + width + ' px');
+      const hero = await page.$eval('#grupo-titulo', el => el.getBoundingClientRect().height);
+      assert.ok(hero > 24, 'O nome do grupo sumiu em ' + width + ' px');
+      const barra = await page.$eval('#grupo-filtros', el => el.getBoundingClientRect().height);
+      assert.ok(barra > 30, 'Os filtros sumiram em ' + width + ' px');
+    }
+    await page.setViewport(MOBILE);
+    await sleep(140);
+
+    /* O último card não fica atrás da barra inferior. */
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await sleep(200);
+    const atrasDaBarra = await page.evaluate(() => {
+      const nav = document.querySelector('.bottom-nav');
+      const ultimo = document.querySelector('#grupo-lista .gr-card:last-of-type');
+      if (!nav || !ultimo) return false;
+      return ultimo.getBoundingClientRect().bottom > nav.getBoundingClientRect().top;
+    });
+    assert.equal(atrasDaBarra, false, 'O último card ficou escondido atrás da barra inferior');
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: artifactPath('grupo-bracos-halteres-390.png'), fullPage: true });
+
+    /* Tocar no card abre a ficha existente, com vídeo, atlas e adicionar. */
+    const esperado = await page.$eval('#grupo-lista .gr-card .gr-card-nome', el => el.textContent.trim());
+    await clickCentered('#grupo-lista .gr-card');
+    await sleep(220);
+    assert.match(await text('#modal-title'), new RegExp(esperado.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+      'A ficha abriu em outro exercício');
+    assert.ok(await page.$('[data-detail-section="video"]'), 'A ficha perdeu o vídeo');
+    assert.ok(await page.$('[data-detail-section="atlas"]'), 'A ficha perdeu o atlas');
+    assert.ok(await page.$('#detail-add-to-training'), 'A ficha perdeu “Adicionar ao treino”');
+    await page.screenshot({ path: artifactPath('grupo-ficha-390.png') });
+    await page.keyboard.press('Escape');
+    await sleep(160);
+
+    /* Navegação inferior: cinco itens, Explorar ativa. */
+    assert.equal(await page.$$eval('.bottom-nav-link', els => els.length), 5, 'A barra inferior perdeu itens');
+    assert.match(await text('.bottom-nav-link[aria-current="page"]'), /Explorar/);
+
+    /* Sem equipamentos não existe filtro de equipamento. */
+    await go('treino/grupo.html?modalidade=peso-corporal&regiao=abdomen');
+    await sleep(200);
+    assert.equal(await page.$$('#grupo-filtros [data-linha="equipamento"] .gr-pilula').then(list => list.length), 0,
+      'Sem equipamentos não deveria oferecer filtro de equipamento');
+    await go('treino/grupo.html?modalidade=calistenia&regiao=gluteos');
+    await sleep(200);
+    assert.match(await text('#grupo-lista'), /Nenhum exercício/, 'Combinação vazia precisa avisar');
+    assert.equal(await page.$eval('#grupo-contador', el => el.dataset.total), '0');
+  } finally {
+    await page.setViewport(MOBILE);
     await restoreForjaRaw(saved);
   }
 });
@@ -2406,7 +2879,7 @@ await check('Demonstrações: imagem local decodifica, créditos visíveis e fal
     Forja.catalog.showDetail(record, { readOnly: true });
   });
   await page.waitForSelector('.modal-backdrop .modal-details', { timeout: 4000 });
-  assert.match(await text('.modal-backdrop .modal-details'), /Demonstração visual ainda não disponível/);
+  assert.match(await text('.modal-backdrop .modal-details'), /Imagem ainda não disponível/);
   assert.equal(await page.$('.demo-media'), null, 'exercício sem correspondência ganhou imagem');
   await page.keyboard.press('Escape');
 
@@ -2506,6 +2979,399 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
     assert.match(await text('#execution-demo .demo-credit'), /RepDB/);
     assert.ok(await page.$('#execution-figure'), 'figura do atlas sumiu');
   } finally {
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, controles e fallback sem vídeo', async () => {
+  const saved = await forjaRaw();
+  try {
+    await restoreForjaRaw({});
+    await go('treino/biblioteca.html');
+
+    /* 1. Exercício com vídeo oficial: youtube-nocookie, 16:9 responsivo, controles, sem autoplay e enquadramento original. */
+    await page.evaluate(() => {
+      const record = Forja.catalog.items('calisthenics').find(item => item.id === 'cal-flexao');
+      Forja.catalog.showDetail(record, { readOnly: true });
+    });
+    await page.waitForSelector('.modal-details .video-demo-iframe', { timeout: 4000 });
+
+    const videoInfo = await page.$eval('.modal-details .video-demo', el => {
+      const player = el.querySelector('.video-demo-player');
+      const iframe = el.querySelector('.video-demo-iframe');
+      const rect = player.getBoundingClientRect();
+      return {
+        state: el.dataset.videoState,
+        source: el.dataset.videoSource,
+        videoId: el.dataset.videoId,
+        framing: el.dataset.videoFraming,
+        hasZoomClass: player.classList.contains('is-zoom-crop'),
+        src: iframe.getAttribute('src'),
+        width: rect.width,
+        height: rect.height
+      };
+    });
+    assert.equal(videoInfo.state, 'ready');
+    assert.equal(videoInfo.source, 'official');
+    assert.equal(videoInfo.videoId, 'xBrI-N44QLc');
+    assert.equal(videoInfo.framing, 'original');
+    assert.equal(videoInfo.hasZoomClass, false, 'vídeo oficial não pode ter zoom/corte');
+    assert.match(videoInfo.src, /^https:\/\/www\.youtube-nocookie\.com\/embed\/xBrI-N44QLc\?/);
+    assert.match(videoInfo.src, /autoplay=0/);
+    assert.match(videoInfo.src, /controls=1/);
+    assert.match(videoInfo.src, /[?&]mute=1(&|$)/, 'vídeo oficial precisa iniciar sem áudio');
+    assert.ok(Math.abs(videoInfo.width / videoInfo.height - 16 / 9) < 0.08,
+      'proporção do player não é 16:9: ' + videoInfo.width + 'x' + videoInfo.height);
+    assert.equal(await page.$('.modal-3d'), null, 'nenhum elemento 3D pode existir');
+
+    for (const width of [320, 390, 768]) {
+      await page.setViewport({ width, height: 800 });
+      await sleep(100);
+      const metrics = await page.evaluate(() => {
+        const rect = document.querySelector('.modal-details .video-demo-player').getBoundingClientRect();
+        return {
+          overflow: document.documentElement.scrollWidth - innerWidth,
+          ratio: rect.width / rect.height
+        };
+      });
+      assert.ok(metrics.overflow <= 1, 'overflow com player oficial a ' + width + 'px: ' + metrics.overflow);
+      assert.ok(Math.abs(metrics.ratio - 16 / 9) < 0.08, 'proporção fora de 16:9 em ' + width + 'px');
+    }
+    await page.setViewport(MOBILE);
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.querySelector('.modal-backdrop'), { timeout: 4000 });
+
+    /* 2. Exercício sem vídeo oficial: exibe imagem de referência + "Demonstração em vídeo ainda não disponível para este exercício.". */
+    await page.evaluate(() => {
+      const record = Forja.catalog.items('calisthenics').find(item => item.id === 'cal-polichinelo');
+      Forja.catalog.showDetail(record, { readOnly: true });
+    });
+    await page.waitForSelector('.modal-details .video-demo', { timeout: 4000 });
+    assert.equal(await page.$('.modal-details .video-demo-iframe'), null);
+    assert.equal(await page.$eval('.modal-details .demo-media', el => el.dataset.demoId), 'repdb:jumping-jacks');
+    assert.equal(await text('.modal-details .video-demo-unavailable'),
+      'Demonstração em vídeo ainda não disponível para este exercício.');
+    await page.keyboard.press('Escape');
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horizontais, Shorts recusados, 2 rotinas, reload e backup', async () => {
+  const saved = await forjaRaw();
+  const today = new Date().toISOString().slice(0, 10);
+  const exerciseBase = {
+    name: 'Flexão de braço', sets: 3, type: 'reps', reps: '10',
+    duration: 45, rest: 30, load: '', notes: '', section: 'main', libraryId: 'cal-flexao'
+  };
+  const routines = {
+    calisthenics: [
+      {
+        id: 'rotina-vid-a', name: 'Treino Vídeo A', modality: 'calisthenics', createdAt: 1, updatedAt: 1,
+        sections: {
+          warmup: [], abs: [], finisher: [],
+          main: [Object.assign({ id: 'ex-a1' }, exerciseBase)]
+        }
+      },
+      {
+        id: 'rotina-vid-b', name: 'Treino Vídeo B', modality: 'calisthenics', createdAt: 2, updatedAt: 2,
+        sections: {
+          warmup: [], abs: [], finisher: [],
+          main: [Object.assign({ id: 'ex-b1' }, exerciseBase, {
+            youtubeVideo: {
+              videoId: 'LegacyZoom1', title: 'Vídeo antigo do treino', channelTitle: 'Canal Antigo',
+              durationSeconds: 18, framing: 'zoom'
+            }
+          })]
+        }
+      }
+    ],
+    weights: []
+  };
+  try {
+    youtubeE2EState.mode = 'normal';
+    resetYoutubeBackend();
+    await restoreForjaRaw({});
+    await page.evaluate(r => localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify(r)), routines);
+
+    /* Rotina A: modal "Procurar vídeo" pesquisando pelo proxy real do backend. */
+    await go('treino/rotina.html?id=rotina-vid-a&modalidade=calisthenics');
+    await clickCentered('.editor-exercise .video-row-button');
+    await page.waitForSelector('.video-result-card', { timeout: 6000 });
+
+    assert.equal(await text('#modal-title'), 'Procurar vídeo', 'nomenclatura padronizada');
+    assert.equal(await text('.video-picker-exercise-name'), 'Flexão de braço', 'exercício identificado no modal');
+    assert.match(await text('.modal-message'), /treino personalizado/);
+    assert.match(await text('.video-picker-intro'), /horizontal \(16:9\)/);
+    assert.match(await text('.video-picker-intro'), /60 segundos/);
+    assert.match(await text('.video-picker-intro'), /somente para este treino personalizado/);
+    assert.equal(await text('[data-modal-action="confirm"]'), 'Confirmar vídeo');
+    assert.equal(await text('[data-modal-action="cancel"]'), 'Cancelar');
+    assert.equal(await page.$eval('.video-picker-query', el => el.value), 'Flexão de braço');
+    assert.equal(await page.$('.video-picker-framing'), null, 'controle de enquadramento não pode existir');
+    assert.equal(await page.$('[data-framing-option="zoom"]'), null, 'opção de zoom/corte removida');
+
+    const resultIds = await page.$$eval('.video-result-card', els => els.map(el => el.dataset.videoId));
+    assert.deepEqual(resultIds, ['HorizVid001', 'SquareThmb1'],
+      'Short vertical e vídeo acima de 60s não podem aparecer nos resultados');
+
+    const resultsText = await text('.video-picker-results');
+    assert.match(resultsText, /Visualizar/, 'cada resultado oferece Visualizar');
+    assert.match(resultsText, /Horizontal 16:9/);
+    assert.equal(/Short/i.test(resultsText), false, 'resultados não mencionam Shorts');
+    assert.match(await text('.video-result-card[data-video-id="HorizVid001"]'), /0:26/);
+    assert.match(await text('.video-result-card[data-video-id="HorizVid001"]'), /Coach Lab/);
+    assert.match(await text('.video-result-card[data-video-id="HorizVid001"]'), /Flexão Técnica Horizontal/);
+
+    /* Confirmar sem visualizar é bloqueado. */
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(150);
+    assert.ok(await page.$('.modal-backdrop'), 'não pode confirmar sem vídeo selecionado');
+    assert.match(await text('.video-picker-error'), /Selecione e visualize/);
+
+    /* Link de Short colado: recusado sem prévia e sem confirmação. */
+    await page.evaluate(() => {
+      document.querySelector('.video-picker-url-input').value = 'https://www.youtube.com/shorts/ShortVert01';
+    });
+    await jsClick('.video-picker-url-btn');
+    await sleep(200);
+    assert.match(await text('.video-picker-error'), /YouTube Shorts não são aceitos/);
+    assert.equal(await page.$('.video-picker-preview-iframe'), null, 'Short não pode ganhar prévia');
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(150);
+    assert.ok(await page.$('.modal-backdrop'), 'não pode confirmar um Short');
+
+    /* Short disfarçado de watch?v=: o backend identifica a orientação vertical. */
+    await page.evaluate(() => {
+      document.querySelector('.video-picker-url-input').value = 'https://www.youtube.com/watch?v=ShortVert01';
+    });
+    await jsClick('.video-picker-url-btn');
+    await sleep(500);
+    assert.match(await text('.video-picker-error'), /YouTube Shorts não são aceitos/);
+    assert.equal(await page.$('.video-picker-preview-iframe'), null);
+
+    /* Link convencional: inspeção do backend aprova e abre a prévia silenciosa. */
+    await page.evaluate(() => {
+      document.querySelector('.video-picker-url-input').value = 'https://www.youtube.com/watch?v=LinkColad01';
+    });
+    await jsClick('.video-picker-url-btn');
+    await page.waitForSelector('.video-picker-preview-iframe', { timeout: 6000 });
+    const pastedSrc = await page.$eval('.video-picker-preview-iframe', el => el.getAttribute('src'));
+    assert.match(pastedSrc, /youtube-nocookie\.com\/embed\/LinkColad01/);
+    assert.match(pastedSrc, /[?&]mute=1(&|$)/);
+    assert.match(pastedSrc, /autoplay=0/);
+
+    /* Seleção pela lista: prévia 16:9, silenciosa e sem corte. */
+    await jsClick('.video-result-card[data-video-id="HorizVid001"]');
+    await sleep(150);
+    const previewSrc = await page.$eval('.video-picker-preview-iframe', el => el.getAttribute('src'));
+    assert.match(previewSrc, /^https:\/\/www\.youtube-nocookie\.com\/embed\/HorizVid001\?/);
+    assert.match(previewSrc, /autoplay=0/);
+    assert.match(previewSrc, /controls=1/);
+    assert.match(previewSrc, /[?&]mute=1(&|$)/);
+
+    const previewGeom = await page.evaluate(() => {
+      const box = document.querySelector('.video-picker-preview-frame');
+      const rect = box.getBoundingClientRect();
+      const frame = document.querySelector('.video-picker-preview-iframe').getBoundingClientRect();
+      return {
+        ratio: rect.width / rect.height,
+        frameRatio: frame.width / frame.height,
+        zoom: box.classList.contains('is-zoom-crop')
+      };
+    });
+    assert.ok(Math.abs(previewGeom.ratio - 16 / 9) < 0.08, 'prévia precisa ser 16:9: ' + previewGeom.ratio);
+    assert.ok(Math.abs(previewGeom.frameRatio - 16 / 9) < 0.08,
+      'iframe ocupa o quadro 16:9 inteiro, sem zoom ou corte: ' + previewGeom.frameRatio);
+    assert.equal(previewGeom.zoom, false);
+    assert.match(await text('.video-picker-preview-meta'), /Horizontal 16:9/);
+
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(250);
+    assert.equal(await page.$('.modal-backdrop'), null, 'modal deve fechar após confirmar');
+    await clickCentered('#save-routine-top');
+    await sleep(220);
+
+    /* Rotina B: vídeo legado com framing "zoom" continua salvo, sem zoom/corte. */
+    await go('treino/rotina.html?id=rotina-vid-b&modalidade=calisthenics');
+    assert.match(await text('.editor-exercise-meta'), /Vídeo personalizado/);
+    assert.equal(/zoom/i.test(await text('.editor-exercise-meta')), false, 'meta não pode mencionar zoom');
+    await clickCentered('.editor-exercise .video-row-button');
+    await page.waitForSelector('.video-picker-preview-iframe', { timeout: 6000 });
+    assert.equal(await page.$('[data-framing-option="zoom"]'), null);
+    assert.equal(await text('[data-modal-action="clear"]'), 'Usar vídeo padrão');
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(250);
+    await clickCentered('#save-routine-top');
+    await sleep(220);
+
+    const savedRoutines = await data('forja-treino-rotinas-v1');
+    const savedA = savedRoutines.calisthenics[0].sections.main[0].youtubeVideo;
+    assert.equal(savedA.videoId, 'HorizVid001');
+    assert.equal(savedA.framing, 'original');
+    assert.equal(savedA.durationSeconds, 26);
+    assert.equal(savedA.channelTitle, 'Coach Lab');
+    assert.equal(Object.prototype.hasOwnProperty.call(savedA, 'orientation'), false,
+      'orientação é verificação de seleção, não dado persistido');
+    const savedB = savedRoutines.calisthenics[1].sections.main[0].youtubeVideo;
+    assert.equal(savedB.videoId, 'LegacyZoom1');
+    assert.equal(savedB.framing, 'original', 'zoom legado é normalizado ao salvar');
+
+    /* Execução da Rotina B + persistência após reload real da página. */
+    await page.evaluate((rB, day) => {
+      const ex = rB.sections.main[0];
+      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+        version: 2, id: 's-vid-b', date: day, modality: 'calisthenics',
+        routineId: rB.id, routineName: rB.name, startedAt: Date.now() - 1000,
+        elapsedMs: 0, running: true, currentIndex: 0,
+        completedSets: { 'ex-b1': 0 }, totalPlannedSets: ex.sets,
+        queue: [Object.assign({}, ex)], status: 'active',
+        restEndAt: null, restRemainingMs: 0, restPaused: false,
+        pendingAdvance: false, restPlannedSeconds: 0, setTimer: null,
+        setLogs: {}, logDraft: {}
+      }));
+    }, savedRoutines.calisthenics[1], today);
+
+    await go('treino/executar.html');
+    await page.waitForSelector('#execution-demo .video-demo-player', { timeout: 6000 });
+    assert.equal(await page.$('#execution-demo .video-demo-player.is-zoom-crop'), null,
+      'zoom/corte não pode existir na execução');
+    await page.reload({ waitUntil: 'networkidle0' });
+    await page.waitForSelector('#execution-demo .video-demo-iframe', { timeout: 6000 });
+    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoId), 'LegacyZoom1');
+    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoFraming), 'original');
+    const execSrc = await page.$eval('#execution-demo .video-demo-iframe', el => el.getAttribute('src'));
+    assert.match(execSrc, /[?&]mute=1(&|$)/, 'vídeo personalizado na execução inicia sem áudio');
+    assert.match(execSrc, /autoplay=0/);
+    assert.match(execSrc, /controls=1/);
+
+    /* Exportação e restauração de backup preservando os vídeos por rotina. */
+    await go('configuracoes/');
+    const exportedJson = await page.evaluate(() => JSON.stringify(Forja.buildBackupObject()));
+    const backupFile = artifactPath('backup-videos-e2e.json');
+    fs.writeFileSync(backupFile, exportedJson, 'utf8');
+
+    await page.evaluate(() => localStorage.setItem('forja-treino-rotinas-v1',
+      JSON.stringify({ calisthenics: [], weights: [] })));
+    await go('configuracoes/');
+    const input = await page.$('#import-backup-input');
+    await input.uploadFile(backupFile);
+    await page.waitForSelector('[data-modal-action="restore"]', { timeout: 4000 });
+    await jsClick('[data-modal-action="restore"]');
+    await sleep(400);
+
+    const restored = await data('forja-treino-rotinas-v1');
+    assert.equal(restored.calisthenics[0].sections.main[0].youtubeVideo.videoId, 'HorizVid001');
+    assert.equal(restored.calisthenics[0].sections.main[0].youtubeVideo.framing, 'original');
+    assert.equal(restored.calisthenics[1].sections.main[0].youtubeVideo.videoId, 'LegacyZoom1');
+    assert.equal(restored.calisthenics[1].sections.main[0].youtubeVideo.framing, 'original');
+  } finally {
+    youtubeE2EState.mode = 'normal';
+    resetYoutubeBackend();
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend sem chave, quota e erro', async () => {
+  const saved = await forjaRaw();
+  const today = new Date().toISOString().slice(0, 10);
+  const routineDead = {
+    id: 'r-dead-e2e', name: 'Treino Indisponível', modality: 'calisthenics',
+    createdAt: 1, updatedAt: 1,
+    sections: {
+      warmup: [], abs: [], finisher: [],
+      main: [{
+        id: 'ex-dead', name: 'Flexão de braço', sets: 2, type: 'reps', reps: '10',
+        duration: 45, rest: 15, load: '', notes: '', section: 'main',
+        libraryId: 'cal-flexao',
+        youtubeVideo: {
+          videoId: 'RemovedVd00', title: 'Vídeo Removido', channelTitle: 'Canal',
+          durationSeconds: 20, framing: 'original'
+        }
+      }]
+    }
+  };
+  try {
+    youtubeE2EState.mode = 'normal';
+    resetYoutubeBackend();
+    await restoreForjaRaw({});
+    await page.evaluate((r, day) => {
+      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [r], weights: [] }));
+      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+        version: 2, id: 's-dead', date: day, modality: 'calisthenics',
+        routineId: r.id, routineName: r.name, startedAt: Date.now() - 1000,
+        elapsedMs: 0, running: true, currentIndex: 0,
+        completedSets: { 'ex-dead': 0 }, totalPlannedSets: 2,
+        queue: [Object.assign({}, r.sections.main[0])], status: 'active',
+        restEndAt: null, restRemainingMs: 0, restPaused: false,
+        pendingAdvance: false, restPlannedSeconds: 0, setTimer: null,
+        setLogs: {}, logDraft: {}
+      }));
+    }, routineDead, today);
+
+    /* 1. Vídeo removido cai automaticamente na imagem de referência + aviso discreto. */
+    await go('treino/executar.html');
+    await page.waitForFunction(() => {
+      const stage = document.querySelector('#execution-demo .video-demo');
+      return stage && stage.dataset.videoState === 'unavailable';
+    }, { timeout: 6000 });
+    assert.equal(await page.$('#execution-demo .video-demo-iframe'), null);
+    assert.equal(await page.$eval('#execution-demo .demo-media', el => el.dataset.demoId), 'repdb:push-up');
+    assert.equal(await text('#execution-demo .video-demo-unavailable'),
+      'Demonstração em vídeo ainda não disponível para este exercício.');
+
+    /* 2. Busca sem resultados. */
+    youtubeE2EState.mode = 'empty';
+    resetYoutubeBackend();
+    await go('treino/rotina.html?id=r-dead-e2e&modalidade=calisthenics');
+    await clickCentered('.editor-exercise .video-row-button');
+    await page.waitForSelector('.video-picker-status.is-empty', { timeout: 6000 });
+    assert.equal((await page.$$('.video-result-card')).length, 0);
+    assert.match(await text('.video-picker-status'), /Nenhum vídeo convencional horizontal/i);
+    assert.match(await text('.video-picker-empty'), /60 segundos/i);
+
+    /* 3. Backend sem YOUTUBE_API_KEY: 503, nada é inventado. */
+    youtubeE2EState.mode = 'unconfigured';
+    youtubeE2EState.expectBackendHttpError = true;
+    resetYoutubeBackend();
+    await page.$eval('.video-picker-query', el => { el.value = 'agachamento livre'; });
+    await jsClick('.video-picker-search-btn');
+    await page.waitForSelector('.video-picker-status.is-unconfigured', { timeout: 6000 });
+    assert.match(await text('.video-picker-status'), /YOUTUBE_API_KEY/);
+    assert.equal((await page.$$('.video-result-card')).length, 0);
+
+    /* 4. Quota diária do provedor esgotada: 429 sem novos resultados. */
+    youtubeE2EState.mode = 'quota';
+    resetYoutubeBackend();
+    await page.$eval('.video-picker-query', el => { el.value = 'remada curvada'; });
+    await jsClick('.video-picker-search-btn');
+    await page.waitForSelector('.video-picker-status.is-unconfigured', { timeout: 6000 });
+    assert.match(await text('.video-picker-status'), /orçamento diário/i);
+    assert.equal((await page.$$('.video-result-card')).length, 0);
+
+    /* 5. Falha no provedor: 502 com mensagem de erro tratada. */
+    youtubeE2EState.mode = 'error';
+    resetYoutubeBackend();
+    await page.$eval('.video-picker-query', el => { el.value = 'burpee completo'; });
+    await jsClick('.video-picker-search-btn');
+    await page.waitForSelector('.video-picker-status.is-error', { timeout: 6000 });
+    assert.match(await text('.video-picker-status'), /Não foi possível consultar a YouTube Data API v3/i);
+    assert.equal((await page.$$('.video-result-card')).length, 0);
+
+    youtubeE2EState.expectBackendHttpError = false;
+    await jsClick('[data-modal-action="cancel"]');
+    await sleep(200);
+    assert.equal(await page.$('.modal-backdrop'), null);
+  } finally {
+    youtubeE2EState.mode = 'normal';
+    youtubeE2EState.expectBackendHttpError = false;
+    resetYoutubeBackend();
+    await page.setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }

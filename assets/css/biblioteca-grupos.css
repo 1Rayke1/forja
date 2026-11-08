@@ -1,0 +1,528 @@
+/*
+  FORJA — Biblioteca de exercícios (treino/biblioteca.html): camada dos 7 cards.
+
+  Entra depois de `biblioteca.css` e desenha, na tela que a barra inferior chama
+  de "Explorar", o mesmo desenho da referência:
+
+    cabeçalho → título → subtítulo → busca → modalidade → cards das 7 regiões →
+    contador de exercícios → resultados filtrados.
+
+  Regras de convivência:
+
+  - Nada aqui redefine tokens (--bl-*, --fj-*, --lime, --space-*): só consome.
+  - Os seletores ficam sob `body[data-page="biblioteca"]` para não alcançar as
+    outras telas do app.
+  - `!important` aparece só onde as camadas antigas já usam `!important` em
+    input/button (busca, pílulas de modalidade).
+*/
+
+/* ------------------------------------------------------------------ */
+/* Cabeçalho: marca à esquerda, disciplina diária à direita            */
+/* ------------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .tagline {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #8b9693;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+  white-space: nowrap;
+}
+
+body[data-page="biblioteca"] .tagline svg {
+  width: 21px;
+  height: 21px;
+  display: block;
+  color: var(--lime);
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero enxuto: traço, título em duas cores e subtítulo                */
+/* ------------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-hero {
+  margin: 6px 0 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+
+body[data-page="biblioteca"] .bl-hero .eyebrow {
+  display: block;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  color: #8b9693;
+  font-family: var(--fj-fonte-texto);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* O detalhe em lima da referência: um traço curto, não uma faixa inteira. */
+body[data-page="biblioteca"] .bl-hero .eyebrow::before {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 3px;
+  margin-bottom: 12px;
+  border-radius: 2px;
+  background: var(--lime);
+}
+
+body[data-page="biblioteca"] #catalog-heading {
+  margin: 0 0 10px;
+  color: #ffffff;
+  font-family: var(--fj-fonte-titulo);
+  font-size: clamp(32px, 8.6vw, 44px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+body[data-page="biblioteca"] #catalog-heading .bl-titulo-destaque {
+  display: block;
+  color: var(--lime);
+}
+
+body[data-page="biblioteca"] .bl-subtitle {
+  margin: 0;
+  max-width: 40ch;
+  color: #a7b2af;
+  font-family: var(--fj-fonte-texto);
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------------ */
+/* Busca                                                              */
+/* ------------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 0 18px;
+}
+
+body[data-page="biblioteca"] .bl-search .ui-icon {
+  position: absolute;
+  left: 17px;
+  width: 20px;
+  height: 20px;
+  color: #aab5b1;
+  pointer-events: none;
+}
+
+body[data-page="biblioteca"] .bl-search .ui-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+body[data-page="biblioteca"] .bl-search input,
+body[data-page="biblioteca"] #catalog-search {
+  width: 100% !important;
+  min-height: 54px !important;
+  padding: 14px 48px 14px 48px !important;
+  border: 1px solid #2b3436 !important;
+  border-radius: 999px !important;
+  background: #151b1c !important;
+  color: #f3f7f5 !important;
+  font-family: var(--fj-fonte-texto) !important;
+  font-size: 15.5px !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+body[data-page="biblioteca"] .bl-search input::placeholder {
+  color: #8b9693 !important;
+}
+
+body[data-page="biblioteca"] .bl-search input:focus {
+  border-color: rgba(183, 243, 74, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(183, 243, 74, 0.13);
+}
+
+body[data-page="biblioteca"] .bl-search-clear {
+  position: absolute;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: #26302f;
+  color: #cfd8d4;
+  cursor: pointer;
+}
+
+body[data-page="biblioteca"] .bl-search-clear svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* Modalidade: quatro pílulas com ícone                               */
+/* ------------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-filter-head {
+  margin: 0 0 10px;
+}
+
+body[data-page="biblioteca"] .bl-filter-head .catalog-filter-label {
+  color: #f4f8f4;
+  font-family: var(--fj-fonte-titulo);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+body[data-page="biblioteca"] .bl-filter-hint {
+  display: block;
+  margin-top: 3px;
+  color: #7c8785;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.modalidade-linha {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modalidade-linha::-webkit-scrollbar {
+  display: none;
+}
+
+/* Os quatro botões cabem em uma linha a 390 px (a largura da referência).
+   Abaixo de 374 px eles passam a duas colunas, para nenhum rótulo ser
+   cortado; acima de 760 px voltam a respirar. */
+body[data-page="biblioteca"] .modalidade-opcao {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 1px solid #2a3234;
+  border-radius: 999px;
+  background: #151b1c;
+  color: #e8eee9;
+  font-family: var(--fj-fonte-texto);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+body[data-page="biblioteca"] .modalidade-opcao .ui-icon svg,
+body[data-page="biblioteca"] .modalidade-opcao .modalidade-icone svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+}
+
+body[data-page="biblioteca"] .modalidade-opcao[aria-pressed="true"] {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: #11170b;
+  font-weight: 800;
+}
+
+body[data-page="biblioteca"] .modalidade-opcao[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--fj-accent-strong);
+}
+
+.modalidade-icone {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards das 7 regiões                                                */
+/* ------------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-grupos {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+body[data-page="biblioteca"] .grupo-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) 22px;
+  align-items: center;
+  gap: 12px;
+  /* Altura única para os sete cards, como na referência. */
+  height: 96px;
+  padding: 0 14px 0 0;
+  overflow: hidden;
+  border: 1px solid #262e30;
+  border-radius: 16px;
+  background: linear-gradient(100deg, #0f1516, #131a1b 72%);
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+body[data-page="biblioteca"] .grupo-card:hover {
+  border-color: rgba(183, 243, 74, 0.38);
+}
+
+body[data-page="biblioteca"] .grupo-card:active {
+  transform: scale(0.995);
+}
+
+/* O card é um link para a tela do grupo: some o sublinhado e o toque azul. */
+body[data-page="biblioteca"] .grupo-card {
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Região de onde o usuário veio (volta da tela do grupo). */
+body[data-page="biblioteca"] .grupo-card.is-atual {
+  border-color: rgba(183, 243, 74, 0.62);
+  background: linear-gradient(100deg, #131c14, #16201a 72%);
+}
+
+/*
+  A imagem entra pela borda esquerda do card, sem moldura. A máscara de degradê
+  à direita dissolve o fundo preto da prancha no card, para o corpo ficar
+  integrado em vez de parecer um retângulo colado.
+*/
+body[data-page="biblioteca"] .grupo-figura {
+  position: relative;
+  display: block;
+  align-self: stretch;
+  height: 100%;
+  min-height: 88px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 18%, rgba(183, 243, 74, 0.08), transparent 62%),
+    #05090a;
+  -webkit-mask-image: linear-gradient(90deg, #000 82%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(90deg, #000 82%, rgba(0, 0, 0, 0) 100%);
+}
+
+body[data-page="biblioteca"] .grupo-figura .figura {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+}
+
+body[data-page="biblioteca"] .grupo-figura .figura-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* A prancha é de linha clara sobre preto. Na miniatura ela fica mais discreta
+   para o verde dos músculos ser o que chama atenção, como na referência. */
+body[data-page="biblioteca"] .grupo-figura .figura-plate {
+  opacity: 0.55;
+}
+
+body[data-page="biblioteca"] .grupo-figura .figura-region.is-primary .figura-region-shape {
+  fill-opacity: 0.82;
+}
+
+body[data-page="biblioteca"] .grupo-figura .figura-region.is-primary .figura-region-outline {
+  stroke-width: 1.2;
+}
+
+body[data-page="biblioteca"] .grupo-texto {
+  display: block;
+  min-width: 0;
+  padding-block: 12px;
+}
+
+body[data-page="biblioteca"] .grupo-nome {
+  display: block;
+  color: #f7faf8;
+  font-family: var(--fj-fonte-titulo);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+body[data-page="biblioteca"] .grupo-descricao {
+  display: -webkit-box;
+  margin-top: 3px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: #9aa6a3;
+  font-family: var(--fj-fonte-texto);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+body[data-page="biblioteca"] .grupo-seta {
+  display: inline-flex;
+  justify-content: flex-end;
+  color: #8d9996;
+}
+
+body[data-page="biblioteca"] .grupo-seta svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* Contador de exercícios                                             */
+/* ------------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-contador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 15px 16px;
+  border: 1px solid rgba(183, 243, 74, 0.32);
+  border-radius: 16px;
+  background: rgba(183, 243, 74, 0.06);
+  text-align: center;
+}
+
+body[data-page="biblioteca"] .bl-contador .ui-icon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  color: var(--lime);
+}
+
+body[data-page="biblioteca"] .bl-contador .ui-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+body[data-page="biblioteca"] .bl-contador-texto {
+  margin: 0;
+  color: #c6d1cc;
+  font-family: var(--fj-fonte-texto);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+body[data-page="biblioteca"] .bl-contador-texto strong {
+  color: var(--lime);
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="biblioteca"] .bl-contador-complemento {
+  display: block;
+  margin-top: 2px;
+  color: #8b9693;
+  font-size: 11.5px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Resultados                                                          */
+/* ------------------------------------------------------------------ */
+
+body[data-page="biblioteca"] .bl-results[hidden] {
+  display: none;
+}
+
+body[data-page="biblioteca"] .bl-filters {
+  margin: 0;
+}
+
+body[data-page="biblioteca"] .catalog-status {
+  margin: 18px 0 10px;
+  color: #8b9693;
+  font-size: 12.5px;
+}
+
+body[data-page="biblioteca"] .bl-active-filters {
+  margin-top: 14px;
+}
+
+body[data-page="biblioteca"] .bl-card {
+  border-radius: 14px;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-name {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+body[data-page="biblioteca"] .bl-card .ui-exercise-meta {
+  margin: 0;
+  color: #9aa6a3;
+  line-height: 1.4;
+}
+
+/* ------------------------------------------------------------------ */
+/* Desktop                                                             */
+/* ------------------------------------------------------------------ */
+
+@media (min-width: 760px) {
+  body[data-page="biblioteca"] .bl-grupos {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  body[data-page="biblioteca"] .modalidade-opcao {
+    gap: 8px;
+    padding: 0 15px;
+    font-size: 13px;
+    letter-spacing: 0;
+  }
+
+  body[data-page="biblioteca"] .modalidade-opcao .ui-icon svg,
+  body[data-page="biblioteca"] .modalidade-opcao .modalidade-icone svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  body[data-page="biblioteca"] .catalog-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 374px) {
+  body[data-page="biblioteca"] .modalidade-linha {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    overflow: visible;
+  }
+
+  body[data-page="biblioteca"] .grupo-card {
+    grid-template-columns: 84px minmax(0, 1fr) 22px;
+    height: 92px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-page="biblioteca"] .grupo-card {
+    transition: none;
+  }
+}

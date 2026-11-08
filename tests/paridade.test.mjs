@@ -1334,7 +1334,9 @@ function allModuleIds() {
 
 function idsInAllPages() {
   const ids = new Set();
-  for (const page of Object.values(PAGE)) {
+  /* A tela do grupo muscular recebe filtros por URL, então é lida sem query. */
+  const pages = Object.values(PAGE).concat(["treino/grupo.html"]);
+  for (const page of pages) {
     const html = fs.readFileSync(path.join(repoRoot, page), "utf8");
     for (const match of html.matchAll(/\sid="([^"]+)"/g)) ids.add(match[1]);
   }
