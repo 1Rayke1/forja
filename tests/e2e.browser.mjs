@@ -2196,7 +2196,7 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
       text: el.textContent.trim(),
       clipped: el.scrollWidth > el.clientWidth + 1
     })));
-    assert.deepEqual(nav.map(item => item.text), ['Início', 'Treinos', 'Explorar', 'Progresso', 'Perfil']);
+    assert.deepEqual(nav.map(item => item.text), ['Início', 'Treinos', 'Explorar', 'Evolução', 'Perfil']);
     assert.deepEqual(nav.filter(item => item.clipped), [], 'Nenhum rótulo pode ficar truncado a 320 px');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), 0,
       'A barra inferior não pode criar rolagem horizontal');

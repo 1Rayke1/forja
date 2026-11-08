@@ -2206,7 +2206,7 @@ await runTest("43. Barra inferior fixa: 5 itens, aria-current, safe-area e não 
     assert.ok(labels.some(t => /Início/.test(t)), "Início ausente em " + page);
     assert.ok(labels.some(t => /Treinos/.test(t)), "Treinos ausente");
     assert.ok(labels.some(t => /Explorar/.test(t)), "Explorar ausente");
-    assert.ok(labels.some(t => /Progresso/.test(t)), "Progresso ausente");
+    assert.ok(labels.some(t => /Evolução/.test(t)), "Evolução ausente");
     assert.ok(labels.some(t => /Perfil/.test(t)), "Perfil ausente");
     assert.equal(app.$$(".bottom-nav-link[aria-current=page]").length, 1, "aria-current ausente ou duplicado em " + page);
     // Ícones presentes
@@ -4165,7 +4165,7 @@ await runTest("70. F.state.profile é inicializado em todas as páginas (ausente
     tipoCorpo: "", anoNascimento: 0, rotinaDiaria: "", localTreino: "",
     preferenciasTreino: [], experienciaAtual: "", consideracoes: [],
     equipamentos: [], flexoes: "", mobilidade: "", recuperacaoEsforco: "",
-    celebracao: "", acompanhamento: ""
+    celebracao: "", acompanhamento: "", nomeExibicao: ""
   };
 
   for (const page of pages) {
@@ -5256,7 +5256,7 @@ await runTest("77k. D-11: a barra inferior mantém os cinco rótulos legíveis e
   const app = await boot({}, "index.html");
   await wait(30);
   const labels = app.$$(".bottom-nav-label").map(node => node.textContent.trim());
-  assert.deepEqual(labels, ["Início", "Treinos", "Explorar", "Progresso", "Perfil"]);
+  assert.deepEqual(labels, ["Início", "Treinos", "Explorar", "Evolução", "Perfil"]);
   assert.equal(app.$$(".bottom-nav-link").length, 5, "A barra continua com cinco destinos");
   assertNoErrors(app, "D-11 barra inferior");
   app.close();

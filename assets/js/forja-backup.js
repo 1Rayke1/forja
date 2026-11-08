@@ -1093,6 +1093,11 @@ function updateBackupStatus() {
     const duracao = byId("prof-duracao");
     if (duracao) duracao.value = String(profile.duracaoMinutos || 0);
 
+    /* Nome de exibição: mesma chave de perfil, sem cadastro paralelo. */
+    const nome = byId("prof-nome");
+    if (nome) nome.value = F.displayNameOf(profile);
+    renderDisplayNameStatus();
+
     const status = byId("profile-status");
     if (status) {
       status.textContent = profile.updatedAt
@@ -1132,6 +1137,70 @@ function updateBackupStatus() {
     values.diasPorSemana = diasRaw === "" ? 0 : Number(diasRaw);
     values.duracaoMinutos = duracaoRaw === "" ? 0 : Number(duracaoRaw);
     return { values };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Nome de exibição (Home) — grava no MESMO perfil do FORJA            */
+  /* ------------------------------------------------------------------ */
+  /*
+    Não existe um segundo cadastro: `nomeExibicao` mora em `forja-perfil-v1`,
+    ao lado de objetivo e nível. Salvar o nome passa pelo mesmo saveProfile,
+    que preserva o resto do perfil. O campo aceita também espaços em branco
+    como "apagar o nome": a saudação volta ao texto neutro.
+  */
+  function renderDisplayNameStatus(message, tone) {
+    const status = byId("prof-nome-status");
+    const input = byId("prof-nome");
+    const clear = byId("prof-nome-clear");
+    const name = F.displayNameOf();
+
+    if (input) input.setAttribute("maxlength", String(F.PERFIL_NOME_MAX || 24));
+
+    if (clear) clear.hidden = !name;
+
+    if (status) {
+      status.textContent = message || (name
+        ? "O FORJA vai chamar você de " + name + " na Home."
+        : "Sem nome definido: a Home mostra uma saudação neutra.");
+      status.classList.toggle("is-error", tone === "error");
+    }
+  }
+
+  function saveDisplayName(rawValue) {
+    const error = byId("prof-nome-error");
+    const input = byId("prof-nome");
+    const typed = String(rawValue === undefined || rawValue === null ? "" : rawValue);
+    const name = F.normalizeDisplayName(typed);
+
+    /* Texto digitado que não sobrevive à limpeza não é salvo em silêncio. */
+    if (typed.trim() && !name) {
+      if (error) {
+        error.textContent = "Use apenas letras, espaço, hífen, apóstrofo ou ponto (até " +
+          (F.PERFIL_NOME_MAX || 24) + " caracteres).";
+        error.hidden = false;
+      }
+      if (input) input.setAttribute("aria-invalid", "true");
+      return false;
+    }
+
+    if (error) {
+      error.textContent = "";
+      error.hidden = true;
+    }
+    if (input) input.setAttribute("aria-invalid", "false");
+
+    if (!F.saveProfile({ nomeExibicao: name })) {
+      renderProfileForm();
+      showToast("Não foi possível salvar o nome neste navegador.", "error", 6000);
+      return false;
+    }
+
+    renderProfileForm();
+    showToast(name ? "Nome salvo. A Home já usa " + name + "." : "Nome removido. A Home volta à saudação neutra.");
+    if (typeof F.ui !== "undefined" && F.ui && typeof F.ui.announce === "function") {
+      F.ui.announce(name ? "Nome de exibição salvo: " + name : "Nome de exibição removido.");
+    }
+    return true;
   }
 
   function submitProfile(event) {
@@ -1239,6 +1308,18 @@ function updateBackupStatus() {
     });
 
     listen(byId("profile-form"), "submit", submitProfile);
+
+    listen(byId("profile-name-form"), "submit", event => {
+      event.preventDefault();
+      const input = byId("prof-nome");
+      saveDisplayName(input ? input.value : "");
+    });
+
+    listen(byId("prof-nome-clear"), "click", () => {
+      const input = byId("prof-nome");
+      if (input) input.value = "";
+      saveDisplayName("");
+    });
 
     renderPreferences();
     renderProfileForm();

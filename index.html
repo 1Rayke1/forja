@@ -16,14 +16,41 @@
 <link rel="stylesheet" href="assets/css/marca.css">
 <link rel="stylesheet" href="assets/css/redesign.css">
 <link rel="stylesheet" href="assets/css/demonstracoes.css">
+<link rel="stylesheet" href="assets/css/inicio.css">
 </head>
 
 <body data-page="inicio" data-root="">
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
-<header class="site-header">
-  <div class="container site-header-inner">
-    <a class="logo" href="index.html">FORJA</a>
-    <div class="tagline">DISCIPLINA DIÁRIA</div>
+<header class="site-header home-header">
+  <div class="container home-header-inner">
+    <a class="home-brand" href="index.html" aria-label="FORJA — página inicial">
+      <svg class="home-brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M18 4 H52 L56 8 V16 H28 V28 H46 L50 32 V40 H28 V60 H18 Z"/>
+      </svg>
+      <span class="home-brand-text">
+        <span class="home-brand-name">FORJA</span>
+        <span class="home-brand-tagline">TREINE · EVOLUA · SUPERE-SE</span>
+      </span>
+    </a>
+    <div class="home-header-actions">
+      <!-- Avisos ainda não têm central própria no FORJA: o sino leva aos dados
+           e preferências e só mostra o ponto com pendência real (sessão ativa
+           ou treino do dia não executado). -->
+      <a class="home-icon-button" id="home-notifications" href="configuracoes/index.html"
+         aria-label="Avisos do FORJA" title="Avisos do FORJA">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M18 15.5V10a6 6 0 1 0-12 0v5.5L4.5 18h15L18 15.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>
+        </svg>
+        <span class="home-icon-dot" id="home-notifications-dot" hidden></span>
+      </a>
+      <a class="home-avatar" id="home-avatar" href="perfil/index.html" aria-label="Abrir meu perfil" title="Meu perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="8.5" r="4"/><path d="M4 20.5c0-3.6 3.6-6 8-6s8 2.4 8 6"/>
+        </svg>
+      </a>
+    </div>
   </div>
 </header>
 
@@ -39,14 +66,38 @@
     </div>
   </section>
 
-  <section class="home-greeting" id="home-greeting" aria-label="Boas-vindas">
+  <section class="home-greeting" id="home-greeting" aria-labelledby="home-title">
+    <h1 class="home-title" id="home-title">Olá!</h1>
+    <p class="home-subtitle" id="home-subtitle">Hora de evoluir ainda mais.</p>
     <p class="home-eyebrow" id="today-label"></p>
-    <h1 class="home-title" id="home-title">Hora de treinar.</h1>
-    <p class="home-subtitle" id="home-subtitle">Seu próximo passo, sem ruído. Escolha a rotina e comece.</p>
   </section>
 
   <section id="home-action" aria-labelledby="home-action-heading"></section>
 
+  <section class="home-metrics" id="home-metrics" aria-labelledby="home-metrics-heading">
+    <h2 class="home-metrics-heading ui-visually-hidden" id="home-metrics-heading">Seus indicadores</h2>
+    <div class="home-metrics-grid" id="home-metrics-grid" role="list"></div>
+    <p class="home-metrics-note" id="home-metrics-note"></p>
+  </section>
+
+  <section class="home-progress" id="home-progress" aria-labelledby="home-progress-heading">
+    <div class="home-block-head">
+      <h2 class="home-block-title" id="home-progress-heading">Seu progresso</h2>
+      <a class="home-block-link" id="home-progress-link" href="progresso/index.html">Ver detalhes <span aria-hidden="true">›</span></a>
+    </div>
+    <div class="home-progress-body" id="home-progress-body"></div>
+  </section>
+
+  <section class="home-explore" id="home-explore" aria-labelledby="home-explore-heading">
+    <div class="home-block-head">
+      <h2 class="home-block-title" id="home-explore-heading">Explore o FORJA</h2>
+      <a class="home-block-link" id="home-explore-link" href="explorar/index.html">Ver mais <span aria-hidden="true">›</span></a>
+    </div>
+    <div class="home-explore-grid" id="home-explore-grid" role="list"></div>
+    <p class="home-explore-note" id="home-explore-note"></p>
+  </section>
+
+  <div class="home-deep" id="home-deep" aria-label="Mais dados da semana">
   <div class="home-overview" role="group" aria-label="Resumo da semana">
   <section class="home-week" id="home-week" aria-labelledby="home-week-heading">
     <div class="home-week-head">
@@ -77,7 +128,7 @@
     <p class="home-recent-note" id="home-recent-note"></p>
   </section>
 
-  <div class="home-secondary">
+  <div class="home-secondary" id="home-secondary">
     <details class="home-section home-disclosure">
       <summary class="section-title" id="calendar-heading">Seu calendário <span class="disclosure-hint">Consultar ou organizar dias</span></summary>
       <div class="calendar-panel">
@@ -113,6 +164,7 @@
       </div>
     </details>
   </div>
+  </div>
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">
@@ -131,7 +183,7 @@
     </a>
     <a class="bottom-nav-link" href="progresso/index.html" data-nav="progresso">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
-      <span class="bottom-nav-label">Progresso</span>
+      <span class="bottom-nav-label">Evolução</span>
     </a>
     <a class="bottom-nav-link" href="perfil/index.html" data-nav="perfil">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
@@ -164,6 +216,8 @@
 <script src="assets/js/forja-graficos.js" defer></script>
 <script src="assets/js/forja-catalogo.js" defer></script>
 <script src="assets/js/forja-calendario.js" defer></script>
+<script src="assets/js/forja-fotografias-dados.js" defer></script>
+<script src="assets/js/forja-fotografias.js" defer></script>
 <script src="assets/js/forja-inicio.js" defer></script>
 <script src="assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="assets/js/forja-demonstracoes.js" defer></script>

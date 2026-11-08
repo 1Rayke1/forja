@@ -1303,6 +1303,8 @@ const PERFIL_ANO_MIN = 1900;
 const PERFIL_SEXOS = ["masculino", "feminino"];
 const PERFIL_MODALIDADES = ["calisthenics", "weights"];
 const PERFIL_MAX_DIAS = 7;
+/* Nome de exibição da Home: 1 a 24 caracteres depois de limpar espaços. */
+const PERFIL_NOME_MAX = 24;
 const PERFIL_MAX_MINUTOS = 240;
 
 /*
@@ -1487,6 +1489,7 @@ const PERFIL_OPTIONS = {
 const PERFIL_KNOWN_KEYS = [
   "version",
   "updatedAt",
+  "nomeExibicao",
   "objetivo",
   "nivel",
   "equipamento",
@@ -1579,10 +1582,51 @@ function normalizeProfileDecimal(value, min, max) {
   return Math.round(Math.min(max, Math.max(min, numero)) * 10) / 10;
 }
 
+/*
+  Nome de exibição — como a pessoa quer ser chamada na Home.
+
+  É um campo do MESMO perfil (`forja-perfil-v1`), não um segundo cadastro.
+  Regras, aplicadas na leitura e na gravação:
+
+    - só texto; o resto vira "" (nunca um nome inventado);
+    - espaços internos colapsam e as pontas são removidas;
+    - 1 a 24 caracteres depois de limpar — vazio é o estado "sem nome";
+    - nada de número, e-mail, URL ou sequência de só símbolos: esse conteúdo
+      não é nome, então é descartado em vez de exibido.
+*/
+function normalizeDisplayName(value) {
+  if (typeof value !== "string") return "";
+
+  const clean = value
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, PERFIL_NOME_MAX * 2);
+
+  if (!clean) return "";
+  if (/\d/.test(clean)) return "";
+  if (/@|https?:|www\.|\.com|\.br\b/i.test(clean)) return "";
+
+  /* Precisa haver ao menos uma letra; só símbolos não é nome. */
+  if (!/[A-Za-zÀ-ÖØ-öø-ÿ]/.test(clean)) return "";
+
+  /* Aparência: letras (com acento), espaço, apóstrofo, hífen e ponto. */
+  const visible = clean.replace(/[A-Za-zÀ-ÖØ-öø-ÿ'’\-.\s]/g, "");
+
+  return visible.length > 0 ? "" : clean.slice(0, PERFIL_NOME_MAX);
+}
+
+/* Nome pronto para exibir: normalizado e, se inválido, vazio. */
+function displayNameOf(profile) {
+  const current = isPlainObject(profile) ? profile : F.state.profile;
+  return normalizeDisplayName(isPlainObject(current) ? current.nomeExibicao : "");
+}
+
 function normalizeProfile(raw) {
   const base = {
     version: PERFIL_VERSION,
     updatedAt: null,
+    nomeExibicao: "",
     objetivo: "",
     nivel: "",
     equipamento: "",
@@ -1616,6 +1660,7 @@ function normalizeProfile(raw) {
   const out = {
     version: PERFIL_VERSION,
     updatedAt: normalizeIsoText(raw.updatedAt),
+    nomeExibicao: normalizeDisplayName(raw.nomeExibicao),
     objetivo: PERFIL_OBJETIVOS.indexOf(raw.objetivo) !== -1 ? raw.objetivo : "",
     nivel: PERFIL_NIVEIS.indexOf(raw.nivel) !== -1 ? raw.nivel : "",
     equipamento: PERFIL_EQUIPAMENTOS.indexOf(raw.equipamento) !== -1 ? raw.equipamento : "",
@@ -1807,6 +1852,13 @@ function validateProfileStore(value) {
     value.modalidadePreferida !== "" &&
     PERFIL_MODALIDADES.indexOf(value.modalidadePreferida) === -1) {
     throw new Error("A modalidade preferida do perfil é inválida.");
+  }
+
+  if (value.nomeExibicao !== undefined &&
+    value.nomeExibicao !== null &&
+    (typeof value.nomeExibicao !== "string" || value.nomeExibicao.length > PERFIL_NOME_MAX ||
+      /\u0000/.test(value.nomeExibicao))) {
+    throw new Error("O nome de exibição do perfil é inválido.");
   }
 
   ["updatedAt", "onboardingConcluidoEm"].forEach(field => {
@@ -3389,6 +3441,9 @@ Object.assign(F, {
   saveProfile,
   validateProfileStore,
   profileSummarize,
+  normalizeDisplayName,
+  displayNameOf,
+  PERFIL_NOME_MAX,
   profileIsConfigured,
   profileHasAnyAnswer,
   profileGoalSuggestion,
