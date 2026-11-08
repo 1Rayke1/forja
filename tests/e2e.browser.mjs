@@ -2525,8 +2525,25 @@ await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e ca
     assert.deepEqual(await page.$$eval('.modalidade-opcao', els => els.map(el => el.textContent.trim())),
       ['Todos', 'Musculação', 'Calistenia', 'Sem equip.']);
 
-    /* 390 px: nada estoura na horizontal e o título continua legível. */
-    for (const width of [320, 390]) {
+    /* Nenhum elemento removido continua no DOM da tela Explorar. */
+    const removidos = await page.evaluate(() => [
+      '#bl-hero-stats', '.bl-stat', '#bl-tabs', '.bl-tab', '#bl-view-rankings',
+      '#catalog-toggle', '#bl-recursos', '.bl-help'
+    ].filter(sel => Boolean(document.querySelector(sel))));
+    assert.deepEqual(removidos, [], 'Elementos removidos permaneceram na Biblioteca: ' + removidos.join(', '));
+    const textosProibidos = await page.evaluate(() => [
+      'com demonstração oficial',
+      'Explorar exercícios',
+      'Ver todos os 165 exercícios',
+      'Continue explorando',
+      'Ideias para o treino de hoje',
+      'Mapa dos músculos',
+      'Como a biblioteca funciona'
+    ].filter(t => document.body.innerText.includes(t)));
+    assert.deepEqual(textosProibidos, [], 'Textos removidos permaneceram visíveis: ' + textosProibidos.join(', '));
+
+    /* 320, 360, 390 e 430 px: nada estoura na horizontal e o título continua legível. */
+    for (const width of [320, 360, 390, 430]) {
       await page.setViewport({ width, height: 844 });
       await sleep(120);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

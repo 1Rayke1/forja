@@ -11,10 +11,10 @@
      verde-lima     #B7F34A
      branco         #F3F7F5
 
-   Estrutura: herói com os números do catálogo → abas (Explorar | Rankings) →
-   busca → filtros combináveis → cards → carregamento progressivo. O detalhe do
-   exercício usa o modal compartilhado e é estilizado por `.bl-detail-*` em
-   system.css, porque o mesmo painel abre em outras telas.
+   Estrutura: cabeçalho e título → busca → modalidade e regiões → contador →
+   cards filtrados → carregamento progressivo. O detalhe do exercício usa o
+   modal compartilhado e é estilizado por `.bl-detail-*` em system.css, porque
+   o mesmo painel abre em outras telas.
    ========================================================================== */
 
 body[data-page="biblioteca"] {
@@ -47,7 +47,7 @@ body[data-page="biblioteca"] .tagline { color: var(--bl-lima); }
 
 body[data-page="biblioteca"] .bl-main.container {
   width: min(100% - 28px, 1160px);
-  padding-bottom: 34px;
+  padding-bottom: 24px;
 }
 
 body[data-page="biblioteca"] .site-footer {
@@ -60,26 +60,7 @@ body[data-page="biblioteca"] .site-footer a { color: var(--bl-lima); }
 /* Herói -------------------------------------------------------------- */
 
 body[data-page="biblioteca"] .bl-hero {
-  position: relative;
-  margin: 18px 0 14px;
-  padding: 22px 20px 20px;
-  border: 1px solid var(--bl-linha);
-  border-radius: 22px;
-  background:
-    radial-gradient(120% 140% at 12% -20%, rgba(183, 243, 74, 0.16) 0%, transparent 58%),
-    linear-gradient(160deg, #0E1719 0%, #0A1012 62%, #080C0D 100%);
-  overflow: hidden;
-}
-
-body[data-page="biblioteca"] .bl-hero::after {
-  content: "";
-  position: absolute;
-  inset: auto -40px -80px auto;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(183, 243, 74, 0.16), transparent 68%);
-  pointer-events: none;
+  margin: 6px 0 16px;
 }
 
 body[data-page="biblioteca"] .bl-hero .eyebrow {
@@ -107,77 +88,6 @@ body[data-page="biblioteca"] .bl-subtitle {
   color: var(--bl-suave);
   font-size: 14.5px;
   line-height: 1.55;
-}
-
-body[data-page="biblioteca"] .bl-hero-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(122px, 1fr));
-  gap: 10px;
-  margin-top: 18px;
-}
-
-body[data-page="biblioteca"] .bl-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 11px 13px;
-  border: 1px solid var(--bl-linha);
-  border-radius: 13px;
-  background: rgba(8, 12, 13, 0.55);
-}
-
-body[data-page="biblioteca"] .bl-stat-value {
-  color: var(--bl-branco);
-  font-size: 22px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-
-body[data-page="biblioteca"] .bl-stat-label {
-  color: var(--bl-suave);
-  font-size: 11.5px;
-  line-height: 1.3;
-}
-
-/* Abas --------------------------------------------------------------- */
-
-body[data-page="biblioteca"] .bl-tabs-host { margin: 4px 0 14px; }
-
-body[data-page="biblioteca"] .bl-tabs {
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid var(--bl-linha);
-  border-radius: 999px;
-  background: var(--bl-carvao-alto);
-}
-
-body[data-page="biblioteca"] .bl-tab {
-  min-height: 42px;
-  padding: 0 18px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--bl-suave);
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
-}
-
-body[data-page="biblioteca"] .bl-tab:hover { color: var(--bl-branco); }
-
-body[data-page="biblioteca"] .bl-tab.is-active,
-body[data-page="biblioteca"] .bl-tab[aria-pressed="true"] {
-  background: var(--bl-lima);
-  border-color: var(--bl-lima);
-  color: #0A1305;
-}
-
-body[data-page="biblioteca"] .bl-tab:focus-visible {
-  outline: 2px solid var(--bl-lima);
-  outline-offset: 2px;
 }
 
 /* Busca -------------------------------------------------------------- */
@@ -717,230 +627,6 @@ body[data-page="biblioteca"] .catalog-more .ui-button:hover {
   color: var(--bl-lima);
 }
 
-/* Recursos ------------------------------------------------------------ */
-
-body[data-page="biblioteca"] .bl-resources { margin: 26px 0 0; }
-body[data-page="biblioteca"] .bl-resource-grid { display: grid; gap: 10px; margin-top: 10px; }
-
-body[data-page="biblioteca"] .bl-resource-card {
-  display: grid;
-  gap: 3px;
-  padding: 14px 15px;
-  border: 1px solid var(--bl-linha);
-  border-radius: var(--bl-raio);
-  background: linear-gradient(180deg, #0C1416 0%, #0A1012 100%);
-  color: var(--bl-branco);
-  text-decoration: none;
-  transition: border-color 140ms ease, background 140ms ease;
-}
-
-body[data-page="biblioteca"] .bl-resource-card:hover,
-body[data-page="biblioteca"] .bl-resource-card:focus-visible {
-  border-color: var(--bl-lima-linha);
-  background: rgba(183, 243, 74, 0.06);
-}
-
-body[data-page="biblioteca"] .bl-resource-eyebrow {
-  color: var(--bl-lima);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-body[data-page="biblioteca"] .bl-resource-title { font-size: 15px; font-weight: 800; }
-body[data-page="biblioteca"] .bl-resource-text { color: var(--bl-suave); font-size: 12.5px; line-height: 1.45; }
-
-/* Rankings ------------------------------------------------------------ */
-
-body[data-page="biblioteca"] .bl-section-title {
-  margin: 0 0 6px;
-  color: var(--bl-branco);
-  font-size: clamp(19px, 3.4vw, 24px);
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-body[data-page="biblioteca"] .bl-rankings-head { margin: 4px 0 14px; }
-
-body[data-page="biblioteca"] .bl-rankings-head .screen-subtitle {
-  margin: 0;
-  color: var(--bl-suave);
-  font-size: 13.5px;
-  line-height: 1.55;
-}
-
-body[data-page="biblioteca"] .bl-rankings-filters {
-  display: grid;
-  gap: 12px;
-  margin: 0 0 12px;
-  padding: 14px;
-  border: 1px solid var(--bl-linha);
-  border-radius: var(--bl-raio);
-  background: var(--bl-carvao-alto);
-}
-
-body[data-page="biblioteca"] .bl-rankings {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: 1fr;
-}
-
-body[data-page="biblioteca"] .bl-ranking-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px;
-  border: 1px solid var(--bl-linha);
-  border-radius: var(--bl-raio);
-  background: linear-gradient(180deg, #0E1618 0%, #0A1012 100%);
-}
-
-body[data-page="biblioteca"] .bl-ranking-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--bl-linha);
-}
-
-body[data-page="biblioteca"] .bl-ranking-title {
-  margin: 0;
-  color: var(--bl-branco);
-  font-size: 16px;
-  font-weight: 800;
-}
-
-body[data-page="biblioteca"] .bl-ranking-modality {
-  padding: 2px 9px;
-  border: 1px solid var(--bl-lima-linha);
-  border-radius: 999px;
-  color: var(--bl-lima);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-body[data-page="biblioteca"] .bl-ranking-count {
-  margin-left: auto;
-  color: var(--bl-suave);
-  font-size: 11.5px;
-}
-
-body[data-page="biblioteca"] .bl-ranking-list {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-body[data-page="biblioteca"] .bl-ranking-item {
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  padding: 7px 8px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-}
-
-body[data-page="biblioteca"] .bl-ranking-item.is-first {
-  border-color: var(--bl-lima-linha);
-  background: rgba(183, 243, 74, 0.09);
-}
-
-body[data-page="biblioteca"] .bl-ranking-item.is-second,
-body[data-page="biblioteca"] .bl-ranking-item.is-third {
-  border-color: var(--bl-linha);
-  background: rgba(243, 247, 245, 0.03);
-}
-
-body[data-page="biblioteca"] .bl-ranking-position {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 26px;
-  border-radius: 8px;
-  border: 1px solid var(--bl-linha-forte);
-  color: var(--bl-suave);
-  font-size: 11.5px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-body[data-page="biblioteca"] .bl-ranking-item.is-first .bl-ranking-position {
-  background: var(--bl-lima);
-  border-color: var(--bl-lima);
-  color: #0A1305;
-}
-
-body[data-page="biblioteca"] .bl-ranking-item.is-second .bl-ranking-position,
-body[data-page="biblioteca"] .bl-ranking-item.is-third .bl-ranking-position {
-  border-color: rgba(243, 247, 245, 0.4);
-  color: var(--bl-branco);
-}
-
-body[data-page="biblioteca"] .bl-ranking-open {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--bl-branco);
-  font-size: 13.5px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  overflow-wrap: anywhere;
-}
-
-body[data-page="biblioteca"] .bl-ranking-open:hover { color: var(--bl-lima); }
-
-body[data-page="biblioteca"] .bl-ranking-open:focus-visible {
-  outline: 2px solid var(--bl-lima);
-  outline-offset: 2px;
-  border-radius: 6px;
-}
-
-body[data-page="biblioteca"] .bl-ranking-actions { display: flex; justify-content: flex-end; }
-
-body[data-page="biblioteca"] .bl-ranking-actions .ui-button {
-  min-height: 40px;
-  padding: 8px 12px;
-  border: 1px solid var(--bl-linha-forte);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--bl-branco);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-body[data-page="biblioteca"] .bl-ranking-actions .ui-button:hover {
-  border-color: var(--bl-lima-linha);
-  color: var(--bl-lima);
-}
-
-/* Ajuda --------------------------------------------------------------- */
-
-body[data-page="biblioteca"] .bl-help {
-  margin: 26px 0 0;
-  padding: 16px;
-  border: 1px solid var(--bl-linha);
-  border-radius: var(--bl-raio);
-  background: var(--bl-carvao-alto);
-}
-
-body[data-page="biblioteca"] .bl-help .screen-subtitle {
-  margin: 0 0 8px;
-  color: var(--bl-suave);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-body[data-page="biblioteca"] .bl-help .screen-subtitle:last-child { margin-bottom: 0; }
-
 /* Estado vazio -------------------------------------------------------- */
 
 body[data-page="biblioteca"] .ui-empty {
@@ -966,13 +652,11 @@ body[data-page="biblioteca"] .bottom-nav-link[aria-current="page"] { color: var(
 
 @media (min-width: 560px) {
   body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  body[data-page="biblioteca"] .bl-rankings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 900px) {
   body[data-page="biblioteca"] .catalog-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   body[data-page="biblioteca"] .bl-card { grid-template-columns: 124px minmax(0, 1fr); }
-  body[data-page="biblioteca"] .bl-resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 1180px) {
@@ -980,18 +664,10 @@ body[data-page="biblioteca"] .bottom-nav-link[aria-current="page"] { color: var(
 }
 
 @media (max-width: 560px) {
-  body[data-page="biblioteca"] .bl-hero { padding: 16px 15px; border-radius: 18px; }
-  body[data-page="biblioteca"] .bl-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
-  body[data-page="biblioteca"] .bl-stat { padding: 8px 10px; gap: 0; }
-  body[data-page="biblioteca"] .bl-stat-value { font-size: 21px; }
-  body[data-page="biblioteca"] .bl-stat-label { font-size: 10.5px; line-height: 1.25; }
-  body[data-page="biblioteca"] .bl-tabs { display: flex; width: 100%; }
-  body[data-page="biblioteca"] .bl-tab { flex: 1 1 auto; padding: 0 12px; }
   body[data-page="biblioteca"] .bl-filters { padding: 12px; }
   /*
     No bolso os chips continuam quebrando linha em vez de virar faixa
-    deslizante: os 13 grupos musculares ficam todos à vista, sem esconder
-    opção nenhuma atrás de rolagem horizontal.
+    deslizante: nenhuma opção fica escondida atrás de rolagem horizontal.
   */
   body[data-page="biblioteca"] .bl-chips { gap: 6px; }
   body[data-page="biblioteca"] .bl-chips .ui-chip-toggle {
@@ -1007,14 +683,12 @@ body[data-page="biblioteca"] .bottom-nav-link[aria-current="page"] { color: var(
 }
 
 @media (max-width: 380px) {
-  body[data-page="biblioteca"] .bl-stat-value { font-size: 19px; }
   body[data-page="biblioteca"] .bl-chips .ui-chip-toggle { font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   body[data-page="biblioteca"] .bl-card,
   body[data-page="biblioteca"] .bl-card-image,
-  body[data-page="biblioteca"] .bl-tab,
   body[data-page="biblioteca"] .bl-chips .ui-chip-toggle {
     transition: none;
   }
