@@ -9,16 +9,20 @@
   classificação por suposição.
 
   Contrato da tela (é a tela da aba "Explorar" — F.ROUTES.explorar):
+  - apresenta diretamente a Biblioteca de exercícios com busca, quatro pílulas
+    de modalidade (Todos, Musculação, Calistenia, Sem equip.), sete cards de
+    regiões musculares (porta para `treino/grupo.html`) e contador dinâmico;
   - busca por nome e por nome alternativo (sem acento, sem caixa), combinável
     com os filtros;
-  - três filtros independentes: grupo muscular (os 13 oficiais), modalidade
-    (Musculação, Calistenia, Sem equipamentos) e classificação no ranking;
   - filtros ativos visíveis, removíveis um a um, e "limpar tudo";
-  - cards horizontais com a foto aprovada do próprio exercício (ou o espaço
-    reservado), nome, grupo, modalidade, posição no ranking e selo de vídeo;
-  - rankings de aproveitamento por grupo + modalidade, sem misturar categorias;
+  - cards horizontais nos resultados com a foto aprovada do próprio exercício
+    (ou o espaço reservado), nome, grupo, modalidade, posição no ranking e selo
+    de vídeo;
+  - rankings de aproveitamento por grupo + modalidade preservados no catálogo e
+    em `F.biblioteca.rankings` / `F.biblioteca.rankingPositions`, sem misturar
+    categorias;
   - detalhe completo no painel único (`F.catalog.showDetail`);
-  - carregamento progressivo de 12 em 12, como antes.
+  - carregamento progressivo de 12 em 12 nos resultados filtrados.
 
   Regras da Etapa 3 que continuam valendo no detalhe: a associação
   administrativa aprovada tem prioridade sobre o vídeo oficial, existe um único
@@ -458,10 +462,6 @@
     return CATALOG.exercises.length;
   }
 
-  function officialVideoCount() {
-    return entries().filter(entry => entry.origin === "catalogo" && entry.hasOfficialVideo).length;
-  }
-
   /* ------------------------------------------------------------------ */
   /* As sete regiões da tela                                              */
   /* ------------------------------------------------------------------ */
@@ -721,7 +721,6 @@
   /* ------------------------------------------------------------------ */
 
   const state = {
-    view: "biblioteca",
     query: "",
     muscle: null,
     modality: null,
@@ -731,12 +730,7 @@
     /* "Envolve o grupo": qualquer papel muscular — vem da legenda do atlas. */
     involve: null,
     /* Região de onde o usuário veio (destaque do card), não é filtro. */
-    categoria: null,
-    /*
-      A Biblioteca é uma tela de navegação: a lista do catálogo fica recolhida
-      e só abre na busca, num link com filtro ou no botão "Ver todos".
-    */
-    showResults: false
+    categoria: null
   };
 
   let visible = PAGE_SIZE;
@@ -746,18 +740,23 @@
     return JSON.stringify({
       query: state.query,
       categoria: state.categoria,
-      showResults: state.showResults,
       muscle: state.muscle,
       modality: state.modality,
       ranking: state.ranking,
       equipment: state.equipment,
       origin: state.origin,
-      involve: state.involve,
-      view: state.view
+      involve: state.involve
     });
   }
 
   let lastSignature = signature();
+
+  function shouldShowResults() {
+    return Boolean(
+      CATALOG.normalizeText(state.query) ||
+      state.muscle || state.involve || state.equipment || state.origin
+    );
+  }
 
   function hasActiveFilters() {
     return Boolean(
@@ -1329,200 +1328,6 @@
     }
   }
 
-  function openCentral(id) {
-    const entry = entries().find(item => item.id === id && item.origin === "catalogo");
-    if (entry) openDetail(entry);
-  }
-
-  function rankingCard(group) {
-    const article = el("article", "bl-ranking-card");
-    article.setAttribute("data-combo", group.muscleId + "|" + group.modalityId);
-
-    const head = el("header", "bl-ranking-head");
-    head.appendChild(el("h3", "bl-ranking-title", group.muscleName));
-    head.appendChild(el("span", "bl-ranking-modality", group.modalityName));
-    head.appendChild(el("span", "bl-ranking-count",
-      group.entries.length + (group.entries.length === 1 ? " exercício" : " exercícios")));
-    article.appendChild(head);
-
-    const list = doc.createElement("ol");
-    list.className = "bl-ranking-list";
-
-    group.entries.forEach(record => {
-      const item = doc.createElement("li");
-      item.className = "bl-ranking-item " + rankTone(record.position);
-      item.setAttribute("data-position", String(record.position));
-
-      item.appendChild(el("span", "bl-ranking-position", positionLabel(record.position)));
-
-      const button = el("button", "bl-ranking-open", record.name);
-      button.type = "button";
-      button.setAttribute("aria-label", "Ver detalhes de " + record.name + " (" +
-        record.position + "º lugar em " + group.muscleName + " · " + group.modalityName + ")");
-      button.addEventListener("click", () => openCentral(record.id));
-      item.appendChild(button);
-
-      list.appendChild(item);
-    });
-
-    article.appendChild(list);
-
-    const actions = el("div", "bl-ranking-actions");
-    actions.appendChild(F.ui.button({
-      label: "Ver na biblioteca",
-      icon: "search",
-      variant: "secondary-button",
-      className: "small-button",
-      ariaLabel: "Ver exercícios de " + group.muscleName + " em " + group.modalityName + " na biblioteca",
-      onClick() {
-        switchView("biblioteca");
-        apply({ muscle: group.muscleId, modality: group.modalityId, ranking: null, query: "" });
-      }
-    }));
-    article.appendChild(actions);
-
-    return article;
-  }
-
-  function resetRankingFilters() {
-    dom.rankingMuscle = null;
-    dom.rankingModality = null;
-    renderRankingFilters();
-    renderRankings();
-  }
-
-  function renderRankings() {
-    const container = dom.rankingsList;
-    if (!container) return;
-    while (container.firstChild) container.removeChild(container.firstChild);
-
-    const groups = rankings({ muscle: dom.rankingMuscle, modality: dom.rankingModality });
-
-    if (dom.rankingsStatus) {
-      dom.rankingsStatus.textContent = groups.length === 0
-        ? "Nenhum ranking nesta combinação de filtros"
-        : groups.length + (groups.length === 1 ? " combinação de ranking" : " combinações de ranking") +
-          " · " + groups.reduce((total, group) => total + group.entries.length, 0) + " exercícios classificados";
-    }
-
-    if (groups.length === 0) {
-      container.appendChild(F.ui.empty({
-        icon: "target",
-        title: "Nenhum ranking nesta combinação",
-        text: "O catálogo só exibe posições realmente existentes. Troque o grupo muscular ou a modalidade.",
-        actions: [{ label: "Limpar filtros do ranking", variant: "primary-button", icon: "close", onClick: resetRankingFilters }]
-      }));
-      return;
-    }
-
-    groups.forEach(group => container.appendChild(rankingCard(group)));
-  }
-
-  function renderRankingFilters() {
-    if (!dom.rankingsFilters) return;
-    const container = dom.rankingsFilters;
-    while (container.firstChild) container.removeChild(container.firstChild);
-
-    container.appendChild(filterGroup("ranking-muscle", "Grupo muscular",
-      [{ value: null, label: "Todos", active: !dom.rankingMuscle }].concat(
-        CATALOG.muscleGroups.map(group => ({
-          value: group.id,
-          label: group.name,
-          active: dom.rankingMuscle === group.id
-        }))),
-      value => {
-        dom.rankingMuscle = value;
-        renderRankingFilters();
-        renderRankings();
-      }));
-
-    container.appendChild(filterGroup("ranking-modality", "Modalidade",
-      [{ value: null, label: "Todas", active: !dom.rankingModality }].concat(
-        CATALOG.modalities.map(mode => ({
-          value: mode.id,
-          label: mode.name,
-          active: dom.rankingModality === mode.id
-        }))),
-      value => {
-        dom.rankingModality = value;
-        renderRankingFilters();
-        renderRankings();
-      }));
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* Cabeçalho e navegação entre as visões                                */
-  /* ------------------------------------------------------------------ */
-
-  function renderHero() {
-    if (!dom || !dom.hero) return;
-    const container = dom.hero;
-    while (container.firstChild) container.removeChild(container.firstChild);
-
-    const userCount = entries().filter(entry => entry.origin === "pessoal").length;
-    const videos = officialVideoCount();
-    /*
-      O total do catálogo saiu daqui: quem mostra o número agora é o painel do
-      contador, logo abaixo dos cards, já refletindo busca, modalidade e região.
-    */
-    const stats = [
-      { value: CATALOG.muscleGroups.length, label: "grupos musculares" },
-      { value: CATALOG.modalities.length, label: CATALOG.modalities.length === 1 ? "modalidade" : "modalidades" },
-      { value: videos, label: videos === 1 ? "com demonstração oficial" : "com demonstração oficial" }
-    ];
-
-    if (userCount > 0) {
-      stats.push({ value: userCount, label: userCount === 1 ? "seu exercício" : "seus exercícios" });
-    }
-
-    stats.forEach(stat => {
-      const box = el("div", "bl-stat");
-      box.appendChild(el("span", "bl-stat-value", String(stat.value)));
-      box.appendChild(el("span", "bl-stat-label", stat.label));
-      container.appendChild(box);
-    });
-  }
-
-  function switchView(view) {
-    state.view = view === "rankings" ? "rankings" : "biblioteca";
-    if (dom && dom.views) {
-      dom.views.biblioteca.hidden = state.view !== "biblioteca";
-      dom.views.rankings.hidden = state.view !== "rankings";
-    }
-    if (dom && dom.tabs) {
-      Array.prototype.forEach.call(dom.tabs.querySelectorAll("[data-view]"), button => {
-        const active = button.getAttribute("data-view") === state.view;
-        button.setAttribute("aria-pressed", String(active));
-        button.classList.toggle("is-active", active);
-      });
-    }
-    if (state.view === "rankings") {
-      renderRankingFilters();
-      renderRankings();
-    }
-  }
-
-  function buildTabs() {
-    const group = el("div", "bl-tabs");
-    group.setAttribute("role", "group");
-    group.setAttribute("aria-label", "Visões da biblioteca");
-
-    [
-      { view: "biblioteca", label: "Explorar exercícios" },
-      { view: "rankings", label: "Rankings" }
-    ].forEach(item => {
-      const button = el("button", "bl-tab", item.label);
-      button.type = "button";
-      button.setAttribute("data-view", item.view);
-      button.setAttribute("aria-pressed", String(state.view === item.view));
-      if (state.view === item.view) button.classList.add("is-active");
-      button.addEventListener("click", () => switchView(item.view));
-      group.appendChild(button);
-    });
-
-    return group;
-  }
-
   /* ------------------------------------------------------------------ */
   /* Render principal                                                     */
   /* ------------------------------------------------------------------ */
@@ -1558,34 +1363,13 @@
     const found = filter(state);
     const counts = facets(state);
 
-    /*
-      A lista do catálogo só aparece quando o usuário pediu: buscando pelo nome,
-      abrindo um link com filtro ou tocando em "Ver todos os exercícios".
-      Escolher modalidade ou região não despeja lista abaixo da tela.
-    */
-    if (CATALOG.normalizeText(state.query) || state.muscle || state.equipment || state.origin) {
-      state.showResults = true;
-    }
-
     while (dom.controls.firstChild) dom.controls.removeChild(dom.controls.firstChild);
 
     dom.controls.appendChild(modalidadePills());
     dom.controls.appendChild(grupoCards());
     dom.controls.appendChild(counterNode(found.length));
 
-    if (dom.toggle) {
-      dom.toggle.hidden = false;
-      dom.toggle.setAttribute("aria-expanded", String(Boolean(state.showResults)));
-      dom.toggle.setAttribute("aria-controls", "catalog-results");
-      dom.toggle.replaceChildren(
-        F.ui.icon(state.showResults ? "chevron-left" : "chevron-right"),
-        el("span", null, state.showResults
-          ? "Ocultar a lista do catálogo"
-          : "Ver todos os " + totalExercises() + " exercícios")
-      );
-    }
-
-    if (dom.results) dom.results.hidden = !state.showResults;
+    if (dom.results) dom.results.hidden = !shouldShowResults();
 
     if (dom.searchClear) dom.searchClear.hidden = !state.query;
 
@@ -1662,20 +1446,7 @@
 
     while (root.firstChild) root.removeChild(root.firstChild);
 
-    dom = {
-      root,
-      hero: doc.getElementById("bl-hero-stats"),
-      tabs: doc.getElementById("bl-tabs"),
-      views: {
-        biblioteca: doc.getElementById("bl-view-biblioteca"),
-        rankings: doc.getElementById("bl-view-rankings")
-      },
-      rankingsFilters: doc.getElementById("rankings-filters"),
-      rankingsList: doc.getElementById("rankings-list"),
-      rankingsStatus: doc.getElementById("rankings-status"),
-      rankingMuscle: null,
-      rankingModality: null
-    };
+    dom = { root };
 
     /* Busca primeiro: é o caminho mais rápido para achar um exercício. */
     root.appendChild(buildSearch());
@@ -1687,15 +1458,6 @@
     dom.controls = el("div", "catalog-controls bl-filters");
     dom.controls.id = "catalog-controls";
     root.appendChild(dom.controls);
-
-    /* O catálogo completo fica atrás deste botão: a tela é de navegação. */
-    const toggle = el("button", "bl-catalog-toggle");
-    toggle.type = "button";
-    toggle.id = "catalog-toggle";
-    toggle.hidden = true;
-    toggle.addEventListener("click", () => apply({ showResults: !state.showResults }));
-    dom.toggle = toggle;
-    root.appendChild(toggle);
 
     const results = el("div", "catalog-results bl-results");
     results.id = "catalog-results";
@@ -1720,12 +1482,6 @@
       root.appendChild(el("p", "ui-inline-note catalog-session-note",
         "Há uma sessão de treino em andamento. Adicionar um exercício aqui não muda a sessão já iniciada — ele vale para os próximos treinos."));
     }
-
-    if (dom.tabs) {
-      dom.tabs.replaceChildren(buildTabs());
-    }
-
-    renderHero();
   }
 
   /*
@@ -1780,10 +1536,6 @@
     if (origin === "sugerido" || origin === "catalogo") state.origin = "sugerido";
     if (origin === "personalizado" || origin === "pessoal") state.origin = "personalizado";
 
-    if (params.get("visao") === "rankings" || global.location.hash === "#rankings") {
-      state.view = "rankings";
-    }
-
     return params;
   }
 
@@ -1803,9 +1555,7 @@
 
   function refresh() {
     invalidate();
-    renderHero();
     render();
-    if (state.view === "rankings") renderRankings();
   }
 
   function init() {
@@ -1813,7 +1563,6 @@
     mount();
     if (!dom) return;
 
-    switchView(state.view);
     render();
 
     F.catalog.setPageRefresh(refresh);
@@ -1855,7 +1604,6 @@
     rankings,
     rankingPositions,
     totalExercises,
-    officialVideoCount,
     groupIdFrom,
     modalityIdFrom,
     init,

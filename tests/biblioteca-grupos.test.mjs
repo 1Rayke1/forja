@@ -430,9 +430,7 @@ await runTest("9. Biblioteca: busca e modalidade combinam; vazio avisa", async (
   await wait(40);
   const combinado = counterNumber(app);
   assert.ok(combinado > 0 && combinado < totalGeral, "A modalidade deveria reduzir o catálogo");
-
-  if (app.$("#catalog-results").hidden) app.click("#catalog-toggle");
-  await wait(20);
+  assert.equal(app.$("#catalog-results").hidden, true, "Modalidade sozinha não despeja lista na tela");
   rows(app).forEach(row => assert.equal(row.getAttribute("data-modality"), "academia"));
 
   /* A modalidade escolhida vai junto para a tela do grupo. */
@@ -491,42 +489,40 @@ await runTest("10. Biblioteca: “Limpar tudo” devolve o catálogo inteiro", a
   assertNoErrors(app, "limpar filtros");
 });
 
-await runTest("11. Biblioteca: os rankings continuam valendo para os 165", async () => {
+await runTest("11. Biblioteca: os 38 rankings continuam preservados no catálogo e nas fichas", async () => {
   const app = await boot({}, PAGE);
   await wait(200);
 
   const comPosicao = entries(app).filter(entry => Number(entry.position) > 0);
-  assert.ok(comPosicao.length > 0, "O catálogo deveria ter exercícios com ranking");
+  assert.equal(comPosicao.length, 165, "Todos os 165 exercícios oficiais devem manter posição no ranking");
 
-  app.click('.bl-tab[data-view="rankings"]');
-  await wait(60);
+  const gruposRanking = app.F.biblioteca.rankings();
+  assert.equal(gruposRanking.length, 38, "Os 38 rankings do catálogo devem permanecer preservados");
 
-  const lista = app.$("#rankings-list");
-  assert.ok(lista, "A visão de rankings deveria existir");
-  assert.ok(lista.children.length > 0, "A visão de rankings ficou vazia");
-  assert.match(chave(app.text("#rankings-status")), /combina.*de ranking/,
-    "O status dos rankings deveria resumir as combinações");
+  const totalClassificados = gruposRanking.reduce((soma, grupo) => soma + grupo.entries.length, 0);
+  assert.equal(totalClassificados, 165, "Os 38 rankings devem cobrir os 165 exercícios");
 
-  /* Cada exercício aparece na posição que o catálogo declara. */
-  const itens = Array.from(lista.querySelectorAll(".bl-ranking-item"));
-  assert.ok(itens.length > 0, "Os rankings precisam listar exercícios");
-  itens.forEach(item => {
-    const posicao = Number(item.getAttribute("data-position"));
-    assert.ok(posicao > 0, "Todo item de ranking precisa de posição real");
-    assert.equal(item.querySelector(".bl-ranking-position").textContent.trim(),
-      posicao + "º", "A posição exibida precisa ser a do catálogo");
-    assert.ok(item.querySelector(".bl-ranking-open").textContent.trim().length > 0,
-      "O item de ranking precisa do nome do exercício");
+  gruposRanking.forEach(grupo => {
+    assert.ok(grupo.entries.length > 0, "Todo ranking precisa listar exercícios");
+    grupo.entries.forEach((item, idx) => {
+      assert.equal(item.position, idx + 1, "Posição sequencial preservada em " + grupo.muscleId + " · " + grupo.modalityId);
+      assert.ok(item.name.trim().length > 0, "O item de ranking precisa do nome do exercício");
+    });
   });
-  assert.ok(itens.length <= comPosicao.length,
-    "Os rankings não podem ter mais exercícios do que o catálogo classificado");
 
-  /* A visão de explorar continua a um toque. */
-  app.click('.bl-tab[data-view="biblioteca"]');
+  /* Na ficha do exercício a classificação no ranking continua exibida. */
+  app.F.catalog.showDetail(app.F.catalog.items("calisthenics").find(item => item.id === "cal-flexao"));
   await wait(40);
-  assert.equal(cards(app).length, 7, "Voltar de rankings deveria manter os sete cards");
+  assert.ok(app.$('.modal-details [data-detail-section="ranking"]'), "A ficha deve preservar a seção de ranking");
+  app.modalAction("cancel");
+  await wait(20);
 
-  assertNoErrors(app, "rankings");
+  /* Nenhum botão ou aba de Rankings fica exposto na tela Explorar. */
+  assert.equal(app.$("#bl-tabs"), null, "As abas de apresentação foram removidas da tela Explorar");
+  assert.equal(app.$("#bl-view-rankings"), null, "A seção secundária de rankings foi removida da tela Explorar");
+  assert.equal(cards(app).length, 7, "A tela mantém os sete cards de grupos musculares");
+
+  assertNoErrors(app, "rankings preservados");
 });
 
 /* ------------------------------------------------------------------ */
@@ -584,10 +580,6 @@ await runTest("13. Biblioteca: navegar e filtrar não grava no armazenamento", a
   await wait(30);
   app.click('.modalidade-opcao[data-value="academia"]');
   await wait(30);
-  app.click('.bl-tab[data-view="rankings"]');
-  await wait(40);
-  app.click('.bl-tab[data-view="biblioteca"]');
-  await wait(40);
   app.click("#bl-active-filters [data-clear-filters]");
   await wait(40);
 
@@ -649,6 +641,75 @@ await runTest("15. Biblioteca: barra inferior com cinco itens e “Explorar” a
     "“Explorar” deveria continuar apontando para a Biblioteca");
 
   assertNoErrors(app, "barra inferior");
+});
+
+/* ------------------------------------------------------------------ */
+/* 16. Limpeza definitiva da tela Explorar                             */
+/* ------------------------------------------------------------------ */
+
+await runTest("16. Biblioteca limpa: nenhum indicador, aba, atalho ou texto explicativo removido permanece", async () => {
+  const app = await boot({}, PAGE);
+  await wait(200);
+
+  const seletoresRemovidos = [
+    "#bl-hero-stats",
+    ".bl-stat",
+    "#bl-tabs",
+    ".bl-tabs",
+    ".bl-tab",
+    "#bl-view-rankings",
+    "#rankings-filters",
+    "#rankings-list",
+    "#rankings-status",
+    "#catalog-toggle",
+    ".bl-catalog-toggle",
+    "#bl-recursos",
+    ".bl-resources",
+    ".bl-resource-card",
+    "#bl-link-descobrir",
+    "#bl-link-atlas",
+    ".bl-help",
+    ".catalog-help"
+  ];
+  seletoresRemovidos.forEach(seletor => {
+    assert.equal(app.$(seletor), null, "Elemento removido ainda existe no DOM: " + seletor);
+  });
+
+  const textoPagina = app.d.body.textContent;
+  const textosRemovidos = [
+    "grupos musculares",
+    "com demonstração oficial",
+    "Explorar exercícios",
+    "Ver todos os 165 exercícios",
+    "Continue explorando",
+    "Ideias para o treino de hoje",
+    "Mapa dos músculos",
+    "Como a biblioteca funciona"
+  ];
+  textosRemovidos.forEach(trecho => {
+    assert.equal(textoPagina.includes(trecho), false,
+      "Texto removido ainda aparece na tela Explorar: " + trecho);
+  });
+
+  /* Ordem vertical direta: título → subtítulo → busca → modalidade → 7 cards → contador → barra inferior. */
+  const ordem = [
+    app.$(".site-header"),
+    app.$("#catalog-heading"),
+    app.$(".bl-subtitle"),
+    app.$("#catalog-search"),
+    app.$('[data-filter-group="modality"]'),
+    app.$(".bl-grupos"),
+    app.$("#bl-contador"),
+    app.$(".bottom-nav")
+  ];
+  ordem.forEach((no, idx) => assert.ok(no, "Elemento essencial ausente na posição " + idx));
+  for (let i = 0; i + 1 < ordem.length; i += 1) {
+    const rel = ordem[i].compareDocumentPosition(ordem[i + 1]);
+    assert.ok(Boolean(rel & app.w.Node.DOCUMENT_POSITION_FOLLOWING),
+      "Ordem estrutural incorreta entre itens " + i + " e " + (i + 1));
+  }
+
+  assertNoErrors(app, "limpeza definitiva da Biblioteca");
 });
 
 /* ------------------------------------------------------------------ */

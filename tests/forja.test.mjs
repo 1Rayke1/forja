@@ -849,8 +849,8 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
     "O contador da tela não bate com o catálogo");
 
   /*
-    A página de entrada é um índice: sete regiões clicáveis e nenhuma lista
-    despejada abaixo. Cada card é um link para a tela do grupo.
+    A página de entrada é um índice limpo: sete regiões clicáveis e nenhuma lista
+    despejada abaixo nem botão intermediário. Cada card é um link para a tela do grupo.
   */
   const regioes = app.$$(".grupo-card");
   assert.equal(regioes.length, 7, "Deveriam existir sete regiões");
@@ -859,26 +859,28 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
     assert.match(card.getAttribute("href"), /^grupo\.html\?(modalidade=[a-z-]+&)?regiao=[a-z]+$/);
   });
   assert.equal(resultados().hidden, true, "A lista não deveria abrir sozinha");
-  assert.equal(app.$("#catalog-toggle").hidden, false, "O botão de ver a lista ficou escondido");
-  assert.match(app.text("#catalog-toggle"), new RegExp("Ver todos os " + total()));
+  assert.equal(app.$("#catalog-toggle"), null, "O botão de ver todos os exercícios foi removido");
 
-  /* Abrir a lista mostra o primeiro bloco e permite chegar ao fim. */
-  app.click("#catalog-toggle");
-  await wait(20);
-  assert.equal(resultados().hidden, false, "O botão não abriu a lista");
+  /* Busca abre os resultados em blocos e permite paginar quando houver mais de 12. */
+  const search = app.$("#catalog-search");
+  search.value = "barra";
+  search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  await wait(15);
+  assert.equal(resultados().hidden, false, "A busca deveria exibir os resultados");
+  const barraTotal = app.F.biblioteca.filter({ query: "barra" }).length;
+  assert.ok(barraTotal > 12, "A busca por 'barra' deveria ter mais de um bloco");
   assert.equal(rows().length, 12, "A lista não veio em blocos para caber na tela");
-  assert.match(app.text(".catalog-more"), new RegExp("Mostrar mais 12 de " + (total() - 12)),
+  assert.match(app.text(".catalog-more"), new RegExp("Mostrar mais " + Math.min(12, barraTotal - 12) + " de " + (barraTotal - 12)),
     "Contador de 'mostrar mais' errado");
 
   while (app.$(".catalog-more button")) {
     app.click(".catalog-more button");
     await wait(5);
   }
-  assert.equal(rows().length, total(), "Paginação não mostrou o catálogo completo");
+  assert.equal(rows().length, barraTotal, "Paginação não mostrou todos os resultados filtrados");
   assert.equal(app.$(".catalog-more"), null, "Botão 'Mostrar mais' ficou depois de tudo visível");
 
   /* Busca ignora acentos e considera nome, músculo, categoria e equipamento. */
-  const search = app.$("#catalog-search");
   search.value = "flexao";
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
   await wait(10);
@@ -894,7 +896,8 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
   search.value = "";
   search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
   await wait(10);
-  assert.equal(rows().length, 12, "Limpar a busca não trouxe o catálogo de volta");
+  assert.equal(resultados().hidden, true, "Limpar a busca deve recolher os resultados");
+  assert.equal(rows().length, 12, "Limpar a busca não trouxe o primeiro bloco de volta");
   assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios"));
 
   /* Modalidade é faceta independente: filtra e reinicia o bloco visível. */
@@ -928,15 +931,11 @@ await runTest("27. Biblioteca: busca, filtros e detalhe sem alterar dados", asyn
       "O link da região perdeu a modalidade escolhida");
   });
 
-  /* O ranking continua no catálogo (38 combinações), na aba própria. */
+  /* O sistema de rankings (38 combinações) permanece preservado no catálogo. */
   assert.equal(app.F.biblioteca.rankings().length, 38, "Os 38 rankings do catálogo sumiram");
   app.click('#bl-active-filters [data-clear-filters]');
   await wait(15);
   assert.match(app.text("#bl-contador"), new RegExp("^" + total() + " exercícios"));
-
-  /* Reabrir a lista volta ao primeiro bloco, sem filtro herdado. */
-  if (app.$("#catalog-results").hidden) app.click("#catalog-toggle");
-  await wait(20);
   assert.equal(rows().length, 12, "Limpeza do filtro não voltou ao primeiro bloco");
 
   /* Detalhe traz instruções reais e a frase de histórico (sem inventar dado). */
@@ -1055,11 +1054,10 @@ await runTest("30. Editor: metadados do exercício personalizado chegam à bibli
   await pageIs(app, "biblioteca");
   await wait(20);
 
-  if (app.$("#catalog-results").hidden) app.click("#catalog-toggle");
-  await wait(20);
   const sourceChip = app.$('#catalog-results [data-filter-group="source"]');
   sourceChip.querySelector('[data-value="personalizado"]').click();
   await wait(20);
+  assert.equal(app.$("#catalog-results").hidden, false, "Filtro por personalizados deveria abrir os resultados");
   const rows = app.$$("#catalog-list .ui-exercise-row");
   assert.equal(rows.length, 1, "Exercício personalizado não apareceu no catálogo");
   assert.match(rows[0].textContent, /Prancha Esequena/);
@@ -5166,9 +5164,8 @@ await runTest("77h. D-09: a Biblioteca tem exatamente um h1", async () => {
   assert.equal(headings[0].id, "catalog-heading");
   assert.equal(headings[0].className, "ui-section-title", "O visual do título não deve mudar");
 
-  /* O bloco de ajuda continua no nível seguinte. */
-  const help = app.$$("h2").map(node => node.textContent.trim());
-  assert.ok(help.includes("Como a biblioteca funciona"), "Títulos internos continuam em h2");
+  /* Seções secundárias ("Continue explorando", "Como a biblioteca funciona") foram removidas. */
+  assert.equal(app.$$("h2").length, 0, "A Biblioteca limpa não deve ter seções secundárias h2");
 
   assertNoErrors(app, "D-09 h1 da Biblioteca");
   app.close();

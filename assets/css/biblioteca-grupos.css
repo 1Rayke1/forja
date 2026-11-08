@@ -4,8 +4,8 @@
   Entra depois de `biblioteca.css` e desenha, na tela que a barra inferior chama
   de "Explorar", o mesmo desenho da referência:
 
-    cabeçalho → título → busca → modalidade → cards das 7 regiões →
-    contador de exercícios → resultados/rankings.
+    cabeçalho → título → subtítulo → busca → modalidade → cards das 7 regiões →
+    contador de exercícios → resultados filtrados.
 
   Regras de convivência:
 
@@ -43,16 +43,12 @@ body[data-page="biblioteca"] .tagline svg {
 /* ------------------------------------------------------------------ */
 
 body[data-page="biblioteca"] .bl-hero {
-  margin: 6px 0 16px;
+  margin: 6px 0 18px;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: none;
   overflow: visible;
-}
-
-body[data-page="biblioteca"] .bl-hero::after {
-  content: none;
 }
 
 body[data-page="biblioteca"] .bl-hero .eyebrow {
@@ -95,48 +91,12 @@ body[data-page="biblioteca"] #catalog-heading .bl-titulo-destaque {
 }
 
 body[data-page="biblioteca"] .bl-subtitle {
-  margin: 0 0 18px;
+  margin: 0;
   max-width: 40ch;
   color: #a7b2af;
   font-family: var(--fj-fonte-texto);
   font-size: 14.5px;
   line-height: 1.45;
-}
-
-/* Números do catálogo: continuam na tela, agora como linha discreta. */
-body[data-page="biblioteca"] .bl-hero-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, auto));
-  justify-content: start;
-  gap: 10px 26px;
-  margin: 22px 0 4px;
-  padding: 0;
-  border: 0;
-  background: none;
-}
-
-body[data-page="biblioteca"] .bl-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding: 0;
-  border: 0;
-  background: none;
-}
-
-body[data-page="biblioteca"] .bl-stat-value {
-  color: var(--lime);
-  font-family: var(--fj-fonte-titulo);
-  font-size: 14px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-body[data-page="biblioteca"] .bl-stat-label {
-  color: #7f8b88;
-  font-size: 11.5px;
-  line-height: 1.3;
-  letter-spacing: 0.01em;
 }
 
 /* ------------------------------------------------------------------ */
@@ -480,89 +440,12 @@ body[data-page="biblioteca"] .bl-contador-complemento {
 }
 
 /* ------------------------------------------------------------------ */
-/* Subgrupos (os 13 grupos oficiais dentro da região aberta)           */
+/* Resultados                                                          */
 /* ------------------------------------------------------------------ */
-
-body[data-page="biblioteca"] .bl-subgrupos {
-  margin-top: 3px;
-}
-
-body[data-page="biblioteca"] .bl-subgrupos .ui-chips {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-}
-
-body[data-page="biblioteca"] .bl-subgrupos .ui-chips::-webkit-scrollbar {
-  display: none;
-}
-
-body[data-page="biblioteca"] .bl-subgrupos .ui-chip-toggle {
-  flex: 0 0 auto;
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid #2a3234;
-  border-radius: 999px;
-  background: #151b1c;
-  color: #cfd8d4;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-body[data-page="biblioteca"] .bl-subgrupos .ui-chip-toggle.is-active {
-  border-color: var(--lime);
-  background: rgba(183, 243, 74, 0.14);
-  color: var(--lime);
-}
-
-/* ------------------------------------------------------------------ */
-/* Catálogo completo (recolhido por padrão)                            */
-/* ------------------------------------------------------------------ */
-
-body[data-page="biblioteca"] .bl-catalog-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 48px;
-  margin-top: 10px;
-  padding: 0 16px;
-  border: 1px solid #2a3234;
-  border-radius: 999px;
-  background: #101617;
-  color: #cfd8d4;
-  font-family: var(--fj-fonte-texto);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-body[data-page="biblioteca"] .bl-catalog-toggle:hover {
-  border-color: rgba(183, 243, 74, 0.45);
-  color: var(--lime);
-}
-
-body[data-page="biblioteca"] .bl-catalog-toggle svg {
-  width: 16px;
-  height: 16px;
-  display: block;
-}
-
-body[data-page="biblioteca"] .bl-catalog-toggle[hidden] {
-  display: none;
-}
 
 body[data-page="biblioteca"] .bl-results[hidden] {
   display: none;
 }
-
-/* ------------------------------------------------------------------ */
-/* Resultados                                                          */
-/* ------------------------------------------------------------------ */
 
 body[data-page="biblioteca"] .bl-filters {
   margin: 0;

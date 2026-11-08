@@ -418,10 +418,9 @@ await test("B7. Sem foto aprovada não há foto emprestada; associação pendent
       weights: []
     }
   }, "treino/biblioteca.html");
-  custom.click("#catalog-toggle");
-  await wait(30);
   custom.$('#catalog-results [data-filter-group="source"] [data-value="personalizado"]').click();
   await wait(30);
+  assert.equal(custom.$("#catalog-results").hidden, false, "filtro de personalizados deveria abrir os resultados");
   const customCard = rows(custom).find(node => node.getAttribute("data-origin") === "pessoal");
   assert.ok(customCard, "exercício personalizado não apareceu na lista");
   assert.equal(customCard.querySelector(".bl-card-image"), null, "personalizado ganhou foto do catálogo");
