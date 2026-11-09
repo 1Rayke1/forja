@@ -1,0 +1,16 @@
+{
+  "formato": "forja-videos-exercicios",
+  "versao": 1,
+  "geradoEm": null,
+  "especificacao": {
+    "proporcao": "16:9",
+    "largura": 1280,
+    "altura": 720,
+    "fps": 30,
+    "duracaoMaximaS": 60,
+    "fundo": "#121010",
+    "audio": false,
+    "loop": "infinito"
+  },
+  "exercicios": []
+}

@@ -43,9 +43,6 @@
     <span class="eyebrow">Perfil</span>
     <h1 class="screen-title">Perfil</h1>
     <p class="screen-subtitle">Seu plano de treino, preferências e dados — tudo permanece neste navegador.</p>
-    <p class="profile-onboarding-cta">
-      <a class="secondary-button small-button" id="open-avaliacao-piloto-3d-top" href="../avaliacao-piloto-3d/">Avaliação do Piloto 3D</a>
-    </p>
   </div>
 
   <section class="profile-group preferences-panel" aria-labelledby="perfil-treino-heading">
@@ -71,7 +68,7 @@
         <div class="field-block">
           <label class="field-label" for="prof-sexo">Sexo informado</label>
           <select id="prof-sexo" class="field-input"></select>
-          <p class="field-hint">Serve apenas para escolher o personagem das demonstrações dos exercícios. Enquanto estiver em "Não informado", nenhum personagem é exibido — e nada no seu treino muda.</p>
+          <p class="field-hint">Opcional e sem efeito nos seus treinos, cargas, metas, histórico ou progresso. Enquanto estiver em "Não informado", nada muda no app.</p>
         </div>
         <div class="field-block">
           <label class="field-label" for="prof-modalidade">Modalidade preferida</label>
@@ -93,6 +90,27 @@
       <div class="goals-actions">
         <button type="submit" id="profile-save" class="primary-button">Salvar perfil</button>
         <span class="limit-note" id="profile-status" aria-live="polite"></span>
+      </div>
+    </form>
+  </section>
+
+  <section class="profile-group preferences-panel display-name-panel" id="nome-exibicao" aria-labelledby="nome-exibicao-heading">
+    <h2 class="section-title" id="nome-exibicao-heading">Nome de exibição</h2>
+    <p class="screen-subtitle">Escolha como deseja ser chamado pelo FORJA.</p>
+    <form id="profile-name-form" class="goals-form" novalidate>
+      <div class="goals-fields">
+        <div class="field-block">
+          <label class="field-label" for="prof-nome">Nome de exibição</label>
+          <input id="prof-nome" class="field-input" type="text" maxlength="24"
+            placeholder="Digite seu nome" autocomplete="nickname" spellcheck="false">
+          <p class="field-hint">Aparece só na saudação da Home. Fica neste navegador, junto do seu perfil.</p>
+        </div>
+      </div>
+      <p class="field-error" id="prof-nome-error" role="status" hidden></p>
+      <div class="goals-actions">
+        <button type="submit" id="prof-nome-save" class="primary-button">Salvar nome</button>
+        <button type="button" id="prof-nome-clear" class="secondary-button small-button" hidden>Apagar nome</button>
+        <span class="limit-note" id="prof-nome-status" aria-live="polite"></span>
       </div>
     </form>
   </section>
@@ -124,14 +142,6 @@
     <input type="file" id="import-backup-input" accept=".json,application/json" hidden>
     <div class="backup-meta" id="backup-status">Seus dados permanecem apenas neste navegador. Faça backups regulares.</div>
   </section>
-
-  <section class="profile-group preferences-panel" id="avaliacao-piloto-3d-panel" aria-labelledby="avaliacao-piloto-3d-heading">
-    <h2 class="section-title" id="avaliacao-piloto-3d-heading">Avaliação do Piloto 3D</h2>
-    <p class="profile-data-note">Tela temporária isolada para avaliar no aparelho os vídeos Horizontal (16:9) e Vertical (9:16) do exercício Abdominal tradicional — Modelo masculino.</p>
-    <div class="backup-actions">
-      <a class="secondary-button" id="open-avaliacao-piloto-3d" href="../avaliacao-piloto-3d/">Abrir Avaliação do Piloto 3D</a>
-    </div>
-  </section>
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">
@@ -144,13 +154,13 @@
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
       <span class="bottom-nav-label">Treinos</span>
     </a>
-    <a class="bottom-nav-link" href="../explorar/index.html" data-nav="explorar">
+    <a class="bottom-nav-link" href="../treino/biblioteca.html" data-nav="explorar">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
       <span class="bottom-nav-label">Explorar</span>
     </a>
     <a class="bottom-nav-link" href="../progresso/index.html" data-nav="progresso">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
-      <span class="bottom-nav-label">Progresso</span>
+      <span class="bottom-nav-label">Evolução</span>
     </a>
     <a class="bottom-nav-link is-active" href="index.html" data-nav="perfil" aria-current="page">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
@@ -174,6 +184,8 @@
 <script src="../assets/js/forja-store.js" defer></script>
 <script src="../assets/js/forja-dados.js" defer></script>
 <script src="../assets/js/forja-metricas.js" defer></script>
+<script src="../assets/js/forja-exercicios-dados.js" defer></script>
+<script src="../assets/js/forja-catalogo-central.js" defer></script>
 <script src="../assets/js/forja-biblioteca.js" defer></script>
 <script src="../assets/js/forja-sessao.js" defer></script>
 <script src="../assets/js/forja-treino.js" defer></script>
@@ -182,8 +194,11 @@
 <script src="../assets/js/forja-ui.js" defer></script>
 <script src="../assets/js/forja-graficos.js" defer></script>
 <script src="../assets/js/forja-catalogo.js" defer></script>
+<script src="../assets/js/forja-youtube.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
+<script src="../assets/js/forja-videos-dados.js" defer></script>
+<script src="../assets/js/forja-videos.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

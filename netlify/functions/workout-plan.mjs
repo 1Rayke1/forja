@@ -1,16 +1,52 @@
 /*
  * Netlify Function: endpoint privado para geração de planos via OpenAI.
  * Configure OPENAI_API_KEY e (opcional) OPENAI_MODEL na plataforma de deploy.
- * Nenhum segredo é enviado ao cliente. A hospedagem estática GitHub Pages não
- * executa esta função; publique a Function em Netlify ou adapte o handler.
+ * FORJA_ALLOWED_ORIGINS controla as origens liberadas por CORS
+ * (padrão: Netlify de produção + GitHub Pages do FORJA).
+ * Nenhum segredo é enviado ao cliente.
  */
 const MAX_BODY_BYTES = 32000;
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 12;
 const requests = new Map();
-const headers = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
 
-const response = (statusCode, payload) => new Response(JSON.stringify(payload), { status: statusCode, headers });
+const PROD_ALLOWED_ORIGINS = [
+  "https://prismatic-parfait-be3644.netlify.app",
+  "https://1rayke1.github.io"
+];
+
+const BASE_HEADERS = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
+
+function getAllowedOrigins() {
+  const raw = process.env.FORJA_ALLOWED_ORIGINS;
+  if (!raw) return PROD_ALLOWED_ORIGINS;
+  const list = raw.split(",").map(s => s.trim()).filter(Boolean);
+  return list.length ? list : PROD_ALLOWED_ORIGINS;
+}
+
+function readOrigin(request) {
+  try { return request.headers?.get?.("origin") || ""; } catch (_) { return ""; }
+}
+
+function corsHeaders(request) {
+  const origin = readOrigin(request);
+  const out = { vary: "Origin" };
+  if (origin && getAllowedOrigins().indexOf(origin) !== -1) {
+    out["access-control-allow-origin"] = origin;
+    out["access-control-allow-methods"] = "POST, OPTIONS";
+    out["access-control-allow-headers"] = "Content-Type";
+    out["access-control-max-age"] = "600";
+  }
+  return out;
+}
+
+const response = (statusCode, payload, request) => new Response(
+  statusCode === 204 ? null : JSON.stringify(payload),
+  {
+    status: statusCode,
+    headers: Object.assign({}, BASE_HEADERS, request ? corsHeaders(request) : null)
+  }
+);
 const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
 
 export function validateInput(body) {
@@ -90,17 +126,21 @@ function limited(key) {
 }
 
 export default async function handler(request, context = {}) {
-  if (request.method !== "POST") return response(405, { error: "Método não permitido." });
+  // Preflight CORS — responde antes de ler corpo/chave.
+  if (request.method === "OPTIONS") {
+    return response(204, null, request);
+  }
+  if (request.method !== "POST") return response(405, { error: "Método não permitido." }, request);
   const identity = context.ip || request.headers?.get?.("x-nf-client-connection-ip") || request.headers?.get?.("x-forwarded-for")?.split(",")[0] || "anonymous";
-  if (limited(identity)) return response(429, { error: "Limite de requisições atingido. Tente novamente em alguns minutos." });
-  if (!process.env.OPENAI_API_KEY) return response(503, { error: "OPENAI_API_KEY não configurada no backend." });
+  if (limited(identity)) return response(429, { error: "Limite de requisições atingido. Tente novamente em alguns minutos." }, request);
+  if (!process.env.OPENAI_API_KEY) return response(503, { error: "OPENAI_API_KEY não configurada no backend." }, request);
   let raw;
   try { raw = await request.text(); }
-  catch (_) { return response(400, { error: "Corpo da requisição inválido." }); }
-  if (Buffer.byteLength(raw) > MAX_BODY_BYTES) return response(413, { error: "Requisição muito grande." });
+  catch (_) { return response(400, { error: "Corpo da requisição inválido." }, request); }
+  if (Buffer.byteLength(raw) > MAX_BODY_BYTES) return response(413, { error: "Requisição muito grande." }, request);
   let input;
   try { input = validateInput(JSON.parse(raw)); }
-  catch (error) { return response(400, { error: error.message }); }
+  catch (error) { return response(400, { error: error.message }, request); }
 
   const schema = {
     type: "object", additionalProperties: false, required: ["summary", "sessions"], properties: {
@@ -127,17 +167,17 @@ export default async function handler(request, context = {}) {
         text: { format: { type: "json_schema", name: "forja_workout_plan", strict: true, schema } }
       })
     });
-    if (upstream.status === 429) return response(429, { error: "O provedor de IA limitou as requisições. O gerador local pode ser usado." });
-    if (!upstream.ok) return response(502, { error: "O provedor de IA não está disponível no momento." });
+    if (upstream.status === 429) return response(429, { error: "O provedor de IA limitou as requisições. O gerador local pode ser usado." }, request);
+    if (!upstream.ok) return response(502, { error: "O provedor de IA não está disponível no momento." }, request);
     const result = await upstream.json();
     const outputText = result.output_text || result.output?.flatMap(item => item.content || []).find(item => item.type === "output_text")?.text;
-    if (!outputText) return response(502, { error: "Resposta vazia do provedor de IA." });
+    if (!outputText) return response(502, { error: "Resposta vazia do provedor de IA." }, request);
     let parsed;
-    try { parsed = JSON.parse(outputText); } catch (_) { return response(502, { error: "O provedor retornou JSON inválido." }); }
+    try { parsed = JSON.parse(outputText); } catch (_) { return response(502, { error: "O provedor retornou JSON inválido." }, request); }
     const plan = validatePlan(parsed, input.catalog, input.profile.daysPerWeek);
-    return response(200, { engine: "ai", plan });
+    return response(200, { engine: "ai", plan }, request);
   } catch (error) {
     console.error("workout-plan provider error:", error?.message || "unknown");
-    return response(502, { error: "Falha de comunicação com o provedor de IA." });
+    return response(502, { error: "Falha de comunicação com o provedor de IA." }, request);
   }
 }

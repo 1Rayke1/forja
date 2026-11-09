@@ -57,7 +57,9 @@ try {
     assert.ok(validIds.has(exercise.catalogId), "Plano contém exercício fora do catálogo");
     const source = allCatalog.find(item => (item.libraryId || item.id) === exercise.catalogId);
     assert.deepEqual(exercise.muscles, source.muscles, "Grupos musculares precisam vir do catálogo");
-    assert.deepEqual(exercise.equipment, source.equipment, "Equipamentos precisam vir do catálogo");
+    const canonical = app.F.exerciseCatalog.byId(exercise.catalogId);
+    const expectedEquipment = canonical ? canonical.equipment.map(id => app.F.exerciseCatalog.equipmentLabel(id)) : source.equipment;
+    assert.deepEqual(exercise.equipment, expectedEquipment, "Equipamentos precisam vir do catálogo central sem rótulos de compatibilidade");
   }
   assert.equal(app.F.state.history[0].id, "historic-session", "Histórico anterior é preservado");
   const routineIds = app.F.state.routines.calisthenics.concat(app.F.state.routines.weights).map(item => item.id);

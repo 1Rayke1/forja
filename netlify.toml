@@ -7,3 +7,18 @@
   to = "/.netlify/functions/workout-plan"
   status = 200
   force = true
+
+# Busca de vídeos de exercícios (YouTube Data API v3) via proxy seguro.
+# A chave YOUTUBE_API_KEY fica somente no ambiente do backend.
+[[redirects]]
+  from = "/api/youtube-search"
+  to = "/.netlify/functions/youtube-search"
+  status = 200
+  force = true
+
+# Administração persistente das demonstrações do catálogo central.
+[[redirects]]
+  from = "/api/youtube-videos"
+  to = "/.netlify/functions/youtube-videos"
+  status = 200
+  force = true

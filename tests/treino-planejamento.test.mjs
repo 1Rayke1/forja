@@ -22,10 +22,20 @@ try {
 
   const noGearProfile = app.F.plan.profileForPreferences(prefs);
   const noGear = app.F.plan.compatibleCatalog(noGearProfile);
-  assert.ok(noGear.every(item => Array.isArray(item.equipment) && item.equipment.length === 0), "Sem equipamento deve aceitar somente equipment: [] no catálogo");
+  assert.ok(noGear.length > 0, "O catálogo central expandido deve oferecer exercícios de peso corporal");
+  assert.ok(noGear.every(item => Array.isArray(item.equipment) && item.equipment.length === 0), "Sem equipamento deve aceitar somente equipment: [] no catálogo central");
+  assert.equal(app.F.exerciseCatalog.exercises.length, 165, "A integração não pode reduzir o catálogo central");
+  assert.equal(app.F.exerciseCatalog.muscleGroups.length, 13, "Grupos musculares centrais permanecem íntegros");
+  assert.equal(Object.keys(app.F.exerciseCatalog.report().rankingCombinations).length, 38, "Combinações centrais de ranking permanecem íntegras");
+  const noGearPlan = app.F.plan.generateLocal(noGearProfile, null);
+  for (const session of noGearPlan.sessions) for (const exercise of session.exercises) {
+    const canonical = app.F.exerciseCatalog.byId(exercise.catalogId);
+    assert.ok(canonical && canonical.modality === "peso-corporal" && canonical.equipment.length === 0, "Plano sem equipamento deve apontar para registro central equipment: []");
+    assert.equal(exercise.equipment.length, 0, "A cópia executável também não pode exigir equipamentos");
+  }
   app.click("#generate-plan");
-  assert.match(app.text("#plan-error"), /compatíveis|compatível/i, "Sem opções seguras, a interface informa em vez de inserir equipamento");
-  assert.equal(app.F.plan.read(), null, "Erro de compatibilidade não cria nem salva plano");
+  assert.equal(app.$$("#training-plan-preview .plan-session-card").length, 5, "A tela pré-visualiza planos sem equipamentos reais");
+  assert.equal(app.F.plan.read(), null, "A prévia sem equipamento não é salva antes da confirmação");
 
   app.click('[data-pref="equipment"][data-value="gym"]');
   app.click('[data-pref="days"][data-value="4"]');

@@ -76,9 +76,9 @@ profundo. A tabela de regiões e essas limitações estão em
 
 ## 5. Seleção de sexo e a versão feminina
 
-O FORJA já tinha o campo `sexo` no perfil e ele **continua com o mesmo papel**:
-escolhe o personagem das demonstrações (`resolvePersonagem`). Ele nunca
-selecionou a prancha anatômica, e esta revisão não mudou isso.
+O FORJA já tinha o campo `sexo` no perfil e ele **nunca** selecionou a prancha
+anatômica. O campo continua existindo como informação declarada do perfil, mas
+não escolhe mais nada: o app não tem personagem de demonstração.
 
 A imagem fornecida tem um único corpo e não existe versão feminina deste
 desenho. **Nada foi inventado**: não há prancha feminina em estilo de linha,
@@ -101,5 +101,6 @@ perfis.
   app; fica no histórico do repositório apenas como procedência.
 - As pranchas `anterior.png` e `posterior.png` geradas dela foram removidas,
   para não manter duas anatomias concorrentes no diretório.
-- `tools/gerar-anatomia-3d.mjs` é pipeline experimental anterior, não participa
-  da renderização atual e não é executado por nenhum teste.
+- O pipeline experimental anterior de pranchas (`tools/gerar-anatomia-3d.mjs`)
+  foi removido do repositório junto com os demais utilitários 3D. A prancha
+  exibida pelo app é a imagem fornecida pelo usuário, mantida byte a byte.

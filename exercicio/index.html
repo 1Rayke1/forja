@@ -16,8 +16,7 @@
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/redesign.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
-<link rel="stylesheet" href="../assets/css/personagens-3d.css">
-<link rel="stylesheet" href="../assets/css/exercicio-3d.css">
+<link rel="stylesheet" href="../assets/css/exercicio.css">
 </head>
 
 <body data-page="exercicio" data-root="../">
@@ -44,7 +43,9 @@
       <!--
         Vídeo horizontal 16:9, mudo, em loop e sem controles. O atributo
         `controls` não existe de propósito; a barra nativa é desligada também
-        pelo CSS. Quando não há MP4 aprovado, o palco 3D ao lado assume.
+        pelo CSS. O palco aceita apenas MP4 aprovado: enquanto um exercício não
+        tiver o seu, a tela informa a pendência — não há demonstração por
+        personagem 3D.
       -->
       <video
         class="e3-video"
@@ -62,8 +63,6 @@
         aria-label="Demonstração do exercício em vídeo horizontal"
         hidden
       ></video>
-
-      <div class="e3-palco-3d" id="exercicio-3d" data-e3-3d hidden></div>
 
       <div class="e3-loading" id="exercicio-loading" data-e3-loading aria-live="polite">
         <span class="e3-loading-text">Carregando demonstração…</span>
@@ -88,13 +87,13 @@
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5v11M18 6.5v11M3 9.5v5M21 9.5v5M6 12h12"/></svg></span>
       <span class="bottom-nav-label">Treinos</span>
     </a>
-    <a class="bottom-nav-link" href="../explorar/index.html" data-nav="explorar">
+    <a class="bottom-nav-link" href="../treino/biblioteca.html" data-nav="explorar">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg></span>
       <span class="bottom-nav-label">Explorar</span>
     </a>
     <a class="bottom-nav-link" href="../progresso/index.html" data-nav="progresso">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
-      <span class="bottom-nav-label">Progresso</span>
+      <span class="bottom-nav-label">Evolução</span>
     </a>
     <a class="bottom-nav-link" href="../perfil/index.html" data-nav="perfil">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
@@ -117,10 +116,11 @@
 <script src="../assets/js/forja-core.js" defer></script>
 <script src="../assets/js/forja-store.js" defer></script>
 <script src="../assets/js/forja-dados.js" defer></script>
+<script src="../assets/js/forja-exercicios-dados.js" defer></script>
+<script src="../assets/js/forja-catalogo-central.js" defer></script>
 <script src="../assets/js/forja-biblioteca.js" defer></script>
 <script src="../assets/js/forja-ui.js" defer></script>
-<script src="../assets/js/forja-exercicio-cena.js" defer></script>
-<script src="../assets/js/forja-exercicio-3d.js" defer></script>
+<script src="../assets/js/forja-exercicio.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

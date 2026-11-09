@@ -23,8 +23,7 @@ mkdir -p "$OUT"
 # Caminhos relativos idênticos aos do repositório: preserva data-root, F.url(),
 # navegação e imagens quando o site é servido sob /forja/.
 cp -R "$ROOT/index.html" \
-      "$ROOT/avaliacao-piloto-3d" \
-      "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
+      "$ROOT/admin" "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
       "$ROOT/perfil" "$ROOT/progresso" "$ROOT/treino" \
       "$ROOT/assets" "$OUT/"
 
@@ -36,37 +35,94 @@ rm -f "$OUT/assets/demonstracoes/mapeamento.json" \
       "$OUT/assets/demonstracoes/rotulos.json" \
       "$OUT/assets/demonstracoes/creditos.json"
 
+# Vídeos de demonstração: o manifesto é a única fonte da verdade.
+#
+# O site leva somente os MP4 listados em assets/videos/exercicios/manifest.json
+# (vídeos horizontais de pessoas reais, até 60 s). Qualquer arquivo de vídeo na
+# pasta que não esteja no manifesto é recusado: é assim que um render antigo
+# feito a partir do personagem 3D — ou qualquer vídeo novo não aprovado — fica
+# de fora do app publicado, em vez de viajar silenciosamente no artefato.
+VIDEOS_DIR="assets/videos/exercicios"
+VIDEOS_MANIFESTO="$ROOT/$VIDEOS_DIR/manifest.json"
+if [ ! -f "$VIDEOS_MANIFESTO" ]; then
+  echo "ERRO: manifesto de vídeos ausente: $VIDEOS_DIR/manifest.json" >&2
+  exit 1
+fi
+
+python3 - "$ROOT" "$OUT" <<'PY'
+import json, pathlib, shutil, sys
+
+raiz = pathlib.Path(sys.argv[1])
+site = pathlib.Path(sys.argv[2])
+rel_dir = pathlib.Path("assets/videos/exercicios")
+manifesto = json.loads((raiz / rel_dir / "manifest.json").read_text(encoding="utf-8"))
+
+if manifesto.get("formato") != "forja-videos-exercicios":
+    sys.exit("ERRO: manifesto de vídeos com formato inesperado")
+
+permitidos = set()
+for item in manifesto.get("exercicios", []):
+    arquivo = item.get("video", "")
+    if not arquivo.startswith("assets/videos/exercicios/") or not arquivo.endswith(".mp4"):
+        sys.exit("ERRO: caminho de vídeo inválido no manifesto: " + arquivo)
+    if not (raiz / arquivo).is_file():
+        sys.exit("ERRO: o manifesto lista vídeo inexistente: " + arquivo)
+    if item.get("duracaoS") and float(item["duracaoS"]) > 60:
+        sys.exit("ERRO: vídeo acima de 60 s no manifesto: " + arquivo)
+    permitidos.add(pathlib.Path(arquivo).name)
+
+# Recusa qualquer vídeo na pasta que não esteja aprovado no manifesto.
+extensoes = {".mp4", ".webm", ".mov", ".m4v", ".ogv"}
+orfaos = sorted(
+    p.name for p in (raiz / rel_dir).iterdir()
+    if p.is_file() and p.suffix.lower() in extensoes and p.name not in permitidos
+)
+if orfaos:
+    sys.exit("ERRO: vídeo não aprovado em " + str(rel_dir) + ": " + ", ".join(orfaos))
+
+# O artefato recebe apenas manifesto, documentação e os vídeos aprovados.
+destino = site / rel_dir
+destino.mkdir(parents=True, exist_ok=True)
+for nome in ("README.md", "manifest.json"):
+    if (raiz / rel_dir / nome).is_file():
+        shutil.copy2(raiz / rel_dir / nome, destino / nome)
+for nome in sorted(permitidos):
+    shutil.copy2(raiz / rel_dir / nome, destino / nome)
+
+if not permitidos:
+    for p in destino.iterdir():
+        if p.suffix.lower() in extensoes:
+            p.unlink()
+
+print("Vídeos aprovados no artefato: %d." % len(permitidos))
+PY
+
 # Nenhum arquivo de desenvolvimento no artefato.
 for p in tools tests docs design artifacts .github .git node_modules \
-         README.md package.json package-lock.json; do
+         README.md package.json package-lock.json \
+         assets/3d assets/vendor/three assets/js/forja-personagens.js \
+         assets/css/personagens-3d.css avaliacao-piloto-3d; do
   if [ -e "$OUT/$p" ]; then
     echo "ERRO: arquivo de desenvolvimento no artefato: $p" >&2
     exit 1
   fi
 done
 
-# Recursos obrigatórios do app, da avaliação do piloto 3D e dos créditos.
+# Recursos obrigatórios do app, vídeos/ilustrações de demonstração e créditos.
 for p in index.html \
-         avaliacao-piloto-3d/index.html \
+         admin/exercicios.html assets/js/admin-exercicios.js assets/css/admin-exercicios.css \
+         assets/js/forja-youtube.js \
          exercicio/index.html \
-         assets/css/exercicio-3d.css \
-         assets/js/forja-exercicio-cena.js \
-         assets/js/forja-exercicio-3d.js \
-         assets/3d/apresentacao-exercicios.json \
-         avaliacao-piloto-3d/avaliacao-piloto-3d.css \
-         avaliacao-piloto-3d/avaliacao-piloto-3d.js \
-         avaliacao-piloto-3d/midia/abdominal-masculino-horizontal-16x9.mp4 \
-         avaliacao-piloto-3d/midia/abdominal-masculino-vertical-9x16.mp4 \
-         avaliacao-piloto-3d/midia/poster-horizontal-16x9.png \
-         avaliacao-piloto-3d/midia/poster-vertical-9x16.png \
-         avaliacao-piloto-3d/midia/horizontal-mosaico-5-fases.png \
-         avaliacao-piloto-3d/midia/vertical-mosaico-5-fases.png \
+         assets/css/exercicio.css \
+         assets/js/forja-exercicio.js \
+         assets/videos/exercicios/manifest.json \
          configuracoes/index.html explorar/index.html explorar/atlas.html \
          onboarding/index.html perfil/index.html progresso/index.html \
          treino/index.html treino/rotina.html treino/executar.html \
-         treino/biblioteca.html treino/calistenia.html treino/musculacao.html \
+         treino/biblioteca.html treino/grupo.html treino/calistenia.html treino/musculacao.html \
          assets/js/forja-app.js assets/js/forja-demonstracoes.js \
          assets/js/forja-demonstracoes-dados.js \
+         assets/js/forja-videos-dados.js assets/js/forja-videos.js \
          assets/css/demonstracoes.css \
          assets/demonstracoes/LICENSE-DATA.md \
          assets/demonstracoes/ATTRIBUTION.md \

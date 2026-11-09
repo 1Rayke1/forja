@@ -1,8 +1,7 @@
 /*
-  FORJA — geração de plano semanal integrada ao catálogo e às rotinas.
-  O gerador local é determinístico por regras, nunca apresentado como IA.
-  Se uma API backend estiver configurada, tenta primeiro o endpoint seguro e
-  valida a resposta contra os IDs reais de F.catalog antes de usá-la.
+  FORJA — geração local de plano semanal integrada ao catálogo central e às rotinas.
+  A proposta é baseada em regras e IDs reais do catálogo; não chama IA nem inventa
+  exercícios, e só grava sessões depois da revisão e confirmação do usuário.
 */
 (function (global) {
   "use strict";
@@ -45,11 +44,20 @@
     return ["calisthenics", "weights"];
   }
 
+  function centralCatalogRecord(record) {
+    if (!record || !F.exerciseCatalog || typeof F.exerciseCatalog.byId !== "function") return null;
+    return F.exerciseCatalog.byId(record.libraryId || record.id);
+  }
+
   function equipmentAllowed(record, profile) {
     const equipment = safeArray(record.equipment);
+    const canonical = centralCatalogRecord(record);
+    const canonicalEquipment = canonical ? safeArray(canonical.equipment) : equipment;
     const preference = profile.planPreferences && profile.planPreferences.equipment;
-    /* Sem equipamento e em casa são deliberadamente estritos: somente [] do catálogo central passa. */
-    if (preference === "none" || preference === "home") return equipment.length === 0;
+    /* O seletor é validado contra a fonte central, não contra o rótulo legado "peso corporal". */
+    if (preference === "none" || preference === "home") {
+      return canonical ? canonical.modality === "peso-corporal" && canonicalEquipment.length === 0 : equipment.length === 0;
+    }
     if (preference === "gym") return true;
     /* Compatibilidade com perfis antigos, fora do novo planejador. */
     const legacy = profile.equipamento;
@@ -63,7 +71,16 @@
     const equipmentPreference = profile.planPreferences && profile.planPreferences.equipment;
     const modes = equipmentPreference === "gym" ? ["weights", "calisthenics"] :
       (equipmentPreference === "home" || equipmentPreference === "none") ? ["calisthenics", "weights"] : supportedModes(profile);
-    let records = modes.flatMap(mode => F.catalog.items(mode));
+    let records = modes.flatMap(mode => F.catalog.items(mode)).map(record => {
+      const canonical = centralCatalogRecord(record);
+      if (!canonical) return record;
+      /* Adapta metadados sem modificar o catálogo nem os IDs editoriais originais. */
+      return Object.assign({}, record, {
+        centralModality: canonical.modality,
+        centralEquipment: safeArray(canonical.equipment).slice(),
+        equipment: safeArray(canonical.equipment).map(id => F.exerciseCatalog.equipmentLabel(id))
+      });
+    });
     records = records.filter(record => equipmentAllowed(record, profile));
     const prefs = safeArray(profile.preferenciasTreino);
     if (prefs.includes("cardio") && !prefs.includes("musculacao") && !prefs.includes("calistenia")) {
@@ -286,7 +303,7 @@
     /* Não encaminha exercícios personalizados: seus nomes e instruções podem conter informação do usuário. */
     const providerRecords = records.filter(record => record.suggested === true);
     if (!providerRecords.length) throw new Error("Catálogo público indisponível para solicitar IA.");
-    const response = await global.fetch("/api/workout-plan", {
+    const response = await global.fetch(F.apiUrl("api/workout-plan"), {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(publicPayload(profile, providerRecords, previous))
     });
