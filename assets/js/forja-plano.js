@@ -15,6 +15,8 @@
     abdomen: ["core"], corpoTodo: ["legs", "push", "pull", "core"]
   });
   const DAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+  /* Rótulos dos cinco seletores; a ordem também define a leitura por leitor de tela. */
+  const PREFERENCE_GROUPS = Object.freeze(["goal", "level", "days", "time", "equipment"]);
   const el = id => F.byId(id);
   const cleanString = (value, max = 220) => typeof value === "string" ? value.trim().slice(0, max) : "";
   const safeArray = value => Array.isArray(value) ? value : [];
@@ -412,6 +414,11 @@
     } catch (_) { return fallback; }
   }
 
+  function writePreferences(preferences) {
+    try { global.localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences)); return true; }
+    catch (_) { return false; }
+  }
+
   function profileForPreferences(preferences) {
     const goals = { massa:"hipertrofia", emagrecer:"perderPeso", condicionamento:"resistencia" };
     const levels = { iniciante:"iniciante", intermediario:"intermediario", avancado:"avancado" };
@@ -422,10 +429,64 @@
       areaFoco:"corpoTodo", localTreino:preferences.equipment === "gym" ? "academia" : "casa", consideracoes:[], planPreferences:Object.assign({}, preferences) };
   }
 
-  function renderPreferenceState(preferences) {
-    document.querySelectorAll("[data-pref]").forEach(button => {
-      button.setAttribute("aria-pressed", String(String(preferences[button.dataset.pref]) === button.dataset.value));
+  /*
+    Preenche os ícones dos seletores com o conjunto oficial do FORJA (Lucide).
+    A marcação guarda só `data-icon`; nenhum desenho é duplicado no HTML e o
+    mesmo componente usado nas outras telas desenha o símbolo.
+  */
+  function hydrateIcons(root) {
+    const host = root || document;
+    if (!F.ui || typeof F.ui.icon !== "function") return;
+    host.querySelectorAll("[data-icon]").forEach(node => {
+      const name = node.dataset.icon;
+      if (!name || node.querySelector("svg")) return;
+      const drawn = F.ui.icon(name);
+      if (!drawn) return;
+      node.appendChild(drawn.querySelector("svg") || drawn);
+      node.removeAttribute("data-icon");
     });
+  }
+
+  /*
+    Estado visual dos cinco grupos. A única fonte da verdade é o objeto de
+    preferências recebido: cada opção recebe `aria-pressed` e a classe
+    `is-selected`, e o rádio interno acompanha. Assim nunca sobra uma opção
+    verde "presa" de outro grupo nem uma seleção duplicada no mesmo grupo.
+  */
+  function renderPreferenceState(preferences) {
+    document.querySelectorAll("[data-pref-group]").forEach(group => {
+      const key = group.dataset.prefGroup;
+      const current = String(preferences && preferences[key] != null ? preferences[key] : "");
+      let selectedCount = 0;
+      group.querySelectorAll("[data-pref]").forEach(option => {
+        const selected = option.dataset.pref === key && option.dataset.value === current;
+        if (selected) selectedCount += 1;
+        option.setAttribute("aria-pressed", String(selected));
+        option.classList.toggle("is-selected", selected);
+        const input = option.querySelector("input.preference-input");
+        if (input) input.checked = selected;
+      });
+      /* Um grupo sem valor conhecido não pode ficar sem nenhuma opção marcada. */
+      if (!selectedCount) {
+        const first = group.querySelector("[data-pref]");
+        if (first && preferences) preferences[key] = key === "days" ? Number(first.dataset.value) : first.dataset.value;
+        if (first) {
+          first.setAttribute("aria-pressed", "true");
+          first.classList.add("is-selected");
+          const input = first.querySelector("input.preference-input");
+          if (input) input.checked = true;
+        }
+      }
+    });
+  }
+
+  /* Aplica uma escolha vinda de clique, toque ou teclado, sem tocar nos demais grupos. */
+  function selectPreference(preferences, key, value) {
+    if (!PREFERENCE_GROUPS.includes(key)) return preferences;
+    const normalized = key === "days" ? Number(value) : value;
+    if (key === "days" && !Number.isFinite(normalized)) return preferences;
+    preferences[key] = normalized;
+    return preferences;
   }
 
   function renderPlan(plan, saved) {
@@ -513,22 +574,52 @@
 
   function showError(message) { const error = el("plan-error"); if (!error) return; error.textContent = message; error.hidden = false; }
 
+  /*
+    Liga os cinco grupos. O evento `change` do rádio cobre teclado, leitor de
+    tela e toque no celular; o clique no rótulo continua atendido pelo próprio
+    rádio nativo. Um único listener por grupo evita handlers duplicados quando
+    a tela é reinicializada.
+  */
+  function bindPreferenceGroups(preferences, onChange) {
+    hydrateIcons(document);
+    document.querySelectorAll("[data-pref-group]").forEach(group => {
+      group.addEventListener("change", event => {
+        const input = event.target && event.target.closest ? event.target.closest("input[type=radio]") : null;
+        if (!input) return;
+        const option = input.closest("[data-pref]");
+        if (!option) return;
+        selectPreference(preferences, option.dataset.pref, option.dataset.value);
+        renderPreferenceState(preferences);
+        writePreferences(preferences);
+        if (typeof onChange === "function") onChange(preferences);
+      });
+      /* Botões legados (sem rádio) e reenvio de clique para a opção escolhida. */
+      group.addEventListener("click", event => {
+        const option = event.target && event.target.closest ? event.target.closest("[data-pref]") : null;
+        if (!option || option.querySelector("input.preference-input")) return;
+        selectPreference(preferences, option.dataset.pref, option.dataset.value);
+        renderPreferenceState(preferences);
+        writePreferences(preferences);
+        if (typeof onChange === "function") onChange(preferences);
+      });
+    });
+  }
+
   function init() {
     if (F.pageName() !== "treino" || !el("training-plan-preview")) return;
     let preferences = readPreferences();
+    /* Ao abrir, as opções refletem o que está realmente salvo (ou o padrão coerente).
+       Nada é gravado só por abrir a tela: só a escolha do usuário persiste. */
     renderPreferenceState(preferences);
-    document.querySelectorAll("[data-pref]").forEach(button => button.addEventListener("click", () => {
-      const key = button.dataset.pref, value = button.dataset.value;
-      if (key === "days") preferences[key] = Number(value); else preferences[key] = value;
-      renderPreferenceState(preferences);
-      try { global.localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences)); } catch (_) {}
-    }));
+    bindPreferenceGroups(preferences);
     const existing = readPlan(), badge = el("plan-engine-badge");
     if (existing) { renderPlan(existing,true); el("regenerate-plan").hidden=false; }
     const run = () => {
       const button=el("generate-plan"); button.disabled=true; el("plan-error").hidden=true;
       try {
+        /* As escolhas visíveis são as mesmas que o gerador recebe. */
         preferences=readPreferences();
+        renderPreferenceState(preferences);
         const profile=profileForPreferences(preferences);
         const records=compatibleCatalog(profile);
         if (!records.some(record => ["main","abs","finisher"].includes(record.section))) {
@@ -545,7 +636,7 @@
     el("regenerate-plan").addEventListener("click",run);
   }
 
-  F.plan = { storageKey: PLAN_KEY, preferencesKey:PREFERENCES_KEY, read:readPlan, readPreferences, profileForPreferences, compatibleCatalog, validateModelOutput, generateLocal:localPlan, save:savePlan, trainingDays, estimateSessionMinutes };
+  F.plan = { storageKey: PLAN_KEY, preferencesKey:PREFERENCES_KEY, read:readPlan, readPreferences, writePreferences, profileForPreferences, compatibleCatalog, validateModelOutput, generateLocal:localPlan, save:savePlan, trainingDays, estimateSessionMinutes, selectPreference, renderPreferenceState, hydrateIcons };
   F.pages.treinoPlan = init;
   /* Hub já possui initializer; adicionamos a integração sem substituir a tela. */
   const previousHub = F.pages.treino;

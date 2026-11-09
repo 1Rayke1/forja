@@ -758,6 +758,245 @@ await check('Sem rolagem horizontal em 320, 360, 390, 430, 768 e 1280 px em toda
   await page.setViewport(MOBILE);
 });
 
+
+/* ------------------------------------------------------------------ */
+/* Planejamento semanal: seletores de preferência e ícone (PR #65)      */
+/* ------------------------------------------------------------------ */
+
+const PLAN_PREFS_KEY = 'forja-planejamento-preferencias-v1';
+const PREF_GROUPS = {
+  goal: ['massa', 'emagrecer', 'condicionamento'],
+  level: ['iniciante', 'intermediario', 'avancado'],
+  days: ['2', '3', '4', '5', '6'],
+  time: ['short', 'medium', 'long'],
+  equipment: ['gym', 'home', 'none']
+};
+const pressedIn = (key, target = page) => target.evaluate(g => Array.from(
+  document.querySelectorAll('[data-pref-group="' + g + '"] [data-pref][aria-pressed="true"]')
+).map(el => el.dataset.value), key);
+
+/* Cor de fundo real da opção, para provar que só a escolhida fica verde. */
+const choicePaint = (key, value) => page.evaluate((g, v) => {
+  const el = document.querySelector('[data-pref-group="' + g + '"] [data-pref="' + g + '"][data-value="' + v + '"]');
+  if (!el) return null;
+  const style = getComputedStyle(el);
+  const label = el.querySelector('.choice-label');
+  return {
+    pressed: el.getAttribute('aria-pressed'),
+    selectedClass: el.classList.contains('is-selected'),
+    background: style.backgroundImage + ' ' + style.backgroundColor,
+    color: style.color,
+    labelWidth: el.clientWidth,
+    labelScrollWidth: label ? label.scrollWidth : 0,
+    height: el.getBoundingClientRect().height
+  };
+}, key, value);
+
+/* Toca pelo centro do elemento, como um dedo de verdade (mobile-first). */
+async function tapChoice(key, value) {
+  const selector = '[data-pref-group="' + key + '"] [data-pref="' + key + '"][data-value="' + value + '"]';
+  await page.$eval(selector, el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await sleep(80);
+  const hit = await page.$eval(selector, (el, sel) => {
+    const rect = el.getBoundingClientRect();
+    const at = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    return at ? Boolean(at.closest(sel)) : false;
+  }, selector);
+  assert.ok(hit, 'A opção ' + key + '=' + value + ' não recebe o toque no centro (algo está por cima)');
+  if (await page.evaluate(() => 'ontouchstart' in window)) await page.tap(selector);
+  else await page.click(selector);
+  await sleep(90);
+}
+
+await check('Preferências: cinco grupos com uma única opção verde, por toque, no celular e no desktop', async () => {
+  const saved = await forjaRaw();
+  try {
+    /* Viewport de celular com toque, como no aparelho do usuário. */
+    await page.setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    await go('treino/');
+    /* Estado inicial: uma escolha por grupo, nunca várias. */
+    for (const key of Object.keys(PREF_GROUPS)) {
+      assert.equal((await pressedIn(key)).length, 1, 'Grupo ' + key + ' deve abrir com exatamente uma opção marcada');
+    }
+
+    for (const key of Object.keys(PREF_GROUPS)) {
+      for (const value of PREF_GROUPS[key]) {
+        await tapChoice(key, value);
+        assert.deepEqual(await pressedIn(key), [value], 'Grupo ' + key + ': ' + value + ' deveria ficar como única opção');
+        for (const other of PREF_GROUPS[key]) {
+          const paint = await choicePaint(key, other);
+          if (other === value) {
+            assert.equal(paint.pressed, 'true');
+            assert.ok(paint.selectedClass, 'A opção escolhida precisa da classe de estado');
+            assert.ok(/rgb\(132,\s*237,\s*27\)|rgb\(165,\s*255,\s*57\)/.test(paint.background),
+              'A opção escolhida precisa ficar verde-limão, veio ' + paint.background);
+            assert.notEqual(paint.color, 'rgb(244, 245, 244)', 'Texto da opção verde precisa de contraste escuro');
+          } else {
+            assert.equal(paint.pressed, 'false', 'Opção não escolhida não pode ficar marcada');
+            assert.equal(paint.selectedClass, false, 'Opção não escolhida não pode ter a classe verde');
+            assert.equal(/rgb\(132,\s*237,\s*27\)|rgb\(165,\s*255,\s*57\)/.test(paint.background), false,
+              'Opção não escolhida continuou verde: ' + other);
+          }
+        }
+      }
+    }
+
+    /* Independência entre grupos: trocar um não mexe nos outros. */
+    await tapChoice('goal', 'emagrecer');
+    await tapChoice('level', 'iniciante');
+    await tapChoice('days', '5');
+    await tapChoice('time', 'long');
+    await tapChoice('equipment', 'gym');
+    await tapChoice('goal', 'condicionamento');
+    assert.deepEqual(await pressedIn('goal'), ['condicionamento']);
+    assert.deepEqual(await pressedIn('level'), ['iniciante']);
+    assert.deepEqual(await pressedIn('days'), ['5']);
+    assert.deepEqual(await pressedIn('time'), ['long']);
+    assert.deepEqual(await pressedIn('equipment'), ['gym']);
+
+    /* Alvos de toque confortáveis e rótulos sem corte, em 320–1280 px. */
+    for (const width of [320, 360, 390, 768, 1280]) {
+      await page.setViewport({ width, height: 844 });
+      await sleep(120);
+      const clipped = await page.$$eval('.preference-choice', els => els
+        .filter(el => el.scrollWidth > el.clientWidth + 1)
+        .map(el => el.dataset.pref + '=' + el.dataset.value));
+      assert.deepEqual(clipped, [], 'Opções cortadas a ' + width + 'px');
+      const small = await page.$$eval('.preference-choice', els => els.filter(el => el.getBoundingClientRect().height < 44).length);
+      assert.equal(small, 0, 'Opções com menos de 44px de altura a ' + width + 'px');
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      assert.ok(overflow <= 1, 'Rolagem horizontal de ' + overflow + 'px a ' + width + 'px');
+    }
+    await page.setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    await page.screenshot({ path: artifactPath('preferencias-mobile.png') });
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('treino/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Preferências: persistem ao recarregar e alimentam Gerar meu plano', async () => {
+  const saved = await forjaRaw();
+  try {
+    await go('treino/');
+    await page.evaluate(() => localStorage.removeItem('forja-planejamento-preferencias-v1'));
+    await go('treino/');
+    /* Sem nada salvo, valores iniciais coerentes e alteráveis. */
+    assert.deepEqual(await pressedIn('goal'), ['massa']);
+    assert.deepEqual(await pressedIn('level'), ['intermediario']);
+    assert.deepEqual(await pressedIn('days'), ['4']);
+    assert.deepEqual(await pressedIn('time'), ['medium']);
+    assert.deepEqual(await pressedIn('equipment'), ['none']);
+    assert.equal(await page.evaluate(() => localStorage.getItem('forja-planejamento-preferencias-v1')), null,
+      'Abrir a tela não deve gravar preferências sozinho');
+
+    await tapChoice('goal', 'condicionamento');
+    await tapChoice('level', 'avancado');
+    await tapChoice('days', '3');
+    await tapChoice('time', 'short');
+    await tapChoice('equipment', 'gym');
+    const expected = { goal: 'condicionamento', level: 'avancado', days: 3, time: 'short', equipment: 'gym' };
+    assert.deepEqual(await data(PLAN_PREFS_KEY), expected, 'As escolhas devem ser gravadas');
+
+    /* Recarregar mantém tudo selecionado. */
+    await page.reload({ waitUntil: 'networkidle0' });
+    await sleep(150);
+    assert.deepEqual(await pressedIn('goal'), ['condicionamento']);
+    assert.deepEqual(await pressedIn('level'), ['avancado']);
+    assert.deepEqual(await pressedIn('days'), ['3']);
+    assert.deepEqual(await pressedIn('time'), ['short']);
+    assert.deepEqual(await pressedIn('equipment'), ['gym']);
+
+    /* Gerar meu plano usa as escolhas atuais: três sessões e o perfil certo. */
+    await clickCentered('#generate-plan');
+    assert.ok(await waitFor(() => document.querySelectorAll('#training-plan-preview .plan-session-card').length > 0, 5000),
+      'Nenhum plano foi pré-visualizado');
+    assert.equal((await page.$$('#training-plan-preview .plan-session-card')).length, 3,
+      'A prévia deve respeitar os três dias escolhidos');
+    const used = await page.evaluate(() => window.Forja.plan.readPreferences());
+    assert.deepEqual(used, expected, 'O gerador leu preferências diferentes das visíveis');
+
+    /* Trocar e gerar de novo usa a nova combinação. */
+    await tapChoice('days', '6');
+    await tapChoice('equipment', 'home');
+    await clickCentered('#generate-plan');
+    await sleep(400);
+    assert.equal((await page.$$('#training-plan-preview .plan-session-card')).length, 6,
+      'A nova geração deve usar os seis dias recém-escolhidos');
+    assert.deepEqual((await page.evaluate(() => window.Forja.plan.readPreferences())).equipment, 'home');
+    await page.screenshot({ path: artifactPath('preferencias-plano.png') });
+  } finally {
+    await go('treino/');
+    await restoreForjaRaw(saved);
+  }
+});
+
+await check('Ícone de Suas preferências: Lucide settings nítido no mobile e no desktop', async () => {
+  const saved = await forjaRaw();
+  try {
+    await go('treino/');
+    for (const width of [320, 390, 768, 1280]) {
+      await page.setViewport({ width, height: 900 });
+      await sleep(150);
+      const icon = await page.evaluate(() => {
+        const box = document.querySelector('.preferences-title .preferences-title-icon');
+        const svg = box && box.querySelector('svg');
+        const heading = document.getElementById('preferences-heading');
+        if (!box || !svg || !heading) return null;
+        const b = box.getBoundingClientRect();
+        const s = svg.getBoundingClientRect();
+        const h = heading.getBoundingClientRect();
+        const style = getComputedStyle(box);
+        const path = svg.querySelector('path');
+        return {
+          tag: svg.tagName.toLowerCase(),
+          viewBox: svg.getAttribute('viewBox'),
+          path: path && path.getAttribute('d'),
+          box: [Math.round(b.width), Math.round(b.height)],
+          svg: [Math.round(s.width), Math.round(s.height)],
+          color: style.color,
+          hidden: box.getAttribute('aria-hidden'),
+          square: Math.abs(b.width - b.height) < 2,
+          centered: Math.abs((b.top + b.height / 2) - (h.top + h.height / 2)) < 6,
+          gap: Math.round(h.left - b.right),
+          images: document.querySelectorAll('.preferences-title img').length,
+          text: document.querySelector('.preferences-title').textContent.trim()
+        };
+      });
+      assert.ok(icon, 'Ícone ausente no cabeçalho a ' + width + 'px');
+      assert.equal(icon.tag, 'svg', 'O ícone precisa ser SVG (nunca imagem distorcida)');
+      assert.equal(icon.viewBox, '0 0 24 24');
+      assert.equal(icon.hidden, 'true', 'Ícone é decorativo');
+      assert.equal(icon.images, 0, 'Nenhuma <img> no cabeçalho');
+      assert.ok(icon.square, 'Contêiner do ícone deve ser quadrado em ' + width + 'px: ' + icon.box);
+      assert.ok(icon.svg[0] >= 18 && icon.svg[0] === icon.svg[1],
+        'O SVG deve ser quadrado e legível em ' + width + 'px: ' + icon.svg);
+      assert.ok(icon.centered, 'Ícone precisa ficar alinhado ao título em ' + width + 'px');
+      assert.ok(icon.gap >= 8 && icon.gap <= 20, 'Espaçamento entre ícone e título fora da faixa: ' + icon.gap);
+      assert.equal(icon.color, 'rgb(141, 243, 34)', 'O ícone precisa usar o verde-limão: ' + icon.color);
+      const expected = await page.evaluate(() => window.Forja.ui.ICON_PATHS.settings);
+      assert.equal(icon.path, expected, 'O desenho precisa ser o settings oficial do FORJA/Lucide');
+      assert.equal(/[\u25A0-\u27BF\uFFFD]/.test(icon.text), false, 'Símbolo improvisado no cabeçalho: ' + icon.text);
+      if (width === 320 || width === 1280) {
+        const rect = await page.$eval('.preferences-title', el => {
+          const r = el.getBoundingClientRect();
+          return { x: r.x, y: r.y, width: r.width, height: r.height };
+        });
+        await page.screenshot({
+          path: artifactPath('preferencias-icone-' + width + '.png'),
+          clip: { x: Math.max(0, rect.x - 4), y: Math.max(0, rect.y - 4), width: Math.min(width, rect.width + 8), height: rect.height + 8 }
+        });
+      }
+    }
+    await page.setViewport(MOBILE);
+  } finally {
+    await go('treino/');
+    await restoreForjaRaw(saved);
+    await page.setViewport(MOBILE);
+  }
+});
+
 await check('Ação TREINO é compacta, acessível e cabe em 390 px', async () => {
   await go('');
   await page.setViewport(MOBILE);
