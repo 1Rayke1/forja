@@ -114,21 +114,12 @@
     }
   }
 
-  /*
-    Filtro inicial do hub a partir da modalidade preferida do perfil
-    (definida no onboarding ou em Perfil). É só um ponto de partida: o usuário
-    troca o filtro e a escolha dele manda no resto da visita.
-  */
   function applyModalityPreference() {
     const filter = byId("hub-modality");
     const hint = byId("hub-modality-hint");
     const profile = F.state.profile || {};
-
-    if (!filter || !profile.modalidadePreferida) return;
-    if (filter.value !== "") return;
-
+    if (!filter || !profile.modalidadePreferida || filter.value !== "") return;
     filter.value = profile.modalidadePreferida;
-
     if (hint) {
       hint.textContent = "Filtro inicial definido pela sua modalidade preferida no perfil. Troque quando quiser.";
       hint.hidden = false;
@@ -145,6 +136,7 @@
       renderHub();
     });
     F.onDataChanged(renderHub);
+    if (F.store && typeof F.store.onChange === "function") F.store.onChange(key => { if (key === KEYS.routines) renderHub(); });
     watchExternalChanges(
       [KEYS.routines, KEYS.legacyExercises, KEYS.history, KEYS.active, KEYS.rotation],
       renderHub
@@ -498,8 +490,18 @@
       : pluralize(total, "exercício", "exercícios") + " · " +
         pluralize(getRoutineTotalSets(routine), "série", "séries") + " planejadas";
 
-    if (options.compact) meta.textContent = MODE_NAMES[routine.modality] + " · " + meta.textContent;
-    header.append(name, meta);
+    const routineExercises = flattenRoutine(routine);
+    let equipmentMeta = null;
+    if (options.compact) {
+      meta.textContent = MODE_NAMES[routine.modality] + " · " + (total === 0 ? "Sem exercícios ainda" : pluralize(total, "exercício", "exercícios") + " · " + pluralize(getRoutineTotalSets(routine), "série", "séries") + " planejadas");
+      const equipment = [...new Set(routineExercises.flatMap(exercise => Array.isArray(exercise.equipment) ? exercise.equipment : []).filter(item => String(item).trim().toLowerCase() !== "peso corporal"))];
+      const equipmentText = equipment.length ? equipment.join(", ") : "Sem equipamento";
+      const estimatedSeconds = routineExercises.reduce((sum, exercise) => sum + exercise.sets * (exercise.type === "duration" ? Number(exercise.duration) || 30 : 40) + Math.max(0, exercise.sets - 1) * (Number(exercise.rest) || 60), 0);
+      const estimatedMinutes = Math.max(0, Math.round(estimatedSeconds * 1.12 / 60 / 5) * 5);
+      header.append(name, meta);
+      equipmentMeta = document.createElement("div"); equipmentMeta.className = "routine-equipment-meta";
+      equipmentMeta.textContent = equipmentText + " · cerca de " + estimatedMinutes + " min";
+    } else header.append(name, meta);
 
     const sections = document.createElement("ul");
     sections.className = "routine-sections";
@@ -530,7 +532,7 @@
     const edit = document.createElement("a");
     edit.className = "secondary-button";
     edit.href = editorUrl(routine.modality, routine.id);
-    edit.textContent = "Editar exercícios";
+    edit.textContent = options.compact ? "Editar" : "Editar exercícios";
 
     const tools = document.createElement("div");
     tools.className = "routine-tools";
@@ -544,42 +546,35 @@
     start.setAttribute("aria-label", "Iniciar " + routine.name);
     edit.setAttribute("aria-label", "Editar " + routine.name);
     actions.append(start, edit);
-    if (!options.compact) actions.appendChild(tools);
+    if (options.compact) actions.appendChild(remove);
+    else actions.appendChild(tools);
     card.appendChild(header);
-    if (options.compact && total > 0) {
-      const preview = document.createElement("ul");
-      preview.className = "routine-exercise-preview";
-      const exerciseNames = (F.SECTION_ORDER || ["warmup", "main", "abs", "finisher"])
-        .flatMap(section => Array.isArray(routine.sections && routine.sections[section]) ? routine.sections[section] : [])
-        .map(item => {
-          const suggestions = F.EXERCISE_LIBRARY && F.EXERCISE_LIBRARY[routine.modality] || [];
-          const record = suggestions.find(candidate => candidate.id === (item && item.id));
-          return (record && record.name) || (item && (item.exerciseName || item.name || item.title));
-        })
-        .filter(Boolean);
-      exerciseNames.slice(0, 3).forEach(exerciseName => {
+    if (equipmentMeta) card.appendChild(equipmentMeta);
+    if (options.compact) {
+      const disclosure = document.createElement("details");
+      disclosure.className = "routine-details-disclosure";
+      const summary = document.createElement("summary");
+      summary.className = "routine-details-toggle";
+      summary.textContent = "Ver rotina e exercícios  ›";
+      const list = document.createElement("ul"); list.className = "routine-details-list";
+      routineExercises.forEach(exercise => {
         const entry = document.createElement("li");
-        entry.textContent = exerciseName;
-        preview.appendChild(entry);
+        const title = document.createElement("span"); title.textContent = exercise.exerciseName || exercise.name || exercise.title || "Exercício";
+        const params = document.createElement("span"); params.textContent = exercise.sets + " × " + (exercise.type === "duration" ? (Number(exercise.duration)||0) + " s" : (exercise.reps || "—")) + " · descanso " + (Number(exercise.rest)||0) + " s";
+        entry.append(title,params); list.appendChild(entry);
       });
-      if (exerciseNames.length > 3) {
-        const more = document.createElement("li");
-        more.className = "routine-exercise-more";
-        more.textContent = "+" + (exerciseNames.length - 3) + " exercícios";
-        preview.appendChild(more);
-      }
-      card.appendChild(preview);
+      if (!routineExercises.length) list.appendChild(document.createElement("li")).textContent = "Adicione exercícios pelo editor para preencher esta rotina.";
+      disclosure.append(summary,list); card.appendChild(disclosure);
+      card.addEventListener("click", event => {
+        if (event.target.closest("button,a,summary,details")) return;
+        disclosure.open = !disclosure.open;
+      });
+      const more = document.createElement("details"); more.className = "routine-more-actions";
+      const moreSummary = document.createElement("summary"); moreSummary.textContent = "Mais ações";
+      more.append(moreSummary, rename, duplicate); card.appendChild(more);
     }
     if (!options.compact) card.appendChild(sections);
     card.appendChild(actions);
-    if (options.compact) {
-      const more = document.createElement("details");
-      more.className = "routine-more-actions";
-      const summary = document.createElement("summary");
-      summary.textContent = "Mais ações";
-      more.append(summary, tools);
-      card.appendChild(more);
-    }
 
     return card;
   }

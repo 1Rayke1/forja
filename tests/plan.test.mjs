@@ -41,6 +41,7 @@ try {
     "Histórico recente deve reduzir repetição do mesmo exercício quando há alternativas catalogadas");
   app.F.state.history = oldHistory;
 
+  app.click('[data-pref="equipment"][data-value="gym"]');
   app.click("#generate-plan");
   const started = Date.now();
   while (!app.$("#training-plan-preview .plan-session-card") && Date.now() - started < 3000) await wait(20);
@@ -48,14 +49,17 @@ try {
   assert.equal(app.F.plan.read(), null, "Prévia não salva até confirmação");
   app.click("#training-plan-preview .plan-save");
   const plan = app.F.plan.read();
-  assert.ok(plan && plan.sessions.length === 3);
+  assert.ok(plan && plan.sessions.length === 4, "A proposta respeita os quatro dias selecionados no planejador");
   assert.equal(plan.engine, "rules", "Serviço sem configuração deve identificar o gerador local");
-  const validIds = new Set(candidates.map(item => item.libraryId || item.id));
+  const allCatalog = app.F.catalog.items();
+  const validIds = new Set(allCatalog.map(item => item.libraryId || item.id));
   for (const session of plan.sessions) for (const exercise of session.exercises) {
     assert.ok(validIds.has(exercise.catalogId), "Plano contém exercício fora do catálogo");
-    const source = candidates.find(item => (item.libraryId || item.id) === exercise.catalogId);
+    const source = allCatalog.find(item => (item.libraryId || item.id) === exercise.catalogId);
     assert.deepEqual(exercise.muscles, source.muscles, "Grupos musculares precisam vir do catálogo");
-    assert.deepEqual(exercise.equipment, source.equipment, "Equipamentos precisam vir do catálogo");
+    const canonical = app.F.exerciseCatalog.byId(exercise.catalogId);
+    const expectedEquipment = canonical ? canonical.equipment.map(id => app.F.exerciseCatalog.equipmentLabel(id)) : source.equipment;
+    assert.deepEqual(exercise.equipment, expectedEquipment, "Equipamentos precisam vir do catálogo central sem rótulos de compatibilidade");
   }
   assert.equal(app.F.state.history[0].id, "historic-session", "Histórico anterior é preservado");
   const routineIds = app.F.state.routines.calisthenics.concat(app.F.state.routines.weights).map(item => item.id);
