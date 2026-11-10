@@ -3616,6 +3616,153 @@ await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend 
   }
 });
 
+await check('Evolução: abas, indicadores, períodos e grupos musculares no navegador real', async () => {
+  /*
+    A tela de Evolução substituiu a interface antiga de progresso na mesma rota.
+    Este bloco confere no navegador de verdade (390 e 1280 px) o que o usuário
+    vê: cabeçalho, três abas funcionais, três indicadores, o filtro de período
+    do gráfico, a ilustração dos grupos musculares e a barra inferior.
+  */
+  const now = Date.now();
+  const DAY = 86400000;
+  const keyFor = days => {
+    const d = new Date(now - days * DAY);
+    const two = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
+  };
+  const log = (set, reps, load) => ({
+    set, reps: String(reps), load: load === null ? '' : String(load),
+    seconds: 0, distance: null, rpe: null, editedAt: null
+  });
+  const exercise = (libraryId, name, logs) => ({
+    id: 'ev-' + name.toLowerCase().replace(/\s+/g, '-'), libraryId, name, section: 'main',
+    plannedSets: logs.length, completedSets: logs.length, reps: '10', duration: 45, type: 'reps',
+    rest: 60, load: '', notes: '', distance: null, distanceUnit: 'm', logs,
+    timedSeconds: 0
+  });
+  const session = (days, modality, exercises) => {
+    const completedSets = exercises.reduce((sum, item) => sum + item.completedSets, 0);
+    return {
+      id: 'ev-sessao-' + days + '-' + modality,
+      date: keyFor(days),
+      finishedAt: new Date(now - days * DAY).toISOString(),
+      modality,
+      routineName: 'Treino de teste',
+      durationMs: 30 * 60000,
+      completedSets,
+      totalPlannedSets: completedSets,
+      status: 'completed',
+      exercises,
+      feedback: { rpe: 8, note: '' },
+      totals: {
+        volumeKg: exercises.reduce((sum, item) => sum + item.logs.reduce((acc, entry) =>
+          acc + (Number(entry.reps) || 0) * (Number(entry.load) || 0), 0), 0),
+        reps: exercises.reduce((sum, item) => sum + item.logs.reduce((acc, entry) =>
+          acc + (Number(entry.reps) || 0), 0), 0),
+        seconds: 0, distanceMeters: 0, setsLogged: completedSets, setsWithoutVolume: 0
+      }
+    };
+  };
+
+  const history = [
+    session(1, 'weights', [exercise('mus-supino-reto', 'Supino reto com barra', [log(1, 10, 40)])]),
+    session(4, 'calisthenics', [exercise('cal-flexao', 'Flexão de braço', [log(1, 15, null)])]),
+    session(12, 'weights', [exercise('mus-remada-curvada', 'Remada curvada com barra', [log(1, 10, 30)])])
+  ];
+
+  const profile = {
+    version: 3, updatedAt: '2026-10-01T00:00:00.000Z', objetivo: 'manterForma',
+    nivel: 'iniciante', equipamento: 'casa', diasPorSemana: 3, pesoKg: 80
+  };
+
+  await go('progresso/');
+  await page.evaluate((records, dados) => {
+    localStorage.setItem('forja-treino-historico-v1', JSON.stringify(records));
+    localStorage.setItem('forja-perfil-v1', JSON.stringify(dados));
+    localStorage.removeItem('forja-treino-metas-v1');
+  }, history, profile);
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(300);
+
+  /* Cabeçalho e barra inferior. */
+  assert.equal((await text('h1')).trim(), 'Seu Progresso', 'Cabeçalho "Seu Progresso" ausente');
+  const navAtivo = await page.$eval('.bottom-nav [data-nav="progresso"]', el => el.getAttribute('aria-current'));
+  assert.equal(navAtivo, 'page', 'Evolução deveria estar marcada na barra');
+  assert.equal((await page.$$('.bottom-nav .bottom-nav-link')).length, 5, 'Barra inferior precisa manter cinco itens');
+
+  /* Indicadores reais. */
+  assert.equal((await text('#ev-kpi-sessions')).trim(), '3', 'Indicador de treinos errado');
+  assert.match(await text('#ev-kpi-consistency'), /^\d+%$/, 'Consistência sem percentual');
+  assert.equal((await text('#ev-kpi-calories')).trim(), '630', 'Calorias estimadas erradas');
+  assert.match(await text('#ev-kpi-note'), /não mede calorias/i);
+
+  /* Gráfico com período. */
+  assert.equal((await page.$$('#ev-chart .ui-column')).length, 10, 'Gráfico de 30 dias incompleto');
+  assert.equal((await text('#ev-chart-total')).trim(), '3 treinos', 'Total do gráfico errado');
+  await jsClick('#ev-period [data-period="7"]');
+  await sleep(150);
+  assert.equal((await page.$$('#ev-chart .ui-column')).length, 7, 'Gráfico de 7 dias com número errado de colunas');
+  assert.equal(await page.$eval('#ev-period [data-period="7"]', el => el.getAttribute('aria-pressed')), 'true');
+  await jsClick('#ev-period [data-period="all"]');
+  await sleep(150);
+  assert.match(await text('#ev-chart-note'), /Todo o histórico/i);
+  await jsClick('#ev-period [data-period="30"]');
+  await sleep(150);
+
+  /* Abas. */
+  await jsClick('#ev-tab-muscles');
+  await sleep(200);
+  assert.equal(await page.$eval('#ev-panel-muscles', el => el.hidden), false, 'Aba Músculos não abriu');
+  assert.equal(await page.$eval('#ev-panel-overview', el => el.hidden), true, 'Visão Geral deveria esconder');
+  const gruposMusculares = await page.$$eval('#ev-muscle-list .ev-muscle-row .ev-muscle-name', nodes => nodes.map(node => node.textContent.trim()));
+  assert.ok(gruposMusculares.length >= 2, 'Grupos musculares não listados: ' + JSON.stringify(gruposMusculares));
+  assert.ok(gruposMusculares.includes('Peitoral') && gruposMusculares.includes('Costas'),
+    'Peitoral e costas deveriam vir do catálogo: ' + JSON.stringify(gruposMusculares));
+  assert.equal((await page.$$('#ev-muscles-figure svg.figura-svg')).length, 2, 'Ilustração anatômica incompleta');
+
+  await jsClick('#ev-tab-history');
+  await sleep(200);
+  assert.equal(await page.$eval('#ev-panel-history', el => el.hidden), false, 'Aba Histórico não abriu');
+  assert.equal((await page.$$('#progress-history .history-item')).length, 3, 'Histórico não listou os treinos');
+
+  await jsClick('#ev-tab-overview');
+  await sleep(200);
+  assert.equal(await page.$eval('#ev-panel-overview', el => el.hidden), false, 'Não voltou para Visão Geral');
+
+  /* Capturas e overflow nos dois tamanhos pedidos. */
+  for (const width of [390, 1280]) {
+    await page.setViewport({ width, height: width === 390 ? 844 : 900 });
+    await sleep(200);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    assert.ok(overflow <= 1, 'Overflow na Evolução a ' + width + 'px: ' + overflow);
+
+    assert.ok(await isVisible('#ev-kpis'), 'Indicadores invisíveis a ' + width + 'px');
+    assert.ok(await isVisible('#ev-chart .ui-columns'), 'Gráfico invisível a ' + width + 'px');
+    assert.ok(await isVisible('.ev-tabs'), 'Abas invisíveis a ' + width + 'px');
+
+    await page.screenshot({ path: artifactPath('evolucao-' + width + '.png'), fullPage: true });
+
+    await jsClick('#ev-tab-muscles');
+    await sleep(200);
+    assert.ok(await isVisible('#ev-muscles-figure'), 'Ilustração invisível a ' + width + 'px');
+    assert.ok(await isVisible('#ev-muscle-list'), 'Lista de grupos invisível a ' + width + 'px');
+    await page.screenshot({ path: artifactPath('evolucao-musculos-' + width + '.png'), fullPage: true });
+    await jsClick('#ev-tab-overview');
+    await sleep(150);
+  }
+
+  /* Estado vazio: prompt sinaliza sem números falsos. */
+  await page.evaluate(() => localStorage.removeItem('forja-treino-historico-v1'));
+  await page.reload({ waitUntil: 'networkidle0' });
+  await sleep(250);
+  assert.equal((await text('#ev-kpi-sessions')).trim(), '0');
+  assert.match(await text('#ev-chart'), /Ainda sem treinos registrados/);
+  assert.match(await text('#ev-muscle-list'), /Nenhum grupo muscular/);
+  assert.match(await text('#ev-nudge-title'), /começa no primeiro treino/);
+
+  await page.setViewport(MOBILE);
+});
+
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
   assert.deepEqual(errors, []);
 });

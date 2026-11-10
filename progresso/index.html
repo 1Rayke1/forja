@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101010">
-<title>Progresso · FORJA</title>
+<meta name="theme-color" content="#080b09">
+<title>Evolução · FORJA</title>
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/treino.css">
 <link rel="stylesheet" href="../assets/css/execucao.css">
@@ -16,14 +16,16 @@
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/redesign.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
+<link rel="stylesheet" href="../assets/css/atlas.css">
+<link rel="stylesheet" href="../assets/css/progresso-evolucao.css">
 </head>
 
 <body data-page="progresso" data-root="../">
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 <header class="site-header">
-  <div class="container site-header-inner">
+  <div class="container site-header-inner ev-header-inner">
     <a class="logo" href="../index.html">FORJA</a>
-    <div class="tagline">DISCIPLINA DIÁRIA</div>
+    <a class="ev-header-back" href="../index.html">Voltar ao início</a>
   </div>
 </header>
 
@@ -41,177 +43,272 @@
 
   <nav class="screen-toolbar" aria-label="Voltar">
     <a class="back-link" href="../index.html">← Início</a>
-    <span class="eyebrow">Progresso</span>
+    <span class="eyebrow">Evolução</span>
   </nav>
 
-  <div class="page-head">
-    <h1 class="screen-title">Progresso</h1>
-    <p class="screen-subtitle">Tudo aqui é calculado somente com os treinos registrados neste navegador. Nenhum número é estimado.</p>
-  </div>
-
-  <div class="progress-controls" aria-label="Controles de progresso">
-  <div class="filter-group" role="group" aria-label="Filtrar por modalidade">
-    <button type="button" class="filter-button" data-filter="all" aria-pressed="true">Todas</button>
-    <button type="button" class="filter-button" data-filter="calisthenics" aria-pressed="false">Calistenia</button>
-    <button type="button" class="filter-button" data-filter="weights" aria-pressed="false">Musculação</button>
-  </div>
-
-  <div class="progress-period" role="group" aria-labelledby="period-label">
-    <span class="field-label" id="period-label">Período</span>
-    <div id="period-control" class="period-control"></div>
-  </div>
-
-  <div class="progress-custom-period" id="period-custom" hidden>
-    <div class="field-block">
-      <label class="field-label" for="period-from">De</label>
-      <input id="period-from" type="date" autocomplete="off">
+  <header class="ev-hero">
+    <div class="ev-hero-copy">
+      <span class="ev-eyebrow"><span class="ui-icon" data-icon="chart" aria-hidden="true"></span>Evolução</span>
+      <h1>Seu Progresso</h1>
+      <p>Acompanhe sua evolução e veja os resultados do seu esforço.</p>
     </div>
-    <div class="field-block">
-      <label class="field-label" for="period-to">Até</label>
-      <input id="period-to" type="date" autocomplete="off">
+    <svg class="ev-hero-art" viewBox="0 0 120 96" role="img" aria-label="Gráfico de barras em crescimento">
+      <path d="M8 88h104"/>
+      <path d="M18 88V66M42 88V50M66 88V34M90 88V18"/>
+      <path d="M18 66l24-16 24-16 24-16"/>
+      <path d="M74 16h18v18"/>
+    </svg>
+  </header>
+
+  <div class="ev-kpis" id="ev-kpis" aria-label="Indicadores do período">
+    <div class="ev-kpi">
+      <span class="ev-kpi-icon" aria-hidden="true"><span class="ui-icon" data-icon="dumbbell"></span></span>
+      <strong class="ev-kpi-value" id="ev-kpi-sessions">0</strong>
+      <span class="ev-kpi-label">treinos</span>
+      <span class="ev-kpi-delta" id="ev-kpi-sessions-delta">—</span>
     </div>
-    <button type="button" id="period-apply" class="secondary-button">Aplicar período</button>
-  </div>
-  <p class="field-error" id="period-error" hidden></p>
-
-  </div>
-
-  <p class="scope-note">Exibindo: <strong id="progress-scope">Todas as modalidades</strong></p>
-
-  <section class="section-block" aria-labelledby="progress-summary-heading">
-    <h2 class="section-title" id="progress-summary-heading">Resumo do período</h2>
-    <div class="history-summary progress-summary" aria-label="Totais">
-      <div class="summary-item"><div class="summary-value" id="progress-sessions">0</div><div class="summary-label">treinos</div></div>
-      <div class="summary-item"><div class="summary-value" id="progress-completed">0</div><div class="summary-label">concluídos</div></div>
-      <div class="summary-item"><div class="summary-value" id="progress-partial">0</div><div class="summary-label">parciais</div></div>
-      <div class="summary-item"><div class="summary-value" id="progress-sets">0/0</div><div class="summary-label">séries feitas</div></div>
-      <div class="summary-item"><div class="summary-value" id="progress-time">0 min</div><div class="summary-label">tempo total</div></div>
+    <div class="ev-kpi">
+      <span class="ev-kpi-icon" aria-hidden="true"><span class="ui-icon" data-icon="target"></span></span>
+      <strong class="ev-kpi-value" id="ev-kpi-consistency">0%</strong>
+      <span class="ev-kpi-label">de consistência</span>
+      <span class="ev-kpi-delta" id="ev-kpi-consistency-delta">—</span>
     </div>
-    <div id="progress-totals"></div>
-    <p class="limit-note" id="progress-measure-note" hidden></p>
-    <p class="limit-note" id="progress-limit-note" hidden></p>
+    <div class="ev-kpi">
+      <span class="ev-kpi-icon is-flame" aria-hidden="true"><span class="ui-icon" data-icon="flame"></span></span>
+      <strong class="ev-kpi-value" id="ev-kpi-calories">0</strong>
+      <span class="ev-kpi-label">calorias estimadas</span>
+      <span class="ev-kpi-delta" id="ev-kpi-calories-delta">—</span>
+    </div>
+  </div>
+
+  <p class="ev-card-note" id="ev-kpi-note">As calorias são estimadas a partir da duração real dos treinos e do seu peso no perfil. Nenhum número é inventado.</p>
+
+  <div class="ev-tabs" role="tablist" aria-label="Seções da evolução">
+    <button type="button" class="ev-tab" id="ev-tab-overview" role="tab" data-tab="overview" aria-selected="true" aria-controls="ev-panel-overview" tabindex="0">
+      <span class="ui-icon" data-icon="chart" aria-hidden="true"></span><span>Visão Geral</span>
+    </button>
+    <button type="button" class="ev-tab" id="ev-tab-muscles" role="tab" data-tab="muscles" aria-selected="false" aria-controls="ev-panel-muscles" tabindex="-1">
+      <span class="ui-icon" data-icon="target" aria-hidden="true"></span><span>Músculos</span>
+    </button>
+    <button type="button" class="ev-tab" id="ev-tab-history" role="tab" data-tab="history" aria-selected="false" aria-controls="ev-panel-history" tabindex="-1">
+      <span class="ui-icon" data-icon="history" aria-hidden="true"></span><span>Histórico</span>
+    </button>
+  </div>
+
+  <!-- Visão Geral -->
+  <section class="ev-panel" id="ev-panel-overview" role="tabpanel" aria-labelledby="ev-tab-overview" tabindex="0">
+    <div class="ev-card">
+      <div class="ev-card-head">
+        <h2 class="ev-card-title"><span class="ui-icon" data-icon="chart" aria-hidden="true"></span>Evolução de treino</h2>
+        <span class="ev-chart-highlight" id="ev-chart-total">0 sessões</span>
+      </div>
+      <div class="ev-period" role="group" aria-label="Período do gráfico" id="ev-period">
+        <button type="button" class="ev-period-button" data-period="7" aria-pressed="false">7 dias</button>
+        <button type="button" class="ev-period-button" data-period="30" aria-pressed="true">30 dias</button>
+        <button type="button" class="ev-period-button" data-period="90" aria-pressed="false">90 dias</button>
+        <button type="button" class="ev-period-button" data-period="all" aria-pressed="false">Tudo</button>
+      </div>
+      <div id="ev-chart"></div>
+      <p class="ev-card-note" id="ev-chart-note"></p>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-card-head">
+        <h2 class="ev-card-title"><span class="ui-icon" data-icon="calendar" aria-hidden="true"></span>Resumo do período</h2>
+        <div class="filter-group" role="group" aria-label="Filtrar por modalidade">
+          <button type="button" class="filter-button" data-filter="all" aria-pressed="true">Todas</button>
+          <button type="button" class="filter-button" data-filter="calisthenics" aria-pressed="false">Calistenia</button>
+          <button type="button" class="filter-button" data-filter="weights" aria-pressed="false">Musculação</button>
+        </div>
+      </div>
+      <p class="scope-note">Exibindo: <strong id="progress-scope">Todas as modalidades</strong></p>
+      <div class="history-summary progress-summary" aria-label="Totais">
+        <div class="summary-item"><div class="summary-value" id="progress-sessions">0</div><div class="summary-label">treinos</div></div>
+        <div class="summary-item"><div class="summary-value" id="progress-completed">0</div><div class="summary-label">concluídos</div></div>
+        <div class="summary-item"><div class="summary-value" id="progress-partial">0</div><div class="summary-label">parciais</div></div>
+        <div class="summary-item"><div class="summary-value" id="progress-sets">0/0</div><div class="summary-label">séries feitas</div></div>
+        <div class="summary-item"><div class="summary-value" id="progress-time">0 min</div><div class="summary-label">tempo total</div></div>
+      </div>
+      <div id="progress-totals"></div>
+      <p class="limit-note" id="progress-measure-note" hidden></p>
+      <p class="limit-note" id="progress-limit-note" hidden></p>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-card-head">
+        <h2 class="ev-card-title"><span class="ui-icon" data-icon="calendar" aria-hidden="true"></span>Calendário de frequência</h2>
+      </div>
+      <p class="section-note">Últimas 12 semanas, de segunda a domingo. A intensidade da célula é o número de séries concluídas no dia.</p>
+      <div id="progress-frequency"></div>
+      <p class="limit-note" id="frequency-note"></p>
+    </div>
+
+    <details class="progress-disclosure">
+      <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-weekly-heading">Semana a semana</h2></summary>
+      <section class="section-block progress-disclosure-content" aria-labelledby="progress-weekly-heading">
+        <p class="section-note">Últimas 8 semanas, contadas de segunda a domingo. Cada treino entra na semana da data em que foi encerrado.</p>
+        <div id="progress-weekly"></div>
+      </section>
+    </details>
+
+    <details class="progress-disclosure">
+      <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-compare-heading">Comparação de períodos</h2></summary>
+      <section class="section-block progress-disclosure-content" aria-labelledby="progress-compare-heading">
+        <p class="section-note" id="compare-scope-note"></p>
+        <div id="progress-compare"></div>
+      </section>
+    </details>
+
+    <details class="progress-disclosure">
+      <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-goals-heading">Metas da semana</h2></summary>
+      <section class="section-block progress-disclosure-content" aria-labelledby="progress-goals-heading">
+        <p class="section-note" id="goals-scope-note">Metas semanais contam apenas os treinos desta semana (segunda a domingo), no escopo escolhido abaixo.</p>
+        <form id="goals-form" class="goals-form" novalidate>
+          <div class="goals-fields">
+            <div class="field-block">
+              <label class="field-label" for="goal-sessions">Treinos por semana</label>
+              <input id="goal-sessions" type="number" min="0" max="50" step="1" inputmode="numeric" autocomplete="off">
+            </div>
+            <div class="field-block">
+              <label class="field-label" for="goal-sets">Séries por semana</label>
+              <input id="goal-sets" type="number" min="0" max="1500" step="1" inputmode="numeric" autocomplete="off">
+            </div>
+            <div class="field-block">
+              <label class="field-label" for="goal-minutes">Minutos por semana</label>
+              <input id="goal-minutes" type="number" min="0" max="10080" step="1" inputmode="numeric" autocomplete="off">
+            </div>
+            <div class="field-block">
+              <label class="field-label" for="goal-modality">Escopo da meta</label>
+              <select id="goal-modality">
+                <option value="all">Todas as modalidades</option>
+                <option value="calisthenics">Calistenia</option>
+                <option value="weights">Musculação</option>
+              </select>
+            </div>
+          </div>
+          <p class="field-hint">Alvo 0 desliga o item. Salvar metas não altera nenhum treino do histórico.</p>
+          <p class="field-hint" id="goals-profile-hint" hidden>Seu perfil tem dias e duração de treino. O botão abaixo preenche os campos como sugestão — nada é salvo até você confirmar.</p>
+          <p class="field-error" id="goals-error" hidden></p>
+          <div class="goals-actions">
+            <button type="submit" id="goals-save" class="primary-button">Salvar metas</button>
+            <button type="button" id="goals-use-profile" class="secondary-button" hidden>Usar meu perfil</button>
+            <span class="limit-note" id="goals-status" aria-live="polite"></span>
+          </div>
+        </form>
+        <div id="goals-progress"></div>
+      </section>
+    </details>
+
+    <details class="progress-disclosure">
+      <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-record-section-heading">Recordes</h2></summary>
+      <section class="section-block progress-disclosure-content" aria-labelledby="progress-record-section-heading">
+        <p class="section-note">Cada recorde mostra o critério usado. Categorias sem dado medido simplesmente não aparecem.</p>
+        <ul class="records-list" id="progress-records"></ul>
+        <p class="limit-note" id="records-note"></p>
+      </section>
+    </details>
   </section>
 
-  <section class="section-block" aria-labelledby="progress-evolution-heading">
-    <h2 class="section-title" id="progress-evolution-heading">Evolução por exercício</h2>
-    <div class="evolution-toolbar">
-      <label class="field-label" for="evolution-select">Exercício</label>
-      <select id="evolution-select"></select>
+  <!-- Músculos -->
+  <section class="ev-panel" id="ev-panel-muscles" role="tabpanel" aria-labelledby="ev-tab-muscles" tabindex="0" hidden>
+    <div class="ev-card">
+      <div class="ev-card-head">
+        <h2 class="ev-card-title"><span class="ui-icon" data-icon="target" aria-hidden="true"></span>Grupos musculares</h2>
+        <span class="ev-chart-highlight" id="ev-muscles-total">0 séries</span>
+      </div>
+      <div class="ev-period is-compact" role="group" aria-label="Período dos grupos musculares">
+        <button type="button" class="ev-period-button" data-period="7" aria-pressed="false">7 dias</button>
+        <button type="button" class="ev-period-button" data-period="30" aria-pressed="true">30 dias</button>
+        <button type="button" class="ev-period-button" data-period="90" aria-pressed="false">90 dias</button>
+        <button type="button" class="ev-period-button" data-period="all" aria-pressed="false">Tudo</button>
+      </div>
+      <div class="ev-muscles" id="ev-muscles">
+        <div class="ev-muscles-figure" id="ev-muscles-figure"></div>
+        <ul class="ev-muscle-list" id="ev-muscle-list"></ul>
+      </div>
+      <p class="ev-card-note" id="ev-muscles-note"></p>
     </div>
-    <div id="progress-evolution"></div>
+
+    <div class="ev-card">
+      <div class="ev-card-head">
+        <h2 class="ev-card-title"><span class="ui-icon" data-icon="chart" aria-hidden="true"></span>Evolução por exercício</h2>
+      </div>
+      <div class="evolution-toolbar">
+        <label class="field-label" for="evolution-select">Exercício</label>
+        <select id="evolution-select"></select>
+      </div>
+      <div id="progress-evolution"></div>
+    </div>
+
+    <details class="progress-disclosure">
+      <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-exercises-heading">Por exercício</h2></summary>
+      <section class="section-block progress-disclosure-content" aria-labelledby="progress-exercises-heading">
+        <ul class="progress-list" id="progress-exercises"></ul>
+      </section>
+    </details>
+
+    <details class="progress-disclosure">
+      <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-routines-heading">Por rotina</h2></summary>
+      <section class="section-block progress-disclosure-content" aria-labelledby="progress-routines-heading">
+        <ul class="progress-list" id="progress-routines"></ul>
+      </section>
+    </details>
   </section>
 
-  <section class="section-block" aria-labelledby="progress-frequency-heading">
-    <h2 class="section-title" id="progress-frequency-heading">Calendário de frequência</h2>
-    <p class="section-note">Últimas 12 semanas, de segunda a domingo. A intensidade da célula é o número de séries concluídas no dia.</p>
-    <div id="progress-frequency"></div>
-    <p class="limit-note" id="frequency-note"></p>
-  </section>
+  <!-- Histórico -->
+  <section class="ev-panel" id="ev-panel-history" role="tabpanel" aria-labelledby="ev-tab-history" tabindex="0" hidden>
+    <div class="ev-card">
+      <div class="ev-card-head">
+        <h2 class="ev-card-title"><span class="ui-icon" data-icon="history" aria-hidden="true"></span>Histórico de treinos</h2>
+      </div>
+      <div class="progress-period" role="group" aria-labelledby="period-label">
+        <span class="field-label" id="period-label">Período</span>
+        <div id="period-control" class="period-control"></div>
+      </div>
 
-  <details class="progress-disclosure">
-    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-goals-heading">Metas da semana</h2></summary>
-  <section class="section-block progress-disclosure-content" aria-labelledby="progress-goals-heading">
-    <p class="section-note" id="goals-scope-note">Metas semanais contam apenas os treinos desta semana (segunda a domingo), no escopo escolhido abaixo.</p>
-    <form id="goals-form" class="goals-form" novalidate>
-      <div class="goals-fields">
+      <div class="progress-custom-period" id="period-custom" hidden>
         <div class="field-block">
-          <label class="field-label" for="goal-sessions">Treinos por semana</label>
-          <input id="goal-sessions" type="number" min="0" max="50" step="1" inputmode="numeric" autocomplete="off">
+          <label class="field-label" for="period-from">De</label>
+          <input id="period-from" type="date" autocomplete="off">
         </div>
         <div class="field-block">
-          <label class="field-label" for="goal-sets">Séries por semana</label>
-          <input id="goal-sets" type="number" min="0" max="1500" step="1" inputmode="numeric" autocomplete="off">
+          <label class="field-label" for="period-to">Até</label>
+          <input id="period-to" type="date" autocomplete="off">
+        </div>
+        <button type="button" id="period-apply" class="secondary-button">Aplicar período</button>
+      </div>
+      <p class="field-error" id="period-error" hidden></p>
+
+      <div class="history-tools">
+        <div class="field-block">
+          <label class="field-label" for="history-search">Buscar no histórico</label>
+          <input id="history-search" class="catalog-search" type="search" autocomplete="off"
+                 placeholder="Rotina, exercício, carga digitada ou nota">
         </div>
         <div class="field-block">
-          <label class="field-label" for="goal-minutes">Minutos por semana</label>
-          <input id="goal-minutes" type="number" min="0" max="10080" step="1" inputmode="numeric" autocomplete="off">
-        </div>
-        <div class="field-block">
-          <label class="field-label" for="goal-modality">Escopo da meta</label>
-          <select id="goal-modality">
-            <option value="all">Todas as modalidades</option>
-            <option value="calisthenics">Calistenia</option>
-            <option value="weights">Musculação</option>
+          <label class="field-label" for="history-status">Status</label>
+          <select id="history-status">
+            <option value="all">Todos</option>
+            <option value="completed">Concluídos</option>
+            <option value="partial">Parciais</option>
           </select>
         </div>
       </div>
-      <p class="field-hint">Alvo 0 desliga o item. Salvar metas não altera nenhum treino do histórico.</p>
-      <p class="field-hint" id="goals-profile-hint" hidden>Seu perfil tem dias e duração de treino. O botão abaixo preenche os campos como sugestão — nada é salvo até você confirmar.</p>
-      <p class="field-error" id="goals-error" hidden></p>
-      <div class="goals-actions">
-        <button type="submit" id="goals-save" class="primary-button">Salvar metas</button>
-        <button type="button" id="goals-use-profile" class="secondary-button" hidden>Usar meu perfil</button>
-        <span class="limit-note" id="goals-status" aria-live="polite"></span>
+      <div class="history-tools-footer">
+        <p class="scope-note" id="history-filter-count"></p>
+        <button type="button" id="history-clear" class="secondary-button small-button" hidden>Limpar busca e status</button>
       </div>
-    </form>
-    <div id="goals-progress"></div>
-  </section>
-  </details>
-
-  <details class="progress-disclosure">
-    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-compare-heading">Comparação de períodos</h2></summary>
-  <section class="section-block progress-disclosure-content" aria-labelledby="progress-compare-heading">
-    <p class="section-note" id="compare-scope-note"></p>
-    <div id="progress-compare"></div>
-  </section>
-  </details>
-
-  <details class="progress-disclosure">
-    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-weekly-heading">Semana a semana</h2></summary>
-  <section class="section-block progress-disclosure-content" aria-labelledby="progress-weekly-heading">
-    <p class="section-note">Últimas 8 semanas, contadas de segunda a domingo. Cada treino entra na semana da data em que foi encerrado.</p>
-    <div id="progress-weekly"></div>
-  </section>
-  </details>
-
-  <details class="progress-disclosure">
-    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-records-heading">Recordes</h2></summary>
-  <section class="section-block progress-disclosure-content" aria-labelledby="progress-records-heading">
-    <p class="section-note">Cada recorde mostra o critério usado. Categorias sem dado medido simplesmente não aparecem.</p>
-    <ul class="records-list" id="progress-records"></ul>
-    <p class="limit-note" id="records-note"></p>
-  </section>
-  </details>
-
-  <details class="progress-disclosure">
-    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-routines-heading">Por rotina</h2></summary>
-  <section class="section-block progress-disclosure-content" aria-labelledby="progress-routines-heading">
-    <ul class="progress-list" id="progress-routines"></ul>
-  </section>
-  </details>
-
-  <details class="progress-disclosure">
-    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-exercises-heading">Por exercício</h2></summary>
-  <section class="section-block progress-disclosure-content" aria-labelledby="progress-exercises-heading">
-    <ul class="progress-list" id="progress-exercises"></ul>
-  </section>
-  </details>
-
-  <details class="progress-disclosure">
-    <summary class="progress-disclosure-summary"><h2 class="section-title" id="progress-history-heading">Histórico</h2></summary>
-  <section class="section-block progress-disclosure-content" aria-labelledby="progress-history-heading">
-    <div class="history-tools">
-      <div class="field-block">
-        <label class="field-label" for="history-search">Buscar no histórico</label>
-        <input id="history-search" class="catalog-search" type="search" autocomplete="off"
-               placeholder="Rotina, exercício, carga digitada ou nota">
-      </div>
-      <div class="field-block">
-        <label class="field-label" for="history-status">Status</label>
-        <select id="history-status">
-          <option value="all">Todos</option>
-          <option value="completed">Concluídos</option>
-          <option value="partial">Parciais</option>
-        </select>
-      </div>
+      <div class="history-list" id="progress-history"></div>
     </div>
-    <div class="history-tools-footer">
-      <p class="scope-note" id="history-filter-count"></p>
-      <button type="button" id="history-clear" class="secondary-button small-button" hidden>Limpar busca e status</button>
-    </div>
-    <div class="history-list" id="progress-history"></div>
   </section>
-  </details>
+
+  <aside class="ev-nudge" id="ev-nudge" aria-live="polite">
+    <span class="ev-nudge-icon" aria-hidden="true"><span class="ui-icon" data-icon="flag"></span></span>
+    <div class="ev-nudge-copy">
+      <strong id="ev-nudge-title">Seu progresso começa no primeiro treino</strong>
+      <p id="ev-nudge-text">Registre um treino para ver treinos, consistência e grupos musculares calculados com dados reais.</p>
+    </div>
+  </aside>
 </main>
 
 <nav class="bottom-nav" aria-label="Navegação principal">
@@ -265,10 +362,14 @@
 <script src="../assets/js/forja-graficos.js" defer></script>
 <script src="../assets/js/forja-catalogo.js" defer></script>
 <script src="../assets/js/forja-youtube.js" defer></script>
+<script src="../assets/js/forja-figura.js" defer></script>
+<script src="../assets/js/forja-atlas.js" defer></script>
 <script src="../assets/js/forja-demonstracoes-dados.js" defer></script>
 <script src="../assets/js/forja-demonstracoes.js" defer></script>
 <script src="../assets/js/forja-videos-dados.js" defer></script>
 <script src="../assets/js/forja-videos.js" defer></script>
+<script src="../assets/js/forja-inicio.js" defer></script>
+<script src="../assets/js/forja-evolucao.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

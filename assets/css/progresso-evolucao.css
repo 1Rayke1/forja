@@ -1,0 +1,594 @@
+/*
+  FORJA · tela Evolução (progresso): painel com abas, indicadores e gráfico.
+
+  Mobile-first. Preto/grafite + verde-limão da identidade. As regras usam
+  `body[data-page="progresso"]` para não vazar para outras telas; o layout de
+  cada bloco vem depois e só reordena o conteúdo (nada é escondido com
+  `display:none` além do que as abas controlam por estado).
+*/
+
+body[data-page="progresso"] {
+  --ev-lime: #b7f34a;
+  --ev-lime-soft: rgba(183, 243, 74, .12);
+  --ev-ink: #080b09;
+  --ev-surface: #101312;
+  --ev-surface-raised: #171b19;
+  --ev-stroke: rgba(231, 242, 232, .17);
+  --ev-muted: #9ba49c;
+  background: radial-gradient(ellipse at 82% 4%, rgba(52, 130, 20, .13), transparent 26rem), var(--ev-ink);
+}
+
+/* Topo compacto: marca + volta. O herói com "Seu Progresso" vem logo abaixo. */
+body[data-page="progresso"] .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(8, 11, 9, .9);
+  border-bottom: 1px solid rgba(231, 242, 232, .1);
+  backdrop-filter: blur(14px);
+}
+
+body[data-page="progresso"] .ev-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding-block: 8px;
+}
+
+body[data-page="progresso"] .site-header .logo {
+  color: #f7f8f7;
+  font-size: 20px;
+  letter-spacing: .18em;
+  text-decoration: none;
+}
+
+body[data-page="progresso"] .site-header .logo:hover { color: var(--ev-lime); }
+
+.ev-header-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--ev-stroke);
+  border-radius: 999px;
+  color: #cfd6d0;
+  font-size: 12.5px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.ev-header-back:hover { border-color: rgba(183, 243, 74, .6); color: var(--ev-lime); }
+.ev-header-back:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+body[data-page="progresso"] main.container {
+  width: min(100% - 24px, 980px);
+  padding-top: 14px;
+  padding-bottom: calc(var(--bottom-nav-height, 69px) + 34px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ------------------------------------------------------------------ */
+/* Cabeçalho "Seu Progresso"                                           */
+/* ------------------------------------------------------------------ */
+
+.ev-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 132px;
+  margin: 0 0 16px;
+  padding: 14px 4px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ev-hero::before {
+  content: "";
+  position: absolute;
+  inset: -60% -12% -40% 46%;
+  z-index: -1;
+  background: repeating-linear-gradient(132deg, transparent 0 38px, rgba(98, 255, 39, .085) 40px, transparent 43px 82px);
+  transform: rotate(-2deg);
+}
+
+.ev-hero-copy { min-width: 0; }
+
+.ev-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--ev-lime);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.ev-eyebrow .ui-icon svg { width: 20px; height: 20px; }
+
+.ev-hero h1 {
+  margin: 0;
+  color: #f7f8f7;
+  font-size: clamp(30px, 7.4vw, 48px);
+  line-height: 1.04;
+  letter-spacing: -.045em;
+}
+
+.ev-hero p {
+  max-width: 34ch;
+  margin: 8px 0 0;
+  color: #c9d0ca;
+  font-size: clamp(13px, 3.4vw, 17px);
+  line-height: 1.4;
+}
+
+.ev-hero-art {
+  flex: none;
+  width: clamp(64px, 17vw, 116px);
+  height: auto;
+  fill: none;
+  stroke: var(--ev-lime);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 12px rgba(183, 243, 74, .35));
+}
+
+/* ------------------------------------------------------------------ */
+/* Abas: Visão Geral · Músculos · Histórico                            */
+/* ------------------------------------------------------------------ */
+
+.ev-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.ev-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 50px;
+  padding: 9px 6px;
+  border: 1px solid var(--ev-stroke);
+  border-radius: 999px;
+  background: #141817;
+  color: #e8ece9;
+  font-size: clamp(12px, 3.2vw, 15px);
+  font-weight: 650;
+  line-height: 1.1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+
+.ev-tab .ui-icon svg { width: 19px; height: 19px; }
+.ev-tab:hover { border-color: rgba(183, 243, 74, .55); }
+.ev-tab:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+.ev-tab[aria-selected="true"] {
+  border-color: var(--ev-lime);
+  background: linear-gradient(135deg, #c3f96a, #a8ee3c);
+  color: #10170b;
+  font-weight: 850;
+  box-shadow: 0 0 20px rgba(183, 243, 74, .18);
+}
+
+.ev-panel[hidden] { display: none !important; }
+
+/* ------------------------------------------------------------------ */
+/* Indicadores                                                         */
+/* ------------------------------------------------------------------ */
+
+.ev-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin: 0 0 16px;
+}
+
+.ev-kpi {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  min-width: 0;
+  padding: 14px 8px 12px;
+  border: 1px solid var(--ev-stroke);
+  border-radius: 18px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015)), var(--ev-surface);
+  text-align: center;
+}
+
+.ev-kpi-icon { color: var(--ev-lime); }
+.ev-kpi-icon .ui-icon svg { width: 26px; height: 26px; }
+.ev-kpi-icon.is-flame { color: #ff8a3d; }
+
+.ev-kpi-value {
+  color: #f7f8f7;
+  font-size: clamp(23px, 6.4vw, 34px);
+  font-weight: 850;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+}
+
+.ev-kpi-label {
+  color: #b9c1ba;
+  font-size: clamp(11px, 2.9vw, 13px);
+  line-height: 1.2;
+}
+
+.ev-kpi-delta {
+  margin-top: 3px;
+  color: var(--ev-lime);
+  font-size: clamp(10px, 2.7vw, 12px);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ev-kpi-delta.is-neutral { color: var(--ev-muted); font-weight: 600; }
+
+/* ------------------------------------------------------------------ */
+/* Cartões de bloco                                                    */
+/* ------------------------------------------------------------------ */
+
+.ev-card {
+  margin: 0 0 14px;
+  padding: 15px 14px;
+  border: 1px solid var(--ev-stroke);
+  border-radius: 22px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, .04), transparent 40%), var(--ev-surface);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .28);
+}
+
+.ev-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ev-card-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  color: #f5f7f5;
+  font-size: clamp(16px, 4.2vw, 21px);
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.ev-card-title .ui-icon { color: var(--ev-lime); }
+.ev-card-title .ui-icon svg { width: 22px; height: 22px; }
+
+.ev-card-note {
+  margin: 10px 0 0;
+  color: var(--ev-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.ev-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 7px 30px 7px 13px;
+  border: 1px solid rgba(235, 243, 237, .26);
+  border-radius: 999px;
+  background: #141817;
+  color: #eef2ee;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* Filtro de período: 7 / 30 / 90 dias / Tudo */
+.ev-period {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 4px;
+  border: 1px solid var(--ev-stroke);
+  border-radius: 999px;
+  background: #0d100e;
+}
+
+.ev-period-button {
+  min-height: 36px;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #c9d1ca;
+  font-size: clamp(11px, 3vw, 13px);
+  font-weight: 650;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.ev-period-button[aria-pressed="true"] {
+  background: var(--ev-lime);
+  color: #10170b;
+  font-weight: 850;
+}
+
+.ev-period-button:focus-visible { outline: 3px solid #fff; outline-offset: 1px; }
+
+/* Variante compacta: mesmo controle dentro do cartão de grupos musculares. */
+.ev-period.is-compact { margin-bottom: 14px; }
+.ev-period.is-compact .ev-period-button { min-height: 32px; font-size: clamp(10.5px, 2.9vw, 12.5px); }
+
+.ev-chart-highlight {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 6px 13px;
+  border: 1px solid var(--ev-lime);
+  border-radius: 999px;
+  background: rgba(183, 243, 74, .1);
+  color: var(--ev-lime);
+  font-size: clamp(13px, 3.6vw, 16px);
+  font-weight: 800;
+}
+
+/* ------------------------------------------------------------------ */
+/* Grupos musculares                                                   */
+/* ------------------------------------------------------------------ */
+
+.ev-muscles {
+  display: grid;
+  gap: 14px;
+}
+
+.ev-muscles-figure {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 6px;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at 50% 40%, rgba(183, 243, 74, .07), transparent 62%), #0b0e0c;
+}
+
+/* A prancha é alta (600×1024). No celular as duas vistas ficam no mesmo
+   bloco de 240 px: o par ainda é legível e a lista de grupos aparece sem
+   precisar de duas telas de rolagem. */
+.ev-muscles-figure .atlas-figuras {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.ev-muscles-figure .atlas-figura-cell { gap: 2px; }
+.ev-muscles-figure .figura { width: 100%; max-width: 190px; }
+.ev-muscles-figure .figura-svg { width: 100%; height: auto; }
+
+.ev-muscle-list {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ev-muscle-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 10px;
+  align-items: baseline;
+}
+
+.ev-muscle-name {
+  color: #e9ede9;
+  font-size: clamp(12px, 3.2vw, 14px);
+  font-weight: 650;
+}
+
+.ev-muscle-share {
+  color: var(--ev-lime);
+  font-size: clamp(12px, 3.2vw, 14px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.ev-muscle-bar {
+  grid-column: 1 / -1;
+  height: 9px;
+  border-radius: 999px;
+  background: #262c27;
+  overflow: hidden;
+}
+
+.ev-muscle-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #a8ee3c, #d3fa8e);
+}
+
+.ev-muscles-empty { grid-column: 1 / -1; }
+
+/* ------------------------------------------------------------------ */
+/* Mensagem de incentivo                                               */
+/* ------------------------------------------------------------------ */
+
+.ev-nudge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 13px 15px;
+  border: 1px solid rgba(183, 243, 74, .38);
+  border-radius: 999px;
+  background: linear-gradient(100deg, rgba(183, 243, 74, .14), rgba(183, 243, 74, .04));
+}
+
+.ev-nudge-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--ev-lime);
+  color: #10170b;
+}
+
+.ev-nudge-icon .ui-icon svg { width: 23px; height: 23px; }
+
+.ev-nudge-copy { min-width: 0; }
+
+.ev-nudge strong {
+  display: block;
+  color: var(--ev-lime);
+  font-size: clamp(13px, 3.6vw, 16px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ev-nudge p {
+  margin: 2px 0 0;
+  color: #d6dbd7;
+  font-size: clamp(11.5px, 3.1vw, 13px);
+  line-height: 1.35;
+}
+
+/* ------------------------------------------------------------------ */
+/* Blocos reaproveitados da análise existente                          */
+/* ------------------------------------------------------------------ */
+
+body[data-page="progresso"] .screen-toolbar { display: none; }
+
+body[data-page="progresso"] .ev-section {
+  margin: 0 0 14px;
+  padding: 15px 14px;
+  border: 1px solid var(--ev-stroke);
+  border-radius: 22px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, .04), transparent 40%), var(--ev-surface);
+}
+
+body[data-page="progresso"] .ev-section > .section-title {
+  margin: 0 0 10px;
+  color: #f5f7f5;
+  font-size: clamp(16px, 4.2vw, 21px);
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+body[data-page="progresso"] .section-note,
+body[data-page="progresso"] .limit-note { color: var(--ev-muted); }
+
+body[data-page="progresso"] .progress-disclosure {
+  margin: 0 0 10px;
+  border: 1px solid var(--ev-stroke);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .025);
+  overflow: hidden;
+}
+
+body[data-page="progresso"] .progress-disclosure-summary {
+  padding: 13px 15px;
+  cursor: pointer;
+}
+
+body[data-page="progresso"] .progress-disclosure-summary .section-title {
+  margin: 0;
+  font-size: clamp(14px, 3.8vw, 17px);
+}
+
+body[data-page="progresso"] .progress-disclosure-content {
+  margin: 0;
+  padding: 0 15px 14px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+body[data-page="progresso"] .progress-summary .summary-item {
+  border-radius: 14px;
+  background: #141817;
+}
+
+body[data-page="progresso"] .summary-value { color: var(--ev-lime); }
+
+body[data-page="progresso"] .filter-button[aria-pressed="true"] {
+  background: var(--ev-lime);
+  color: #10170b;
+  border-color: var(--ev-lime);
+}
+
+body[data-page="progresso"] .history-item,
+body[data-page="progresso"] .record-item {
+  border-radius: 14px;
+}
+
+/* Tabela alternativa dos gráficos continua disponível para leitores de tela. */
+body[data-page="progresso"] .ui-chart { margin: 0; }
+
+/* Colunas do gráfico de evolução: altura confortável e zero em cinza, para
+   que o topo de cada coluna seja a única leitura de "quantos treinos". */
+body[data-page="progresso"] #ev-chart .ui-columns { gap: 5px; }
+body[data-page="progresso"] #ev-chart .ui-column { height: 128px; }
+body[data-page="progresso"] #ev-chart .ui-column-bar {
+  border-radius: 5px 5px 2px 2px;
+  background: linear-gradient(180deg, #d3fa8e, #a8ee3c);
+}
+body[data-page="progresso"] #ev-chart .ui-column-bar.is-muted { background: #39423b; }
+body[data-page="progresso"] #ev-chart .ui-column-value { color: #eef3ee; font-weight: 800; }
+body[data-page="progresso"] #ev-chart .ui-column-label { color: #9ba49c; }
+
+/* ------------------------------------------------------------------ */
+/* Desktop                                                             */
+/* ------------------------------------------------------------------ */
+
+@media (min-width: 760px) {
+  body[data-page="progresso"] main.container { width: min(100% - 48px, 1040px); padding-top: 24px; }
+
+  .ev-hero { min-height: 150px; padding: 18px 8px; }
+  .ev-hero p { max-width: 46ch; }
+
+  .ev-tabs { gap: 12px; margin-bottom: 20px; }
+  .ev-tab { min-height: 56px; font-size: 15px; }
+
+  .ev-kpis { gap: 14px; margin-bottom: 20px; }
+  .ev-kpi { padding: 20px 14px 16px; }
+  .ev-kpi-value { font-size: 34px; }
+
+  .ev-card { padding: 20px 22px; margin-bottom: 18px; }
+
+  .ev-muscles { grid-template-columns: minmax(200px, 260px) minmax(0, 1fr); align-items: center; gap: 22px; }
+  .ev-muscles-figure .figura { max-width: 230px; }
+  .ev-muscles-figure .atlas-figuras { max-width: 360px; }
+
+  .ev-nudge { padding: 16px 22px; }
+}
+
+@media (max-width: 360px) {
+  .ev-tab { gap: 4px; padding-inline: 3px; font-size: 11px; }
+  .ev-tab .ui-icon { display: none; }
+  .ev-kpi { padding: 11px 5px 10px; }
+  .ev-kpi-icon .ui-icon svg { width: 21px; height: 21px; }
+  .ev-period-button { font-size: 10.5px; }
+  .ev-muscle-name, .ev-muscle-share { font-size: 11.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ev-tab { transition: none; }
+}
+
