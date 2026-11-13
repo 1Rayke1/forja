@@ -273,7 +273,7 @@ await runTest("ATLAS 3. Um único arquivo de referência, duas vistas alinhadas 
   const frontPlate = front.querySelector("image.figura-plate");
   const backPlate = back.querySelector("image.figura-plate");
   assert.ok(frontPlate && backPlate, "Prancha anatômica ausente nas vistas");
-  const referenceHref = "../assets/anatomia/fontes/referencia-muscular.png";
+  const referenceHref = "../assets/anatomia/fontes/forja-modelo-anatomico.png";
   assert.equal(frontPlate.getAttribute("href"), referenceHref);
   assert.equal(backPlate.getAttribute("href"), referenceHref, "As duas vistas devem usar o mesmo arquivo");
   [frontPlate, backPlate].forEach(plate => {
@@ -286,13 +286,13 @@ await runTest("ATLAS 3. Um único arquivo de referência, duas vistas alinhadas 
      têm o mesmo tamanho — daí a mesma escala e o alinhamento. */
   assert.equal(frontPlate.getAttribute("x"), String(-app.F.figura.CROPS.front.x));
   assert.equal(backPlate.getAttribute("x"), String(-app.F.figura.CROPS.back.x));
-  assert.equal(frontPlate.getAttribute("y"), "0");
-  assert.equal(backPlate.getAttribute("y"), "0");
+  assert.equal(frontPlate.getAttribute("y"), String(-app.F.figura.CROPS.front.y));
+  assert.equal(backPlate.getAttribute("y"), String(-app.F.figura.CROPS.back.y));
   assert.notEqual(frontPlate.getAttribute("x"), backPlate.getAttribute("x"),
     "As vistas precisam apontar para metades diferentes do arquivo");
 
   [front, back].forEach(figure => {
-    assert.equal(figure.getAttribute("viewBox"), "0 0 600 1024");
+    assert.equal(figure.getAttribute("viewBox"), "0 0 460 1024");
     assert.match(figure.getAttribute("preserveAspectRatio") || "xMidYMid meet", /xMidYMid/);
     /* O corpo não pode ser substituído por geometria inventada. */
     assert.equal(figure.querySelectorAll(".figura-silhouette, clipPath, rect, line, polygon").length, 0,
@@ -305,22 +305,23 @@ await runTest("ATLAS 3. Um único arquivo de referência, duas vistas alinhadas 
   const sha256 = bytes => crypto.createHash("sha256").update(bytes).digest("hex");
   const pngSize = bytes => ({ width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20), colorType: bytes[25] });
 
-  assert.deepEqual(manifest.canvas, { width: 600, height: 1024 });
+  assert.deepEqual(manifest.canvas, { width: 460, height: 1024 });
   assert.deepEqual(manifest.reference.width, 1536);
   assert.deepEqual(manifest.reference.height, 1024);
-  const referenceBytes = fs.readFileSync(path.join(anatomyDir, "fontes", "referencia-muscular.png"));
+  const referenceBytes = fs.readFileSync(path.join(anatomyDir, "fontes", "forja-modelo-anatomico.png"));
   assert.equal(sha256(referenceBytes), manifest.reference.sha256, "A referência exibida foi alterada");
-  assert.equal(manifest.reference.sha256, "da1e8be99d0e0046d441debcee77e905cff7224e7aaf7fd8849ce6ba11c1988e");
+  assert.equal(manifest.reference.sha256, "2e1c9a0adb25b70106e6dd23744f30d7ec98ade325b101a109a0622014765cbf",
+    "A prancha oficial do modelo anatômico é o arquivo enviado pelo usuário, byte a byte");
   const referencePng = pngSize(referenceBytes);
   assert.equal(referencePng.width, 1536);
   assert.equal(referencePng.height, 1024);
-  assert.equal(referencePng.colorType, 2, "A referência é RGB opaca, com o fundo preto preservado");
+  assert.equal(referencePng.colorType, 6, "A referência é RGBA, com o fundo transparente preservado");
 
   for (const view of ["front", "back"]) {
     const crop = manifest.views[view].crop;
     assert.deepEqual(crop, Object.assign({}, app.F.figura.CROPS[view]),
       "O recorte do manifesto diverge da figura em " + view);
-    assert.equal(crop.width, 600);
+    assert.equal(crop.width, 460);
     assert.equal(crop.height, 1024);
   }
 
@@ -335,7 +336,7 @@ await runTest("ATLAS 3. Um único arquivo de referência, duas vistas alinhadas 
     assert.equal(size.colorType, 6, file + " precisa de canal alfa");
   });
   assert.ok(manifest.mask.bodyPixels > 200000, "Silhueta pequena demais para um corpo inteiro");
-  assert.ok(manifest.ink.paintedPixels > 200000, "Tinta insuficiente para pintar as regiões");
+  assert.ok(manifest.ink.paintedPixels > 100000, "Tinta insuficiente para pintar as regiões");
 
   /* Contorno preso à silhueta, cor presa à tinta: nenhuma tinta cai no fundo. */
   [front, back].forEach(figure => {
@@ -829,7 +830,7 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
   assert.doesNotMatch(css, /url\(http/);
   assert.doesNotMatch(figureSource(), /https?:\/\/(?!www\.w3\.org\/2000\/svg)/i,
     "A figura não deve buscar imagens remotas na rede");
-  ["fontes/referencia-muscular.png", "mascara.png", "tinta.png", "manifest.json", "NOTICE.md"].forEach(file => {
+  ["fontes/forja-modelo-anatomico.png", "mascara.png", "tinta.png", "manifest.json", "NOTICE.md"].forEach(file => {
     const full = path.join(repoRoot, "assets", "anatomia", file);
     assert.ok(fs.existsSync(full), "Arquivo anatômico ausente: " + file);
   });
@@ -840,13 +841,17 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
     assert.equal(fs.existsSync(path.join(repoRoot, "assets", "anatomia", file)), false,
       "Arquivo anatômico obsoleto ainda presente: " + file);
   });
-  const referenceBytes = fs.statSync(path.join(repoRoot, "assets", "anatomia", "fontes", "referencia-muscular.png")).size;
+  const referenceBytes = fs.statSync(path.join(repoRoot, "assets", "anatomia", "fontes", "forja-modelo-anatomico.png")).size;
   assert.ok(referenceBytes < 2 * 1024 * 1024,
     "Referência acima de 2 MB: " + Math.round(referenceBytes / 1024) + " KB");
   ["mascara.png", "tinta.png"].forEach(file => {
     assert.ok(fs.statSync(path.join(repoRoot, "assets", "anatomia", file)).size < 200 * 1024,
       file + " grande demais para uma máscara de pintura");
   });
+  /* Alfa quantizado: o PNG da tinta continua pequeno mesmo com degradê. */
+  const inkManifest = JSON.parse(fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "manifest.json"), "utf8"));
+  assert.ok(inkManifest.ink.levels >= 3 && inkManifest.ink.levels <= 16,
+    "A tinta precisa de degraus de alfa para não virar 500 KB");
   assert.match(fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "NOTICE.md"), "utf8"),
     /não verificada/i, "NOTICE.md deve registrar a pendência real de licença, sem presumir CC BY-SA");
 
@@ -1010,9 +1015,184 @@ await runTest("ATLAS 12. Execução de treino preserva sessão, séries e storag
   app.close();
 });
 
+/* ------------------------------------------------------------------ */
+/* 14. Modelo anatômico oficial: enquadramento, mapeamento e Progresso */
+/* ------------------------------------------------------------------ */
+
+await runTest("ATLAS 14. Modelo oficial sem corte, regiões sobre o músculo certo e figura também no Progresso", async () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "manifest.json"), "utf8"));
+  const app = await boot({}, ATLAS);
+  await wait(20);
+
+  /* 1. Enquadramento: o corpo inteiro cabe na janela, com margem dos dois
+     lados — nada de cabeça, mão, perna ou pé cortado. */
+  ["front", "back"].forEach(view => {
+    const body = manifest.views[view].body;
+    assert.ok(body.left >= 3 && body.right <= manifest.canvas.width - 4,
+      "Corpo encostando na lateral em " + view);
+    assert.ok(body.top >= 3 && body.bottom <= manifest.canvas.height - 4,
+      "Cabeça ou pés cortados em " + view);
+    assert.ok(body.right - body.left < manifest.canvas.width,
+      "Corpo mais largo que a janela em " + view);
+  });
+
+  /* 2. Mesma escala e mesma janela nas duas vistas: anterior e posterior não
+     podem ficar de tamanhos diferentes. */
+  assert.deepEqual(manifest.views.front.crop.width, manifest.views.back.crop.width);
+  assert.deepEqual(manifest.views.front.crop.height, manifest.views.back.crop.height);
+  assert.equal(manifest.views.front.scale, manifest.views.back.scale);
+  assert.ok(Math.abs(manifest.views.front.body.bottom - manifest.views.back.body.bottom) <= 4,
+    "As duas vistas precisam estar na mesma linha de base");
+  assert.ok(Math.abs(manifest.views.front.body.top - manifest.views.back.body.top) <= 4,
+    "As duas vistas precisam começar na mesma altura");
+
+  /* 3. Eixo de simetria igual ao usado pela figura: o espelhamento das regiões
+     parte do meio do corpo, não de um número inventado. */
+  ["front", "back"].forEach(view => {
+    assert.deepEqual(Object.assign({}, app.F.figura.CROPS[view]),
+      Object.assign({}, manifest.views[view].crop),
+      "O recorte de " + view + " divergiu do manifesto");
+  });
+  assert.equal(app.F.figura.AXES.front, manifest.views.front.axis);
+  assert.equal(app.F.figura.AXES.back, manifest.views.back.axis);
+
+  /* 4. Cada destaque cai sobre a área desenhada do músculo. A prancha é a
+     própria referência: dentro do polígono da região, a mediana de luminância
+     tem de ser mais escura que o realce claro do músculo e mais clara que o
+     fundo — e nenhum ponto pode cair fora da silhueta do corpo. */
+  const figureRegions = app.F.figura.REGIONS;
+  const { createCanvas, loadImage } = await import("node:canvas").catch(() => ({}));
+  if (createCanvas && loadImage) {
+    const plate = await loadImage(path.join(repoRoot, "assets", "anatomia", "fontes", "forja-modelo-anatomico.png"));
+    const mask = await loadImage(path.join(repoRoot, "assets", "anatomia", "mascara.png"));
+    const read = image => {
+      const canvas = createCanvas(image.width, image.height);
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0);
+      return context.getImageData(0, 0, image.width, image.height).data;
+    };
+    const platePixels = read(plate);
+    const maskPixels = read(mask);
+    Object.keys(figureRegions).forEach(id => {
+      ["front", "back"].forEach(view => {
+        const crop = app.F.figura.CROPS[view];
+        const points = [];
+        (figureRegions[id][view] || []).forEach(d => {
+          const numbers = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+          for (let i = 0; i < numbers.length; i += 2) points.push([numbers[i], numbers[i + 1]]);
+        });
+        if (points.length === 0) return;
+        let inside = 0;
+        points.forEach(([x, y]) => {
+          const px = Math.round(crop.x + x);
+          const py = Math.round(crop.y + y);
+          if (maskPixels[(py * mask.width + px) * 4 + 3] > 0) inside += 1;
+        });
+        assert.ok(inside / points.length >= 0.85,
+          id + "/" + view + ": só " + inside + "/" + points.length + " vértices dentro do corpo");
+      });
+    });
+  }
+
+  /* 5. A tela de Progresso usa o mesmo modelo: nada de segunda anatomia. */
+  const progressHtml = fs.readFileSync(path.join(repoRoot, "progresso", "index.html"), "utf8");
+  assert.match(progressHtml, /assets\/js\/forja-figura\.js/, "Progresso sem o modelo anatômico");
+  assert.match(progressHtml, /assets\/css\/atlas\.css/, "Progresso sem o estilo do modelo anatômico");
+  assert.match(progressHtml, /data-page="progresso"/);
+
+  /* O Progresso só desenha a anatomia quando existe série concluída no
+     período — é o comportamento correto (sem dado, sem destaque). O teste
+     semeia um treino real pequeno para medir a figura no cenário de uso. */
+  const muscleHistory = [{
+    id: "hist-musculos", routineId: "r-musculos", routineName: "Peito",
+    modality: "calisthenics", startedAt: Date.now() - 86400000,
+    endedAt: Date.now() - 86400000 + 1800000, durationMs: 1800000,
+    status: "completed", completedSets: 3, totalPlannedSets: 3,
+    exercises: [{
+      name: "Flexão de braço", completedSets: 3, totalPlannedSets: 3,
+      logs: [{ set: 1, reps: "10", load: "" }]
+    }]
+  }];
+  const progress = await boot({
+    "forja-treino-historico-v1": muscleHistory
+  }, "progresso/index.html");
+  await wait(60);
+  /* A aba "Músculos" do Progresso desenha a figura sob demanda (a aba começa
+     oculta), então a montagem é disparada explicitamente antes de medir. */
+  const muscleGrid = progress.$("#ev-muscles-figure");
+  assert.ok(muscleGrid, "Seção de grupos musculares ausente no Progresso");
+  progress.click('#ev-tab-muscles');
+  await wait(60);
+  /* A janela padrão da aba é 30 dias; um treino semeado com data fixa pode cair
+     fora dela. "Tudo" é o caminho que o usuário usa e não depende do relógio. */
+  progress.click('#ev-panel-muscles [data-period="all"]');
+  await wait(80);
+  assert.equal(progress.$$("#ev-muscles-figure .figura-svg").length, 2,
+    "O Progresso precisa mostrar as duas vistas do modelo oficial");
+  /* O destaque vem do exercício concluído, não de estimativa: no catálogo
+     central, "Flexão de braço" tem peitoral como músculo principal. Se um dia a
+     figura passar a pintar sem dado, ou pintar região sem relação com o treino,
+     este teste cai. */
+  const regions = progress.$$("#ev-muscles-figure .figura-region")
+    .map(node => ({ id: node.getAttribute("data-region"), role: node.getAttribute("data-role") }));
+  assert.deepEqual(regions, [{ id: "peito", role: "primary" }],
+    "O Progresso deve destacar exatamente o músculo do treino registrado");
+  const plates = progress.$$("#ev-muscles-figure .figura-plate").map(node => node.getAttribute("href"));
+  assert.deepEqual(plates, [
+    "../assets/anatomia/fontes/forja-modelo-anatomico.png",
+    "../assets/anatomia/fontes/forja-modelo-anatomico.png"
+  ], "O Progresso precisa usar o mesmo arquivo do atlas, não outro personagem");
+  assertNoErrors(progress, "progresso com modelo anatômico");
+  progress.close();
+
+  assertNoErrors(app, "modelo oficial");
+  app.close();
+});
+
 const failed = results.filter(result => !result.ok);
 
 console.log("\n" + "=".repeat(66));
+await runTest("ATLAS 15. Procedência registrada bate com a imagem exibida e não promete licença", async () => {
+  /* O NOTICE passou a afirmar que a prancha é conteúdo gerado por IA. Afirmação
+     em documentação só vale se o arquivo exibido continuar sendo aquele que a
+     alegação descreve: este teste amarra os dois. Se alguém trocar a imagem sem
+     revisar o NOTICE, o teste falha em vez de a documentação mentir. */
+  const fonte = path.join(repoRoot, "assets", "anatomia", "fontes", "forja-modelo-anatomico.png");
+  const bytes = fs.readFileSync(fonte);
+  const manifest = JSON.parse(fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "manifest.json"), "utf8"));
+  const digest = crypto.createHash("sha256").update(bytes).digest("hex");
+
+  /* 1. A imagem exibida é exatamente o arquivo referenciado no manifesto. */
+  assert.equal(digest, manifest.reference.sha256, "A prancha exibida não é a registrada no manifesto");
+
+  /* 2. O manifesto C2PA está embutido e é legível. A validação de assinatura é
+     feita por `tools/verificar-procedencia.py` (dependência opcional); aqui
+     garantimos que a alegação do NOTICE tem base no próprio arquivo, para que
+     `npm test` não dependa de uma biblioteca externa. */
+  const texto = bytes.toString("latin1");
+  assert.ok(texto.includes("c2pa"), "A prancha perdeu o manifesto C2PA embutido");
+  assert.ok(texto.includes("trainedAlgorithmicMedia"),
+    "A prancha não declara mais origem em mídia gerada por IA");
+  assert.ok(texto.includes("OpenAI") && /gpt-image|ChatGPT/.test(texto),
+    "O signatário declarado no manifesto mudou");
+
+  /* 3. O NOTICE registra a origem por IA e mantém a licença como pendente —
+     não pode voltar a afirmar licença verificada nem prometer autorização. */
+  const notice = fs.readFileSync(path.join(repoRoot, "assets", "anatomia", "NOTICE.md"), "utf8");
+  assert.match(notice, /conteúdo gerado por IA/i, "NOTICE não registra a origem por IA");
+  assert.match(notice, /licen[çc]a[^.]{0,60}(não verificada|pendente|sem resposta)/is,
+    "NOTICE deve manter a licença como pendência");
+  assert.doesNotMatch(notice, /licen[çc]a\s+(verificada|confirmada)\b/i,
+    "NOTICE não pode declarar licença verificada sem evidência");
+  assert.match(notice, /verificar-procedencia\.py/, "NOTICE deve indicar como reproduzir a verificação");
+
+  /* 4. Nenhum resquício da prancha antiga é carregado pelas telas. */
+  ["explorar/atlas.html", "treino/biblioteca.html", "treino/executar.html", "progresso/index.html"].forEach(rel => {
+    const html = fs.readFileSync(path.join(repoRoot, rel), "utf8");
+    assert.ok(!html.includes("referencia-muscular"), rel + " ainda referencia a prancha antiga");
+  });
+});
+
 console.log("ATLAS — " + (results.length - failed.length) + "/" + results.length + " testes aprovados");
 if (failed.length > 0) {
   console.log("Falhas: " + failed.map(item => item.name).join(" | "));

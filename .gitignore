@@ -1,8 +1,5 @@
 node_modules/
-.netlify/
-.env
-.env.*
-!.env.example
+.arena-chromium-howto.txt
 .DS_Store
 
 # Segredos do backend: nenhuma chave real é versionada.
