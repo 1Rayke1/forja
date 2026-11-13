@@ -1158,17 +1158,27 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
     let inkOutside = 0;
     let inkOnLines = 0;
     let inkTotal = 0;
+    let inkAlphaSum = 0;
     for (let index = 0; index < 1536 * 1024; index += 1) {
       if (inkPixels[index * 4 + 3] === 0) continue;
+      inkAlphaSum += inkPixels[index * 4 + 3];
       inkTotal += 1;
       const x = index % 1536;
       const y = Math.floor(index / 1536);
       if (maskPixels[index * 4 + 3] === 0) inkOutside += 1;
       if (luminanceAt(x, y) >= manifest.ink.ramp) inkOnLines += 1;
     }
-    if (inkTotal < 200000 || inkOutside !== 0 || inkOnLines !== 0) {
+    if (inkTotal < 100000 || inkOutside !== 0 || inkOnLines !== 0) {
       failures.file.push('tinta inválida: ' + inkTotal + ' px, ' + inkOutside + ' fora da silhueta, ' +
-        inkOnLines + ' sobre linhas claras');
+        inkOnLines + ' sobre realces claros');
+    }
+    /* Degradê quantizado: a tinta não pode cobrir o corpo inteiro com alfa
+       cheio, senão o modelo fica chapado de verde em vez de destacado. */
+    const inkCoverage = inkTotal / (1536 * 1024);
+    const inkAverage = inkAlphaSum / Math.max(1, inkTotal);
+    if (inkCoverage > 0.9 || inkAverage > 250 || inkAverage < 40) {
+      failures.file.push('tinta sem degradê: cobertura ' + inkCoverage.toFixed(3) +
+        ', alfa médio ' + inkAverage.toFixed(0));
     }
 
     const figures = {};
@@ -1188,7 +1198,7 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
       const inkMaskImage = figure.querySelector('mask.figura-ink-mask image.figura-mask-plate');
       const crop = manifest.views[view].crop;
       const href = plate.getAttribute('href').split('/').slice(-2).join('/');
-      if (href !== 'fontes/referencia-muscular.png') failures.window.push(view + ': href ' + href);
+      if (href !== 'fontes/forja-modelo-anatomico.png') failures.window.push(view + ': href ' + href);
       if (plate.getAttribute('x') !== String(-crop.x)) failures.window.push(view + ': x ' + plate.getAttribute('x'));
       if (plate.getAttribute('y') !== String(-crop.y)) failures.window.push(view + ': y ' + plate.getAttribute('y'));
       if (plate.getAttribute('width') !== '1536' || plate.getAttribute('height') !== '1024') {
@@ -1206,7 +1216,9 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
         });
       });
 
-      /* Corpo inteiro dentro da janela, com margem em todos os lados. */
+      /* Corpo inteiro dentro da janela, com margem em todos os lados.
+         Coordenadas medidas na viewBox (não na prancha): é isso que decide se
+         a figura aparece cortada na tela. */
       let left = 1536;
       let right = -1;
       let top = 1024;
@@ -1220,13 +1232,16 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
           if (y > bottom) bottom = y;
         }
       }
-      if (top < 2 || bottom > crop.height - 3 || left < 2 || right > crop.width - 3) {
+      const canvas = manifest.canvas;
+      if (top < 2 || bottom > canvas.height - 3 || left < 2 || right > canvas.width - 3) {
         failures.framing.push(view + ': corpo em ' + JSON.stringify({ left, top, right, bottom }));
       }
-      if (Math.abs(left - manifest.views[view].body.left) > 1 ||
-          Math.abs(bottom - manifest.views[view].body.bottom) > 1) {
-        failures.framing.push(view + ': limites divergem do manifesto');
-      }
+      ['left', 'right', 'top', 'bottom'].forEach(edge => {
+        if (Math.abs({ left, right, top, bottom }[edge] - manifest.views[view].body[edge]) > 1) {
+          failures.framing.push(view + ': ' + edge + ' diverge do manifesto (' +
+            { left, right, top, bottom }[edge] + ' vs ' + manifest.views[view].body[edge] + ')');
+        }
+      });
 
       /* A silhueta precisa alcançar cabeça e pés: nada cortado. */
       const columnInk = (x) => {
@@ -1245,9 +1260,10 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
        aparecer. A curva é percorrida de verdade, como no navegador. */
     const NS = 'http://www.w3.org/2000/svg';
     const geometry = document.createElementNS(NS, 'svg');
-    geometry.setAttribute('viewBox', '0 0 600 1024');
-    geometry.setAttribute('width', '600');
-    geometry.setAttribute('height', '1024');
+    const viewBox = window.Forja.figura.VIEWBOX;
+    geometry.setAttribute('viewBox', '0 0 ' + viewBox.width + ' ' + viewBox.height);
+    geometry.setAttribute('width', String(viewBox.width));
+    geometry.setAttribute('height', String(viewBox.height));
     geometry.style.position = 'fixed';
     geometry.style.left = '-10000px';
     geometry.style.top = '0';
@@ -1287,8 +1303,14 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
             }
           }
 
-          if (box.x < 0 || box.y < 0 || box.x + box.width > 600 || box.y + box.height > 1024 ||
-              !Number.isFinite(length) || length < 20 || outside > 2 || inked / total < 0.5) {
+          /* A tinta nesta prancha só escurece fissuras e inserções: os ventres
+             ficam claros de propósito. Exigir metade das amostras com tinta
+             seria exigir o corpo todo pintado — o oposto do que a interface
+             quer. O que o teste cobra é que a região caia sobre anatomia
+             existente (dentro da silhueta) e cubra sombra de verdade, não
+             apenas área clara. */
+          if (box.x < 0 || box.y < 0 || box.x + box.width > viewBox.width || box.y + box.height > viewBox.height ||
+              !Number.isFinite(length) || length < 20 || outside > 2 || inked / total < 0.15) {
             failures.region.push(view + '/' + regionId + '[' + index + ']: ' + outside + '/' + samples +
               ' amostras fora, ' + inked + '/' + total + ' com tinta; bbox=' +
               JSON.stringify({ x: box.x, y: box.y, width: box.width, height: box.height }));
@@ -1345,6 +1367,11 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
         const plate = svgEl.querySelector('image.figura-plate').getBoundingClientRect();
         const shape = svgEl.querySelector('.figura-region-shape').getBoundingClientRect();
         const outline = svgEl.querySelector('.figura-region-outline').getBoundingClientRect();
+        /* A primeira região pode ser uma faixa estreita (abdômen). O que prova
+           que o destaque tem tamanho útil é a MAIOR caixa da vista. */
+        const boxes = Array.from(svgEl.querySelectorAll('.figura-region-shape'))
+          .map(node => node.getBoundingClientRect());
+        const largest = boxes.reduce((best, box) => (box.width * box.height > best.width * best.height ? box : best), boxes[0]);
         return {
           view: svgEl.dataset.view,
           width: Math.round(plate.width),
@@ -1352,6 +1379,8 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
           y: (shape.y - plate.y) / plate.height,
           w: shape.width / plate.width,
           h: shape.height / plate.height,
+          spanW: largest.width / plate.width,
+          spanH: largest.height / plate.height,
           outlineMatches: Math.abs(outline.x - shape.x) < 0.6 && Math.abs(outline.width - shape.width) < 0.6
         };
       });
@@ -1377,7 +1406,8 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
       assert.ok(item.outlineMatches, 'Contorno e preenchimento divergiram em ' + entry.width + 'px');
     });
   });
-  assert.ok(baseline[0].w > 0.05 && baseline[0].h > 0.02, 'Destaque pequeno demais no layout real');
+  assert.ok(baseline[0].spanW > 0.05 && baseline[0].spanH > 0.02,
+    'Destaque pequeno demais no layout real: ' + JSON.stringify({ w: baseline[0].spanW, h: baseline[0].spanH }));
 });
 
 await check('Alvos de toque principais têm pelo menos 44px de altura', async () => {

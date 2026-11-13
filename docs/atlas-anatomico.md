@@ -2,11 +2,15 @@
 
 ## 1. Decisão desta revisão
 
-O Atlas usa **a imagem fornecida pelo usuário nesta revisão** (duas vistas,
-fundo preto, linhas brancas). Ela substitui a ilustração realista sobre fundo
-branco da revisão anterior. O corpo exibido é essa imagem, da cabeça aos pés,
-nas vistas anterior e posterior — sem redesenho, sem vetorização e sem
-substituição por ilustração gerada.
+O Atlas usa **a imagem oficial fornecida pelo usuário nesta revisão** (duas
+vistas, escala de cinza, contorno verde discreto, short preto com o símbolo do
+FORJA, fundo transparente). Ela substitui, de uma vez, tanto a ilustração
+realista sobre fundo branco quanto a prancha de linhas brancas sobre fundo preto
+das revisões anteriores. O corpo exibido é essa imagem, da cabeça aos pés, nas
+vistas anterior e posterior — sem redesenho, sem vetorização e sem troca por
+arte de outro personagem. A prancha **é** uma imagem gerada por IA (verificado
+pelo manifesto C2PA embutido, `tools/verificar-procedencia.py`); o que o app
+acrescenta são apenas as camadas de interação descritas abaixo.
 
 A classificação muscular e os papéis do catálogo não mudaram. A mudança fica
 restrita à base visual, ao registro dos destaques, à documentação e aos testes
@@ -51,11 +55,12 @@ Um único arquivo com as duas vistas:
 
 | Vista | Janela na prancha | Canvas | Corpo detectado na janela |
 | --- | --- | --- | --- |
-| Anterior | `x = 110`, `y = 0` | 600 × 1024 | `x=20..579`, `y=2..1010` |
-| Posterior | `x = 770`, `y = 0` | 600 × 1024 | `x=13..585`, `y=2..1009` |
+| Anterior | `x = 239`, `y = -3` | 460 × 1024 | `x=11..446`, `y=4..1015` |
+| Posterior | `x = 842`, `y = -3` | 460 × 1024 | `x=10..450`, `y=4..1013` |
 
 Os limites vêm da silhueta derivada (`mascara.png`) e estão no
-`manifest.json`. Há margem em todos os lados: nada de cabeça, mãos ou pés
+`manifest.json`; a escala é 1:1 (um pixel da prancha é uma unidade da viewBox),
+então a imagem não é esticada nem reduzida. Há margem em todos os lados: nada de cabeça, mãos ou pés
 cortados. `preserveAspectRatio="xMidYMid meet"` mantém a proporção em qualquer
 largura e as duas janelas têm o mesmo tamanho, então as vistas ficam alinhadas.
 
@@ -114,6 +119,9 @@ Continuam intactos:
 - seleção por exercício e exploração por grupo;
 - filtros por modalidade e estados vazios;
 - detalhe na biblioteca e consulta durante a execução;
+- **Evolução/Progresso**, que passou a exibir a mesma figura (`forja-figura.js`
+  + `atlas.css`) com as regiões dos treinos do período, reaproveitando
+  `F.figura` e o vocabulário de `F.atlas` em vez de um segundo mapa;
 - armazenamento local, rotinas, sessões e histórico;
 - seleção de sexo no perfil, que não escolhe nada no app e não afeta a prancha
   (ver `NOTICE.md`, seção 5);
@@ -200,7 +208,8 @@ região precisa ser seguida pela auditoria E2E e por capturas reais.
 
 ## 8. Bloqueio de licença e publicação
 
-A imagem não traz autoria, origem ou licença verificável. Nenhuma licença
+A imagem **traz** procedência verificável por C2PA — gerada por OpenAI
+(`gpt-image`), assinatura íntegra — mas **não traz licença de uso**. Nenhuma licença
 Creative Commons é atribuída a ela.
 
 A situação está registrada como **não verificada** em

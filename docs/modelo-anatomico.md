@@ -4,15 +4,25 @@ Documento técnico do modelo anatômico do FORJA. Para a decisão de produto e a
 integração na tela do Atlas, ver `docs/atlas-anatomico.md`. Para origem,
 licença e limitações de uso da imagem, ver `assets/anatomia/NOTICE.md`.
 
+> **Procedência:** a prancha é **conteúdo gerado por IA** — o arquivo carrega um
+> manifesto C2PA da OpenAI (`trainedAlgorithmicMedia`), verificável com
+> `python3 tools/verificar-procedencia.py`. Isso não concede licença de uso: a
+> autorização de redistribuição continua pendente (`NOTICE.md` §2).
+
 ## 1. Princípio
 
-A anatomia exibida é **a imagem fornecida pelo usuário**, sem redesenho:
+A anatomia exibida é **a imagem oficial fornecida pelo usuário**, sem redesenho:
 
-- um único arquivo, `assets/anatomia/fontes/referencia-muscular.png`
-  (1536 × 1024, fundo preto, linhas brancas, vistas anterior e posterior lado a
+- um único arquivo, `assets/anatomia/fontes/forja-modelo-anatomico.png`
+  (1536 × 1024, RGBA, fundo transparente, vistas anterior e posterior lado a
   lado);
 - nenhum corpo vetorial, silhueta de boneco ou músculo desenhado por código;
-- nenhuma cor aplicada à prancha: preto e branco permanecem como no original.
+- nenhuma cor aplicada à prancha: a escala de cinza, o contorno verde discreto
+  e o short preto com o símbolo do FORJA permanecem como no original.
+
+A prancha de linhas brancas sobre fundo preto usada na revisão anterior
+(`fontes/referencia-muscular.png`) foi substituída por esta e não é exibida em
+nenhuma tela.
 
 Sobre essa prancha existe uma **camada de interação independente**: caminhos
 SVG com as regiões do catálogo. Essa camada não cria anatomia — ela indica
@@ -24,14 +34,24 @@ As duas vistas são janelas do mesmo arquivo, não duas imagens:
 
 | Vista | Janela na prancha | Canvas da figura |
 | --- | --- | --- |
-| Anterior | `x = 110`, `y = 0`, 600 × 1024 | `viewBox="0 0 600 1024"` |
-| Posterior | `x = 770`, `y = 0`, 600 × 1024 | `viewBox="0 0 600 1024"` |
+| Anterior | `x = 239`, `y = -3`, 460 × 1024 | `viewBox="0 0 460 1024"` |
+| Posterior | `x = 842`, `y = -3`, 460 × 1024 | `viewBox="0 0 460 1024"` |
 
-O `<image>` da prancha é posicionado em `x = -crop.x`; a viewBox recicla o
-resto. Como as duas janelas têm exatamente o mesmo tamanho e o mesmo `y`, as
-vistas aparecem **na mesma escala e alinhadas**, inclusive quando o layout muda
-de largura. Os recortes estão em `assets/anatomia/manifest.json` e em
-`Forja.figura.CROPS`, e um teste compara os dois.
+O `<image>` da prancha é posicionado em `x = -crop.x` e `y = -crop.y`; a viewBox
+recicla o resto. Como as duas janelas têm exatamente o mesmo tamanho e a mesma
+escala, as vistas aparecem **do mesmo tamanho e alinhadas**, inclusive quando o
+layout muda de largura. Os recortes estão em `assets/anatomia/manifest.json` e
+em `Forja.figura.CROPS`, e um teste compara os dois.
+
+O enquadramento não é escolhido a olho: o gerador mede o corpo de cada vista
+(primeira e última coluna, topo da cabeça, planta dos pés), acha o eixo de
+simetria espelhando a silhueta e monta uma janela com margem dos dois lados.
+Resultado medido nesta prancha: eixo em `x = 230`, corpo de `x = 11` a `446`
+(anterior) e de `x = 10` a `450` (posterior), do topo `y = 4` aos pés em
+`y = 1015` — nada de cabeça, mão, perna ou pé cortado, com margem de 4 px em
+cima e 6 px embaixo. A escala comum é **1:1** (um pixel da prancha é uma
+unidade da viewBox): a imagem não é esticada nem reduzida, e as duas vistas
+nunca ficam com tamanhos diferentes.
 
 Consequências: não há duplicata da imagem no repositório, o navegador baixa a
 prancha uma vez e não existe a possibilidade de as duas vistas ficarem em
@@ -39,27 +59,43 @@ escalas diferentes.
 
 ## 3. Máscaras derivadas
 
-O fundo da prancha é preto **opaco**, então o canal alfa dela não serve para
-limitar a tinta dos destaques. Duas máscaras são calculadas da própria prancha
-por `tools/gerar-anatomia-referencia.mjs`:
+O fundo da prancha é **transparente**, com um halo residual de alfa baixo. Duas
+máscaras são calculadas da própria prancha por
+`tools/gerar-anatomia-referencia.mjs`:
 
 | Arquivo | Conteúdo | Uso |
 | --- | --- | --- |
-| `mascara.png` | silhueta: limiar de luminância `> 12`, fechamento morfológico de raio 8, margem de 2 px | prende o **contorno** dos destaques ao corpo |
-| `tinta.png` | silhueta **e** luminância `< 220` | prende a **cor** às áreas escuras do desenho |
+| `mascara.png` | silhueta: alfa `> 140`, fechamento morfológico de raio 6, margem de 2 px | prende o **contorno** dos destaques ao corpo |
+| `tinta.png` | silhueta **e** luminância `< 176`, alfa proporcional à sombra em 4 degraus, com teto próprio sobre o short | dosa a **cor** pela sombra do desenho |
 
-O resultado visual: a cor aparece nas fissuras e nos ventres escuros, as linhas
-brancas continuam brancas por cima. É o comportamento "destaque discreto, sem
-encobrir os detalhes" exigido — e é determinístico.
+O resultado visual: a cor é forte nas fissuras e inserções, fraca no meio-tom e
+ausente nos realces claros (peitoral, deltoide, quadríceps), que continuam
+cinza-claros. É o comportamento "destaque discreto, sem encobrir os detalhes"
+exigido — o corpo nunca fica chapado de verde — e é determinístico.
+
+### O short não é músculo
+
+O short é quase preto (luminância mediana ≈ 30), então com o degradê normal ele
+recebia cor cheia e a peça virava uma mancha verde. Mas o tecido cobre a pelve,
+e **Glúteos** e **Quadril** são regiões que existem justamente ali: apagar a
+tinta sobre a peça deixaria essas duas regiões invisíveis.
+
+A solução: a tinta sobre o tecido tem um **teto de alfa** próprio
+(`FABRIC_ALPHA = 78`, contra 255 no resto do corpo). Assim o destaque aparece
+como véu translúcido sobre o short — reconhecível, sem transformar a peça em
+músculo e sem inventar anatomia por baixo dela. A faixa é reconhecida pela
+própria imagem (a peça é a massa escura contínua abaixo de 42 % da altura da
+prancha), não por coordenada digitada à mão; o manifesto registra
+`ink.fabric.{ramp,alphaCeiling,pixels}` para auditoria.
 
 Nenhuma das duas máscaras é desenhada à mão: são recalculadas dos mesmos pixels
 exibidos. Se a prancha for trocada, as máscaras acompanham.
 
 ### Por que não há `mix-blend-mode`
 
-A revisão anterior usava `mix-blend-mode: color`. Nesta prancha (fundo preto) o
-modo `color` preserva a luminância do fundo — que é zero fora das linhas — e a
-região ficava invisível. Testes com `screen` e `lighten` também falharam de
+A revisão anterior usava `mix-blend-mode: color`. Na prancha anterior (fundo
+preto) o modo `color` preserva a luminância do fundo — que é zero fora das
+linhas — e a região ficava invisível. Testes com `screen` e `lighten` também falharam de
 forma intermitente: no Chromium 138, uma camada SVG com máscara de imagem e
 blend era composta **abaixo** da prancha opaca em parte das figuras da mesma
 página, e a região desaparecia.
@@ -79,11 +115,12 @@ que o próprio desenho delimita. O processo foi:
 2. identificar no desenho as divisões visíveis — clavícula, linha do peitoral,
    dobra do cotovelo, linha alba, crista ilíaca, dobra glútea, patela, tendão
    calcâneo;
-3. traçar um polígono por região, espelhado em torno do eixo do desenho
-   (anterior `x = 301`, posterior `x = 298`);
+3. traçar um polígono por região, espelhado em torno do eixo de cada desenho
+   (nesta prancha, `x = 230` nas duas vistas);
 4. comparar o traçado com a prancha em render real, região por região;
-5. validar que cada caminho fecha, fica dentro da silhueta e pinta de fato as
-   áreas escuras (teste E2E).
+5. validar que cada caminho fecha, fica dentro da silhueta, cobre sombra de
+   verdade (teste E2E) e que todo vértice cai sobre o corpo (testes ATLAS 3 e
+   ATLAS 14).
 
 | ID (catálogo) | Vista | O que a região representa nesta prancha |
 | --- | --- | --- |
@@ -100,7 +137,7 @@ que o próprio desenho delimita. O processo foi:
 | `costas` | posterior | trapézio e região escapular superior, agrupados |
 | `dorsais` | posterior | grande dorsal e massa lateral do dorso até a crista ilíaca |
 | `lombar` | posterior | projeção da região lombar; eretores profundos não isolados |
-| `gluteos` | posterior | glúteo máximo, da crista ilíaca à dobra glútea |
+| `gluteos` | posterior | glúteo sob o short, da crista ilíaca à dobra glútea — o tecido cobre o contorno |
 | `posterior-coxa` | posterior | isquiotibiais até a fossa poplítea |
 | `panturrilha` | posterior | ventres do tríceps sural; tendão calcâneo não é pintado |
 
@@ -126,12 +163,13 @@ mudaram de vocabulário.
 peito: {
   label: "Peitoral",
   note: "Porção visível do peitoral maior, do esterno à axila.",
-  front: pair("front", [[299, 190], [268, 182], /* … */]),
+  backNote: "",
+  front: [[[220, 192], [202, 186], /* … */]],
   back: []
 }
 ```
 
-- as coordenadas estão no mesmo espaço da viewBox (600 × 1024);
+- as coordenadas estão no mesmo espaço da viewBox (460 × 1024);
 - `pair(view, pontos)` devolve a metade autoral **e** o espelho em torno do eixo
   daquela vista;
 - `polygonPath` fecha o polígono com curvas quadráticas nos pontos médios: a
@@ -160,11 +198,13 @@ peito: {
 Para trocar a prancha por outra imagem (ou por uma versão feminina do mesmo
 desenho):
 
-1. substitua `assets/anatomia/fontes/referencia-muscular.png` (e atualize a
-   origem em `NOTICE.md`);
-2. ajuste `CROPS` em `assets/js/forja-figura.js` e no gerador;
-3. rode `node tools/gerar-anatomia-referencia.mjs` para recalcular máscaras e
-   manifesto;
+1. substitua `assets/anatomia/fontes/forja-modelo-anatomico.png` (e atualize a
+   origem em `NOTICE.md`; rode `python3 tools/verificar-procedencia.py` na
+   imagem nova para registrar se ela traz manifesto e de quem);
+2. rode `node tools/gerar-anatomia-referencia.mjs`: ele recalcula eixo, janela,
+   escala, máscaras e manifesto;
+3. copie os números de `manifest.views` para `CROPS`/`AXES`/`VIEWBOX` em
+   `assets/js/forja-figura.js` (o teste ATLAS 14 falha se os dois divergirem);
 4. revise os pontos de `SHAPES` — eles são relativos a esta pose e a esta
    escala;
 5. rode as duas suítes e gere as capturas.

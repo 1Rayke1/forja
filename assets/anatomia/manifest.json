@@ -1,66 +1,111 @@
 {
   "reference": {
-    "file": "fontes/referencia-muscular.png",
-    "sha256": "da1e8be99d0e0046d441debcee77e905cff7224e7aaf7fd8849ce6ba11c1988e",
-    "bytes": 1691723,
+    "file": "fontes/forja-modelo-anatomico.png",
+    "sha256": "2e1c9a0adb25b70106e6dd23744f30d7ec98ade325b101a109a0622014765cbf",
+    "bytes": 1631083,
     "width": 1536,
     "height": 1024,
-    "background": "preto opaco (#000000)",
-    "views": "anterior à esquerda, posterior à direita, no mesmo arquivo"
+    "format": "PNG RGBA (fundo transparente)",
+    "background": "transparente; o app pinta o preto do tema por baixo",
+    "views": "anterior à esquerda, posterior à direita, no mesmo arquivo",
+    "source": "Imagem de referência enviada pelo usuário na revisão de 11/11/2026"
   },
   "canvas": {
-    "width": 600,
+    "width": 460,
     "height": 1024
   },
-  "method": "Referência exibida sem alteração. Silhueta derivada por limiar de luminância e fechamento morfológico, apenas para limitar a tinta dos destaques. Sem vetorização, recorte, recolorização ou redesenho do corpo.",
+  "method": "Referência exibida sem alteração. Silhueta e tinta derivadas por máquina do próprio alfa e da própria luminância da prancha, apenas para limitar os destaques. Sem vetorização, recorte em arquivo separado, recoloração ou redesenho do corpo.",
   "mask": {
     "file": "mascara.png",
-    "threshold": 12,
-    "closeRadius": 8,
+    "alphaThreshold": 140,
+    "closeRadius": 6,
     "pad": 2,
     "interpretation": "branco opaco = corpo; transparente = fora do corpo",
-    "sha256": "8fb0f4246a73b22ca129123a88088937586a625bf941c5a6bd31bf7dc1201c2c",
-    "bytes": 59397,
-    "bodyPixels": 493619
+    "sha256": "2e406b5b0daeb733db0709a3d79080120b689ce129afee545a887ba14f00e6fc",
+    "bytes": 57934,
+    "bodyPixels": 424637
   },
   "ink": {
     "file": "tinta.png",
-    "ramp": 220,
-    "interpretation": "opaco onde a prancha é escura dentro do corpo; transparente nas linhas claras e fora do corpo",
-    "sha256": "704d4d367c830ded2a0bf7b1fe4ee803f88c88fd15fe96f814622c61f0f3f15b",
-    "bytes": 145992,
-    "paintedPixels": 435030
+    "ramp": 176,
+    "floor": 24,
+    "levels": 4,
+    "fabric": {
+      "ramp": 78,
+      "alphaCeiling": 78,
+      "rows": "y 424..599 (medido na prancha)",
+      "pixels": 81184
+    },
+    "interpretation": "alfa proporcional à escuridão dentro do corpo: forte nas fissuras, fraco nos meios-tons, transparente nos realces claros e fora do corpo",
+    "sha256": "0972e2080ced211dae799d8229ca3f66c3ce9cb5f64181934f63d1eb6c36dbb7",
+    "bytes": 193307,
+    "paintedPixels": 249400,
+    "averageAlpha": 111,
+    "coverage": 0.587
   },
   "views": {
     "front": {
       "crop": {
-        "x": 110,
-        "y": 0,
-        "width": 600,
+        "x": 239,
+        "y": -3,
+        "width": 460,
         "height": 1024
       },
+      "axis": 230,
+      "axisInReference": 469,
+      "scale": 1,
+      "source": {
+        "left": 250,
+        "right": 685,
+        "top": 1,
+        "bottom": 1012,
+        "pixels": 212954
+      },
       "body": {
-        "left": 20,
-        "top": 2,
-        "right": 579,
-        "bottom": 1010,
-        "coverage": 245311
+        "left": 11,
+        "right": 446,
+        "top": 4,
+        "bottom": 1015,
+        "coverage": 212954
       }
     },
     "back": {
       "crop": {
-        "x": 770,
-        "y": 0,
-        "width": 600,
+        "x": 842,
+        "y": -3,
+        "width": 460,
         "height": 1024
       },
+      "axis": 230,
+      "axisInReference": 1072,
+      "scale": 1,
+      "source": {
+        "left": 852,
+        "right": 1292,
+        "top": 1,
+        "bottom": 1010,
+        "pixels": 211683
+      },
       "body": {
-        "left": 13,
-        "top": 2,
-        "right": 585,
-        "bottom": 1009,
-        "coverage": 248308
+        "left": 10,
+        "right": 450,
+        "top": 4,
+        "bottom": 1013,
+        "coverage": 211683
       }
     }
-  }
+  },
+  "scale": 1,
+  "masses": [
+    {
+      "left": 250,
+      "right": 685,
+      "pixels": 212954
+    },
+    {
+      "left": 852,
+      "right": 1292,
+      "pixels": 211683
+    }
+  ]
 }

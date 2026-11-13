@@ -1,18 +1,22 @@
 /*
   FORJA — modelo anatômico muscular (vistas anterior e posterior).
 
-  A anatomia exibida é a prancha fornecida pelo usuário, sem redesenho:
-  um único arquivo (`assets/anatomia/fontes/referencia-muscular.png`) contém as
-  duas vistas, no mesmo desenho, fundo preto e linhas brancas. Cada figura é
-  apenas uma janela (`crop`) desse arquivo, e as duas janelas têm o mesmo
-  tamanho — por isso anterior e posterior aparecem sempre na mesma escala e
-  alinhadas.
+  A anatomia exibida é a prancha oficial fornecida pelo usuário, sem redesenho:
+  um único arquivo (`assets/anatomia/fontes/forja-modelo-anatomico.png`) contém
+  as duas vistas do mesmo modelo — anterior à esquerda, posterior à direita.
+  Cada figura é apenas uma janela (`crop`) desse arquivo; as duas janelas têm
+  exatamente o mesmo tamanho e a mesma escala, então anterior e posterior
+  aparecem sempre alinhadas e do mesmo tamanho.
+
+  O fundo da prancha é transparente: quem pinta o preto do tema é a página.
 
   Este módulo não cria corpo, silhueta de boneco nem músculo desenhado. O que
   ele contém são projeções funcionais das regiões do catálogo, traçadas sobre
   as áreas que o próprio desenho delimita. A tinta dos destaques é recortada
   pela silhueta derivada da prancha (`mascara.png`), então nenhum destaque
-  pode aparecer no fundo preto fora do corpo.
+  pode aparecer fora do corpo; e o preenchimento usa a máscara de tinta
+  (`tinta.png`), graduada pela sombra do desenho, de modo que o realce acompanha
+  o músculo em vez de chapar a região.
 
   As formas são projeções superficiais aproximadas. Não são segmentação
   clínica e não afirmam isolar músculos profundos: quando o desenho não separa
@@ -27,32 +31,36 @@
   const NS = "http://www.w3.org/2000/svg";
 
   /* Janela de desenho — igual nas duas vistas para preservar escala e
-     alinhamento. Coordenadas das regiões neste mesmo espaço. */
-  const VIEWBOX = Object.freeze({ width: 600, height: 1024 });
+     alinhamento (460 × 1024, eixo de simetria em x = 230). O enquadramento é
+     calculado por `tools/gerar-anatomia-referencia.mjs` a partir da própria
+     prancha e registrado em `assets/anatomia/manifest.json`, que é a fonte
+     destes números: corpo inteiro dentro da janela, sem corte de cabeça,
+     mãos, pernas ou pés. O teste ATLAS 3 compara os dois. */
+  const VIEWBOX = Object.freeze({ width: 460, height: 1024 });
 
-  /* Arquivo único de referência: 1536 × 1024 com as duas vistas. */
+  /* Arquivo único de referência: 1536 × 1024 (RGBA) com as duas vistas. */
   const REFERENCE = Object.freeze({
-    src: "assets/anatomia/fontes/referencia-muscular.png",
+    src: "assets/anatomia/fontes/forja-modelo-anatomico.png",
     width: 1536,
     height: 1024
   });
   /* Derivados da prancha por `tools/gerar-anatomia-referencia.mjs`:
      - MASK  limita qualquer traço à silhueta do corpo;
-     - INK   limita o preenchimento às áreas escuras do desenho, para a cor
-             aparecer nas fissuras sem cobrir as linhas brancas. */
+     - INK   dosa o preenchimento pela sombra do desenho, para a cor aparecer
+             nas fissuras sem cobrir os realces claros. */
   const MASK = "assets/anatomia/mascara.png";
   const INK = "assets/anatomia/tinta.png";
 
-  /* `crop.x` seleciona a vista dentro do arquivo único. O `y` é zero nas duas
-     para que os corpos fiquem na mesma linha de base. */
+  /* `crop.x` seleciona a vista dentro do arquivo único; `crop.y` é negativo
+     porque a margem superior do enquadramento fica acima da prancha. */
   const CROPS = Object.freeze({
-    front: Object.freeze({ x: 110, y: 0, width: VIEWBOX.width, height: VIEWBOX.height }),
-    back: Object.freeze({ x: 770, y: 0, width: VIEWBOX.width, height: VIEWBOX.height })
+    front: Object.freeze({ x: 239, y: -3, width: VIEWBOX.width, height: VIEWBOX.height }),
+    back: Object.freeze({ x: 842, y: -3, width: VIEWBOX.width, height: VIEWBOX.height })
   });
 
   /* Eixo de simetria de cada desenho (medido nos limites do corpo). Só é usado
      para espelhar a metade autoral de uma região — não desenha anatomia. */
-  const AXES = Object.freeze({ front: 301, back: 298 });
+  const AXES = Object.freeze({ front: 230, back: 230 });
 
   const VIEWS = Object.freeze({ front: "Vista anterior", back: "Vista posterior" });
   const ROLE_NAMES = Object.freeze({
@@ -117,8 +125,8 @@
     return [points, mirror(points, AXES[view])];
   }
 
-  function toPaths(groups) {
-    return groups.map(polygonPath);
+  function toPaths(groups, view) {
+    return groups.reduce((paths, group) => paths.concat(pair(view, group).map(polygonPath)), []);
   }
 
   /* ------------------------------------------------------------------ */
@@ -127,170 +135,247 @@
 
   /*
     Cada entrada descreve onde a região aparece e o que ela representa de fato
-    nesta ilustração. `groups` são os polígonos autorais (coordenadas da
-    VIEWBOX); `front`/`back` são preenchidos abaixo já como caminhos SVG.
+    nesta ilustração. `front`/`back` são as metades autorais (coordenadas da
+    VIEWBOX), espelhadas em torno do eixo do desenho; viram caminhos SVG logo
+    abaixo. Os IDs são os mesmos do catálogo, do atlas e da tabela de grupos.
   */
   const SHAPES = {
-    ombros: {
+    "ombros": {
       label: "Ombros",
       note: "Deltoide visível, do acrômio à inserção no braço; o trapézio fica na região Costas.",
-      front: pair("front", [
-        [176, 184], [200, 174], [209, 196], [211, 224], [205, 250],
-        [191, 272], [165, 276], [146, 250], [141, 215]
-      ]),
-      back: pair("back", [
-        [172, 184], [196, 174], [206, 196], [208, 224], [202, 250],
-        [188, 272], [163, 276], [144, 250], [139, 215]
-      ])
+      backNote: "Deltoide posterior, do acrômio à inserção no braço; o trapézio fica na região Costas.",
+      front: [
+        [
+          [138, 188], [118, 182], [96, 190], [84, 202], [77, 216],
+          [75, 234], [76, 252], [70, 270], [64, 288], [78, 294],
+          [96, 292], [112, 284], [126, 270], [136, 250], [144, 226],
+          [148, 204]
+        ]
+      ],
+      back: [
+        [
+          [140, 186], [120, 180], [98, 188], [86, 200], [79, 214],
+          [77, 232], [78, 250], [72, 268], [66, 286], [80, 292],
+          [98, 290], [114, 282], [128, 268], [138, 248], [146, 224],
+          [150, 202]
+        ]
+      ]
     },
-    peito: {
+    "peito": {
       label: "Peitoral",
       note: "Porção visível do peitoral maior, do esterno à axila.",
-      front: pair("front", [
-        [299, 190], [268, 182], [238, 184], [214, 196], [199, 226],
-        [194, 250], [226, 268], [258, 284], [292, 292], [299, 240]
-      ]),
+      backNote: "",
+      front: [
+        [
+          [220, 190], [202, 184], [180, 184], [162, 194], [153, 210],
+          [151, 234], [155, 255], [164, 269], [178, 279], [195, 284],
+          [212, 278], [220, 260], [222, 228]
+        ]
+      ],
       back: []
     },
-    biceps: {
+    "biceps": {
       label: "Bíceps",
       note: "Ventre anterior do braço, do ombro à dobra do cotovelo.",
-      front: pair("front", [
-        [150, 278], [128, 300], [121, 340], [118, 362], [140, 368],
-        [162, 352], [176, 320], [180, 292], [165, 276]
-      ]),
+      backNote: "",
+      front: [
+        [
+          [112, 290], [98, 294], [84, 304], [72, 320], [64, 340],
+          [60, 360], [64, 370], [76, 372], [88, 364], [98, 348],
+          [106, 328], [112, 308]
+        ]
+      ],
       back: []
     },
-    antebracos: {
+    "antebracos": {
       label: "Antebraços",
       note: "Massa muscular do antebraço; a mão e o punho não entram na região.",
-      front: pair("front", [
-        [152, 368], [120, 386], [98, 420], [84, 458], [74, 500],
-        [110, 506], [124, 480], [142, 450], [160, 415], [172, 384], [166, 368]
-      ]),
-      back: pair("back", [
-        [160, 376], [126, 392], [102, 428], [88, 470], [78, 506],
-        [106, 514], [122, 486], [140, 452], [158, 420], [170, 392], [166, 380]
-      ])
+      backNote: "Massa muscular do antebraço; a mão e o punho não entram na região.",
+      front: [
+        [
+          [110, 382], [102, 398], [94, 418], [82, 440], [68, 460],
+          [54, 476], [42, 486], [28, 486], [22, 470], [25, 444],
+          [30, 418], [36, 396], [44, 382], [58, 374], [80, 372],
+          [96, 374]
+        ]
+      ],
+      back: [
+        [
+          [112, 380], [104, 396], [96, 416], [84, 438], [70, 458],
+          [56, 474], [44, 484], [30, 484], [24, 468], [27, 442],
+          [32, 416], [38, 394], [46, 380], [60, 372], [82, 370],
+          [98, 372]
+        ]
+      ]
     },
-    abdomem: {
+    "abdomem": {
       label: "Abdômen",
       note: "Reto abdominal visível, com a linha alba e as interseções do desenho.",
-      front: [[
-        [252, 298], [301, 292], [350, 298], [352, 392],
-        [344, 446], [301, 506], [258, 446], [250, 392]
-      ]],
+      backNote: "",
+      front: [
+        [
+          [220, 290], [208, 292], [196, 298], [189, 310], [187, 340],
+          [188, 368], [192, 392], [200, 408], [212, 412], [220, 402],
+          [221, 340]
+        ]
+      ],
       back: []
     },
-    obliquos: {
+    "obliquos": {
       label: "Oblíquos",
       note: "Faixa lateral do tronco entre o reto abdominal e a borda do corpo.",
-      front: pair("front", [
-        [248, 300], [228, 318], [219, 350], [215, 392], [217, 425],
-        [228, 452], [250, 462], [254, 430], [252, 370], [250, 330]
-      ]),
+      backNote: "",
+      front: [
+        [
+          [184, 302], [172, 310], [162, 326], [156, 350], [153, 376],
+          [155, 394], [162, 408], [172, 414], [181, 404], [183, 350]
+        ]
+      ],
       back: []
     },
-    quadril: {
+    "quadril": {
       label: "Quadril",
       note: "Projeção superficial da região inguinal e do quadril — não representa o iliopsoas.",
-      front: pair("front", [
-        [218, 448], [248, 458], [292, 498], [301, 516],
-        [262, 506], [226, 466]
-      ]),
+      backNote: "",
+      front: [
+        [
+          [176, 392], [163, 394], [154, 402], [150, 412], [156, 420],
+          [169, 422], [179, 415], [182, 402]
+        ]
+      ],
       back: []
     },
-    quadriceps: {
+    "quadriceps": {
       label: "Quadríceps",
       note: "Massa anterior da coxa até acima da patela; a articulação do joelho fica neutra.",
-      front: pair("front", [
-        [216, 505], [198, 545], [190, 600], [196, 660], [207, 716],
-        [212, 764], [248, 780], [281, 752], [288, 700], [289, 640],
-        [285, 586], [277, 540], [298, 520]
-      ]),
+      backNote: "",
+      front: [
+        [
+          [200, 604], [184, 604], [168, 610], [152, 622], [139, 640],
+          [130, 660], [125, 680], [131, 692], [146, 694], [163, 688],
+          [178, 676], [190, 656], [198, 630]
+        ]
+      ],
       back: []
     },
-    pernas: {
+    "pernas": {
       label: "Pernas",
-      note: "Região geral: coxa e perna já visíveis na mesma vista, sem o pé e sem a patela.",
-      front: pair("front", [
-        [216, 505], [198, 545], [190, 600], [196, 660], [207, 716],
-        [212, 764], [248, 780], [281, 752], [288, 700], [289, 640],
-        [285, 586], [277, 540], [298, 520]
-      ]).concat(pair("front", [
-        [200, 800], [206, 848], [214, 900], [220, 932], [248, 932],
-        [256, 890], [261, 845], [263, 805]
-      ])),
-      back: pair("back", [
-        [196, 556], [240, 566], [288, 566], [293, 620], [285, 690],
-        [270, 745], [250, 782], [216, 782], [195, 720], [188, 650], [190, 590]
-      ]).concat(pair("back", [
-        [198, 800], [240, 806], [262, 830], [258, 872], [246, 902],
-        [220, 902], [205, 870], [196, 830]
-      ]))
+      note: "Região geral: coxa e perna da mesma vista, sem o pé e sem a patela.",
+      backNote: "Região geral: coxa e perna da mesma vista, sem o pé e sem o tendão calcâneo.",
+      front: [
+        [
+          [200, 604], [184, 604], [168, 610], [152, 622], [139, 640],
+          [130, 660], [125, 680], [131, 694], [146, 696], [163, 690],
+          [178, 676], [190, 656], [198, 630]
+        ],
+        [
+          [133, 736], [120, 752], [111, 780], [108, 810], [111, 842],
+          [122, 866], [138, 872], [150, 852], [155, 816], [153, 784],
+          [144, 754]
+        ]
+      ],
+      back: [
+        [
+          [202, 608], [186, 608], [171, 614], [160, 630], [155, 656],
+          [155, 680], [163, 696], [179, 700], [195, 690], [202, 664],
+          [206, 634]
+        ],
+        [
+          [135, 736], [122, 752], [113, 780], [110, 810], [113, 840],
+          [124, 864], [140, 868], [152, 848], [157, 814], [155, 782],
+          [146, 754]
+        ]
+      ]
     },
-    costas: {
+    "costas": {
       label: "Costas",
-      note: "Trapézio e região escapular superior, agrupados como uma única região.",
+      note: "",
+      backNote: "Trapézio e região escapular superior, agrupados como uma única região.",
       front: [],
-      back: [[
-        [298, 168], [246, 178], [200, 204], [187, 236], [203, 258],
-        [246, 270], [298, 278], [350, 270], [393, 258], [409, 236],
-        [396, 204], [350, 178]
-      ]]
+      back: [
+        [
+          [218, 174], [200, 170], [181, 178], [167, 194], [161, 216],
+          [163, 240], [172, 256], [189, 264], [205, 260], [215, 244],
+          [218, 208]
+        ]
+      ]
     },
-    dorsais: {
+    "dorsais": {
       label: "Dorsais",
-      note: "Grande dorsal e massa lateral do dorso até a crista ilíaca.",
+      note: "",
+      backNote: "Grande dorsal e massa lateral do dorso até a crista ilíaca.",
       front: [],
-      back: pair("back", [
-        [290, 286], [252, 300], [226, 332], [217, 380], [214, 430],
-        [220, 470], [250, 496], [282, 492], [293, 450], [295, 380], [293, 320]
-      ])
+      back: [
+        [
+          [211, 276], [194, 282], [179, 298], [168, 324], [162, 356],
+          [162, 384], [169, 404], [185, 408], [199, 398], [207, 374],
+          [210, 320]
+        ]
+      ]
     },
-    lombar: {
+    "lombar": {
       label: "Lombar",
-      note: "Projeção superficial da região lombar; os eretores profundos não são isolados.",
+      note: "",
+      backNote: "Projeção superficial da região lombar; os eretores profundos não são isolados.",
       front: [],
-      back: [[
-        [266, 378], [298, 388], [330, 378], [334, 412], [298, 424], [262, 412]
-      ]]
+      back: [
+        [
+          [216, 376], [201, 381], [193, 393], [195, 406], [207, 412],
+          [220, 410], [227, 396], [226, 380]
+        ]
+      ]
     },
-    triceps: {
+    "triceps": {
       label: "Tríceps",
-      note: "Ventre posterior do braço, do ombro à dobra do cotovelo.",
+      note: "",
+      backNote: "Ventre posterior do braço, do ombro à dobra do cotovelo.",
       front: [],
-      back: pair("back", [
-        [150, 280], [126, 302], [118, 356], [128, 380], [152, 370],
-        [170, 336], [180, 302], [165, 278]
-      ])
+      back: [
+        [
+          [88, 300], [78, 320], [67, 340], [55, 358], [50, 374],
+          [54, 386], [68, 390], [82, 386], [90, 374], [99, 358],
+          [109, 340], [114, 320], [112, 300]
+        ]
+      ]
     },
-    gluteos: {
+    "gluteos": {
       label: "Glúteos",
-      note: "Glúteo máximo visível, da crista ilíaca à dobra glútea.",
+      note: "",
+      backNote: "Projeção do glúteo sob o short — o contorno do corpo está coberto pela peça.",
       front: [],
-      back: pair("back", [
-        [214, 426], [252, 421], [290, 430], [297, 470], [292, 512],
-        [272, 542], [240, 554], [211, 540], [200, 504], [203, 462]
-      ])
+      back: [
+        [
+          [212, 450], [194, 446], [178, 452], [168, 464], [162, 480],
+          [161, 497], [164, 512], [170, 524], [179, 531], [190, 531],
+          [199, 524], [206, 511], [210, 493], [211, 470]
+        ]
+      ]
     },
     "posterior-coxa": {
       label: "Posterior de coxa",
-      note: "Isquiotibiais até a fossa poplítea.",
+      note: "",
+      backNote: "Isquiotibiais, da dobra glútea até a fossa poplítea.",
       front: [],
-      back: pair("back", [
-        [196, 556], [240, 566], [288, 566], [293, 620], [285, 690],
-        [270, 745], [250, 782], [216, 782], [195, 720], [188, 650], [190, 590]
-      ])
+      back: [
+        [
+          [202, 608], [186, 608], [171, 614], [160, 630], [155, 656],
+          [155, 680], [163, 696], [179, 700], [195, 690], [202, 664],
+          [206, 634]
+        ]
+      ]
     },
-    panturrilha: {
+    "panturrilha": {
       label: "Panturrilha",
-      note: "Ventres do tríceps sural; o tendão calcâneo não é pintado como ventre.",
+      note: "",
+      backNote: "Ventres do tríceps sural; o tendão calcâneo não é pintado como ventre.",
       front: [],
-      back: pair("back", [
-        [198, 800], [240, 806], [262, 830], [258, 872], [246, 902],
-        [220, 902], [205, 870], [196, 830]
-      ])
+      back: [
+        [
+          [135, 734], [121, 750], [112, 778], [109, 810], [113, 842],
+          [125, 868], [141, 870], [153, 846], [157, 812], [154, 778],
+          [145, 750]
+        ]
+      ]
     }
   };
 
@@ -300,8 +385,9 @@
     REGIONS[id] = {
       label: entry.label,
       note: entry.note,
-      front: toPaths(entry.front),
-      back: toPaths(entry.back)
+      backNote: entry.backNote || "",
+      front: toPaths(entry.front, "front"),
+      back: toPaths(entry.back, "back")
     };
   });
 
@@ -460,8 +546,8 @@
       }
 
       shapes.forEach(path => {
-        /* Cor só nas áreas escuras do desenho; contorno e área de clique
-           presos à silhueta do corpo. */
+        /* Cor dosada pela sombra do desenho; contorno e área de clique presos
+           à silhueta do corpo. */
         group.appendChild(svg("path", { class: "figura-region-shape", d: path, mask: inkMaskRef }));
         group.appendChild(svg("path", { class: "figura-region-outline", d: path, mask: bodyMaskRef }));
         if (settings.interactive) {
