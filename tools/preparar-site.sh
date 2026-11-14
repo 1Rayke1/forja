@@ -120,7 +120,9 @@ for p in index.html \
          onboarding/index.html perfil/index.html progresso/index.html \
          treino/index.html treino/rotina.html treino/executar.html \
          treino/biblioteca.html treino/grupo.html treino/calistenia.html treino/musculacao.html \
-         assets/js/forja-app.js assets/js/forja-demonstracoes.js \
+         assets/js/forja-app.js assets/js/forja-configuracoes.js \
+         assets/css/configuracoes-tela.css assets/css/aparencia.css \
+         assets/js/forja-demonstracoes.js \
          assets/js/forja-demonstracoes-dados.js \
          assets/js/forja-videos-dados.js assets/js/forja-videos.js \
          assets/css/demonstracoes.css \

@@ -44,6 +44,7 @@
   function boot() {
     prepareSkipTarget();
     F.bootData();
+    if (typeof F.applyAppearance === "function") F.applyAppearance();
 
     const name = F.pageName();
     /*

@@ -1,0 +1,99 @@
+{
+  "generatedAt": "2026-11-13T18:37:56.570Z",
+  "fixture": "configuracoes-captura-v1 (nome Ravy apenas para a captura)",
+  "screenshots": [
+    "artifacts/forja-configuracoes/configuracoes-320.png",
+    "artifacts/forja-configuracoes/configuracoes-390.png",
+    "artifacts/forja-configuracoes/configuracoes-390-viewport.png",
+    "artifacts/forja-configuracoes/configuracoes-1280.png",
+    "artifacts/forja-configuracoes/editar-perfil-390.png",
+    "artifacts/forja-configuracoes/notificacoes-390.png",
+    "artifacts/forja-configuracoes/aparencia-390.png",
+    "artifacts/forja-configuracoes/privacidade-390.png",
+    "artifacts/forja-configuracoes/aparencia-alto-contraste-390.png",
+    "artifacts/forja-configuracoes/inicio-alto-contraste-390.png"
+  ],
+  "layout": [
+    {
+      "name": "configuracoes-320",
+      "width": 320,
+      "height": 846,
+      "title": "Configurações · FORJA",
+      "overflow": 0,
+      "visiblePanel": "inicio"
+    },
+    {
+      "name": "configuracoes-390",
+      "width": 390,
+      "height": 844,
+      "title": "Configurações · FORJA",
+      "overflow": 0,
+      "visiblePanel": "inicio"
+    },
+    {
+      "name": "configuracoes-390-viewport",
+      "width": 390,
+      "height": 844,
+      "title": "Configurações · FORJA",
+      "overflow": 0,
+      "visiblePanel": "inicio"
+    },
+    {
+      "name": "configuracoes-1280",
+      "width": 1280,
+      "height": 1070,
+      "title": "Configurações · FORJA",
+      "overflow": 0,
+      "visiblePanel": "inicio"
+    },
+    {
+      "name": "editar-perfil-390",
+      "width": 390,
+      "height": 1026,
+      "title": "Editar perfil · FORJA",
+      "overflow": 0,
+      "visiblePanel": "editar-perfil"
+    },
+    {
+      "name": "notificacoes-390",
+      "width": 390,
+      "height": 844,
+      "title": "Notificações · FORJA",
+      "overflow": 0,
+      "visiblePanel": "notificacoes"
+    },
+    {
+      "name": "aparencia-390",
+      "width": 390,
+      "height": 844,
+      "title": "Aparência · FORJA",
+      "overflow": 0,
+      "visiblePanel": "aparencia"
+    },
+    {
+      "name": "privacidade-390",
+      "width": 390,
+      "height": 912,
+      "title": "Privacidade e dados · FORJA",
+      "overflow": 0,
+      "visiblePanel": "privacidade"
+    },
+    {
+      "name": "aparencia-alto-contraste-390",
+      "width": 390,
+      "height": 844,
+      "title": "Aparência · FORJA",
+      "overflow": 0,
+      "visiblePanel": "aparencia"
+    },
+    {
+      "name": "inicio-alto-contraste-390",
+      "width": 390,
+      "height": 2356,
+      "title": "Início · FORJA",
+      "overflow": 0,
+      "visiblePanel": null
+    }
+  ],
+  "consoleErrors": []
+}

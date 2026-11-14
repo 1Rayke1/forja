@@ -1,0 +1,109 @@
+/* FORJA — preferência de aparência aplicada em todas as páginas do app.
+   O tema padrão não altera nenhuma regra existente. Alto contraste mantém
+   a identidade escura/lima e reforça superfícies, textos e bordas.
+   Carregado por último para vencer as camadas visuais anteriores. */
+
+html[data-forja-theme="contrast"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --panel: #080c0d;
+  --panel2: #151b1c;
+  --surface: #080c0d;
+  --surface-raised: #151b1c;
+  --surface-sunken: #050807;
+  --text: #ffffff;
+  --muted: #d0d8d5;
+  --border: #87958e;
+  --line-soft: rgba(208,216,213,.45);
+  --lime: #c5ff57;
+  --gold: #c5ff57;
+  --green: #c5ff57;
+  --fj-carvao: #000000;
+  --fj-carvao-fundo: #000000;
+  --fj-ferro-baixo: #050807;
+  --fj-linha: #87958e;
+  --fj-osso-suave: #f3f7f5;
+  --fj-accent: #c5ff57;
+  --fj-accent-strong: #d8ff8a;
+  --fj-canvas: #000000;
+  --fj-surface: #080c0d;
+  --fj-surface-raised: #151b1c;
+  --fj-stroke: #87958e;
+  --fj-muted: #d0d8d5;
+}
+html[data-forja-theme="contrast"] body { background: #000000; color: #ffffff; }
+html[data-forja-theme="contrast"] body :is(.site-header, .bottom-nav) {
+  background: rgba(0,0,0,.97);
+  border-color: #87958e;
+}
+html[data-forja-theme="contrast"] body :is(
+  .ui-card, .ui-stat, .ui-list-item, .ui-empty, .ui-exercise-row,
+  .preferences-panel, .storage-panel, .backup-panel, .profile-group,
+  .calendar-panel, .missions-panel, .routine-card, .home-action-card,
+  .home-week, .home-goals, .home-week-stat, .home-goal-row, .home-recent-item,
+  .home-disclosure, .history-summary, .progress-disclosure, .explore-atlas,
+  .settings-form-card, .settings-about-card, .settings-disclosure,
+  .settings-list, .settings-profile-card, .settings-note, .settings-theme-option,
+  .planning-hero, .plan-builder, .routines-section, .ev-card, .ev-kpi,
+  .modal-card, .modal-details, .custom-meta, .catalog-help
+) {
+  background: #080c0d;
+  border-color: #87958e;
+  color: #ffffff;
+  box-shadow: none;
+}
+html[data-forja-theme="contrast"] body :is(
+  .screen-subtitle, .home-subtitle, .section-note, .scope-note, .limit-note,
+  .calendar-hint, .storage-note, .backup-description, .backup-meta,
+  .ui-empty-text, .ui-card-subtitle, .ui-list-meta, .ui-exercise-meta,
+  .field-hint, .settings-description, .settings-row-copy > span,
+  .settings-profile-copy > span, .settings-switch-copy > span,
+  .settings-disclosure-content, .settings-version, .home-goal-note,
+  .routine-meta, .preference-hint, .preferences-intro, .ev-card-note
+) { color: #d0d8d5; }
+html[data-forja-theme="contrast"] body :is(
+  .screen-title, .section-title, .home-title, .home-week-title,
+  .home-recent-title, .ui-card-title, .ui-list-title, .ui-exercise-name,
+  .settings-row-copy strong, .settings-profile-copy strong,
+  .settings-switch-copy strong, .settings-group-title, .ev-card-title
+) { color: #ffffff; }
+html[data-forja-theme="contrast"] body :is(
+  .eyebrow, .home-eyebrow, .footer-motto, .settings-exit .ui-icon,
+  .settings-row-icon, .settings-title-icon, .settings-save-status,
+  .home-week-stat-value, .home-goal-value, .summary-value, .record-value
+) { color: #c5ff57; }
+html[data-forja-theme="contrast"] body :is(
+  .secondary-button, .small-button, .filter-button, .nav-button,
+  .settings-back, .settings-theme-option, .settings-switch-track
+) { border-color: #87958e; }
+html[data-forja-theme="contrast"] body :is(input, select, textarea) {
+  border-color: #87958e !important;
+  background-color: #050807 !important;
+  color: #ffffff !important;
+}
+html[data-forja-theme="contrast"] body .settings-list li + li,
+html[data-forja-theme="contrast"] body .settings-switch { border-color: #87958e; }
+html[data-forja-theme="contrast"] body .settings-group-title::after { background: #87958e; }
+html[data-forja-theme="contrast"] body .bottom-nav-link { color: #d0d8d5; }
+html[data-forja-theme="contrast"] body .bottom-nav-link.is-active,
+html[data-forja-theme="contrast"] body .bottom-nav-link[aria-current="page"] {
+  color: #c5ff57;
+  background: rgba(197,255,87,.14);
+  border-color: #c5ff57;
+}
+html[data-forja-theme="contrast"] body .settings-theme-option:has(input:checked) {
+  border-color: #c5ff57;
+  background: #10170b;
+}
+
+/* Preferência explícita do usuário; a consulta de mídia do sistema continua
+   ativa nas folhas existentes mesmo quando esta opção está desligada. */
+html[data-forja-motion="reduced"] { scroll-behavior: auto !important; }
+html[data-forja-motion="reduced"] *,
+html[data-forja-motion="reduced"] *::before,
+html[data-forja-motion="reduced"] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}

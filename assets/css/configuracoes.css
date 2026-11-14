@@ -1,4 +1,28 @@
 /* FORJA — configurações: backup e preferências. */
+
+/* Entrada única para Configurações a partir do Perfil existente. */
+.profile-settings-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 72px;
+  margin: 0 0 18px;
+  padding: 13px 16px;
+  border: 1px solid rgba(183,243,74,.35);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(183,243,74,.09), rgba(183,243,74,.02));
+  color: var(--text, #f3f7f5);
+  text-decoration: none;
+}
+.profile-settings-shortcut > .ui-icon:first-child { color: var(--lime, #b7f34a); }
+.profile-settings-shortcut > .ui-icon:first-child svg { width: 26px; height: 26px; }
+.profile-settings-shortcut > span:nth-child(2) { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.profile-settings-shortcut strong { font-size: 16px; }
+.profile-settings-shortcut > span:nth-child(2) > span { color: var(--muted, #a8afb2); font-size: 12px; }
+.profile-settings-shortcut > .ui-icon:last-child { color: var(--muted, #a8afb2); }
+body[data-page="treino"] #preferences-heading { scroll-margin-top: 18px; }
+body[data-page="progresso"] #progress-goals-heading { scroll-margin-top: 84px; }
+
 /* Backup */
 
 .backup-panel {
