@@ -218,7 +218,8 @@ await runTest("04. Todas as páginas carregam sem erros de JavaScript e sem recu
   Proteção original: nenhum link interno pode ser absoluto nem sair de /forja/.
   A licença RepDB exige um link visível para repdb.co. Em vez de enfraquecer a
   regra, links externos passam a ser uma EXCEÇÃO auditada: só os hosts abaixo,
-  só com marcação explícita data-external-credit, target=_blank e rel=noopener.
+  só com marcação explícita data-external-credit (crédito/licença) ou
+  data-external-support (canal oficial de suporte), target=_blank e rel=noopener.
 */
 /*
   Hosts autorizados para link externo de crédito. `unsplash.com` entra porque
@@ -238,7 +239,7 @@ await runTest("05. Links relativos resolvem dentro do caminho /forja/ (GitHub Pa
 
       if (/^https?:\/\//.test(raw)) {
         const url = new URL(raw, app.w.location.href);
-        assert.ok(anchor.hasAttribute("data-external-credit"),
+        assert.ok(anchor.hasAttribute("data-external-credit") || anchor.hasAttribute("data-external-support"),
           "Link externo sem marcação explícita em " + page + ": " + raw);
         assert.ok(EXTERNAL_CREDIT_HOSTS.has(url.hostname),
           "Host externo não autorizado em " + page + ": " + url.hostname);

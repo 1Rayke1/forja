@@ -499,8 +499,14 @@ await runTest("E13. A folha nova de Evolução carrega por último e cobre celul
   await wait(20);
 
   const sheets = app.$$('link[rel="stylesheet"]').map(link => link.getAttribute("href"));
-  assert.equal(sheets[sheets.length - 1], "../assets/css/progresso-evolucao.css",
-    "A folha da Evolução precisa carregar depois das outras: " + sheets.join(", "));
+  /* Evolução continua sendo a última folha específica da página. A camada
+     global de aparência (tema/movimento escolhidos em Configurações) vem
+     depois dela de propósito, para valer em todas as telas do app. */
+  const pageSheets = sheets.filter(href => href !== "../assets/css/aparencia.css");
+  assert.equal(pageSheets[pageSheets.length - 1], "../assets/css/progresso-evolucao.css",
+    "A folha da Evolução precisa carregar depois das outras folhas da página: " + pageSheets.join(", "));
+  assert.ok(sheets.indexOf("../assets/css/aparencia.css") > sheets.indexOf("../assets/css/progresso-evolucao.css"),
+    "A camada global de aparência precisa carregar depois da folha da página");
 
   const css = fs.readFileSync(file, "utf8");
   assert.match(css, /@media \(min-width: 760px\)/, "Falta o ajuste de desktop");

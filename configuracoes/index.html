@@ -2,9 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101010">
-<title>Dados e preferências · FORJA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080C0D">
+<title>Configurações · FORJA</title>
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/treino.css">
 <link rel="stylesheet" href="../assets/css/execucao.css">
@@ -15,18 +15,22 @@
 <link rel="stylesheet" href="../assets/css/system.css">
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
+<link rel="stylesheet" href="../assets/css/redesign.css">
+<link rel="stylesheet" href="../assets/css/configuracoes-tela.css">
+<link rel="stylesheet" href="../assets/css/aparencia.css">
 </head>
 
 <body data-page="configuracoes" data-root="../">
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
-<header class="site-header">
+<header class="site-header settings-header">
   <div class="container site-header-inner">
+    <a class="settings-back" id="settings-back" href="../perfil/index.html" aria-label="Voltar ao perfil"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span></a>
     <a class="logo" href="../index.html">FORJA</a>
-    <div class="tagline">DISCIPLINA DIÁRIA</div>
+    <div class="tagline"><span class="ui-icon" data-icon="dumbbell" aria-hidden="true"></span><span>DISCIPLINA DIÁRIA</span></div>
   </div>
 </header>
 
-<main class="container" id="conteudo">
+<main class="container settings-main" id="conteudo">
   <section class="active-session-banner" id="active-session-banner" aria-live="polite" hidden>
     <div class="active-session-text">
       <strong>Treino em andamento</strong>
@@ -38,17 +42,163 @@
     </div>
   </section>
 
-  <nav class="screen-toolbar" aria-label="Voltar">
-    <a class="back-link" href="../index.html">← Início</a>
-    <span class="eyebrow">Dados</span>
-  </nav>
+  <header class="settings-page-head">
+    <span class="settings-title-icon ui-icon" id="settings-title-icon" data-icon="settings" aria-hidden="true"></span>
+    <div class="settings-page-copy">
+      <h1 class="screen-title" id="settings-title">Configurações</h1>
+      <p class="screen-subtitle" id="settings-subtitle">Personalize sua experiência no FORJA</p>
+    </div>
+  </header>
 
-  <div class="page-head">
-    <h1 class="screen-title">Dados e preferências</h1>
-    <p class="screen-subtitle">Faça backup, restaure seus dados e ajuste o descanso.</p>
-  </div>
+  <section class="settings-view" id="inicio" data-settings-panel="inicio" aria-label="Configurações">
+    <a class="settings-profile-card" id="settings-profile-card" href="#editar-perfil">
+      <span class="settings-avatar" aria-hidden="true"><svg viewBox="0 0 64 64" fill="currentColor"><circle cx="32" cy="23" r="11"/><path d="M12 55c1-13 9-21 20-21s19 8 20 21c-6 4-13 6-20 6s-14-2-20-6Z"/></svg></span>
+      <span class="settings-profile-copy"><strong id="settings-profile-name">Seu perfil</strong><span id="settings-profile-since">Personalize como o FORJA chama você</span></span>
+      <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+    </a>
 
-  <section class="backup-panel" aria-labelledby="backup-heading">
+    <section class="settings-group" aria-labelledby="settings-group-profile">
+      <h2 class="settings-group-title" id="settings-group-profile">Perfil</h2>
+      <ul class="settings-list"><li><a id="settings-edit-profile" class="settings-row" href="#editar-perfil">
+  <span class="settings-row-icon ui-icon" data-icon="user" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Editar perfil</strong><span>Altere seu nome e informações</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li>
+<li><a id="settings-goals-link" class="settings-row" href="../progresso/index.html#progress-goals-heading">
+  <span class="settings-row-icon ui-icon" data-icon="chart" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Minhas metas</strong><span>Defina seus objetivos</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li>
+<li><a id="settings-training-link" class="settings-row" href="../treino/index.html#preferences-heading">
+  <span class="settings-row-icon ui-icon" data-icon="calendar" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Preferências de treino</strong><span>Escolha suas modalidades e foco</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li></ul>
+    </section>
+    <section class="settings-group" aria-labelledby="settings-group-app">
+      <h2 class="settings-group-title" id="settings-group-app">Aplicativo</h2>
+      <ul class="settings-list"><li><a id="settings-notifications-link" class="settings-row" href="#notificacoes">
+  <span class="settings-row-icon ui-icon" data-icon="bell" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Notificações</strong><span>Gerencie seus alertas</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li>
+<li><a id="settings-appearance-link" class="settings-row" href="#aparencia">
+  <span class="settings-row-icon ui-icon" data-icon="palette" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Aparência</strong><span>Escolha o tema do app</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li>
+<li><a id="settings-privacy-link" class="settings-row" href="#privacidade">
+  <span class="settings-row-icon ui-icon" data-icon="shield-check" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Privacidade e dados</strong><span>Controle seus dados</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li></ul>
+    </section>
+    <section class="settings-group" aria-labelledby="settings-group-support">
+      <h2 class="settings-group-title" id="settings-group-support">Suporte</h2>
+      <ul class="settings-list"><li><a id="settings-help-link" class="settings-row" href="#ajuda">
+  <span class="settings-row-icon ui-icon" data-icon="help-circle" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Central de ajuda</strong><span>Tire suas dúvidas</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li>
+<li><a id="settings-contact-link" class="settings-row" href="#contato">
+  <span class="settings-row-icon ui-icon" data-icon="mail" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Fale conosco</strong><span>Entre em contato com a equipe</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li>
+<li><a id="settings-about-link" class="settings-row" href="#sobre">
+  <span class="settings-row-icon ui-icon" data-icon="info" aria-hidden="true"></span>
+  <span class="settings-row-copy"><strong>Sobre o FORJA</strong><span>Versão, créditos e licenças</span></span>
+  <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+</a></li></ul>
+    </section>
+
+    <a class="settings-exit" id="settings-exit" href="../perfil/index.html"><span class="ui-icon" data-icon="log-out" aria-hidden="true"></span>Sair das configurações</a>
+  </section>
+
+  <section class="settings-view settings-detail" id="editar-perfil" data-settings-panel="editar-perfil" aria-labelledby="settings-name-heading" hidden>
+    <div class="settings-form-card" id="nome-exibicao">
+      <h2 class="section-title" id="settings-name-heading">Como podemos chamar você?</h2>
+      <p class="settings-description">Escolha o primeiro nome que o FORJA deve usar na interface.</p>
+      <form id="profile-name-form" class="goals-form" novalidate>
+      <div class="goals-fields">
+        <div class="field-block">
+          <label class="field-label" for="prof-nome">Nome de exibição</label>
+          <input id="prof-nome" class="field-input" type="text" maxlength="24"
+            placeholder="Digite seu primeiro nome" autocomplete="nickname" spellcheck="false">
+          <p class="field-hint">Use seu primeiro nome. Ele aparece na saudação da Home e no cartão desta tela. Fica salvo neste navegador, junto do seu perfil.</p>
+        </div>
+      </div>
+      <p class="field-error" id="prof-nome-error" role="status" hidden></p>
+      <div class="goals-actions">
+        <button type="submit" id="prof-nome-save" class="primary-button">Salvar nome</button>
+        <button type="button" id="prof-nome-clear" class="secondary-button small-button" hidden>Apagar nome</button>
+        <span class="limit-note" id="prof-nome-status" aria-live="polite"></span>
+      </div>
+    </form>
+    </div>
+    <div class="settings-form-card">
+      <h2 class="section-title">Informações do perfil</h2>
+      <dl class="settings-profile-details" id="settings-profile-details"></dl>
+      <p class="field-hint">Objetivo, nível, equipamento e dados de treino continuam no seu perfil. A edição não altera sessões concluídas.</p>
+      <a class="secondary-button ui-button full-width" href="../perfil/index.html#profile-form">Editar informações do perfil</a>
+      <a class="settings-text-link" href="../onboarding/index.html?refazer=1">Refazer o cadastro guiado</a>
+    </div>
+    <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
+  </section>
+
+  <section class="settings-view settings-detail" id="notificacoes" data-settings-panel="notificacoes" aria-labelledby="preferences-heading" hidden>
+    <div class="settings-form-card">
+      <h2 class="section-title" id="preferences-heading">Avisos de descanso</h2>
+      <p class="settings-description">Escolha como o FORJA avisa quando o descanso entre séries terminar.</p>
+      <label class="settings-switch" for="pref-sound">
+        <span class="settings-switch-copy"><strong>Aviso sonoro</strong><span id="pref-sound-hint">Tocar um som ao terminar o descanso.</span></span>
+        <input type="checkbox" id="pref-sound" role="switch" aria-describedby="pref-sound-hint">
+        <span class="settings-switch-track" aria-hidden="true"></span>
+      </label>
+      <label class="settings-switch" for="pref-vibrate">
+        <span class="settings-switch-copy"><strong>Vibração</strong><span id="pref-vibrate-hint">Vibrar ao terminar o descanso, se o aparelho permitir.</span></span>
+        <input type="checkbox" id="pref-vibrate" role="switch" aria-describedby="pref-vibrate-hint">
+        <span class="settings-switch-track" aria-hidden="true"></span>
+      </label>
+      <p class="field-hint">Os avisos funcionam durante a execução do treino. O FORJA não envia notificações em segundo plano nem pede permissão de push.</p>
+    </div>
+    <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
+  </section>
+
+  <section class="settings-view settings-detail" id="aparencia" data-settings-panel="aparencia" aria-labelledby="appearance-heading" hidden>
+    <div class="settings-form-card">
+      <fieldset class="settings-theme-field">
+        <legend class="section-title" id="appearance-heading">Tema do aplicativo</legend>
+        <p class="settings-description">As duas opções mantêm a identidade escura e verde-lima do FORJA.</p>
+        <label class="settings-theme-option">
+          <input type="radio" name="appearance-theme" value="default">
+          <span class="settings-theme-swatch is-default" aria-hidden="true"></span>
+          <span class="settings-switch-copy"><strong>FORJA padrão</strong><span>Carvão escuro, contraste equilibrado.</span></span>
+        </label>
+        <label class="settings-theme-option">
+          <input type="radio" name="appearance-theme" value="contrast">
+          <span class="settings-theme-swatch is-contrast" aria-hidden="true"></span>
+          <span class="settings-switch-copy"><strong>Alto contraste</strong><span>Textos e bordas mais marcados para leitura.</span></span>
+        </label>
+      </fieldset>
+      <label class="settings-switch" for="pref-reduced-motion">
+        <span class="settings-switch-copy"><strong>Reduzir animações</strong><span id="pref-motion-hint">Desliga transições e rolagem suave. A preferência do sistema também é respeitada.</span></span>
+        <input type="checkbox" id="pref-reduced-motion" role="switch" aria-describedby="pref-motion-hint">
+        <span class="settings-switch-track" aria-hidden="true"></span>
+      </label>
+      <p class="settings-save-status" id="appearance-status" role="status" aria-live="polite">As alterações são salvas automaticamente neste navegador.</p>
+      <button type="button" class="secondary-button ui-button full-width" id="appearance-reset">Restaurar aparência padrão</button>
+    </div>
+    <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
+  </section>
+
+  <section class="settings-view settings-detail" id="privacidade" data-settings-panel="privacidade" aria-labelledby="privacy-heading" hidden>
+    <h2 class="ui-visually-hidden" id="privacy-heading">Privacidade e dados</h2>
+    <section class="settings-note" aria-labelledby="storage-heading">
+    <h2 class="section-title" id="storage-heading">Onde seus dados ficam</h2>
+    <p>Os dados do FORJA ficam salvos apenas neste navegador. Eles não são sincronizados entre celular, computador ou outros navegadores. Para levar seus dados para outro aparelho, exporte um backup e importe-o lá.</p>
+  </section>
+    <section class="backup-panel" aria-labelledby="backup-heading">
     <h2 class="section-title" id="backup-heading">Seus dados</h2>
     <p class="backup-description">
       Exporte um backup JSON com missões, calendário, rotinas, biblioteca, histórico e
@@ -65,47 +215,63 @@
       Seus dados permanecem apenas neste navegador. Faça backups regulares.
     </div>
   </section>
-
-  <section class="profile-group preferences-panel display-name-panel" id="nome-exibicao" aria-labelledby="nome-exibicao-heading">
-    <h2 class="section-title" id="nome-exibicao-heading">Nome de exibição</h2>
-    <p class="screen-subtitle">Escolha como deseja ser chamado pelo FORJA.</p>
-    <form id="profile-name-form" class="goals-form" novalidate>
-      <div class="goals-fields">
-        <div class="field-block">
-          <label class="field-label" for="prof-nome">Nome de exibição</label>
-          <input id="prof-nome" class="field-input" type="text" maxlength="24"
-            placeholder="Digite seu nome" autocomplete="nickname" spellcheck="false">
-          <p class="field-hint">Aparece só na saudação da Home. Fica neste navegador, junto do seu perfil.</p>
-        </div>
-      </div>
-      <p class="field-error" id="prof-nome-error" role="status" hidden></p>
-      <div class="goals-actions">
-        <button type="submit" id="prof-nome-save" class="primary-button">Salvar nome</button>
-        <button type="button" id="prof-nome-clear" class="secondary-button small-button" hidden>Apagar nome</button>
-        <span class="limit-note" id="prof-nome-status" aria-live="polite"></span>
-      </div>
-    </form>
+    <details class="settings-disclosure" id="settings-storage-audit">
+      <summary class="settings-disclosure-summary"><h2 class="section-title">Ver dados armazenados</h2></summary>
+      <div class="settings-disclosure-content" id="storage-audit-content"></div>
+    </details>
+    <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
   </section>
 
-  <section class="preferences-panel" aria-labelledby="preferences-heading">
-    <h2 class="section-title" id="preferences-heading">Preferências do descanso</h2>
-    <label class="check-row">
-      <input type="checkbox" id="pref-sound">
-      <span>Tocar um aviso sonoro quando o descanso terminar</span>
-    </label>
-    <label class="check-row">
-      <input type="checkbox" id="pref-vibrate">
-      <span>Vibrar quando o descanso terminar (se o aparelho permitir)</span>
-    </label>
+  <section class="settings-view settings-detail" id="ajuda" data-settings-panel="ajuda" aria-labelledby="help-heading" hidden>
+    <h2 class="ui-visually-hidden" id="help-heading">Central de ajuda</h2>
+    <details class="settings-disclosure" open>
+      <summary class="settings-disclosure-summary"><h3>Onde meus dados ficam salvos?</h3></summary>
+      <div class="settings-disclosure-content"><p>No armazenamento local deste navegador. Eles não sincronizam entre aparelhos. Exporte um backup em <a href="#privacidade">Privacidade e dados</a> para transferi-los ou guardá-los fora do navegador.</p></div>
+    </details>
+    <details class="settings-disclosure">
+      <summary class="settings-disclosure-summary"><h3>Como mudo o nome que aparece no app?</h3></summary>
+      <div class="settings-disclosure-content"><p>Abra <a href="#editar-perfil">Editar perfil</a>, informe seu primeiro nome e toque em Salvar nome. A mudança vale na Home e no cartão de Configurações. Sem nome, a saudação é neutra.</p></div>
+    </details>
+    <details class="settings-disclosure">
+      <summary class="settings-disclosure-summary"><h3>Por que não recebo alertas com o app fechado?</h3></summary>
+      <div class="settings-disclosure-content"><p>O FORJA não usa notificações push. Os avisos de som e vibração acontecem durante o treino, quando o descanso termina. Você pode ativá-los em <a href="#notificacoes">Notificações</a>.</p></div>
+    </details>
+    <details class="settings-disclosure">
+      <summary class="settings-disclosure-summary"><h3>Como ajust metas e preferências de treino?</h3></summary>
+      <div class="settings-disclosure-content"><p><a href="../progresso/index.html#progress-goals-heading">Minhas metas</a> abre o formulário de metas semanais em Evolução. <a href="../treino/index.html#preferences-heading">Preferências de treino</a> abre os seletores usados pelo planejador em Treinos. Os dois continuam salvando nos mesmos lugares de antes.</p></div>
+    </details>
+    <details class="settings-disclosure">
+      <summary class="settings-disclosure-summary"><h3>Existe conta para sair ou senha para recuperar?</h3></summary>
+      <div class="settings-disclosure-content"><p>Não. O FORJA funciona sem conta. “Sair das configurações” apenas volta ao Perfil e não apaga dados. Se limpar os dados do navegador, use um backup exportado anteriormente para restaurá-los.</p></div>
+    </details>
+    <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
   </section>
 
-  <section class="storage-panel" aria-labelledby="storage-heading">
-    <h2 class="section-title" id="storage-heading">Onde seus dados ficam</h2>
-    <p>Os dados do FORJA ficam salvos apenas neste navegador. Eles não são sincronizados entre celular, computador ou outros navegadores. Para levar seus dados para outro aparelho, exporte um backup e importe-o lá.</p>
+  <section class="settings-view settings-detail" id="contato" data-settings-panel="contato" aria-labelledby="contact-heading" hidden>
+    <div class="settings-form-card">
+      <span class="settings-contact-icon ui-icon" data-icon="mail" aria-hidden="true"></span>
+      <h2 class="section-title" id="contact-heading">Canal oficial do projeto</h2>
+      <p class="settings-description">Dúvidas, problemas e sugestões podem ser registrados no GitHub do FORJA. O canal é externo ao app e pode exigir uma conta do GitHub.</p>
+      <p class="field-hint">Não inclua nome completo, peso, histórico de treino ou outros dados pessoais no relato. Se precisar investigar um problema, copie apenas o diagnóstico técnico abaixo.</p>
+      <a class="primary-button ui-button full-width" href="https://github.com/1Rayke1/forja/issues/new" target="_blank" rel="noopener noreferrer" data-external-support="forja">Abrir solicitação no GitHub<span class="ui-icon" data-icon="arrow-right" aria-hidden="true"></span></a>
+      <button type="button" class="secondary-button ui-button full-width" id="support-copy-diagnostics"><span class="ui-icon" data-icon="copy" aria-hidden="true"></span>Copiar diagnóstico técnico</button>
+      <p class="settings-save-status" id="support-copy-status" role="status" aria-live="polite"></p>
+    </div>
+    <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
   </section>
 
-  <section class="storage-panel credits-panel" id="creditos-imagens" aria-labelledby="creditos-imagens-heading">
-    <h2 class="section-title" id="creditos-imagens-heading">Créditos e licenças das ilustrações</h2>
+  <section class="settings-view settings-detail" id="sobre" data-settings-panel="sobre" aria-labelledby="about-heading" hidden>
+    <div class="settings-about-card">
+      <span class="settings-about-icon ui-icon" data-icon="dumbbell" aria-hidden="true"></span>
+      <h2 class="screen-title" id="about-heading">FORJA</h2>
+      <p class="settings-version" id="settings-version">Versão 2.0.0</p>
+      <p class="settings-description">Disciplina diária: calendário, missões e treinos com rotinas A/B/C. Menos promessas. Mais ação.</p>
+      <p class="field-hint">App local, sem conta e sem sincronização automática. Seus dados pertencem a você e ficam neste navegador.</p>
+    </div>
+    <details class="settings-disclosure credits-panel" id="creditos-imagens" aria-labelledby="creditos-imagens-heading">
+<summary class="settings-disclosure-summary"><h2 class="section-title" id="creditos-imagens-heading">Créditos e licenças das ilustrações</h2></summary>
+<div class="settings-disclosure-content">
+
     <div class="credits-block">
       <h3>RepDB (free tier)</h3>
       <p>As demonstrações visuais de exercícios são ilustrações de
@@ -130,10 +296,13 @@
         corresponde ao exercício. A figura anatômica do atlas é um recurso
         separado e mostra grupos musculares, não a execução do movimento.</p>
     </div>
-  </section>
+  </div>
+</details>
 
-  <section class="storage-panel credits-panel" id="creditos-fotografias" aria-labelledby="creditos-fotografias-heading">
-    <h2 class="section-title" id="creditos-fotografias-heading">Créditos e licenças das fotografias</h2>
+<details class="settings-disclosure credits-panel" id="creditos-fotografias" aria-labelledby="creditos-fotografias-heading">
+<summary class="settings-disclosure-summary"><h2 class="section-title" id="creditos-fotografias-heading">Créditos e licenças das fotografias</h2></summary>
+<div class="settings-disclosure-content">
+
     <div class="credits-block">
       <h3>Unsplash (Unsplash License)</h3>
       <p>As fotografias dos cartões da tela Explorar vêm do
@@ -160,10 +329,13 @@
         exercício exato, o cartão mostra uma foto de contexto da mesma categoria e
         nunca a apresenta como execução do movimento.</p>
     </div>
-  </section>
+  </div>
+</details>
 
-  <section class="storage-panel credits-panel" id="creditos-videos" aria-labelledby="creditos-videos-heading">
-    <h2 class="section-title" id="creditos-videos-heading">Demonstrações em vídeo (YouTube)</h2>
+<details class="settings-disclosure credits-panel" id="creditos-videos" aria-labelledby="creditos-videos-heading">
+<summary class="settings-disclosure-summary"><h2 class="section-title" id="creditos-videos-heading">Demonstrações em vídeo (YouTube)</h2></summary>
+<div class="settings-disclosure-content">
+
     <div class="credits-block">
       <h3>Incorporação oficial (youtube-nocookie.com)</h3>
       <p>Os vídeos de demonstração são reproduzidos exclusivamente por incorporação oficial do YouTube no modo de privacidade aprimorada (<code>youtube-nocookie.com</code>), em formato horizontal 16:9, com controles visíveis, sem reprodução automática e sempre sem áudio (<code>mute=1</code>) — no treino, na biblioteca e na prévia do seletor. Nenhum arquivo de vídeo é baixado ou armazenado no repositório.</p>
@@ -172,6 +344,9 @@
       <p>O seletor <strong>Procurar vídeo</strong>, no editor de rotinas, pesquisa vídeos convencionais horizontais (16:9) de até 60 segundos pela YouTube Data API v3. A consulta passa por um proxy do próprio backend (<code>/api/youtube-search</code>), que guarda a chave de API no ambiente do servidor: nenhuma credencial é enviada ao navegador. A escolha vale somente para o treino personalizado em que foi feita.</p>
       <p>Somente vídeos com orientação horizontal confirmada podem ser selecionados; vídeos verticais não são aceitos e não são re-enquadrados. Sem backend configurado, a pesquisa fica indisponível e o campo de link direto continua funcionando.</p>
     </div>
+  </div>
+</details>
+    <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
   </section>
 </main>
 
@@ -199,7 +374,6 @@
     </a>
   </div>
 </nav>
-
 <footer class="site-footer">
   <div class="container">
     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
@@ -232,6 +406,7 @@
 <script src="../assets/js/forja-videos.js" defer></script>
 <script src="../assets/js/forja-fotografias-dados.js" defer></script>
 <script src="../assets/js/forja-fotografias.js" defer></script>
+<script src="../assets/js/forja-configuracoes.js" defer></script>
 <script src="../assets/js/forja-app.js" defer></script>
 </body>
 </html>

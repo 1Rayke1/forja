@@ -1160,8 +1160,8 @@ function updateBackupStatus() {
 
     if (status) {
       status.textContent = message || (name
-        ? "O FORJA vai chamar você de " + name + " na Home."
-        : "Sem nome definido: a Home mostra uma saudação neutra.");
+        ? "O FORJA vai chamar você de " + name + " na Home e nas Configurações."
+        : "Sem nome definido: o app usa uma saudação neutra.");
       status.classList.toggle("is-error", tone === "error");
     }
   }
@@ -1196,7 +1196,7 @@ function updateBackupStatus() {
     }
 
     renderProfileForm();
-    showToast(name ? "Nome salvo. A Home já usa " + name + "." : "Nome removido. A Home volta à saudação neutra.");
+    showToast(name ? "Nome salvo. O FORJA já usa " + name + "." : "Nome removido. O app volta à saudação neutra.");
     if (typeof F.ui !== "undefined" && F.ui && typeof F.ui.announce === "function") {
       F.ui.announce(name ? "Nome de exibição salvo: " + name : "Nome de exibição removido.");
     }
@@ -1315,7 +1315,16 @@ function updateBackupStatus() {
       saveDisplayName(input ? input.value : "");
     });
 
-    listen(byId("prof-nome-clear"), "click", () => {
+    listen(byId("prof-nome-clear"), "click", async () => {
+      const name = F.displayNameOf();
+      if (name) {
+        const confirmed = await F.ui.confirmDestructive({
+          title: "Apagar nome de exibição?",
+          message: "A saudação volta a ser neutra. Seu perfil de treino, metas e histórico continuam salvos.",
+          confirmLabel: "Apagar nome"
+        });
+        if (!confirmed) return;
+      }
       const input = byId("prof-nome");
       if (input) input.value = "";
       saveDisplayName("");
@@ -1325,6 +1334,12 @@ function updateBackupStatus() {
     renderProfileForm();
     updateBackupStatus();
     renderPhotoCredits();
+
+    /* A nova organização só existe na rota Configurações. Perfil mantém seu
+       formulário completo e usa exatamente as mesmas gravações. */
+    if (F.pageName() === "configuracoes" && typeof F.initSettings === "function") {
+      F.initSettings();
+    }
   }
 
   F.pages.perfil = initDadosEPreferencias;

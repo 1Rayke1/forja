@@ -1754,8 +1754,125 @@ await check('Progresso: calendário, gráficos, recordes, metas e busca com hist
   await page.setViewport(MOBILE);
 });
 
+await check('Configurações — hub, painéis, nome, aparência, suporte e integração no navegador real', async () => {
+  const saved = await forjaRaw();
+  try {
+    await go('configuracoes/');
+    assert.equal(await text('#settings-title'), 'Configurações');
+    assert.equal(await page.$$eval('#inicio .settings-row', nodes => nodes.length), 9);
+    assert.equal(await page.$eval('.bottom-nav-link[aria-current="page"]', node => node.dataset.nav), 'perfil');
+
+    const panels = [
+      ['#settings-edit-profile', 'Editar perfil'],
+      ['#settings-notifications-link', 'Notificações'],
+      ['#settings-appearance-link', 'Aparência'],
+      ['#settings-privacy-link', 'Privacidade e dados'],
+      ['#settings-help-link', 'Central de ajuda'],
+      ['#settings-contact-link', 'Fale conosco'],
+      ['#settings-about-link', 'Sobre o FORJA']
+    ];
+    for (const [selector, title] of panels) {
+      await clickCentered(selector);
+      assert.equal(await text('#settings-title'), title);
+      await clickCentered('#settings-back');
+      assert.equal(await text('#settings-title'), 'Configurações');
+    }
+
+    /* Nome: grava no perfil existente, sobrevive ao reload e chega à Home. */
+    await clickCentered('#settings-profile-card');
+    await fill('#prof-nome', 'Nome Verificado');
+    await jsClick('#prof-nome-save');
+    await sleep(160);
+    assert.equal((await data('forja-perfil-v1')).nomeExibicao, 'Nome Verificado');
+    await page.reload({ waitUntil: 'networkidle0' });
+    assert.equal(await page.$eval('#prof-nome', node => node.value), 'Nome Verificado');
+    await go('');
+    assert.equal(await text('#home-title'), 'Olá, Nome Verificado!');
+
+    /* Aparência: seleção real, persistência e aplicação fora de Configurações. */
+    await go('configuracoes/#aparencia');
+    await page.click('input[name="appearance-theme"][value="contrast"]');
+    await clickCentered('#pref-reduced-motion');
+    assert.deepEqual(await data('forja-aparencia-v1'), { theme: 'contrast', reducedMotion: true });
+    await page.reload({ waitUntil: 'networkidle0' });
+    assert.equal(await page.$eval('input[name="appearance-theme"][value="contrast"]', node => node.checked), true);
+    assert.equal(await page.$eval('#pref-reduced-motion', node => node.checked), true);
+    await go('perfil/');
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.forjaTheme), 'contrast');
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.forjaMotion), 'reduced');
+    await go('configuracoes/#aparencia');
+    await jsClick('#appearance-reset');
+    await page.waitForSelector('[data-modal-action="confirm"]');
+    await jsClick('[data-modal-action="confirm"]');
+    await sleep(160);
+    assert.deepEqual(await data('forja-aparencia-v1'), { theme: 'default', reducedMotion: false });
+
+    /* Metas e treino continuam nas telas originais, com destino visível. */
+    await go('configuracoes/');
+    await clickCentered('#settings-goals-link');
+    await expectPath('progresso/');
+    assert.equal(await page.$eval('#progress-goals-heading', node => node.closest('details').open), true);
+    const goalsVisible = await waitFor(() => {
+      const box = document.getElementById('progress-goals-heading').getBoundingClientRect();
+      return box.top >= 0 && box.bottom < innerHeight - 70;
+    }, 6000);
+    assert.ok(goalsVisible, 'Metas não ficaram visíveis após o link');
+    await go('configuracoes/');
+    await clickCentered('#settings-training-link');
+    await expectPath('treino/');
+    const trainingVisible = await waitFor(() => {
+      const box = document.getElementById('preferences-heading').getBoundingClientRect();
+      return box.top >= 0 && box.bottom < innerHeight - 70;
+    }, 6000);
+    assert.ok(trainingVisible, 'Preferências não ficaram visíveis após o link');
+
+    /* Suporte e âncoras antigas de créditos. */
+    await go('configuracoes/#contato');
+    assert.equal(await page.$eval('#contato a[target="_blank"]', node => node.href), 'https://github.com/1Rayke1/forja/issues/new');
+    await jsClick('#support-copy-diagnostics');
+    await sleep(200);
+    if (await isVisible('.settings-diagnostic-text')) {
+      const diagnostic = await page.$eval('.settings-diagnostic-text', node => node.value);
+      assert.ok(!diagnostic.includes('Nome Verificado'));
+      await jsClick('[data-modal-action="close"]');
+    } else {
+      assert.match(await text('#support-copy-status'), /copiado/i);
+    }
+    await go('configuracoes/#creditos-imagens');
+    assert.equal(await text('#settings-title'), 'Sobre o FORJA');
+    assert.equal(await page.$eval('#creditos-imagens', node => node.open), true);
+    assert.match(await text('#settings-version'), /^Versão \d+\.\d+\.\d+$/);
+
+    /* Todas as vistas cabem nas larguras usadas pelo app, sem texto cortado. */
+    for (const width of [320, 360, 390, 430, 768, 1280]) {
+      await page.setViewport({ width, height: width < 700 ? 844 : 900 });
+      for (const hash of ['', '#editar-perfil', '#notificacoes', '#aparencia', '#privacidade', '#ajuda', '#contato', '#sobre']) {
+        await go('configuracoes/' + hash);
+        const layout = await page.evaluate(() => ({
+          overflow: document.documentElement.scrollWidth - innerWidth,
+          rows: [...document.querySelectorAll('#inicio .settings-row')].filter(node => node.getClientRects().length).map(node => node.getBoundingClientRect().height),
+          clipped: [...document.querySelectorAll('.settings-row-copy strong, .settings-row-copy > span, .settings-profile-copy strong, .settings-form-card .section-title')]
+            .filter(node => node.getClientRects().length && node.scrollWidth > node.clientWidth + 1)
+            .map(node => node.textContent)
+        }));
+        assert.equal(layout.overflow, 0, 'Overflow em ' + width + ' ' + hash);
+        assert.deepEqual(layout.clipped, [], 'Texto cortado em ' + width + ' ' + hash);
+        if (!hash) assert.ok(layout.rows.every(height => height >= 44), 'Alvo de toque pequeno em ' + width);
+      }
+    }
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await clickCentered('#settings-exit');
+    await expectPath('perfil/');
+  } finally {
+    await page.setViewport(MOBILE);
+    await go('configuracoes/');
+    await restoreForjaRaw(saved);
+  }
+});
+
 await check('Configurações: exportar, rejeitar importação inválida, importar com confirmação e desfazer', async () => {
-  await go('configuracoes/');
+  await go('configuracoes/#privacidade');
   const beforeRoutines = await data('forja-treino-rotinas-v1');
   await page.evaluate(() => { document.getElementById('export-backup').click(); });
   let exported = null;
@@ -1924,7 +2041,7 @@ await check('Som e vibração: a mesma escolha vale em Perfil, Configurações, 
     assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
     assert.match(await text('#toast'), /Preferência salva/);
 
-    await go('configuracoes/');
+    await go('configuracoes/#notificacoes');
     assert.deepEqual(await prefBoxes(), [false, true], 'Configurações não viu a escolha feita no Perfil');
     await clickCentered('#pref-vibrate');
     assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: false });
@@ -1967,7 +2084,7 @@ await check('Som e vibração: a mesma escolha vale em Perfil, Configurações, 
     assert.deepEqual(round, { vibrate: 1, sound: 0, prefs: { soundOnRest: false, vibrateOnRest: true } },
       'Som desligado e vibração ligada: aviso errado no fim do descanso');
 
-    await go('configuracoes/');
+    await go('configuracoes/#notificacoes');
     assert.deepEqual(await prefBoxes(), [false, true]);
     await clickCentered('#pref-vibrate');
     assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: false });

@@ -56,10 +56,15 @@
     safety: "forja-backup-seguranca-v1",
     library: "forja-treino-biblioteca-v1",
     preferences: "forja-preferencias-v1",
+    appearance: "forja-aparencia-v1",
     goals: "forja-treino-metas-v1",
     rotation: "forja-treino-rotacao-v1",
     profile: "forja-perfil-v1"
   });
+
+  /* Versão publicada do aplicativo (package.json). Não é a versão do formato
+     de dados: F.DATA_VERSION continua controlando migrações e backups. */
+  F.APP_VERSION = "2.0.0";
 
   F.BACKUP_FORMAT = "forja-backup";
   F.BACKUP_VERSION = 1;
@@ -384,6 +389,7 @@
     activeWorkout: null,
     library: { calisthenics: [], weights: [] },
     preferences: { soundOnRest: true, vibrateOnRest: true },
+    appearance: { theme: "default", reducedMotion: false },
     goals: null,
     rotation: null,
     profile: null,
@@ -595,6 +601,9 @@
       ? options.behavior
       : "smooth";
 
+    if (F.state && F.state.appearance && F.state.appearance.reducedMotion === true) {
+      behavior = "auto";
+    }
     if (typeof global.matchMedia === "function") {
       try {
         if (global.matchMedia("(prefers-reduced-motion: reduce)").matches) behavior = "auto";

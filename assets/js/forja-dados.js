@@ -1150,13 +1150,64 @@ function loadPreferences() {
 }
 
 function savePreferences(preferences) {
+  const previous = F.state.preferences;
   const next = {
     soundOnRest: Boolean(preferences.soundOnRest),
     vibrateOnRest: Boolean(preferences.vibrateOnRest)
   };
 
   F.state.preferences = next;
-  return saveJSON(WORKOUT_PREFERENCES_KEY, next);
+  if (!saveJSON(WORKOUT_PREFERENCES_KEY, next)) {
+    F.state.preferences = previous;
+    return false;
+  }
+  return true;
+}
+
+/* Aparência: chave aditiva, independente das preferências do descanso.
+   Abrir qualquer página só lê; o padrão nunca é gravado sem uma ação.
+   Os dois temas preservam a identidade escura/lima do FORJA. */
+const APPEARANCE_KEY = F.KEYS.appearance;
+const APPEARANCE_THEMES = ["default", "contrast"];
+
+function normalizeAppearance(raw) {
+  const value = isPlainObject(raw) ? raw : {};
+  return {
+    theme: APPEARANCE_THEMES.indexOf(value.theme) !== -1 ? value.theme : "default",
+    reducedMotion: value.reducedMotion === true
+  };
+}
+
+function loadAppearance() {
+  const stored = parseStorageValue(APPEARANCE_KEY);
+  return normalizeAppearance(stored.exists && !stored.error ? stored.value : null);
+}
+
+function saveAppearance(patch) {
+  const previous = F.state.appearance;
+  const stored = parseStorageValue(APPEARANCE_KEY);
+  const current = stored.exists && !stored.error && isPlainObject(stored.value)
+    ? stored.value
+    : F.state.appearance;
+  const next = normalizeAppearance(Object.assign({}, current, patch));
+
+  F.state.appearance = next;
+  if (!saveJSON(APPEARANCE_KEY, next)) {
+    F.state.appearance = previous;
+    return false;
+  }
+  return true;
+}
+
+function validateAppearanceStore(value) {
+  if (!isPlainObject(value)) throw new Error("A aparência do FORJA está em formato inválido.");
+  if (value.theme !== undefined && APPEARANCE_THEMES.indexOf(value.theme) === -1) {
+    throw new Error("O tema de aparência do FORJA é inválido.");
+  }
+  if (value.reducedMotion !== undefined && typeof value.reducedMotion !== "boolean") {
+    throw new Error("A preferência de movimento do FORJA é inválida.");
+  }
+  return true;
 }
 
 /* ------------------------------------------------------------------ */
@@ -2918,6 +2969,24 @@ F.registry.register({
 });
 
 F.registry.register({
+  id: "appearance",
+  key: APPEARANCE_KEY,
+  label: "Aparência",
+  empty: () => normalizeAppearance(null),
+  read: loadAppearance,
+  validate: validateAppearanceStore,
+  persist: () => saveJSON(APPEARANCE_KEY, F.state.appearance),
+  summarize(value) {
+    const appearance = normalizeAppearance(value);
+    return {
+      label: "Aparência",
+      detail: (appearance.theme === "contrast" ? "alto contraste" : "tema FORJA") +
+        (appearance.reducedMotion ? " · movimento reduzido" : "")
+    };
+  }
+});
+
+F.registry.register({
   id: "active",
   key: WORKOUT_ACTIVE_KEY,
   label: "Sessão ativa",
@@ -3333,6 +3402,11 @@ function syncStateFromStorage(changedKey) {
     handled = true;
   }
 
+  if (syncAll || changedKey === APPEARANCE_KEY) {
+    F.state.appearance = loadAppearance();
+    handled = true;
+  }
+
   if (syncAll || changedKey === WORKOUT_GOALS_KEY) {
     F.state.goals = readGoalsReadOnly();
     handled = true;
@@ -3419,6 +3493,10 @@ Object.assign(F, {
   emptyRotation,
   loadLibrary,
   loadPreferences,
+  normalizeAppearance,
+  loadAppearance,
+  saveAppearance,
+  APPEARANCE_THEMES,
   loadGoals,
   loadRotation,
   goalsAreActive,

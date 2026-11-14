@@ -430,6 +430,18 @@
     F.showToast("Metas semanais salvas. Elas não alteram o histórico.", "info", 4000);
   }
 
+  /* "Minhas metas" em Configurações aponta para este formulário existente.
+     O bloco fica recolhido na tela normal; o link direto precisa abri-lo. */
+  function openLinkedGoals() {
+    const hash = global.location.hash.slice(1);
+    if (hash !== "progress-goals-heading" && hash !== "goals-form") return;
+    const heading = byId("progress-goals-heading");
+    const disclosure = heading && heading.closest("details");
+    if (!disclosure) return;
+    disclosure.open = true;
+    F.safeScrollIntoView(disclosure, { block: "start", behavior: "auto" });
+  }
+
   function renderGoals() {
     const host = byId("goals-progress");
     const note = byId("goals-scope-note");
@@ -1241,6 +1253,21 @@
     fillGoalForm();
     syncProfileSuggestion();
     renderAll();
+    openLinkedGoals();
+    /* A tela de Evolução termina de montar abas/indicadores e fontes depois
+       deste init. Repete o scroll do link quando o layout já assentou. */
+    if (typeof global.requestAnimationFrame === "function") {
+      global.requestAnimationFrame(() => {
+        openLinkedGoals();
+        global.requestAnimationFrame(openLinkedGoals);
+      });
+    }
+    if (global.document.fonts && global.document.fonts.ready && typeof global.document.fonts.ready.then === "function") {
+      global.document.fonts.ready.then(openLinkedGoals);
+    }
+    global.setTimeout(openLinkedGoals, 120);
+    global.addEventListener("load", openLinkedGoals, { once: true });
+    global.addEventListener("hashchange", openLinkedGoals);
 
     F.onDataChanged(() => {
       fillGoalForm();
