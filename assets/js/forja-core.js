@@ -19,6 +19,7 @@
   /* Rotas (relativas à raiz do site; cada página informa seu data-root). */
   F.ROUTES = Object.freeze({
     inicio: "index.html",
+    login: "login.html",
     treino: "treino/index.html",
     calistenia: "treino/calistenia.html",
     musculacao: "treino/musculacao.html",
@@ -705,10 +706,15 @@
     anchor.remove();
   };
 
+  /* Mensagens/rascunhos também são separados por UID depois da autenticação. */
+  F.tabStorage = function tabStorage() {
+    return F.authData ? F.authData.session : global.sessionStorage;
+  };
+
   /* Mensagens que sobrevivem à navegação para outra página (sessionStorage). */
   F.flash = function flash(message, tone = "info") {
     try {
-      global.sessionStorage.setItem("forja-flash", JSON.stringify({
+      F.tabStorage().setItem("forja-flash", JSON.stringify({
         message: String(message),
         tone
       }));
@@ -721,8 +727,8 @@
     let raw = null;
 
     try {
-      raw = global.sessionStorage.getItem("forja-flash");
-      global.sessionStorage.removeItem("forja-flash");
+      raw = F.tabStorage().getItem("forja-flash");
+      F.tabStorage().removeItem("forja-flash");
     } catch (error) {
       return null;
     }

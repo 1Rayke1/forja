@@ -258,11 +258,36 @@
     }
   }
 
+  function renderAccount() {
+    const account = F.auth && F.auth.user;
+    const email = byId("account-email");
+    if (email) email.textContent = account ? account.email : "Sessão não validada.";
+    const status = byId("initial-copy-status");
+    const retry = byId("initial-copy-retry");
+    if (!status || !F.authData) return;
+    const copy = F.authData.copyStatus;
+    const messages = {
+      pending: "Cópia inicial pendente. Os dados locais estão preservados.",
+      sending: "Enviando e conferindo a cópia inicial…",
+      confirmed: "Cópia inicial conferida no Supabase. Não há sincronização contínua.",
+      error: copy.message
+    };
+    status.textContent = messages[copy.state] || messages.pending;
+    if (retry) { retry.hidden = copy.state === "confirmed"; retry.disabled = copy.state === "sending" || !account; }
+  }
+  global.addEventListener("forja:copy", renderAccount);
+  global.addEventListener("forja:auth", renderAccount);
+
   let initialized = false;
 
   function initSettings() {
     if (initialized) return;
     initialized = true;
+    renderAccount();
+    const logout = byId("account-signout");
+    if (logout) logout.addEventListener("click", () => { logout.disabled = true; void F.auth.signOut(); });
+    const retryCopy = byId("initial-copy-retry");
+    if (retryCopy) retryCopy.addEventListener("click", () => { void F.authData.runInitialCopy(); });
     hydrateIcons(doc);
     renderProfileSummary();
     renderAppearance();

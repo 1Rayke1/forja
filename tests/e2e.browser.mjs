@@ -5,6 +5,8 @@
   GitHub Pages (https://1rayke1.github.io/forja/), e percorre as páginas com
   puppeteer-core usando um Chromium do sistema (PUPPETEER_EXECUTABLE_PATH) ou o
   binário empacotado em @sparticuz/chromium. Nenhum processo externo é necessário.
+  Usa o SDK Supabase real com Auth/PostgREST HTTP simulados. Não homologa
+  Google nem RLS remotos, não executa SQL e não usa credenciais reais.
 
   Uso:
     npm install
@@ -17,11 +19,11 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import http from 'node:http';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
-import { execFileSync } from 'node:child_process';
-import { brotliDecompressSync, deflateSync } from 'node:zlib';
+import { deflateSync } from 'node:zlib';
+import { launchBrowser, startServer, waitReady } from './helpers/browser.mjs';
+import { seedBrowserAuth, respondAuth } from './helpers/browser-auth.mjs';
+import { AuthFixture } from './helpers/auth-fixture.mjs';
 import youtubeProxyHandler, { resetRuntimeState as resetYoutubeBackend } from '../netlify/functions/youtube-search.mjs';
 
 function makeSolidPng(width, height) {
@@ -65,7 +67,6 @@ const DELETED_YT_THUMB_PNG = makeSolidPng(120, 90);
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = [];
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const artifactsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'forja-e2e-'));
 const artifactPath = name => path.join(artifactsDir, name);
 const MOBILE = { width: 390, height: 844 };
@@ -101,146 +102,13 @@ const EXPECTED_NAV = {
   'onboarding/index.html': 'perfil'
 };
 
-let puppeteer;
-try {
-  puppeteer = (await import('puppeteer-core')).default;
-} catch (error) {
-  console.error('puppeteer-core não está instalado. Rode "npm install" na raiz do projeto.');
-  process.exit(1);
-}
-
-let chromium = null;
-try {
-  chromium = (await import('@sparticuz/chromium')).default;
-} catch (error) {
-  // Sem o binário empacotado; usamos um Chrome do sistema se existir.
-}
-
-const systemCandidates = [
-  process.env.PUPPETEER_EXECUTABLE_PATH,
-  '/usr/bin/google-chrome',
-  '/usr/bin/google-chrome-stable',
-  '/usr/bin/chromium',
-  '/usr/bin/chromium-browser',
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  '/Applications/Chromium.app/Contents/MacOS/Chromium',
-  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
-].filter(Boolean);
-
-let executablePath = systemCandidates.find(candidate => fs.existsSync(candidate));
-let launchArgs = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'];
-
-if (!executablePath && chromium) {
-  executablePath = await chromium.executablePath();
-  launchArgs = [...chromium.args, '--no-sandbox', '--disable-dev-shm-usage'];
-}
-
-if (!executablePath) {
-  console.error(
-    'Nenhum navegador encontrado. Defina PUPPETEER_EXECUTABLE_PATH apontando ' +
-    'para um Chrome/Chromium ou instale @sparticuz/chromium (npm install).'
-  );
-  process.exit(1);
-}
-
-/*
-  O binário Linux empacotado é construído para Amazon Linux; em ambientes
-  Debian/Ubuntu mínimos algumas bibliotecas (NSPR/NSS) não estão no sistema.
-  Reutilizamos o tar.br de dependências que já vem no mesmo pacote (sem rede e
-  sem modificar o repositório) para que `npm run test:e2e` seja autônomo.
-*/
-if (process.platform === 'linux' && chromium && !process.env.LD_LIBRARY_PATH && executablePath.includes('/tmp/')) {
-  try {
-    const modulePath = fileURLToPath(import.meta.resolve('@sparticuz/chromium'));
-    const packageRoot = path.resolve(path.dirname(modulePath), '../..');
-    const archive = path.join(packageRoot, 'bin', 'al2023.tar.br');
-    const libRoot = path.join(os.tmpdir(), 'forja-e2e-al2023');
-    const nspr = path.join(libRoot, 'lib', 'libnspr4.so');
-    if (!fs.existsSync(nspr)) {
-      fs.mkdirSync(libRoot, { recursive: true });
-      const unpacked = path.join(os.tmpdir(), 'forja-e2e-al2023.tar');
-      fs.writeFileSync(unpacked, brotliDecompressSync(fs.readFileSync(archive)));
-      execFileSync('tar', ['-xf', unpacked, '-C', libRoot]);
-      fs.unlinkSync(unpacked);
-    }
-    process.env.LD_LIBRARY_PATH = path.join(libRoot, 'lib');
-  } catch (error) {
-    console.warn('Dependências Linux do Chromium não puderam ser extraídas: ' + error.message);
-  }
-}
-
-/* Servidor estático: o repositório fica sob /forja/, como no GitHub Pages. */
-function startStaticServer(rootDir) {
-  const mime = {
-    '.html': 'text/html; charset=utf-8',
-    '.js': 'text/javascript; charset=utf-8',
-    '.css': 'text/css; charset=utf-8',
-    '.json': 'application/json; charset=utf-8',
-    '.svg': 'image/svg+xml',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.webp': 'image/webp',
-    '.webmanifest': 'application/manifest+json'
-  };
-  const blocked = new Set(['node_modules', '.git', 'tests', 'docs', '.github']);
-
-  return new Promise((resolve, reject) => {
-    const server = http.createServer((request, response) => {
-      const requestUrl = new URL(request.url, 'http://127.0.0.1');
-      if (!requestUrl.pathname.startsWith('/forja/')) {
-        response.statusCode = 404;
-        response.end('not found');
-        return;
-      }
-      let relative = decodeURIComponent(requestUrl.pathname.slice('/forja/'.length));
-      if (relative === '' || relative.endsWith('/')) relative += 'index.html';
-      const filePath = path.resolve(rootDir, relative);
-      const first = path.relative(rootDir, filePath).split(path.sep)[0];
-
-      if (!filePath.startsWith(rootDir + path.sep) || blocked.has(first) || first.startsWith('.')) {
-        response.statusCode = 404;
-        response.end('not found');
-        return;
-      }
-
-      fs.readFile(filePath, (error, data) => {
-        if (error) {
-          response.statusCode = 404;
-          response.end('not found');
-          return;
-        }
-        response.setHeader('Content-Type', mime[path.extname(filePath)] || 'application/octet-stream');
-        response.end(data);
-      });
-    });
-
-    server.once('error', reject);
-    server.listen(0, '127.0.0.1', () => {
-      resolve({ server, url: 'http://127.0.0.1:' + server.address().port + '/forja/' });
-    });
-  });
-}
-
-const localServer = process.env.FORJA_URL ? null : await startStaticServer(repoRoot);
-const BASE = (process.env.FORJA_URL || localServer.url).replace(/\/?$/, '/');
-
-let browser;
-try {
-  browser = await puppeteer.launch({
-    args: launchArgs,
-    defaultViewport: MOBILE,
-    executablePath,
-    headless: true
-  });
-} catch (error) {
-  console.error('Não foi possível iniciar o navegador (' + executablePath + '): ' + error.message);
-  if (localServer) localServer.server.close();
-  process.exit(1);
-}
+const localServer = process.env.FORJA_URL ? null : await startServer();
+const BASE = (process.env.FORJA_URL || localServer.origin + '/forja/').replace(/\/?$/, '/');
+const browser = await launchBrowser();
+const authFixture = new AuthFixture();
 
 const page = await browser.newPage();
+await setViewport(MOBILE);
 let currentLabel = 'carga';
 const errors = [];
 const youtubeE2EState = {
@@ -368,8 +236,18 @@ async function runYoutubeBackend(requestUrl) {
   }
 }
 
-await page.setRequestInterception(true);
-page.on('request', async req => {
+async function newAppPage() {
+  const tab = await browser.newPage();
+  await setupRequests(tab, false);
+  return tab;
+}
+async function setupRequests(target, seed) {
+  await seedBrowserAuth(target, authFixture, { seed });
+  await target.setRequestInterception(true);
+  target.on('request', routeRequest);
+}
+async function routeRequest(req) {
+  if (await respondAuth(req, authFixture)) return;
   const url = req.url();
   if (url.includes('/.netlify/functions/youtube-videos') || /\/api\/youtube-videos(\?|$)/.test(url)) {
     req.respond({
@@ -424,8 +302,10 @@ page.on('request', async req => {
     })();
     return;
   }
-  req.continue();
-});
+  if (new URL(url).origin === new URL(BASE).origin || url.startsWith('data:')) await req.continue();
+  else await req.respond({ status: 200, contentType: 'text/plain', body: '' });
+}
+await setupRequests(page, true);
 
 page.on('console', m => {
   if (m.type() !== 'error') return;
@@ -454,7 +334,8 @@ const isVisible = sel => page.$eval(sel, e => {
 const waitFor = async (fn, timeout = 6000, arg) => {
   const start = Date.now();
   while (Date.now() - start < timeout) {
-    if (await page.evaluate(fn, arg)) return true;
+    try { if (await page.evaluate(fn, arg)) return true; }
+    catch (error) { if (!/context.*destroyed|Cannot find context|Inspected target navigated/i.test(error.message)) throw error; }
     await sleep(60);
   }
   return false;
@@ -463,12 +344,13 @@ const pathOf = () => new URL(page.url()).pathname;
 // Aceita "treino/" e "treino/index.html" como a mesma página.
 const normalizePath = p => p.replace(/index\.html$/, '');
 const expectPath = async suffix => {
-  const want = normalizePath(suffix);
+  const want = normalizePath(new URL(suffix.replace(/^\//, ''), BASE).pathname);
   const ok = await waitFor(
     s =>
-      location.pathname.replace(/index\.html$/, '').endsWith(s) &&
+      location.pathname.replace(/index\.html$/, '') === s &&
       document.readyState !== 'loading' &&
-      Boolean(window.Forja && window.Forja.state),
+      Boolean(window.Forja && window.Forja.state) &&
+      document.documentElement.dataset.forjaAuth === "ready",
     6000,
     want
   );
@@ -530,22 +412,31 @@ async function clickCentered(selector) {
   await sleep(140);
 }
 
+// Alterar isMobile/hasTouch faz o Chromium recarregar o documento. O Auth é
+// assíncrono: aguardar o gate antes de ler os dados, sem burlar o driver.
+async function setViewport(viewport) {
+  await page.setViewport(viewport);
+  if (page.url().startsWith(new URL(BASE).origin)) await waitReady(page);
+}
+
 async function go(rel) {
   currentLabel = rel || 'index';
   if (process.env.FORJA_E2E_DEBUG) console.log('  [go] -> ' + (rel || 'index'));
   if (page.url().startsWith(new URL(BASE).origin)) {
+    await waitReady(page);
     await page.evaluate(path => {
-      if (!path.includes('onboarding/') && !localStorage.getItem('forja-perfil-v1')) {
-        localStorage.setItem('forja-perfil-v1', JSON.stringify({ version: 3, updatedAt: '2026-10-01T00:00:00.000Z', objetivo: 'manterForma', nivel: 'iniciante', equipamento: 'casa', diasPorSemana: 3 }));
+      if (!path.includes('onboarding/') && !window.Forja.store.driver().getItem('forja-perfil-v1')) {
+        window.Forja.store.driver().setItem('forja-perfil-v1', JSON.stringify({ version: 3, updatedAt: '2026-10-01T00:00:00.000Z', objetivo: 'manterForma', nivel: 'iniciante', equipamento: 'casa', diasPorSemana: 3 }));
       }
     }, String(rel || ''));
   }
   let target = rel;
   if (String(rel) === 'onboarding/index.html' && page.url().startsWith(new URL(BASE).origin)) {
-    const hasProfile = await page.evaluate(() => Boolean(localStorage.getItem('forja-perfil-v1')));
+    const hasProfile = await page.evaluate(() => Boolean(window.Forja.store.driver().getItem('forja-perfil-v1')));
     if (hasProfile) target = 'onboarding/index.html?refazer=1';
   }
   await page.goto(new URL(target, BASE).href, { waitUntil: 'networkidle0' });
+  await waitReady(page);
   if (process.env.FORJA_E2E_DEBUG) console.log('  [go] ok ' + (rel || 'index'));
   // Rolagem suave faz o clique por coordenadas errar o alvo durante a animação.
   await page.addStyleTag({ content: 'html{scroll-behavior:auto !important}' });
@@ -555,13 +446,14 @@ async function go(rel) {
 async function clearForjaStorage() {
   await page.evaluate(() => {
     // Remove somente as chaves do FORJA (nunca localStorage.clear()).
-    Object.keys(localStorage).filter(k => k.startsWith('forja-')).forEach(k => localStorage.removeItem(k));
-    sessionStorage.clear();
+    window.Forja.store.keys().filter(k => k.startsWith('forja-')).forEach(k => window.Forja.store.driver().removeItem(k));
+    const tabPrefix = 'forja-auth-tab-v1:' + window.Forja.auth.user.id + ':';
+    Object.keys(sessionStorage).filter(key => key.startsWith(tabPrefix)).forEach(key => sessionStorage.removeItem(key));
   });
 }
 
 const data = key => page.evaluate(k => {
-  const raw = localStorage.getItem(k);
+  const raw = window.Forja.store.driver().getItem(k);
   return raw === null ? null : JSON.parse(raw);
 }, key);
 
@@ -570,21 +462,21 @@ const SAFETY_KEY = 'forja-backup-seguranca-v1';
 
 /* Chaves do FORJA em texto puro, para guardar e repor o estado de um teste. */
 const forjaRaw = () => page.evaluate(() => Object.fromEntries(
-  Object.keys(localStorage).filter(k => k.startsWith('forja-')).sort().map(k => [k, localStorage.getItem(k)])
+  window.Forja.store.keys().filter(k => k.startsWith('forja-')).sort().map(k => [k, window.Forja.store.driver().getItem(k)])
 ));
 
 /* Chaves do FORJA já interpretadas (o mesmo conjunto que o backup exporta). */
 const forjaData = (skip = []) => page.evaluate(skipKeys => Object.fromEntries(
-  Object.keys(localStorage)
+  window.Forja.store.keys()
     .filter(k => k.startsWith('forja-') && !skipKeys.includes(k))
     .sort()
-    .map(k => [k, JSON.parse(localStorage.getItem(k))])
+    .map(k => [k, JSON.parse(window.Forja.store.driver().getItem(k))])
 ), skip);
 
 async function restoreForjaRaw(saved) {
   await page.evaluate(entries => {
-    Object.keys(localStorage).filter(k => k.startsWith('forja-')).forEach(k => localStorage.removeItem(k));
-    Object.entries(entries).forEach(([k, v]) => localStorage.setItem(k, v));
+    window.Forja.store.keys().filter(k => k.startsWith('forja-')).forEach(k => window.Forja.store.driver().removeItem(k));
+    Object.entries(entries).forEach(([k, v]) => window.Forja.store.driver().setItem(k, v));
   }, saved);
 }
 
@@ -593,14 +485,21 @@ const prefBoxes = (target = page) => target.evaluate(() => [
   document.getElementById('pref-vibrate').checked
 ]);
 
-/* Roda antes dos scripts da página: registra toda escrita no localStorage. */
+/* Escritas físicas do domínio viram nomes lógicos; infraestrutura Auth fica
+   registrada separadamente e nunca é confundida com migração de dados. */
 function installWriteSpy() {
   const writes = [];
   Object.defineProperty(window, '__forjaWrites', { value: writes });
+  window.__forjaAuthWrites = [];
   for (const method of ['setItem', 'removeItem', 'clear']) {
     const original = Storage.prototype[method];
     Storage.prototype[method] = function (...args) {
-      if (this === window.localStorage) writes.push(method + (args.length ? ':' + args[0] : ''));
+      if (this === window.localStorage) {
+        const physical = String(args[0] || '');
+        const match = physical.match(/^forja-auth-data-v1:[^:]+:(forja-.+)$/);
+        if (match || method === 'clear') writes.push(method + (match ? ':' + match[1] : ''));
+        else window.__forjaAuthWrites.push(method + ':' + physical);
+      }
       return original.apply(this, args);
     };
   }
@@ -649,13 +548,13 @@ async function seedRestSession() {
       sections: { warmup: [], main: [exercise], abs: [], finisher: [] },
       createdAt: Date.now(), updatedAt: Date.now()
     };
-    const store = JSON.parse(localStorage.getItem('forja-treino-rotinas-v1') || '{"calisthenics":[],"weights":[]}');
+    const store = JSON.parse(window.Forja.store.driver().getItem('forja-treino-rotinas-v1') || '{"calisthenics":[],"weights":[]}');
     store.calisthenics = (store.calisthenics || []).filter(r => r.id !== routine.id).concat([routine]);
-    localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify(store));
+    window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify(store));
 
     const now = new Date();
     const pad = n => String(n).padStart(2, '0');
-    localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+    window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
       version: 2, id: 'e2e-prefs-' + now.getTime(),
       date: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()),
       modality: 'calisthenics', routineId: routine.id, routineName: routine.name,
@@ -692,7 +591,7 @@ async function check(name, fn) {
     console.log('✅ ' + name);
   } catch (e) {
     results.push([name, 'fail']);
-    console.log('❌ ' + name + '\n   ' + e.message.split('\n').slice(0, 6).join('\n   '));
+    console.log('❌ ' + name + '\n   ' + e.stack.split('\n').slice(0, 7).join('\n   '));
   }
 }
 
@@ -704,8 +603,8 @@ currentLabel = 'onboarding-obrigatorio';
 await page.goto(new URL('treino/index.html', BASE).href, { waitUntil: 'networkidle0' });
 await expectPath('onboarding/index.html');
 assert.equal(await text('#onboarding-question'), 'Vamos personalizar seu treino.');
-await page.setViewport(MOBILE);
-await page.screenshot({ path: path.join(repoRoot, 'artifacts/forja-visual/onboarding-obrigatorio-390.png') });
+await setViewport(MOBILE);
+await page.screenshot({ path: artifactPath('onboarding-obrigatorio-390.png') });
 await go('');
 
 await check('Calendário e missões funcionam na página inicial', async () => {
@@ -747,13 +646,13 @@ await check('Sem rolagem horizontal em 320, 360, 390, 430, 768 e 1280 px em toda
   for (const rel of PAGES) {
     await go(rel);
     for (const width of [320, 360, 390, 430, 768, 1280]) {
-      await page.setViewport({ width, height: 800 });
+      await setViewport({ width, height: 800 });
       await sleep(120);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       assert.ok(overflow <= 1, 'Rolagem horizontal de ' + overflow + 'px em ' + (rel || 'index') + ' a ' + width + 'px');
     }
   }
-  await page.setViewport(MOBILE);
+  await setViewport(MOBILE);
 });
 
 
@@ -803,14 +702,20 @@ async function tapChoice(key, value) {
   assert.ok(hit, 'A opção ' + key + '=' + value + ' não recebe o toque no centro (algo está por cima)');
   if (await page.evaluate(() => 'ontouchstart' in window)) await page.tap(selector);
   else await page.click(selector);
-  await sleep(90);
+  await page.waitForFunction(sel => document.querySelector(sel)?.classList.contains('is-selected'), { polling: 50, timeout: 4000 }, selector);
+  // Verifica a pintura final, não um frame intermediário da transição de
+  // 160 ms (o clique nativo por toque pode começar a transição depois do tap).
+  await page.$eval(selector, async element => {
+    void getComputedStyle(element).color;
+    await Promise.all(element.getAnimations().map(animation => animation.finished.catch(() => {})));
+  });
 }
 
 await check('Preferências: cinco grupos com uma única opção verde, por toque, no celular e no desktop', async () => {
   const saved = await forjaRaw();
   try {
     /* Viewport de celular com toque, como no aparelho do usuário. */
-    await page.setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    await setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
     await go('treino/');
     /* Estado inicial: uma escolha por grupo, nunca várias. */
     for (const key of Object.keys(PREF_GROUPS)) {
@@ -828,7 +733,7 @@ await check('Preferências: cinco grupos com uma única opção verde, por toque
             assert.ok(paint.selectedClass, 'A opção escolhida precisa da classe de estado');
             assert.ok(/rgb\(132,\s*237,\s*27\)|rgb\(165,\s*255,\s*57\)/.test(paint.background),
               'A opção escolhida precisa ficar verde-limão, veio ' + paint.background);
-            assert.notEqual(paint.color, 'rgb(244, 245, 244)', 'Texto da opção verde precisa de contraste escuro');
+            assert.equal(paint.color, 'rgb(16, 22, 11)', 'Texto da opção verde precisa de contraste escuro após a transição');
           } else {
             assert.equal(paint.pressed, 'false', 'Opção não escolhida não pode ficar marcada');
             assert.equal(paint.selectedClass, false, 'Opção não escolhida não pode ter a classe verde');
@@ -854,7 +759,7 @@ await check('Preferências: cinco grupos com uma única opção verde, por toque
 
     /* Alvos de toque confortáveis e rótulos sem corte, em 320–1280 px. */
     for (const width of [320, 360, 390, 768, 1280]) {
-      await page.setViewport({ width, height: 844 });
+      await setViewport({ width, height: 844 });
       await sleep(120);
       const clipped = await page.$$eval('.preference-choice', els => els
         .filter(el => el.scrollWidth > el.clientWidth + 1)
@@ -865,10 +770,10 @@ await check('Preferências: cinco grupos com uma única opção verde, por toque
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       assert.ok(overflow <= 1, 'Rolagem horizontal de ' + overflow + 'px a ' + width + 'px');
     }
-    await page.setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    await setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
     await page.screenshot({ path: artifactPath('preferencias-mobile.png') });
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('treino/');
     await restoreForjaRaw(saved);
   }
@@ -878,7 +783,7 @@ await check('Preferências: persistem ao recarregar e alimentam Gerar meu plano'
   const saved = await forjaRaw();
   try {
     await go('treino/');
-    await page.evaluate(() => localStorage.removeItem('forja-planejamento-preferencias-v1'));
+    await page.evaluate(() => window.Forja.store.driver().removeItem('forja-planejamento-preferencias-v1'));
     await go('treino/');
     /* Sem nada salvo, valores iniciais coerentes e alteráveis. */
     assert.deepEqual(await pressedIn('goal'), ['massa']);
@@ -886,7 +791,7 @@ await check('Preferências: persistem ao recarregar e alimentam Gerar meu plano'
     assert.deepEqual(await pressedIn('days'), ['4']);
     assert.deepEqual(await pressedIn('time'), ['medium']);
     assert.deepEqual(await pressedIn('equipment'), ['none']);
-    assert.equal(await page.evaluate(() => localStorage.getItem('forja-planejamento-preferencias-v1')), null,
+    assert.equal(await page.evaluate(() => window.Forja.store.driver().getItem('forja-planejamento-preferencias-v1')), null,
       'Abrir a tela não deve gravar preferências sozinho');
 
     await tapChoice('goal', 'condicionamento');
@@ -935,7 +840,7 @@ await check('Ícone de Suas preferências: Lucide settings nítido no mobile e n
   try {
     await go('treino/');
     for (const width of [320, 390, 768, 1280]) {
-      await page.setViewport({ width, height: 900 });
+      await setViewport({ width, height: 900 });
       await sleep(150);
       const icon = await page.evaluate(() => {
         const box = document.querySelector('.preferences-title .preferences-title-icon');
@@ -987,17 +892,17 @@ await check('Ícone de Suas preferências: Lucide settings nítido no mobile e n
         });
       }
     }
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
   } finally {
     await go('treino/');
     await restoreForjaRaw(saved);
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
   }
 });
 
 await check('Ação TREINO é compacta, acessível e cabe em 390 px', async () => {
   await go('');
-  await page.setViewport(MOBILE);
+  await setViewport(MOBILE);
   await sleep(120);
   const box = await page.$eval('.home-action-button', el => {
     const r = el.getBoundingClientRect();
@@ -1357,7 +1262,7 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
      caixa do destaque e a caixa da prancha precisa ficar constante. */
   const ratios = [];
   for (const width of [320, 360, 390, 430, 768, 1280]) {
-    await page.setViewport({ width, height: 900 });
+    await setViewport({ width, height: 900 });
     await sleep(140);
     const measured = await page.evaluate(() => {
       const notHidden = node => node.getClientRects().length > 0;
@@ -1388,7 +1293,7 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
     const canvasWidth = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.equal(canvasWidth, 0, 'Rolagem horizontal em ' + width + 'px');
   }
-  await page.setViewport(MOBILE);
+  await setViewport(MOBILE);
   await sleep(120);
 
   const baseline = ratios[0].measured;
@@ -1538,7 +1443,7 @@ await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async
   await jsClick('#set-timer-resume');
   await sleep(1700);
   const done = await waitFor(() => {
-    const s = JSON.parse(localStorage.getItem('forja-treino-sessao-ativa-v1') || 'null');
+    const s = JSON.parse(window.Forja.store.driver().getItem('forja-treino-sessao-ativa-v1') || 'null');
     return !s || Object.values(s.completedSets || {}).every(Boolean) || !!document.querySelector('#execution-summary:not([hidden])');
   }, 4000);
   assert.ok(done, 'Prancha por duração não concluiu ao atingir o tempo');
@@ -1696,7 +1601,7 @@ await check('Progresso: calendário, gráficos, recordes, metas e busca com hist
   ];
 
   await go('progresso/');
-  await page.evaluate(list => localStorage.setItem('forja-treino-historico-v1', JSON.stringify(list)), history);
+  await page.evaluate(list => window.Forja.store.driver().setItem('forja-treino-historico-v1', JSON.stringify(list)), history);
   await page.reload({ waitUntil: 'networkidle0' });
   await sleep(200);
 
@@ -1738,18 +1643,18 @@ await check('Progresso: calendário, gráficos, recordes, metas e busca com hist
 
   /* Capturas e overflow em 320/390/768/1280 px, com metas e dados na tela. */
   for (const width of [320, 390, 768, 1280]) {
-    await page.setViewport({ width, height: 900 });
+    await setViewport({ width, height: 900 });
     await sleep(150);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     assert.ok(overflow <= 1, 'Overflow em progresso a ' + width + 'px: ' + overflow);
   }
-  await page.setViewport({ width: 390, height: 844 });
+  await setViewport({ width: 390, height: 844 });
   await sleep(120);
   await page.screenshot({ path: artifactPath('progresso-etapa5-390.png'), fullPage: true });
-  await page.setViewport({ width: 1280, height: 900 });
+  await setViewport({ width: 1280, height: 900 });
   await sleep(120);
   await page.screenshot({ path: artifactPath('progresso-etapa5-1280.png'), fullPage: true });
-  await page.setViewport(MOBILE);
+  await setViewport(MOBILE);
 });
 
 await check('Configurações — hub, painéis, nome, aparência, suporte e integração no navegador real', async () => {
@@ -1843,7 +1748,7 @@ await check('Configurações — hub, painéis, nome, aparência, suporte e inte
 
     /* Todas as vistas cabem nas larguras usadas pelo app, sem texto cortado. */
     for (const width of [320, 360, 390, 430, 768, 1280]) {
-      await page.setViewport({ width, height: width < 700 ? 844 : 900 });
+      await setViewport({ width, height: width < 700 ? 844 : 900 });
       for (const hash of ['', '#editar-perfil', '#notificacoes', '#aparencia', '#privacidade', '#ajuda', '#contato', '#sobre']) {
         await go('configuracoes/' + hash);
         const layout = await page.evaluate(() => ({
@@ -1858,13 +1763,13 @@ await check('Configurações — hub, painéis, nome, aparência, suporte e inte
         if (!hash) assert.ok(layout.rows.every(height => height >= 44), 'Alvo de toque pequeno em ' + width);
       }
     }
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await clickCentered('#settings-exit');
     await expectPath('');
     assert.equal(await page.evaluate(() => document.body.dataset.page), 'inicio', 'Sair das configurações deve voltar ao Início, sem ciclo');
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -1925,8 +1830,8 @@ await check('Configurações: inicializa, checkboxes refletem o armazenado e abr
     ];
     for (const [stored, expected] of cases) {
       await page.evaluate((key, value) => {
-        if (value === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, JSON.stringify(value));
+        if (value === null) window.Forja.store.driver().removeItem(key);
+        else window.Forja.store.driver().setItem(key, JSON.stringify(value));
       }, PREFS_KEY, stored);
 
       for (const rel of ['configuracoes/']) {
@@ -1940,7 +1845,7 @@ await check('Configurações: inicializa, checkboxes refletem o armazenado e abr
           boxes: [document.getElementById('pref-sound').checked, document.getElementById('pref-vibrate').checked],
           memory: window.Forja.state.preferences,
           undoHidden: document.getElementById('restore-safety-backup').hidden,
-          safety: localStorage.getItem('forja-backup-seguranca-v1') !== null,
+          safety: window.Forja.store.driver().getItem('forja-backup-seguranca-v1') !== null,
           writes: window.__forjaWrites.slice()
         }));
         assert.ok(state.shared, 'Perfil sem o controlador compartilhado (' + where + ')');
@@ -1983,7 +1888,7 @@ await check('Configurações: backup completa confere com o armazenamento (expor
     assert.match(await text('#backup-status'), /Último backup exportado em/);
 
     /* Inválido: recusado com explicação, nada muda (nem a cópia de segurança). */
-    const safetyBefore = await page.evaluate(key => localStorage.getItem(key), SAFETY_KEY);
+    const safetyBefore = await page.evaluate(key => window.Forja.store.driver().getItem(key), SAFETY_KEY);
     const bad = artifactPath('perfil-invalido.json');
     fs.writeFileSync(bad, JSON.stringify({ app: 'OUTRO', format: 'forja-backup', version: 1, keys: {} }));
     await (await page.$('#import-backup-input')).uploadFile(bad);
@@ -1992,7 +1897,7 @@ await check('Configurações: backup completa confere com o armazenamento (expor
     assert.equal(await page.$('[data-modal-action="restore"]'), null, 'Importação inválida abriu a confirmação');
     await jsClick('[data-modal-action="close"]');
     assert.deepEqual(await forjaData([SAFETY_KEY]), before, 'Importação inválida alterou dados');
-    assert.equal(await page.evaluate(key => localStorage.getItem(key), SAFETY_KEY), safetyBefore,
+    assert.equal(await page.evaluate(key => window.Forja.store.driver().getItem(key), SAFETY_KEY), safetyBefore,
       'Importação inválida mexeu na cópia de segurança');
 
     /* Válido: só aplica depois de confirmar; os checkboxes acompanham. */
@@ -2031,7 +1936,7 @@ await check('Som e vibração: a mesma escolha vale em Configurações, outra ab
   let signals = null;
   let other = null;
   try {
-    await page.evaluate(key => localStorage.removeItem(key), PREFS_KEY);
+    await page.evaluate(key => window.Forja.store.driver().removeItem(key), PREFS_KEY);
 
     /* Configurações → reload → Configurações, com cliques reais. */
     await go('configuracoes/#notificacoes');
@@ -2049,7 +1954,7 @@ await check('Som e vibração: a mesma escolha vale em Configurações, outra ab
     assert.deepEqual(await prefBoxes(), [false, false], 'A escolha não sobreviveu à navegação');
 
     /* Outra aba aberta no Perfil acompanha a mudança sem recarregar. */
-    other = await browser.newPage();
+    other = await newAppPage();
     other.on('console', m => { if (m.type() === 'error') errors.push('outra aba console: ' + m.text()); });
     other.on('pageerror', e => errors.push('outra aba pageerror: ' + e.message));
     other.on('requestfailed', r => errors.push('outra aba requestfailed: ' + r.url()));
@@ -2101,7 +2006,7 @@ await check('Som e vibração: a mesma escolha vale em Configurações, outra ab
 
 await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explorar sob /forja/ em todas as páginas', async () => {
   const basePath = new URL(BASE).pathname;
-  await page.setViewport(MOBILE);
+  await setViewport(MOBILE);
   await page.mouse.move(0, 0);
   for (const rel of PAGES) {
     const where = rel || 'index';
@@ -2153,12 +2058,13 @@ await check('Armazenamento local é informado em todas as páginas', async () =>
   for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/', 'onboarding/index.html']) {
     await go(rel);
     const body = await page.evaluate(() => document.body.textContent);
-    assert.match(body, /neste navegador e não são sincronizados/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
+    assert.match(body, /dados de uso diário.*somente neste navegador/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
+    assert.match(body, /cópia inicial no Supabase, sem sincronização contínua/i, 'Aviso de cópia inicial ausente em ' + (rel || 'index'));
   }
 });
 
 await check('Capturas visuais das páginas em mobile e desktop', async () => {
-  const shots = await browser.newPage();
+  const shots = await newAppPage();
   shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
   shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
   for (const [index, rel] of PAGES.entries()) {
@@ -2172,7 +2078,7 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
         screenshotUrl.searchParams.set('periodo', 'semana');
       }
       if (rel === 'treino/rotina.html') {
-        const saved = await shots.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-rotinas-v1') || 'null'));
+        const saved = await shots.evaluate(() => JSON.parse(window.Forja.store.driver().getItem('forja-treino-rotinas-v1') || 'null'));
         const routine = saved?.calisthenics?.[0] || saved?.weights?.[0];
         if (routine) {
           screenshotUrl.searchParams.set('modalidade', routine.modality || (saved.calisthenics?.includes(routine) ? 'calisthenics' : 'weights'));
@@ -2180,6 +2086,7 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
         }
       }
       await shots.goto(screenshotUrl.href, { waitUntil: 'networkidle0' });
+      await waitReady(shots);
       await shots.evaluate(() => window.scrollTo(0, 0));
       await sleep(250);
       const overflow = await shots.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -2193,12 +2100,12 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
 await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #editor-missing, rotação e exclusão', async () => {
   const saved = await forjaRaw();
   try {
-    await page.setViewport({ width: 390, height: 844 });
+    await setViewport({ width: 390, height: 844 });
     await restoreForjaRaw({});
 
     /* 1. Perfil concluído: Home sem rotina, sem botão Iniciar, CTA leva ao hub de treino. */
     await go('');
-    const initialKeys = await page.evaluate(() => Object.keys(localStorage));
+    const initialKeys = await page.evaluate(() => window.Forja.store.keys());
     assert.deepEqual(initialKeys, ['forja-perfil-v1'], 'Home deve conter somente o perfil obrigatório já salvo');
     const homeBtn = await page.$eval('#home-primary-button', el => ({
       tag: el.tagName,
@@ -2228,7 +2135,7 @@ await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #
       page.waitForNavigation({ waitUntil: 'networkidle0' }),
       page.click('#cancel-routine')
     ]);
-    assert.equal(await page.evaluate(() => localStorage.getItem('forja-treino-rotinas-v1')), null);
+    assert.equal(await page.evaluate(() => window.Forja.store.driver().getItem('forja-treino-rotinas-v1')), null);
 
     /* 3. Cria duas rotinas reais (Rotina 1 e Rotina 2) pelo fluxo completo de UI. */
     for (const [name, exName] of [['Rotina E2E 1', 'Flexão'], ['Rotina E2E 2', 'Barra fixa']]) {
@@ -2301,15 +2208,15 @@ await check('Home e gate: perfil obrigatório, 5 larguras, metas com unidades/mo
     assert.equal(await page.$$eval('.home-action-title', els => els.length), 1, '.home-action-title deve ser único');
 
     for (const width of [320, 360, 390, 768, 1280]) {
-      await page.setViewport({ width, height: 844 });
+      await setViewport({ width, height: 844 });
       await sleep(100);
       const metrics = await page.evaluate(() => ({ overflow: document.documentElement.scrollWidth - window.innerWidth }));
       assert.ok(metrics.overflow <= 1, 'Overflow horizontal na Home a ' + width + 'px: ' + metrics.overflow);
     }
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
 
     /* 2. Sincronização real entre duas abas do navegador (metas, histórico e rotinas). */
-    otherTab = await browser.newPage();
+    otherTab = await newAppPage();
     otherTab.on('pageerror', e => errors.push('otherTab pageerror: ' + e.message));
     await otherTab.goto(new URL('progresso/', BASE).href, { waitUntil: 'networkidle0' });
 
@@ -2320,16 +2227,16 @@ await check('Home e gate: perfil obrigatório, 5 larguras, metas com unidades/mo
         String(now.getMonth() + 1).padStart(2, '0'),
         String(now.getDate()).padStart(2, '0')
       ].join('-');
-      localStorage.setItem('forja-treino-metas-v1', JSON.stringify({
+      window.Forja.store.driver().setItem('forja-treino-metas-v1', JSON.stringify({
         version: 1, updatedAt: now.toISOString(), modality: 'weights',
         weeklySessions: 3, weeklySets: 12, weeklyMinutes: 60
       }));
-      localStorage.setItem('forja-treino-historico-v1', JSON.stringify([{
+      window.Forja.store.driver().setItem('forja-treino-historico-v1', JSON.stringify([{
         id: 'tab2-h1', date, finishedAt: now.toISOString(), modality: 'weights',
         routineName: 'Força A', durationMs: 15 * 60000, completedSets: 2, totalPlannedSets: 4,
         status: 'completed', exercises: []
       }]));
-      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({
+      window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify({
         calisthenics: [],
         weights: [{
           id: 'tab2-r1', name: 'Força A', modality: 'weights', createdAt: 1000, updatedAt: 1000,
@@ -2349,12 +2256,12 @@ await check('Home e gate: perfil obrigatório, 5 larguras, metas com unidades/mo
     /* 3. Simula restauração via BFCache (pageshow persisted: true) após mudança silenciosa no armazenamento. */
     await page.evaluate(() => {
       /* Altera o storage sem disparar StorageEvent e confirma que pageshow persisted sincroniza F.state e UI. */
-      const rawGoals = JSON.parse(localStorage.getItem('forja-treino-metas-v1'));
+      const rawGoals = JSON.parse(window.Forja.store.driver().getItem('forja-treino-metas-v1'));
       rawGoals.modality = 'calisthenics';
       rawGoals.weeklySessions = 2;
       rawGoals.weeklySets = 0;
       rawGoals.weeklyMinutes = 0;
-      localStorage.setItem('forja-treino-metas-v1', JSON.stringify(rawGoals));
+      window.Forja.store.driver().setItem('forja-treino-metas-v1', JSON.stringify(rawGoals));
       window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
     });
     await sleep(80);
@@ -2374,7 +2281,7 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, 
     await restoreForjaRaw({});
     await page.goto(new URL('onboarding/index.html', BASE).href, { waitUntil: 'networkidle0' });
     await expectPath('/onboarding/index.html');
-    await page.setViewport({ width: 320, height: 720 });
+    await setViewport({ width: 320, height: 720 });
     await sleep(150);
 
     const etapa = () => page.evaluate(() => ({
@@ -2540,7 +2447,7 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, 
 
     /* Reabrir o app (recarregar) não repete o onboarding. */
     await go('');
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     assert.equal(await page.$('#onboarding-start'), null, 'Recarregar não deve trazer cadastro opcional');
 
     /* Configurações mostra o sexo e permite editar; editar não altera o restante. */
@@ -2552,7 +2459,7 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, 
     assert.equal((await data('forja-perfil-v1')).sexo, 'masculino', 'A edição do sexo não foi gravada');
     assert.equal((await data('forja-perfil-v1')).objetivo, 'forca', 'A edição do sexo alterou outros campos');
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -2637,10 +2544,10 @@ await check('D-01: importar 250 treinos avisa o limite, guarda os 200 mais recen
         sections: { warmup: [], main: [exercise], abs: [], finisher: [] },
         createdAt: 1, updatedAt: 1
       };
-      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [routine], weights: [] }));
+      window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [routine], weights: [] }));
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+      window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
         version: 2, id: 'aud-session', date: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()),
         modality: 'calisthenics', routineId: routine.id, routineName: routine.name,
         startedAt: now.getTime() - 60000, elapsedMs: 0, running: true, currentIndex: 0,
@@ -2676,9 +2583,9 @@ await check('D-02: falha na restauração deixa o desfazer disponível na mesma 
     await go('configuracoes/');
     await clearForjaStorage();
     await page.evaluate(() => {
-      localStorage.setItem('forja-missoes-2026-10-25', JSON.stringify([{ id: 'm1', text: 'Original', done: false }]));
-      localStorage.setItem('forja-preferencias-v1', JSON.stringify({ soundOnRest: false, vibrateOnRest: false }));
-      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [], weights: [] }));
+      window.Forja.store.driver().setItem('forja-missoes-2026-10-25', JSON.stringify([{ id: 'm1', text: 'Original', done: false }]));
+      window.Forja.store.driver().setItem('forja-preferencias-v1', JSON.stringify({ soundOnRest: false, vibrateOnRest: false }));
+      window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [], weights: [] }));
     });
     await go('configuracoes/');
     assert.equal(await page.$eval('#restore-safety-backup', el => el.hidden), true,
@@ -2740,7 +2647,7 @@ await check('D-02: falha na restauração deixa o desfazer disponível na mesma 
 await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visíveis acima da barra', async () => {
   const saved = await forjaRaw();
   try {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await seedRestSession();
     await go('treino/executar.html');
     await jsClick('#complete-set');
@@ -2777,7 +2684,7 @@ await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visív
     });
 
     for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }, { width: 1280, height: 900 }]) {
-      await page.setViewport(viewport);
+      await setViewport(viewport);
       await sleep(500);
       const box = await geometry();
       assert.ok(box.skipTop >= 0 && box.skipBottom <= box.viewport,
@@ -2788,7 +2695,7 @@ await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visív
         'Pular descanso coberto pelo toast em ' + viewport.width + 'x' + viewport.height + ': ' + JSON.stringify(box));
     }
 
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await page.screenshot({ path: artifactPath('d07-descanso-visivel.png') });
 
     /* Pausa é anunciada uma vez na região viva, sem depender do contador. */
@@ -2799,7 +2706,7 @@ await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visív
     assert.ok(await waitFor(() => (document.getElementById('forja-live-region')?.textContent || '').includes('Descanso retomado'), 3000),
       'A retomada do descanso deveria ser anunciada');
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -2825,7 +2732,7 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
     }
 
     await go('treino/biblioteca.html');
-    await page.setViewport({ width: 320, height: 640 });
+    await setViewport({ width: 320, height: 640 });
     await sleep(250);
 
     const h1 = await page.$$eval('h1', els => els.map(el => el.textContent.trim()));
@@ -2841,7 +2748,7 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
       'A barra inferior não pode criar rolagem horizontal');
     await page.screenshot({ path: artifactPath('d11-nav-320.png') });
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -2870,7 +2777,7 @@ await check('Explorar — seções de descoberta, acesso ao atlas/biblioteca e b
     assert.deepEqual(await forjaRaw(), existingProfile, 'Consultar catálogo não alterou dados locais');
     await page.screenshot({ path: artifactPath('explorar-inline-390.png'), fullPage: true });
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -2929,14 +2836,14 @@ await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e ca
 
     /* 320, 360, 390 e 430 px: nada estoura na horizontal e o título continua legível. */
     for (const width of [320, 360, 390, 430]) {
-      await page.setViewport({ width, height: 844 });
+      await setViewport({ width, height: 844 });
       await sleep(120);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
         'A Biblioteca estoura na horizontal em ' + width + ' px');
       const titulo = await page.$eval('#catalog-heading', el => el.getBoundingClientRect().height);
       assert.ok(titulo > 40, 'O título sumiu em ' + width + ' px');
     }
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await sleep(120);
     await page.screenshot({ path: artifactPath('biblioteca-7-regioes-390.png'), fullPage: true });
 
@@ -2972,7 +2879,7 @@ await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e ca
     'Região + modalidade não combinaram na tela do grupo');
 
     /* Desktop: os cards ficam em duas colunas e a página continua sem estouro. */
-    await page.setViewport({ width: 1280, height: 900 });
+    await setViewport({ width: 1280, height: 900 });
     await sleep(160);
     const colunas = await page.$$eval('.gr-card', els =>
       new Set(els.map(el => Math.round(el.getBoundingClientRect().left))).size);
@@ -2982,12 +2889,12 @@ await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e ca
     await page.screenshot({ path: artifactPath('grupo-costas-desktop.png'), fullPage: true });
 
     /* Nada foi gravado por navegar. */
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('treino/biblioteca.html');
     const perfil = await forjaRaw();
     assert.ok(perfil['forja-perfil-v1'], 'A Biblioteca não deve apagar o perfil');
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await restoreForjaRaw(saved);
   }
 });
@@ -3037,7 +2944,7 @@ await check('Tela do grupo muscular — 13 grupos, filtros, cards e ficha', asyn
 
     /* Telemóveis: 320/360/390/430 sem estouro horizontal. */
     for (const width of [320, 360, 390, 430]) {
-      await page.setViewport({ width, height: 844 });
+      await setViewport({ width, height: 844 });
       await sleep(140);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
         'A tela do grupo estoura na horizontal em ' + width + ' px');
@@ -3046,7 +2953,7 @@ await check('Tela do grupo muscular — 13 grupos, filtros, cards e ficha', asyn
       const barra = await page.$eval('#grupo-filtros', el => el.getBoundingClientRect().height);
       assert.ok(barra > 30, 'Os filtros sumiram em ' + width + ' px');
     }
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await sleep(140);
 
     /* O último card não fica atrás da barra inferior. */
@@ -3089,7 +2996,7 @@ await check('Tela do grupo muscular — 13 grupos, filtros, cards e ficha', asyn
     assert.match(await text('#grupo-lista'), /Nenhum exercício/, 'Combinação vazia precisa avisar');
     assert.equal(await page.$eval('#grupo-contador', el => el.dataset.total), '0');
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await restoreForjaRaw(saved);
   }
 });
@@ -3100,24 +3007,24 @@ await check('Evolução 1 — rotinas diretas, filtro e início com a modalidade
     await restoreForjaRaw({});
     await seedRestSession();
     await page.evaluate(() => {
-      localStorage.removeItem('forja-treino-sessao-ativa-v1');
+      window.Forja.store.driver().removeItem('forja-treino-sessao-ativa-v1');
       const key = 'forja-treino-rotinas-v1';
-      const routines = JSON.parse(localStorage.getItem(key));
+      const routines = JSON.parse(window.Forja.store.driver().getItem(key));
       const weights = structuredClone(routines.calisthenics[0]);
       weights.id = 'e2e-direto-weights'; weights.name = 'Musculação direta'; weights.modality = 'weights';
       routines.weights = [weights];
-      localStorage.setItem(key, JSON.stringify(routines));
+      window.Forja.store.driver().setItem(key, JSON.stringify(routines));
     });
     await go('treino/');
     const before = await forjaRaw();
     for (const width of [320, 390, 1280]) {
-      await page.setViewport({ width, height: 844 });
+      await setViewport({ width, height: 844 });
       assert.equal(await page.$$eval('#hub-routine-list .routine-card', els => els.length), 2);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
       const heights = await page.$$eval('#hub-routine-list .routine-actions > *', els => els.map(el => el.getBoundingClientRect().height));
       assert.ok(heights.every(height => height >= 44));
     }
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await page.screenshot({ path: artifactPath('evolucao1-rotinas-390.png'), fullPage: true });
     await page.select('#hub-modality', 'weights');
     assert.equal(await page.$$eval('#hub-routine-list .routine-card', els => els.length), 1);
@@ -3128,7 +3035,7 @@ await check('Evolução 1 — rotinas diretas, filtro e início com a modalidade
     assert.equal(active.routineId, 'e2e-direto-weights');
     assert.equal(active.modality, 'weights');
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -3139,7 +3046,7 @@ await check('Evolução 1 — consulta e inclusão contextual preservam rascunho
   try {
     await restoreForjaRaw({});
     await seedRestSession();
-    await page.evaluate(() => localStorage.removeItem('forja-treino-sessao-ativa-v1'));
+    await page.evaluate(() => window.Forja.store.driver().removeItem('forja-treino-sessao-ativa-v1'));
     await go('treino/rotina.html?modalidade=calisthenics&id=e2e-prefs-rest');
     await fill('#routine-name-input', 'Rascunho preservado');
     await fill('#exercise-name', 'Ainda digitando');
@@ -3192,11 +3099,11 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
     await seedRestSession();
     await page.evaluate(() => {
       const key = 'forja-treino-sessao-ativa-v1';
-      const s = JSON.parse(localStorage.getItem(key));
+      const s = JSON.parse(window.Forja.store.driver().getItem(key));
       s.queue[0].libraryId = 'cal-flexao';
       s.queue[0].instructions = 'Instrução da sessão: mantenha o corpo alinhado.';
       s.restEndAt = Date.now() + 60000; s.restPlannedSeconds = 60;
-      localStorage.setItem(key, JSON.stringify(s));
+      window.Forja.store.driver().setItem(key, JSON.stringify(s));
     });
     await go('treino/executar.html');
     await fill('#log-reps', '12');
@@ -3272,7 +3179,7 @@ await check('Demonstrações: imagem local decodifica, créditos visíveis e fal
   const added = errors.slice(before);
   assert.deepEqual(added.filter(e => /requestfailed|HTTP [45]/.test(e)), [],
     'falha de recurso ao exibir demonstrações: ' + added.join(' | '));
-  await page.setViewport(MOBILE);
+  await setViewport(MOBILE);
 });
 
 await check('Demonstrações: seletor no editor persiste demoId e chega à execução', async () => {
@@ -3293,7 +3200,7 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
   };
   try {
     await restoreForjaRaw({});
-    await page.evaluate(r => localStorage.setItem('forja-treino-rotinas-v1',
+    await page.evaluate(r => window.Forja.store.driver().setItem('forja-treino-rotinas-v1',
       JSON.stringify({ calisthenics: [r], weights: [] })), routine);
     await go('treino/rotina.html?id=r-demo&modalidade=calisthenics');
 
@@ -3310,12 +3217,12 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
 
     /* Sem overflow em telas pequenas com o seletor aberto. */
     for (const width of [320, 390, 768]) {
-      await page.setViewport({ width, height: 800 });
+      await setViewport({ width, height: 800 });
       await sleep(120);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       assert.ok(overflow <= 1, 'Overflow no seletor a ' + width + 'px: ' + overflow);
     }
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
 
     await fill('.demo-picker-input', 'aranha');
     await sleep(80);
@@ -3352,7 +3259,7 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
         pendingAdvance: false, restPlannedSeconds: 0, setTimer: null,
         setLogs: {}, logDraft: {}
       };
-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify(session));
+      window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify(session));
     }, routine, today);
     await go('treino/executar.html');
     await page.waitForFunction(() => {
@@ -3411,7 +3318,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
     assert.equal(await page.$('.modal-3d'), null, 'nenhum elemento 3D pode existir');
 
     for (const width of [320, 390, 768]) {
-      await page.setViewport({ width, height: 800 });
+      await setViewport({ width, height: 800 });
       await sleep(100);
       const metrics = await page.evaluate(() => {
         const rect = document.querySelector('.modal-details .video-demo-player').getBoundingClientRect();
@@ -3423,7 +3330,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
       assert.ok(metrics.overflow <= 1, 'overflow com player oficial a ' + width + 'px: ' + metrics.overflow);
       assert.ok(Math.abs(metrics.ratio - 16 / 9) < 0.08, 'proporção fora de 16:9 em ' + width + 'px');
     }
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => !document.querySelector('.modal-backdrop'), { timeout: 4000 });
 
@@ -3439,7 +3346,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
       'Demonstração em vídeo ainda não disponível para este exercício.');
     await page.keyboard.press('Escape');
   } finally {
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -3480,7 +3387,7 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
     youtubeE2EState.mode = 'normal';
     resetYoutubeBackend();
     await restoreForjaRaw({});
-    await page.evaluate(r => localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify(r)), routines);
+    await page.evaluate(r => window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify(r)), routines);
 
     /* Rotina A: modal "Procurar vídeo" pesquisando pelo proxy real do backend. */
     await go('treino/rotina.html?id=rotina-vid-a&modalidade=calisthenics');
@@ -3608,7 +3515,7 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
     /* Execução da Rotina B + persistência após reload real da página. */
     await page.evaluate((rB, day) => {
       const ex = rB.sections.main[0];
-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+      window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
         version: 2, id: 's-vid-b', date: day, modality: 'calisthenics',
         routineId: rB.id, routineName: rB.name, startedAt: Date.now() - 1000,
         elapsedMs: 0, running: true, currentIndex: 0,
@@ -3639,7 +3546,7 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
     const backupFile = artifactPath('backup-videos-e2e.json');
     fs.writeFileSync(backupFile, exportedJson, 'utf8');
 
-    await page.evaluate(() => localStorage.setItem('forja-treino-rotinas-v1',
+    await page.evaluate(() => window.Forja.store.driver().setItem('forja-treino-rotinas-v1',
       JSON.stringify({ calisthenics: [], weights: [] })));
     await go('configuracoes/');
     const input = await page.$('#import-backup-input');
@@ -3656,7 +3563,7 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
   } finally {
     youtubeE2EState.mode = 'normal';
     resetYoutubeBackend();
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -3686,8 +3593,8 @@ await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend 
     resetYoutubeBackend();
     await restoreForjaRaw({});
     await page.evaluate((r, day) => {
-      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [r], weights: [] }));
-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+      window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [r], weights: [] }));
+      window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
         version: 2, id: 's-dead', date: day, modality: 'calisthenics',
         routineId: r.id, routineName: r.name, startedAt: Date.now() - 1000,
         elapsedMs: 0, running: true, currentIndex: 0,
@@ -3756,7 +3663,7 @@ await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend 
     youtubeE2EState.mode = 'normal';
     youtubeE2EState.expectBackendHttpError = false;
     resetYoutubeBackend();
-    await page.setViewport(MOBILE);
+    await setViewport(MOBILE);
     await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
@@ -3823,9 +3730,9 @@ await check('Evolução: abas, indicadores, períodos e grupos musculares no nav
 
   await go('progresso/');
   await page.evaluate((records, dados) => {
-    localStorage.setItem('forja-treino-historico-v1', JSON.stringify(records));
-    localStorage.setItem('forja-perfil-v1', JSON.stringify(dados));
-    localStorage.removeItem('forja-treino-metas-v1');
+    window.Forja.store.driver().setItem('forja-treino-historico-v1', JSON.stringify(records));
+    window.Forja.store.driver().setItem('forja-perfil-v1', JSON.stringify(dados));
+    window.Forja.store.driver().removeItem('forja-treino-metas-v1');
   }, history, profile);
   await page.reload({ waitUntil: 'networkidle0' });
   await sleep(300);
@@ -3877,7 +3784,7 @@ await check('Evolução: abas, indicadores, períodos e grupos musculares no nav
 
   /* Capturas e overflow nos dois tamanhos pedidos. */
   for (const width of [390, 1280]) {
-    await page.setViewport({ width, height: width === 390 ? 844 : 900 });
+    await setViewport({ width, height: width === 390 ? 844 : 900 });
     await sleep(200);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     assert.ok(overflow <= 1, 'Overflow na Evolução a ' + width + 'px: ' + overflow);
@@ -3898,7 +3805,7 @@ await check('Evolução: abas, indicadores, períodos e grupos musculares no nav
   }
 
   /* Estado vazio: prompt sinaliza sem números falsos. */
-  await page.evaluate(() => localStorage.removeItem('forja-treino-historico-v1'));
+  await page.evaluate(() => window.Forja.store.driver().removeItem('forja-treino-historico-v1'));
   await page.reload({ waitUntil: 'networkidle0' });
   await sleep(250);
   assert.equal((await text('#ev-kpi-sessions')).trim(), '0');
@@ -3906,7 +3813,7 @@ await check('Evolução: abas, indicadores, períodos e grupos musculares no nav
   assert.match(await text('#ev-muscle-list'), /Nenhum grupo muscular/);
   assert.match(await text('#ev-nudge-title'), /começa no primeiro treino/);
 
-  await page.setViewport(MOBILE);
+  await setViewport(MOBILE);
 });
 
 await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
@@ -3915,11 +3822,11 @@ await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
 
 console.log('\n' + '='.repeat(60));
 const failed = results.filter(r => r[1] === 'fail');
-console.log('E2E navegador real — ' + (results.length - failed.length) + '/' + results.length + ' verificações aprovadas');
+console.log('E2E navegador real (Auth/Google/PostgREST simulados) — ' + (results.length - failed.length) + '/' + results.length + ' verificações aprovadas');
 if (failed.length) console.log('Falhas: ' + failed.map(f => f[0]).join(' | '));
 console.log('='.repeat(60));
 console.log('Artefatos (screenshots/downloads): ' + artifactsDir);
 
 await browser.close();
-if (localServer) localServer.server.close();
+if (localServer) await localServer.close();
 process.exitCode = failed.length ? 1 : 0;

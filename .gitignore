@@ -11,3 +11,6 @@ node_modules/
 
 # Artefato local do GitHub Pages; gerado por tools/preparar-site.sh.
 .site-publish/
+
+# Referências de reconstrução, logs e capturas locais.
+.cache/

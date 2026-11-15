@@ -1,22 +1,48 @@
 # FORJA
 
-Aplicativo estático de treinos, calendário e missões. Funciona sem build,
-sem backend e sem conta: os dados ficam no `localStorage` do navegador.
-Publicável diretamente no GitHub Pages (inclusive sob `/forja/`). O perfil guiado é obrigatório para entrar nas páginas do app; o onboarding e o plano local não exigem backend. As integrações opcionais de IA real e da busca de vídeos do YouTube usam as Netlify Functions (veja `docs/planejamento-inteligente.md`, `docs/videos-youtube.md` e `docs/backend-e-cors.md`): em produção o frontend resolve automaticamente os endpoints da Netlify, tanto no site dela quanto no GitHub Pages.
+Aplicativo estático multipágina de treinos, calendário e missões, com acesso
+**obrigatório por Google via Supabase Auth** (PKCE). Não há senha própria,
+modo visitante nem autenticação anônima. O perfil guiado continua obrigatório.
+
+Os dados de uso diário ficam no `localStorage`, separados pelo UID verificado.
+Uma **cópia inicial verificável** é enviada ao Supabase; não há sincronização
+contínua nem restauração automática entre aparelhos. Continue exportando backups.
+O isolamento remoto depende do JWT do usuário e do RLS existente, não do guard
+da interface. HTML/JS estáticos são públicos; armazenamento local não é criptografia.
+
+GitHub Pages sob `/forja/` e Netlify continuam suportados. O preparo do artefato
+injeta somente a configuração pública por variáveis de ambiente. Confira
+[`docs/autenticacao-google.md`](docs/autenticacao-google.md) para variáveis,
+redirects, recuperação e homologação manual, e
+[`docs/entrega-google-auth.md`](docs/entrega-google-auth.md) para a entrega/testes.
 
 ## Executar
 
+Requer Node.js **22 ou superior**. Configure no ambiente (não em arquivos
+versionados) `FORJA_SUPABASE_URL` e `FORJA_SUPABASE_ANON_KEY`, conforme
+`.env.example`. A chave deve ser **publishable/anon**, nunca uma chave privada.
+O build não carrega `.env` automaticamente: disponibilize as variáveis pelo seu
+shell ou pelo provedor de hospedagem.
+
 ```sh
-npm install
-npm run serve          # http://127.0.0.1:8080/
-npm test               # métricas, forja, onboarding, atlas, paridade, demonstrações, vídeos e proxy YouTube
-npm run test:e2e       # Chromium real, servindo o repo sob /forja/
+npm ci
+npm run build           # gera .site-publish com configuração pública; falha se ausente/inválida
+npm run serve           # http://localhost:8080/ — serve apenas .site-publish, não o repositório
+npm test                # regressão + Auth/config: SDK real, serviços simulados; zero SQL
+npm run test:auth:e2e    # Chromium: login, sessão, contas, legado e recuperação simulados
+npm run test:e2e         # Chromium: regressão multipágina sob /forja/, Auth HTTP simulado
 ```
 
-A pesquisa de vídeos por API exige backend (Netlify Functions) e a variável
-`YOUTUBE_API_KEY` no ambiente privado — veja `.env.example` e
-[`docs/videos-youtube.md`](docs/videos-youtube.md). Sem backend, o app continua
-funcionando com os vídeos oficiais e as ilustrações de referência.
+Os testes não precisam de credenciais reais e **não homologam Google nem RLS
+remotos**. O fonte mantém a chave vazia de propósito; abrir o repositório sem
+preparar a configuração não libera acesso. A publicação exige aprovação
+separada; não é feita pelos comandos de teste/build acima.
+
+IA real e pesquisa de vídeos por API continuam opcionais e usam Netlify
+Functions (veja `docs/planejamento-inteligente.md`, `docs/videos-youtube.md` e
+`docs/backend-e-cors.md`). A pesquisa requer `YOUTUBE_API_KEY` no ambiente
+privado do backend, nunca no frontend. Sem essas Functions, após autenticar com
+Google, o app mantém o plano local, os vídeos oficiais e as ilustrações.
 
 ## Ilustrações de exercícios
 
@@ -99,6 +125,8 @@ Blender/Cycles a partir do personagem 3D masculino — dois do piloto abdominal
 
 ## Documentação
 
+- `docs/autenticacao-google.md` — Google/PKCE, configuração pública, redirects, isolamento e recuperação sem SQL.
+- `docs/entrega-google-auth.md` — escopo reconstruído da main, arquivos, resultados dos testes e pendências reais.
 - `docs/videos-youtube.md` — vídeos de demonstração, pesquisa via YouTube Data API v3, segurança da chave, exclusão de Shorts e quota.
 - `docs/forja-rotinas-e-backup.md` — formato de dados, migração e backup JSON.
 - `docs/catalogo-exercicios.md` — catálogo central, critérios editoriais, distribuição e compatibilidade de IDs.

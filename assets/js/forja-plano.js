@@ -23,13 +23,13 @@
 
   function readPlan() {
     try {
-      const value = JSON.parse(global.localStorage.getItem(PLAN_KEY) || "null");
+      const value = JSON.parse(F.store.driver().getItem(PLAN_KEY) || "null");
       return F.isPlainObject(value) && value.version === 1 && Array.isArray(value.sessions) ? value : null;
     } catch (_) { return null; }
   }
 
   function writePlan(plan) {
-    try { global.localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); return true; }
+    try { F.store.driver().setItem(PLAN_KEY, JSON.stringify(plan)); return true; }
     catch (_) { return false; }
   }
 
@@ -335,9 +335,9 @@
     oldTasks.forEach(item => {
       try {
         const key = "forja-missoes-" + item.date;
-        const current = JSON.parse(global.localStorage.getItem(key) || "[]");
+        const current = JSON.parse(F.store.driver().getItem(key) || "[]");
         const updated = current.filter(task => !(task && task.id === item.id && !task.done && !task.completed));
-        if (updated.length !== current.length) global.localStorage.setItem(key, JSON.stringify(updated));
+        if (updated.length !== current.length) F.store.driver().setItem(key, JSON.stringify(updated));
       } catch (_) { /* calendário antigo/corrompido permanece intacto */ }
     });
     const dates = nextDates(next.sessions);
@@ -347,11 +347,11 @@
       const id = next.id + "-" + session.id;
       const key = "forja-missoes-" + dateText;
       let tasks = [];
-      try { tasks = JSON.parse(global.localStorage.getItem(key) || "[]"); if (!Array.isArray(tasks)) tasks = []; }
+      try { tasks = JSON.parse(F.store.driver().getItem(key) || "[]"); if (!Array.isArray(tasks)) tasks = []; }
       catch (_) { tasks = []; }
       if (!tasks.some(task => task && task.id === id)) {
         tasks.push({ id, text: "Treino FORJA · " + session.title, done: false });
-        global.localStorage.setItem(key, JSON.stringify(tasks));
+        F.store.driver().setItem(key, JSON.stringify(tasks));
       }
       session.scheduleDate = dateText;
       refs.push({ date: dateText, id });
@@ -403,7 +403,7 @@
     /* As escolhas deste planejador são próprias; não sobrescrevem o perfil nem herdam suas metas. */
     const fallback = Object.assign({}, DEFAULT_PREFERENCES);
     try {
-      const stored = JSON.parse(global.localStorage.getItem(PREFERENCES_KEY) || "null");
+      const stored = JSON.parse(F.store.driver().getItem(PREFERENCES_KEY) || "null");
       const value = Object.assign({}, fallback, F.isPlainObject(stored) ? stored : {});
       if (!["massa","emagrecer","condicionamento"].includes(value.goal)) value.goal = fallback.goal;
       if (!["iniciante","intermediario","avancado"].includes(value.level)) value.level = fallback.level;
@@ -415,7 +415,7 @@
   }
 
   function writePreferences(preferences) {
-    try { global.localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences)); return true; }
+    try { F.store.driver().setItem(PREFERENCES_KEY, JSON.stringify(preferences)); return true; }
     catch (_) { return false; }
   }
 

@@ -1,5 +1,9 @@
-(function () {
+(async function () {
   "use strict";
+  const googleUser = await window.Forja.auth.init();
+  if (!googleUser || !window.Forja.auth.isVerified(googleUser.id)) return;
+  window.Forja.auth.unlock(googleUser.id);
+
   const catalog = window.Forja.exerciseCatalog;
   const API_URL = /(^|\.)netlify\.app$/.test(location.hostname)
     ? "/.netlify/functions/youtube-videos"
@@ -19,6 +23,7 @@
   function status(message, isError) { const node = $("#operation-status"); node.textContent = message; node.style.color = isError ? "var(--danger)" : "var(--lime)"; }
 
   async function request(action, body = {}) {
+    if (!window.Forja.auth.isVerified(googleUser.id)) throw new Error("Entre novamente com Google antes de administrar.");
     if (!credential) throw new Error("Inicie uma sessão administrativa.");
     const response = await fetch(API_URL, {
       method: "POST", credentials: "omit", referrerPolicy: "no-referrer",

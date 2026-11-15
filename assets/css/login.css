@@ -1,0 +1,18 @@
+:root { color-scheme: dark; font: 16px/1.6 system-ui, -apple-system, sans-serif; background: #0b0f0c; color: #f3f5ee; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: clamp(1rem, 5vw, 4rem); background: radial-gradient(ellipse at top right, #24331a 0, transparent 60%); }
+.login-card { width: min(100%, 29rem); padding: clamp(1.25rem, 5vw, 2.5rem); background: #121812; border: 1px solid #34402d; border-radius: 1.5rem; box-shadow: 0 2rem 5rem #0004; }
+.login-brand { margin: 0 0 3rem; color: #c5f75a; font-size: 2rem; font-weight: 900; letter-spacing: -.08em; line-height: 1.15; }
+.login-brand span { display: block; margin-top: .5rem; color: #b0b7a7; font-size: .6rem; font-weight: 600; letter-spacing: .2em; }
+.login-eyebrow { color: #c5f75a; font-size: .68rem; font-weight: 700; letter-spacing: .12em; }
+h1 { font-size: clamp(1.85rem, 7vw, 2.7rem); line-height: 1.12; letter-spacing: -.05em; margin: .8rem 0 1rem; }
+.login-intro, .login-privacy { color: #bfc8b8; }
+#google-login { width: 100%; display: flex; align-items: center; justify-content: center; gap: .75rem; margin-top: 1.8rem; padding: 1rem; border: 1px solid #d3ff78; border-radius: .7rem; background: #c5f75a; color: #14200d; font: 700 .95rem/1.3 system-ui, sans-serif; cursor: pointer; }
+#google-login svg { flex: 0 0 22px; }
+#google-login:disabled { opacity: .6; cursor: wait; }
+:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.login-status { min-height: 3.2rem; margin: 1rem 0; color: #e0e8d8; font-size: .85rem; overflow-wrap: anywhere; }
+.login-privacy { border-top: 1px solid #34402d; padding-top: 1.2rem; font-size: .8rem; }
+.login-privacy summary { cursor: pointer; }
+.login-footer { text-align: center; color: #a5b19b; font-size: .7rem; margin: 1.8rem 0 0; }
+@media (prefers-reduced-motion: no-preference) { #google-login { transition: background .15s; } #google-login:hover:not(:disabled) { background: #d2ff78; } }

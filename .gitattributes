@@ -1,0 +1,4 @@
+# Manter o bundle oficial byte a byte (inclusive whitespace de templates do SDK).
+# O verificador de vendor confere distribuição/licença/SHA-256; a exceção de
+# whitespace é somente para este arquivo de terceiro, nunca para o código do app.
+assets/vendor/supabase/supabase.js -text -whitespace linguist-vendored

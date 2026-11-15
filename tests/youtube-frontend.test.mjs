@@ -82,7 +82,7 @@ await test("YF06. Painel mantém credencial fora do storage e envia Authorizatio
   assert.equal(authorization, "Bearer credential-only-in-memory");
   assert.equal(app.$("#admin-credential").value, "");
   assert.equal(app.raw("FORJA_ADMIN_CREDENTIAL"), null);
-  assert.deepEqual(app.w.sessionStorage.length, 0); assert.deepEqual(app.storageWrites, []);
+  assert.deepEqual(app.F.tabStorage().length, 0); assert.deepEqual(app.storageWrites, []);
   assert.match(app.text("#report"), /165/); app.close();
 });
 

@@ -17,15 +17,25 @@ set -euo pipefail
 OUT="${1:?uso: preparar-site.sh <diretorio-de-saida>}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Impede que um erro de argumento remova o checkout ou algum ancestral.
+python3 - "$ROOT" "$OUT" <<'CHECK'
+import pathlib, sys
+root, out = (pathlib.Path(p).resolve() for p in sys.argv[1:])
+if out == root or out in root.parents:
+    sys.exit("ERRO: saída não pode ser o repositório nem um ancestral")
+CHECK
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
 # Caminhos relativos idênticos aos do repositório: preserva data-root, F.url(),
 # navegação e imagens quando o site é servido sob /forja/.
-cp -R "$ROOT/index.html" \
+cp -R "$ROOT/index.html" "$ROOT/login.html" \
       "$ROOT/admin" "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
       "$ROOT/progresso" "$ROOT/treino" \
       "$ROOT/assets" "$OUT/"
+
+# Apenas configuração pública; falta/erro de variável interrompe o build, nunca abre o app.
+node "$ROOT/tools/configurar-auth.mjs" "$OUT"
 
 # Entradas do gerador e livro de revisões: ficam no repositório para auditoria,
 # mas não são recursos do app publicado. O manifesto com SHA-256 fica (é link
@@ -109,7 +119,10 @@ for p in tools tests docs design artifacts .github .git node_modules \
 done
 
 # Recursos obrigatórios do app, vídeos/ilustrações de demonstração e créditos.
-for p in index.html \
+for p in index.html login.html assets/css/login.css assets/js/forja-login.js \
+         assets/css/auth-guard.css assets/js/forja-auth-guard.js \
+         assets/js/forja-supabase-config.js assets/js/forja-auth.js assets/js/forja-auth-data.js \
+         assets/vendor/supabase/supabase.js assets/vendor/supabase/LICENSE \
          admin/exercicios.html assets/js/admin-exercicios.js assets/css/admin-exercicios.css \
          assets/js/forja-youtube.js \
          exercicio/index.html \

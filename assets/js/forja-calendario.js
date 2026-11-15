@@ -28,7 +28,7 @@ function readTasks(date) {
   const key = "forja-missoes-" + dateKey(date);
 
   try {
-    const saved = localStorage.getItem(key);
+    const saved = window.Forja.store.driver().getItem(key);
     if (!saved) return [];
 
     const parsed = JSON.parse(saved);
@@ -56,7 +56,7 @@ function readTasks(date) {
 
 function saveTasks(date, tasks) {
   try {
-    localStorage.setItem(
+    window.Forja.store.driver().setItem(
       "forja-missoes-" + dateKey(date),
       JSON.stringify(tasks)
     );

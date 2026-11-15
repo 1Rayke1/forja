@@ -147,8 +147,10 @@ await runTest("2. a página tem só título + palco; nenhum resto de personagem 
   assert.equal(video.hasAttribute("loop"), true);
   assert.equal(video.hasAttribute("playsinline"), true);
   assert.equal(video.hasAttribute("controls"), false, "controles nativos não podem existir");
-  assert.equal(d.querySelectorAll("button, select, input, progress").length, 0,
-    "a tela não pode ter botão, seletor ou barra de progresso");
+  const controls = [...d.querySelectorAll("button, select, input, progress")]
+    .filter(element => !element.closest("[data-auth-gate]"));
+  assert.equal(controls.length, 0,
+    "a apresentação autenticada não pode ter botão, seletor ou barra de progresso");
   assert.equal(d.querySelectorAll("video").length, 1, "só um vídeo");
 
   /* Nenhum palco, script ou folha de estilo do sistema 3D. */

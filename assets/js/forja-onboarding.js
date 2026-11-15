@@ -669,7 +669,7 @@
 
   function lerRascunho() {
     try {
-      const raw = global.sessionStorage.getItem(DRAFT_KEY);
+      const raw = F.tabStorage().getItem(DRAFT_KEY);
       if (!raw) return null;
       const value = JSON.parse(raw);
       if (!F.isPlainObject(value) || !F.isPlainObject(value.respostas)) return null;
@@ -695,7 +695,7 @@
 
   function gravarRascunho(state) {
     try {
-      global.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
+      F.tabStorage().setItem(DRAFT_KEY, JSON.stringify({
         versao: DRAFT_VERSION,
         passo: state.passo,
         respostas: state.respostas,
@@ -714,7 +714,7 @@
 
   function apagarRascunho() {
     try {
-      global.sessionStorage.removeItem(DRAFT_KEY);
+      F.tabStorage().removeItem(DRAFT_KEY);
     } catch (error) {
       /* Nada a fazer: a chave simplesmente fica. */
     }
@@ -1514,7 +1514,7 @@
 
     /* Perfil concluído não repete o onboarding em visitas comuns. */
     if (F.profileIsConfigured(F.state.profile) && !documentoQuerRefazer()) {
-      F.navigate(F.url("inicio"));
+      F.navigate(F.auth ? F.auth.resumeUrl(true) : F.url("inicio"));
       return;
     }
 
@@ -1696,7 +1696,7 @@
           : "Perfil salvo. As metas semanais não puderam ser criadas — configure em Progresso.",
         metasSalvas ? "info" : "error"
       );
-      F.navigate(F.url("inicio"));
+      F.navigate(F.auth ? F.auth.resumeUrl(true) : F.url("inicio"));
     }
 
     form.addEventListener("submit", event => {

@@ -4,11 +4,11 @@
   "private": true,
   "description": "FORJA — disciplina diária: calendário, missões e treinos com rotinas A/B/C.",
   "scripts": {
-    "test": "node tests/catalogo-central.test.mjs && node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs && node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/treino-planejamento.test.mjs && node tests/treino-preferencias.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/videos-youtube.test.mjs && node tests/youtube-proxy.test.mjs && node tests/biblioteca-detalhe.test.mjs && node tests/biblioteca-grupos.test.mjs && node tests/grupo-muscular.test.mjs && node tests/evolucao.test.mjs && node tests/configuracoes.test.mjs",
+    "test": "node tests/catalogo-central.test.mjs && node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs && node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/treino-planejamento.test.mjs && node tests/treino-preferencias.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/videos-youtube.test.mjs && node tests/youtube-proxy.test.mjs && node tests/biblioteca-detalhe.test.mjs && node tests/biblioteca-grupos.test.mjs && node tests/grupo-muscular.test.mjs && node tests/evolucao.test.mjs && node tests/configuracoes.test.mjs && npm run test:auth",
     "test:plan": "node tests/plan.test.mjs",
     "test:preferencias": "node tests/treino-preferencias.test.mjs",
     "test:e2e": "node tests/e2e.browser.mjs",
-    "serve": "python3 -m http.server 8080 --bind 127.0.0.1",
+    "serve": "python3 -m http.server 8080 --bind 0.0.0.0 --directory .site-publish",
     "test:onboarding": "node tests/onboarding.test.mjs",
     "test:exercicio": "node tests/exercicio-apresentacao.test.mjs",
     "test:videos": "node tests/videos-youtube.test.mjs",
@@ -19,7 +19,11 @@
     "test:biblioteca-grupos": "node tests/biblioteca-grupos.test.mjs",
     "test:evolucao": "node tests/evolucao.test.mjs",
     "test:configuracoes": "node tests/configuracoes.test.mjs",
-    "capturas:configuracoes": "node tools/capturas-configuracoes.mjs"
+    "capturas:configuracoes": "node tools/capturas-configuracoes.mjs",
+    "build": "bash tools/preparar-site.sh .site-publish",
+    "test:auth": "node tests/auth.test.mjs && node tests/auth-config.test.mjs",
+    "test:auth:e2e": "node tests/auth.browser.mjs",
+    "vendor:supabase": "node tools/sincronizar-supabase.mjs"
   },
   "devDependencies": {
     "@sparticuz/chromium": "^138.0.2",
@@ -28,6 +32,10 @@
     "puppeteer-core": "^24.43.1"
   },
   "dependencies": {
-    "@netlify/blobs": "^11.1.7"
+    "@netlify/blobs": "^11.1.7",
+    "@supabase/supabase-js": "2.119.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }

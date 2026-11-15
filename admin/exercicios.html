@@ -1,19 +1,32 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-forja-auth="locked">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.ytimg.com; frame-src https://www.youtube-nocookie.com; connect-src 'self' https://prismatic-parfait-be3644.netlify.app; base-uri 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.ytimg.com; frame-src https://www.youtube-nocookie.com; connect-src 'self' https://abundydxjclcgonctirx.supabase.co https://prismatic-parfait-be3644.netlify.app; base-uri 'none'; form-action 'self'">
   <title>FORJA — Administração de demonstrações</title>
+<link rel="stylesheet" href="../assets/css/auth-guard.css">
+<script src="../assets/js/forja-auth-guard.js"></script>
   <link rel="stylesheet" href="../assets/css/admin-exercicios.css">
 </head>
-<body>
+<body data-page="admin" data-root="../">
+<section data-auth-gate aria-labelledby="auth-gate-title">
+  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
+  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
+  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
+  <div id="auth-legacy-choice" hidden>
+    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
+    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
+  </div>
+  <a href="../login.html">Ir para o login</a>
+</section>
+<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
   <header class="admin-header">
     <div><span class="brand">FORJA</span><h1>Demonstrações dos exercícios</h1></div>
-    <a href="../treino/biblioteca.html">Ver biblioteca pública</a>
+    <a href="../treino/biblioteca.html">Voltar à biblioteca</a>
   </header>
-  <main>
+  <main id="conteudo">
     <section class="panel auth-panel" aria-labelledby="auth-title">
       <div><h2 id="auth-title">Sessão administrativa</h2><p>A credencial fica somente na memória desta aba e é enviada por HTTPS. Não é salva no navegador.</p></div>
       <form id="auth-form"><label>Credencial administrativa<input id="admin-credential" type="password" required maxlength="512" autocomplete="off"></label><button class="primary" type="submit">Iniciar sessão</button></form>
@@ -68,6 +81,10 @@
 
     <section class="panel" aria-labelledby="missing-title"><h2 id="missing-title">Exercícios sem demonstração aprovada</h2><div id="missing-list" class="missing-list"><p>Inicie a sessão para consultar.</p></div></section>
   </main>
+  <script src="../assets/js/forja-core.js"></script>
+  <script src="../assets/js/forja-supabase-config.js"></script>
+  <script src="../assets/vendor/supabase/supabase.js"></script>
+  <script src="../assets/js/forja-auth.js"></script>
   <script src="../assets/js/forja-exercicios-dados.js"></script>
   <script src="../assets/js/forja-catalogo-central.js"></script>
   <script src="../assets/js/admin-exercicios.js"></script>

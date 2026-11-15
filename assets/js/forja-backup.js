@@ -46,7 +46,7 @@ function getForjaStorageKeys(includeSafety = false) {
     throw new Error("Não foi possível ler o armazenamento do navegador.");
   }
 
-  return F.store.keys().filter(key => includeSafety || key !== KEYS.safety);
+  return F.store.keys().filter(key => (!F.isAccountDataKey || F.isAccountDataKey(key)) && (includeSafety || key !== KEYS.safety));
 }
 
 /*
@@ -54,6 +54,9 @@ function getForjaStorageKeys(includeSafety = false) {
   do boot): importação e boot aceitam exatamente o mesmo conjunto de dados.
 */
 function validateBackupEntry(key, value) {
+  if (F.isAccountDataKey && !F.isAccountDataKey(key)) {
+    throw new Error("O backup contém uma chave privada de autenticação ou de outra conta.");
+  }
   if (key === KEYS.safety) {
     throw new Error("O backup contém uma chave interna de segurança que não deve ser importada.");
   }
@@ -956,7 +959,7 @@ function updateBackupStatus() {
   if (!status || !undoButton) return;
 
   const parts = [
-    "Seus dados permanecem apenas neste navegador. Faça backups regulares."
+    "Seus dados de uso diário permanecem apenas neste navegador. A cópia inicial não é backup contínuo. Faça backups regulares."
   ];
 
   if (lastExportAt) {

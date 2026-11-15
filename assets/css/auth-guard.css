@@ -1,0 +1,13 @@
+/* Fail closed desde o HTML: nenhuma página interna aparece antes da validação. */
+html[data-forja-auth]:not([data-forja-auth="ready"]) body > :not([data-auth-gate]):not(noscript):not(script) { display: none !important; }
+html[data-forja-auth="ready"] [data-auth-gate] { display: none !important; }
+[data-auth-gate] { box-sizing: border-box; max-width: 36rem; margin: 12vh auto 2rem; padding: 1.5rem; color: #eee; background: #141714; border: 1px solid #414a37; border-radius: 1rem; font: 1rem/1.6 system-ui, sans-serif; }
+[data-auth-gate] .auth-gate-title { font-size: 1.4rem; font-weight: 700; }
+[data-auth-gate] p { overflow-wrap: anywhere; }
+[data-auth-gate] a { color: #c5f75a; }
+[data-auth-gate] button { display: inline-block; margin: .5rem .5rem .5rem 0; padding: .8rem 1rem; border: 1px solid #c5f75a; border-radius: .6rem; color: #101410; background: #c5f75a; font: inherit; cursor: pointer; }
+[data-auth-gate] :focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+[data-auth-gate] [hidden] { display: none !important; }
+noscript p { padding: 1rem; background: #141714; color: #eee; font: 1rem/1.6 system-ui, sans-serif; }
+noscript a { color: #c5f75a; }
+@media(max-width: 600px) { [data-auth-gate] { margin: 8vh 1rem 1rem; } }
