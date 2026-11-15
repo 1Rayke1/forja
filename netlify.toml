@@ -22,3 +22,18 @@
   to = "/.netlify/functions/youtube-videos"
   status = 200
   force = true
+
+# A aba "Perfil" agora abre direto a tela de Configurações; a página
+# intermediária perfil/index.html foi removida. Links/favoritos antigos
+# continuam chegando ao destino certo (o fragmento é preservado pelo navegador).
+[[redirects]]
+  from = "/perfil"
+  to = "/configuracoes/index.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/perfil/*"
+  to = "/configuracoes/index.html"
+  status = 301
+  force = true

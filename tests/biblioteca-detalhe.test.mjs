@@ -113,7 +113,7 @@ await test("B1. A aba Explorar abre a Biblioteca, sem tela intermediária", asyn
   assert.equal(home.$('.bottom-nav-link[aria-current="page"]').getAttribute("data-nav"), "explorar");
 
   /* Nenhuma página manda "Explorar" para o hub antigo. */
-  const pages = ["index.html", "treino/index.html", "progresso/index.html", "perfil/index.html"];
+  const pages = ["index.html", "treino/index.html", "progresso/index.html", "configuracoes/index.html"];
   for (const page of pages) {
     const app = await boot({}, page);
     const href = app.$('.bottom-nav-link[data-nav="explorar"]').getAttribute("href");

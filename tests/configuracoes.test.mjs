@@ -64,7 +64,7 @@ await test("C1. Hub fiel à referência: grupos, nove destinos reais e barra inf
   assert.equal(app.$$("#inicio .settings-row").length, 9);
   assert.equal(app.$$(".bottom-nav-link").length, 5);
   assert.equal(app.$('.bottom-nav-link[aria-current="page"]').dataset.nav, "perfil");
-  assert.equal(app.$("#settings-exit").getAttribute("href"), "../perfil/index.html");
+  assert.equal(app.$("#settings-exit").getAttribute("href"), "../index.html");
   assert.match(app.$("#settings-exit").textContent, /Sair das configurações/);
   assert.equal(app.$("#settings-goals-link").getAttribute("href"), "../progresso/index.html#progress-goals-heading");
   assert.equal(app.$("#settings-training-link").getAttribute("href"), "../treino/index.html#preferences-heading");
@@ -108,7 +108,7 @@ await test("C3. Fragmentos abrem painéis, voltar retorna ao hub e links antigos
   assert.equal(app.$("#privacidade").hidden, false);
   await openPanel(app, "#inicio");
   assert.equal(app.text("#settings-title"), "Configurações");
-  assert.equal(app.$("#settings-back").getAttribute("href"), "../perfil/index.html");
+  assert.equal(app.$("#settings-back").getAttribute("href"), "../index.html");
   await openPanel(app, "#rota-inexistente");
   assert.equal(app.$("#inicio").hidden, false);
   assert.deepEqual(app.storageWrites, []);
@@ -165,7 +165,7 @@ await test("C5. Apagar nome pede confirmação; cancelar não grava e confirmar 
   assertNoErrors(app, "apagar nome");
 });
 
-await test("C6. Som e vibração usam a chave existente, persistem e continuam compartilhados com Perfil", async () => {
+await test("C6. Som e vibração usam a chave existente, persistem e sobrevivem à navegação", async () => {
   const app = await boot({}, PAGE + "#notificacoes");
   assert.equal(app.raw(PREFS_KEY), null);
   assert.equal(app.$("#pref-sound").checked, true);
@@ -174,7 +174,7 @@ await test("C6. Som e vibração usam a chave existente, persistem e continuam c
   assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
   await app.reload();
   assert.equal(app.$("#pref-sound").checked, false);
-  await app.go(BASE + "perfil/index.html");
+  await app.go(BASE + "configuracoes/index.html");
   assert.equal(app.$("#pref-sound").checked, false);
   app.$("#pref-vibrate").click();
   await wait(20);
@@ -340,6 +340,46 @@ await test("C15. Abrir e navegar por todos os painéis não grava nada nem produ
   }
   assert.deepEqual(app.storageWrites, []);
   assertNoErrors(app, "navegação completa");
+});
+
+await test("C16. Aba Perfil abre Configurações direto; perfil completo editável, sem página intermediária nem ciclo", async () => {
+  /* A página intermediária foi removida: nada de tela só para encaminhar. */
+  assert.ok(!fs.existsSync(path.join(repoRoot, "perfil", "index.html")), "perfil/index.html não deveria existir");
+
+  const app = await boot({ [PROFILE_KEY]: profileSeed({ nomeExibicao: "Ravy" }) }, "index.html");
+  app.click('.bottom-nav-link[data-nav="perfil"]');
+  await wait(120);
+  assert.match(app.w.location.pathname, /configuracoes\/index\.html$/, "Perfil não abriu Configurações direto");
+  assert.equal(app.text("#settings-title"), "Configurações");
+  assert.equal(app.$('.bottom-nav-link[aria-current="page"]').dataset.nav, "perfil");
+  assert.equal(app.$("#profile-settings-link"), null, "O cartão intermediário de Configurações não deve existir");
+
+  /* O formulário completo de perfil vive no painel Editar perfil. */
+  for (const id of ["profile-form", "prof-objetivo", "prof-nivel", "prof-equipamento", "prof-sexo", "prof-modalidade", "prof-dias", "prof-duracao", "profile-save"]) {
+    assert.ok(app.$("#" + id), "Campo de perfil ausente em Configurações: #" + id);
+  }
+  assert.deepEqual(app.storageWrites, [], "Navegar até Configurações gravou algo");
+
+  await openPanel(app, "#editar-perfil");
+  assert.equal(app.$("#settings-back").getAttribute("href"), "#inicio");
+  app.$("#prof-sexo").value = "feminino";
+  app.$("#prof-dias").value = "4";
+  submit(app, "#profile-form");
+  await wait(30);
+  assert.equal(app.data(PROFILE_KEY).sexo, "feminino");
+  assert.equal(app.data(PROFILE_KEY).diasPorSemana, 4);
+  assert.equal(app.data(PROFILE_KEY).objetivo, "hipertrofia", "Campo não editado mudou");
+
+  /* Refresh continua em Configurações com o valor salvo. */
+  await app.reload();
+  assert.match(app.w.location.pathname, /configuracoes\/index\.html$/);
+  assert.equal(app.$("#prof-sexo").value, "feminino");
+
+  /* Voltar do hub leva ao Início, sem ciclo de volta para uma página Perfil. */
+  await openPanel(app, "#inicio");
+  assert.equal(app.$("#settings-back").getAttribute("href"), "../index.html");
+  assert.equal(app.$("#settings-exit").getAttribute("href"), "../index.html");
+  assertNoErrors(app, "perfil direto em configurações");
 });
 
 console.log("\nCONFIGURAÇÕES — " + passed + "/" + (passed + failures.length) + " testes aprovados");

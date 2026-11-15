@@ -24,7 +24,7 @@ mkdir -p "$OUT"
 # navegação e imagens quando o site é servido sob /forja/.
 cp -R "$ROOT/index.html" \
       "$ROOT/admin" "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
-      "$ROOT/perfil" "$ROOT/progresso" "$ROOT/treino" \
+      "$ROOT/progresso" "$ROOT/treino" \
       "$ROOT/assets" "$OUT/"
 
 # Entradas do gerador e livro de revisões: ficam no repositório para auditoria,
@@ -117,7 +117,7 @@ for p in index.html \
          assets/js/forja-exercicio.js \
          assets/videos/exercicios/manifest.json \
          configuracoes/index.html explorar/index.html explorar/atlas.html \
-         onboarding/index.html perfil/index.html progresso/index.html \
+         onboarding/index.html progresso/index.html \
          treino/index.html treino/rotina.html treino/executar.html \
          treino/biblioteca.html treino/grupo.html treino/calistenia.html treino/musculacao.html \
          assets/js/forja-app.js assets/js/forja-configuracoes.js \

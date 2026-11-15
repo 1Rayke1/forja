@@ -32,8 +32,12 @@
   const LEGACY_TARGETS = {
     "nome-exibicao": "editar-perfil",
     "profile-name-form": "editar-perfil",
+    "profile-form": "editar-perfil",
+    "profile-onboarding-link": "editar-perfil",
+    "perfil-treino-heading": "editar-perfil",
     "preferences-heading": "notificacoes",
     "backup-heading": "privacidade",
+    "profile-data-heading": "privacidade",
     "storage-heading": "privacidade",
     "creditos-imagens": "sobre",
     "creditos-fotografias": "sobre",
@@ -112,19 +116,6 @@
       sinceNode.textContent = parsed && !Number.isNaN(parsed.getTime())
         ? (registeredAt ? "Membro desde " : "Perfil desde ") + F.formatDate(parsed, { year: "numeric" })
         : "Personalize como o FORJA chama você";
-    }
-
-    const details = byId("settings-profile-details");
-    if (details) {
-      details.innerHTML = "";
-      const fields = [
-        ["Objetivo", F.PERFIL_LABELS.objetivo[profile.objetivo]],
-        ["Nível", F.PERFIL_LABELS.nivel[profile.nivel]],
-        ["Equipamento", F.PERFIL_LABELS.equipamento[profile.equipamento]]
-      ];
-      fields.forEach(([label, value]) => {
-        details.append(F.ui.el("dt", null, label), F.ui.el("dd", null, value || "Não informado"));
-      });
     }
   }
 
@@ -238,8 +229,8 @@
       icon.appendChild(F.ui.icon(meta.icon).querySelector("svg"));
     }
     if (back) {
-      back.href = target.panel === "inicio" ? F.url("perfil") : "#inicio";
-      back.setAttribute("aria-label", target.panel === "inicio" ? "Voltar ao perfil" : "Voltar às configurações");
+      back.href = target.panel === "inicio" ? F.url("inicio") : "#inicio";
+      back.setAttribute("aria-label", target.panel === "inicio" ? "Voltar ao início" : "Voltar às configurações");
     }
     doc.title = meta.title + " · FORJA";
     doc.body.setAttribute("data-settings-view", target.panel);

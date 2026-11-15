@@ -1059,12 +1059,12 @@ function updateBackupStatus() {
   }
 
   /* ------------------------------------------------------------------ */
-  /* Perfil de treino (página Perfil; configurações mantêm a rota antiga)*/
+  /* Perfil de treino (formulário completo na tela de Configurações)     */
   /* ------------------------------------------------------------------ */
   /*
-    O formulário existe só na página Perfil. Nas Configurações os elementos
-    não estão no documento, então estas funções simplesmente não acham nada
-    e não fazem nada — a rota antiga continua funcionando igual.
+    O formulário de perfil vive no painel "Editar perfil" de Configurações.
+    Estas funções só agem quando os elementos existem no documento; nas
+    demais páginas elas simplesmente não acham nada e não fazem nada.
   */
   function fillProfileSelect(select, options, value) {
     if (!select) return;
@@ -1254,10 +1254,9 @@ function updateBackupStatus() {
   }
 
   /*
-    Outra aba (Perfil ou Configurações) pode mudar as preferências enquanto esta
-    está aberta — inclusive durante um descanso na execução. O evento `storage`
-    só chega às demais abas; aqui a memória e os checkboxes são relidos do
-    armazenamento, sem gravar nada.
+    Outra aba pode mudar as preferências enquanto esta está aberta — inclusive
+    durante um descanso na execução. O evento `storage` só chega às demais abas;
+    aqui a memória e os checkboxes são relidos do armazenamento, sem gravar nada.
   */
   global.addEventListener("storage", event => {
     if (event.key !== null && event.key !== KEYS.preferences) return;
@@ -1273,11 +1272,10 @@ function updateBackupStatus() {
   });
 
   /*
-    Controlador único de dados e preferências. Perfil (destino da barra
-    inferior) e Configurações (mantida para links antigos e favoritos) têm a
-    mesma marcação de backup e descanso, então as duas páginas usam esta mesma
-    inicialização. Abrir a página só lê o armazenamento: nada é gravado até o
-    usuário agir.
+    Controlador único de dados e preferências da tela de Configurações (destino
+    da aba "Perfil" da barra inferior). Reúne nome, perfil de treino, descanso e
+    backup com as mesmas chaves de sempre. Abrir a página só lê o armazenamento:
+    nada é gravado até o usuário agir.
   */
   function listen(element, type, handler) {
     if (element) element.addEventListener(type, handler);
@@ -1335,14 +1333,9 @@ function updateBackupStatus() {
     updateBackupStatus();
     renderPhotoCredits();
 
-    /* A nova organização só existe na rota Configurações. Perfil mantém seu
-       formulário completo e usa exatamente as mesmas gravações. */
-    if (F.pageName() === "configuracoes" && typeof F.initSettings === "function") {
-      F.initSettings();
-    }
+    if (typeof F.initSettings === "function") F.initSettings();
   }
 
-  F.pages.perfil = initDadosEPreferencias;
   F.pages.configuracoes = initDadosEPreferencias;
 
   F.onDataChanged(() => {

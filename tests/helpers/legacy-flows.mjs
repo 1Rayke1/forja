@@ -19,7 +19,6 @@ export const PAGE = {
   explorar: "explorar/index.html",
   atlas: "explorar/atlas.html",
   progresso: "progresso/index.html",
-  perfil: "perfil/index.html",
   onboarding: "onboarding/index.html",
   config: "configuracoes/index.html"
 };

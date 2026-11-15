@@ -80,7 +80,6 @@ const PAGES = [
   'treino/biblioteca.html',
   'progresso/',
   'configuracoes/',
-  'perfil/',
   'explorar/',
   'explorar/atlas.html',
   'onboarding/index.html'
@@ -97,7 +96,6 @@ const EXPECTED_NAV = {
   'treino/biblioteca.html': 'explorar',
   'progresso/': 'progresso',
   'configuracoes/': 'perfil',
-  'perfil/': 'perfil',
   'explorar/': 'explorar',
   'explorar/atlas.html': 'explorar',
   'onboarding/index.html': 'perfil'
@@ -1797,7 +1795,7 @@ await check('Configurações — hub, painéis, nome, aparência, suporte e inte
     await page.reload({ waitUntil: 'networkidle0' });
     assert.equal(await page.$eval('input[name="appearance-theme"][value="contrast"]', node => node.checked), true);
     assert.equal(await page.$eval('#pref-reduced-motion', node => node.checked), true);
-    await go('perfil/');
+    await go('');
     assert.equal(await page.evaluate(() => document.documentElement.dataset.forjaTheme), 'contrast');
     assert.equal(await page.evaluate(() => document.documentElement.dataset.forjaMotion), 'reduced');
     await go('configuracoes/#aparencia');
@@ -1863,7 +1861,8 @@ await check('Configurações — hub, painéis, nome, aparência, suporte e inte
     await page.setViewport(MOBILE);
     await go('configuracoes/');
     await clickCentered('#settings-exit');
-    await expectPath('perfil/');
+    await expectPath('');
+    assert.equal(await page.evaluate(() => document.body.dataset.page), 'inicio', 'Sair das configurações deve voltar ao Início, sem ciclo');
   } finally {
     await page.setViewport(MOBILE);
     await go('configuracoes/');
@@ -1914,7 +1913,7 @@ await check('Configurações: exportar, rejeitar importação inválida, importa
   await page.screenshot({ path: artifactPath('configuracoes.png') });
 });
 
-await check('Perfil: inicializa, checkboxes refletem o armazenado e abrir a página não grava nada', async () => {
+await check('Configurações: inicializa, checkboxes refletem o armazenado e abrir a página não grava nada', async () => {
   const saved = await forjaRaw();
   const spy = await page.evaluateOnNewDocument(installWriteSpy);
   try {
@@ -1930,14 +1929,14 @@ await check('Perfil: inicializa, checkboxes refletem o armazenado e abrir a pág
         else localStorage.setItem(key, JSON.stringify(value));
       }, PREFS_KEY, stored);
 
-      for (const rel of ['perfil/', 'configuracoes/']) {
+      for (const rel of ['configuracoes/']) {
         const where = rel + ' com ' + JSON.stringify(stored);
         const before = await forjaRaw();
         await go(rel);
         await sleep(600); // alguns ciclos do intervalo único de 250 ms
         const state = await page.evaluate(() => ({
-          shared: typeof window.Forja.pages.perfil === 'function' &&
-            window.Forja.pages.perfil === window.Forja.pages.configuracoes,
+          shared: typeof window.Forja.pages.configuracoes === 'function' &&
+            window.Forja.pages.perfil === undefined,
           boxes: [document.getElementById('pref-sound').checked, document.getElementById('pref-vibrate').checked],
           memory: window.Forja.state.preferences,
           undoHidden: document.getElementById('restore-safety-backup').hidden,
@@ -1959,12 +1958,12 @@ await check('Perfil: inicializa, checkboxes refletem o armazenado e abrir a pág
   }
 });
 
-await check('Perfil: exportar, rejeitar importação inválida, importar com confirmação e desfazer', async () => {
+await check('Configurações: backup completa confere com o armazenamento (exportar/importar/desfazer)', async () => {
   const downloadDir = fs.mkdtempSync(path.join(artifactsDir, 'perfil-downloads-'));
   await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: downloadDir });
   try {
-    await go('perfil/');
-    assert.equal(await page.evaluate(() => document.body.dataset.page), 'perfil');
+    await go('configuracoes/#privacidade');
+    assert.equal(await page.evaluate(() => document.body.dataset.page), 'configuracoes');
     const before = await forjaData([SAFETY_KEY]);
     assert.ok(before['forja-treino-rotinas-v1'], 'O fluxo anterior deveria ter deixado rotinas');
 
@@ -2027,15 +2026,15 @@ await check('Perfil: exportar, rejeitar importação inválida, importar com con
   }
 });
 
-await check('Som e vibração: a mesma escolha vale em Perfil, Configurações, outra aba e no fim do descanso', async () => {
+await check('Som e vibração: a mesma escolha vale em Configurações, outra aba e no fim do descanso', async () => {
   const saved = await forjaRaw();
   let signals = null;
   let other = null;
   try {
     await page.evaluate(key => localStorage.removeItem(key), PREFS_KEY);
 
-    /* Perfil → Configurações → Perfil, com cliques reais. */
-    await go('perfil/');
+    /* Configurações → reload → Configurações, com cliques reais. */
+    await go('configuracoes/#notificacoes');
     assert.deepEqual(await prefBoxes(), [true, true], 'Sem nada gravado, os dois deveriam estar ligados');
     await clickCentered('#pref-sound');
     assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
@@ -2046,15 +2045,15 @@ await check('Som e vibração: a mesma escolha vale em Perfil, Configurações, 
     await clickCentered('#pref-vibrate');
     assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: false });
 
-    await go('perfil/');
-    assert.deepEqual(await prefBoxes(), [false, false], 'Perfil não viu a escolha feita nas Configurações');
+    await go('configuracoes/#notificacoes');
+    assert.deepEqual(await prefBoxes(), [false, false], 'A escolha não sobreviveu à navegação');
 
     /* Outra aba aberta no Perfil acompanha a mudança sem recarregar. */
     other = await browser.newPage();
     other.on('console', m => { if (m.type() === 'error') errors.push('outra aba console: ' + m.text()); });
     other.on('pageerror', e => errors.push('outra aba pageerror: ' + e.message));
     other.on('requestfailed', r => errors.push('outra aba requestfailed: ' + r.url()));
-    await other.goto(new URL('perfil/', BASE).href, { waitUntil: 'networkidle0' });
+    await other.goto(new URL('configuracoes/#notificacoes', BASE).href, { waitUntil: 'networkidle0' });
     assert.deepEqual(await prefBoxes(other), [false, false]);
     await page.bringToFront();
     await clickCentered('#pref-sound');
@@ -2076,7 +2075,7 @@ await check('Som e vibração: a mesma escolha vale em Perfil, Configurações, 
     assert.deepEqual(round, { vibrate: 0, sound: 1, prefs: { soundOnRest: true, vibrateOnRest: false } },
       'Som ligado e vibração desligada: aviso errado no fim do descanso');
 
-    await go('perfil/');
+    await go('configuracoes/#notificacoes');
     await clickCentered('#pref-sound');
     await clickCentered('#pref-vibrate');
     assert.deepEqual(await data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
@@ -2095,7 +2094,7 @@ await check('Som e vibração: a mesma escolha vale em Perfil, Configurações, 
     if (other) await other.close();
     if (signals) await page.removeScriptToEvaluateOnNewDocument(signals.identifier);
     /* Sai da execução antes de repor o estado salvo (sessão e rotina de teste somem). */
-    await go('perfil/');
+    await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
 });
@@ -2142,7 +2141,7 @@ await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explor
     for (const [nav, color] of Object.entries(state.colors)) {
       if (nav !== want) assert.notEqual(color, state.colors[want], 'CSS: ' + nav + ' também destacado em ' + where);
     }
-    assert.equal(state.perfil, basePath + 'perfil/index.html', 'F.url("perfil") em ' + where);
+    assert.equal(state.perfil, basePath + 'configuracoes/index.html', 'F.url("perfil") em ' + where);
     assert.equal(state.explorar, basePath + 'treino/biblioteca.html', 'F.url("explorar") em ' + where);
     assert.equal(state.descobrir, basePath + 'explorar/index.html', 'F.url("descobrir") em ' + where);
     assert.equal(state.perfilStatus, 200, 'Destino de F.url("perfil") não carrega a partir de ' + where);
@@ -2151,7 +2150,7 @@ await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explor
 });
 
 await check('Armazenamento local é informado em todas as páginas', async () => {
-  for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/', 'perfil/', 'onboarding/index.html']) {
+  for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/', 'onboarding/index.html']) {
     await go(rel);
     const body = await page.evaluate(() => document.body.textContent);
     assert.match(body, /neste navegador e não são sincronizados/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
@@ -2163,7 +2162,7 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
   shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
   shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
   for (const [index, rel] of PAGES.entries()) {
-    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes','perfil','explorar','atlas','onboarding'][index];
+    const slug = ['inicio','treino','calistenia','musculacao','rotinas','execucao','biblioteca','progresso','configuracoes','explorar','atlas','onboarding'][index];
     for (const width of [390, 1280]) {
       await shots.setViewport({ width, height: width === 390 ? 844 : 900 });
       let screenshotUrl = new URL(rel, BASE);
@@ -2278,7 +2277,7 @@ await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #
     await go('');
     assert.equal(await page.$eval('#home-primary-button', el => el.textContent.trim()), 'Iniciar Rotina E2E 1');
   } finally {
-    await go('perfil/');
+    await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
 });
@@ -2364,7 +2363,7 @@ await check('Home e gate: perfil obrigatório, 5 larguras, metas com unidades/mo
     assert.match(await text('#home-goals-content'), /Ainda sem progresso/);
   } finally {
     if (otherTab) await otherTab.close();
-    await go('perfil/');
+    await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
 });
@@ -2544,8 +2543,8 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, 
     await page.setViewport(MOBILE);
     assert.equal(await page.$('#onboarding-start'), null, 'Recarregar não deve trazer cadastro opcional');
 
-    /* Perfil mostra o sexo e permite editar; editar não altera o restante. */
-    await go('perfil/');
+    /* Configurações mostra o sexo e permite editar; editar não altera o restante. */
+    await go('configuracoes/#editar-perfil');
     assert.equal(await page.$eval('#prof-sexo', el => el.value), 'feminino');
     await page.select('#prof-sexo', 'masculino');
     await jsClick('#profile-save');
@@ -2554,7 +2553,7 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, 
     assert.equal((await data('forja-perfil-v1')).objetivo, 'forca', 'A edição do sexo alterou outros campos');
   } finally {
     await page.setViewport(MOBILE);
-    await go('perfil/');
+    await go('configuracoes/');
     await restoreForjaRaw(saved);
   }
 });

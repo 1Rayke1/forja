@@ -10,7 +10,7 @@ const widths = [320, 360, 390, 430, 768, 1280];
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const pages = [
   ['inicio', ''], ['treinos', 'treino/'], ['explorar', 'explorar/'],
-  ['progresso', 'progresso/'], ['perfil', 'perfil/']
+  ['progresso', 'progresso/'], ['perfil', 'configuracoes/']
 ];
 fs.mkdirSync(output, { recursive: true });
 let puppeteer = (await import('puppeteer-core')).default;

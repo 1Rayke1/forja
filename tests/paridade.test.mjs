@@ -1351,9 +1351,8 @@ const ESSENTIAL_BY_PAGE = {
     "complete-set", "pause-session", "resume-session", "end-session", "pause-rest",
     "resume-rest", "skip-rest", "start-rest", "previous-exercise", "next-exercise"
   ],
-  [PAGE.config]: ["export-backup", "import-backup-button", "restore-safety-backup", "pref-sound"],
-  [PAGE.onboarding]: ["onboarding-shell", "onboarding-step", "onboarding-form", "onboarding-back", "onboarding-next"],
-  [PAGE.perfil]: ["profile-form", "prof-sexo", "prof-modalidade", "prof-dias", "prof-duracao"]
+  [PAGE.config]: ["export-backup", "import-backup-button", "restore-safety-backup", "pref-sound", "profile-form", "prof-sexo", "prof-modalidade", "prof-dias", "prof-duracao"],
+  [PAGE.onboarding]: ["onboarding-shell", "onboarding-step", "onboarding-form", "onboarding-back", "onboarding-next"]
 };
 
 await runTest("9b. Ação TREINO compacta, destacada e acessível (mobile)", async () => {
@@ -1390,7 +1389,7 @@ await runTest("9b. Ação TREINO compacta, destacada e acessível (mobile)", asy
 });
 
 await runTest("10. Integridade: ids referenciados existem e nenhum erro de console", async () => {
-  const pages = [PAGE.index, PAGE.hub, PAGE.calistenia, PAGE.musculacao, PAGE.rotina, PAGE.executar, PAGE.progresso, PAGE.perfil, PAGE.onboarding, PAGE.config];
+  const pages = [PAGE.index, PAGE.hub, PAGE.calistenia, PAGE.musculacao, PAGE.rotina, PAGE.executar, PAGE.progresso, PAGE.onboarding, PAGE.config];
   const { referenced, created } = allModuleIds();
   const existing = idsInAllPages();
   const missing = Array.from(referenced.keys()).filter(id => !existing.has(id) && !created.has(id));
