@@ -10,7 +10,8 @@ fazem no restante do app.
 - Imagens da primeira pergunta: `assets/onboarding/` (ver `NOTICE.md` na pasta)
 - Convite na Home: `assets/js/forja-inicio.js` (só duas ações, sem formulário)
 - Modelo e validação: `assets/js/forja-dados.js` (chave `forja-perfil-v1`)
-- Edição clássica e backup: `perfil/index.html` + `assets/js/forja-backup.js`
+- Edição clássica e backup: `configuracoes/index.html` (painel "Editar perfil" e
+  "Privacidade e dados") + `assets/js/forja-backup.js`
 - Testes: `tests/onboarding.test.mjs`, os testes de integração em
   `tests/forja.test.mjs` e o bloco de onboarding em `tests/e2e.browser.mjs`
 

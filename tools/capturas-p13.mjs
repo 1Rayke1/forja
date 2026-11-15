@@ -37,7 +37,7 @@ const PAGES = [
   { id: 'treinos', path: 'treino/' },
   { id: 'explorar', path: 'explorar/' },
   { id: 'progresso', path: 'progresso/' },
-  { id: 'perfil', path: 'perfil/' }
+  { id: 'perfil', path: 'configuracoes/' }
 ];
 const ANCHORS = { inicio: '#home-goals', progresso: '#progress-weekly' };
 

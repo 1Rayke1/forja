@@ -24,7 +24,7 @@
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 <header class="site-header settings-header">
   <div class="container site-header-inner">
-    <a class="settings-back" id="settings-back" href="../perfil/index.html" aria-label="Voltar ao perfil"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span></a>
+    <a class="settings-back" id="settings-back" href="../index.html" aria-label="Voltar ao início"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span></a>
     <a class="logo" href="../index.html">FORJA</a>
     <div class="tagline"><span class="ui-icon" data-icon="dumbbell" aria-hidden="true"></span><span>DISCIPLINA DIÁRIA</span></div>
   </div>
@@ -112,7 +112,7 @@
 </a></li></ul>
     </section>
 
-    <a class="settings-exit" id="settings-exit" href="../perfil/index.html"><span class="ui-icon" data-icon="log-out" aria-hidden="true"></span>Sair das configurações</a>
+    <a class="settings-exit" id="settings-exit" href="../index.html"><span class="ui-icon" data-icon="log-out" aria-hidden="true"></span>Sair das configurações</a>
   </section>
 
   <section class="settings-view settings-detail" id="editar-perfil" data-settings-panel="editar-perfil" aria-labelledby="settings-name-heading" hidden>
@@ -138,10 +138,49 @@
     </div>
     <div class="settings-form-card">
       <h2 class="section-title">Informações do perfil</h2>
-      <dl class="settings-profile-details" id="settings-profile-details"></dl>
-      <p class="field-hint">Objetivo, nível, equipamento e dados de treino continuam no seu perfil. A edição não altera sessões concluídas.</p>
-      <a class="secondary-button ui-button full-width" href="../perfil/index.html#profile-form">Editar informações do perfil</a>
-      <a class="settings-text-link" href="../onboarding/index.html?refazer=1">Refazer o cadastro guiado</a>
+      <p class="settings-description">Seu perfil é necessário para acessar o FORJA e pode ser atualizado a qualquer momento. A edição não altera sessões concluídas nem o histórico.</p>
+      <form id="profile-form" class="goals-form" novalidate>
+        <div class="goals-fields">
+          <div class="field-block">
+            <label class="field-label" for="prof-objetivo">Objetivo principal</label>
+            <select id="prof-objetivo" class="field-input"></select>
+          </div>
+          <div class="field-block">
+            <label class="field-label" for="prof-nivel">Nível</label>
+            <select id="prof-nivel" class="field-input"></select>
+          </div>
+          <div class="field-block">
+            <label class="field-label" for="prof-equipamento">Equipamento disponível</label>
+            <select id="prof-equipamento" class="field-input"></select>
+          </div>
+          <div class="field-block">
+            <label class="field-label" for="prof-sexo">Sexo informado</label>
+            <select id="prof-sexo" class="field-input"></select>
+            <p class="field-hint">Opcional e sem efeito nos seus treinos, cargas, metas, histórico ou progresso. Enquanto estiver em "Não informado", nada muda no app.</p>
+          </div>
+          <div class="field-block">
+            <label class="field-label" for="prof-modalidade">Modalidade preferida</label>
+            <select id="prof-modalidade" class="field-input"></select>
+            <p class="field-hint">Filtro inicial da lista de rotinas. Você troca o filtro quando quiser.</p>
+          </div>
+          <div class="field-block">
+            <label class="field-label" for="prof-dias">Dias por semana</label>
+            <input id="prof-dias" class="field-input" type="number" min="0" max="7" step="1" inputmode="numeric" autocomplete="off">
+          </div>
+          <div class="field-block">
+            <label class="field-label" for="prof-duracao">Duração desejada (min)</label>
+            <input id="prof-duracao" class="field-input" type="number" min="0" max="240" step="5" inputmode="numeric" autocomplete="off">
+          </div>
+        </div>
+        <p class="field-hint">Campo 0 ou vazio desliga o item. Salvar o perfil não altera treinos, histórico nem cargas.</p>
+        <p class="field-hint">Dias e duração alimentam a sugestão de metas semanais em Progresso. Objetivo, nível e equipamento ficam registrados, mas ainda não mudam a montagem de treinos.</p>
+        <p class="field-error" id="profile-error" role="status" hidden></p>
+        <div class="goals-actions">
+          <button type="submit" id="profile-save" class="primary-button">Salvar perfil</button>
+          <span class="limit-note" id="profile-status" aria-live="polite"></span>
+        </div>
+      </form>
+      <a class="settings-text-link" id="profile-onboarding-link" href="../onboarding/index.html?refazer=1">Refazer o cadastro guiado</a>
     </div>
     <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
   </section>
@@ -242,7 +281,7 @@
     </details>
     <details class="settings-disclosure">
       <summary class="settings-disclosure-summary"><h3>Existe conta para sair ou senha para recuperar?</h3></summary>
-      <div class="settings-disclosure-content"><p>Não. O FORJA funciona sem conta. “Sair das configurações” apenas volta ao Perfil e não apaga dados. Se limpar os dados do navegador, use um backup exportado anteriormente para restaurá-los.</p></div>
+      <div class="settings-disclosure-content"><p>Não. O FORJA funciona sem conta. “Sair das configurações” apenas volta ao Início e não apaga dados. Se limpar os dados do navegador, use um backup exportado anteriormente para restaurá-los.</p></div>
     </details>
     <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
   </section>
@@ -368,7 +407,7 @@
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
       <span class="bottom-nav-label">Evolução</span>
     </a>
-    <a class="bottom-nav-link is-active" href="../perfil/index.html" data-nav="perfil" aria-current="page">
+    <a class="bottom-nav-link is-active" href="index.html" data-nav="perfil" aria-current="page">
       <span class="bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"/></svg></span>
       <span class="bottom-nav-label">Perfil</span>
     </a>

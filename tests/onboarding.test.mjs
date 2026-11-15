@@ -467,7 +467,7 @@ await runTest("4. Reabertura: perfil salvo entra no app e onboarding só abre po
 await runTest("5. Perfil antigo (v1) sem sexo carrega sem erro, sem personagem e sem regravar", async () => {
   const seed = { [PROFILE_KEY]: perfilV1() };
 
-  const perfil = await boot(seed, "perfil/index.html");
+  const perfil = await boot(seed, "configuracoes/index.html");
   assertNoErrors(perfil, "perfil v1");
   assert.equal(perfil.F.state.profile.version, 3, "O modelo lido é v3 (aditivo)");
   assert.equal(perfil.F.state.profile.sexo, "", "Perfil antigo não ganha sexo inventado");
@@ -486,7 +486,7 @@ await runTest("5. Perfil antigo (v1) sem sexo carrega sem erro, sem personagem e
 /* ------------------------------------------------------------------ */
 
 await runTest("6. Normalização: valores ausentes, desconhecidos e fora de faixa não quebram nada", async () => {
-  const app = await boot({}, "perfil/index.html");
+  const app = await boot({}, "configuracoes/index.html");
   assertNoErrors(app);
   const F = app.F;
 
@@ -599,7 +599,7 @@ await runTest("7. Edição posterior em Perfil grava o sexo e preserva o restant
     }),
     [ROUTINES_KEY]: routinesStore([], [rotina]),
     [HISTORY_KEY]: historico
-  }, "perfil/index.html");
+  }, "configuracoes/index.html");
   assertNoErrors(app, "perfil com histórico");
   assert.equal(app.d.getElementById("prof-objetivo").value, "perderPeso",
     "O formulário de Perfil reconhece os objetivos novos do onboarding");
@@ -650,7 +650,7 @@ await runTest("8. Sexo persiste entre páginas e não escolhe personagem nenhum"
   assert.equal(app.F.personagens3d, undefined, "O módulo de personagens 3D não deve existir");
   assert.equal(app.F.PERSONAGENS, undefined, "O vocabulário de personagens não deve existir");
 
-  await app.go(BASE + "perfil/index.html");
+  await app.go(BASE + "configuracoes/index.html");
   assert.equal(app.d.getElementById("prof-sexo").value, "feminino");
   assert.equal(app.F.state.profile.sexo, "feminino", "O sexo acompanha a navegação");
 
@@ -705,7 +705,7 @@ await runTest("10. Backup: exporta, importa e restaura perfil v3 e aceita perfil
       sexo: "masculino", modalidadePreferida: "weights",
       areaFoco: "pernas", alturaCm: 181, equipamentos: ["barraAnilhas"]
     })
-  }, "perfil/index.html");
+  }, "configuracoes/index.html");
   assertNoErrors(origem);
 
   const backup = plain(origem.F.buildBackupObject());
@@ -723,7 +723,7 @@ await runTest("10. Backup: exporta, importa e restaura perfil v3 e aceita perfil
       durationMs: 600_000, completedSets: 1, totalPlannedSets: 1, status: "completed",
       finishedAt: "2026-01-06T10:00:00.000Z", exercises: []
     }]
-  }, "perfil/index.html");
+  }, "configuracoes/index.html");
   assertNoErrors(destino);
 
   await destino.importFile(backup);
@@ -746,7 +746,7 @@ await runTest("10. Backup: exporta, importa e restaura perfil v3 e aceita perfil
   assert.equal(destino.data(PROFILE_KEY).sexo, "feminino", "Desfazer restaura o perfil anterior");
 
   /* Backup antigo (v1, sem sexo) continua aceito. */
-  const antigo = await boot({ [PROFILE_KEY]: perfilV1({ sexo: "feminino" }) }, "perfil/index.html");
+  const antigo = await boot({ [PROFILE_KEY]: perfilV1({ sexo: "feminino" }) }, "configuracoes/index.html");
   await antigo.importFile({
     app: "FORJA",
     format: "forja-backup",
@@ -761,7 +761,7 @@ await runTest("10. Backup: exporta, importa e restaura perfil v3 e aceita perfil
   assertNoErrors(antigo, "importação de perfil v1");
 
   /* Backup com sexo inválido é recusado sem tocar nos dados. */
-  const invalido = await boot({ [PROFILE_KEY]: perfilV1({ sexo: "feminino" }) }, "perfil/index.html");
+  const invalido = await boot({ [PROFILE_KEY]: perfilV1({ sexo: "feminino" }) }, "configuracoes/index.html");
   await invalido.importFile({
     app: "FORJA",
     format: "forja-backup",
@@ -1069,7 +1069,7 @@ await runTest("16. Integração: preferência filtra o hub, sugestão preenche m
 await runTest("17. Gravação preserva campos desconhecidos e não duplica fontes oficiais", async () => {
   const app = await boot({
     [PROFILE_KEY]: Object.assign(perfilV1(), { anotacaoDeOutraVersao: { manter: true } })
-  }, "perfil/index.html");
+  }, "configuracoes/index.html");
 
   app.d.getElementById("prof-sexo").value = "feminino";
   app.click("#profile-save");
@@ -1336,7 +1336,7 @@ await runTest("20. Derivações clássicas e refazer: derivados só do que foi t
 /* ------------------------------------------------------------------ */
 
 await runTest("21. Gate obrigatório: URLs internas bloqueadas, rascunho retomado e perfil existente liberado", async () => {
-  for (const route of ["treino/index.html", "progresso/index.html", "explorar/index.html", "perfil/index.html", "treino/executar.html"]) {
+  for (const route of ["treino/index.html", "progresso/index.html", "explorar/index.html", "configuracoes/index.html", "treino/executar.html"]) {
     const app = await boot({}, route, { noProfile: true });
     assert.equal(app.d.body.dataset.page, "onboarding", "A rota protegida deve encaminhar: " + route);
     assert.equal(app.text("#onboarding-question"), "Vamos personalizar seu treino.");

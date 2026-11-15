@@ -42,7 +42,6 @@ const pages = [
   "treino/executar.html",
   "treino/biblioteca.html",
   "progresso/index.html",
-  "perfil/index.html",
   "configuracoes/index.html",
   "explorar/index.html",
   "explorar/atlas.html",

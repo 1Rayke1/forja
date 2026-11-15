@@ -26,7 +26,7 @@ const demoDir = path.join(repoRoot, "assets", "demonstracoes");
 const pages = [
   "index.html", "treino/index.html", "treino/calistenia.html",
   "treino/musculacao.html", "treino/rotina.html", "treino/executar.html",
-  "treino/biblioteca.html", "progresso/index.html", "perfil/index.html",
+  "treino/biblioteca.html", "progresso/index.html",
   "configuracoes/index.html", "explorar/index.html", "explorar/atlas.html",
   "onboarding/index.html"
 ];

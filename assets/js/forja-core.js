@@ -34,7 +34,12 @@
     rotina: "treino/rotina.html",
     executar: "treino/executar.html",
     progresso: "progresso/index.html",
-    perfil: "perfil/index.html",
+    /*
+      A aba "Perfil" da barra inferior abre direto a tela de Configurações:
+      não existe mais página intermediária. "perfil" permanece como alias da
+      rota para links e favoritos antigos (mesmo padrão de explorar/biblioteca).
+    */
+    perfil: "configuracoes/index.html",
     onboarding: "onboarding/index.html",
     configuracoes: "configuracoes/index.html"
   });

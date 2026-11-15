@@ -2,7 +2,7 @@
   Suíte de testes do FORJA (jsdom, multipágina).
 
   Executa as páginas reais do repositório (index.html, treino/, progresso/,
-  perfil/, configuracoes/, explorar/) com o mesmo JavaScript que roda no
+  configuracoes/, explorar/) com o mesmo JavaScript que roda no
   navegador. Cada teste corresponde a um critério de aceite ou a um requisito
   de execução.
 
@@ -43,7 +43,6 @@ const PAGES = [
   "treino/executar.html",
   "treino/biblioteca.html",
   "progresso/index.html",
-  "perfil/index.html",
   "configuracoes/index.html",
   "explorar/index.html",
   "explorar/atlas.html"
@@ -2226,8 +2225,8 @@ await runTest("43. Barra inferior fixa: 5 itens, aria-current, safe-area e não 
   assert.match(appCss, /prefers-reduced-motion/);
 });
 
-await runTest("44. Links da barra inferior resolvem e perfil/explorar existem", async () => {
-  const pagesToCheck = ["index.html", "treino/index.html", "explorar/index.html", "explorar/atlas.html", "progresso/index.html", "perfil/index.html"];
+await runTest("44. Links da barra inferior resolvem; Configurações é o destino de Perfil", async () => {
+  const pagesToCheck = ["index.html", "treino/index.html", "explorar/index.html", "explorar/atlas.html", "progresso/index.html", "configuracoes/index.html"];
   for (const page of pagesToCheck) {
     const app = await boot({}, page);
     const broken = [];
@@ -2242,7 +2241,8 @@ await runTest("44. Links da barra inferior resolvem e perfil/explorar existem", 
   }
   assert.ok(fs.existsSync(path.join(repoRoot, "explorar/index.html")), "explorar/index.html ausente");
   assert.ok(fs.existsSync(path.join(repoRoot, "explorar/atlas.html")), "explorar/atlas.html ausente");
-  assert.ok(fs.existsSync(path.join(repoRoot, "perfil/index.html")), "perfil/index.html ausente");
+  assert.ok(fs.existsSync(path.join(repoRoot, "configuracoes/index.html")), "configuracoes/index.html ausente");
+  assert.ok(!fs.existsSync(path.join(repoRoot, "perfil/index.html")), "A página intermediária perfil/index.html deve ter sido removida");
 });
 
 /* ------------------------------------------------------------------ */
@@ -2251,7 +2251,7 @@ await runTest("44. Links da barra inferior resolvem e perfil/explorar existem", 
 
 const PREFS_KEY = "forja-preferencias-v1";
 const SAFETY_KEY = "forja-backup-seguranca-v1";
-const DATA_PAGES = ["perfil/index.html", "configuracoes/index.html"];
+const DATA_PAGES = ["configuracoes/index.html"];
 
 /* Cópia no realm do Node: objetos criados no jsdom têm outro protótipo. */
 const plain = value => JSON.parse(JSON.stringify(value));
@@ -2266,7 +2266,6 @@ const EXPECTED_NAV = {
   "treino/executar.html": "treino",
   "treino/biblioteca.html": "explorar",
   "progresso/index.html": "progresso",
-  "perfil/index.html": "perfil",
   "configuracoes/index.html": "perfil",
   "explorar/index.html": "explorar",
   "explorar/atlas.html": "explorar"
@@ -2387,9 +2386,9 @@ await runTest("45. Perfil: usa o controlador de Configurações e os checkboxes 
       const where = page + " (" + item.label + ")";
       const app = await boot(item.seed === undefined ? {} : { [PREFS_KEY]: item.seed }, page);
 
-      assert.equal(typeof app.F.pages.perfil, "function", "F.pages.perfil não registrado");
-      assert.equal(app.F.pages.perfil, app.F.pages.configuracoes,
-        "Perfil deveria reutilizar o mesmo controlador de Configurações");
+      assert.equal(typeof app.F.pages.configuracoes, "function", "F.pages.configuracoes não registrado");
+      assert.equal(app.F.pages.perfil, undefined,
+        "Não deve existir controlador separado para a antiga página Perfil");
       assert.equal(app.$("#pref-sound").checked, item.sound, "Som não reflete o armazenado em " + where);
       assert.equal(app.$("#pref-vibrate").checked, item.vibrate, "Vibração não reflete o armazenado em " + where);
       assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: item.sound, vibrateOnRest: item.vibrate },
@@ -2405,14 +2404,14 @@ await runTest("45. Perfil: usa o controlador de Configurações e os checkboxes 
   }
 
   /* Com uma cópia de segurança válida, o Perfil já abre oferecendo o desfazer. */
-  const withSafety = await boot({ [SAFETY_KEY]: currentFormatSeed()[SAFETY_KEY] }, "perfil/index.html");
+  const withSafety = await boot({ [SAFETY_KEY]: currentFormatSeed()[SAFETY_KEY] }, "configuracoes/index.html");
   assert.equal(withSafety.$("#restore-safety-backup").hidden, false, "Desfazer ausente com cópia de segurança");
   assert.match(withSafety.text("#backup-status"), /Cópia de segurança de .+ disponível/);
   assertNoErrors(withSafety, "perfil com cópia de segurança");
   withSafety.close();
 });
 
-await runTest("46. Perfil e Configurações: abrir a página não grava nada no localStorage", async () => {
+await runTest("46. Configurações: abrir a página não grava nada no localStorage", async () => {
   const scenarios = [
     { label: "perfil obrigatório e sem demais dados", seed: { [PROFILE_KEY]: profileSeed() } },
     { label: "dados no formato atual", seed: currentFormatSeed() }
@@ -2447,7 +2446,7 @@ await runTest("47. Som e vibração: a mesma escolha vale em Perfil, Configuraç
     { id: "pr-1", name: "Flexão", sets: 3, reps: "10", rest: 10 }
   ], "prefs-rest");
   const app = await boot({ "forja-treino-rotinas-v1": routinesStore([routine], []) },
-    "perfil/index.html", { now: 2_000_000 });
+    "configuracoes/index.html", { now: 2_000_000 });
 
   /* Perfil: sem nada gravado, os dois ligados; a primeira gravação é a do usuário. */
   assert.equal(app.$("#pref-sound").checked, true);
@@ -2468,8 +2467,8 @@ await runTest("47. Som e vibração: a mesma escolha vale em Perfil, Configuraç
   assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: false });
 
   /* De volta ao Perfil: os dois desmarcados, como gravado. */
-  await app.go(BASE + "perfil/index.html");
-  await pageIs(app, "perfil");
+  await app.go(BASE + "configuracoes/index.html");
+  await pageIs(app, "configuracoes");
   assert.equal(app.$("#pref-sound").checked, false);
   assert.equal(app.$("#pref-vibrate").checked, false);
 
@@ -2479,8 +2478,8 @@ await runTest("47. Som e vibração: a mesma escolha vale em Perfil, Configuraç
   assert.deepEqual(signals, { vibrate: [], sound: 0 }, "O descanso avisou com som e vibração desligados");
 
   /* Só vibração, ligada pelo Perfil: vibra e não toca. */
-  await app.go(BASE + "perfil/index.html");
-  await pageIs(app, "perfil");
+  await app.go(BASE + "configuracoes/index.html");
+  await pageIs(app, "configuracoes");
   app.$("#pref-vibrate").click();
   await wait(20);
   assert.deepEqual(app.data(PREFS_KEY), { soundOnRest: false, vibrateOnRest: true });
@@ -2509,8 +2508,8 @@ await runTest("48. Perfil: exportar, rejeitar backup inválido, importar e desfa
     "forja-treino-rotinas-v1": routinesStore([routine], []),
     "forja-missoes-2025-02-02": [{ id: "t", text: "Original", done: false }],
     [PREFS_KEY]: { soundOnRest: false, vibrateOnRest: true }
-  }, "perfil/index.html");
-  await pageIs(app, "perfil");
+  }, "configuracoes/index.html");
+  await pageIs(app, "configuracoes");
 
   /* Exportar */
   app.click("#export-backup");
@@ -2650,7 +2649,7 @@ await runTest("49. Perfil: backups com dados das versões 1, 2 e 3 continuam ace
   ];
 
   for (const backup of backups) {
-    const app = await boot({ "forja-missoes-2025-02-02": [{ id: "t", text: "Atual", done: false }] }, "perfil/index.html");
+    const app = await boot({ "forja-missoes-2025-02-02": [{ id: "t", text: "Atual", done: false }] }, "configuracoes/index.html");
     await app.importFile({
       app: "FORJA", format: "forja-backup", version: 1,
       exportedAt: "2025-05-01T12:00:00.000Z", keys: backup.keys
@@ -2669,7 +2668,7 @@ await runTest("49. Perfil: backups com dados das versões 1, 2 e 3 continuam ace
 await runTest("50. F.url(\"perfil\") e F.url(\"explorar\") resolvem sob /forja/ em todas as páginas", async () => {
   for (const page of PAGES) {
     const app = await boot({}, page);
-    assert.equal(app.F.ROUTES.perfil, "perfil/index.html");
+    assert.equal(app.F.ROUTES.perfil, "configuracoes/index.html");
     /*
       "Explorar" é a Biblioteca: a aba abre direto a lista de exercícios.
       O hub antigo continua existindo como "descobrir".
@@ -2678,7 +2677,7 @@ await runTest("50. F.url(\"perfil\") e F.url(\"explorar\") resolvem sob /forja/ 
     assert.equal(app.F.ROUTES.descobrir, "explorar/index.html");
 
     for (const [name, file] of [
-      ["perfil", "perfil/index.html"],
+      ["perfil", "configuracoes/index.html"],
       ["explorar", "treino/biblioteca.html"],
       ["descobrir", "explorar/index.html"],
       ["configuracoes", "configuracoes/index.html"]
@@ -2730,18 +2729,18 @@ await runTest("51. Navegação ativa: HTML, JavaScript e CSS marcam o mesmo item
   }
 
   /* Um HTML desalinhado é corrigido pelo JavaScript. */
-  const app = await boot({}, "perfil/index.html");
+  const app = await boot({}, "configuracoes/index.html");
   const wrong = app.$('.bottom-nav-link[data-nav="treino"]');
   wrong.classList.add("is-active");
   wrong.setAttribute("aria-current", "page");
-  app.F.ui.markCurrentNav("perfil");
+  app.F.ui.markCurrentNav("configuracoes");
   assert.deepEqual(app.$$(".bottom-nav-link.is-active").map(node => node.getAttribute("data-nav")), ["perfil"]);
   assert.deepEqual(app.$$('.bottom-nav-link[aria-current="page"]').map(node => node.getAttribute("data-nav")), ["perfil"]);
   app.close();
 });
 
 await runTest("52. Preferências: falha ao gravar no Perfil mantém tela e descanso no valor armazenado", async () => {
-  const app = await boot({ [PREFS_KEY]: { soundOnRest: true, vibrateOnRest: true } }, "perfil/index.html");
+  const app = await boot({ [PREFS_KEY]: { soundOnRest: true, vibrateOnRest: true } }, "configuracoes/index.html");
   const failing = installFailingStorage(app, { failOn: PREFS_KEY, times: 1 });
 
   app.$("#pref-sound").click();
@@ -3245,7 +3244,7 @@ await runTest("59. Compatibilidade com dados legados (v1/v2) e backups v1/v2/v3 
     }
   });
 
-  const perfil = await boot(withRotation, "perfil/index.html");
+  const perfil = await boot(withRotation, "configuracoes/index.html");
   const exportedWithRotation = perfil.F.buildBackupObject();
   assert.ok(exportedWithRotation.keys["forja-treino-rotacao-v1"], "Backup deve incluir forja-treino-rotacao-v1");
 
@@ -4032,7 +4031,7 @@ await runTest("65. Perfil: formulário reflete o armazenado, salva e não altera
     })
   };
 
-  const app = await boot(seed, "perfil/index.html");
+  const app = await boot(seed, "configuracoes/index.html");
   assertNoErrors(app);
 
   assert.equal(app.d.getElementById("prof-objetivo").value, "forca", "Objetivo não reflete o armazenado");
@@ -4056,7 +4055,7 @@ await runTest("65. Perfil: formulário reflete o armazenado, salva e não altera
 });
 
 await runTest("66. Perfil: falha de gravação informa o problema e preserva o estado anterior", async () => {
-  const app = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", diasPorSemana: 3 }) }, "perfil/index.html");
+  const app = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", diasPorSemana: 3 }) }, "configuracoes/index.html");
   assertNoErrors(app);
 
   const failing = installFailingStorage(app, { failOn: PROFILE_KEY, times: 1 });
@@ -4078,7 +4077,7 @@ await runTest("66. Perfil: falha de gravação informa o problema e preserva o e
 });
 
 await runTest("67. Perfil: conteúdo ilegível é preservado e não libera acesso sem conclusão", async () => {
-  const app = await boot({ [PROFILE_KEY]: "{ quebrado" }, "perfil/index.html");
+  const app = await boot({ [PROFILE_KEY]: "{ quebrado" }, "configuracoes/index.html");
   assertNoErrors(app);
 
   assert.equal(app.d.body.dataset.page, "onboarding", "Perfil ilegível encaminha para completar o cadastro");
@@ -4095,7 +4094,7 @@ await runTest("68. Backup: exportação, importação e registry cobrem forja-pe
     "forja-treino-rotinas-v1": routinesStore([makeRoutine("calisthenics", "Treino A", [{ id: "b-1", name: "Flexão", sets: 3, reps: "10", section: "main" }])], []),
     [PROFILE_KEY]: profileSeed({ objetivo: "resistencia", diasPorSemana: 3, duracaoMinutos: 30 })
   };
-  const app = await boot(seed, "perfil/index.html");
+  const app = await boot(seed, "configuracoes/index.html");
   assertNoErrors(app);
 
   assert.ok(app.F.registry.get("profile"), "O perfil deve estar registrado no registry");
@@ -4151,7 +4150,7 @@ await runTest("69. Equipamento 'Sem equipamentos' é opção válida no perfil, 
   app.close();
 
   /* O formulário do Perfil exibe e regrava a opção. */
-  const perfil = await boot({ [PROFILE_KEY]: profileSeed({ equipamento: "nenhum" }) }, "perfil/index.html");
+  const perfil = await boot({ [PROFILE_KEY]: profileSeed({ equipamento: "nenhum" }) }, "configuracoes/index.html");
   assert.equal(perfil.d.getElementById("prof-equipamento").value, "nenhum", "O formulário deve exibir a opção");
   perfil.d.getElementById("prof-equipamento").value = "ambos";
   perfil.click("#profile-save");
@@ -4163,7 +4162,7 @@ await runTest("69. Equipamento 'Sem equipamentos' é opção válida no perfil, 
 await runTest("70. F.state.profile é inicializado em todas as páginas (ausente, inválido e válido)", async () => {
   const pages = [
     "index.html", "treino/index.html", "treino/executar.html", "treino/biblioteca.html",
-    "progresso/index.html", "perfil/index.html", "configuracoes/index.html", "explorar/index.html"
+    "progresso/index.html", "configuracoes/index.html", "explorar/index.html"
   ];
   const empty = {
     version: 3, updatedAt: null, objetivo: "", nivel: "", equipamento: "",
@@ -4198,7 +4197,7 @@ await runTest("70. F.state.profile é inicializado em todas as páginas (ausente
   assert.equal(validHome.F.state.profile.diasPorSemana, 3);
   validHome.close();
 
-  const validPerfil = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", equipamento: "nenhum" }) }, "perfil/index.html");
+  const validPerfil = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca", equipamento: "nenhum" }) }, "configuracoes/index.html");
   assert.equal(validPerfil.F.state.profile.objetivo, "forca", "Perfil válido não inicializou em Perfil");
   assert.equal(validPerfil.d.getElementById("prof-objetivo").value, "forca", "Formulário não reflete o perfil em Perfil");
   validPerfil.close();
@@ -4215,7 +4214,7 @@ await runTest("71. Onboarding: o gate continua ativo em navegação direta sem p
 });
 
 await runTest("72. Importação de backup atualiza estado em memória e formulário do Perfil", async () => {
-  const app = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca" }) }, "perfil/index.html");
+  const app = await boot({ [PROFILE_KEY]: profileSeed({ objetivo: "forca" }) }, "configuracoes/index.html");
   await app.importFile({
     app: "FORJA", format: "forja-backup", version: 1, exportedAt: new Date().toISOString(),
     keys: { [PROFILE_KEY]: profileSeed({ objetivo: "resistencia", equipamento: "nenhum", diasPorSemana: 2, duracaoMinutos: 30 }) }
