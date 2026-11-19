@@ -1,0 +1,42 @@
+❌ W4-CHROMIUM ON A_non_timeout_cutoff
+AssertionError [ERR_ASSERTION]: não deve substituir erro real por TimeoutError
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.browser.mjs:85:16
+❌ W4-CHROMIUM ON B_dispose_throws_and_metrics
+AssertionError [ERR_ASSERTION]: snapshot no retorno deve sinalizar pendência tardia
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.browser.mjs:183:16
+❌ W4-CHROMIUM ON C_renderer_partial_cleanup_inert
+AssertionError [ERR_ASSERTION]: cleanup parcial deve marcar closed=true
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.browser.mjs:293:16
+❌ W4-CHROMIUM OFF A_non_timeout_cutoff
+AssertionError [ERR_ASSERTION]: não deve substituir erro real por TimeoutError
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.browser.mjs:85:16
+❌ W4-CHROMIUM OFF B_dispose_throws_and_metrics
+AssertionError [ERR_ASSERTION]: snapshot no retorno deve sinalizar pendência tardia
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.browser.mjs:183:16
+❌ W4-CHROMIUM OFF C_renderer_partial_cleanup_inert
+AssertionError [ERR_ASSERTION]: cleanup parcial deve marcar closed=true
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.browser.mjs:293:16
+
+W4 CHROMIUM REGRESSIONS — 0/6; Chromium real Blink ON/OFF.
+
+VALIDATION RUN exit=1 seconds=17.045868 watchdog=False

@@ -1,0 +1,502 @@
+{
+  "measuredAtUtc": "2026-11-18T18:32:04.586Z",
+  "kernelTimerSlackNs": 50000,
+  "idleTimers": {
+    "label": "pure-idle-3976ms",
+    "samples": 10,
+    "minDelayMs": 0.984,
+    "medianDelayMs": 4.21,
+    "p95DelayMs": 4.249,
+    "maxDelayMs": 4.249,
+    "over24msCount": 0
+  },
+  "idleTimerRows": [
+    {
+      "sample": 1,
+      "targetMs": 3976,
+      "elapsedMs": 3980.216,
+      "delayMs": 4.216
+    },
+    {
+      "sample": 2,
+      "targetMs": 3976,
+      "elapsedMs": 3980.203,
+      "delayMs": 4.203
+    },
+    {
+      "sample": 3,
+      "targetMs": 3976,
+      "elapsedMs": 3977.937,
+      "delayMs": 1.937
+    },
+    {
+      "sample": 4,
+      "targetMs": 3976,
+      "elapsedMs": 3980.173,
+      "delayMs": 4.173
+    },
+    {
+      "sample": 5,
+      "targetMs": 3976,
+      "elapsedMs": 3976.984,
+      "delayMs": 0.984
+    },
+    {
+      "sample": 6,
+      "targetMs": 3976,
+      "elapsedMs": 3980.21,
+      "delayMs": 4.21
+    },
+    {
+      "sample": 7,
+      "targetMs": 3976,
+      "elapsedMs": 3980.218,
+      "delayMs": 4.218
+    },
+    {
+      "sample": 8,
+      "targetMs": 3976,
+      "elapsedMs": 3980.221,
+      "delayMs": 4.221
+    },
+    {
+      "sample": 9,
+      "targetMs": 3976,
+      "elapsedMs": 3980.197,
+      "delayMs": 4.197
+    },
+    {
+      "sample": 10,
+      "targetMs": 3976,
+      "elapsedMs": 3980.249,
+      "delayMs": 4.249
+    }
+  ],
+  "churnTimers": {
+    "label": "post-chromium-churn-3976ms",
+    "samples": 8,
+    "minDelayMs": 3.63,
+    "medianDelayMs": 4.49,
+    "p95DelayMs": 20.687,
+    "maxDelayMs": 20.687,
+    "over24msCount": 0
+  },
+  "churnTimerRows": [
+    {
+      "sample": 1,
+      "targetMs": 3976,
+      "elapsedMs": 3979.725,
+      "delayMs": 3.725
+    },
+    {
+      "sample": 2,
+      "targetMs": 3976,
+      "elapsedMs": 3980.452,
+      "delayMs": 4.452
+    },
+    {
+      "sample": 3,
+      "targetMs": 3976,
+      "elapsedMs": 3980.532,
+      "delayMs": 4.532
+    },
+    {
+      "sample": 4,
+      "targetMs": 3976,
+      "elapsedMs": 3979.63,
+      "delayMs": 3.63
+    },
+    {
+      "sample": 5,
+      "targetMs": 3976,
+      "elapsedMs": 3980.553,
+      "delayMs": 4.553
+    },
+    {
+      "sample": 6,
+      "targetMs": 3976,
+      "elapsedMs": 3980.47,
+      "delayMs": 4.47
+    },
+    {
+      "sample": 7,
+      "targetMs": 3976,
+      "elapsedMs": 3996.687,
+      "delayMs": 20.687
+    },
+    {
+      "sample": 8,
+      "targetMs": 3976,
+      "elapsedMs": 3980.49,
+      "delayMs": 4.49
+    }
+  ],
+  "chromiumDecomposition": [
+    {
+      "mode": "ON",
+      "heldPhase": "prepare",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3979.57,
+      "C_timerFiredElapsedMs": 3979.235,
+      "C_eventLoopTimerDeltaFromCutoffMs": 3.235,
+      "C_microtaskRejectDelayMs": 0.335,
+      "C_checkpointTimerElapsedMs": 3999.882,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4001.299,
+      "D_postRejectCleanupDurationMs": 3.133,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4003.887,
+          "endMs": 4004.537
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "ON",
+      "heldPhase": "geometry",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3974.897,
+      "C_timerFiredElapsedMs": 3974.852,
+      "C_eventLoopTimerDeltaFromCutoffMs": -1.148,
+      "C_microtaskRejectDelayMs": 0.044,
+      "C_checkpointTimerElapsedMs": 3999.08,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4000.377,
+      "D_postRejectCleanupDurationMs": 1.625,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4001.366,
+          "endMs": 4002.009
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "geometry",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "ON",
+      "heldPhase": "polling",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3974.847,
+      "C_timerFiredElapsedMs": 3974.803,
+      "C_eventLoopTimerDeltaFromCutoffMs": -1.197,
+      "C_microtaskRejectDelayMs": 0.044,
+      "C_checkpointTimerElapsedMs": 3999.283,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4002.2,
+      "D_postRejectCleanupDurationMs": 9.255,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4010.805,
+          "endMs": 4011.461
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "geometry",
+        "polling",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "ON",
+      "heldPhase": "diagnostic",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3975.463,
+      "C_timerFiredElapsedMs": 3975.4,
+      "C_eventLoopTimerDeltaFromCutoffMs": -0.6,
+      "C_microtaskRejectDelayMs": 0.062,
+      "C_checkpointTimerElapsedMs": 3998.644,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4000.165,
+      "D_postRejectCleanupDurationMs": 1.592,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4001.217,
+          "endMs": 4001.764
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "geometry",
+        "polling",
+        "diagnostic",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "ON",
+      "heldPhase": "cleanup",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3975.986,
+      "C_timerFiredElapsedMs": 3975.928,
+      "C_eventLoopTimerDeltaFromCutoffMs": -0.072,
+      "C_microtaskRejectDelayMs": 0.058,
+      "C_checkpointTimerElapsedMs": 3999.13,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4000.3,
+      "D_postRejectCleanupDurationMs": 1.2,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4001.092,
+          "endMs": 4001.507
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "geometry",
+        "polling",
+        "diagnostic",
+        "cleanup",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "ON",
+      "heldPhase": "dispose",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3978.454,
+      "C_timerFiredElapsedMs": 3978.395,
+      "C_eventLoopTimerDeltaFromCutoffMs": 2.395,
+      "C_microtaskRejectDelayMs": 0.059,
+      "C_checkpointTimerElapsedMs": 3999.654,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4000.986,
+      "D_postRejectCleanupDurationMs": 0.546,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": true,
+          "startMs": 4000.993,
+          "endMs": 4001.539
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": true,
+      "calls": [
+        "prepare",
+        "geometry",
+        "polling",
+        "diagnostic",
+        "cleanup",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "OFF",
+      "heldPhase": "prepare",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3977.96,
+      "C_timerFiredElapsedMs": 3977.904,
+      "C_eventLoopTimerDeltaFromCutoffMs": 1.904,
+      "C_microtaskRejectDelayMs": 0.056,
+      "C_checkpointTimerElapsedMs": 3999.148,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4000.509,
+      "D_postRejectCleanupDurationMs": 2.745,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4002.758,
+          "endMs": 4003.26
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "OFF",
+      "heldPhase": "geometry",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3975.431,
+      "C_timerFiredElapsedMs": 3975.382,
+      "C_eventLoopTimerDeltaFromCutoffMs": -0.618,
+      "C_microtaskRejectDelayMs": 0.049,
+      "C_checkpointTimerElapsedMs": 3998.595,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 3999.768,
+      "D_postRejectCleanupDurationMs": 1.378,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4000.644,
+          "endMs": 4001.153
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "geometry",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "OFF",
+      "heldPhase": "polling",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3975.655,
+      "C_timerFiredElapsedMs": 3975.459,
+      "C_eventLoopTimerDeltaFromCutoffMs": -0.541,
+      "C_microtaskRejectDelayMs": 0.196,
+      "C_checkpointTimerElapsedMs": 3998.825,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 3999.917,
+      "D_postRejectCleanupDurationMs": 7.442,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4006.82,
+          "endMs": 4007.365
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "geometry",
+        "polling",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "OFF",
+      "heldPhase": "diagnostic",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3974.593,
+      "C_timerFiredElapsedMs": 3974.525,
+      "C_eventLoopTimerDeltaFromCutoffMs": -1.475,
+      "C_microtaskRejectDelayMs": 0.068,
+      "C_checkpointTimerElapsedMs": 3999.826,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4001.25,
+      "D_postRejectCleanupDurationMs": 1.577,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4002.211,
+          "endMs": 4002.837
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "geometry",
+        "polling",
+        "diagnostic",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "OFF",
+      "heldPhase": "cleanup",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3975.294,
+      "C_timerFiredElapsedMs": 3975.24,
+      "C_eventLoopTimerDeltaFromCutoffMs": -0.76,
+      "C_microtaskRejectDelayMs": 0.054,
+      "C_checkpointTimerElapsedMs": 3999.482,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4000.682,
+      "D_postRejectCleanupDurationMs": 1.593,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": false,
+          "startMs": 4001.696,
+          "endMs": 4002.279
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": false,
+      "calls": [
+        "prepare",
+        "geometry",
+        "polling",
+        "diagnostic",
+        "cleanup",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    },
+    {
+      "mode": "OFF",
+      "heldPhase": "dispose",
+      "A_logicalBudgetMs": 4000,
+      "A_nodeCutoffMs": 3976,
+      "B_helperReturnMs": 3979.08,
+      "C_timerFiredElapsedMs": 3979.029,
+      "C_eventLoopTimerDeltaFromCutoffMs": 3.029,
+      "C_microtaskRejectDelayMs": 0.051,
+      "C_checkpointTimerElapsedMs": 3999.235,
+      "C_within4000Ms": true,
+      "D_releaseStartedMs": 4000.533,
+      "D_postRejectCleanupDurationMs": 0.635,
+      "D_disposeCalls": [
+        {
+          "phase": "dispose",
+          "held": true,
+          "startMs": 4000.538,
+          "endMs": 4001.173
+        }
+      ],
+      "D_cleanupConfirmedBeforeReject": true,
+      "calls": [
+        "prepare",
+        "geometry",
+        "polling",
+        "diagnostic",
+        "cleanup",
+        "dispose"
+      ],
+      "mutationsUnchanged": true
+    }
+  ]
+}
+
+VALIDATION RUN exit=0 seconds=122.303241 watchdog=False

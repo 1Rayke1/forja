@@ -1,0 +1,63 @@
+{
+  "name": "05-red-w3-browser",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-w3-regressions.browser.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T00:24:26.673698+00:00",
+  "finishedAtUtc": "2026-11-19T00:24:43.993603+00:00",
+  "elapsedSeconds": 17.319841,
+  "exitCode": 1,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.browser.mjs": "25653184e4fea8e277a575738757912b8de0b750a874b16f085c92e8f016bffd",
+    "tests/browser-interaction-w3-regressions.test.mjs": "85ae5f4660cdc282431bdfcd721c1a911afe93399b29c318d5477c50af3ab686"
+  },
+  "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 0,
+    "failedCaseMarkers": 6,
+    "summaries": [
+      "W3 CHROMIUM REGRESSIONS — 0/6; Chromium real Blink ON/OFF."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [
+    "❌ W3-CHROMIUM ON A_non_timeout_cutoff",
+    "❌ W3-CHROMIUM ON B_dispose_throws_and_metrics",
+    "❌ W3-CHROMIUM ON C_renderer_partial_cleanup_inert",
+    "❌ W3-CHROMIUM OFF A_non_timeout_cutoff",
+    "❌ W3-CHROMIUM OFF B_dispose_throws_and_metrics",
+    "❌ W3-CHROMIUM OFF C_renderer_partial_cleanup_inert"
+  ],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 2,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "FAILED_COMPLETED",
+  "log": "logs/05-red-w3-browser.log",
+  "logSha256": "5122cbdcd5131582859e95472331485d54f98ea0836f7e7399040ee08d6f4e40",
+  "policyLog": "logs/05-red-w3-browser.policy.jsonl",
+  "policyLogSha256": "256f9e45f0d94266aff53900f2297b29e581bdadaff0bba7efd5de4f138ceb76",
+  "browserLog": "logs/05-red-w3-browser.browser.jsonl",
+  "browserLogSha256": "f3e7419b66508cbda17ddfc27144eeb13c64193fab1b4688b54c6e82f15be8a5"
+}

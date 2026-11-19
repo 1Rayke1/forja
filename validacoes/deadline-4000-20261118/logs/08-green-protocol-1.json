@@ -1,0 +1,52 @@
+{
+  "name": "08-green-protocol-1",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-protocol.browser.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-20261118/checkout",
+  "startedAtUtc": "2026-11-18T17:55:49.962020+00:00",
+  "finishedAtUtc": "2026-11-18T17:56:39.206945+00:00",
+  "elapsedSeconds": 49.244874,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "48e4659d4426f88303d0226df41277a7e87fe5797ef09115e272f171c3895bb8",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "sourceFingerprintBefore": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "sourceFingerprintAfter": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 12,
+    "failedCaseMarkers": 0,
+    "summaries": [
+      "PROTOCOL — 12/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 2,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/08-green-protocol-1.log",
+  "logSha256": "6b7db68f43117e63ef2508ed8494aa45d6b7d9ce8e91b7494779c12e2f2a179e",
+  "policyLog": "logs/08-green-protocol-1.policy.jsonl",
+  "policyLogSha256": "480897bdcafa9d359b92cbc7664d7ed672ff4126a7b028aba936c7ad3d56a101",
+  "browserLog": "logs/08-green-protocol-1.browser.jsonl",
+  "browserLogSha256": "897bd342738c464302bf0b0a8cbe3e61475f6c6bd8a0a3197687624e563c0225"
+}

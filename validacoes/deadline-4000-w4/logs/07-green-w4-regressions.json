@@ -1,0 +1,38 @@
+{
+  "name": "07-green-w4-regressions",
+  "newExecution": true,
+  "phase": "green-w4",
+  "command": [
+    "node",
+    "tests/browser-interaction-w4-regressions.test.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w4/runtime/checkout",
+  "startedAtUtc": "2026-11-19T03:42:10.435545+00:00",
+  "finishedAtUtc": "2026-11-19T03:42:10.501206+00:00",
+  "elapsedSeconds": 0.065624,
+  "exitCode": 13,
+  "timedOut": false,
+  "blocked": false,
+  "isolatedHelperSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+  "persistentSourceHelperSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w4-regressions.browser.mjs": "83252a34d817321717cdfdf8cc94e0899dd86f9e0ac288571fc3fcdfd3a8d790",
+    "tests/browser-interaction-w4-regressions.test.mjs": "750ad8c09e3872532de5649ff12cec8ef18fe6e7950ea1d3c6c2dd3a2d6f5024"
+  },
+  "isolatedFingerprintBefore": "a7fad33bf0c2962e08d4b41b0e857a92bd849e844fe61cb5baf3e86bd686d0dd",
+  "isolatedFingerprintAfter": "a7fad33bf0c2962e08d4b41b0e857a92bd849e844fe61cb5baf3e86bd686d0dd",
+  "isolatedChangedDuringRun": [],
+  "sourceChangedDuringRun": [],
+  "policyDenials": [],
+  "unsafeFlags": [],
+  "browserSpawns": [],
+  "browserExits": [],
+  "criticalErrors": [],
+  "passedCount": 5,
+  "failureCount": 0,
+  "summaries": [],
+  "logSha256": "6bfa2e39d4b5a329a9509d1aef94c6b3eb01a1fb2bb3dee5277fca8f296314f9",
+  "policyLogSha256": null,
+  "browserLogSha256": null
+}

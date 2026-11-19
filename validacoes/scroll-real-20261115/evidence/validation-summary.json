@@ -1,0 +1,824 @@
+{
+  "validationDateUtc": "2026-11-18",
+  "verdict": "NOT_APPROVED",
+  "reason": "Real Chromium protocol-retention integral deadline tests failed (09-scroll-protocol: 8/12 passed, 4/12 failed; 17-scroll-expanded: 7/12 protocol failed / 73/78 total) because scrollToInteractable schedules setTimeout(..., remaining()) at 4000ms without headroom for Node.js/OS timer jitter and cleanup, overshooting 4000ms (4000.02ms to 4003.71ms).",
+  "branch": "arena/468b7e01-forja",
+  "head": "99cffc9147d72cc4eedd2eaf47310fc135815c3b",
+  "indexSha256": "2847de233451f3ce5d75d13878a4c33608ffb9513697002e865e5694f0be89e6",
+  "sourceFilesCount": 825,
+  "sourceFingerprint": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "protectedHashes": {
+    "assets/js/forja-auth.js": "ebc0716a7dfaec4266113460ded8764402652b4a048df41710f139f8a1843ef8",
+    "assets/js/forja-login.js": "cf5b24dc550f4a97db802ff623a43eb949097d3efa543a0e9938e571362a35f5",
+    "assets/js/forja-auth-data.js": "02629a1689e06449175152431d7c4b31f219edf6a809826edc3838d6875226cb",
+    "tests/helpers/browser.mjs": "7e24e50a79451187f32ce0b50c1ce527ebe3860d7d8feed1839671379b4e9fcb",
+    "tests/helpers/browser-interaction.mjs": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+    "tests/helpers/scrollend-off.mjs": "60fb3ab48a429f429dbf02bd0fddbfc14b8f05839c927b1555991486515f5f06",
+    "tests/e2e.browser.mjs": "b893e002f3a5a4922f62985b002959073271fbe9c38ce7f958dc4fd976f6ae4f",
+    "tests/browser-interaction.browser.mjs": "511e0f9161476f90d3cfad0c5894f75188e2b3b902fd45cbe9ed92a3d8d21e96",
+    "tests/browser-interaction-regressions.browser.mjs": "156c3967997bb25502620a28be9c0425974fe0a06bfec313abce3f7159356e1d",
+    "tests/browser-interaction-nested.browser.mjs": "e4986c9fdcd847398a4ce5e7d5ba88df18799c86fc427ef38ac484c9e53b8067",
+    "tests/browser-interaction-protocol.browser.mjs": "9b82474ba06aa29526e7bd145b3c0cdd3de1cb5e8207fc0b3b03d45d386fe325",
+    "tests/browser-interaction-expanded.browser.mjs": "1c4695737c51305c09d305acb3822abdc178d9d2be7ce7b254c440426f3b02b0",
+    "package.json": "90e69acbc229c6c338acd2d6db162322a2fef011038798d3acc6e9d502abe0b7",
+    "package-lock.json": "b490e9738f8c589f3e84700468a0d49f78a9cbfe38abf0c1282d135951f49cd6",
+    "assets/vendor/supabase/supabase.js": "a867edbcfb029370aeec7223dd6180b560b621fbe3bc64c6584fb0369d1b7bce",
+    "docs/correcao-helper-scroll-e2e.md": "9e6058e3d6ffa5a97cb014d6324faf234152eb2364b352ae33a5aa29b7c53da8",
+    "docs/evidencias-helper-scroll-e2e.json": "e7305dfb9cde59dbda2e6c597f1c30b34b0f74a194f98c5b73f0aeaeef12a640",
+    "docs/evidencias-helper-scroll-e2e.zip": "50eb7a29903ceff7dd192c1f9bb05f8b54f1e44fefc0b65d8d20d692c4de6615",
+    "docs/correcao-helper-scroll-aninhados-deadline.md": "3a9f843ce8570a837ca75af942c17f1a303bf4ed47e2a70327869b27cd4a9e79",
+    "docs/evidencias-helper-scroll-aninhados-deadline.json": "3fdaeae01725ab9dcd1a50d1cff9ebb07275a75da39ae051d31dc825e891b3b8",
+    "docs/evidencias-helper-scroll-aninhados-deadline.zip": "85571a2eba2db11ee824678e4f777516b09a16f00c8b388d937a442f81bc6a48",
+    "docs/evidencias-helper-scroll-aninhados-deadline.sha256": "384b0dd3a3b73f6c07b6954a88d8ae5ef64ef425e9987a5b10c55092256afa3b"
+  },
+  "runs": [
+    {
+      "name": "01-npm-ci",
+      "phase": "install",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "startedAtUtc": "2026-11-18T16:55:39.532147+00:00",
+      "finishedAtUtc": "2026-11-18T16:55:39.647859+00:00",
+      "elapsedSeconds": 0.115656,
+      "exitCode": 1,
+      "status": "BLOCKED_STOP",
+      "testCounts": {
+        "passedCaseMarkers": 0,
+        "failedCaseMarkers": 0,
+        "summaries": [],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/01-npm-ci.log",
+      "logSha256": "61e84ea43f7d6365e9596e5a601a0741944e9b0bd1d84a79cc1710d2c8cee274",
+      "metadataSha256": "629ad1ada5f83603d2864386cb3cb5a70a51abb8c6c80ba253d78505a1e34951",
+      "policyLog": null,
+      "policyLogSha256": null,
+      "browserLog": null,
+      "browserLogSha256": null
+    },
+    {
+      "name": "02-npm-ci",
+      "phase": "install",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "startedAtUtc": "2026-11-18T16:56:23.284976+00:00",
+      "finishedAtUtc": "2026-11-18T16:56:27.789278+00:00",
+      "elapsedSeconds": 4.504245,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 0,
+        "failedCaseMarkers": 0,
+        "summaries": [],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/02-npm-ci.log",
+      "logSha256": "14c90621c42ee13951a17739fbf0c2e952dee33373aac357d5c1286019dee24f",
+      "metadataSha256": "7d314dd3fe63d11c2c2ec65e33003a913ccb15cab20610bd8f9ca5a39e3448cc",
+      "policyLog": "logs/02-npm-ci.policy.jsonl",
+      "policyLogSha256": "1ea42641c02429d06bc2a2ac1b5646357e10a701404944ff9c80cff2a24896ae",
+      "browserLog": null,
+      "browserLogSha256": null
+    },
+    {
+      "name": "03-security-capability-probe",
+      "phase": "test",
+      "command": [
+        "node",
+        "../../instruments/security-probe.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:01:48.453939+00:00",
+      "finishedAtUtc": "2026-11-18T17:01:49.172867+00:00",
+      "elapsedSeconds": 0.718882,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 2,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "SECURITY CAPABILITY PROBE — 2/2 passed."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 2,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/03-security-capability-probe.log",
+      "logSha256": "166ca8b054b80d02638827918cb0be42391c3702dd81b508bd3bb06593fcc009",
+      "metadataSha256": "c6d59bf992174d790d5381b77f95e9af4c4a41ee49b4dfc6815d8c5b669e1341",
+      "policyLog": "logs/03-security-capability-probe.policy.jsonl",
+      "policyLogSha256": "1e4042b6c9ed1aaf4d11cfc8fb230033216df9db957b943b8c9b38b045d6c491",
+      "browserLog": "logs/03-security-capability-probe.browser.jsonl",
+      "browserLogSha256": "c40cac2a3f44ee361b8f0762077abe39fff97b252d4879361c4794739f258147"
+    },
+    {
+      "name": "04-static-integrity",
+      "phase": "test",
+      "command": [
+        "node",
+        "--expose-internals",
+        "../../instruments/static-check.cjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:01:49.532786+00:00",
+      "finishedAtUtc": "2026-11-18T17:01:53.171331+00:00",
+      "elapsedSeconds": 3.638496,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 0,
+        "failedCaseMarkers": 0,
+        "summaries": [],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/04-static-integrity.log",
+      "logSha256": "1989397cb639463629841ac8230e2c1a032afd50b53e4cfa8dcb4182a64e0d00",
+      "metadataSha256": "064adf992c55f12c008920867141f84389ef3957fbf14c69e7c9c2eea43d309e",
+      "policyLog": null,
+      "policyLogSha256": null,
+      "browserLog": null,
+      "browserLogSha256": null
+    },
+    {
+      "name": "05-npm-test",
+      "phase": "test",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "startedAtUtc": "2026-11-18T17:02:00.568555+00:00",
+      "finishedAtUtc": "2026-11-18T17:07:35.993686+00:00",
+      "elapsedSeconds": 335.425079,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 498,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "CATÁLOGO CENTRAL — 17/17 testes aprovados",
+          "YOUTUBE — 21/21 testes aprovados",
+          "YOUTUBE FRONTEND — 8/8 testes aprovados",
+          "MÉTRICAS — 18/18 testes aprovados",
+          "FORJA — 110/110 testes aprovados",
+          "ONBOARDING — 21/21 testes aprovados",
+          "PREFERÊNCIAS DO PLANEJAMENTO — 21/21 testes aprovados",
+          "ATLAS — 15/15 testes aprovados",
+          "PARIDADE — 40/40 testes aprovados",
+          "DEMONSTRAÇÕES — 17/17 testes aprovados",
+          "VÍDEOS YOUTUBE — 14/14 testes aprovados",
+          "PROXY YOUTUBE DATA API v3 — 16/16 testes aprovados",
+          "BIBLIOTECA E DETALHE — 13/13 testes aprovados",
+          "BIBLIOTECA (7 REGIÕES) — 16/16 testes aprovados",
+          "GRUPO MUSCULAR — 19/19 testes aprovados",
+          "EVOLUÇÃO (TELA NOVA) — 14/14 testes aprovados",
+          "CONFIGURAÇÕES — 16/16 testes aprovados",
+          "AUTH — 43/43 testes aprovados (SDK real / HTTP simulado; zero SQL).",
+          "CONFIG — 12/12 testes aprovados (zero deploy/SQL).",
+          "AUTH RECOVERY — 19/19 testes aprovados. SDK real, HTTP simulado/local, zero SQL.",
+          "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/05-npm-test.log",
+      "logSha256": "c9e6ca26d6e5f1b9b33c83a264cdd6d7864c3f01d779b2066a5150b4a129b34f",
+      "metadataSha256": "57fa785da97d038c44fe3b46ff2cee975b3b5c2ea3c0e8168713ef77a5f23e74",
+      "policyLog": null,
+      "policyLogSha256": null,
+      "browserLog": null,
+      "browserLogSha256": null
+    },
+    {
+      "name": "06-auth-e2e",
+      "phase": "test",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:e2e"
+      ],
+      "startedAtUtc": "2026-11-18T17:07:46.858122+00:00",
+      "finishedAtUtc": "2026-11-18T17:09:35.133420+00:00",
+      "elapsedSeconds": 108.275248,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 71,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "BROWSER AUTH — 29/29 testes aprovados. Google/Auth/PostgREST simulados; nenhuma homologação remota ou SQL.",
+          "BROWSER RECOVERY — 19/19 testes aprovados. Serviços simulados; zero SQL/deploy.",
+          "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 3,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/06-auth-e2e.log",
+      "logSha256": "68b74b1bebdb065ce14cc5acbc35bd0dccc02c95bedf8571cba1feb799326c8e",
+      "metadataSha256": "129c822417b699536c9b3b484e8a3174136d1d9cb48ea9dd6c538a2672fd8293",
+      "policyLog": "logs/06-auth-e2e.policy.jsonl",
+      "policyLogSha256": "753ff7f04e9907ba183edd443fb5e4f933618e1fc6b31e64b3a1556793a3f94b",
+      "browserLog": "logs/06-auth-e2e.browser.jsonl",
+      "browserLogSha256": "6d941b457bc386037ab44890001022fec82c328ebce9a9cce5714889e8f58b08"
+    },
+    {
+      "name": "07-scroll-original",
+      "phase": "test",
+      "command": [
+        "node",
+        "tests/browser-interaction.browser.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:09:39.984820+00:00",
+      "finishedAtUtc": "2026-11-18T17:10:38.475122+00:00",
+      "elapsedSeconds": 58.490256,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 40,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+          "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 4,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/07-scroll-original.log",
+      "logSha256": "f78b687762be13ae418af05c5cf89f106b2457735ae2c0f10f032c6dbbd13e1e",
+      "metadataSha256": "0541ea9db56aaedb63751b6262ae86f60220795305d616d930df3916266484f2",
+      "policyLog": "logs/07-scroll-original.policy.jsonl",
+      "policyLogSha256": "5c107509dc23b8582859ea34940832042054ded635d6ad0d438e404599f15269",
+      "browserLog": "logs/07-scroll-original.browser.jsonl",
+      "browserLogSha256": "a077b5fb193c62d038496a81204dfb658e9a428b01072258a00e90132e45e03f"
+    },
+    {
+      "name": "08-scroll-nested",
+      "phase": "test",
+      "command": [
+        "node",
+        "tests/browser-interaction-nested.browser.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:10:43.377510+00:00",
+      "finishedAtUtc": "2026-11-18T17:11:10.609724+00:00",
+      "elapsedSeconds": 27.232164,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 26,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "NESTED — 26/26; 13 casos × Blink ON/OFF."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 2,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/08-scroll-nested.log",
+      "logSha256": "f6894b00171695eac202f5f80b30e01a8c6c641476a9098920db5f6dbb05fee2",
+      "metadataSha256": "3c5436c0762a9045539b2477d3b285a4cabe02ed7158e0c7a2ad709e82728e88",
+      "policyLog": "logs/08-scroll-nested.policy.jsonl",
+      "policyLogSha256": "892a07077d67d3e7d8d49e875df093eec19b820bd1449841a2c92aff823ab373",
+      "browserLog": "logs/08-scroll-nested.browser.jsonl",
+      "browserLogSha256": "2842a340f2f11776267d476fdd32874f6ab4a536866e6e63628e3d785fbfc4f5"
+    },
+    {
+      "name": "09-scroll-protocol",
+      "phase": "test",
+      "command": [
+        "node",
+        "tests/browser-interaction-protocol.browser.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:11:16.275204+00:00",
+      "finishedAtUtc": "2026-11-18T17:12:05.496190+00:00",
+      "elapsedSeconds": 49.220931,
+      "exitCode": 1,
+      "status": "FAILED_COMPLETED",
+      "testCounts": {
+        "passedCaseMarkers": 8,
+        "failedCaseMarkers": 4,
+        "summaries": [
+          "PROTOCOL — 8/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [
+        "❌ PROTOCOL ON prepare",
+        "❌ PROTOCOL ON geometry",
+        "❌ PROTOCOL ON diagnostic",
+        "❌ PROTOCOL OFF prepare"
+      ],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 2,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/09-scroll-protocol.log",
+      "logSha256": "0e13fce20b84b46fb2eebc0d464de170b86b857fa8c66dff87537bc6b595d803",
+      "metadataSha256": "a45203afd02117943d8cafc4105f92934388ff65956fe70202cb092b5848c7ed",
+      "policyLog": "logs/09-scroll-protocol.policy.jsonl",
+      "policyLogSha256": "3657fbc934b5da56396022586cde437ac3b5f2112105ac2def3b11561373386d",
+      "browserLog": "logs/09-scroll-protocol.browser.jsonl",
+      "browserLogSha256": "c2894abb95be29e87e4cca015bfe9c97e6d84fa1219f6e2f8d6405a525e700f2"
+    },
+    {
+      "name": "10-npm-test-e2e",
+      "phase": "test",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e"
+      ],
+      "startedAtUtc": "2026-11-18T17:13:01.272038+00:00",
+      "finishedAtUtc": "2026-11-18T17:19:31.231973+00:00",
+      "elapsedSeconds": 389.959871,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 86,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+          "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF.",
+          "E2E navegador real (Auth/Google/PostgREST simulados) — 46/46 verificações aprovadas"
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 5,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/10-npm-test-e2e.log",
+      "logSha256": "7e7a9648d8132001afe2e79081ec4b8ceae427df3afcba9966c851efe3f2fc32",
+      "metadataSha256": "d8cb5111bd104dfe7d7581ae0270c08c3c2ef4b4a9b7acc2ec1da60065156f7f",
+      "policyLog": "logs/10-npm-test-e2e.policy.jsonl",
+      "policyLogSha256": "7cd31415c735e993b3e2215c35524d013f9a5473ef88b02e0e716136a36a9183",
+      "browserLog": "logs/10-npm-test-e2e.browser.jsonl",
+      "browserLogSha256": "747cf0b5cb3ee209347be6f32bb853df1884b532061fa0e758b1a1485f72a342"
+    },
+    {
+      "name": "11-general-e2e-off",
+      "phase": "test",
+      "command": [
+        "node",
+        "--import",
+        "./tests/helpers/scrollend-off.mjs",
+        "tests/e2e.browser.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:19:38.382461+00:00",
+      "finishedAtUtc": "2026-11-18T17:25:09.898390+00:00",
+      "elapsedSeconds": 331.515877,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 46,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "E2E navegador real (Auth/Google/PostgREST simulados) — 46/46 verificações aprovadas"
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 1,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/11-general-e2e-off.log",
+      "logSha256": "5f8bf9392c1763b553d3578988072c72e0362e1bc5b0be2ecb2f776b956bf70b",
+      "metadataSha256": "cb0231458816eb33ded4e6277187afa6b148010c3200ce8f3a56b46f3721c6ca",
+      "policyLog": "logs/11-general-e2e-off.policy.jsonl",
+      "policyLogSha256": "2c4641f1e491db277e4d11e26820ee96a363391e41c9d3044cfa6fa5098b3d97",
+      "browserLog": "logs/11-general-e2e-off.browser.jsonl",
+      "browserLogSha256": "ce7e0ea5f16280362a4b57fffcfcf2b81570269a2770b3b4afd33725e43f376b"
+    },
+    {
+      "name": "12-concurrency-round-1",
+      "phase": "test",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "startedAtUtc": "2026-11-18T17:25:17.587802+00:00",
+      "finishedAtUtc": "2026-11-18T17:25:50.387374+00:00",
+      "elapsedSeconds": 32.799519,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 41,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+          "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 1,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/12-concurrency-round-1.log",
+      "logSha256": "a904fddc18d7776ad56b4e0057fc4447334fb0a92b19e192f6714dbfa2330def",
+      "metadataSha256": "8f6cf6c5c1459c65c3dc67f02903cc37e267e135ff8cc1374d309b6317351621",
+      "policyLog": "logs/12-concurrency-round-1.policy.jsonl",
+      "policyLogSha256": "a3c7fba7dccf17e81116ff38be2f49eb0c0d0e2fb28db8263f5144bc7c56f7e6",
+      "browserLog": "logs/12-concurrency-round-1.browser.jsonl",
+      "browserLogSha256": "fa162ac56d5ab36ba850a752efa1849cbd0606a447359d9fcbc45d45a19855a9"
+    },
+    {
+      "name": "13-concurrency-round-2",
+      "phase": "test",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "startedAtUtc": "2026-11-18T17:25:50.750435+00:00",
+      "finishedAtUtc": "2026-11-18T17:26:23.187534+00:00",
+      "elapsedSeconds": 32.437051,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 41,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+          "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 1,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/13-concurrency-round-2.log",
+      "logSha256": "d6c4ef31b99cf4742b4dce4b42ff122fdd6aee0da6f676c3f1bb9b5e7e0ceec4",
+      "metadataSha256": "7cf2171fb422c0252d4189066f25cfcb55c45cd2194a57104cfcdd9d46381679",
+      "policyLog": "logs/13-concurrency-round-2.policy.jsonl",
+      "policyLogSha256": "9a95dc1bca0292fd85db937496273f68e010d439174b70f54c942e635697d9bc",
+      "browserLog": "logs/13-concurrency-round-2.browser.jsonl",
+      "browserLogSha256": "cf0f3cc92e7fe068651a64dcedc639cb9f970d88612fad78903177309667eca3"
+    },
+    {
+      "name": "14-concurrency-round-3",
+      "phase": "test",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "startedAtUtc": "2026-11-18T17:26:23.564351+00:00",
+      "finishedAtUtc": "2026-11-18T17:26:55.769036+00:00",
+      "elapsedSeconds": 32.204627,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 41,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+          "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 1,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/14-concurrency-round-3.log",
+      "logSha256": "49252a65d03323eb8aa158bde8afe7ae5b37c635b1d171d6e204f6067131304b",
+      "metadataSha256": "47ade3ef51d990ad46fda9fc672b7cc82d23c52ff707753ba325a38aaf1eed89",
+      "policyLog": "logs/14-concurrency-round-3.policy.jsonl",
+      "policyLogSha256": "84694ccc833f283b7f709806cb7200e531b7b9a085d4db07d18e881c7bafc89a",
+      "browserLog": "logs/14-concurrency-round-3.browser.jsonl",
+      "browserLogSha256": "677e72270394a5e3970d9da7101c66e48e9d5386bb693bf5653b677db156ee86"
+    },
+    {
+      "name": "15-concurrency-round-4",
+      "phase": "test",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "startedAtUtc": "2026-11-18T17:26:56.132822+00:00",
+      "finishedAtUtc": "2026-11-18T17:27:28.271706+00:00",
+      "elapsedSeconds": 32.138833,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 41,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+          "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 1,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/15-concurrency-round-4.log",
+      "logSha256": "958ca518eb35e4c6489bf295ce38d09a70d0d7196a329d0b88cca6d4a849a700",
+      "metadataSha256": "e330c6135fcf5bfb92fdcfda8f5bfebc5953075c65b889aff5fc42bc131ddb0c",
+      "policyLog": "logs/15-concurrency-round-4.policy.jsonl",
+      "policyLogSha256": "af6dd3e82221b8917c225b98d722e64459d062e383a18c669e19ed01f5f9bee8",
+      "browserLog": "logs/15-concurrency-round-4.browser.jsonl",
+      "browserLogSha256": "07703e06e225c2f6f80d00974bf026eaa0e7067f047c352a14a36360a5619e61"
+    },
+    {
+      "name": "16-concurrency-round-5",
+      "phase": "test",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "startedAtUtc": "2026-11-18T17:27:28.638217+00:00",
+      "finishedAtUtc": "2026-11-18T17:28:00.906203+00:00",
+      "elapsedSeconds": 32.267926,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 41,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+          "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 1,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/16-concurrency-round-5.log",
+      "logSha256": "b3c6948efb4b6be9b0da2eeb1bc438e3bd592bfaebae064af474a520cd424f79",
+      "metadataSha256": "6f5e7f5210be5fa745e6580a1e233efc20e7cc1da5111774e82a16b1110ccc7a",
+      "policyLog": "logs/16-concurrency-round-5.policy.jsonl",
+      "policyLogSha256": "c33dc76830f0d32bfb3a2929e03b4b4cc208463b2de62751356b6343c2703be7",
+      "browserLog": "logs/16-concurrency-round-5.browser.jsonl",
+      "browserLogSha256": "06bf23240542ac4395aec349fed86e3e11ee760c5fed30a0b7712f3630e1281e"
+    },
+    {
+      "name": "17-scroll-expanded",
+      "phase": "test",
+      "command": [
+        "node",
+        "tests/browser-interaction-expanded.browser.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:28:05.560452+00:00",
+      "finishedAtUtc": "2026-11-18T17:30:20.606142+00:00",
+      "elapsedSeconds": 135.045631,
+      "exitCode": 1,
+      "status": "FAILED_COMPLETED",
+      "testCounts": {
+        "passedCaseMarkers": 73,
+        "failedCaseMarkers": 5,
+        "summaries": [
+          "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+          "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF.",
+          "NESTED — 26/26; 13 casos × Blink ON/OFF.",
+          "PROTOCOL — 7/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [
+        "❌ PROTOCOL ON prepare",
+        "❌ PROTOCOL ON dispose",
+        "❌ PROTOCOL OFF prepare",
+        "❌ PROTOCOL OFF geometry",
+        "❌ PROTOCOL OFF dispose"
+      ],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 8,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/17-scroll-expanded.log",
+      "logSha256": "523588e8ef0fd61004f657ef9df183a23793207f30ac89f494fd82efde5ece8c",
+      "metadataSha256": "28d7d19028ec669cc7e3d22d53a7ac05004079220f80b433e0bd371720daeece",
+      "policyLog": "logs/17-scroll-expanded.policy.jsonl",
+      "policyLogSha256": "0e9e88d20ec556615acc5dd19fb1831737fa6f475008efa06b5f2256058ad5ad",
+      "browserLog": "logs/17-scroll-expanded.browser.jsonl",
+      "browserLogSha256": "494b31a0cd83e766f6cc4971214509738b3f6cf591ebc108c54e513f1d3b6bf5"
+    },
+    {
+      "name": "18-model-chain",
+      "phase": "test",
+      "command": [
+        "node",
+        "tests/browser-interaction-chain.test.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:30:27.605663+00:00",
+      "finishedAtUtc": "2026-11-18T17:30:27.821748+00:00",
+      "elapsedSeconds": 0.216023,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 26,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "CHAIN MODEL — 26/26; DOM/CSSOM/eventos modelados, nenhum clique, NÃO Chromium."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/18-model-chain.log",
+      "logSha256": "352b4080fc70954b3a1563bc70b5e7f2128f047619dfc704fb211fdaf09ad253",
+      "metadataSha256": "abd6acba406d2cc4dbc0858a9099443adee6821b06b261a4d1101e7bc7f60e84",
+      "policyLog": null,
+      "policyLogSha256": null,
+      "browserLog": null,
+      "browserLogSha256": null
+    },
+    {
+      "name": "19-model-deadline",
+      "phase": "test",
+      "command": [
+        "node",
+        "tests/browser-interaction-deadline.test.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:30:28.195331+00:00",
+      "finishedAtUtc": "2026-11-18T17:30:28.260267+00:00",
+      "elapsedSeconds": 0.064882,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 13,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "DEADLINE CONTRACT — 13/13; relógio virtual/protocolo modelado, NÃO Chromium."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/19-model-deadline.log",
+      "logSha256": "78b021d265de6cf3c4078c12c7468c44ffb7f2d5e1e9776d89021eb178066691",
+      "metadataSha256": "148be559a3dc1ca2954c180bdf8c888b0e743cc1e8e5db03f6430561fe682e61",
+      "policyLog": null,
+      "policyLogSha256": null,
+      "browserLog": null,
+      "browserLogSha256": null
+    },
+    {
+      "name": "20-model-late-protocol",
+      "phase": "test",
+      "command": [
+        "node",
+        "tests/browser-interaction-late-protocol.test.mjs"
+      ],
+      "startedAtUtc": "2026-11-18T17:30:28.631266+00:00",
+      "finishedAtUtc": "2026-11-18T17:30:28.797565+00:00",
+      "elapsedSeconds": 0.166218,
+      "exitCode": 0,
+      "status": "PASSED",
+      "testCounts": {
+        "passedCaseMarkers": 24,
+        "failedCaseMarkers": 0,
+        "summaries": [
+          "LATE MODEL — 24/24; controlador real, DOM/eventos/protocolo/tempo modelados, NÃO Chromium."
+        ],
+        "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+      },
+      "failures": [],
+      "blockingErrors": [],
+      "policyDenials": [],
+      "chromiumLaunches": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+      "log": "logs/20-model-late-protocol.log",
+      "logSha256": "f8f059c8176d27d0a46966c2ea19b3997299556bd191a20ff54cee2e6e9edf9a",
+      "metadataSha256": "70027440d4960c521114c662a7c41c1c71be450d5b9113404e8346eede252e08",
+      "policyLog": null,
+      "policyLogSha256": null,
+      "browserLog": null,
+      "browserLogSha256": null
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "28-static-final",
+  "newExecution": true,
+  "phase": "green-w4",
+  "command": [
+    "node",
+    "--expose-internals",
+    "/home/user/forja/validacoes/deadline-4000-w4/instruments/static-check.cjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w4/runtime/checkout",
+  "startedAtUtc": "2026-11-19T04:16:29.993554+00:00",
+  "finishedAtUtc": "2026-11-19T04:16:35.868881+00:00",
+  "elapsedSeconds": 5.875285,
+  "exitCode": 0,
+  "timedOut": false,
+  "blocked": false,
+  "isolatedHelperSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+  "persistentSourceHelperSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w4-regressions.browser.mjs": "bea8ae701bdea6331aca1f6bdcb05d23e76588ad2f0ce2c5c957ea9dd7aaa1a1",
+    "tests/browser-interaction-w4-regressions.test.mjs": "48b75017a77ace0b583cfc3068b13bc9321cd0efcc6a02c2798a4617378de2e1"
+  },
+  "isolatedFingerprintBefore": "a7fad33bf0c2962e08d4b41b0e857a92bd849e844fe61cb5baf3e86bd686d0dd",
+  "isolatedFingerprintAfter": "a7fad33bf0c2962e08d4b41b0e857a92bd849e844fe61cb5baf3e86bd686d0dd",
+  "isolatedChangedDuringRun": [],
+  "sourceChangedDuringRun": [],
+  "policyDenials": [],
+  "unsafeFlags": [],
+  "browserSpawns": [],
+  "browserExits": [],
+  "criticalErrors": [],
+  "passedCount": 0,
+  "failureCount": 0,
+  "summaries": [],
+  "logSha256": "ac08c06b689e7ea19809937f1289bc3dfc37d94e63bfa8ad02b9ba74e473591d",
+  "policyLogSha256": null,
+  "browserLogSha256": null
+}

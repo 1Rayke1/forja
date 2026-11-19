@@ -1,0 +1,5 @@
+99cffc9147d72cc4eedd2eaf47310fc135815c3b refs/heads/arena/468b7e01-forja@{0} branch: Created from 99cffc9147d72cc4eedd2eaf47310fc135815c3b
+99cffc9147d72cc4eedd2eaf47310fc135815c3b HEAD@{0} checkout: moving from main to arena/468b7e01-forja
+99cffc9147d72cc4eedd2eaf47310fc135815c3b refs/heads/main@{0} clone: from https://github.com/1Rayke1/forja.git
+99cffc9147d72cc4eedd2eaf47310fc135815c3b refs/remotes/origin/HEAD@{0} clone: from https://github.com/1Rayke1/forja.git
+99cffc9147d72cc4eedd2eaf47310fc135815c3b HEAD@{1} clone: from https://github.com/1Rayke1/forja.git

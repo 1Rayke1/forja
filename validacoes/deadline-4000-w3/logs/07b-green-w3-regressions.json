@@ -1,0 +1,56 @@
+{
+  "name": "07b-green-w3-regressions",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-w3-regressions.test.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T00:34:19.065754+00:00",
+  "finishedAtUtc": "2026-11-19T00:34:19.180830+00:00",
+  "elapsedSeconds": 0.115036,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.browser.mjs": "db7e130fdaea9dcf297b3c6e2a98c64baabef8c96d2f0848fb0212dd9537ef83",
+    "tests/browser-interaction-w3-regressions.test.mjs": "85ae5f4660cdc282431bdfcd721c1a911afe93399b29c318d5477c50af3ab686"
+  },
+  "sourceFingerprintBefore": "ebb1ba92d918b9a32ebaa10d56656c7062a71700c1b6414d92cb9b2e8bd0d556",
+  "sourceFingerprintAfter": "ebb1ba92d918b9a32ebaa10d56656c7062a71700c1b6414d92cb9b2e8bd0d556",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 20,
+    "failedCaseMarkers": 0,
+    "summaries": [
+      "W3 REGRESSIONS — 20/20; 20 casos obrigatórios (modelo/protocolo, NÃO Chromium)."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 0,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/07b-green-w3-regressions.log",
+  "logSha256": "1cad6285f9dd977f025b819f33df0fc4fae5061ddb64cc5dbd0a7d4ecdc2f388",
+  "policyLog": null,
+  "policyLogSha256": null,
+  "browserLog": null,
+  "browserLogSha256": null
+}

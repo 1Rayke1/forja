@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-forja-auth="locked">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101010">
 <title>Início · FORJA</title>
+<link rel="stylesheet" href="assets/css/auth-guard.css">
+<script src="assets/js/forja-auth-guard.js"></script>
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/treino.css">
 <link rel="stylesheet" href="assets/css/execucao.css">
@@ -21,6 +23,17 @@
 </head>
 
 <body data-page="inicio" data-root="">
+<section data-auth-gate aria-labelledby="auth-gate-title">
+  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
+  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
+  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
+  <div id="auth-legacy-choice" hidden>
+    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
+    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
+  </div>
+  <a href="login.html">Ir para o login</a>
+</section>
+<noscript><p>Ative o JavaScript e <a href="login.html">entre com Google</a> para usar o FORJA.</p></noscript>
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 <header class="site-header home-header">
   <div class="container home-header-inner">
@@ -196,7 +209,7 @@
 <footer class="site-footer">
   <div class="container">
     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
+    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
   </div>
 </footer>
@@ -205,7 +218,11 @@
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="assets/js/forja-core.js" defer></script>
+<script src="assets/js/forja-supabase-config.js" defer></script>
+<script src="assets/vendor/supabase/supabase.js" defer></script>
+<script src="assets/js/forja-auth.js" defer></script>
 <script src="assets/js/forja-store.js" defer></script>
+<script src="assets/js/forja-auth-data.js" defer></script>
 <script src="assets/js/forja-dados.js" defer></script>
 <script src="assets/js/forja-metricas.js" defer></script>
 <script src="assets/js/forja-exercicios-dados.js" defer></script>

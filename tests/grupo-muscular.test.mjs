@@ -24,6 +24,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { AUTH_URL, AUTH_KEY } from "./helpers/auth-fixture.mjs";
 import {
   assertNoErrors,
   boot,
@@ -580,7 +581,7 @@ await runTest("19. O artefato do Pages leva a tela do grupo e não tem link queb
     script e falha antes do push.
   */
   const destino = fs.mkdtempSync(path.join(os.tmpdir(), "forja-site-"));
-  execFileSync("bash", [path.join(repoRoot, "tools/preparar-site.sh"), destino], { stdio: "pipe" });
+  execFileSync("bash", [path.join(repoRoot, "tools/preparar-site.sh"), destino], { stdio: "pipe", env: { ...process.env, FORJA_SUPABASE_URL: AUTH_URL, FORJA_SUPABASE_ANON_KEY: AUTH_KEY } });
 
   ["treino/grupo.html", "assets/js/forja-grupo.js", "assets/css/grupo.css"].forEach(rel => {
     assert.ok(fs.existsSync(path.join(destino, rel)), "O artefato publicado ficou sem " + rel);

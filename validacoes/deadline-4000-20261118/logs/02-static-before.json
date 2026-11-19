@@ -1,0 +1,51 @@
+{
+  "name": "02-static-before",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "--expose-internals",
+    "../instruments/static-check.cjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-20261118/checkout",
+  "startedAtUtc": "2026-11-18T17:53:21.455544+00:00",
+  "finishedAtUtc": "2026-11-18T17:53:25.293624+00:00",
+  "elapsedSeconds": 3.838031,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 0,
+    "failedCaseMarkers": 0,
+    "summaries": [],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 0,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/02-static-before.log",
+  "logSha256": "b7f6b539be3418ce30baf1a2dfef02c9216fe1844e1144dd9aa21df04c252f12",
+  "policyLog": null,
+  "policyLogSha256": null,
+  "browserLog": null,
+  "browserLogSha256": null
+}

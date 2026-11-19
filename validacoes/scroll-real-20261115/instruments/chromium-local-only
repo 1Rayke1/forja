@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "/home/user/forja/validacoes/scroll-real-20261115/.cache/tmp/chromium" "$@" "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1, EXCLUDE localhost" "--proxy-server=http://127.0.0.1:9" "--proxy-bypass-list=localhost;127.0.0.1;[::1]"

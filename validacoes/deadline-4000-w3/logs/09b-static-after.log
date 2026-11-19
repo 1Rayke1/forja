@@ -1,0 +1,48 @@
+{
+  "syntax": {
+    "files": 107,
+    "passed": 107,
+    "failures": []
+  },
+  "generalE2E": {
+    "asserts": 589,
+    "scenarios": 46,
+    "bytesIdentical": true,
+    "assertionTextAndOrderIdentical": true,
+    "scenarioTextAndOrderIdentical": true,
+    "skipOnlyCount": 0
+  },
+  "baselineCheck": {
+    "total": 825,
+    "isolatedMismatch": [
+      "tests/helpers/browser-interaction.mjs"
+    ],
+    "originalMismatch": []
+  },
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.browser.mjs": {
+      "sha256": "db7e130fdaea9dcf297b3c6e2a98c64baabef8c96d2f0848fb0212dd9537ef83",
+      "bytes": 12055,
+      "assertions": 36,
+      "skipOnlyCount": 0,
+      "allowed": true
+    },
+    "tests/browser-interaction-w3-regressions.test.mjs": {
+      "sha256": "85ae5f4660cdc282431bdfcd721c1a911afe93399b29c318d5477c50af3ab686",
+      "bytes": 31417,
+      "assertions": 86,
+      "skipOnlyCount": 0,
+      "allowed": true
+    }
+  },
+  "disallowedAdded": [],
+  "helperStatus": {
+    "isolatedSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+    "originalSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+    "originalUntouched": true
+  },
+  "protectedCount": 38,
+  "ok": true
+}
+
+VALIDATION RUN exit=0 seconds=5.329448 watchdog=False

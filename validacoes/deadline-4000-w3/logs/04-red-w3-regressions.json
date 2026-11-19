@@ -1,0 +1,53 @@
+{
+  "name": "04-red-w3-regressions",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-w3-regressions.test.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T00:22:36.726877+00:00",
+  "finishedAtUtc": "2026-11-19T00:22:36.792141+00:00",
+  "elapsedSeconds": 0.065223,
+  "exitCode": 13,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.test.mjs": "57c2806d594dafd87ce1c695dc9f92b2ffcf798dc4e7961e6c2410f9d5a06bd3"
+  },
+  "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 0,
+    "failedCaseMarkers": 0,
+    "summaries": [],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 0,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "FAILED_COMPLETED",
+  "log": "logs/04-red-w3-regressions.log",
+  "logSha256": "c47a67e83b29e7486d025a329e2ad32a8dca89350c62b4113be9ccf0781c20d2",
+  "policyLog": null,
+  "policyLogSha256": null,
+  "browserLog": null,
+  "browserLogSha256": null
+}

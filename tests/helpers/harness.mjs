@@ -7,15 +7,18 @@
     sessionStorage são copiados para a janela seguinte, como um navegador faria.
   - Cliques em links (inclusive F.navigate, que chama anchor.click()) trocam de
     página. Links de download são capturados em app.downloads.
-  - Toda escrita no localStorage feita pela página (setItem, removeItem, clear)
-    fica registrada em app.storageWrites, zerado a cada carga. A semeadura do
-    teste não entra no registro: ele mostra só o que a própria página gravou.
+  - app.storageWrites observa dados de negócio (nomes lógicos preservados).
+    authStorageWrites e allStorageWrites observam separadamente tokens/journals
+    e os nomes físicos, sem esconder operações da suíte de autenticação.
+  - O SDK é real; apenas os endpoints HTTP e a configuração pública são fixtures.
+    A semeadura nunca injeta um bypass no código de produção.
 */
 import jsdomPkg from "jsdom";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { AuthFixture, CONFIG_SCRIPT, AUTH_STORAGE_KEY, USERS, DATA_PREFIX, TAB_PREFIX, completedJournal, COPY_KEY, installJsdomAuth } from "./auth-fixture.mjs";
 
 const { JSDOM, VirtualConsole, requestInterceptor } = jsdomPkg;
 
@@ -23,9 +26,24 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(here, "..", "..");
 export const BASE = "https://forja.test/forja/";
 
-export const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+// Os fluxos de domínio não dependem da latência arbitrária do gate assíncrono.
+export const wait = async ms => {
+  await delay(ms);
+  const pending = [...openApps].filter(app => app.dom && app.F && app.F.ready &&
+    !["guest", "error"].includes(app.F.auth?.state) &&
+    app.d.documentElement.dataset.forjaAuth !== "ready" &&
+    (app.$("#auth-legacy-choice")?.hidden !== false) && (app.$("#auth-retry")?.hidden !== false));
+  await Promise.all(pending.map(app => Promise.race([(async () => {
+    if (app.F.authData?.userId) await app.F.auth.revalidate();
+    await app.F.ready;
+  })(), delay(4000)])));
+};
 
-const interceptor = requestInterceptor(async request => {
+function makeInterceptor(app) { return requestInterceptor(async request => {
+  if (request.url.split(/[?#]/)[0].endsWith("/assets/js/forja-supabase-config.js") && app.fixture.configured) {
+    return new Response(CONFIG_SCRIPT, { headers: { "content-type": "text/javascript" } });
+  }
   if (request.url.startsWith("https://www.youtube-nocookie.com/embed/")) {
     return new Response("<!doctype html><title>YouTube Embed</title>", {
       status: 200,
@@ -57,12 +75,17 @@ const interceptor = requestInterceptor(async request => {
     status: 200,
     headers: { "content-type": type + "; charset=utf-8" }
   });
-});
+}); }
 
 const openApps = new Set();
 
 export class App {
-  constructor() {
+  constructor(options = {}) {
+    this.fixture = options.fixture || new AuthFixture();
+    this.authOptions = options;
+    this.authStorageWrites = [];
+    this.allStorageWrites = [];
+    this.externalNavigations = [];
     this.errors = [];
     this.downloads = [];
     this.storageWrites = [];
@@ -88,23 +111,17 @@ export class App {
     element.dispatchEvent(new this.w.MouseEvent("click", { bubbles: true, cancelable: true }));
   }
 
-  raw(key) { return this.w.localStorage.getItem(key); }
+  raw(key) { return this.F.store && key.startsWith("forja-") ? this.F.store.readRaw(key) : this.w.localStorage.getItem(key); }
 
   data(key, fallback = null) {
     const raw = this.raw(key);
     return raw === null ? fallback : JSON.parse(raw);
   }
 
-  keys() {
-    const list = [];
-    for (let index = 0; index < this.w.localStorage.length; index++) {
-      list.push(this.w.localStorage.key(index));
-    }
-    return list.sort();
-  }
+  keys() { return Array.from(this.F.store.keys()).sort(); }
 
   set(key, value) {
-    this.w.localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value));
+    this.F.store.driver().setItem(key, typeof value === "string" ? value : JSON.stringify(value));
   }
 
   get F() { return this.w.Forja; }
@@ -149,6 +166,7 @@ export class App {
   /* Navega como um navegador: salva o storage, troca de janela e carrega a nova página. */
   async go(href) {
     const target = new URL(href, this.w.location.href);
+    if (target.origin !== new URL(BASE).origin) { this.externalNavigations.push(target.href); return; }
     const local = snapshotStorage(this.w.localStorage);
     const session = snapshotStorage(this.w.sessionStorage);
     const fakeNow = this.fakeNow;
@@ -164,7 +182,9 @@ export class App {
 
   async load(url, carry = {}) {
     const page = url.replace(BASE, "").replace(/^\/+/, "");
-    const file = path.join(repoRoot, page.split(/[?#]/)[0]);
+    let relative = page.split(/[?#]/)[0];
+    if (!relative || relative.endsWith("/")) relative += "index.html";
+    const file = path.join(repoRoot, relative);
     const html = fs.readFileSync(file, "utf8");
 
     const virtualConsole = new VirtualConsole();
@@ -174,14 +194,17 @@ export class App {
 
     const app = this;
     this.storageWrites = [];
+    this.authStorageWrites = [];
+    this.allStorageWrites = [];
 
     this.dom = new JSDOM(html, {
       url,
       runScripts: "dangerously",
-      resources: { interceptors: [interceptor] },
+      resources: { interceptors: [makeInterceptor(app)] },
       pretendToBeVisual: true,
       virtualConsole,
       beforeParse(window) {
+        installJsdomAuth(window, app.fixture, carry.local, carry.session, app.authOptions);
         window.URL.createObjectURL = () => "blob:forja-test";
         window.URL.revokeObjectURL = () => {};
         window.HTMLAnchorElement.prototype.click = function captureNavigation() {
@@ -206,20 +229,20 @@ export class App {
         window.AudioContext = undefined;
         window.webkitAudioContext = undefined;
 
-        if (carry.local) {
-          Object.entries(carry.local).forEach(([key, value]) => window.localStorage.setItem(key, value));
-        }
-        if (carry.session) {
-          Object.entries(carry.session).forEach(([key, value]) => window.sessionStorage.setItem(key, value));
-        }
-
         /* Só observa: registra e repassa ao método original desta janela. */
         const local = window.localStorage;
         ["setItem", "removeItem", "clear"].forEach(method => {
           const original = window.Storage.prototype[method];
           window.Storage.prototype[method] = function recordStorageWrite(...args) {
             if (this === local) {
-              app.storageWrites.push({ method, key: args.length > 0 ? String(args[0]) : null });
+              const physical = args.length > 0 ? String(args[0]) : null;
+              const record = { method, key: physical };
+              app.allStorageWrites.push(record);
+              if (physical && physical.startsWith(DATA_PREFIX(app.authOptions.uid || USERS.A))) {
+                app.storageWrites.push({ method, key: physical.slice(DATA_PREFIX(app.authOptions.uid || USERS.A).length) });
+              } else if (physical && physical.startsWith("forja-") && !physical.startsWith("forja-auth-")) {
+                app.storageWrites.push(record);
+              } else app.authStorageWrites.push(record);
             }
             return original.apply(this, args);
           };
@@ -241,6 +264,18 @@ export class App {
       this.w.addEventListener("load", () => resolve());
       setTimeout(resolve, 3000);
     });
+    const loadedDom = this.dom;
+    for (let i = 0; i < 300; i += 1) {
+      if (this.dom !== loadedDom) break;
+      const auth = this.F && this.F.auth;
+      const choice = this.$("#auth-legacy-choice");
+      if (this.d.documentElement.dataset.forjaAuth === "ready" ||
+          (choice && !choice.hidden) ||
+          (auth && ["guest", "error"].includes(auth.state)) ||
+          this.d.body.dataset.page === "login") break;
+      if (this.$("#auth-retry")?.hidden === false) break;
+      await delay(10);
+    }
     await wait(30);
   }
 
@@ -260,7 +295,7 @@ function snapshotStorage(storage) {
 }
 
 export async function boot(seed = {}, page = "index.html", options = {}) {
-  const app = new App();
+  const app = new App(options);
   const local = {};
   Object.entries(seed).forEach(([key, value]) => {
     local[key] = typeof value === "string" ? value : JSON.stringify(value);
@@ -276,10 +311,21 @@ export async function boot(seed = {}, page = "index.html", options = {}) {
     local[profileKey] = JSON.stringify({ version: 3, updatedAt: "2026-10-01T00:00:00.000Z",
       objetivo: "manterForma", nivel: "iniciante", equipamento: "casa", diasPorSemana: 3 });
   }
+  const uid = options.uid || USERS.A;
+  let physical = local;
+  if (options.auth !== false) {
+    const active = options.authSession || (uid === USERS.A ? app.fixture.defaultSession : app.fixture.issue(uid));
+    if (options.legacy) physical = { ...local, [AUTH_STORAGE_KEY]: JSON.stringify(active) };
+    else physical = app.fixture.seed(uid, local, { session: active });
+  }
+  const tab = {};
+  for (const [key, value] of Object.entries(options.session || {})) {
+    tab[options.legacy || key.startsWith("forja-auth-") ? key : TAB_PREFIX(uid) + key] = value;
+  }
   if (options.now !== undefined) app.fakeNow = options.now;
   await app.load(BASE + page, {
-    local,
-    session: options.session || null,
+    local: physical,
+    session: tab,
     fakeNow: options.now === undefined ? null : options.now
   });
   return app;

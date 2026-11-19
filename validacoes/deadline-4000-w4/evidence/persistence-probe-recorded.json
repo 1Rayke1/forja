@@ -1,0 +1,8 @@
+{
+  "evidence/persistence-probe.txt": "6f0758f0f51b8f63c2d52cd627ba2b9abc0a8f73a446def7ef794bbfb60ca0b0",
+  "source/persistence-probe.txt": "16b51fba32fe4873f1c8d4e9fb8886ed5941226bd9712c97e168b4ed2f122e94",
+  "tests/persistence-probe.txt": "b76414b1d65545cdfeadd468b24ddf026ac49113760370a78b85470dc3fbba2d",
+  "environment/persistence-probe.txt": "f8ca850fed426bafe6f38e14854555fd9943e176605d5b191cc50e56a4cea4fb",
+  "logs/persistence-probe.txt": "84e38039944b6583c679cf91b067debb57fad382e02254374ad17582f0825909",
+  "instruments/persistence-probe.txt": "9705b4f6ed36e3ce1bc6f6857b52b5edde3e9e05e083cfbce782cc9c0c7a4eaa"
+}

@@ -916,7 +916,7 @@ await runTest("ATLAS 13. Seleção de sexo continua no perfil e não muda a pran
   const semSexo = signature();
 
   ["feminino", "masculino"].forEach(sexo => {
-    app.w.localStorage.setItem("forja-perfil-v1", JSON.stringify({
+    app.F.store.driver().setItem("forja-perfil-v1", JSON.stringify({
       version: 3,
       updatedAt: "2026-10-01T00:00:00.000Z",
       objetivo: "manterForma",

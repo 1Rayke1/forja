@@ -1,0 +1,50 @@
+{
+  "name": "23-timing-decomposition",
+  "newExecution": true,
+  "phase": "probe",
+  "command": [
+    "node",
+    "../instruments/measure-timing.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-20261118/checkout",
+  "startedAtUtc": "2026-11-18T18:30:02.356371+00:00",
+  "finishedAtUtc": "2026-11-18T18:32:04.659687+00:00",
+  "elapsedSeconds": 122.303241,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "48e4659d4426f88303d0226df41277a7e87fe5797ef09115e272f171c3895bb8",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "sourceFingerprintBefore": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "sourceFingerprintAfter": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 0,
+    "failedCaseMarkers": 0,
+    "summaries": [],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 10,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/23-timing-decomposition.log",
+  "logSha256": "af69245409b38ac64a4d85e4fe92cdfabbf8213420fd845ba341efbaae7a152b",
+  "policyLog": "logs/23-timing-decomposition.policy.jsonl",
+  "policyLogSha256": "643c1cd7c6317e104f7371c23073096b0646d877db5793baa1b4757651c65298",
+  "browserLog": "logs/23-timing-decomposition.browser.jsonl",
+  "browserLogSha256": "8095d86e08d03208cd71f2d3de8d709c02da0d2aee87d29ce7c5a7ad914b9d83"
+}

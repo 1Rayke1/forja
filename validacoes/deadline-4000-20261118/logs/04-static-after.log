@@ -1,0 +1,31 @@
+{
+  "syntax": {
+    "files": 105,
+    "passed": 105,
+    "failures": []
+  },
+  "generalE2E": {
+    "asserts": 589,
+    "scenarios": 46,
+    "bytesIdentical": true,
+    "assertionTextAndOrderIdentical": true,
+    "scenarioTextAndOrderIdentical": true,
+    "skipOnlyCount": 0
+  },
+  "baselineCheck": {
+    "total": 825,
+    "isolatedMismatch": [
+      "tests/helpers/browser-interaction.mjs"
+    ],
+    "originalMismatch": []
+  },
+  "helperStatus": {
+    "isolatedSha256": "48e4659d4426f88303d0226df41277a7e87fe5797ef09115e272f171c3895bb8",
+    "originalSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+    "originalUntouched": true
+  },
+  "protectedCount": 38,
+  "ok": true
+}
+
+VALIDATION RUN exit=0 seconds=3.736901 watchdog=False

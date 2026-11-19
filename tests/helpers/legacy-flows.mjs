@@ -176,7 +176,8 @@ export function installFailingStorage(app, options) {
     key(index) { return real.key(index); },
     getItem(key) { return real.getItem(key); },
     setItem(key, value) {
-      if (key === state.failOn && state.hits < state.times) {
+      const logical = String(key).replace(/^forja-auth-data-v1:[0-9a-f-]+:/i, "");
+      if (logical === state.failOn && state.hits < state.times) {
         state.hits += 1;
         const error = new Error("QuotaExceededError simulado");
         error.name = "QuotaExceededError";
@@ -198,5 +199,11 @@ export function installFailingStorage(app, options) {
 }
 
 export function snapshot(app) {
-  return Object.fromEntries(app.keys().map(key => [key, app.raw(key)]));
+  const result = Object.fromEntries(app.keys().map(key => [key, app.raw(key)]));
+  // Dados de outros apps permanecem fora do namespace e também são auditados.
+  for (let i = 0; i < app.w.localStorage.length; i++) {
+    const key = app.w.localStorage.key(i);
+    if (!key.startsWith("forja-") && !key.startsWith("sb-")) result[key] = app.w.localStorage.getItem(key);
+  }
+  return result;
 }

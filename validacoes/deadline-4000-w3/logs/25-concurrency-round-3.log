@@ -1,0 +1,55 @@
+
+> forja@2.0.0 test:auth:concurrency
+> node tests/auth-concurrency.test.mjs && node tests/auth-concurrency.browser.mjs
+
+✅ AUTH CONCURRENCY 1. SecurityError em getItem: fechar antes da falha, preservar dados e concluir saída no retry
+✅ AUTH CONCURRENCY 2. SecurityError em setItem: fechar antes da falha, preservar dados e concluir saída no retry
+✅ AUTH CONCURRENCY 3. SecurityError em removeItem: fechar antes da falha, preservar dados e concluir saída no retry
+✅ AUTH CONCURRENCY 4. PKCE A pendente não substitui B pronta mesmo antes de entregar storage ao documento antigo
+✅ AUTH CONCURRENCY 5. Erro PKCE antigo não apaga o verifier nem a tentativa de B ainda em andamento
+✅ AUTH CONCURRENCY 6. Callback A que só chega depois do login B também não substitui a sessão recente
+✅ AUTH CONCURRENCY 7. Refresh SDK concluído → logout imediato → revogação 503 não deixa A rotacionada ativa
+✅ AUTH CONCURRENCY 8. UI A anterior a storage/BroadcastChannel encerra a rotação da MESMA geração
+✅ AUTH CONCURRENCY 9. Logout A rotacionada nunca remove, sinaliza ou revoga uma sessão posterior de B
+✅ AUTH CONCURRENCY 10. Mesmo UID com outro session_id é um novo login, não uma rotação pertencente ao logout antigo
+✅ AUTH CONCURRENCY 11. Falhas combinadas de storage mantêm bloqueio em memória e não liberam retry de autenticação
+✅ AUTH CONCURRENCY 12. CAS de refresh dentro do lock preserva a sessão de B gravada durante a espera
+✅ AUTH CONCURRENCY 13. CAS de refresh distingue nova sessão do mesmo UID da rotação original
+✅ AUTH CONCURRENCY 14. Cleanup de refresh rejeitado também preserva B gravada enquanto esperava lock
+✅ AUTH CONCURRENCY 15. Refresh legítimo sem concorrente mantém a geração e pode ser validado novamente
+✅ AUTH CONCURRENCY 16. Integração do canal preserva o bloqueio de marcador legado persistido via storage
+✅ AUTH CONCURRENCY 17. Ticket pré-HTTP reconhece o refresh antigo mesmo se B vencer ANTES de chamar o adapter (UID diferente)
+✅ AUTH CONCURRENCY 18. Ticket pré-HTTP reconhece o refresh antigo mesmo se B vencer ANTES de chamar o adapter (UID igual)
+
+AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.
+AUTH CONCURRENCY: segurança web/isolamento ativos; HeadlessChrome/138.0.7204.0
+✅ BROWSER CONCURRENCY 1. Botão logout com SecurityError em getItem: fechado, botão restaurado e retry de saída
+✅ BROWSER CONCURRENCY 2. Botão logout com SecurityError em setItem: fechado, botão restaurado e retry de saída
+✅ BROWSER CONCURRENCY 3. Botão logout com SecurityError em removeItem: fechado, botão restaurado e retry de saída
+✅ BROWSER CONCURRENCY 4. PKCE A pendente não substitui B pronta com notificações de A ainda não entregues
+✅ BROWSER CONCURRENCY 5. Erro PKCE antigo preserva verifier e callback de B ainda pendente
+✅ BROWSER CONCURRENCY 6. Callback A que chega após B concluída não reaproveita nem substitui a geração recente
+✅ BROWSER CONCURRENCY 7. SDK refresh → logout imediato → 503 encerra A também na outra aba e no reload
+✅ BROWSER CONCURRENCY 8. Clique na UI ainda anterior às notificações encerra refresh real feito pela outra aba
+✅ BROWSER CONCURRENCY 9. Logout de UI A rotacionada não encerra B já persistida por outro SDK
+✅ BROWSER CONCURRENCY 10. Outro session_id do mesmo UID não pertence ao logout da UI anterior
+✅ BROWSER CONCURRENCY 11. Storage sem leitura/escrita/remoção não reautoriza A; sinal sem tokens fecha a outra aba
+  LOCK EVIDENCE {"rejected":false,"sameUidNewSession":false,"bVerifiedBeforeRelease":true,"exactBPreserved":true,"staleRefreshRejected":true,"lockAvailable":true}
+✅ BROWSER CONCURRENCY 12. Refresh A espera Web Lock real, B fica persistida e autorizada e A não a substitui
+  LOCK EVIDENCE {"rejected":false,"sameUidNewSession":true,"bVerifiedBeforeRelease":true,"exactBPreserved":true,"staleRefreshRejected":true,"lockAvailable":true}
+✅ BROWSER CONCURRENCY 13. Refresh A também não substitui outro session_id do MESMO UID após esperar o lock
+✅ BROWSER CONCURRENCY 14. Refresh legítimo da mesma sessão continua rotacionando e exigindo getUser
+  LOCK EVIDENCE {"rejected":true,"sameUidNewSession":false,"bVerifiedBeforeRelease":true,"exactBPreserved":true,"staleRefreshRejected":true,"lockAvailable":true}
+✅ BROWSER CONCURRENCY 15. Erro de refresh A com cleanup esperando lock não remove B persistida depois
+✅ BROWSER CONCURRENCY 16. Mensagem A antes de abrir OAuth não cancela nova intenção Google sob lock real
+✅ BROWSER CONCURRENCY 17. Mensagem A durante OAuth não bloqueia callback B nem reinstala logout
+✅ BROWSER CONCURRENCY 18. Mensagens duplicadas/fora de ordem durante exchange não cancelam B da nova intenção
+✅ BROWSER CONCURRENCY 19. Depois do exchange, logout antigo não bloqueia novo session_id do MESMO UID
+✅ BROWSER CONCURRENCY 20. Logout legítimo de A fecha a outra aba mesmo sem leitura/escrita/remoção de storage
+✅ BROWSER CONCURRENCY 21. Logout antigo e duplicado ignora B pronta, mas logout da sessão B atual continua eficaz
+✅ BROWSER CONCURRENCY 22. Duas abas/tentativas Google concorrentes: sinais antigos não vencem a intenção B mais nova
+✅ BROWSER CONCURRENCY 23. Storage totalmente indisponível + revogação 503: bloqueio imediato, limite no reload e retry durável
+
+BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa.
+
+VALIDATION RUN exit=0 seconds=42.195452 watchdog=False

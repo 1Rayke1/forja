@@ -1,0 +1,59 @@
+{
+  "name": "18-scroll-expanded-2",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-expanded.browser.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T00:40:32.387616+00:00",
+  "finishedAtUtc": "2026-11-19T00:42:49.133411+00:00",
+  "elapsedSeconds": 136.745747,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.browser.mjs": "db7e130fdaea9dcf297b3c6e2a98c64baabef8c96d2f0848fb0212dd9537ef83",
+    "tests/browser-interaction-w3-regressions.test.mjs": "85ae5f4660cdc282431bdfcd721c1a911afe93399b29c318d5477c50af3ab686"
+  },
+  "sourceFingerprintBefore": "ebb1ba92d918b9a32ebaa10d56656c7062a71700c1b6414d92cb9b2e8bd0d556",
+  "sourceFingerprintAfter": "ebb1ba92d918b9a32ebaa10d56656c7062a71700c1b6414d92cb9b2e8bd0d556",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 78,
+    "failedCaseMarkers": 0,
+    "summaries": [
+      "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+      "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF.",
+      "NESTED — 26/26; 13 casos × Blink ON/OFF.",
+      "PROTOCOL — 12/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 8,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/18-scroll-expanded-2.log",
+  "logSha256": "b859230bdbbabc49dbf490908799a4fef7b4b269314d3679a5fdd5058e3ba9ca",
+  "policyLog": "logs/18-scroll-expanded-2.policy.jsonl",
+  "policyLogSha256": "24b5020f38ac89d0542a88cd9308931404135b6f2b2af4a3bab25cc7916e16b2",
+  "browserLog": "logs/18-scroll-expanded-2.browser.jsonl",
+  "browserLogSha256": "d9dee70b9b949842f0d99346221b555750d4375e81698750b9fbeec37f6fe1d6"
+}

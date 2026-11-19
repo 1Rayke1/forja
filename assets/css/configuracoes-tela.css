@@ -227,6 +227,8 @@ body[data-page="configuracoes"] .settings-about-card {
   border-radius: 18px;
   background: #141718;
 }
+body[data-page="configuracoes"] #inicio .settings-form-card { margin-top: 10px; }
+body[data-page="configuracoes"] #account-email { margin: 0; color: #d7ddda; font-size: 13.5px; overflow-wrap: anywhere; }
 body[data-page="configuracoes"] .settings-detail .section-title {
   margin: 0;
   color: #f3f7f5;

@@ -753,9 +753,9 @@ await runTest("23. Código: sem localStorage.clear(), um único intervalo e cale
 
   const calendar = fs.readFileSync(path.join(jsDir, "forja-calendario.js"), "utf8").trim();
   assert.equal(
-    createHash("sha256").update(calendar).digest("hex"),
+    createHash("sha256").update(calendar.replaceAll("window.Forja.store.driver()", "localStorage")).digest("hex"),
     "30a825330793e156adc357ae714f022c853033c1016ee66ffeaec1ab705928c5",
-    "O código de calendário/missões mudou em relação à main"
+    "A lógica de calendário/missões mudou além do adaptador de storage autenticado"
   );
 });
 
@@ -2769,7 +2769,7 @@ await runTest("53. Preferências: mudança feita em outra aba chega ao Perfil, �
 
     /* Outra aba grava; o evento `storage` só é entregue às demais abas. */
     const next = JSON.stringify({ soundOnRest: false, vibrateOnRest: true });
-    app.w.localStorage.setItem(PREFS_KEY, next);
+    app.F.store.driver().setItem(PREFS_KEY, next);
     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: PREFS_KEY, newValue: next }));
     await wait(10);
     assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: true }, "Memória desatualizada em " + page);
@@ -2784,7 +2784,7 @@ await runTest("53. Preferências: mudança feita em outra aba chega ao Perfil, �
     assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: true });
 
     /* Outra aba apagou a chave: volta ao padrão (ligado), sem gravar nada aqui. */
-    app.w.localStorage.removeItem(PREFS_KEY);
+    app.F.store.driver().removeItem(PREFS_KEY);
     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: PREFS_KEY, newValue: null }));
     await wait(10);
     assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: true });
@@ -2864,9 +2864,8 @@ await runTest("54. Home sem rotina e com rotina vazia nunca exibe botão Iniciar
 
 function captureStorage(app) {
   const out = {};
-  for (let i = 0; i < app.w.localStorage.length; i += 1) {
-    const key = app.w.localStorage.key(i);
-    out[key] = JSON.parse(app.w.localStorage.getItem(key));
+  for (const key of app.keys()) {
+    out[key] = JSON.parse(app.F.store.driver().getItem(key));
   }
   return out;
 }
@@ -3290,7 +3289,7 @@ await runTest("59b. C3: telas de treino e biblioteca sincronizam com outra aba/B
   let expectedWrites = 0;
 
   function externalWrite(key, value) {
-    app.w.localStorage.setItem(key, JSON.stringify(value));
+    app.F.store.driver().setItem(key, JSON.stringify(value));
     expectedWrites += 1;
     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: JSON.stringify(value) }));
   }
@@ -3304,7 +3303,7 @@ await runTest("59b. C3: telas de treino e biblioteca sincronizam com outra aba/B
   assert.match(app.text("#routine-list"), /Rotina Sync B/);
 
   /* Retorno via BFCache (pageshow persisted) sem evento storage: relê e redesenha. */
-  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA], [])));
+  app.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA], [])));
   expectedWrites += 1;
   const bfShow = new app.w.Event("pageshow");
   bfShow.persisted = true;
@@ -3326,7 +3325,7 @@ await runTest("59b. C3: telas de treino e biblioteca sincronizam com outra aba/B
   /* A biblioteca também acompanha: rotina criada fora vira destino válido. */
   const cat = await boot(seed, "treino/biblioteca.html");
   await wait(20);
-  cat.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA, rB], [])));
+  cat.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA, rB], [])));
   cat.w.dispatchEvent(new cat.w.StorageEvent("storage", {
     key: "forja-treino-rotinas-v1",
     newValue: JSON.stringify(routinesStore([rA, rB], []))
@@ -3347,7 +3346,7 @@ await runTest("59c. C3: editor não sobrescreve mudança externa na mesma rotina
   await wait(20);
 
   const externalX = buildRotationRoutine({ id: "conf-x", name: "Versão da outra aba", exercises: [buildRotationExercise("Flexão", { sets: 9 })] });
-  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([externalX, rY], [])));
+  app.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([externalX, rY], [])));
   app.w.dispatchEvent(new app.w.StorageEvent("storage", {
     key: "forja-treino-rotinas-v1",
     newValue: JSON.stringify(routinesStore([externalX, rY], []))
@@ -3372,7 +3371,7 @@ await runTest("59c. C3: editor não sobrescreve mudança externa na mesma rotina
   await wait(20);
 
   const externalY = buildRotationRoutine({ id: "conf-y", name: "Rotina Y externa", exercises: [buildRotationExercise("Prancha", { sets: 7 })] });
-  app2.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rX, externalY], [])));
+  app2.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rX, externalY], [])));
   app2.w.dispatchEvent(new app2.w.StorageEvent("storage", {
     key: "forja-treino-rotinas-v1",
     newValue: JSON.stringify(routinesStore([rX, externalY], []))
@@ -4250,12 +4249,12 @@ await runTest("74. Home: sincronização via evento storage (metas, histórico, 
 
   function externalWrite(key, value) {
     const raw = JSON.stringify(value);
-    app.w.localStorage.setItem(key, raw);
+    app.F.store.driver().setItem(key, raw);
     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: raw }));
   }
 
   function externalRemove(key) {
-    app.w.localStorage.removeItem(key);
+    app.F.store.driver().removeItem(key);
     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: null }));
   }
 
@@ -4322,7 +4321,7 @@ await runTest("74. Home: sincronização via evento storage (metas, histórico, 
   assert.equal(app.$("#home-action").hidden, true);
 
   /* 6. JSON inválido vindo de outra aba não derruba a Home nem cria forja-treino-dados-preservados-v1. */
-  app.w.localStorage.setItem("forja-treino-metas-v1", "{corrompido");
+  app.F.store.driver().setItem("forja-treino-metas-v1", "{corrompido");
   app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: "forja-treino-metas-v1", newValue: "{corrompido" }));
   expectedWrites += 1;
   assert.equal(app.raw("forja-treino-dados-preservados-v1"), null, "Evento storage não pode criar chave de preservação");
@@ -4352,13 +4351,13 @@ await runTest("75. Home: retorno via pageshow (BFCache) sincroniza F.state e int
     String(now.getDate()).padStart(2, "0")
   ].join("-");
 
-  app.w.localStorage.setItem(PROFILE_KEY, JSON.stringify(profileSeed({ objetivo: "calistenia", diasPorSemana: 3 })));
-  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([routine], [])));
-  app.w.localStorage.setItem("forja-treino-metas-v1", JSON.stringify({
+  app.F.store.driver().setItem(PROFILE_KEY, JSON.stringify(profileSeed({ objetivo: "calistenia", diasPorSemana: 3 })));
+  app.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([routine], [])));
+  app.F.store.driver().setItem("forja-treino-metas-v1", JSON.stringify({
     version: 1, updatedAt: now.toISOString(), modality: "calisthenics",
     weeklySessions: 3, weeklySets: 12, weeklyMinutes: 45
   }));
-  app.w.localStorage.setItem("forja-treino-historico-v1", JSON.stringify([{
+  app.F.store.driver().setItem("forja-treino-historico-v1", JSON.stringify([{
     id: "bf-h1", date: todayLocal, finishedAt: now.toISOString(), modality: "calisthenics",
     routineId: "rot-bf", routineName: "Calistenia Base", durationMs: 20 * 60000,
     completedSets: 4, totalPlannedSets: 4, status: "completed", exercises: []
@@ -4368,6 +4367,8 @@ await runTest("75. Home: retorno via pageshow (BFCache) sincroniza F.state e int
   const bfShow = new app.w.Event("pageshow");
   bfShow.persisted = true;
   app.w.dispatchEvent(bfShow);
+  await app.F.auth.revalidate();
+  await wait(20); // BFCache só é liberado depois do getUser assíncrono.
 
   assert.equal(app.F.state.profile.objetivo, "calistenia", "F.state.profile deve atualizar no retorno BFCache");
   assert.equal(app.F.state.routines.calisthenics.length, 1, "F.state.routines deve atualizar no retorno BFCache");
@@ -4588,7 +4589,7 @@ await runTest("76b. Segurança syncStateFromStorage: cada chave suportada atuali
   });
 
   /* Chave desconhecida */
-  app.set("chave-externa-qualquer", "1");
+  app.w.localStorage.setItem("chave-externa-qualquer", "1");
   assert.equal(assertReadOnlyExecution(app, "chave desconhecida", () => app.F.syncStateFromStorage("chave-externa-qualquer")), false);
 
   assertNoErrors(app, "76b sync por chave");
@@ -4759,20 +4760,26 @@ await runTest("76e. Segurança de sincronização: eventos storage e pageshow/BF
   });
 
   /* 4. Evento storage key=null */
-  app.w.localStorage.removeItem(KEYS.active);
+  app.F.store.driver().removeItem(KEYS.active);
   assertReadOnlyExecution(app, "evento storage key=null", () => {
     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: null }));
   });
+  // key=null também invalida Auth. Aguarde getUser e a atualização somente-leitura.
+  await app.F.auth.revalidate();
   assert.equal(app.d.getElementById("active-session-banner").hidden, true);
 
   /* 5. pageshow BFCache (persisted: true) com alterações externas combinadas (válidas + corrompidas) */
   app.set(KEYS.profile, profileSeed({ objetivo: "resistencia", diasPorSemana: 4 }));
   app.set(KEYS.rotation, "{rotacao-corrompida");
+  const writesBeforeBFCache = app.allStorageWrites.length;
   assertReadOnlyExecution(app, "pageshow persisted=true (BFCache)", () => {
     const ev = new app.w.Event("pageshow");
     ev.persisted = true;
     app.w.dispatchEvent(ev);
   });
+  await app.F.auth.revalidate();
+  await wait(20);
+  assert.equal(app.allStorageWrites.length, writesBeforeBFCache, "BFCache assíncrono não pode gravar dados ou sessão");
   assert.equal(app.F.state.profile.objetivo, "resistencia");
   assert.equal(app.F.state.rotation.nextRoutineId, null);
 
@@ -4795,7 +4802,7 @@ await runTest("76f. Segurança syncStateFromStorage: preferências ausentes ou i
   assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: false });
 
   /* 1. Preferências ausentes (chave removida externamente) */
-  app.w.localStorage.removeItem(KEYS.preferences);
+  app.F.store.driver().removeItem(KEYS.preferences);
   assertReadOnlyExecution(app, "preferências ausentes por chave", () => {
     assert.equal(app.F.syncStateFromStorage(KEYS.preferences), true);
   });

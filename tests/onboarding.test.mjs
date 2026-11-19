@@ -939,12 +939,12 @@ await runTest("13. Fluxo interrompido retoma no mesmo passo sem gravar perfil", 
     equipamentos: ["nenhum"], preferenciasTreino: ["calistenia"]
   });
   await concluirDaRevisao(app);
-  await until(() => app.d.body.dataset.page === "inicio", "conclusão após retomada");
+  await until(() => app.d.body.dataset.page === "treino", "retorno à página solicitada após retomada");
 
   assert.equal(app.data(PROFILE_KEY).sexo, "feminino");
   assert.equal(app.data(PROFILE_KEY).objetivo, "resistencia", "A resposta retomada é a gravada");
   assert.equal(app.data(PROFILE_KEY).duracaoMinutos, 0);
-  assert.equal(app.w.sessionStorage.getItem("forja-onboarding-rascunho-v1"), null,
+  assert.equal(app.F.tabStorage().getItem("forja-onboarding-rascunho-v1"), null,
     "O rascunho deve ser apagado ao concluir");
 });
 
@@ -970,7 +970,7 @@ await runTest("14. Falha ao gravar mantém as respostas e avisa, sem perder o ra
   assert.equal(erro.hidden, false, "O erro precisa ser visível");
   assert.match(erro.textContent, /Não foi possível salvar/);
 
-  const rascunho = JSON.parse(app.w.sessionStorage.getItem(app.F.onboarding.DRAFT_KEY));
+  const rascunho = JSON.parse(app.F.tabStorage().getItem(app.F.onboarding.DRAFT_KEY));
   assert.ok(rascunho, "O rascunho deve continuar existindo");
   assert.equal(rascunho.respostas.objetivo, "hipertrofia", "As respostas ficam guardadas");
 

@@ -1,0 +1,55 @@
+{
+  "name": "16-npm-test-e2e",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "npm",
+    "run",
+    "test:e2e"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-20261118/checkout",
+  "startedAtUtc": "2026-11-18T18:13:10.090553+00:00",
+  "finishedAtUtc": "2026-11-18T18:19:34.783073+00:00",
+  "elapsedSeconds": 384.692465,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "48e4659d4426f88303d0226df41277a7e87fe5797ef09115e272f171c3895bb8",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "sourceFingerprintBefore": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "sourceFingerprintAfter": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 86,
+    "failedCaseMarkers": 0,
+    "summaries": [
+      "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+      "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF.",
+      "E2E navegador real (Auth/Google/PostgREST simulados) — 46/46 verificações aprovadas"
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 5,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/16-npm-test-e2e.log",
+  "logSha256": "0a87a3356500b984dd45f8f4440f95bcb91b29ac07fc421a15e073f51fa38c9b",
+  "policyLog": "logs/16-npm-test-e2e.policy.jsonl",
+  "policyLogSha256": "c0d08d8d182f53c89511e6cf87e35185ed0c55b3fd6d37fcb8f55a87026361a6",
+  "browserLog": "logs/16-npm-test-e2e.browser.jsonl",
+  "browserLogSha256": "75da4dd35b38813dd6c57a7faccf3f00eea1abffd441b7d762a15219f80d678b"
+}

@@ -527,6 +527,7 @@
       validada pela mesma regra que o boot usa.
     */
     validateKey(key, value) {
+      if (F.isAccountDataKey && !F.isAccountDataKey(key)) throw new Error("Chave privada não pode ser importada como dado do FORJA.");
       if (MISSION_KEY_PATTERN.test(key)) {
         return F.validateMissionList ? F.validateMissionList(key, value) : true;
       }

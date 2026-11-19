@@ -1,0 +1,160 @@
+❌ W4-REG 01 [discriminante] Erro não-timeout após expiração lógica com controller ativo
+AssertionError [ERR_ASSERTION]: erro original não-timeout deve ser preservado
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:224:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:203:1
+❌ W4-REG 02 [discriminante] Polling handle na fronteira do orçamento
+AssertionError [ERR_ASSERTION]: nenhuma etapa posterior ao cutoff deve iniciar
+
+1 !== 0
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:262:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:249:1
+❌ W4-REG 03 [discriminante] Erro diagnóstico na fronteira
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'Waiting failed: 4000ms integral scroll deadline exceeded'
+- 'diagnostic failed at cutoff'
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:284:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:270:1
+❌ W4-REG 04 [discriminante] Erro de cleanup na fronteira
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'Waiting failed: 4000ms integral scroll deadline exceeded'
+- 'cleanup protocol crash at boundary'
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:307:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:293:1
+❌ W4-REG 05 [discriminante] Dispose síncrono do controller com throw
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:329:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:315:1
+❌ W4-REG 06 [discriminante] Dispose assíncrono do controller com rejection
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:358:12
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:353:3
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:349:1
+❌ W4-REG 07 [discriminante] Dispose síncrono do polling com throw
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+2 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:381:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:371:1
+❌ W4-REG 08 [discriminante] Dispose assíncrono do polling com rejection
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+2 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:398:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:388:1
+❌ W4-REG 09 [discriminante] Callback tardio pós-settlement com throw em ambos disposers
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:419:12
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:414:3
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:405:1
+❌ W4-REG 10 [discriminante] Timeout durante prepare
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- 3976
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:462:12
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:456:3
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:452:1
+❌ W4-REG 11 [discriminante] Timeout durante polling
+TypeError: Cannot read properties of undefined (reading 'settled')
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:486:45
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:480:3
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:476:1
+❌ W4-REG 12 [discriminante] Timeout durante cleanup
+TypeError: Cannot read properties of undefined (reading 'includes')
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:506:51
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:501:3
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:497:1
+❌ W4-REG 13 [regressao_comportamento_ja_correto] Dispose concorrente com timeout (idempotente sem duplo dispose)
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:528:12
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:522:3
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:518:1
+❌ W4-REG 14 [discriminante] Cleanup parcial interrompido e idempotência inerte no renderer
+TypeError: Cannot read properties of null (reading '0')
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:551:112
+    at runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:23)
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:540:7
+❌ W4-REG 15 [regressao_comportamento_ja_correto] Cleanup/dispose repetido (idempotência)
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:601:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:585:1
+❌ W4-REG 16 [discriminante] Operação antiga resolve após expiração (descarte obrigatório nas 5 fases)
+AssertionError [ERR_ASSERTION]: controller precisa ser descartado após expiração em prepare
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:625:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:607:1
+❌ W4-REG 17 [discriminante] Operação antiga não inicia a próxima etapa após expiração
+AssertionError [ERR_ASSERTION]: dispose deve ocorrer após expiração em prepare
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:661:14
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:636:1
+✅ W4-REG 18 [regressao_comportamento_ja_correto] Ausência de clique tardio {"clicks":0}
+✅ W4-REG 19 [regressao_comportamento_ja_correto] Ausência de mutação tardia {"lateEffects":0,"references":0,"listeners":0}
+❌ W4-REG 20 [discriminante] Ausência de unhandled rejection e métricas temporais separadas W4
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- 3976
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:720:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:179:17)
+    at async file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:709:1
+
+W4 REGRESSIONS — 2/20; 20 casos obrigatórios (16 discriminantes, 4 regressões de comportamento já correto; modelo/protocolo, NÃO Chromium).
+
+VALIDATION RUN exit=1 seconds=0.115642 watchdog=False

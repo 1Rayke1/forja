@@ -1,0 +1,56 @@
+{
+  "name": "08b-green-w3-browser",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-w3-regressions.browser.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T00:27:53.977113+00:00",
+  "finishedAtUtc": "2026-11-19T00:28:11.256972+00:00",
+  "elapsedSeconds": 17.279807,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.browser.mjs": "db7e130fdaea9dcf297b3c6e2a98c64baabef8c96d2f0848fb0212dd9537ef83",
+    "tests/browser-interaction-w3-regressions.test.mjs": "85ae5f4660cdc282431bdfcd721c1a911afe93399b29c318d5477c50af3ab686"
+  },
+  "sourceFingerprintBefore": "007d5ed0e243f338f0ff083ec0a90b5203d5fbda27c03481436969788d3bc2f9",
+  "sourceFingerprintAfter": "007d5ed0e243f338f0ff083ec0a90b5203d5fbda27c03481436969788d3bc2f9",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 6,
+    "failedCaseMarkers": 0,
+    "summaries": [
+      "W3 CHROMIUM REGRESSIONS — 6/6; Chromium real Blink ON/OFF."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 2,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/08b-green-w3-browser.log",
+  "logSha256": "f86ff152851368864d961aeed2e7c8cf5ff78f5af140e1b88f8af0df33e6c51f",
+  "policyLog": "logs/08b-green-w3-browser.policy.jsonl",
+  "policyLogSha256": "7d3ca9f079d369b0d08e163f081a5f4cada00aebb513c178e3b67f1fdcee9ec4",
+  "browserLog": "logs/08b-green-w3-browser.browser.jsonl",
+  "browserLogSha256": "b068be906c8c81753edda0b2decfb793dcca8f43a658f654f2fb77c2512fd6bb"
+}

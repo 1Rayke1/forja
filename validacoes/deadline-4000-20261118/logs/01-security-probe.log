@@ -1,0 +1,59 @@
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+ErrorEvent {
+  [Symbol(kTarget)]: WebSocket {
+    _events: [Object: null prototype] {
+      open: [Function: onOpen] {
+        [Symbol(kIsForOnEventAttribute)]: false,
+        [Symbol(kListener)]: [Function (anonymous)]
+      },
+      error: [Function: onError] {
+        [Symbol(kIsForOnEventAttribute)]: false,
+        [Symbol(kListener)]: [Function (anonymous)]
+      }
+    },
+    _eventsCount: 2,
+    _maxListeners: undefined,
+    _binaryType: 'nodebuffer',
+    _closeCode: 1006,
+    _closeFrameReceived: false,
+    _closeFrameSent: false,
+    _closeMessage: Buffer(0) [Uint8Array] [],
+    _closeTimer: null,
+    _errorEmitted: true,
+    _extensions: {},
+    _paused: false,
+    _protocol: '',
+    _readyState: 3,
+    _receiver: null,
+    _sender: null,
+    _socket: null,
+    _bufferedAmount: 0,
+    _isServer: false,
+    _redirects: 0,
+    _autoPong: true,
+    _closeTimeout: 30000,
+    _url: 'ws://127.0.0.1:33401/devtools/browser/26f1c2e0-aa22-495a-8340-d9b3a29c3955',
+    _originalIpc: false,
+    _originalSecure: false,
+    _originalHostOrSocketPath: '127.0.0.1:33401',
+    _req: null,
+    [Symbol(shapeMode)]: false,
+    [Symbol(kCapture)]: false
+  },
+  [Symbol(kType)]: 'error',
+  [Symbol(kError)]: Error: socket hang up
+      at Socket.socketOnEnd (node:_http_client:599:25)
+      at Socket.emit (node:events:531:35)
+      at endReadableNT (node:internal/streams/readable:1698:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+    code: 'ECONNRESET'
+  },
+  [Symbol(kMessage)]: 'socket hang up'
+}
+
+Node.js v22.22.3
+
+VALIDATION RUN exit=1 seconds=0.267853 watchdog=False

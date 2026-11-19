@@ -16,17 +16,26 @@ concurrency:
 
 jobs:
   deploy:
+    # Mesmo um disparo manual em outra branch não pode publicar um preview em produção.
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Setup Pages
         uses: actions/configure-pages@v5
       # Publica somente o app: testes, ferramentas, docs internos, protótipos,
       # capturas e dados de geração continuam no repositório, fora do site.
       - name: Montar artefato do site
+        env:
+          FORJA_SUPABASE_URL: ${{ vars.FORJA_SUPABASE_URL }}
+          FORJA_SUPABASE_ANON_KEY: ${{ vars.FORJA_SUPABASE_ANON_KEY }}
         run: bash tools/preparar-site.sh site-publicado
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

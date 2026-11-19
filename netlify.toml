@@ -1,3 +1,10 @@
+[build]
+  command = "bash tools/preparar-site.sh .site-publish"
+  publish = ".site-publish"
+
+[build.environment]
+  NODE_VERSION = "22"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"

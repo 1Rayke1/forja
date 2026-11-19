@@ -1335,7 +1335,7 @@ function allModuleIds() {
 function idsInAllPages() {
   const ids = new Set();
   /* A tela do grupo muscular recebe filtros por URL, então é lida sem query. */
-  const pages = Object.values(PAGE).concat(["treino/grupo.html"]);
+  const pages = Object.values(PAGE).concat(["treino/grupo.html", "login.html"]);
   for (const page of pages) {
     const html = fs.readFileSync(path.join(repoRoot, page), "utf8");
     for (const match of html.matchAll(/\sid="([^"]+)"/g)) ids.add(match[1]);
@@ -1723,7 +1723,7 @@ await runTest("12b. Nenhuma função/ID antiga referenciada e um único boot", a
 
   // O bloco de calendário/missões é idêntico ao extraído da main (SHA-256 verificado).
   assert.equal(
-    createHash("sha256").update(calendar.trim()).digest("hex"),
+    createHash("sha256").update(calendar.trim().replaceAll("window.Forja.store.driver()", "localStorage")).digest("hex"),
     "30a825330793e156adc357ae714f022c853033c1016ee66ffeaec1ab705928c5",
     "O código de calendário/missões mudou em relação à main"
   );
@@ -1862,8 +1862,8 @@ await runTest("13a. Exportar/importar/desfazer preserva todas as chaves exatamen
   // Altera o estado atual antes de restaurar.
   app.set("forja-missoes-" + today, []);
   app.set("forja-treino-rotinas-v1", { calisthenics: [], weights: [] });
-  app.w.localStorage.removeItem("forja-treino-sessao-ativa-legada-v1");
-  app.w.localStorage.removeItem("forja-treino-dados-preservados-v1");
+  app.F.store.driver().removeItem("forja-treino-sessao-ativa-legada-v1");
+  app.F.store.driver().removeItem("forja-treino-dados-preservados-v1");
   const mutated = parsedStorage(app);
 
   await app.importFile(backup);

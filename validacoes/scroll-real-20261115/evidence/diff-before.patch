@@ -1,0 +1,3712 @@
+diff --git a/.env.example b/.env.example
+index 30dc26f..3f8d8e6 100644
+--- a/.env.example
++++ b/.env.example
+@@ -1,11 +1,12 @@
+-# FORJA — variáveis de ambiente do BACKEND (Netlify Functions).
++# FORJA — ambiente do BACKEND e configuração PÚBLICA do build (ao final).
+ #
+-# Copie este arquivo para `.env` (somente fora do Git; `.env*` está no
+-# .gitignore) para desenvolvimento local com `netlify dev`, ou cadastre as
+-# variáveis no painel do provedor de hospedagem para o deploy.
++# Copie este arquivo para `.env` (fora do Git; `.env*` está no .gitignore)
++# com `netlify dev`, ou cadastre as variáveis no provedor de hospedagem.
++# `npm run build` exige variáveis exportadas no ambiente; não carrega .env.
+ #
+-# NUNCA copie uma chave real para dentro deste arquivo versionado, nem para
+-# qualquer arquivo de `assets/js/` (JavaScript público).
++# NUNCA copie valores reais para este modelo versionado. Segredos privados
++# nunca podem entrar no frontend. Somente FORJA_SUPABASE_URL e uma chave
++# publishable/anon pública são injetadas em assets/js/ no ARTEFATO gerado.
+ 
+ # Obrigatória para a busca de vídeos no modal "Procurar vídeo".
+ # Restrinja a chave no Google Cloud à YouTube Data API v3 (e, se possível,
+@@ -29,3 +30,8 @@ YOUTUBE_API_KEY=
+ # Administração persistente do catálogo central (youtube-videos).
+ # FORJA_ADMIN_CREDENTIAL=
+ # YOUTUBE_DAILY_SEARCH_LIMIT=80
++
++# Valores PÚBLICOS do frontend. A chave real só no ambiente/Repository Variables.
++# Nunca usar Client Secret, service_role ou sb_secret.
++FORJA_SUPABASE_URL=https://abundydxjclcgonctirx.supabase.co
++FORJA_SUPABASE_ANON_KEY=
+diff --git a/.github/workflows/static.yml b/.github/workflows/static.yml
+index 09ff308..b4bdcbc 100644
+--- a/.github/workflows/static.yml
++++ b/.github/workflows/static.yml
+@@ -16,17 +16,26 @@ concurrency:
+ 
+ jobs:
+   deploy:
++    # Mesmo um disparo manual em outra branch não pode publicar um preview em produção.
++    if: github.ref == 'refs/heads/main'
+     environment:
+       name: github-pages
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout
+         uses: actions/checkout@v4
++      - name: Setup Node
++        uses: actions/setup-node@v4
++        with:
++          node-version: '22'
+       - name: Setup Pages
+         uses: actions/configure-pages@v5
+       # Publica somente o app: testes, ferramentas, docs internos, protótipos,
+       # capturas e dados de geração continuam no repositório, fora do site.
+       - name: Montar artefato do site
++        env:
++          FORJA_SUPABASE_URL: ${{ vars.FORJA_SUPABASE_URL }}
++          FORJA_SUPABASE_ANON_KEY: ${{ vars.FORJA_SUPABASE_ANON_KEY }}
+         run: bash tools/preparar-site.sh site-publicado
+       - name: Upload artifact
+         uses: actions/upload-pages-artifact@v3
+diff --git a/.gitignore b/.gitignore
+index 4fe1390..4eb2f58 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -11,3 +11,6 @@ node_modules/
+ 
+ # Artefato local do GitHub Pages; gerado por tools/preparar-site.sh.
+ .site-publish/
++
++# Referências de reconstrução, logs e capturas locais.
++.cache/
+diff --git a/README.md b/README.md
+index 717ec59..83805ab 100644
+--- a/README.md
++++ b/README.md
+@@ -1,22 +1,48 @@
+ # FORJA
+ 
+-Aplicativo estático de treinos, calendário e missões. Funciona sem build,
+-sem backend e sem conta: os dados ficam no `localStorage` do navegador.
+-Publicável diretamente no GitHub Pages (inclusive sob `/forja/`). O perfil guiado é obrigatório para entrar nas páginas do app; o onboarding e o plano local não exigem backend. As integrações opcionais de IA real e da busca de vídeos do YouTube usam as Netlify Functions (veja `docs/planejamento-inteligente.md`, `docs/videos-youtube.md` e `docs/backend-e-cors.md`): em produção o frontend resolve automaticamente os endpoints da Netlify, tanto no site dela quanto no GitHub Pages.
++Aplicativo estático multipágina de treinos, calendário e missões, com acesso
++**obrigatório por Google via Supabase Auth** (PKCE). Não há senha própria,
++modo visitante nem autenticação anônima. O perfil guiado continua obrigatório.
++
++Os dados de uso diário ficam no `localStorage`, separados pelo UID verificado.
++Uma **cópia inicial verificável** é enviada ao Supabase; não há sincronização
++contínua nem restauração automática entre aparelhos. Continue exportando backups.
++O isolamento remoto depende do JWT do usuário e do RLS existente, não do guard
++da interface. HTML/JS estáticos são públicos; armazenamento local não é criptografia.
++
++GitHub Pages sob `/forja/` e Netlify continuam suportados. O preparo do artefato
++injeta somente a configuração pública por variáveis de ambiente. Confira
++[`docs/autenticacao-google.md`](docs/autenticacao-google.md) para variáveis,
++redirects, recuperação e homologação manual, e
++[`docs/entrega-google-auth.md`](docs/entrega-google-auth.md) para a entrega/testes.
+ 
+ ## Executar
+ 
++Requer Node.js **22 ou superior**. Configure no ambiente (não em arquivos
++versionados) `FORJA_SUPABASE_URL` e `FORJA_SUPABASE_ANON_KEY`, conforme
++`.env.example`. A chave deve ser **publishable/anon**, nunca uma chave privada.
++O build não carrega `.env` automaticamente: disponibilize as variáveis pelo seu
++shell ou pelo provedor de hospedagem.
++
+ ```sh
+-npm install
+-npm run serve          # http://127.0.0.1:8080/
+-npm test               # métricas, forja, onboarding, atlas, paridade, demonstrações, vídeos e proxy YouTube
+-npm run test:e2e       # Chromium real, servindo o repo sob /forja/
++npm ci
++npm run build           # gera .site-publish com configuração pública; falha se ausente/inválida
++npm run serve           # http://localhost:8080/ — serve apenas .site-publish, não o repositório
++npm test                # regressão + Auth/config: SDK real, serviços simulados; zero SQL
++npm run test:auth:e2e    # Chromium: login, sessão, contas, legado e recuperação simulados
++npm run test:e2e         # Chromium: regressão multipágina sob /forja/, Auth HTTP simulado
+ ```
+ 
+-A pesquisa de vídeos por API exige backend (Netlify Functions) e a variável
+-`YOUTUBE_API_KEY` no ambiente privado — veja `.env.example` e
+-[`docs/videos-youtube.md`](docs/videos-youtube.md). Sem backend, o app continua
+-funcionando com os vídeos oficiais e as ilustrações de referência.
++Os testes não precisam de credenciais reais e **não homologam Google nem RLS
++remotos**. O fonte mantém a chave vazia de propósito; abrir o repositório sem
++preparar a configuração não libera acesso. A publicação exige aprovação
++separada; não é feita pelos comandos de teste/build acima.
++
++IA real e pesquisa de vídeos por API continuam opcionais e usam Netlify
++Functions (veja `docs/planejamento-inteligente.md`, `docs/videos-youtube.md` e
++`docs/backend-e-cors.md`). A pesquisa requer `YOUTUBE_API_KEY` no ambiente
++privado do backend, nunca no frontend. Sem essas Functions, após autenticar com
++Google, o app mantém o plano local, os vídeos oficiais e as ilustrações.
+ 
+ ## Ilustrações de exercícios
+ 
+@@ -99,6 +125,8 @@ Blender/Cycles a partir do personagem 3D masculino — dois do piloto abdominal
+ 
+ ## Documentação
+ 
++- `docs/autenticacao-google.md` — Google/PKCE, configuração pública, redirects, isolamento e recuperação sem SQL.
++- `docs/entrega-google-auth.md` — escopo reconstruído da main, arquivos, resultados dos testes e pendências reais.
+ - `docs/videos-youtube.md` — vídeos de demonstração, pesquisa via YouTube Data API v3, segurança da chave, exclusão de Shorts e quota.
+ - `docs/forja-rotinas-e-backup.md` — formato de dados, migração e backup JSON.
+ - `docs/catalogo-exercicios.md` — catálogo central, critérios editoriais, distribuição e compatibilidade de IDs.
+diff --git a/admin/exercicios.html b/admin/exercicios.html
+index cafc1ee..adadd90 100644
+--- a/admin/exercicios.html
++++ b/admin/exercicios.html
+@@ -1,19 +1,32 @@
+ <!doctype html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width,initial-scale=1">
+   <meta name="robots" content="noindex,nofollow,noarchive">
+-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.ytimg.com; frame-src https://www.youtube-nocookie.com; connect-src 'self' https://prismatic-parfait-be3644.netlify.app; base-uri 'none'; form-action 'self'">
++  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.ytimg.com; frame-src https://www.youtube-nocookie.com; connect-src 'self' https://abundydxjclcgonctirx.supabase.co https://prismatic-parfait-be3644.netlify.app; base-uri 'none'; form-action 'self'">
+   <title>FORJA — Administração de demonstrações</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+   <link rel="stylesheet" href="../assets/css/admin-exercicios.css">
+ </head>
+-<body>
++<body data-page="admin" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+   <header class="admin-header">
+     <div><span class="brand">FORJA</span><h1>Demonstrações dos exercícios</h1></div>
+-    <a href="../treino/biblioteca.html">Ver biblioteca pública</a>
++    <a href="../treino/biblioteca.html">Voltar à biblioteca</a>
+   </header>
+-  <main>
++  <main id="conteudo">
+     <section class="panel auth-panel" aria-labelledby="auth-title">
+       <div><h2 id="auth-title">Sessão administrativa</h2><p>A credencial fica somente na memória desta aba e é enviada por HTTPS. Não é salva no navegador.</p></div>
+       <form id="auth-form"><label>Credencial administrativa<input id="admin-credential" type="password" required maxlength="512" autocomplete="off"></label><button class="primary" type="submit">Iniciar sessão</button></form>
+@@ -68,6 +81,10 @@
+ 
+     <section class="panel" aria-labelledby="missing-title"><h2 id="missing-title">Exercícios sem demonstração aprovada</h2><div id="missing-list" class="missing-list"><p>Inicie a sessão para consultar.</p></div></section>
+   </main>
++  <script src="../assets/js/forja-core.js"></script>
++  <script src="../assets/js/forja-supabase-config.js"></script>
++  <script src="../assets/vendor/supabase/supabase.js"></script>
++  <script src="../assets/js/forja-auth.js"></script>
+   <script src="../assets/js/forja-exercicios-dados.js"></script>
+   <script src="../assets/js/forja-catalogo-central.js"></script>
+   <script src="../assets/js/admin-exercicios.js"></script>
+diff --git a/assets/js/admin-exercicios.js b/assets/js/admin-exercicios.js
+index 7192d86..daab2c4 100644
+--- a/assets/js/admin-exercicios.js
++++ b/assets/js/admin-exercicios.js
+@@ -1,5 +1,27 @@
+ (function () {
+   "use strict";
++  const F = window.Forja;
++  let bootWork = null, initializedUid = null;
++  async function boot(retry) {
++    if (bootWork) return bootWork;
++    bootWork = (async () => {
++      const googleUser = await (retry ? F.auth.revalidate() : F.auth.init());
++      if (!googleUser || !F.auth.isVerified(googleUser.id)) return;
++      if (initializedUid && initializedUid !== googleUser.id) {
++        // Nunca reutilizar closures/credencial administrativa de outra conta.
++        F.navigate(location.href); return;
++      }
++      if (!initializedUid) { initializeAdmin(googleUser); initializedUid = googleUser.id; }
++      if (F.auth.isVerified(googleUser.id)) F.auth.unlock(googleUser.id);
++    })().catch(() => {
++      F.auth.gate("A administração não pôde ser iniciada. Confira a conexão e tente novamente.", true);
++    }).finally(() => { bootWork = null; });
++    return bootWork;
++  }
++  F.retryBoot = () => boot(true);
++  void boot(false);
++
++  function initializeAdmin(googleUser) {
+   const catalog = window.Forja.exerciseCatalog;
+   const API_URL = /(^|\.)netlify\.app$/.test(location.hostname)
+     ? "/.netlify/functions/youtube-videos"
+@@ -19,7 +41,9 @@
+   function status(message, isError) { const node = $("#operation-status"); node.textContent = message; node.style.color = isError ? "var(--danger)" : "var(--lime)"; }
+ 
+   async function request(action, body = {}) {
++    if (!window.Forja.auth.isVerified(googleUser.id)) throw new Error("Entre novamente com Google antes de administrar.");
+     if (!credential) throw new Error("Inicie uma sessão administrativa.");
++    const generation = F.auth.revision;
+     const response = await fetch(API_URL, {
+       method: "POST", credentials: "omit", referrerPolicy: "no-referrer",
+       headers: { "content-type": "application/json", authorization: "Bearer " + credential, accept: "application/json" },
+@@ -27,6 +51,9 @@
+     });
+     let payload;
+     try { payload = await response.json(); } catch (_) { payload = { error: "Resposta inválida do backend." }; }
++    if (generation !== F.auth.revision || !F.auth.isVerified(googleUser.id)) {
++      throw new Error("A sessão mudou durante a operação. Entre novamente antes de administrar.");
++    }
+     if (!response.ok) {
+       if (response.status === 401) { credential = null; setAuthenticated(false); }
+       throw new Error(payload.error || "Operação administrativa não concluída.");
+@@ -178,4 +205,5 @@
+   catalog.muscleGroups.forEach(group => $("#muscle-filter").append(new Option(group.name, group.id)));
+   catalog.modalities.forEach(mode => $("#modality-filter").append(new Option(mode.name, mode.id)));
+   renderExercises(); setAuthenticated(false);
++  }
+ })();
+diff --git a/assets/js/forja-app.js b/assets/js/forja-app.js
+index a77e857..b9a791f 100644
+--- a/assets/js/forja-app.js
++++ b/assets/js/forja-app.js
+@@ -1,7 +1,7 @@
+ /*
+   FORJA — inicialização comum de todas as páginas.
+ 
+-  Ordem: dados (uma leitura por página) → módulo da página → avisos.
++  Ordem: Google verificado → dados da conta → modelos existentes → página → avisos.
+   Existe um único intervalo de atualização (F.workoutTick), criado aqui.
+   Os tempos são calculados a partir de timestamps; o intervalo só redesenha.
+ */
+@@ -41,7 +41,29 @@
+     }
+   }
+ 
+-  function boot() {
++  let booted = false;
++  let bootWork = null;
++  let resolveReady;
++  F.ready = new Promise(resolve => { resolveReady = resolve; });
++
++  async function retryChangedSession() {
++    await F.auth.revalidate();
++    if (F.auth.isVerified()) global.setTimeout(() => { void boot(true); }, 0);
++  }
++
++  async function bootPage(retry) {
++    if (booted) return F.auth.revalidate();
++    const actualUser = await (retry ? F.auth.revalidate() : F.auth.init());
++    if (!actualUser) return;
++    if (!F.auth.isVerified(actualUser.id)) { await retryChangedSession(); return; }
++    try {
++      await F.authData.bind(actualUser);
++    } catch (error) {
++      if (error.sessionChanged) { await retryChangedSession(); return; }
++      F.auth.gate(error.message || "Não foi possível preparar os dados. Os originais estão preservados.", true);
++      return;
++    }
++    if (!F.auth.isVerified(actualUser.id)) { await retryChangedSession(); return; }
+     prepareSkipTarget();
+     F.bootData();
+     if (typeof F.applyAppearance === "function") F.applyAppearance();
+@@ -56,10 +78,15 @@
+       saveProfile retornar sucesso.
+     */
+     if (name !== "onboarding" && !F.profileIsConfigured(F.state.profile)) {
++      F.auth.setReturn(F.auth.safeReturn(global.location.href) || "index.html");
+       F.navigate(F.url("onboarding"));
++      resolveReady({ redirected: true });
+       return;
+     }
+ 
++    if (name !== "onboarding") F.auth.clearReturn();
++    if (!F.auth.unlock(actualUser.id)) return;
++    booted = true;
+     const init = F.pages[name];
+ 
+     if (typeof init === "function") {
+@@ -75,17 +102,28 @@
+     showFlash();
+     showBootNotices();
+ 
+-    global.setInterval(F.workoutTick, TICK_MS);
++    function workoutTick() { if (F.auth.canWrite()) F.workoutTick(); }
++    global.setInterval(workoutTick, TICK_MS);
++    resolveReady({ userId: actualUser.id });
++    void F.authData.runInitialCopy();
+ 
+     doc.addEventListener("visibilitychange", () => {
+-      if (!doc.hidden) refreshAfterVisibility();
++      if (!doc.hidden && F.auth.canWrite()) refreshAfterVisibility();
+     });
+ 
+     global.addEventListener("pageshow", event => {
+-      if (event.persisted) refreshAfterVisibility();
++      if (event.persisted && F.auth.canWrite()) refreshAfterVisibility();
+     });
+   }
+ 
++  function boot(retry) {
++    if (!bootWork) bootWork = bootPage(retry === true).catch(() => {
++      F.auth.gate("A página não pôde ser iniciada com segurança. Recarregue; os dados locais foram preservados.", true);
++    }).finally(() => { bootWork = null; });
++    return bootWork;
++  }
++  F.retryBoot = () => boot(true);
++
+   if (doc.readyState === "loading") {
+     doc.addEventListener("DOMContentLoaded", boot);
+   } else {
+diff --git a/assets/js/forja-backup.js b/assets/js/forja-backup.js
+index 97dbea9..371abac 100644
+--- a/assets/js/forja-backup.js
++++ b/assets/js/forja-backup.js
+@@ -46,7 +46,7 @@ function getForjaStorageKeys(includeSafety = false) {
+     throw new Error("Não foi possível ler o armazenamento do navegador.");
+   }
+ 
+-  return F.store.keys().filter(key => includeSafety || key !== KEYS.safety);
++  return F.store.keys().filter(key => (!F.isAccountDataKey || F.isAccountDataKey(key)) && (includeSafety || key !== KEYS.safety));
+ }
+ 
+ /*
+@@ -54,6 +54,9 @@ function getForjaStorageKeys(includeSafety = false) {
+   do boot): importação e boot aceitam exatamente o mesmo conjunto de dados.
+ */
+ function validateBackupEntry(key, value) {
++  if (F.isAccountDataKey && !F.isAccountDataKey(key)) {
++    throw new Error("O backup contém uma chave privada de autenticação ou de outra conta.");
++  }
+   if (key === KEYS.safety) {
+     throw new Error("O backup contém uma chave interna de segurança que não deve ser importada.");
+   }
+@@ -956,7 +959,7 @@ function updateBackupStatus() {
+   if (!status || !undoButton) return;
+ 
+   const parts = [
+-    "Seus dados permanecem apenas neste navegador. Faça backups regulares."
++    "Seus dados de uso diário permanecem apenas neste navegador. A cópia inicial não é backup contínuo. Faça backups regulares."
+   ];
+ 
+   if (lastExportAt) {
+diff --git a/assets/js/forja-calendario.js b/assets/js/forja-calendario.js
+index 15e2bd4..c073c4c 100644
+--- a/assets/js/forja-calendario.js
++++ b/assets/js/forja-calendario.js
+@@ -28,7 +28,7 @@ function readTasks(date) {
+   const key = "forja-missoes-" + dateKey(date);
+ 
+   try {
+-    const saved = localStorage.getItem(key);
++    const saved = window.Forja.store.driver().getItem(key);
+     if (!saved) return [];
+ 
+     const parsed = JSON.parse(saved);
+@@ -56,7 +56,7 @@ function readTasks(date) {
+ 
+ function saveTasks(date, tasks) {
+   try {
+-    localStorage.setItem(
++    window.Forja.store.driver().setItem(
+       "forja-missoes-" + dateKey(date),
+       JSON.stringify(tasks)
+     );
+diff --git a/assets/js/forja-configuracoes.js b/assets/js/forja-configuracoes.js
+index 7104a33..0a31d9f 100644
+--- a/assets/js/forja-configuracoes.js
++++ b/assets/js/forja-configuracoes.js
+@@ -258,11 +258,41 @@
+     }
+   }
+ 
++  function renderAccount() {
++    const account = F.auth && F.auth.user;
++    const email = byId("account-email");
++    if (email) email.textContent = account ? account.email : "Sessão não validada.";
++    const status = byId("initial-copy-status");
++    const retry = byId("initial-copy-retry");
++    if (!status || !F.authData) return;
++    const copy = F.authData.copyStatus;
++    const messages = {
++      pending: "Cópia inicial pendente. Os dados locais estão preservados.",
++      sending: "Enviando e conferindo a cópia inicial…",
++      confirmed: "Cópia inicial conferida no Supabase. Não há sincronização contínua.",
++      error: copy.message
++    };
++    status.textContent = messages[copy.state] || messages.pending;
++    if (retry) { retry.hidden = copy.state === "confirmed"; retry.disabled = copy.state === "sending" || !account; }
++  }
++  global.addEventListener("forja:copy", renderAccount);
++  global.addEventListener("forja:auth", renderAccount);
++
+   let initialized = false;
+ 
+   function initSettings() {
+     if (initialized) return;
+     initialized = true;
++    renderAccount();
++    const logout = byId("account-signout");
++    if (logout) logout.addEventListener("click", async () => {
++      if (logout.disabled) return;
++      logout.disabled = true;
++      try { await F.auth.signOut(); }
++      finally { logout.disabled = false; }
++    });
++    const retryCopy = byId("initial-copy-retry");
++    if (retryCopy) retryCopy.addEventListener("click", () => { void F.authData.runInitialCopy(); });
+     hydrateIcons(doc);
+     renderProfileSummary();
+     renderAppearance();
+diff --git a/assets/js/forja-core.js b/assets/js/forja-core.js
+index 9b32424..1ffcf43 100644
+--- a/assets/js/forja-core.js
++++ b/assets/js/forja-core.js
+@@ -19,6 +19,7 @@
+   /* Rotas (relativas à raiz do site; cada página informa seu data-root). */
+   F.ROUTES = Object.freeze({
+     inicio: "index.html",
++    login: "login.html",
+     treino: "treino/index.html",
+     calistenia: "treino/calistenia.html",
+     musculacao: "treino/musculacao.html",
+@@ -705,10 +706,15 @@
+     anchor.remove();
+   };
+ 
++  /* Mensagens/rascunhos também são separados por UID depois da autenticação. */
++  F.tabStorage = function tabStorage() {
++    return F.authData ? F.authData.session : global.sessionStorage;
++  };
++
+   /* Mensagens que sobrevivem à navegação para outra página (sessionStorage). */
+   F.flash = function flash(message, tone = "info") {
+     try {
+-      global.sessionStorage.setItem("forja-flash", JSON.stringify({
++      F.tabStorage().setItem("forja-flash", JSON.stringify({
+         message: String(message),
+         tone
+       }));
+@@ -721,8 +727,8 @@
+     let raw = null;
+ 
+     try {
+-      raw = global.sessionStorage.getItem("forja-flash");
+-      global.sessionStorage.removeItem("forja-flash");
++      raw = F.tabStorage().getItem("forja-flash");
++      F.tabStorage().removeItem("forja-flash");
+     } catch (error) {
+       return null;
+     }
+diff --git a/assets/js/forja-onboarding.js b/assets/js/forja-onboarding.js
+index ff7247e..e05cdbe 100644
+--- a/assets/js/forja-onboarding.js
++++ b/assets/js/forja-onboarding.js
+@@ -669,7 +669,7 @@
+ 
+   function lerRascunho() {
+     try {
+-      const raw = global.sessionStorage.getItem(DRAFT_KEY);
++      const raw = F.tabStorage().getItem(DRAFT_KEY);
+       if (!raw) return null;
+       const value = JSON.parse(raw);
+       if (!F.isPlainObject(value) || !F.isPlainObject(value.respostas)) return null;
+@@ -695,7 +695,7 @@
+ 
+   function gravarRascunho(state) {
+     try {
+-      global.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
++      F.tabStorage().setItem(DRAFT_KEY, JSON.stringify({
+         versao: DRAFT_VERSION,
+         passo: state.passo,
+         respostas: state.respostas,
+@@ -714,7 +714,7 @@
+ 
+   function apagarRascunho() {
+     try {
+-      global.sessionStorage.removeItem(DRAFT_KEY);
++      F.tabStorage().removeItem(DRAFT_KEY);
+     } catch (error) {
+       /* Nada a fazer: a chave simplesmente fica. */
+     }
+@@ -1514,7 +1514,7 @@
+ 
+     /* Perfil concluído não repete o onboarding em visitas comuns. */
+     if (F.profileIsConfigured(F.state.profile) && !documentoQuerRefazer()) {
+-      F.navigate(F.url("inicio"));
++      F.navigate(F.auth ? F.auth.resumeUrl(true) : F.url("inicio"));
+       return;
+     }
+ 
+@@ -1696,7 +1696,7 @@
+           : "Perfil salvo. As metas semanais não puderam ser criadas — configure em Progresso.",
+         metasSalvas ? "info" : "error"
+       );
+-      F.navigate(F.url("inicio"));
++      F.navigate(F.auth ? F.auth.resumeUrl(true) : F.url("inicio"));
+     }
+ 
+     form.addEventListener("submit", event => {
+diff --git a/assets/js/forja-plano.js b/assets/js/forja-plano.js
+index a95710c..f96931f 100644
+--- a/assets/js/forja-plano.js
++++ b/assets/js/forja-plano.js
+@@ -23,13 +23,13 @@
+ 
+   function readPlan() {
+     try {
+-      const value = JSON.parse(global.localStorage.getItem(PLAN_KEY) || "null");
++      const value = JSON.parse(F.store.driver().getItem(PLAN_KEY) || "null");
+       return F.isPlainObject(value) && value.version === 1 && Array.isArray(value.sessions) ? value : null;
+     } catch (_) { return null; }
+   }
+ 
+   function writePlan(plan) {
+-    try { global.localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); return true; }
++    try { F.store.driver().setItem(PLAN_KEY, JSON.stringify(plan)); return true; }
+     catch (_) { return false; }
+   }
+ 
+@@ -335,9 +335,9 @@
+     oldTasks.forEach(item => {
+       try {
+         const key = "forja-missoes-" + item.date;
+-        const current = JSON.parse(global.localStorage.getItem(key) || "[]");
++        const current = JSON.parse(F.store.driver().getItem(key) || "[]");
+         const updated = current.filter(task => !(task && task.id === item.id && !task.done && !task.completed));
+-        if (updated.length !== current.length) global.localStorage.setItem(key, JSON.stringify(updated));
++        if (updated.length !== current.length) F.store.driver().setItem(key, JSON.stringify(updated));
+       } catch (_) { /* calendário antigo/corrompido permanece intacto */ }
+     });
+     const dates = nextDates(next.sessions);
+@@ -347,11 +347,11 @@
+       const id = next.id + "-" + session.id;
+       const key = "forja-missoes-" + dateText;
+       let tasks = [];
+-      try { tasks = JSON.parse(global.localStorage.getItem(key) || "[]"); if (!Array.isArray(tasks)) tasks = []; }
++      try { tasks = JSON.parse(F.store.driver().getItem(key) || "[]"); if (!Array.isArray(tasks)) tasks = []; }
+       catch (_) { tasks = []; }
+       if (!tasks.some(task => task && task.id === id)) {
+         tasks.push({ id, text: "Treino FORJA · " + session.title, done: false });
+-        global.localStorage.setItem(key, JSON.stringify(tasks));
++        F.store.driver().setItem(key, JSON.stringify(tasks));
+       }
+       session.scheduleDate = dateText;
+       refs.push({ date: dateText, id });
+@@ -403,7 +403,7 @@
+     /* As escolhas deste planejador são próprias; não sobrescrevem o perfil nem herdam suas metas. */
+     const fallback = Object.assign({}, DEFAULT_PREFERENCES);
+     try {
+-      const stored = JSON.parse(global.localStorage.getItem(PREFERENCES_KEY) || "null");
++      const stored = JSON.parse(F.store.driver().getItem(PREFERENCES_KEY) || "null");
+       const value = Object.assign({}, fallback, F.isPlainObject(stored) ? stored : {});
+       if (!["massa","emagrecer","condicionamento"].includes(value.goal)) value.goal = fallback.goal;
+       if (!["iniciante","intermediario","avancado"].includes(value.level)) value.level = fallback.level;
+@@ -415,7 +415,7 @@
+   }
+ 
+   function writePreferences(preferences) {
+-    try { global.localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences)); return true; }
++    try { F.store.driver().setItem(PREFERENCES_KEY, JSON.stringify(preferences)); return true; }
+     catch (_) { return false; }
+   }
+ 
+diff --git a/assets/js/forja-store.js b/assets/js/forja-store.js
+index 1492050..2bbec14 100644
+--- a/assets/js/forja-store.js
++++ b/assets/js/forja-store.js
+@@ -527,6 +527,7 @@
+       validada pela mesma regra que o boot usa.
+     */
+     validateKey(key, value) {
++      if (F.isAccountDataKey && !F.isAccountDataKey(key)) throw new Error("Chave privada não pode ser importada como dado do FORJA.");
+       if (MISSION_KEY_PATTERN.test(key)) {
+         return F.validateMissionList ? F.validateMissionList(key, value) : true;
+       }
+diff --git a/configuracoes/index.html b/configuracoes/index.html
+index 862f66d..e6e14fc 100644
+--- a/configuracoes/index.html
++++ b/configuracoes/index.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="theme-color" content="#080C0D">
+ <title>Configurações · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -21,6 +23,17 @@
+ </head>
+ 
+ <body data-page="configuracoes" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header settings-header">
+   <div class="container site-header-inner">
+@@ -57,6 +70,13 @@
+       <span class="settings-row-chevron ui-icon" data-icon="chevron-right" aria-hidden="true"></span>
+     </a>
+ 
++    <section class="settings-form-card" aria-labelledby="account-heading">
++      <h2 class="section-title" id="account-heading">Sua conta Google</h2>
++      <p id="account-email"></p>
++      <button class="secondary-button" id="account-signout" type="button">Sair da conta Google</button>
++      <p class="field-hint">Sair bloqueia o acesso. Os dados locais da conta não são apagados.</p>
++    </section>
++
+     <section class="settings-group" aria-labelledby="settings-group-profile">
+       <h2 class="settings-group-title" id="settings-group-profile">Perfil</h2>
+       <ul class="settings-list"><li><a id="settings-edit-profile" class="settings-row" href="#editar-perfil">
+@@ -235,8 +255,14 @@
+     <h2 class="ui-visually-hidden" id="privacy-heading">Privacidade e dados</h2>
+     <section class="settings-note" aria-labelledby="storage-heading">
+     <h2 class="section-title" id="storage-heading">Onde seus dados ficam</h2>
+-    <p>Os dados do FORJA ficam salvos apenas neste navegador. Eles não são sincronizados entre celular, computador ou outros navegadores. Para levar seus dados para outro aparelho, exporte um backup e importe-o lá.</p>
++    <p>Os dados de uso diário ficam neste navegador, separados por conta Google. Uma cópia inicial verificável é enviada ao Supabase. Não há sincronização contínua nem restauração automática entre aparelhos. Para levar seus dados para outro aparelho, exporte um backup e importe-o lá.</p>
+   </section>
++    <section class="settings-note" aria-labelledby="initial-copy-heading">
++      <h2 class="section-title" id="initial-copy-heading">Cópia inicial no Supabase</h2>
++      <p id="initial-copy-status" role="status" aria-live="polite">Aguardando conferência da cópia inicial.</p>
++      <button class="secondary-button" id="initial-copy-retry" type="button">Tentar cópia novamente</button>
++      <p class="field-hint">A confirmação só ocorre após reler e comparar o checksum no servidor. Isso não substitui backups regulares.</p>
++    </section>
+     <section class="backup-panel" aria-labelledby="backup-heading">
+     <h2 class="section-title" id="backup-heading">Seus dados</h2>
+     <p class="backup-description">
+@@ -251,7 +277,7 @@
+     </div>
+     <input type="file" id="import-backup-input" accept=".json,application/json" hidden>
+     <div class="backup-meta" id="backup-status">
+-      Seus dados permanecem apenas neste navegador. Faça backups regulares.
++      Seus dados de uso diário permanecem apenas neste navegador. A cópia inicial não é backup contínuo. Faça backups regulares.
+     </div>
+   </section>
+     <details class="settings-disclosure" id="settings-storage-audit">
+@@ -281,7 +307,7 @@
+     </details>
+     <details class="settings-disclosure">
+       <summary class="settings-disclosure-summary"><h3>Existe conta para sair ou senha para recuperar?</h3></summary>
+-      <div class="settings-disclosure-content"><p>Não. O FORJA funciona sem conta. “Sair das configurações” apenas volta ao Início e não apaga dados. Se limpar os dados do navegador, use um backup exportado anteriormente para restaurá-los.</p></div>
++      <div class="settings-disclosure-content"><p>Sim. O acesso exige Google. Use “Sair da conta Google” no início das Configurações para encerrar a sessão; seus dados locais são preservados. “Sair das configurações” apenas volta ao Início. A recuperação de acesso é feita no Google, sem senha própria no FORJA. Se limpar o navegador, restaure um backup JSON exportado: não há restauração remota automática.</p></div>
+     </details>
+     <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
+   </section>
+@@ -305,7 +331,7 @@
+       <h2 class="screen-title" id="about-heading">FORJA</h2>
+       <p class="settings-version" id="settings-version">Versão 2.0.0</p>
+       <p class="settings-description">Disciplina diária: calendário, missões e treinos com rotinas A/B/C. Menos promessas. Mais ação.</p>
+-      <p class="field-hint">App local, sem conta e sem sincronização automática. Seus dados pertencem a você e ficam neste navegador.</p>
++      <p class="field-hint">Acesso obrigatório por Google. Dados de uso diário locais por conta, com cópia inicial no Supabase e sem sincronização contínua.</p>
+     </div>
+     <details class="settings-disclosure credits-panel" id="creditos-imagens" aria-labelledby="creditos-imagens-heading">
+ <summary class="settings-disclosure-summary"><h2 class="section-title" id="creditos-imagens-heading">Créditos e licenças das ilustrações</h2></summary>
+@@ -416,7 +442,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -425,7 +451,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/exercicio/index.html b/exercicio/index.html
+index 4a2f9ad..b02386f 100644
+--- a/exercicio/index.html
++++ b/exercicio/index.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#121010">
+ <title>Exercício · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -21,6 +23,17 @@
+ </head>
+ 
+ <body data-page="exercicio" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ 
+ <header class="site-header">
+@@ -106,7 +119,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -115,7 +128,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+ <script src="../assets/js/forja-catalogo-central.js" defer></script>
+diff --git a/explorar/atlas.html b/explorar/atlas.html
+index 24e7ea1..68229e8 100644
+--- a/explorar/atlas.html
++++ b/explorar/atlas.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#101010">
+ <title>Atlas muscular · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -19,6 +21,17 @@
+ </head>
+ 
+ <body data-page="atlas" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner">
+@@ -87,7 +100,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -96,7 +109,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/explorar/index.html b/explorar/index.html
+index 7c700da..23de492 100644
+--- a/explorar/index.html
++++ b/explorar/index.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#101010">
+ <title>Descobrir · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -20,6 +22,17 @@
+ </head>
+ 
+ <body data-page="explorar" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ 
+ <header class="site-header">
+@@ -72,7 +85,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Fotografias: <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer" data-external-credit="unsplash">Unsplash</a> (Unsplash License) · <a href="../configuracoes/index.html#creditos-fotografias">Créditos e licenças das fotografias</a></p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+@@ -82,7 +95,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/index.html b/index.html
+index 6a58809..e9fd7a7 100644
+--- a/index.html
++++ b/index.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#101010">
+ <title>Início · FORJA</title>
++<link rel="stylesheet" href="assets/css/auth-guard.css">
++<script src="assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="assets/css/base.css">
+ <link rel="stylesheet" href="assets/css/treino.css">
+ <link rel="stylesheet" href="assets/css/execucao.css">
+@@ -21,6 +23,17 @@
+ </head>
+ 
+ <body data-page="inicio" data-root="">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header home-header">
+   <div class="container home-header-inner">
+@@ -196,7 +209,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -205,7 +218,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="assets/js/forja-core.js" defer></script>
++<script src="assets/js/forja-supabase-config.js" defer></script>
++<script src="assets/vendor/supabase/supabase.js" defer></script>
++<script src="assets/js/forja-auth.js" defer></script>
+ <script src="assets/js/forja-store.js" defer></script>
++<script src="assets/js/forja-auth-data.js" defer></script>
+ <script src="assets/js/forja-dados.js" defer></script>
+ <script src="assets/js/forja-metricas.js" defer></script>
+ <script src="assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/netlify.toml b/netlify.toml
+index 79b8eb0..d8907fe 100644
+--- a/netlify.toml
++++ b/netlify.toml
+@@ -1,3 +1,10 @@
++[build]
++  command = "bash tools/preparar-site.sh .site-publish"
++  publish = ".site-publish"
++
++[build.environment]
++  NODE_VERSION = "22"
++
+ [functions]
+   directory = "netlify/functions"
+   node_bundler = "esbuild"
+diff --git a/onboarding/index.html b/onboarding/index.html
+index 37c6e11..978a763 100644
+--- a/onboarding/index.html
++++ b/onboarding/index.html
+@@ -1,5 +1,5 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@@ -7,6 +7,8 @@
+ <title>Seu perfil · FORJA</title>
+ <link rel="preload" as="image" href="../assets/onboarding/sexo-masculino.png">
+ <link rel="preload" as="image" href="../assets/onboarding/sexo-feminino.jpg">
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -22,6 +24,17 @@
+ </head>
+ 
+ <body data-page="onboarding" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner">
+@@ -84,7 +97,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -93,7 +106,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/package-lock.json b/package-lock.json
+index 7a281a2..0b6a560 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -8,13 +8,17 @@
+       "name": "forja",
+       "version": "2.0.0",
+       "dependencies": {
+-        "@netlify/blobs": "^11.1.7"
++        "@netlify/blobs": "^11.1.7",
++        "@supabase/supabase-js": "2.119.0"
+       },
+       "devDependencies": {
+         "@sparticuz/chromium": "^138.0.2",
+         "fflate": "^0.8.3",
+         "jsdom": "^30.0.0",
+         "puppeteer-core": "^24.43.1"
++      },
++      "engines": {
++        "node": ">=22.0.0"
+       }
+     },
+     "node_modules/@asamuzakjp/css-color": {
+@@ -481,6 +485,98 @@
+         "node": ">=20.11.0"
+       }
+     },
++    "node_modules/@supabase/auth-js": {
++      "version": "2.119.0",
++      "resolved": "https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.119.0.tgz",
++      "integrity": "sha512-WI7KqJRxqZjm77PlRO/VfKretL4SG8g8stWfBmpyx9To+fFapZlSbXA8QkduoMvr72rRpIF24ZLrjktBrp+ZFA==",
++      "license": "MIT",
++      "dependencies": {
++        "tslib": "2.8.1"
++      },
++      "engines": {
++        "node": ">=22.0.0"
++      }
++    },
++    "node_modules/@supabase/functions-js": {
++      "version": "2.119.0",
++      "resolved": "https://registry.npmjs.org/@supabase/functions-js/-/functions-js-2.119.0.tgz",
++      "integrity": "sha512-0aOdF/Y4lA+62K02nwZClfAthXmFEml0od42q3yy/9t3bBitomAOYEatTFSnxT/5UeeIDNn2DOnXTdAP0sqGNQ==",
++      "license": "MIT",
++      "dependencies": {
++        "tslib": "2.8.1"
++      },
++      "engines": {
++        "node": ">=22.0.0"
++      }
++    },
++    "node_modules/@supabase/phoenix": {
++      "version": "0.4.5",
++      "resolved": "https://registry.npmjs.org/@supabase/phoenix/-/phoenix-0.4.5.tgz",
++      "integrity": "sha512-aAn9H9ovVyeApKy11OWOrrOGq8DV68yWeH4ud2lN9fzn4aO8Zb5GLL9m1pUg9nLqIcT+ZDfAcsZe0E/nqdv2lw==",
++      "license": "MIT"
++    },
++    "node_modules/@supabase/postgrest-js": {
++      "version": "2.119.0",
++      "resolved": "https://registry.npmjs.org/@supabase/postgrest-js/-/postgrest-js-2.119.0.tgz",
++      "integrity": "sha512-qBmcjEFO7Ptyf5qvOXYJa1s4bfA4zsMIFf2i+h2zd6RRTDLwquX8z1mnS9djNOJjbiO1OGFh5Y2Lc2k2pA8TMw==",
++      "license": "MIT",
++      "dependencies": {
++        "tslib": "2.8.1"
++      },
++      "engines": {
++        "node": ">=22.0.0"
++      }
++    },
++    "node_modules/@supabase/realtime-js": {
++      "version": "2.119.0",
++      "resolved": "https://registry.npmjs.org/@supabase/realtime-js/-/realtime-js-2.119.0.tgz",
++      "integrity": "sha512-fPzxt+SAYweqsZUCSZma2dvN+HT6lVjwWj8BbkVwapW6wNf1odUi+ATYN7svX4Zm9vt0kz0l0VzINAUAA38FEg==",
++      "license": "MIT",
++      "dependencies": {
++        "@supabase/phoenix": "0.4.5",
++        "tslib": "2.8.1"
++      },
++      "engines": {
++        "node": ">=22.0.0"
++      }
++    },
++    "node_modules/@supabase/storage-js": {
++      "version": "2.119.0",
++      "resolved": "https://registry.npmjs.org/@supabase/storage-js/-/storage-js-2.119.0.tgz",
++      "integrity": "sha512-htx1dSCnSJVPlx2BNSgLSUDvLMxuGbYa6pUPl5xoCs4as4cIhBVwuxj78zbggCyPHxLnEXjsV/qvlDsVjpodKw==",
++      "license": "MIT",
++      "dependencies": {
++        "iceberg-js": "^0.8.1",
++        "tslib": "2.8.1"
++      },
++      "engines": {
++        "node": ">=22.0.0"
++      }
++    },
++    "node_modules/@supabase/supabase-js": {
++      "version": "2.119.0",
++      "resolved": "https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.119.0.tgz",
++      "integrity": "sha512-MKP49G6bJbPhvsZDegZ/IXS/ITApPgplDCF5+F65KZ5kIArS5Y90WFxwvWYALx2bsxdrSuHvkCiXHYr3dU8+sw==",
++      "license": "MIT",
++      "dependencies": {
++        "@supabase/auth-js": "2.119.0",
++        "@supabase/functions-js": "2.119.0",
++        "@supabase/postgrest-js": "2.119.0",
++        "@supabase/realtime-js": "2.119.0",
++        "@supabase/storage-js": "2.119.0"
++      },
++      "engines": {
++        "node": ">=22.0.0"
++      },
++      "peerDependencies": {
++        "@opentelemetry/api": ">=1.0.0"
++      },
++      "peerDependenciesMeta": {
++        "@opentelemetry/api": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/@tootallnate/quickjs-emscripten": {
+       "version": "0.23.0",
+       "resolved": "https://registry.npmjs.org/@tootallnate/quickjs-emscripten/-/quickjs-emscripten-0.23.0.tgz",
+@@ -1250,6 +1346,15 @@
+         "node": ">= 14"
+       }
+     },
++    "node_modules/iceberg-js": {
++      "version": "0.8.1",
++      "resolved": "https://registry.npmjs.org/iceberg-js/-/iceberg-js-0.8.1.tgz",
++      "integrity": "sha512-1dhVQZXhcHje7798IVM+xoo/1ZdVfzOMIc8/rgVSijRK38EDqOJoGula9N/8ZI5RD8QTxNQtK/Gozpr+qUqRRA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=20.0.0"
++      }
++    },
+     "node_modules/import-in-the-middle": {
+       "version": "3.5.3",
+       "resolved": "https://registry.npmjs.org/import-in-the-middle/-/import-in-the-middle-3.5.3.tgz",
+diff --git a/package.json b/package.json
+index 61371e3..618d369 100644
+--- a/package.json
++++ b/package.json
+@@ -4,11 +4,11 @@
+   "private": true,
+   "description": "FORJA — disciplina diária: calendário, missões e treinos com rotinas A/B/C.",
+   "scripts": {
+-    "test": "node tests/catalogo-central.test.mjs && node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs && node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/treino-planejamento.test.mjs && node tests/treino-preferencias.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/videos-youtube.test.mjs && node tests/youtube-proxy.test.mjs && node tests/biblioteca-detalhe.test.mjs && node tests/biblioteca-grupos.test.mjs && node tests/grupo-muscular.test.mjs && node tests/evolucao.test.mjs && node tests/configuracoes.test.mjs",
++    "test": "node tests/catalogo-central.test.mjs && node tests/youtube-videos.test.mjs && node tests/youtube-frontend.test.mjs && node tests/metricas.test.mjs && node tests/forja.test.mjs && node tests/onboarding.test.mjs && node tests/plan.test.mjs && node tests/treino-planejamento.test.mjs && node tests/treino-preferencias.test.mjs && node tests/atlas.test.mjs && node tests/paridade.test.mjs && node tests/demonstracoes.test.mjs && node tests/exercicio-apresentacao.test.mjs && node tests/videos-youtube.test.mjs && node tests/youtube-proxy.test.mjs && node tests/biblioteca-detalhe.test.mjs && node tests/biblioteca-grupos.test.mjs && node tests/grupo-muscular.test.mjs && node tests/evolucao.test.mjs && node tests/configuracoes.test.mjs && npm run test:auth",
+     "test:plan": "node tests/plan.test.mjs",
+     "test:preferencias": "node tests/treino-preferencias.test.mjs",
+-    "test:e2e": "node tests/e2e.browser.mjs",
+-    "serve": "python3 -m http.server 8080 --bind 127.0.0.1",
++    "test:e2e": "node tests/browser-interaction.browser.mjs && node tests/e2e.browser.mjs",
++    "serve": "python3 -m http.server 8080 --bind 0.0.0.0 --directory .site-publish",
+     "test:onboarding": "node tests/onboarding.test.mjs",
+     "test:exercicio": "node tests/exercicio-apresentacao.test.mjs",
+     "test:videos": "node tests/videos-youtube.test.mjs",
+@@ -19,7 +19,12 @@
+     "test:biblioteca-grupos": "node tests/biblioteca-grupos.test.mjs",
+     "test:evolucao": "node tests/evolucao.test.mjs",
+     "test:configuracoes": "node tests/configuracoes.test.mjs",
+-    "capturas:configuracoes": "node tools/capturas-configuracoes.mjs"
++    "capturas:configuracoes": "node tools/capturas-configuracoes.mjs",
++    "build": "bash tools/preparar-site.sh .site-publish",
++    "test:auth": "node tests/auth.test.mjs && node tests/auth-config.test.mjs && node tests/auth-recovery.test.mjs && node tests/auth-concurrency.test.mjs",
++    "test:auth:e2e": "node tests/auth.browser.mjs && node tests/auth-recovery.browser.mjs && node tests/auth-concurrency.browser.mjs",
++    "test:auth:concurrency": "node tests/auth-concurrency.test.mjs && node tests/auth-concurrency.browser.mjs",
++    "vendor:supabase": "node tools/sincronizar-supabase.mjs"
+   },
+   "devDependencies": {
+     "@sparticuz/chromium": "^138.0.2",
+@@ -28,6 +33,10 @@
+     "puppeteer-core": "^24.43.1"
+   },
+   "dependencies": {
+-    "@netlify/blobs": "^11.1.7"
++    "@netlify/blobs": "^11.1.7",
++    "@supabase/supabase-js": "2.119.0"
++  },
++  "engines": {
++    "node": ">=22.0.0"
+   }
+ }
+diff --git a/progresso/index.html b/progresso/index.html
+index 883bc06..515a32f 100644
+--- a/progresso/index.html
++++ b/progresso/index.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#080b09">
+ <title>Evolução · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -22,6 +24,17 @@
+ </head>
+ 
+ <body data-page="progresso" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner ev-header-inner">
+@@ -340,7 +353,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -349,7 +362,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/tests/atlas.test.mjs b/tests/atlas.test.mjs
+index 4ef3987..f220000 100644
+--- a/tests/atlas.test.mjs
++++ b/tests/atlas.test.mjs
+@@ -916,7 +916,7 @@ await runTest("ATLAS 13. Seleção de sexo continua no perfil e não muda a pran
+   const semSexo = signature();
+ 
+   ["feminino", "masculino"].forEach(sexo => {
+-    app.w.localStorage.setItem("forja-perfil-v1", JSON.stringify({
++    app.F.store.driver().setItem("forja-perfil-v1", JSON.stringify({
+       version: 3,
+       updatedAt: "2026-10-01T00:00:00.000Z",
+       objetivo: "manterForma",
+diff --git a/tests/e2e.browser.mjs b/tests/e2e.browser.mjs
+index 08d34d1..b721ab7 100644
+--- a/tests/e2e.browser.mjs
++++ b/tests/e2e.browser.mjs
+@@ -5,6 +5,8 @@
+   GitHub Pages (https://1rayke1.github.io/forja/), e percorre as páginas com
+   puppeteer-core usando um Chromium do sistema (PUPPETEER_EXECUTABLE_PATH) ou o
+   binário empacotado em @sparticuz/chromium. Nenhum processo externo é necessário.
++  Usa o SDK Supabase real com Auth/PostgREST HTTP simulados. Não homologa
++  Google nem RLS remotos, não executa SQL e não usa credenciais reais.
+ 
+   Uso:
+     npm install
+@@ -17,11 +19,12 @@
+ import fs from 'node:fs';
+ import os from 'node:os';
+ import path from 'node:path';
+-import http from 'node:http';
+ import assert from 'node:assert/strict';
+-import { fileURLToPath } from 'node:url';
+-import { execFileSync } from 'node:child_process';
+-import { brotliDecompressSync, deflateSync } from 'node:zlib';
++import { deflateSync } from 'node:zlib';
++import { launchBrowser, startServer, waitReady } from './helpers/browser.mjs';
++import { scrollToInteractable } from './helpers/browser-interaction.mjs';
++import { seedBrowserAuth, respondAuth } from './helpers/browser-auth.mjs';
++import { AuthFixture } from './helpers/auth-fixture.mjs';
+ import youtubeProxyHandler, { resetRuntimeState as resetYoutubeBackend } from '../netlify/functions/youtube-search.mjs';
+ 
+ function makeSolidPng(width, height) {
+@@ -65,7 +68,6 @@ const DELETED_YT_THUMB_PNG = makeSolidPng(120, 90);
+ 
+ const sleep = ms => new Promise(r => setTimeout(r, ms));
+ const results = [];
+-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+ const artifactsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'forja-e2e-'));
+ const artifactPath = name => path.join(artifactsDir, name);
+ const MOBILE = { width: 390, height: 844 };
+@@ -101,146 +103,14 @@ const EXPECTED_NAV = {
+   'onboarding/index.html': 'perfil'
+ };
+ 
+-let puppeteer;
+-try {
+-  puppeteer = (await import('puppeteer-core')).default;
+-} catch (error) {
+-  console.error('puppeteer-core não está instalado. Rode "npm install" na raiz do projeto.');
+-  process.exit(1);
+-}
+-
+-let chromium = null;
+-try {
+-  chromium = (await import('@sparticuz/chromium')).default;
+-} catch (error) {
+-  // Sem o binário empacotado; usamos um Chrome do sistema se existir.
+-}
+-
+-const systemCandidates = [
+-  process.env.PUPPETEER_EXECUTABLE_PATH,
+-  '/usr/bin/google-chrome',
+-  '/usr/bin/google-chrome-stable',
+-  '/usr/bin/chromium',
+-  '/usr/bin/chromium-browser',
+-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+-  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+-  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+-  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+-].filter(Boolean);
+-
+-let executablePath = systemCandidates.find(candidate => fs.existsSync(candidate));
+-let launchArgs = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'];
+-
+-if (!executablePath && chromium) {
+-  executablePath = await chromium.executablePath();
+-  launchArgs = [...chromium.args, '--no-sandbox', '--disable-dev-shm-usage'];
+-}
+-
+-if (!executablePath) {
+-  console.error(
+-    'Nenhum navegador encontrado. Defina PUPPETEER_EXECUTABLE_PATH apontando ' +
+-    'para um Chrome/Chromium ou instale @sparticuz/chromium (npm install).'
+-  );
+-  process.exit(1);
+-}
+-
+-/*
+-  O binário Linux empacotado é construído para Amazon Linux; em ambientes
+-  Debian/Ubuntu mínimos algumas bibliotecas (NSPR/NSS) não estão no sistema.
+-  Reutilizamos o tar.br de dependências que já vem no mesmo pacote (sem rede e
+-  sem modificar o repositório) para que `npm run test:e2e` seja autônomo.
+-*/
+-if (process.platform === 'linux' && chromium && !process.env.LD_LIBRARY_PATH && executablePath.includes('/tmp/')) {
+-  try {
+-    const modulePath = fileURLToPath(import.meta.resolve('@sparticuz/chromium'));
+-    const packageRoot = path.resolve(path.dirname(modulePath), '../..');
+-    const archive = path.join(packageRoot, 'bin', 'al2023.tar.br');
+-    const libRoot = path.join(os.tmpdir(), 'forja-e2e-al2023');
+-    const nspr = path.join(libRoot, 'lib', 'libnspr4.so');
+-    if (!fs.existsSync(nspr)) {
+-      fs.mkdirSync(libRoot, { recursive: true });
+-      const unpacked = path.join(os.tmpdir(), 'forja-e2e-al2023.tar');
+-      fs.writeFileSync(unpacked, brotliDecompressSync(fs.readFileSync(archive)));
+-      execFileSync('tar', ['-xf', unpacked, '-C', libRoot]);
+-      fs.unlinkSync(unpacked);
+-    }
+-    process.env.LD_LIBRARY_PATH = path.join(libRoot, 'lib');
+-  } catch (error) {
+-    console.warn('Dependências Linux do Chromium não puderam ser extraídas: ' + error.message);
+-  }
+-}
+-
+-/* Servidor estático: o repositório fica sob /forja/, como no GitHub Pages. */
+-function startStaticServer(rootDir) {
+-  const mime = {
+-    '.html': 'text/html; charset=utf-8',
+-    '.js': 'text/javascript; charset=utf-8',
+-    '.css': 'text/css; charset=utf-8',
+-    '.json': 'application/json; charset=utf-8',
+-    '.svg': 'image/svg+xml',
+-    '.png': 'image/png',
+-    '.jpg': 'image/jpeg',
+-    '.jpeg': 'image/jpeg',
+-    '.webp': 'image/webp',
+-    '.webmanifest': 'application/manifest+json'
+-  };
+-  const blocked = new Set(['node_modules', '.git', 'tests', 'docs', '.github']);
+-
+-  return new Promise((resolve, reject) => {
+-    const server = http.createServer((request, response) => {
+-      const requestUrl = new URL(request.url, 'http://127.0.0.1');
+-      if (!requestUrl.pathname.startsWith('/forja/')) {
+-        response.statusCode = 404;
+-        response.end('not found');
+-        return;
+-      }
+-      let relative = decodeURIComponent(requestUrl.pathname.slice('/forja/'.length));
+-      if (relative === '' || relative.endsWith('/')) relative += 'index.html';
+-      const filePath = path.resolve(rootDir, relative);
+-      const first = path.relative(rootDir, filePath).split(path.sep)[0];
+-
+-      if (!filePath.startsWith(rootDir + path.sep) || blocked.has(first) || first.startsWith('.')) {
+-        response.statusCode = 404;
+-        response.end('not found');
+-        return;
+-      }
+-
+-      fs.readFile(filePath, (error, data) => {
+-        if (error) {
+-          response.statusCode = 404;
+-          response.end('not found');
+-          return;
+-        }
+-        response.setHeader('Content-Type', mime[path.extname(filePath)] || 'application/octet-stream');
+-        response.end(data);
+-      });
+-    });
+-
+-    server.once('error', reject);
+-    server.listen(0, '127.0.0.1', () => {
+-      resolve({ server, url: 'http://127.0.0.1:' + server.address().port + '/forja/' });
+-    });
+-  });
+-}
+-
+-const localServer = process.env.FORJA_URL ? null : await startStaticServer(repoRoot);
+-const BASE = (process.env.FORJA_URL || localServer.url).replace(/\/?$/, '/');
+-
+-let browser;
+-try {
+-  browser = await puppeteer.launch({
+-    args: launchArgs,
+-    defaultViewport: MOBILE,
+-    executablePath,
+-    headless: true
+-  });
+-} catch (error) {
+-  console.error('Não foi possível iniciar o navegador (' + executablePath + '): ' + error.message);
+-  if (localServer) localServer.server.close();
+-  process.exit(1);
+-}
++const localServer = process.env.FORJA_URL ? null : await startServer();
++const BASE = (process.env.FORJA_URL || localServer.origin + '/forja/').replace(/\/?$/, '/');
++const browser = await launchBrowser({ enforceWebSecurity: true });
++console.log('E2E geral: segurança web/isolamento ativos; ' + await browser.version());
++const authFixture = new AuthFixture();
+ 
+ const page = await browser.newPage();
++await setViewport(MOBILE);
+ let currentLabel = 'carga';
+ const errors = [];
+ const youtubeE2EState = {
+@@ -351,29 +221,48 @@ function makeUpstreamFetch() {
+ }
+ 
+ /* Executa a Function real contra o upstream simulado. */
+-async function runYoutubeBackend(requestUrl) {
++async function runYoutubeBackend(requestUrl, origin) {
+   const query = requestUrl.includes('?') ? requestUrl.slice(requestUrl.indexOf('?')) : '';
+   process.env.YOUTUBE_API_KEY = youtubeE2EState.mode === 'unconfigured' ? '' : 'E2E_BACKEND_KEY';
+   process.env.YOUTUBE_DAILY_QUOTA_UNITS = '100000';
++  // Somente este processo de teste: origem local exata. Não altera a Function
++  // nem a allowlist de produção; o navegador continua exigindo CORS real.
++  process.env.FORJA_ALLOWED_ORIGINS = new URL(BASE).origin;
+   const previousFetch = globalThis.fetch;
+   globalThis.fetch = makeUpstreamFetch();
+   try {
+     const backendResponse = await youtubeProxyHandler(
+-      new Request('https://forja.local/api/youtube-search' + query, { method: 'GET' }),
++      new Request('https://forja.local/api/youtube-search' + query, { method: 'GET', headers: origin ? { origin } : {} }),
+       { ip: '203.0.113.7' }
+     );
+-    return { status: backendResponse.status, body: await backendResponse.text() };
++    return { status: backendResponse.status, headers: Object.fromEntries(backendResponse.headers), body: await backendResponse.text() };
+   } finally {
+     globalThis.fetch = previousFetch;
+   }
+ }
+ 
+-await page.setRequestInterception(true);
+-page.on('request', async req => {
++async function newAppPage() {
++  const tab = await browser.newPage();
++  await setupRequests(tab, false);
++  return tab;
++}
++async function setupRequests(target, seed) {
++  await seedBrowserAuth(target, authFixture, { seed });
++  await target.setRequestInterception(true);
++  target.on('request', routeRequest);
++}
++async function routeRequest(req) {
++  if (await respondAuth(req, authFixture)) return;
+   const url = req.url();
+   if (url.includes('/.netlify/functions/youtube-videos') || /\/api\/youtube-videos(\?|$)/.test(url)) {
++    const origin = req.headers().origin;
++    if (req.method() === 'OPTIONS') {
++      await req.respond({ status: 204, headers: { 'access-control-allow-origin': origin || new URL(BASE).origin,
++        'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'authorization,content-type,accept' } }); return;
++    }
+     req.respond({
+       status: 200,
++      headers: { 'access-control-allow-origin': origin || new URL(BASE).origin },
+       contentType: 'application/json; charset=utf-8',
+       body: JSON.stringify({ associations: [], report: { total: 165, approved: 0, pending: 165, review: 0, rejected: 0, unavailable: 0, coveragePercent: 0, withoutVideo: [], inconsistencies: [] } })
+     });
+@@ -408,9 +297,10 @@ page.on('request', async req => {
+   if (/\/api\/youtube-search(\?|$)/.test(url)) {
+     (async () => {
+       try {
+-        const backend = await runYoutubeBackend(url);
++        const backend = await runYoutubeBackend(url, req.headers().origin);
+         req.respond({
+           status: backend.status,
++          headers: backend.headers,
+           contentType: 'application/json; charset=utf-8',
+           body: backend.body
+         });
+@@ -424,8 +314,10 @@ page.on('request', async req => {
+     })();
+     return;
+   }
+-  req.continue();
+-});
++  if (new URL(url).origin === new URL(BASE).origin || url.startsWith('data:')) await req.continue();
++  else await req.respond({ status: 200, contentType: 'text/plain', body: '' });
++}
++await setupRequests(page, true);
+ 
+ page.on('console', m => {
+   if (m.type() !== 'error') return;
+@@ -454,7 +346,8 @@ const isVisible = sel => page.$eval(sel, e => {
+ const waitFor = async (fn, timeout = 6000, arg) => {
+   const start = Date.now();
+   while (Date.now() - start < timeout) {
+-    if (await page.evaluate(fn, arg)) return true;
++    try { if (await page.evaluate(fn, arg)) return true; }
++    catch (error) { if (!/context.*destroyed|Cannot find context|Inspected target navigated/i.test(error.message)) throw error; }
+     await sleep(60);
+   }
+   return false;
+@@ -463,12 +356,13 @@ const pathOf = () => new URL(page.url()).pathname;
+ // Aceita "treino/" e "treino/index.html" como a mesma página.
+ const normalizePath = p => p.replace(/index\.html$/, '');
+ const expectPath = async suffix => {
+-  const want = normalizePath(suffix);
++  const want = normalizePath(new URL(suffix.replace(/^\//, ''), BASE).pathname);
+   const ok = await waitFor(
+     s =>
+-      location.pathname.replace(/index\.html$/, '').endsWith(s) &&
++      location.pathname.replace(/index\.html$/, '') === s &&
+       document.readyState !== 'loading' &&
+-      Boolean(window.Forja && window.Forja.state),
++      Boolean(window.Forja && window.Forja.state) &&
++      document.documentElement.dataset.forjaAuth === "ready",
+     6000,
+     want
+   );
+@@ -530,22 +424,31 @@ async function clickCentered(selector) {
+   await sleep(140);
+ }
+ 
++// Alterar isMobile/hasTouch faz o Chromium recarregar o documento. O Auth é
++// assíncrono: aguardar o gate antes de ler os dados, sem burlar o driver.
++async function setViewport(viewport) {
++  await page.setViewport(viewport);
++  if (page.url().startsWith(new URL(BASE).origin)) await waitReady(page);
++}
++
+ async function go(rel) {
+   currentLabel = rel || 'index';
+   if (process.env.FORJA_E2E_DEBUG) console.log('  [go] -> ' + (rel || 'index'));
+   if (page.url().startsWith(new URL(BASE).origin)) {
++    await waitReady(page);
+     await page.evaluate(path => {
+-      if (!path.includes('onboarding/') && !localStorage.getItem('forja-perfil-v1')) {
+-        localStorage.setItem('forja-perfil-v1', JSON.stringify({ version: 3, updatedAt: '2026-10-01T00:00:00.000Z', objetivo: 'manterForma', nivel: 'iniciante', equipamento: 'casa', diasPorSemana: 3 }));
++      if (!path.includes('onboarding/') && !window.Forja.store.driver().getItem('forja-perfil-v1')) {
++        window.Forja.store.driver().setItem('forja-perfil-v1', JSON.stringify({ version: 3, updatedAt: '2026-10-01T00:00:00.000Z', objetivo: 'manterForma', nivel: 'iniciante', equipamento: 'casa', diasPorSemana: 3 }));
+       }
+     }, String(rel || ''));
+   }
+   let target = rel;
+   if (String(rel) === 'onboarding/index.html' && page.url().startsWith(new URL(BASE).origin)) {
+-    const hasProfile = await page.evaluate(() => Boolean(localStorage.getItem('forja-perfil-v1')));
++    const hasProfile = await page.evaluate(() => Boolean(window.Forja.store.driver().getItem('forja-perfil-v1')));
+     if (hasProfile) target = 'onboarding/index.html?refazer=1';
+   }
+   await page.goto(new URL(target, BASE).href, { waitUntil: 'networkidle0' });
++  await waitReady(page);
+   if (process.env.FORJA_E2E_DEBUG) console.log('  [go] ok ' + (rel || 'index'));
+   // Rolagem suave faz o clique por coordenadas errar o alvo durante a animação.
+   await page.addStyleTag({ content: 'html{scroll-behavior:auto !important}' });
+@@ -555,13 +458,14 @@ async function go(rel) {
+ async function clearForjaStorage() {
+   await page.evaluate(() => {
+     // Remove somente as chaves do FORJA (nunca localStorage.clear()).
+-    Object.keys(localStorage).filter(k => k.startsWith('forja-')).forEach(k => localStorage.removeItem(k));
+-    sessionStorage.clear();
++    window.Forja.store.keys().filter(k => k.startsWith('forja-')).forEach(k => window.Forja.store.driver().removeItem(k));
++    const tabPrefix = 'forja-auth-tab-v1:' + window.Forja.auth.user.id + ':';
++    Object.keys(sessionStorage).filter(key => key.startsWith(tabPrefix)).forEach(key => sessionStorage.removeItem(key));
+   });
+ }
+ 
+ const data = key => page.evaluate(k => {
+-  const raw = localStorage.getItem(k);
++  const raw = window.Forja.store.driver().getItem(k);
+   return raw === null ? null : JSON.parse(raw);
+ }, key);
+ 
+@@ -570,21 +474,21 @@ const SAFETY_KEY = 'forja-backup-seguranca-v1';
+ 
+ /* Chaves do FORJA em texto puro, para guardar e repor o estado de um teste. */
+ const forjaRaw = () => page.evaluate(() => Object.fromEntries(
+-  Object.keys(localStorage).filter(k => k.startsWith('forja-')).sort().map(k => [k, localStorage.getItem(k)])
++  window.Forja.store.keys().filter(k => k.startsWith('forja-')).sort().map(k => [k, window.Forja.store.driver().getItem(k)])
+ ));
+ 
+ /* Chaves do FORJA já interpretadas (o mesmo conjunto que o backup exporta). */
+ const forjaData = (skip = []) => page.evaluate(skipKeys => Object.fromEntries(
+-  Object.keys(localStorage)
++  window.Forja.store.keys()
+     .filter(k => k.startsWith('forja-') && !skipKeys.includes(k))
+     .sort()
+-    .map(k => [k, JSON.parse(localStorage.getItem(k))])
++    .map(k => [k, JSON.parse(window.Forja.store.driver().getItem(k))])
+ ), skip);
+ 
+ async function restoreForjaRaw(saved) {
+   await page.evaluate(entries => {
+-    Object.keys(localStorage).filter(k => k.startsWith('forja-')).forEach(k => localStorage.removeItem(k));
+-    Object.entries(entries).forEach(([k, v]) => localStorage.setItem(k, v));
++    window.Forja.store.keys().filter(k => k.startsWith('forja-')).forEach(k => window.Forja.store.driver().removeItem(k));
++    Object.entries(entries).forEach(([k, v]) => window.Forja.store.driver().setItem(k, v));
+   }, saved);
+ }
+ 
+@@ -593,14 +497,21 @@ const prefBoxes = (target = page) => target.evaluate(() => [
+   document.getElementById('pref-vibrate').checked
+ ]);
+ 
+-/* Roda antes dos scripts da página: registra toda escrita no localStorage. */
++/* Escritas físicas do domínio viram nomes lógicos; infraestrutura Auth fica
++   registrada separadamente e nunca é confundida com migração de dados. */
+ function installWriteSpy() {
+   const writes = [];
+   Object.defineProperty(window, '__forjaWrites', { value: writes });
++  window.__forjaAuthWrites = [];
+   for (const method of ['setItem', 'removeItem', 'clear']) {
+     const original = Storage.prototype[method];
+     Storage.prototype[method] = function (...args) {
+-      if (this === window.localStorage) writes.push(method + (args.length ? ':' + args[0] : ''));
++      if (this === window.localStorage) {
++        const physical = String(args[0] || '');
++        const match = physical.match(/^forja-auth-data-v1:[^:]+:(forja-.+)$/);
++        if (match || method === 'clear') writes.push(method + (match ? ':' + match[1] : ''));
++        else window.__forjaAuthWrites.push(method + ':' + physical);
++      }
+       return original.apply(this, args);
+     };
+   }
+@@ -649,13 +560,13 @@ async function seedRestSession() {
+       sections: { warmup: [], main: [exercise], abs: [], finisher: [] },
+       createdAt: Date.now(), updatedAt: Date.now()
+     };
+-    const store = JSON.parse(localStorage.getItem('forja-treino-rotinas-v1') || '{"calisthenics":[],"weights":[]}');
++    const store = JSON.parse(window.Forja.store.driver().getItem('forja-treino-rotinas-v1') || '{"calisthenics":[],"weights":[]}');
+     store.calisthenics = (store.calisthenics || []).filter(r => r.id !== routine.id).concat([routine]);
+-    localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify(store));
++    window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify(store));
+ 
+     const now = new Date();
+     const pad = n => String(n).padStart(2, '0');
+-    localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
++    window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+       version: 2, id: 'e2e-prefs-' + now.getTime(),
+       date: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()),
+       modality: 'calisthenics', routineId: routine.id, routineName: routine.name,
+@@ -692,7 +603,7 @@ async function check(name, fn) {
+     console.log('✅ ' + name);
+   } catch (e) {
+     results.push([name, 'fail']);
+-    console.log('❌ ' + name + '\n   ' + e.message.split('\n').slice(0, 6).join('\n   '));
++    console.log('❌ ' + name + '\n   ' + e.stack.split('\n').slice(0, 7).join('\n   '));
+   }
+ }
+ 
+@@ -704,8 +615,8 @@ currentLabel = 'onboarding-obrigatorio';
+ await page.goto(new URL('treino/index.html', BASE).href, { waitUntil: 'networkidle0' });
+ await expectPath('onboarding/index.html');
+ assert.equal(await text('#onboarding-question'), 'Vamos personalizar seu treino.');
+-await page.setViewport(MOBILE);
+-await page.screenshot({ path: path.join(repoRoot, 'artifacts/forja-visual/onboarding-obrigatorio-390.png') });
++await setViewport(MOBILE);
++await page.screenshot({ path: artifactPath('onboarding-obrigatorio-390.png') });
+ await go('');
+ 
+ await check('Calendário e missões funcionam na página inicial', async () => {
+@@ -747,13 +658,13 @@ await check('Sem rolagem horizontal em 320, 360, 390, 430, 768 e 1280 px em toda
+   for (const rel of PAGES) {
+     await go(rel);
+     for (const width of [320, 360, 390, 430, 768, 1280]) {
+-      await page.setViewport({ width, height: 800 });
++      await setViewport({ width, height: 800 });
+       await sleep(120);
+       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+       assert.ok(overflow <= 1, 'Rolagem horizontal de ' + overflow + 'px em ' + (rel || 'index') + ' a ' + width + 'px');
+     }
+   }
+-  await page.setViewport(MOBILE);
++  await setViewport(MOBILE);
+ });
+ 
+ 
+@@ -803,14 +714,20 @@ async function tapChoice(key, value) {
+   assert.ok(hit, 'A opção ' + key + '=' + value + ' não recebe o toque no centro (algo está por cima)');
+   if (await page.evaluate(() => 'ontouchstart' in window)) await page.tap(selector);
+   else await page.click(selector);
+-  await sleep(90);
++  await page.waitForFunction(sel => document.querySelector(sel)?.classList.contains('is-selected'), { polling: 50, timeout: 4000 }, selector);
++  // Verifica a pintura final, não um frame intermediário da transição de
++  // 160 ms (o clique nativo por toque pode começar a transição depois do tap).
++  await page.$eval(selector, async element => {
++    void getComputedStyle(element).color;
++    await Promise.all(element.getAnimations().map(animation => animation.finished.catch(() => {})));
++  });
+ }
+ 
+ await check('Preferências: cinco grupos com uma única opção verde, por toque, no celular e no desktop', async () => {
+   const saved = await forjaRaw();
+   try {
+     /* Viewport de celular com toque, como no aparelho do usuário. */
+-    await page.setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
++    await setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+     await go('treino/');
+     /* Estado inicial: uma escolha por grupo, nunca várias. */
+     for (const key of Object.keys(PREF_GROUPS)) {
+@@ -828,7 +745,7 @@ await check('Preferências: cinco grupos com uma única opção verde, por toque
+             assert.ok(paint.selectedClass, 'A opção escolhida precisa da classe de estado');
+             assert.ok(/rgb\(132,\s*237,\s*27\)|rgb\(165,\s*255,\s*57\)/.test(paint.background),
+               'A opção escolhida precisa ficar verde-limão, veio ' + paint.background);
+-            assert.notEqual(paint.color, 'rgb(244, 245, 244)', 'Texto da opção verde precisa de contraste escuro');
++            assert.equal(paint.color, 'rgb(16, 22, 11)', 'Texto da opção verde precisa de contraste escuro após a transição');
+           } else {
+             assert.equal(paint.pressed, 'false', 'Opção não escolhida não pode ficar marcada');
+             assert.equal(paint.selectedClass, false, 'Opção não escolhida não pode ter a classe verde');
+@@ -854,7 +771,7 @@ await check('Preferências: cinco grupos com uma única opção verde, por toque
+ 
+     /* Alvos de toque confortáveis e rótulos sem corte, em 320–1280 px. */
+     for (const width of [320, 360, 390, 768, 1280]) {
+-      await page.setViewport({ width, height: 844 });
++      await setViewport({ width, height: 844 });
+       await sleep(120);
+       const clipped = await page.$$eval('.preference-choice', els => els
+         .filter(el => el.scrollWidth > el.clientWidth + 1)
+@@ -865,10 +782,10 @@ await check('Preferências: cinco grupos com uma única opção verde, por toque
+       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+       assert.ok(overflow <= 1, 'Rolagem horizontal de ' + overflow + 'px a ' + width + 'px');
+     }
+-    await page.setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
++    await setViewport({ ...MOBILE, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+     await page.screenshot({ path: artifactPath('preferencias-mobile.png') });
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('treino/');
+     await restoreForjaRaw(saved);
+   }
+@@ -878,7 +795,7 @@ await check('Preferências: persistem ao recarregar e alimentam Gerar meu plano'
+   const saved = await forjaRaw();
+   try {
+     await go('treino/');
+-    await page.evaluate(() => localStorage.removeItem('forja-planejamento-preferencias-v1'));
++    await page.evaluate(() => window.Forja.store.driver().removeItem('forja-planejamento-preferencias-v1'));
+     await go('treino/');
+     /* Sem nada salvo, valores iniciais coerentes e alteráveis. */
+     assert.deepEqual(await pressedIn('goal'), ['massa']);
+@@ -886,7 +803,7 @@ await check('Preferências: persistem ao recarregar e alimentam Gerar meu plano'
+     assert.deepEqual(await pressedIn('days'), ['4']);
+     assert.deepEqual(await pressedIn('time'), ['medium']);
+     assert.deepEqual(await pressedIn('equipment'), ['none']);
+-    assert.equal(await page.evaluate(() => localStorage.getItem('forja-planejamento-preferencias-v1')), null,
++    assert.equal(await page.evaluate(() => window.Forja.store.driver().getItem('forja-planejamento-preferencias-v1')), null,
+       'Abrir a tela não deve gravar preferências sozinho');
+ 
+     await tapChoice('goal', 'condicionamento');
+@@ -935,7 +852,7 @@ await check('Ícone de Suas preferências: Lucide settings nítido no mobile e n
+   try {
+     await go('treino/');
+     for (const width of [320, 390, 768, 1280]) {
+-      await page.setViewport({ width, height: 900 });
++      await setViewport({ width, height: 900 });
+       await sleep(150);
+       const icon = await page.evaluate(() => {
+         const box = document.querySelector('.preferences-title .preferences-title-icon');
+@@ -987,17 +904,17 @@ await check('Ícone de Suas preferências: Lucide settings nítido no mobile e n
+         });
+       }
+     }
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+   } finally {
+     await go('treino/');
+     await restoreForjaRaw(saved);
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+   }
+ });
+ 
+ await check('Ação TREINO é compacta, acessível e cabe em 390 px', async () => {
+   await go('');
+-  await page.setViewport(MOBILE);
++  await setViewport(MOBILE);
+   await sleep(120);
+   const box = await page.$eval('.home-action-button', el => {
+     const r = el.getBoundingClientRect();
+@@ -1357,7 +1274,7 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
+      caixa do destaque e a caixa da prancha precisa ficar constante. */
+   const ratios = [];
+   for (const width of [320, 360, 390, 430, 768, 1280]) {
+-    await page.setViewport({ width, height: 900 });
++    await setViewport({ width, height: 900 });
+     await sleep(140);
+     const measured = await page.evaluate(() => {
+       const notHidden = node => node.getClientRects().length > 0;
+@@ -1388,7 +1305,7 @@ await check('Atlas: prancha única íntegra, duas vistas alinhadas e destaques s
+     const canvasWidth = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+     assert.equal(canvasWidth, 0, 'Rolagem horizontal em ' + width + 'px');
+   }
+-  await page.setViewport(MOBILE);
++  await setViewport(MOBILE);
+   await sleep(120);
+ 
+   const baseline = ratios[0].measured;
+@@ -1505,15 +1422,14 @@ await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async
+   assert.equal((await page.$$('#execution-figure .figura-svg, #execution-figure-body .figura-svg')).length, 1,
+     'A figura da execução deveria ter uma vista');
+   assert.match(await page.$eval('#execution-figure .figura-svg', el => el.getAttribute('aria-label')), /Modelo anatômico muscular/);
+-  await page.$eval('#execution-figure-details', el => el.scrollIntoView({ block: 'center' }));
+-  await sleep(180);
++  await scrollToInteractable(page, '#execution-figure-details');
+   const detailsCovered = await page.$eval('#execution-figure-details', el => {
+     const box = el.getBoundingClientRect();
+     const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+     return JSON.stringify({ ok: top === el || el.contains(top), top: top ? top.tagName + '.' + String(top.className) : null, box: { top: Math.round(box.top), height: Math.round(box.height) }, vh: innerHeight });
+   });
+   if (JSON.parse(detailsCovered).ok !== true) assert.fail('Botão de detalhes coberto por outro elemento: ' + detailsCovered);
+-  await jsClick('#execution-figure-details');
++  await page.click('#execution-figure-details');
+   await page.waitForSelector('.modal-backdrop', { timeout: 4000 });
+   assert.equal(await text('#modal-title'), 'Músculos trabalhados');
+   assert.equal((await page.$$('.modal-details .figura-svg')).length, 2, 'O detalhe na execução não tem as duas vistas');
+@@ -1538,7 +1454,7 @@ await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async
+   await jsClick('#set-timer-resume');
+   await sleep(1700);
+   const done = await waitFor(() => {
+-    const s = JSON.parse(localStorage.getItem('forja-treino-sessao-ativa-v1') || 'null');
++    const s = JSON.parse(window.Forja.store.driver().getItem('forja-treino-sessao-ativa-v1') || 'null');
+     return !s || Object.values(s.completedSets || {}).every(Boolean) || !!document.querySelector('#execution-summary:not([hidden])');
+   }, 4000);
+   assert.ok(done, 'Prancha por duração não concluiu ao atingir o tempo');
+@@ -1696,7 +1612,7 @@ await check('Progresso: calendário, gráficos, recordes, metas e busca com hist
+   ];
+ 
+   await go('progresso/');
+-  await page.evaluate(list => localStorage.setItem('forja-treino-historico-v1', JSON.stringify(list)), history);
++  await page.evaluate(list => window.Forja.store.driver().setItem('forja-treino-historico-v1', JSON.stringify(list)), history);
+   await page.reload({ waitUntil: 'networkidle0' });
+   await sleep(200);
+ 
+@@ -1738,18 +1654,18 @@ await check('Progresso: calendário, gráficos, recordes, metas e busca com hist
+ 
+   /* Capturas e overflow em 320/390/768/1280 px, com metas e dados na tela. */
+   for (const width of [320, 390, 768, 1280]) {
+-    await page.setViewport({ width, height: 900 });
++    await setViewport({ width, height: 900 });
+     await sleep(150);
+     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+     assert.ok(overflow <= 1, 'Overflow em progresso a ' + width + 'px: ' + overflow);
+   }
+-  await page.setViewport({ width: 390, height: 844 });
++  await setViewport({ width: 390, height: 844 });
+   await sleep(120);
+   await page.screenshot({ path: artifactPath('progresso-etapa5-390.png'), fullPage: true });
+-  await page.setViewport({ width: 1280, height: 900 });
++  await setViewport({ width: 1280, height: 900 });
+   await sleep(120);
+   await page.screenshot({ path: artifactPath('progresso-etapa5-1280.png'), fullPage: true });
+-  await page.setViewport(MOBILE);
++  await setViewport(MOBILE);
+ });
+ 
+ await check('Configurações — hub, painéis, nome, aparência, suporte e integração no navegador real', async () => {
+@@ -1843,7 +1759,7 @@ await check('Configurações — hub, painéis, nome, aparência, suporte e inte
+ 
+     /* Todas as vistas cabem nas larguras usadas pelo app, sem texto cortado. */
+     for (const width of [320, 360, 390, 430, 768, 1280]) {
+-      await page.setViewport({ width, height: width < 700 ? 844 : 900 });
++      await setViewport({ width, height: width < 700 ? 844 : 900 });
+       for (const hash of ['', '#editar-perfil', '#notificacoes', '#aparencia', '#privacidade', '#ajuda', '#contato', '#sobre']) {
+         await go('configuracoes/' + hash);
+         const layout = await page.evaluate(() => ({
+@@ -1858,13 +1774,13 @@ await check('Configurações — hub, painéis, nome, aparência, suporte e inte
+         if (!hash) assert.ok(layout.rows.every(height => height >= 44), 'Alvo de toque pequeno em ' + width);
+       }
+     }
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await clickCentered('#settings-exit');
+     await expectPath('');
+     assert.equal(await page.evaluate(() => document.body.dataset.page), 'inicio', 'Sair das configurações deve voltar ao Início, sem ciclo');
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -1925,8 +1841,8 @@ await check('Configurações: inicializa, checkboxes refletem o armazenado e abr
+     ];
+     for (const [stored, expected] of cases) {
+       await page.evaluate((key, value) => {
+-        if (value === null) localStorage.removeItem(key);
+-        else localStorage.setItem(key, JSON.stringify(value));
++        if (value === null) window.Forja.store.driver().removeItem(key);
++        else window.Forja.store.driver().setItem(key, JSON.stringify(value));
+       }, PREFS_KEY, stored);
+ 
+       for (const rel of ['configuracoes/']) {
+@@ -1940,7 +1856,7 @@ await check('Configurações: inicializa, checkboxes refletem o armazenado e abr
+           boxes: [document.getElementById('pref-sound').checked, document.getElementById('pref-vibrate').checked],
+           memory: window.Forja.state.preferences,
+           undoHidden: document.getElementById('restore-safety-backup').hidden,
+-          safety: localStorage.getItem('forja-backup-seguranca-v1') !== null,
++          safety: window.Forja.store.driver().getItem('forja-backup-seguranca-v1') !== null,
+           writes: window.__forjaWrites.slice()
+         }));
+         assert.ok(state.shared, 'Perfil sem o controlador compartilhado (' + where + ')');
+@@ -1983,7 +1899,7 @@ await check('Configurações: backup completa confere com o armazenamento (expor
+     assert.match(await text('#backup-status'), /Último backup exportado em/);
+ 
+     /* Inválido: recusado com explicação, nada muda (nem a cópia de segurança). */
+-    const safetyBefore = await page.evaluate(key => localStorage.getItem(key), SAFETY_KEY);
++    const safetyBefore = await page.evaluate(key => window.Forja.store.driver().getItem(key), SAFETY_KEY);
+     const bad = artifactPath('perfil-invalido.json');
+     fs.writeFileSync(bad, JSON.stringify({ app: 'OUTRO', format: 'forja-backup', version: 1, keys: {} }));
+     await (await page.$('#import-backup-input')).uploadFile(bad);
+@@ -1992,7 +1908,7 @@ await check('Configurações: backup completa confere com o armazenamento (expor
+     assert.equal(await page.$('[data-modal-action="restore"]'), null, 'Importação inválida abriu a confirmação');
+     await jsClick('[data-modal-action="close"]');
+     assert.deepEqual(await forjaData([SAFETY_KEY]), before, 'Importação inválida alterou dados');
+-    assert.equal(await page.evaluate(key => localStorage.getItem(key), SAFETY_KEY), safetyBefore,
++    assert.equal(await page.evaluate(key => window.Forja.store.driver().getItem(key), SAFETY_KEY), safetyBefore,
+       'Importação inválida mexeu na cópia de segurança');
+ 
+     /* Válido: só aplica depois de confirmar; os checkboxes acompanham. */
+@@ -2031,7 +1947,7 @@ await check('Som e vibração: a mesma escolha vale em Configurações, outra ab
+   let signals = null;
+   let other = null;
+   try {
+-    await page.evaluate(key => localStorage.removeItem(key), PREFS_KEY);
++    await page.evaluate(key => window.Forja.store.driver().removeItem(key), PREFS_KEY);
+ 
+     /* Configurações → reload → Configurações, com cliques reais. */
+     await go('configuracoes/#notificacoes');
+@@ -2049,7 +1965,7 @@ await check('Som e vibração: a mesma escolha vale em Configurações, outra ab
+     assert.deepEqual(await prefBoxes(), [false, false], 'A escolha não sobreviveu à navegação');
+ 
+     /* Outra aba aberta no Perfil acompanha a mudança sem recarregar. */
+-    other = await browser.newPage();
++    other = await newAppPage();
+     other.on('console', m => { if (m.type() === 'error') errors.push('outra aba console: ' + m.text()); });
+     other.on('pageerror', e => errors.push('outra aba pageerror: ' + e.message));
+     other.on('requestfailed', r => errors.push('outra aba requestfailed: ' + r.url()));
+@@ -2101,7 +2017,7 @@ await check('Som e vibração: a mesma escolha vale em Configurações, outra ab
+ 
+ await check('Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explorar sob /forja/ em todas as páginas', async () => {
+   const basePath = new URL(BASE).pathname;
+-  await page.setViewport(MOBILE);
++  await setViewport(MOBILE);
+   await page.mouse.move(0, 0);
+   for (const rel of PAGES) {
+     const where = rel || 'index';
+@@ -2153,12 +2069,13 @@ await check('Armazenamento local é informado em todas as páginas', async () =>
+   for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/', 'onboarding/index.html']) {
+     await go(rel);
+     const body = await page.evaluate(() => document.body.textContent);
+-    assert.match(body, /neste navegador e não são sincronizados/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
++    assert.match(body, /dados de uso diário.*somente neste navegador/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
++    assert.match(body, /cópia inicial no Supabase, sem sincronização contínua/i, 'Aviso de cópia inicial ausente em ' + (rel || 'index'));
+   }
+ });
+ 
+ await check('Capturas visuais das páginas em mobile e desktop', async () => {
+-  const shots = await browser.newPage();
++  const shots = await newAppPage();
+   shots.on('pageerror', error => errors.push('screenshot: ' + error.message));
+   shots.on('console', message => { if (message.type() === 'error') errors.push('screenshot console: ' + message.text()); });
+   for (const [index, rel] of PAGES.entries()) {
+@@ -2172,7 +2089,7 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
+         screenshotUrl.searchParams.set('periodo', 'semana');
+       }
+       if (rel === 'treino/rotina.html') {
+-        const saved = await shots.evaluate(() => JSON.parse(localStorage.getItem('forja-treino-rotinas-v1') || 'null'));
++        const saved = await shots.evaluate(() => JSON.parse(window.Forja.store.driver().getItem('forja-treino-rotinas-v1') || 'null'));
+         const routine = saved?.calisthenics?.[0] || saved?.weights?.[0];
+         if (routine) {
+           screenshotUrl.searchParams.set('modalidade', routine.modality || (saved.calisthenics?.includes(routine) ? 'calisthenics' : 'weights'));
+@@ -2180,6 +2097,7 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
+         }
+       }
+       await shots.goto(screenshotUrl.href, { waitUntil: 'networkidle0' });
++      await waitReady(shots);
+       await shots.evaluate(() => window.scrollTo(0, 0));
+       await sleep(250);
+       const overflow = await shots.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+@@ -2193,12 +2111,12 @@ await check('Capturas visuais das páginas em mobile e desktop', async () => {
+ await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #editor-missing, rotação e exclusão', async () => {
+   const saved = await forjaRaw();
+   try {
+-    await page.setViewport({ width: 390, height: 844 });
++    await setViewport({ width: 390, height: 844 });
+     await restoreForjaRaw({});
+ 
+     /* 1. Perfil concluído: Home sem rotina, sem botão Iniciar, CTA leva ao hub de treino. */
+     await go('');
+-    const initialKeys = await page.evaluate(() => Object.keys(localStorage));
++    const initialKeys = await page.evaluate(() => window.Forja.store.keys());
+     assert.deepEqual(initialKeys, ['forja-perfil-v1'], 'Home deve conter somente o perfil obrigatório já salvo');
+     const homeBtn = await page.$eval('#home-primary-button', el => ({
+       tag: el.tagName,
+@@ -2228,7 +2146,7 @@ await check('Fluxo completo em navegador limpo: Home sem rotina, criação sem #
+       page.waitForNavigation({ waitUntil: 'networkidle0' }),
+       page.click('#cancel-routine')
+     ]);
+-    assert.equal(await page.evaluate(() => localStorage.getItem('forja-treino-rotinas-v1')), null);
++    assert.equal(await page.evaluate(() => window.Forja.store.driver().getItem('forja-treino-rotinas-v1')), null);
+ 
+     /* 3. Cria duas rotinas reais (Rotina 1 e Rotina 2) pelo fluxo completo de UI. */
+     for (const [name, exName] of [['Rotina E2E 1', 'Flexão'], ['Rotina E2E 2', 'Barra fixa']]) {
+@@ -2301,15 +2219,15 @@ await check('Home e gate: perfil obrigatório, 5 larguras, metas com unidades/mo
+     assert.equal(await page.$$eval('.home-action-title', els => els.length), 1, '.home-action-title deve ser único');
+ 
+     for (const width of [320, 360, 390, 768, 1280]) {
+-      await page.setViewport({ width, height: 844 });
++      await setViewport({ width, height: 844 });
+       await sleep(100);
+       const metrics = await page.evaluate(() => ({ overflow: document.documentElement.scrollWidth - window.innerWidth }));
+       assert.ok(metrics.overflow <= 1, 'Overflow horizontal na Home a ' + width + 'px: ' + metrics.overflow);
+     }
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+ 
+     /* 2. Sincronização real entre duas abas do navegador (metas, histórico e rotinas). */
+-    otherTab = await browser.newPage();
++    otherTab = await newAppPage();
+     otherTab.on('pageerror', e => errors.push('otherTab pageerror: ' + e.message));
+     await otherTab.goto(new URL('progresso/', BASE).href, { waitUntil: 'networkidle0' });
+ 
+@@ -2320,16 +2238,16 @@ await check('Home e gate: perfil obrigatório, 5 larguras, metas com unidades/mo
+         String(now.getMonth() + 1).padStart(2, '0'),
+         String(now.getDate()).padStart(2, '0')
+       ].join('-');
+-      localStorage.setItem('forja-treino-metas-v1', JSON.stringify({
++      window.Forja.store.driver().setItem('forja-treino-metas-v1', JSON.stringify({
+         version: 1, updatedAt: now.toISOString(), modality: 'weights',
+         weeklySessions: 3, weeklySets: 12, weeklyMinutes: 60
+       }));
+-      localStorage.setItem('forja-treino-historico-v1', JSON.stringify([{
++      window.Forja.store.driver().setItem('forja-treino-historico-v1', JSON.stringify([{
+         id: 'tab2-h1', date, finishedAt: now.toISOString(), modality: 'weights',
+         routineName: 'Força A', durationMs: 15 * 60000, completedSets: 2, totalPlannedSets: 4,
+         status: 'completed', exercises: []
+       }]));
+-      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({
++      window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify({
+         calisthenics: [],
+         weights: [{
+           id: 'tab2-r1', name: 'Força A', modality: 'weights', createdAt: 1000, updatedAt: 1000,
+@@ -2349,12 +2267,12 @@ await check('Home e gate: perfil obrigatório, 5 larguras, metas com unidades/mo
+     /* 3. Simula restauração via BFCache (pageshow persisted: true) após mudança silenciosa no armazenamento. */
+     await page.evaluate(() => {
+       /* Altera o storage sem disparar StorageEvent e confirma que pageshow persisted sincroniza F.state e UI. */
+-      const rawGoals = JSON.parse(localStorage.getItem('forja-treino-metas-v1'));
++      const rawGoals = JSON.parse(window.Forja.store.driver().getItem('forja-treino-metas-v1'));
+       rawGoals.modality = 'calisthenics';
+       rawGoals.weeklySessions = 2;
+       rawGoals.weeklySets = 0;
+       rawGoals.weeklyMinutes = 0;
+-      localStorage.setItem('forja-treino-metas-v1', JSON.stringify(rawGoals));
++      window.Forja.store.driver().setItem('forja-treino-metas-v1', JSON.stringify(rawGoals));
+       window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+     });
+     await sleep(80);
+@@ -2374,7 +2292,7 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir,
+     await restoreForjaRaw({});
+     await page.goto(new URL('onboarding/index.html', BASE).href, { waitUntil: 'networkidle0' });
+     await expectPath('/onboarding/index.html');
+-    await page.setViewport({ width: 320, height: 720 });
++    await setViewport({ width: 320, height: 720 });
+     await sleep(150);
+ 
+     const etapa = () => page.evaluate(() => ({
+@@ -2540,7 +2458,7 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir,
+ 
+     /* Reabrir o app (recarregar) não repete o onboarding. */
+     await go('');
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     assert.equal(await page.$('#onboarding-start'), null, 'Recarregar não deve trazer cadastro opcional');
+ 
+     /* Configurações mostra o sexo e permite editar; editar não altera o restante. */
+@@ -2552,7 +2470,7 @@ await check('Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir,
+     assert.equal((await data('forja-perfil-v1')).sexo, 'masculino', 'A edição do sexo não foi gravada');
+     assert.equal((await data('forja-perfil-v1')).objetivo, 'forca', 'A edição do sexo alterou outros campos');
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -2637,10 +2555,10 @@ await check('D-01: importar 250 treinos avisa o limite, guarda os 200 mais recen
+         sections: { warmup: [], main: [exercise], abs: [], finisher: [] },
+         createdAt: 1, updatedAt: 1
+       };
+-      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [routine], weights: [] }));
++      window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [routine], weights: [] }));
+       const now = new Date();
+       const pad = n => String(n).padStart(2, '0');
+-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
++      window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+         version: 2, id: 'aud-session', date: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()),
+         modality: 'calisthenics', routineId: routine.id, routineName: routine.name,
+         startedAt: now.getTime() - 60000, elapsedMs: 0, running: true, currentIndex: 0,
+@@ -2676,9 +2594,9 @@ await check('D-02: falha na restauração deixa o desfazer disponível na mesma
+     await go('configuracoes/');
+     await clearForjaStorage();
+     await page.evaluate(() => {
+-      localStorage.setItem('forja-missoes-2026-10-25', JSON.stringify([{ id: 'm1', text: 'Original', done: false }]));
+-      localStorage.setItem('forja-preferencias-v1', JSON.stringify({ soundOnRest: false, vibrateOnRest: false }));
+-      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [], weights: [] }));
++      window.Forja.store.driver().setItem('forja-missoes-2026-10-25', JSON.stringify([{ id: 'm1', text: 'Original', done: false }]));
++      window.Forja.store.driver().setItem('forja-preferencias-v1', JSON.stringify({ soundOnRest: false, vibrateOnRest: false }));
++      window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [], weights: [] }));
+     });
+     await go('configuracoes/');
+     assert.equal(await page.$eval('#restore-safety-backup', el => el.hidden), true,
+@@ -2740,7 +2658,7 @@ await check('D-02: falha na restauração deixa o desfazer disponível na mesma
+ await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visíveis acima da barra', async () => {
+   const saved = await forjaRaw();
+   try {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await seedRestSession();
+     await go('treino/executar.html');
+     await jsClick('#complete-set');
+@@ -2777,7 +2695,7 @@ await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visív
+     });
+ 
+     for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }, { width: 1280, height: 900 }]) {
+-      await page.setViewport(viewport);
++      await setViewport(viewport);
+       await sleep(500);
+       const box = await geometry();
+       assert.ok(box.skipTop >= 0 && box.skipBottom <= box.viewport,
+@@ -2788,7 +2706,7 @@ await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visív
+         'Pular descanso coberto pelo toast em ' + viewport.width + 'x' + viewport.height + ': ' + JSON.stringify(box));
+     }
+ 
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await page.screenshot({ path: artifactPath('d07-descanso-visivel.png') });
+ 
+     /* Pausa é anunciada uma vez na região viva, sem depender do contador. */
+@@ -2799,7 +2717,7 @@ await check('D-04/D-07: descanso sem anúncio por segundo, com as ações visív
+     assert.ok(await waitFor(() => (document.getElementById('forja-live-region')?.textContent || '').includes('Descanso retomado'), 3000),
+       'A retomada do descanso deveria ser anunciada');
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -2825,7 +2743,7 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
+     }
+ 
+     await go('treino/biblioteca.html');
+-    await page.setViewport({ width: 320, height: 640 });
++    await setViewport({ width: 320, height: 640 });
+     await sleep(250);
+ 
+     const h1 = await page.$$eval('h1', els => els.map(el => el.textContent.trim()));
+@@ -2841,7 +2759,7 @@ await check('D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos
+       'A barra inferior não pode criar rolagem horizontal');
+     await page.screenshot({ path: artifactPath('d11-nav-320.png') });
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -2870,7 +2788,7 @@ await check('Explorar — seções de descoberta, acesso ao atlas/biblioteca e b
+     assert.deepEqual(await forjaRaw(), existingProfile, 'Consultar catálogo não alterou dados locais');
+     await page.screenshot({ path: artifactPath('explorar-inline-390.png'), fullPage: true });
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -2929,14 +2847,14 @@ await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e ca
+ 
+     /* 320, 360, 390 e 430 px: nada estoura na horizontal e o título continua legível. */
+     for (const width of [320, 360, 390, 430]) {
+-      await page.setViewport({ width, height: 844 });
++      await setViewport({ width, height: 844 });
+       await sleep(120);
+       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+         'A Biblioteca estoura na horizontal em ' + width + ' px');
+       const titulo = await page.$eval('#catalog-heading', el => el.getBoundingClientRect().height);
+       assert.ok(titulo > 40, 'O título sumiu em ' + width + ' px');
+     }
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await sleep(120);
+     await page.screenshot({ path: artifactPath('biblioteca-7-regioes-390.png'), fullPage: true });
+ 
+@@ -2972,7 +2890,7 @@ await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e ca
+     'Região + modalidade não combinaram na tela do grupo');
+ 
+     /* Desktop: os cards ficam em duas colunas e a página continua sem estouro. */
+-    await page.setViewport({ width: 1280, height: 900 });
++    await setViewport({ width: 1280, height: 900 });
+     await sleep(160);
+     const colunas = await page.$$eval('.gr-card', els =>
+       new Set(els.map(el => Math.round(el.getBoundingClientRect().left))).size);
+@@ -2982,12 +2900,12 @@ await check('Biblioteca — 7 regiões cobrem todos os exercícios, filtram e ca
+     await page.screenshot({ path: artifactPath('grupo-costas-desktop.png'), fullPage: true });
+ 
+     /* Nada foi gravado por navegar. */
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('treino/biblioteca.html');
+     const perfil = await forjaRaw();
+     assert.ok(perfil['forja-perfil-v1'], 'A Biblioteca não deve apagar o perfil');
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await restoreForjaRaw(saved);
+   }
+ });
+@@ -3037,7 +2955,7 @@ await check('Tela do grupo muscular — 13 grupos, filtros, cards e ficha', asyn
+ 
+     /* Telemóveis: 320/360/390/430 sem estouro horizontal. */
+     for (const width of [320, 360, 390, 430]) {
+-      await page.setViewport({ width, height: 844 });
++      await setViewport({ width, height: 844 });
+       await sleep(140);
+       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+         'A tela do grupo estoura na horizontal em ' + width + ' px');
+@@ -3046,7 +2964,7 @@ await check('Tela do grupo muscular — 13 grupos, filtros, cards e ficha', asyn
+       const barra = await page.$eval('#grupo-filtros', el => el.getBoundingClientRect().height);
+       assert.ok(barra > 30, 'Os filtros sumiram em ' + width + ' px');
+     }
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await sleep(140);
+ 
+     /* O último card não fica atrás da barra inferior. */
+@@ -3089,7 +3007,7 @@ await check('Tela do grupo muscular — 13 grupos, filtros, cards e ficha', asyn
+     assert.match(await text('#grupo-lista'), /Nenhum exercício/, 'Combinação vazia precisa avisar');
+     assert.equal(await page.$eval('#grupo-contador', el => el.dataset.total), '0');
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await restoreForjaRaw(saved);
+   }
+ });
+@@ -3100,24 +3018,24 @@ await check('Evolução 1 — rotinas diretas, filtro e início com a modalidade
+     await restoreForjaRaw({});
+     await seedRestSession();
+     await page.evaluate(() => {
+-      localStorage.removeItem('forja-treino-sessao-ativa-v1');
++      window.Forja.store.driver().removeItem('forja-treino-sessao-ativa-v1');
+       const key = 'forja-treino-rotinas-v1';
+-      const routines = JSON.parse(localStorage.getItem(key));
++      const routines = JSON.parse(window.Forja.store.driver().getItem(key));
+       const weights = structuredClone(routines.calisthenics[0]);
+       weights.id = 'e2e-direto-weights'; weights.name = 'Musculação direta'; weights.modality = 'weights';
+       routines.weights = [weights];
+-      localStorage.setItem(key, JSON.stringify(routines));
++      window.Forja.store.driver().setItem(key, JSON.stringify(routines));
+     });
+     await go('treino/');
+     const before = await forjaRaw();
+     for (const width of [320, 390, 1280]) {
+-      await page.setViewport({ width, height: 844 });
++      await setViewport({ width, height: 844 });
+       assert.equal(await page.$$eval('#hub-routine-list .routine-card', els => els.length), 2);
+       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+       const heights = await page.$$eval('#hub-routine-list .routine-actions > *', els => els.map(el => el.getBoundingClientRect().height));
+       assert.ok(heights.every(height => height >= 44));
+     }
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await page.screenshot({ path: artifactPath('evolucao1-rotinas-390.png'), fullPage: true });
+     await page.select('#hub-modality', 'weights');
+     assert.equal(await page.$$eval('#hub-routine-list .routine-card', els => els.length), 1);
+@@ -3128,7 +3046,7 @@ await check('Evolução 1 — rotinas diretas, filtro e início com a modalidade
+     assert.equal(active.routineId, 'e2e-direto-weights');
+     assert.equal(active.modality, 'weights');
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -3139,7 +3057,7 @@ await check('Evolução 1 — consulta e inclusão contextual preservam rascunho
+   try {
+     await restoreForjaRaw({});
+     await seedRestSession();
+-    await page.evaluate(() => localStorage.removeItem('forja-treino-sessao-ativa-v1'));
++    await page.evaluate(() => window.Forja.store.driver().removeItem('forja-treino-sessao-ativa-v1'));
+     await go('treino/rotina.html?modalidade=calisthenics&id=e2e-prefs-rest');
+     await fill('#routine-name-input', 'Rascunho preservado');
+     await fill('#exercise-name', 'Ainda digitando');
+@@ -3192,11 +3110,11 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
+     await seedRestSession();
+     await page.evaluate(() => {
+       const key = 'forja-treino-sessao-ativa-v1';
+-      const s = JSON.parse(localStorage.getItem(key));
++      const s = JSON.parse(window.Forja.store.driver().getItem(key));
+       s.queue[0].libraryId = 'cal-flexao';
+       s.queue[0].instructions = 'Instrução da sessão: mantenha o corpo alinhado.';
+       s.restEndAt = Date.now() + 60000; s.restPlannedSeconds = 60;
+-      localStorage.setItem(key, JSON.stringify(s));
++      window.Forja.store.driver().setItem(key, JSON.stringify(s));
+     });
+     await go('treino/executar.html');
+     await fill('#log-reps', '12');
+@@ -3272,7 +3190,7 @@ await check('Demonstrações: imagem local decodifica, créditos visíveis e fal
+   const added = errors.slice(before);
+   assert.deepEqual(added.filter(e => /requestfailed|HTTP [45]/.test(e)), [],
+     'falha de recurso ao exibir demonstrações: ' + added.join(' | '));
+-  await page.setViewport(MOBILE);
++  await setViewport(MOBILE);
+ });
+ 
+ await check('Demonstrações: seletor no editor persiste demoId e chega à execução', async () => {
+@@ -3293,7 +3211,7 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
+   };
+   try {
+     await restoreForjaRaw({});
+-    await page.evaluate(r => localStorage.setItem('forja-treino-rotinas-v1',
++    await page.evaluate(r => window.Forja.store.driver().setItem('forja-treino-rotinas-v1',
+       JSON.stringify({ calisthenics: [r], weights: [] })), routine);
+     await go('treino/rotina.html?id=r-demo&modalidade=calisthenics');
+ 
+@@ -3310,12 +3228,12 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
+ 
+     /* Sem overflow em telas pequenas com o seletor aberto. */
+     for (const width of [320, 390, 768]) {
+-      await page.setViewport({ width, height: 800 });
++      await setViewport({ width, height: 800 });
+       await sleep(120);
+       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+       assert.ok(overflow <= 1, 'Overflow no seletor a ' + width + 'px: ' + overflow);
+     }
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+ 
+     await fill('.demo-picker-input', 'aranha');
+     await sleep(80);
+@@ -3352,7 +3270,7 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
+         pendingAdvance: false, restPlannedSeconds: 0, setTimer: null,
+         setLogs: {}, logDraft: {}
+       };
+-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify(session));
++      window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify(session));
+     }, routine, today);
+     await go('treino/executar.html');
+     await page.waitForFunction(() => {
+@@ -3411,7 +3329,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
+     assert.equal(await page.$('.modal-3d'), null, 'nenhum elemento 3D pode existir');
+ 
+     for (const width of [320, 390, 768]) {
+-      await page.setViewport({ width, height: 800 });
++      await setViewport({ width, height: 800 });
+       await sleep(100);
+       const metrics = await page.evaluate(() => {
+         const rect = document.querySelector('.modal-details .video-demo-player').getBoundingClientRect();
+@@ -3423,7 +3341,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
+       assert.ok(metrics.overflow <= 1, 'overflow com player oficial a ' + width + 'px: ' + metrics.overflow);
+       assert.ok(Math.abs(metrics.ratio - 16 / 9) < 0.08, 'proporção fora de 16:9 em ' + width + 'px');
+     }
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await page.keyboard.press('Escape');
+     await page.waitForFunction(() => !document.querySelector('.modal-backdrop'), { timeout: 4000 });
+ 
+@@ -3439,7 +3357,7 @@ await check('Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, con
+       'Demonstração em vídeo ainda não disponível para este exercício.');
+     await page.keyboard.press('Escape');
+   } finally {
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -3480,7 +3398,7 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
+     youtubeE2EState.mode = 'normal';
+     resetYoutubeBackend();
+     await restoreForjaRaw({});
+-    await page.evaluate(r => localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify(r)), routines);
++    await page.evaluate(r => window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify(r)), routines);
+ 
+     /* Rotina A: modal "Procurar vídeo" pesquisando pelo proxy real do backend. */
+     await go('treino/rotina.html?id=rotina-vid-a&modalidade=calisthenics');
+@@ -3608,7 +3526,7 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
+     /* Execução da Rotina B + persistência após reload real da página. */
+     await page.evaluate((rB, day) => {
+       const ex = rB.sections.main[0];
+-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
++      window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+         version: 2, id: 's-vid-b', date: day, modality: 'calisthenics',
+         routineId: rB.id, routineName: rB.name, startedAt: Date.now() - 1000,
+         elapsedMs: 0, running: true, currentIndex: 0,
+@@ -3639,7 +3557,7 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
+     const backupFile = artifactPath('backup-videos-e2e.json');
+     fs.writeFileSync(backupFile, exportedJson, 'utf8');
+ 
+-    await page.evaluate(() => localStorage.setItem('forja-treino-rotinas-v1',
++    await page.evaluate(() => window.Forja.store.driver().setItem('forja-treino-rotinas-v1',
+       JSON.stringify({ calisthenics: [], weights: [] })));
+     await go('configuracoes/');
+     const input = await page.$('#import-backup-input');
+@@ -3656,7 +3574,7 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
+   } finally {
+     youtubeE2EState.mode = 'normal';
+     resetYoutubeBackend();
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -3686,8 +3604,8 @@ await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend
+     resetYoutubeBackend();
+     await restoreForjaRaw({});
+     await page.evaluate((r, day) => {
+-      localStorage.setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [r], weights: [] }));
+-      localStorage.setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
++      window.Forja.store.driver().setItem('forja-treino-rotinas-v1', JSON.stringify({ calisthenics: [r], weights: [] }));
++      window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify({
+         version: 2, id: 's-dead', date: day, modality: 'calisthenics',
+         routineId: r.id, routineName: r.name, startedAt: Date.now() - 1000,
+         elapsedMs: 0, running: true, currentIndex: 0,
+@@ -3756,7 +3674,7 @@ await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend
+     youtubeE2EState.mode = 'normal';
+     youtubeE2EState.expectBackendHttpError = false;
+     resetYoutubeBackend();
+-    await page.setViewport(MOBILE);
++    await setViewport(MOBILE);
+     await go('configuracoes/');
+     await restoreForjaRaw(saved);
+   }
+@@ -3823,9 +3741,9 @@ await check('Evolução: abas, indicadores, períodos e grupos musculares no nav
+ 
+   await go('progresso/');
+   await page.evaluate((records, dados) => {
+-    localStorage.setItem('forja-treino-historico-v1', JSON.stringify(records));
+-    localStorage.setItem('forja-perfil-v1', JSON.stringify(dados));
+-    localStorage.removeItem('forja-treino-metas-v1');
++    window.Forja.store.driver().setItem('forja-treino-historico-v1', JSON.stringify(records));
++    window.Forja.store.driver().setItem('forja-perfil-v1', JSON.stringify(dados));
++    window.Forja.store.driver().removeItem('forja-treino-metas-v1');
+   }, history, profile);
+   await page.reload({ waitUntil: 'networkidle0' });
+   await sleep(300);
+@@ -3877,7 +3795,7 @@ await check('Evolução: abas, indicadores, períodos e grupos musculares no nav
+ 
+   /* Capturas e overflow nos dois tamanhos pedidos. */
+   for (const width of [390, 1280]) {
+-    await page.setViewport({ width, height: width === 390 ? 844 : 900 });
++    await setViewport({ width, height: width === 390 ? 844 : 900 });
+     await sleep(200);
+     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+     assert.ok(overflow <= 1, 'Overflow na Evolução a ' + width + 'px: ' + overflow);
+@@ -3898,7 +3816,7 @@ await check('Evolução: abas, indicadores, períodos e grupos musculares no nav
+   }
+ 
+   /* Estado vazio: prompt sinaliza sem números falsos. */
+-  await page.evaluate(() => localStorage.removeItem('forja-treino-historico-v1'));
++  await page.evaluate(() => window.Forja.store.driver().removeItem('forja-treino-historico-v1'));
+   await page.reload({ waitUntil: 'networkidle0' });
+   await sleep(250);
+   assert.equal((await text('#ev-kpi-sessions')).trim(), '0');
+@@ -3906,7 +3824,7 @@ await check('Evolução: abas, indicadores, períodos e grupos musculares no nav
+   assert.match(await text('#ev-muscle-list'), /Nenhum grupo muscular/);
+   assert.match(await text('#ev-nudge-title'), /começa no primeiro treino/);
+ 
+-  await page.setViewport(MOBILE);
++  await setViewport(MOBILE);
+ });
+ 
+ await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
+@@ -3915,11 +3833,11 @@ await check('Nenhum erro de JavaScript durante todo o fluxo', async () => {
+ 
+ console.log('\n' + '='.repeat(60));
+ const failed = results.filter(r => r[1] === 'fail');
+-console.log('E2E navegador real — ' + (results.length - failed.length) + '/' + results.length + ' verificações aprovadas');
++console.log('E2E navegador real (Auth/Google/PostgREST simulados) — ' + (results.length - failed.length) + '/' + results.length + ' verificações aprovadas');
+ if (failed.length) console.log('Falhas: ' + failed.map(f => f[0]).join(' | '));
+ console.log('='.repeat(60));
+ console.log('Artefatos (screenshots/downloads): ' + artifactsDir);
+ 
+ await browser.close();
+-if (localServer) localServer.server.close();
++if (localServer) await localServer.close();
+ process.exitCode = failed.length ? 1 : 0;
+diff --git a/tests/exercicio-apresentacao.test.mjs b/tests/exercicio-apresentacao.test.mjs
+index 0f4f053..984924f 100644
+--- a/tests/exercicio-apresentacao.test.mjs
++++ b/tests/exercicio-apresentacao.test.mjs
+@@ -147,8 +147,10 @@ await runTest("2. a página tem só título + palco; nenhum resto de personagem
+   assert.equal(video.hasAttribute("loop"), true);
+   assert.equal(video.hasAttribute("playsinline"), true);
+   assert.equal(video.hasAttribute("controls"), false, "controles nativos não podem existir");
+-  assert.equal(d.querySelectorAll("button, select, input, progress").length, 0,
+-    "a tela não pode ter botão, seletor ou barra de progresso");
++  const controls = [...d.querySelectorAll("button, select, input, progress")]
++    .filter(element => !element.closest("[data-auth-gate]"));
++  assert.equal(controls.length, 0,
++    "a apresentação autenticada não pode ter botão, seletor ou barra de progresso");
+   assert.equal(d.querySelectorAll("video").length, 1, "só um vídeo");
+ 
+   /* Nenhum palco, script ou folha de estilo do sistema 3D. */
+diff --git a/tests/forja.test.mjs b/tests/forja.test.mjs
+index e04bc07..f7b3d4a 100644
+--- a/tests/forja.test.mjs
++++ b/tests/forja.test.mjs
+@@ -753,9 +753,9 @@ await runTest("23. Código: sem localStorage.clear(), um único intervalo e cale
+ 
+   const calendar = fs.readFileSync(path.join(jsDir, "forja-calendario.js"), "utf8").trim();
+   assert.equal(
+-    createHash("sha256").update(calendar).digest("hex"),
++    createHash("sha256").update(calendar.replaceAll("window.Forja.store.driver()", "localStorage")).digest("hex"),
+     "30a825330793e156adc357ae714f022c853033c1016ee66ffeaec1ab705928c5",
+-    "O código de calendário/missões mudou em relação à main"
++    "A lógica de calendário/missões mudou além do adaptador de storage autenticado"
+   );
+ });
+ 
+@@ -2769,7 +2769,7 @@ await runTest("53. Preferências: mudança feita em outra aba chega ao Perfil, 
+ 
+     /* Outra aba grava; o evento `storage` só é entregue às demais abas. */
+     const next = JSON.stringify({ soundOnRest: false, vibrateOnRest: true });
+-    app.w.localStorage.setItem(PREFS_KEY, next);
++    app.F.store.driver().setItem(PREFS_KEY, next);
+     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: PREFS_KEY, newValue: next }));
+     await wait(10);
+     assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: true }, "Memória desatualizada em " + page);
+@@ -2784,7 +2784,7 @@ await runTest("53. Preferências: mudança feita em outra aba chega ao Perfil, 
+     assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: true });
+ 
+     /* Outra aba apagou a chave: volta ao padrão (ligado), sem gravar nada aqui. */
+-    app.w.localStorage.removeItem(PREFS_KEY);
++    app.F.store.driver().removeItem(PREFS_KEY);
+     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: PREFS_KEY, newValue: null }));
+     await wait(10);
+     assert.deepEqual(plain(app.F.state.preferences), { soundOnRest: true, vibrateOnRest: true });
+@@ -2864,9 +2864,8 @@ await runTest("54. Home sem rotina e com rotina vazia nunca exibe botão Iniciar
+ 
+ function captureStorage(app) {
+   const out = {};
+-  for (let i = 0; i < app.w.localStorage.length; i += 1) {
+-    const key = app.w.localStorage.key(i);
+-    out[key] = JSON.parse(app.w.localStorage.getItem(key));
++  for (const key of app.keys()) {
++    out[key] = JSON.parse(app.F.store.driver().getItem(key));
+   }
+   return out;
+ }
+@@ -3290,7 +3289,7 @@ await runTest("59b. C3: telas de treino e biblioteca sincronizam com outra aba/B
+   let expectedWrites = 0;
+ 
+   function externalWrite(key, value) {
+-    app.w.localStorage.setItem(key, JSON.stringify(value));
++    app.F.store.driver().setItem(key, JSON.stringify(value));
+     expectedWrites += 1;
+     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: JSON.stringify(value) }));
+   }
+@@ -3304,7 +3303,7 @@ await runTest("59b. C3: telas de treino e biblioteca sincronizam com outra aba/B
+   assert.match(app.text("#routine-list"), /Rotina Sync B/);
+ 
+   /* Retorno via BFCache (pageshow persisted) sem evento storage: relê e redesenha. */
+-  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA], [])));
++  app.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA], [])));
+   expectedWrites += 1;
+   const bfShow = new app.w.Event("pageshow");
+   bfShow.persisted = true;
+@@ -3326,7 +3325,7 @@ await runTest("59b. C3: telas de treino e biblioteca sincronizam com outra aba/B
+   /* A biblioteca também acompanha: rotina criada fora vira destino válido. */
+   const cat = await boot(seed, "treino/biblioteca.html");
+   await wait(20);
+-  cat.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA, rB], [])));
++  cat.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rA, rB], [])));
+   cat.w.dispatchEvent(new cat.w.StorageEvent("storage", {
+     key: "forja-treino-rotinas-v1",
+     newValue: JSON.stringify(routinesStore([rA, rB], []))
+@@ -3347,7 +3346,7 @@ await runTest("59c. C3: editor não sobrescreve mudança externa na mesma rotina
+   await wait(20);
+ 
+   const externalX = buildRotationRoutine({ id: "conf-x", name: "Versão da outra aba", exercises: [buildRotationExercise("Flexão", { sets: 9 })] });
+-  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([externalX, rY], [])));
++  app.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([externalX, rY], [])));
+   app.w.dispatchEvent(new app.w.StorageEvent("storage", {
+     key: "forja-treino-rotinas-v1",
+     newValue: JSON.stringify(routinesStore([externalX, rY], []))
+@@ -3372,7 +3371,7 @@ await runTest("59c. C3: editor não sobrescreve mudança externa na mesma rotina
+   await wait(20);
+ 
+   const externalY = buildRotationRoutine({ id: "conf-y", name: "Rotina Y externa", exercises: [buildRotationExercise("Prancha", { sets: 7 })] });
+-  app2.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rX, externalY], [])));
++  app2.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([rX, externalY], [])));
+   app2.w.dispatchEvent(new app2.w.StorageEvent("storage", {
+     key: "forja-treino-rotinas-v1",
+     newValue: JSON.stringify(routinesStore([rX, externalY], []))
+@@ -4250,12 +4249,12 @@ await runTest("74. Home: sincronização via evento storage (metas, histórico,
+ 
+   function externalWrite(key, value) {
+     const raw = JSON.stringify(value);
+-    app.w.localStorage.setItem(key, raw);
++    app.F.store.driver().setItem(key, raw);
+     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: raw }));
+   }
+ 
+   function externalRemove(key) {
+-    app.w.localStorage.removeItem(key);
++    app.F.store.driver().removeItem(key);
+     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key, newValue: null }));
+   }
+ 
+@@ -4322,7 +4321,7 @@ await runTest("74. Home: sincronização via evento storage (metas, histórico,
+   assert.equal(app.$("#home-action").hidden, true);
+ 
+   /* 6. JSON inválido vindo de outra aba não derruba a Home nem cria forja-treino-dados-preservados-v1. */
+-  app.w.localStorage.setItem("forja-treino-metas-v1", "{corrompido");
++  app.F.store.driver().setItem("forja-treino-metas-v1", "{corrompido");
+   app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: "forja-treino-metas-v1", newValue: "{corrompido" }));
+   expectedWrites += 1;
+   assert.equal(app.raw("forja-treino-dados-preservados-v1"), null, "Evento storage não pode criar chave de preservação");
+@@ -4352,13 +4351,13 @@ await runTest("75. Home: retorno via pageshow (BFCache) sincroniza F.state e int
+     String(now.getDate()).padStart(2, "0")
+   ].join("-");
+ 
+-  app.w.localStorage.setItem(PROFILE_KEY, JSON.stringify(profileSeed({ objetivo: "calistenia", diasPorSemana: 3 })));
+-  app.w.localStorage.setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([routine], [])));
+-  app.w.localStorage.setItem("forja-treino-metas-v1", JSON.stringify({
++  app.F.store.driver().setItem(PROFILE_KEY, JSON.stringify(profileSeed({ objetivo: "calistenia", diasPorSemana: 3 })));
++  app.F.store.driver().setItem("forja-treino-rotinas-v1", JSON.stringify(routinesStore([routine], [])));
++  app.F.store.driver().setItem("forja-treino-metas-v1", JSON.stringify({
+     version: 1, updatedAt: now.toISOString(), modality: "calisthenics",
+     weeklySessions: 3, weeklySets: 12, weeklyMinutes: 45
+   }));
+-  app.w.localStorage.setItem("forja-treino-historico-v1", JSON.stringify([{
++  app.F.store.driver().setItem("forja-treino-historico-v1", JSON.stringify([{
+     id: "bf-h1", date: todayLocal, finishedAt: now.toISOString(), modality: "calisthenics",
+     routineId: "rot-bf", routineName: "Calistenia Base", durationMs: 20 * 60000,
+     completedSets: 4, totalPlannedSets: 4, status: "completed", exercises: []
+@@ -4368,6 +4367,8 @@ await runTest("75. Home: retorno via pageshow (BFCache) sincroniza F.state e int
+   const bfShow = new app.w.Event("pageshow");
+   bfShow.persisted = true;
+   app.w.dispatchEvent(bfShow);
++  await app.F.auth.revalidate();
++  await wait(20); // BFCache só é liberado depois do getUser assíncrono.
+ 
+   assert.equal(app.F.state.profile.objetivo, "calistenia", "F.state.profile deve atualizar no retorno BFCache");
+   assert.equal(app.F.state.routines.calisthenics.length, 1, "F.state.routines deve atualizar no retorno BFCache");
+@@ -4588,7 +4589,7 @@ await runTest("76b. Segurança syncStateFromStorage: cada chave suportada atuali
+   });
+ 
+   /* Chave desconhecida */
+-  app.set("chave-externa-qualquer", "1");
++  app.w.localStorage.setItem("chave-externa-qualquer", "1");
+   assert.equal(assertReadOnlyExecution(app, "chave desconhecida", () => app.F.syncStateFromStorage("chave-externa-qualquer")), false);
+ 
+   assertNoErrors(app, "76b sync por chave");
+@@ -4759,20 +4760,26 @@ await runTest("76e. Segurança de sincronização: eventos storage e pageshow/BF
+   });
+ 
+   /* 4. Evento storage key=null */
+-  app.w.localStorage.removeItem(KEYS.active);
++  app.F.store.driver().removeItem(KEYS.active);
+   assertReadOnlyExecution(app, "evento storage key=null", () => {
+     app.w.dispatchEvent(new app.w.StorageEvent("storage", { key: null }));
+   });
++  // key=null também invalida Auth. Aguarde getUser e a atualização somente-leitura.
++  await app.F.auth.revalidate();
+   assert.equal(app.d.getElementById("active-session-banner").hidden, true);
+ 
+   /* 5. pageshow BFCache (persisted: true) com alterações externas combinadas (válidas + corrompidas) */
+   app.set(KEYS.profile, profileSeed({ objetivo: "resistencia", diasPorSemana: 4 }));
+   app.set(KEYS.rotation, "{rotacao-corrompida");
++  const writesBeforeBFCache = app.allStorageWrites.length;
+   assertReadOnlyExecution(app, "pageshow persisted=true (BFCache)", () => {
+     const ev = new app.w.Event("pageshow");
+     ev.persisted = true;
+     app.w.dispatchEvent(ev);
+   });
++  await app.F.auth.revalidate();
++  await wait(20);
++  assert.equal(app.allStorageWrites.length, writesBeforeBFCache, "BFCache assíncrono não pode gravar dados ou sessão");
+   assert.equal(app.F.state.profile.objetivo, "resistencia");
+   assert.equal(app.F.state.rotation.nextRoutineId, null);
+ 
+@@ -4795,7 +4802,7 @@ await runTest("76f. Segurança syncStateFromStorage: preferências ausentes ou i
+   assert.deepEqual(plainFromRealm(app.F.state.preferences), { soundOnRest: false, vibrateOnRest: false });
+ 
+   /* 1. Preferências ausentes (chave removida externamente) */
+-  app.w.localStorage.removeItem(KEYS.preferences);
++  app.F.store.driver().removeItem(KEYS.preferences);
+   assertReadOnlyExecution(app, "preferências ausentes por chave", () => {
+     assert.equal(app.F.syncStateFromStorage(KEYS.preferences), true);
+   });
+diff --git a/tests/grupo-muscular.test.mjs b/tests/grupo-muscular.test.mjs
+index 4822e14..44769d1 100644
+--- a/tests/grupo-muscular.test.mjs
++++ b/tests/grupo-muscular.test.mjs
+@@ -24,6 +24,7 @@ import fs from "node:fs";
+ import os from "node:os";
+ import path from "node:path";
+ import { execFileSync } from "node:child_process";
++import { AUTH_URL, AUTH_KEY } from "./helpers/auth-fixture.mjs";
+ import {
+   assertNoErrors,
+   boot,
+@@ -580,7 +581,7 @@ await runTest("19. O artefato do Pages leva a tela do grupo e não tem link queb
+     script e falha antes do push.
+   */
+   const destino = fs.mkdtempSync(path.join(os.tmpdir(), "forja-site-"));
+-  execFileSync("bash", [path.join(repoRoot, "tools/preparar-site.sh"), destino], { stdio: "pipe" });
++  execFileSync("bash", [path.join(repoRoot, "tools/preparar-site.sh"), destino], { stdio: "pipe", env: { ...process.env, FORJA_SUPABASE_URL: AUTH_URL, FORJA_SUPABASE_ANON_KEY: AUTH_KEY } });
+ 
+   ["treino/grupo.html", "assets/js/forja-grupo.js", "assets/css/grupo.css"].forEach(rel => {
+     assert.ok(fs.existsSync(path.join(destino, rel)), "O artefato publicado ficou sem " + rel);
+diff --git a/tests/helpers/harness.mjs b/tests/helpers/harness.mjs
+index e962218..ba4d60f 100644
+--- a/tests/helpers/harness.mjs
++++ b/tests/helpers/harness.mjs
+@@ -7,15 +7,18 @@
+     sessionStorage são copiados para a janela seguinte, como um navegador faria.
+   - Cliques em links (inclusive F.navigate, que chama anchor.click()) trocam de
+     página. Links de download são capturados em app.downloads.
+-  - Toda escrita no localStorage feita pela página (setItem, removeItem, clear)
+-    fica registrada em app.storageWrites, zerado a cada carga. A semeadura do
+-    teste não entra no registro: ele mostra só o que a própria página gravou.
++  - app.storageWrites observa dados de negócio (nomes lógicos preservados).
++    authStorageWrites e allStorageWrites observam separadamente tokens/journals
++    e os nomes físicos, sem esconder operações da suíte de autenticação.
++  - O SDK é real; apenas os endpoints HTTP e a configuração pública são fixtures.
++    A semeadura nunca injeta um bypass no código de produção.
+ */
+ import jsdomPkg from "jsdom";
+ import assert from "node:assert/strict";
+ import fs from "node:fs";
+ import path from "node:path";
+ import { fileURLToPath } from "node:url";
++import { AuthFixture, CONFIG_SCRIPT, AUTH_STORAGE_KEY, USERS, DATA_PREFIX, TAB_PREFIX, completedJournal, COPY_KEY, installJsdomAuth } from "./auth-fixture.mjs";
+ 
+ const { JSDOM, VirtualConsole, requestInterceptor } = jsdomPkg;
+ 
+@@ -23,9 +26,24 @@ const here = path.dirname(fileURLToPath(import.meta.url));
+ export const repoRoot = path.resolve(here, "..", "..");
+ export const BASE = "https://forja.test/forja/";
+ 
+-export const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+-
+-const interceptor = requestInterceptor(async request => {
++const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
++// Os fluxos de domínio não dependem da latência arbitrária do gate assíncrono.
++export const wait = async ms => {
++  await delay(ms);
++  const pending = [...openApps].filter(app => app.dom && app.F && app.F.ready &&
++    !["guest", "error"].includes(app.F.auth?.state) &&
++    app.d.documentElement.dataset.forjaAuth !== "ready" &&
++    (app.$("#auth-legacy-choice")?.hidden !== false) && (app.$("#auth-retry")?.hidden !== false));
++  await Promise.all(pending.map(app => Promise.race([(async () => {
++    if (app.F.authData?.userId) await app.F.auth.revalidate();
++    await app.F.ready;
++  })(), delay(4000)])));
++};
++
++function makeInterceptor(app) { return requestInterceptor(async request => {
++  if (request.url.split(/[?#]/)[0].endsWith("/assets/js/forja-supabase-config.js") && app.fixture.configured) {
++    return new Response(CONFIG_SCRIPT, { headers: { "content-type": "text/javascript" } });
++  }
+   if (request.url.startsWith("https://www.youtube-nocookie.com/embed/")) {
+     return new Response("<!doctype html><title>YouTube Embed</title>", {
+       status: 200,
+@@ -57,12 +75,17 @@ const interceptor = requestInterceptor(async request => {
+     status: 200,
+     headers: { "content-type": type + "; charset=utf-8" }
+   });
+-});
++}); }
+ 
+ const openApps = new Set();
+ 
+ export class App {
+-  constructor() {
++  constructor(options = {}) {
++    this.fixture = options.fixture || new AuthFixture();
++    this.authOptions = options;
++    this.authStorageWrites = [];
++    this.allStorageWrites = [];
++    this.externalNavigations = [];
+     this.errors = [];
+     this.downloads = [];
+     this.storageWrites = [];
+@@ -88,23 +111,17 @@ export class App {
+     element.dispatchEvent(new this.w.MouseEvent("click", { bubbles: true, cancelable: true }));
+   }
+ 
+-  raw(key) { return this.w.localStorage.getItem(key); }
++  raw(key) { return this.F.store && key.startsWith("forja-") ? this.F.store.readRaw(key) : this.w.localStorage.getItem(key); }
+ 
+   data(key, fallback = null) {
+     const raw = this.raw(key);
+     return raw === null ? fallback : JSON.parse(raw);
+   }
+ 
+-  keys() {
+-    const list = [];
+-    for (let index = 0; index < this.w.localStorage.length; index++) {
+-      list.push(this.w.localStorage.key(index));
+-    }
+-    return list.sort();
+-  }
++  keys() { return Array.from(this.F.store.keys()).sort(); }
+ 
+   set(key, value) {
+-    this.w.localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value));
++    this.F.store.driver().setItem(key, typeof value === "string" ? value : JSON.stringify(value));
+   }
+ 
+   get F() { return this.w.Forja; }
+@@ -149,6 +166,7 @@ export class App {
+   /* Navega como um navegador: salva o storage, troca de janela e carrega a nova página. */
+   async go(href) {
+     const target = new URL(href, this.w.location.href);
++    if (target.origin !== new URL(BASE).origin) { this.externalNavigations.push(target.href); return; }
+     const local = snapshotStorage(this.w.localStorage);
+     const session = snapshotStorage(this.w.sessionStorage);
+     const fakeNow = this.fakeNow;
+@@ -164,7 +182,9 @@ export class App {
+ 
+   async load(url, carry = {}) {
+     const page = url.replace(BASE, "").replace(/^\/+/, "");
+-    const file = path.join(repoRoot, page.split(/[?#]/)[0]);
++    let relative = page.split(/[?#]/)[0];
++    if (!relative || relative.endsWith("/")) relative += "index.html";
++    const file = path.join(repoRoot, relative);
+     const html = fs.readFileSync(file, "utf8");
+ 
+     const virtualConsole = new VirtualConsole();
+@@ -174,14 +194,17 @@ export class App {
+ 
+     const app = this;
+     this.storageWrites = [];
++    this.authStorageWrites = [];
++    this.allStorageWrites = [];
+ 
+     this.dom = new JSDOM(html, {
+       url,
+       runScripts: "dangerously",
+-      resources: { interceptors: [interceptor] },
++      resources: { interceptors: [makeInterceptor(app)] },
+       pretendToBeVisual: true,
+       virtualConsole,
+       beforeParse(window) {
++        installJsdomAuth(window, app.fixture, carry.local, carry.session, app.authOptions);
+         window.URL.createObjectURL = () => "blob:forja-test";
+         window.URL.revokeObjectURL = () => {};
+         window.HTMLAnchorElement.prototype.click = function captureNavigation() {
+@@ -206,20 +229,20 @@ export class App {
+         window.AudioContext = undefined;
+         window.webkitAudioContext = undefined;
+ 
+-        if (carry.local) {
+-          Object.entries(carry.local).forEach(([key, value]) => window.localStorage.setItem(key, value));
+-        }
+-        if (carry.session) {
+-          Object.entries(carry.session).forEach(([key, value]) => window.sessionStorage.setItem(key, value));
+-        }
+-
+         /* Só observa: registra e repassa ao método original desta janela. */
+         const local = window.localStorage;
+         ["setItem", "removeItem", "clear"].forEach(method => {
+           const original = window.Storage.prototype[method];
+           window.Storage.prototype[method] = function recordStorageWrite(...args) {
+             if (this === local) {
+-              app.storageWrites.push({ method, key: args.length > 0 ? String(args[0]) : null });
++              const physical = args.length > 0 ? String(args[0]) : null;
++              const record = { method, key: physical };
++              app.allStorageWrites.push(record);
++              if (physical && physical.startsWith(DATA_PREFIX(app.authOptions.uid || USERS.A))) {
++                app.storageWrites.push({ method, key: physical.slice(DATA_PREFIX(app.authOptions.uid || USERS.A).length) });
++              } else if (physical && physical.startsWith("forja-") && !physical.startsWith("forja-auth-")) {
++                app.storageWrites.push(record);
++              } else app.authStorageWrites.push(record);
+             }
+             return original.apply(this, args);
+           };
+@@ -241,6 +264,18 @@ export class App {
+       this.w.addEventListener("load", () => resolve());
+       setTimeout(resolve, 3000);
+     });
++    const loadedDom = this.dom;
++    for (let i = 0; i < 300; i += 1) {
++      if (this.dom !== loadedDom) break;
++      const auth = this.F && this.F.auth;
++      const choice = this.$("#auth-legacy-choice");
++      if (this.d.documentElement.dataset.forjaAuth === "ready" ||
++          (choice && !choice.hidden) ||
++          (auth && ["guest", "error"].includes(auth.state)) ||
++          this.d.body.dataset.page === "login") break;
++      if (this.$("#auth-retry")?.hidden === false) break;
++      await delay(10);
++    }
+     await wait(30);
+   }
+ 
+@@ -260,7 +295,7 @@ function snapshotStorage(storage) {
+ }
+ 
+ export async function boot(seed = {}, page = "index.html", options = {}) {
+-  const app = new App();
++  const app = new App(options);
+   const local = {};
+   Object.entries(seed).forEach(([key, value]) => {
+     local[key] = typeof value === "string" ? value : JSON.stringify(value);
+@@ -276,10 +311,21 @@ export async function boot(seed = {}, page = "index.html", options = {}) {
+     local[profileKey] = JSON.stringify({ version: 3, updatedAt: "2026-10-01T00:00:00.000Z",
+       objetivo: "manterForma", nivel: "iniciante", equipamento: "casa", diasPorSemana: 3 });
+   }
++  const uid = options.uid || USERS.A;
++  let physical = local;
++  if (options.auth !== false) {
++    const active = options.authSession || (uid === USERS.A ? app.fixture.defaultSession : app.fixture.issue(uid));
++    if (options.legacy) physical = { ...local, [AUTH_STORAGE_KEY]: JSON.stringify(active) };
++    else physical = app.fixture.seed(uid, local, { session: active });
++  }
++  const tab = {};
++  for (const [key, value] of Object.entries(options.session || {})) {
++    tab[options.legacy || key.startsWith("forja-auth-") ? key : TAB_PREFIX(uid) + key] = value;
++  }
+   if (options.now !== undefined) app.fakeNow = options.now;
+   await app.load(BASE + page, {
+-    local,
+-    session: options.session || null,
++    local: physical,
++    session: tab,
+     fakeNow: options.now === undefined ? null : options.now
+   });
+   return app;
+diff --git a/tests/helpers/legacy-flows.mjs b/tests/helpers/legacy-flows.mjs
+index d4faf52..09741fa 100644
+--- a/tests/helpers/legacy-flows.mjs
++++ b/tests/helpers/legacy-flows.mjs
+@@ -176,7 +176,8 @@ export function installFailingStorage(app, options) {
+     key(index) { return real.key(index); },
+     getItem(key) { return real.getItem(key); },
+     setItem(key, value) {
+-      if (key === state.failOn && state.hits < state.times) {
++      const logical = String(key).replace(/^forja-auth-data-v1:[0-9a-f-]+:/i, "");
++      if (logical === state.failOn && state.hits < state.times) {
+         state.hits += 1;
+         const error = new Error("QuotaExceededError simulado");
+         error.name = "QuotaExceededError";
+@@ -198,5 +199,11 @@ export function installFailingStorage(app, options) {
+ }
+ 
+ export function snapshot(app) {
+-  return Object.fromEntries(app.keys().map(key => [key, app.raw(key)]));
++  const result = Object.fromEntries(app.keys().map(key => [key, app.raw(key)]));
++  // Dados de outros apps permanecem fora do namespace e também são auditados.
++  for (let i = 0; i < app.w.localStorage.length; i++) {
++    const key = app.w.localStorage.key(i);
++    if (!key.startsWith("forja-") && !key.startsWith("sb-")) result[key] = app.w.localStorage.getItem(key);
++  }
++  return result;
+ }
+diff --git a/tests/onboarding.test.mjs b/tests/onboarding.test.mjs
+index 6ad0879..82e653e 100644
+--- a/tests/onboarding.test.mjs
++++ b/tests/onboarding.test.mjs
+@@ -939,12 +939,12 @@ await runTest("13. Fluxo interrompido retoma no mesmo passo sem gravar perfil",
+     equipamentos: ["nenhum"], preferenciasTreino: ["calistenia"]
+   });
+   await concluirDaRevisao(app);
+-  await until(() => app.d.body.dataset.page === "inicio", "conclusão após retomada");
++  await until(() => app.d.body.dataset.page === "treino", "retorno à página solicitada após retomada");
+ 
+   assert.equal(app.data(PROFILE_KEY).sexo, "feminino");
+   assert.equal(app.data(PROFILE_KEY).objetivo, "resistencia", "A resposta retomada é a gravada");
+   assert.equal(app.data(PROFILE_KEY).duracaoMinutos, 0);
+-  assert.equal(app.w.sessionStorage.getItem("forja-onboarding-rascunho-v1"), null,
++  assert.equal(app.F.tabStorage().getItem("forja-onboarding-rascunho-v1"), null,
+     "O rascunho deve ser apagado ao concluir");
+ });
+ 
+@@ -970,7 +970,7 @@ await runTest("14. Falha ao gravar mantém as respostas e avisa, sem perder o ra
+   assert.equal(erro.hidden, false, "O erro precisa ser visível");
+   assert.match(erro.textContent, /Não foi possível salvar/);
+ 
+-  const rascunho = JSON.parse(app.w.sessionStorage.getItem(app.F.onboarding.DRAFT_KEY));
++  const rascunho = JSON.parse(app.F.tabStorage().getItem(app.F.onboarding.DRAFT_KEY));
+   assert.ok(rascunho, "O rascunho deve continuar existindo");
+   assert.equal(rascunho.respostas.objetivo, "hipertrofia", "As respostas ficam guardadas");
+ 
+diff --git a/tests/paridade.test.mjs b/tests/paridade.test.mjs
+index 8016887..f453280 100644
+--- a/tests/paridade.test.mjs
++++ b/tests/paridade.test.mjs
+@@ -1335,7 +1335,7 @@ function allModuleIds() {
+ function idsInAllPages() {
+   const ids = new Set();
+   /* A tela do grupo muscular recebe filtros por URL, então é lida sem query. */
+-  const pages = Object.values(PAGE).concat(["treino/grupo.html"]);
++  const pages = Object.values(PAGE).concat(["treino/grupo.html", "login.html"]);
+   for (const page of pages) {
+     const html = fs.readFileSync(path.join(repoRoot, page), "utf8");
+     for (const match of html.matchAll(/\sid="([^"]+)"/g)) ids.add(match[1]);
+@@ -1723,7 +1723,7 @@ await runTest("12b. Nenhuma função/ID antiga referenciada e um único boot", a
+ 
+   // O bloco de calendário/missões é idêntico ao extraído da main (SHA-256 verificado).
+   assert.equal(
+-    createHash("sha256").update(calendar.trim()).digest("hex"),
++    createHash("sha256").update(calendar.trim().replaceAll("window.Forja.store.driver()", "localStorage")).digest("hex"),
+     "30a825330793e156adc357ae714f022c853033c1016ee66ffeaec1ab705928c5",
+     "O código de calendário/missões mudou em relação à main"
+   );
+@@ -1862,8 +1862,8 @@ await runTest("13a. Exportar/importar/desfazer preserva todas as chaves exatamen
+   // Altera o estado atual antes de restaurar.
+   app.set("forja-missoes-" + today, []);
+   app.set("forja-treino-rotinas-v1", { calisthenics: [], weights: [] });
+-  app.w.localStorage.removeItem("forja-treino-sessao-ativa-legada-v1");
+-  app.w.localStorage.removeItem("forja-treino-dados-preservados-v1");
++  app.F.store.driver().removeItem("forja-treino-sessao-ativa-legada-v1");
++  app.F.store.driver().removeItem("forja-treino-dados-preservados-v1");
+   const mutated = parsedStorage(app);
+ 
+   await app.importFile(backup);
+diff --git a/tests/youtube-frontend.test.mjs b/tests/youtube-frontend.test.mjs
+index 66c8d67..24b19f0 100644
+--- a/tests/youtube-frontend.test.mjs
++++ b/tests/youtube-frontend.test.mjs
+@@ -82,7 +82,7 @@ await test("YF06. Painel mantém credencial fora do storage e envia Authorizatio
+   assert.equal(authorization, "Bearer credential-only-in-memory");
+   assert.equal(app.$("#admin-credential").value, "");
+   assert.equal(app.raw("FORJA_ADMIN_CREDENTIAL"), null);
+-  assert.deepEqual(app.w.sessionStorage.length, 0); assert.deepEqual(app.storageWrites, []);
++  assert.deepEqual(app.F.tabStorage().length, 0); assert.deepEqual(app.storageWrites, []);
+   assert.match(app.text("#report"), /165/); app.close();
+ });
+ 
+diff --git a/tools/capturas-configuracoes.mjs b/tools/capturas-configuracoes.mjs
+index 3feae33..a1522bb 100644
+--- a/tools/capturas-configuracoes.mjs
++++ b/tools/capturas-configuracoes.mjs
+@@ -1,20 +1,17 @@
+ /*
+-  Capturas reais da tela de Configurações em Chromium.
+-
+-  Usa um perfil de teste isolado (nome "Ravy" é fixture de captura, nunca
+-  dado padrão do app). Sobe o repositório sob /forja/, mede overflow e
+-  grava PNGs + relatório JSON em artifacts/forja-configuracoes.
++  Capturas reais da tela de Configurações em Chromium, com SDK Supabase real
++  e Auth/PostgREST HTTP SIMULADOS. Não homologa Google/RLS, não usa chave real,
++  não executa SQL. O nome "Ravy" é fixture, nunca dado padrão do aplicativo.
+ 
+   Uso: npm run capturas:configuracoes
+-       node tools/capturas-configuracoes.mjs --out /tmp/capturas
++       node tools/capturas-configuracoes.mjs --out .cache/capturas-configuracoes
+ */
+ import fs from 'node:fs';
+-import os from 'node:os';
+ import path from 'node:path';
+-import http from 'node:http';
+-import { execFileSync } from 'node:child_process';
+-import { brotliDecompressSync } from 'node:zlib';
+ import { fileURLToPath } from 'node:url';
++import { launchBrowser, startServer, waitReady } from '../tests/helpers/browser.mjs';
++import { installBrowserAuth } from '../tests/helpers/browser-auth.mjs';
++import { AuthFixture, USERS, PROFILE } from '../tests/helpers/auth-fixture.mjs';
+ 
+ const here = path.dirname(fileURLToPath(import.meta.url));
+ const root = path.resolve(process.env.FORJA_ROOT || path.join(here, '..'));
+@@ -23,70 +20,10 @@ const output = path.resolve(outArg >= 0 && process.argv[outArg + 1]
+   ? process.argv[outArg + 1]
+   : path.join(root, 'artifacts', 'forja-configuracoes'));
+ fs.mkdirSync(output, { recursive: true });
+-
+-const puppeteer = (await import('puppeteer-core')).default;
+-let chromium = null;
+-try { chromium = (await import('@sparticuz/chromium')).default; } catch { /* navegador do sistema */ }
+-const candidates = [
+-  process.env.PUPPETEER_EXECUTABLE_PATH,
+-  '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable',
+-  '/usr/bin/chromium', '/usr/bin/chromium-browser'
+-].filter(Boolean);
+-let executablePath = candidates.find(candidate => fs.existsSync(candidate));
+-let launchArgs = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'];
+-if (!executablePath && chromium) {
+-  executablePath = await chromium.executablePath();
+-  launchArgs = [...chromium.args, '--no-sandbox', '--disable-dev-shm-usage'];
+-}
+-if (!executablePath) {
+-  console.error('Nenhum Chromium encontrado. Defina PUPPETEER_EXECUTABLE_PATH ou rode npm install.');
+-  process.exit(1);
+-}
+-if (process.platform === 'linux' && chromium && !process.env.LD_LIBRARY_PATH && executablePath.includes('/tmp/')) {
+-  try {
+-    const modulePath = fileURLToPath(import.meta.resolve('@sparticuz/chromium'));
+-    const packageRoot = path.resolve(path.dirname(modulePath), '../..');
+-    const archive = path.join(packageRoot, 'bin', 'al2023.tar.br');
+-    const libRoot = path.join(os.tmpdir(), 'forja-e2e-al2023');
+-    if (!fs.existsSync(path.join(libRoot, 'lib', 'libnspr4.so'))) {
+-      fs.mkdirSync(libRoot, { recursive: true });
+-      const unpacked = path.join(os.tmpdir(), 'forja-e2e-al2023.tar');
+-      fs.writeFileSync(unpacked, brotliDecompressSync(fs.readFileSync(archive)));
+-      execFileSync('tar', ['-xf', unpacked, '-C', libRoot]);
+-      fs.unlinkSync(unpacked);
+-    }
+-    process.env.LD_LIBRARY_PATH = path.join(libRoot, 'lib');
+-  } catch (error) {
+-    console.warn('Dependências Linux do Chromium: ' + error.message);
+-  }
+-}
+-
+-const mime = {
+-  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+-  '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
+-  '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp',
+-  '.woff2': 'font/woff2', '.md': 'text/plain; charset=utf-8'
+-};
+-const server = http.createServer((request, response) => {
+-  const url = new URL(request.url, 'http://127.0.0.1');
+-  if (!url.pathname.startsWith('/forja/')) { response.writeHead(404).end(); return; }
+-  let relative = decodeURIComponent(url.pathname.slice('/forja/'.length));
+-  if (!relative || relative.endsWith('/')) relative += 'index.html';
+-  const file = path.resolve(root, relative);
+-  const first = path.relative(root, file).split(path.sep)[0];
+-  if (!file.startsWith(root + path.sep) || ['node_modules', '.git', 'tests', 'docs'].includes(first) || first.startsWith('.')) {
+-    response.writeHead(404).end(); return;
+-  }
+-  fs.readFile(file, (error, data) => {
+-    if (error) { response.writeHead(404).end(); return; }
+-    response.setHeader('Content-Type', mime[path.extname(file)] || 'application/octet-stream');
+-    response.end(data);
+-  });
+-});
+-await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+-const base = 'http://127.0.0.1:' + server.address().port + '/forja/';
++const server = await startServer(root);
++const base = server.origin + '/forja/';
+ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+-const browser = await puppeteer.launch({ executablePath, args: launchArgs, headless: true });
++const browser = await launchBrowser();
+ const page = await browser.newPage();
+ const errors = [];
+ page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+@@ -94,23 +31,22 @@ page.on('pageerror', error => errors.push(error.message));
+ page.on('requestfailed', request => {
+   if (!/ERR_ABORTED/i.test(request.failure()?.errorText || '')) errors.push(request.url());
+ });
+-
+-/* Fixture explícita de captura; não é semeada pelo app em produção. */
+-await page.evaluateOnNewDocument(() => {
+-  localStorage.setItem('forja-perfil-v1', JSON.stringify({
+-    version: 3,
++const fixture = new AuthFixture();
++await installBrowserAuth(page, fixture, server.origin, { local: fixture.seed(USERS.A, {
++  'forja-perfil-v1': {
++    ...PROFILE,
+     updatedAt: '2026-01-02T00:00:00.000Z',
+     onboardingConcluidoEm: '2026-01-02T00:00:00.000Z',
+     nomeExibicao: 'Ravy',
+     objetivo: 'hipertrofia',
+     nivel: 'intermediario',
+     equipamento: 'academia'
+-  }));
+-});
+-
++  }
++}) });
+ const report = {
+   generatedAt: new Date().toISOString(),
+-  fixture: 'configuracoes-captura-v1 (nome Ravy apenas para a captura)',
++  fixture: 'configuracoes-captura-v2 (nome Ravy apenas para a captura; SDK real / Auth HTTP simulado)',
++  remoteAuthenticationVerified: false,
+   screenshots: [],
+   layout: [],
+   consoleErrors: errors
+@@ -119,6 +55,7 @@ const report = {
+ async function capture(name, url, width, height, fullPage = true) {
+   await page.setViewport({ width, height, deviceScaleFactor: 1 });
+   await page.goto(base + url, { waitUntil: 'networkidle0' });
++  await waitReady(page);
+   await page.evaluate(() => document.fonts.ready);
+   await sleep(250);
+   const layout = await page.evaluate(() => ({
+@@ -133,25 +70,28 @@ async function capture(name, url, width, height, fullPage = true) {
+   report.layout.push({ name, width, height, ...layout });
+ }
+ 
+-await capture('configuracoes-320', 'configuracoes/', 320, 844);
+-await capture('configuracoes-390', 'configuracoes/', 390, 844);
+-await capture('configuracoes-390-viewport', 'configuracoes/', 390, 844, false);
+-await capture('configuracoes-1280', 'configuracoes/', 1280, 900);
+-await capture('editar-perfil-390', 'configuracoes/#editar-perfil', 390, 844);
+-await capture('notificacoes-390', 'configuracoes/#notificacoes', 390, 844);
+-await capture('aparencia-390', 'configuracoes/#aparencia', 390, 844);
+-await capture('privacidade-390', 'configuracoes/#privacidade', 390, 844);
++try {
++  await capture('configuracoes-320', 'configuracoes/', 320, 844);
++  await capture('configuracoes-390', 'configuracoes/', 390, 844);
++  await capture('configuracoes-390-viewport', 'configuracoes/', 390, 844, false);
++  await capture('configuracoes-1280', 'configuracoes/', 1280, 900);
++  await capture('editar-perfil-390', 'configuracoes/#editar-perfil', 390, 844);
++  await capture('notificacoes-390', 'configuracoes/#notificacoes', 390, 844);
++  await capture('aparencia-390', 'configuracoes/#aparencia', 390, 844);
++  await capture('privacidade-390', 'configuracoes/#privacidade', 390, 844);
+ 
+-/* Tema alternativo aplicado de verdade, inclusive fora de Configurações. */
+-await page.setViewport({ width: 390, height: 844 });
+-await page.goto(base + 'configuracoes/#aparencia', { waitUntil: 'networkidle0' });
+-await page.click('input[name="appearance-theme"][value="contrast"]');
+-await sleep(150);
+-await capture('aparencia-alto-contraste-390', 'configuracoes/#aparencia', 390, 844);
+-await capture('inicio-alto-contraste-390', 'index.html', 390, 844);
+-
+-await browser.close();
+-server.close();
++  /* Tema alternativo aplicado de verdade, inclusive fora de Configurações. */
++  await page.setViewport({ width: 390, height: 844 });
++  await page.goto(base + 'configuracoes/#aparencia', { waitUntil: 'networkidle0' });
++  await waitReady(page);
++  await page.click('input[name="appearance-theme"][value="contrast"]');
++  await sleep(150);
++  await capture('aparencia-alto-contraste-390', 'configuracoes/#aparencia', 390, 844);
++  await capture('inicio-alto-contraste-390', 'index.html', 390, 844);
++} finally {
++  await browser.close();
++  await server.close();
++}
+ fs.writeFileSync(path.join(output, 'relatorio.json'), JSON.stringify(report, null, 2) + '\n');
+ console.log('Capturas em ' + output);
+ console.log('Overflow: ' + report.layout.every(item => item.overflow === 0));
+diff --git a/tools/preparar-site.sh b/tools/preparar-site.sh
+index 9a2ca5f..967fef3 100755
+--- a/tools/preparar-site.sh
++++ b/tools/preparar-site.sh
+@@ -17,16 +17,26 @@ set -euo pipefail
+ OUT="${1:?uso: preparar-site.sh <diretorio-de-saida>}"
+ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ 
++# Impede que um erro de argumento remova o checkout ou algum ancestral.
++python3 - "$ROOT" "$OUT" <<'CHECK'
++import pathlib, sys
++root, out = (pathlib.Path(p).resolve() for p in sys.argv[1:])
++if out == root or out in root.parents:
++    sys.exit("ERRO: saída não pode ser o repositório nem um ancestral")
++CHECK
+ rm -rf "$OUT"
+ mkdir -p "$OUT"
+ 
+ # Caminhos relativos idênticos aos do repositório: preserva data-root, F.url(),
+ # navegação e imagens quando o site é servido sob /forja/.
+-cp -R "$ROOT/index.html" \
++cp -R "$ROOT/index.html" "$ROOT/login.html" \
+       "$ROOT/admin" "$ROOT/configuracoes" "$ROOT/explorar" "$ROOT/exercicio" "$ROOT/onboarding" \
+       "$ROOT/progresso" "$ROOT/treino" \
+       "$ROOT/assets" "$OUT/"
+ 
++# Apenas configuração pública; falta/erro de variável interrompe o build, nunca abre o app.
++node "$ROOT/tools/configurar-auth.mjs" "$OUT"
++
+ # Entradas do gerador e livro de revisões: ficam no repositório para auditoria,
+ # mas não são recursos do app publicado. O manifesto com SHA-256 fica (é link
+ # visível na tela de créditos), assim como LICENSE-DATA.md, NOTICE.md e
+@@ -109,7 +119,10 @@ for p in tools tests docs design artifacts .github .git node_modules \
+ done
+ 
+ # Recursos obrigatórios do app, vídeos/ilustrações de demonstração e créditos.
+-for p in index.html \
++for p in index.html login.html assets/css/login.css assets/js/forja-login.js \
++         assets/css/auth-guard.css assets/js/forja-auth-guard.js \
++         assets/js/forja-supabase-config.js assets/js/forja-auth.js assets/js/forja-auth-data.js \
++         assets/vendor/supabase/supabase.js assets/vendor/supabase/LICENSE \
+          admin/exercicios.html assets/js/admin-exercicios.js assets/css/admin-exercicios.css \
+          assets/js/forja-youtube.js \
+          exercicio/index.html \
+diff --git a/treino/biblioteca.html b/treino/biblioteca.html
+index 373a39b..c21a7a2 100644
+--- a/treino/biblioteca.html
++++ b/treino/biblioteca.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#080C0D">
+ <title>Biblioteca · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -22,6 +24,17 @@
+ </head>
+ 
+ <body data-page="biblioteca" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner">
+@@ -86,7 +99,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -96,7 +109,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/treino/calistenia.html b/treino/calistenia.html
+index d1b7912..4c64ef6 100644
+--- a/treino/calistenia.html
++++ b/treino/calistenia.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#101010">
+ <title>Calistenia · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -19,6 +21,17 @@
+ </head>
+ 
+ <body data-page="calistenia" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner">
+@@ -108,7 +121,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -117,7 +130,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/treino/executar.html b/treino/executar.html
+index 73261f6..1c82e89 100644
+--- a/treino/executar.html
++++ b/treino/executar.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#101010">
+ <title>Execução do treino · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -20,6 +22,17 @@
+ </head>
+ 
+ <body data-page="executar" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner">
+@@ -268,7 +281,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -277,7 +290,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/treino/grupo.html b/treino/grupo.html
+index 89b49aa..1cb5868 100644
+--- a/treino/grupo.html
++++ b/treino/grupo.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#080C0D">
+ <title>Grupo muscular · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -22,6 +24,17 @@
+ </head>
+ 
+ <body data-page="grupo" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner">
+@@ -83,7 +96,11 @@
+ </nav>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/treino/index.html b/treino/index.html
+index 566cbef..e3a5cae 100644
+--- a/treino/index.html
++++ b/treino/index.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#080b09">
+ <title>Treinos · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/plano.css">
+@@ -21,6 +23,17 @@
+ <link rel="stylesheet" href="../assets/css/aparencia.css">
+ </head>
+ <body data-page="treino" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header"><div class="container site-header-inner"><a class="logo" href="../index.html">FORJA</a><div class="tagline">DISCIPLINA DIÁRIA</div></div></header>
+ <main class="container training-hub" id="conteudo">
+@@ -146,10 +159,14 @@
+     </a>
+   </div>
+ </nav>
+-<footer class="site-footer"><div class="container"><p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p><p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p><p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p></div></footer>
++<footer class="site-footer"><div class="container"><p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p><p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p><p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p></div></footer>
+ <div id="modal-root"></div><div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/treino/musculacao.html b/treino/musculacao.html
+index a8cf596..275d4b8 100644
+--- a/treino/musculacao.html
++++ b/treino/musculacao.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#101010">
+ <title>Musculação · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -19,6 +21,17 @@
+ </head>
+ 
+ <body data-page="musculacao" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner">
+@@ -108,7 +121,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -117,7 +130,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>
+diff --git a/treino/rotina.html b/treino/rotina.html
+index bfa614d..48371f6 100644
+--- a/treino/rotina.html
++++ b/treino/rotina.html
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR">
++<html lang="pt-BR" data-forja-auth="locked">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#101010">
+ <title>Editor de rotina · FORJA</title>
++<link rel="stylesheet" href="../assets/css/auth-guard.css">
++<script src="../assets/js/forja-auth-guard.js"></script>
+ <link rel="stylesheet" href="../assets/css/base.css">
+ <link rel="stylesheet" href="../assets/css/treino.css">
+ <link rel="stylesheet" href="../assets/css/execucao.css">
+@@ -19,6 +21,17 @@
+ </head>
+ 
+ <body data-page="rotina" data-root="../">
++<section data-auth-gate aria-labelledby="auth-gate-title">
++  <p class="auth-gate-title" id="auth-gate-title">Sua conta FORJA</p>
++  <p id="auth-gate-status" role="status" aria-live="polite">Verificando sua sessão…</p>
++  <button id="auth-retry" type="button" hidden>Tentar novamente</button>
++  <div id="auth-legacy-choice" hidden>
++    <button id="auth-import-confirm" type="button">Vincular dados a esta conta</button>
++    <button id="auth-import-skip" type="button">Usar a conta sem importar o legado</button>
++  </div>
++  <a href="../login.html">Ir para o login</a>
++</section>
++<noscript><p>Ative o JavaScript e <a href="../login.html">entre com Google</a> para usar o FORJA.</p></noscript>
+ <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+ <header class="site-header">
+   <div class="container site-header-inner">
+@@ -298,7 +311,7 @@
+ <footer class="site-footer">
+   <div class="container">
+     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
+-    <p class="storage-note">Seus dados ficam salvos somente neste navegador e não são sincronizados entre dispositivos.</p>
++    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
+   </div>
+ </footer>
+@@ -307,7 +320,11 @@
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+ 
+ <script src="../assets/js/forja-core.js" defer></script>
++<script src="../assets/js/forja-supabase-config.js" defer></script>
++<script src="../assets/vendor/supabase/supabase.js" defer></script>
++<script src="../assets/js/forja-auth.js" defer></script>
+ <script src="../assets/js/forja-store.js" defer></script>
++<script src="../assets/js/forja-auth-data.js" defer></script>
+ <script src="../assets/js/forja-dados.js" defer></script>
+ <script src="../assets/js/forja-metricas.js" defer></script>
+ <script src="../assets/js/forja-exercicios-dados.js" defer></script>

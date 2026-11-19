@@ -1,0 +1,715 @@
+{
+  "experiment": "deadline-4000-w3",
+  "option": "Opcao B — Nova Implementacao Experimental W3 em copia isolada",
+  "verdict": "APROVADA PARA AUDITORIA INDEPENDENTE",
+  "generatedAtUtc": "2026-11-19T01:12:00Z",
+  "originalCheckout": {
+    "path": "/home/user/forja",
+    "branch": "arena/468b7e01-forja",
+    "head": "99cffc9147d72cc4eedd2eaf47310fc135815c3b",
+    "indexSha256": "15a5499d0be6cfe6f79f5c6d2c3cc1aa394fbda42e0442153944f7c7883e3a0d",
+    "statusShortSha256": "f77b2c39be904f1db4aa7e8d351c5f8053f76389d1c11001ec177dde98695f99",
+    "baselineFilesTotal": 825,
+    "baselineMissing": 0,
+    "baselineMismatch": 0,
+    "helperOriginalSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+    "packageJsonSha256": "90e69acbc229c6c338acd2d6db162322a2fef011038798d3acc6e9d502abe0b7",
+    "packageLockSha256": "b490e9738f8c589f3e84700468a0d49f78a9cbfe38abf0c1282d135951f49cd6",
+    "nodeModulesExists": false
+  },
+  "historicalPreserved": {
+    "scrollRealSummarySha256": "ea58f9651955a0ca5f326666864528b96d737ffd18e30f855f5aff99a8f0af8c",
+    "deadline4000W2SummarySha256": "f1927154523d6e397dcc30a9cb9c812da823e5c6abc2985e3e768906249cb20a"
+  },
+  "isolatedW3": {
+    "root": "/home/user/forja/validacoes/deadline-4000-w3",
+    "checkout": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+    "helperW3Sha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+    "helperW3DiffPath": "validacoes/deadline-4000-w3/evidence/helper-w3.diff",
+    "helperW3DiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "addedFiles": {
+      "tests/browser-interaction-w3-regressions.test.mjs": "85ae5f4660cdc282431bdfcd721c1a911afe93399b29c318d5477c50af3ab686",
+      "tests/browser-interaction-w3-regressions.browser.mjs": "db7e130fdaea9dcf297b3c6e2a98c64baabef8c96d2f0848fb0212dd9537ef83"
+    },
+    "checkoutStatusDiffFromBaseline": " M .env.example\n M .github/workflows/static.yml\n M .gitignore\n M README.md\n M admin/exercicios.html\n M assets/js/admin-exercicios.js\n M assets/js/forja-app.js\n M assets/js/forja-backup.js\n M assets/js/forja-calendario.js\n M assets/js/forja-configuracoes.js\n M assets/js/forja-core.js\n M assets/js/forja-onboarding.js\n M assets/js/forja-plano.js\n M assets/js/forja-store.js\n M configuracoes/index.html\n M exercicio/index.html\n M explorar/atlas.html\n M explorar/index.html\n M index.html\n M netlify.toml\n M onboarding/index.html\n M package-lock.json\n M package.json\n M progresso/index.html\n M tests/atlas.test.mjs\n M tests/e2e.browser.mjs\n M tests/exercicio-apresentacao.test.mjs\n M tests/forja.test.mjs\n M tests/grupo-muscular.test.mjs\n M tests/helpers/harness.mjs\n M tests/helpers/legacy-flows.mjs\n M tests/onboarding.test.mjs\n M tests/paridade.test.mjs\n M tests/youtube-frontend.test.mjs\n M tools/capturas-configuracoes.mjs\n M tools/preparar-site.sh\n M treino/biblioteca.html\n M treino/calistenia.html\n M treino/executar.html\n M treino/grupo.html\n M treino/index.html\n M treino/musculacao.html\n M treino/rotina.html\n?? .gitattributes\n?? assets/css/auth-guard.css\n?? assets/css/login.css\n?? assets/js/forja-auth-data.js\n?? assets/js/forja-auth-guard.js\n?? assets/js/forja-auth.js\n?? assets/js/forja-login.js\n?? assets/js/forja-supabase-config.js\n?? assets/vendor/\n?? docs/autenticacao-google.md\n?? docs/correcao-concorrencia-auth.md\n?? docs/correcao-helper-scroll-aninhados-deadline.md\n?? docs/correcao-helper-scroll-e2e.md\n?? docs/entrega-google-auth.md\n?? docs/evidencias-auth-final.md\n?? docs/evidencias-corridas-auth.json\n?? docs/evidencias-helper-scroll-aninhados-deadline.json\n?? docs/evidencias-helper-scroll-aninhados-deadline.sha256\n?? docs/evidencias-helper-scroll-aninhados-deadline.zip\n?? docs/evidencias-helper-scroll-e2e.json\n?? docs/evidencias-helper-scroll-e2e.zip\n?? docs/validacao-auth-auditoria-final.md\n?? docs/validacao-login-google.md\n?? login.html\n?? tests/auth-concurrency.browser.mjs\n?? tests/auth-concurrency.test.mjs\n?? tests/auth-config.test.mjs\n?? tests/auth-recovery.browser.mjs\n?? tests/auth-recovery.test.mjs\n?? tests/auth.browser.mjs\n?? tests/auth.test.mjs\n?? tests/browser-interaction-chain.test.mjs\n?? tests/browser-interaction-deadline.test.mjs\n?? tests/browser-interaction-expanded.browser.mjs\n?? tests/browser-interaction-late-protocol.test.mjs\n?? tests/browser-interaction-nested.browser.mjs\n?? tests/browser-interaction-protocol.browser.mjs\n?? tests/browser-interaction-regressions.browser.mjs\n?? tests/browser-interaction-w3-regressions.browser.mjs\n?? tests/browser-interaction-w3-regressions.test.mjs\n?? tests/browser-interaction.browser.mjs\n?? tests/helpers/auth-concurrency.mjs\n?? tests/helpers/auth-fixture.mjs\n?? tests/helpers/auth-lifecycle.mjs\n?? tests/helpers/auth-recovery.mjs\n?? tests/helpers/browser-auth.mjs\n?? tests/helpers/browser-interaction.mjs\n?? tests/helpers/browser.mjs\n?? tests/helpers/scroll-dom-model.mjs\n?? tests/helpers/scrollend-off.mjs\n?? tools/configurar-auth.mjs\n?? tools/sincronizar-supabase.mjs\n",
+    "browserEnvironment": {
+      "chromiumBinary": "/home/user/forja/validacoes/deadline-4000-w3/.cache/tmp/chromium",
+      "chromiumBinarySha256": "7ddc6837ec0e0c9ff488cf8c8fa64d8eef71cc3fa7c79752c52367bddbfe94dd",
+      "chromiumVersion": "Chromium 138.0.7204.0",
+      "wrapper": "/home/user/forja/validacoes/deadline-4000-w3/instruments/chromium-local-only",
+      "wrapperSha256": "c5361a103365af5043025363a9c32bd4e155f1a144db9322287c1cb1c9cd14f7",
+      "libraryPath": "/home/user/forja/validacoes/deadline-4000-w3/.cache/tmp/forja-browser-libs/lib:/home/user/forja/validacoes/deadline-4000-w3/.cache/tmp"
+    }
+  },
+  "temporalContract": {
+    "deadlineMs": 4000,
+    "nodeTimerReserveMs": 24,
+    "logicalCutoffMs": 3976,
+    "physicalReturnGuaranteeClaimed": false,
+    "protocol48SamplesObserved": {
+      "count": 48,
+      "logicalExpiredAtMsMin": 3974.531,
+      "logicalExpiredAtMsMedian": 3975.474,
+      "logicalExpiredAtMsMax": 3979.426,
+      "physicalElapsedMsMin": 3974.713,
+      "physicalElapsedMsMedian": 3975.581,
+      "physicalElapsedMsMax": 3979.533,
+      "eventLoopDelayMsMin": 0,
+      "eventLoopDelayMsMedian": 0.0,
+      "eventLoopDelayMsMax": 3.426,
+      "samplesOver4000ms": 0
+    },
+    "note": "Under Node.js single-thread event loop scheduling, physical return timing depends on OS timer jitter and synchronous event-loop stalls. Cutoff at 3976 ms triggers immediate logical expiration while preserving separate metrics for deadlineMs, logicalCutoffMs, logicalExpiredAtMs, physicalElapsedMs/physicalReturnedAtMs, eventLoopDelayMs, cleanupConfirmed and inertResources."
+  },
+  "runs": {
+    "01-security-probe": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 0.919502,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 2,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "SECURITY CAPABILITY PROBE — 2/2 passed."
+      ],
+      "log": "logs/01-security-probe.log",
+      "logSha256": "b4f4a25f295c01f14a83e8609f0c8de11fbce5adf1f7eb2b847e12213fa4ea2f",
+      "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "02-static-before": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 4.928878,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 0,
+      "failedCaseMarkers": 0,
+      "summaries": [],
+      "log": "logs/02-static-before.log",
+      "logSha256": "da16cae03d3532fc8a66978f1f9cce005fc532f47c92cf3a68fdbf51ea81ee41",
+      "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "03-red-protocol": {
+      "status": "FAILED_COMPLETED",
+      "exitCode": 1,
+      "elapsedSeconds": 49.514095,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 5,
+      "failedCaseMarkers": 7,
+      "summaries": [
+        "PROTOCOL — 5/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+      ],
+      "log": "logs/03-red-protocol.log",
+      "logSha256": "5de38405c7cbe037e78a8a1682f5cf451642f6822477dbba0750d29307b5875e",
+      "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "04-red-w3-regressions": {
+      "status": "FAILED_COMPLETED",
+      "exitCode": 13,
+      "elapsedSeconds": 0.065223,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 0,
+      "failedCaseMarkers": 0,
+      "summaries": [],
+      "log": "logs/04-red-w3-regressions.log",
+      "logSha256": "c47a67e83b29e7486d025a329e2ad32a8dca89350c62b4113be9ccf0781c20d2",
+      "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "04b-red-w3-regressions": {
+      "status": "FAILED_COMPLETED",
+      "exitCode": 13,
+      "elapsedSeconds": 0.115081,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 3,
+      "failedCaseMarkers": 13,
+      "summaries": [],
+      "log": "logs/04b-red-w3-regressions.log",
+      "logSha256": "91bfbfef8c7a0c10c5b575dd081c950e17129dbff76e63fa53535fda2fc85ad1",
+      "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "04c-red-w3-regressions": {
+      "status": "FAILED_COMPLETED",
+      "exitCode": 1,
+      "elapsedSeconds": 0.115327,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 5,
+      "failedCaseMarkers": 15,
+      "summaries": [
+        "W3 REGRESSIONS — 5/20; 20 casos obrigatórios (modelo/protocolo, NÃO Chromium)."
+      ],
+      "log": "logs/04c-red-w3-regressions.log",
+      "logSha256": "a0b2ab1f45bcd27398ad7e0d67f56d8466913c829be997c42c4e30cf49b9dd4d",
+      "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "05-red-w3-browser": {
+      "status": "FAILED_COMPLETED",
+      "exitCode": 1,
+      "elapsedSeconds": 17.319841,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 0,
+      "failedCaseMarkers": 6,
+      "summaries": [
+        "W3 CHROMIUM REGRESSIONS — 0/6; Chromium real Blink ON/OFF."
+      ],
+      "log": "logs/05-red-w3-browser.log",
+      "logSha256": "5122cbdcd5131582859e95472331485d54f98ea0836f7e7399040ee08d6f4e40",
+      "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "06-static-after": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 5.129034,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 0,
+      "failedCaseMarkers": 0,
+      "summaries": [],
+      "log": "logs/06-static-after.log",
+      "logSha256": "45dad7574397f53e08f5891ceece5ab0bbe5d81156136135d1c66271b7295579",
+      "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "07-green-w3-regressions": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 0.1151,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 20,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "W3 REGRESSIONS — 20/20; 20 casos obrigatórios (modelo/protocolo, NÃO Chromium)."
+      ],
+      "log": "logs/07-green-w3-regressions.log",
+      "logSha256": "157c1e2137b76ea50a9517208cf03cee521645f81e43fd18932b8caf9bfb7626",
+      "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "07b-green-w3-regressions": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 0.115036,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 20,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "W3 REGRESSIONS — 20/20; 20 casos obrigatórios (modelo/protocolo, NÃO Chromium)."
+      ],
+      "log": "logs/07b-green-w3-regressions.log",
+      "logSha256": "1cad6285f9dd977f025b819f33df0fc4fae5061ddb64cc5dbd0a7d4ecdc2f388",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "08-green-w3-browser": {
+      "status": "FAILED_COMPLETED",
+      "exitCode": 1,
+      "elapsedSeconds": 17.229872,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 4,
+      "failedCaseMarkers": 2,
+      "summaries": [
+        "W3 CHROMIUM REGRESSIONS — 4/6; Chromium real Blink ON/OFF."
+      ],
+      "log": "logs/08-green-w3-browser.log",
+      "logSha256": "e45ad0c35209290cb27cc63823bdbf8769c2bf2383f0c411317b407ff17f35ca",
+      "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "08b-green-w3-browser": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 17.279807,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 6,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "W3 CHROMIUM REGRESSIONS — 6/6; Chromium real Blink ON/OFF."
+      ],
+      "log": "logs/08b-green-w3-browser.log",
+      "logSha256": "f86ff152851368864d961aeed2e7c8cf5ff78f5af140e1b88f8af0df33e6c51f",
+      "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "08c-green-w3-browser": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 17.223156,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 6,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "W3 CHROMIUM REGRESSIONS — 6/6; Chromium real Blink ON/OFF."
+      ],
+      "log": "logs/08c-green-w3-browser.log",
+      "logSha256": "46aaa3ba7c4b39a5b9794c5765c8bbd56ffe14ee869eec26e41a118710e0fcc7",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "09-static-after": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 5.280733,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 0,
+      "failedCaseMarkers": 0,
+      "summaries": [],
+      "log": "logs/09-static-after.log",
+      "logSha256": "8a5cb280c5bb10e53b64ad3226d6e091d5782c8bb328859a569cabf1fea77154",
+      "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "09b-static-after": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 5.329448,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 0,
+      "failedCaseMarkers": 0,
+      "summaries": [],
+      "log": "logs/09b-static-after.log",
+      "logSha256": "0ee94c3e23051c119d0ba20453efd1475a6bfba7ef12b240c59dc9fafaf23db4",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "10-model-chain": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 0.26523,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 26,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "CHAIN MODEL — 26/26; DOM/CSSOM/eventos modelados, nenhum clique, NÃO Chromium."
+      ],
+      "log": "logs/10-model-chain.log",
+      "logSha256": "06237bb4a6cf7d9ec55a98c388d880b927f8bd66cfca485f1ede6c66f0644a5d",
+      "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "10b-model-chain": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 0.265432,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 26,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "CHAIN MODEL — 26/26; DOM/CSSOM/eventos modelados, nenhum clique, NÃO Chromium."
+      ],
+      "log": "logs/10b-model-chain.log",
+      "logSha256": "a13de052cd77328a223c53d7af5f706ecb1666766994b7d69fcff8abc06c67a8",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "11-model-deadline": {
+      "status": "FAILED_COMPLETED",
+      "exitCode": 1,
+      "elapsedSeconds": 0.064782,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 11,
+      "failedCaseMarkers": 2,
+      "summaries": [
+        "DEADLINE CONTRACT — 11/13; relógio virtual/protocolo modelado, NÃO Chromium."
+      ],
+      "log": "logs/11-model-deadline.log",
+      "logSha256": "ac7b4020b96c29479146d6d9b8cf58cb139ede9e4f2270352957bb79b61a4a0d",
+      "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "11b-model-deadline": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 0.064644,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 13,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "DEADLINE CONTRACT — 13/13; relógio virtual/protocolo modelado, NÃO Chromium."
+      ],
+      "log": "logs/11b-model-deadline.log",
+      "logSha256": "e6a864eb7788f94740ef6fbc45514f8a8eefc59f8584ccee44332382b218ca46",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "12-model-late-protocol": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 0.215286,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 24,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "LATE MODEL — 24/24; controlador real, DOM/eventos/protocolo/tempo modelados, NÃO Chromium."
+      ],
+      "log": "logs/12-model-late-protocol.log",
+      "logSha256": "67d39422404e80982eb855aa6baf48036e3efde4ab23a1488b52f09f2e742b67",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "13-green-protocol-1": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 49.436491,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 12,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "PROTOCOL — 12/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+      ],
+      "log": "logs/13-green-protocol-1.log",
+      "logSha256": "d1341690a86a64404510b1fbca47f2507d59f5f5d3bb73ce546618b6fa690368",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "14-green-protocol-2": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 49.529744,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 12,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "PROTOCOL — 12/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+      ],
+      "log": "logs/14-green-protocol-2.log",
+      "logSha256": "5204b5f8e31892a78f49b32e17a13c12d6cd5514fd2218fd1c99a3de4dbf45f9",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "15-green-nested": {
+      "status": "BLOCKED_STOP",
+      "exitCode": 1,
+      "elapsedSeconds": 0.064738,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 0,
+      "failedCaseMarkers": 0,
+      "summaries": [],
+      "log": "logs/15-green-nested.log",
+      "logSha256": "ea39f2ee5291ea851033a77f021694e8a017a25eab629518491a4d8fdf20b1ff",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "15b-green-nested": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 27.996322,
+      "chromiumLaunches": 2,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 26,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "NESTED — 26/26; 13 casos × Blink ON/OFF."
+      ],
+      "log": "logs/15b-green-nested.log",
+      "logSha256": "9414f617311dd8ae84f2099cd08e79e0174ee9d206a88d841014b57806a7b1e3",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "16-scroll-original": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 59.55275,
+      "chromiumLaunches": 4,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 40,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+        "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF."
+      ],
+      "log": "logs/16-scroll-original.log",
+      "logSha256": "cf9d05554c84336acf0641d8418c5f86d7d315583fa6bdc8f3029c63b8fb30ff",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "17-scroll-expanded-1": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 136.078283,
+      "chromiumLaunches": 8,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 78,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+        "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF.",
+        "NESTED — 26/26; 13 casos × Blink ON/OFF.",
+        "PROTOCOL — 12/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+      ],
+      "log": "logs/17-scroll-expanded-1.log",
+      "logSha256": "4982be90920103ff62ac5edf02e4fa9cae73f86e7b17e79f50952f10d499c038",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "18-scroll-expanded-2": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 136.745747,
+      "chromiumLaunches": 8,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 78,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+        "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF.",
+        "NESTED — 26/26; 13 casos × Blink ON/OFF.",
+        "PROTOCOL — 12/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+      ],
+      "log": "logs/18-scroll-expanded-2.log",
+      "logSha256": "b859230bdbbabc49dbf490908799a4fef7b4b269314d3679a5fdd5058e3ba9ca",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "19-npm-test": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 384.830636,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 498,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "CATÁLOGO CENTRAL — 17/17 testes aprovados",
+        "YOUTUBE — 21/21 testes aprovados",
+        "YOUTUBE FRONTEND — 8/8 testes aprovados",
+        "MÉTRICAS — 18/18 testes aprovados",
+        "FORJA — 110/110 testes aprovados",
+        "ONBOARDING — 21/21 testes aprovados",
+        "PREFERÊNCIAS DO PLANEJAMENTO — 21/21 testes aprovados",
+        "ATLAS — 15/15 testes aprovados",
+        "PARIDADE — 40/40 testes aprovados",
+        "DEMONSTRAÇÕES — 17/17 testes aprovados",
+        "VÍDEOS YOUTUBE — 14/14 testes aprovados",
+        "PROXY YOUTUBE DATA API v3 — 16/16 testes aprovados",
+        "BIBLIOTECA E DETALHE — 13/13 testes aprovados",
+        "BIBLIOTECA (7 REGIÕES) — 16/16 testes aprovados",
+        "GRUPO MUSCULAR — 19/19 testes aprovados",
+        "EVOLUÇÃO (TELA NOVA) — 14/14 testes aprovados",
+        "CONFIGURAÇÕES — 16/16 testes aprovados",
+        "AUTH — 43/43 testes aprovados (SDK real / HTTP simulado; zero SQL).",
+        "CONFIG — 12/12 testes aprovados (zero deploy/SQL).",
+        "AUTH RECOVERY — 19/19 testes aprovados. SDK real, HTTP simulado/local, zero SQL.",
+        "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL."
+      ],
+      "log": "logs/19-npm-test.log",
+      "logSha256": "0c9f34d54baa36a8e93d0d0fe4f122b894705bfb387d594813a1e539c5a84766",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "20-auth-e2e": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 130.43117,
+      "chromiumLaunches": 3,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 71,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "BROWSER AUTH — 29/29 testes aprovados. Google/Auth/PostgREST simulados; nenhuma homologação remota ou SQL.",
+        "BROWSER RECOVERY — 19/19 testes aprovados. Serviços simulados; zero SQL/deploy.",
+        "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+      ],
+      "log": "logs/20-auth-e2e.log",
+      "logSha256": "fb56376ecaaf9266a5096a3d261a0349ff3dc1a6874a268dbc53ac8128cb3907",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "21-npm-test-e2e": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 437.667253,
+      "chromiumLaunches": 5,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 86,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+        "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF.",
+        "E2E navegador real (Auth/Google/PostgREST simulados) — 46/46 verificações aprovadas"
+      ],
+      "log": "logs/21-npm-test-e2e.log",
+      "logSha256": "fe58569adc5e39104db8e674b56954e75e94dfa15f9414122b28d42f5d8ce6cc",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "22-general-e2e-off": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 385.164251,
+      "chromiumLaunches": 1,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 46,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "E2E navegador real (Auth/Google/PostgREST simulados) — 46/46 verificações aprovadas"
+      ],
+      "log": "logs/22-general-e2e-off.log",
+      "logSha256": "d2f6ab8385df3a97d140759f1a41f84b6e4a79e276908c264809c2e89d153b46",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "23-concurrency-round-1": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 43.230313,
+      "chromiumLaunches": 1,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 41,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+        "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+      ],
+      "log": "logs/23-concurrency-round-1.log",
+      "logSha256": "140874aab5610ad0dd00e599bbfe667900b9047c86c802f0a55ccfc161320dac",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "24-concurrency-round-2": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 44.031859,
+      "chromiumLaunches": 1,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 41,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+        "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+      ],
+      "log": "logs/24-concurrency-round-2.log",
+      "logSha256": "fc37d277a30c14aadde41ee9f2ed2494b91c35d7c07387498a3019ad3f3cfb71",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "25-concurrency-round-3": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 42.195452,
+      "chromiumLaunches": 1,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 41,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+        "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+      ],
+      "log": "logs/25-concurrency-round-3.log",
+      "logSha256": "e9e6080885e253c37d4c3f1610b124c5e1f0416876a1bde65f23a4726ebba8be",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "26-concurrency-round-4": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 43.064432,
+      "chromiumLaunches": 1,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 41,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+        "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+      ],
+      "log": "logs/26-concurrency-round-4.log",
+      "logSha256": "38e9d1400585c0de89325b6ca4ea0bc948e7a65661586f7b95616ac05473bd10",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "27-concurrency-round-5": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 40.792771,
+      "chromiumLaunches": 1,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 41,
+      "failedCaseMarkers": 0,
+      "summaries": [
+        "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+        "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+      ],
+      "log": "logs/27-concurrency-round-5.log",
+      "logSha256": "0b11305a86a6cdcdb6050a6b22fd23379c86d04cee37bb8878b1c12ae17db0d0",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    },
+    "28-static-final": {
+      "status": "PASSED",
+      "exitCode": 0,
+      "elapsedSeconds": 4.729139,
+      "chromiumLaunches": 0,
+      "policyDenialsCount": 0,
+      "unsafeBrowserFlagsObserved": [],
+      "passedCaseMarkers": 0,
+      "failedCaseMarkers": 0,
+      "summaries": [],
+      "log": "logs/28-static-final.log",
+      "logSha256": "e7c01d9b2b44ee5fcf2578212731c9855b96502555acb7024e06f7e81c7f1dbe",
+      "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+      "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc"
+    }
+  }
+}

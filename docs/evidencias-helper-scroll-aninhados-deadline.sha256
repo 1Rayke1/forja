@@ -1,0 +1,17 @@
+# SHA-256; paths relative to repository root. This checksum file is not self-hashed.
+# Branch arena/468b7e01-forja; HEAD 99cffc9147d72cc4eedd2eaf47310fc135815c3b
+# Physical index SHA256 933ebc5aab05c88b2e0b2a0e12e257762957e9023935421edf75948b1873e5b3
+# Whole-tree fingerprint excluding this checksum file: 21f832162bb2f561680b01472afed4b9b3ee8dd4dc8300e549cad11b0661648b; files=824
+# ZIP entries=267; manifested payloads=265; CRC and every payload hash verified
+3a9f843ce8570a837ca75af942c17f1a303bf4ed47e2a70327869b27cd4a9e79  docs/correcao-helper-scroll-aninhados-deadline.md
+3fdaeae01725ab9dcd1a50d1cff9ebb07275a75da39ae051d31dc825e891b3b8  docs/evidencias-helper-scroll-aninhados-deadline.json
+85571a2eba2db11ee824678e4f777516b09a16f00c8b388d937a442f81bc6a48  docs/evidencias-helper-scroll-aninhados-deadline.zip
+a41a49b5acf697c2219f9c4a3aa6311efd651bf66442f1bb39f283e12acef3a0  tests/browser-interaction-chain.test.mjs
+34ac2c4d07ea819c79e45776c3cb2430a83570c49685a9be0526ac399c913611  tests/browser-interaction-deadline.test.mjs
+1c4695737c51305c09d305acb3822abdc178d9d2be7ce7b254c440426f3b02b0  tests/browser-interaction-expanded.browser.mjs
+ab0b0df47f69deccb9fa88384805339dfa470798301e39c40b82f9756bf3304a  tests/browser-interaction-late-protocol.test.mjs
+e4986c9fdcd847398a4ce5e7d5ba88df18799c86fc427ef38ac484c9e53b8067  tests/browser-interaction-nested.browser.mjs
+9b82474ba06aa29526e7bd145b3c0cdd3de1cb5e8207fc0b3b03d45d386fe325  tests/browser-interaction-protocol.browser.mjs
+ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc  tests/helpers/browser-interaction.mjs
+e590be5475387a7d3a24d3b6731b2403e8a46e819bf4b002ef1303a7b5910a11  tests/helpers/scroll-dom-model.mjs
+60fb3ab48a429f429dbf02bd0fddbfc14b8f05839c927b1555991486515f5f06  tests/helpers/scrollend-off.mjs

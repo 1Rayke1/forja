@@ -1,0 +1,11 @@
+{
+  "phase": "validation-completed-not-approved",
+  "workRoot": "/home/user/forja/validacoes/scroll-real-20261115",
+  "isolatedRoot": "/home/user/forja/validacoes/scroll-real-20261115/.cache/checkout",
+  "branch": "arena/468b7e01-forja",
+  "helperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "updatedAtUtc": "2026-11-18T17:02:00Z",
+  "verdict": "NOT_APPROVED",
+  "completedAtUtc": "2026-11-18T17:30:28.797565+00:00",
+  "runsCount": 20
+}

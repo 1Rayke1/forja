@@ -1,0 +1,54 @@
+{
+  "name": "19-concurrency-round-2",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "npm",
+    "run",
+    "test:auth:concurrency"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-20261118/checkout",
+  "startedAtUtc": "2026-11-18T18:25:44.557325+00:00",
+  "finishedAtUtc": "2026-11-18T18:26:16.534576+00:00",
+  "elapsedSeconds": 31.977205,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "48e4659d4426f88303d0226df41277a7e87fe5797ef09115e272f171c3895bb8",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "sourceFingerprintBefore": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "sourceFingerprintAfter": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 41,
+    "failedCaseMarkers": 0,
+    "summaries": [
+      "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+      "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 1,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/19-concurrency-round-2.log",
+  "logSha256": "1fb8193c5c52f989ae9093323e3d6f248263367d03f6b577d4ae5afe5e124ba4",
+  "policyLog": "logs/19-concurrency-round-2.policy.jsonl",
+  "policyLogSha256": "7a378db66dc2cb309e74b87aa274fa78fe1b11d68a6a3d5ff03e1060a84f3d0f",
+  "browserLog": "logs/19-concurrency-round-2.browser.jsonl",
+  "browserLogSha256": "8274048b08b233387b33d8b1e34ce5007f313aa65b783d1639d95f11f851dcaa"
+}

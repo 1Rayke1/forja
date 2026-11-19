@@ -1,0 +1,56 @@
+SCROLLEND OFF real capability=false; original launcher and web security preserved
+E2E geral: segurança web/isolamento ativos; HeadlessChrome/138.0.7204.0
+✅ Calendário e missões funcionam na página inicial
+✅ Nenhum erro de JavaScript, HTTP ou recurso ausente em todas as páginas
+✅ Sem rolagem horizontal em 320, 360, 390, 430, 768 e 1280 px em todas as páginas
+✅ Preferências: cinco grupos com uma única opção verde, por toque, no celular e no desktop
+✅ Preferências: persistem ao recarregar e alimentam Gerar meu plano
+✅ Ícone de Suas preferências: Lucide settings nítido no mobile e no desktop
+✅ Ação TREINO é compacta, acessível e cabe em 390 px
+✅ Atlas: exercício escolhido, figura anterior/posterior, filtro e detalhe na biblioteca
+✅ Atlas: prancha única íntegra, duas vistas alinhadas e destaques sobre o corpo
+✅ Alvos de toque principais têm pelo menos 44px de altura
+✅ Navegação por seções: início → TREINO → hub → CALISTENIA e MUSCULAÇÃO → voltar
+✅ Criar rotina de calistenia com exercício da biblioteca e personalizado por duração
+✅ Editar rotina e musculação mantém listas separadas
+✅ Iniciar rotina, cronômetro por duração, pausa e descanso
+✅ Sessão ativa sobrevive à navegação e ao recarregamento
+✅ Pausar sessão, descanso com pular e confirmação antes de descartar
+✅ Finalizar sessão mostra resumo e grava no histórico de progresso
+✅ Progresso: calendário, gráficos, recordes, metas e busca com histórico real
+✅ Configurações — hub, painéis, nome, aparência, suporte e integração no navegador real
+✅ Configurações: exportar, rejeitar importação inválida, importar com confirmação e desfazer
+✅ Configurações: inicializa, checkboxes refletem o armazenado e abrir a página não grava nada
+✅ Configurações: backup completa confere com o armazenamento (exportar/importar/desfazer)
+✅ Som e vibração: a mesma escolha vale em Configurações, outra aba e no fim do descanso
+✅ Navegação ativa igual em HTML, JS e CSS, e F.url de perfil/explorar sob /forja/ em todas as páginas
+✅ Armazenamento local é informado em todas as páginas
+✅ Capturas visuais das páginas em mobile e desktop
+✅ Fluxo completo em navegador limpo: Home sem rotina, criação sem #editor-missing, rotação e exclusão
+✅ Home e gate: perfil obrigatório, 5 larguras, metas com unidades/modalidade, outra aba e pageshow
+✅ Onboarding: 24 telas em 320 px, erro sem escolha, voltar/corrigir, conclusão e perfil persistente
+✅ D-01: importar 250 treinos avisa o limite, guarda os 200 mais recentes e não perde o novo
+✅ D-02: falha na restauração deixa o desfazer disponível na mesma tela
+✅ D-04/D-07: descanso sem anúncio por segundo, com as ações visíveis acima da barra
+✅ D-08/D-11: skip link foca o conteúdo e a barra mantém os rótulos em 320 px
+✅ Explorar — seções de descoberta, acesso ao atlas/biblioteca e busca no catálogo
+✅ Biblioteca — 7 regiões cobrem todos os exercícios, filtram e cabem em 390 px
+✅ Tela do grupo muscular — 13 grupos, filtros, cards e ficha
+✅ Evolução 1 — rotinas diretas, filtro e início com a modalidade correta
+✅ Evolução 1 — consulta e inclusão contextual preservam rascunho, ordem, foco e IDs
+✅ Evolução 1 — instruções preservam sessão, descanso, valores, pausa e recuperação
+✅ Demonstrações: imagem local decodifica, créditos visíveis e fallback sem rede
+✅ Demonstrações: seletor no editor persiste demoId e chega à execução
+✅ Vídeos YouTube: vídeo oficial em 16:9 original, sem autoplay, controles e fallback sem vídeo
+✅ Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horizontais, Shorts recusados, 2 rotinas, reload e backup
+youtube-search upstream 500 (upstream): Backend Error
+✅ Vídeos YouTube: fallback de vídeo removido, busca vazia, backend sem chave, quota e erro
+✅ Evolução: abas, indicadores, períodos e grupos musculares no navegador real
+✅ Nenhum erro de JavaScript durante todo o fluxo
+
+============================================================
+E2E navegador real (Auth/Google/PostgREST simulados) — 46/46 verificações aprovadas
+============================================================
+Artefatos (screenshots/downloads): /home/user/forja/validacoes/deadline-4000-20261118/.cache/tmp/forja-e2e-ozxdly
+
+VALIDATION RUN exit=0 seconds=329.413909 watchdog=False
