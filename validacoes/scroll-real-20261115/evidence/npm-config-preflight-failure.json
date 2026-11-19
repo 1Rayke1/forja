@@ -1,0 +1,10 @@
+{
+  "run": "01-npm-ci",
+  "classification": "Agent isolation-config error before dependency resolution; not a dependency/network/integrity failure",
+  "error": "double-loading config /dev/null as global, previously loaded as user",
+  "correction": "Two distinct empty npm config files inside isolated workspace; no source, package, lock or version changes",
+  "originalRunnerSha256": "7b5883f3a8020e9d180df74e72f6f1ad6aa94348a4e4b0ce39d51762b6e85806",
+  "correctedRunnerSha256": "be1c1f007b47eb1bc4701639e1fc8acb480e3661e564d2968bddd214bd330d0c",
+  "priorLogPreserved": true,
+  "downloadsBeforeCorrection": 0
+}

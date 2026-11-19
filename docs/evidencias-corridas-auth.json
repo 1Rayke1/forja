@@ -1,0 +1,938 @@
+{
+  "schemaVersion": 1,
+  "referenceDate": "2026-11-15",
+  "scope": "Local correction only; no remote authorization or homologation",
+  "repository": {
+    "branch": "arena/468b7e01-forja",
+    "head": "99cffc9147d72cc4eedd2eaf47310fc135815c3b",
+    "remoteNotConsultedOrChanged": true,
+    "lastKnownPr": {
+      "number": 71,
+      "state": "OPEN",
+      "draft": true,
+      "freshRemoteCheck": false
+    }
+  },
+  "environment": {
+    "node": "22.22.3",
+    "npm": "10.9.8",
+    "chromium": "138.0.7204.0",
+    "supabaseSdk": "2.119.0",
+    "dependenciesInstalled": 169,
+    "workArea": "/tmp/forja-last-races-pl0g62au",
+    "isolatedCopyRealGit": true,
+    "simulatedServices": [
+      "Google",
+      "Supabase Auth",
+      "PostgREST/RLS"
+    ],
+    "realBrowserAndSdk": true
+  },
+  "testFirst": {
+    "runtimeBeforeSha256": "141f2961b3fedc08ab4abdfe320b7ddaaf3b9001c1b7b1e7ce783aeae03cc201",
+    "initialUnit": {
+      "cases": "12-15",
+      "passed": 1,
+      "total": 4,
+      "exit": 1,
+      "beforeRuntimeEdit": true
+    },
+    "initialBrowser": {
+      "cases": "12-23 (prior to disclosure/storage-read refinements)",
+      "passed": 5,
+      "total": 12,
+      "exit": 1,
+      "beforeRuntimeEdit": true
+    },
+    "finalBodyCounterfactual": [
+      {
+        "name": "red-final-unit-matrix",
+        "exit": 1,
+        "elapsedSeconds": 5.969,
+        "runtimeSha256": "141f2961b3fedc08ab4abdfe320b7ddaaf3b9001c1b7b1e7ce783aeae03cc201",
+        "cases": "12,13,14,15,16,17,18",
+        "success": 2,
+        "failures": 5
+      },
+      {
+        "name": "red-final-browser-matrix",
+        "exit": 1,
+        "elapsedSeconds": 14.354,
+        "runtimeSha256": "141f2961b3fedc08ab4abdfe320b7ddaaf3b9001c1b7b1e7ce783aeae03cc201",
+        "cases": "12,13,14,15,16,17,18,19,20,21,22,23",
+        "success": 3,
+        "failures": 9
+      }
+    ],
+    "finalGreen": {
+      "unit": {
+        "passed": 7,
+        "total": 7,
+        "run": {
+          "name": "green-final-unit-matrix",
+          "command": [
+            "env",
+            "FORJA_AUTH_CONCURRENCY_CASE=12,13,14,15,16,17,18",
+            "node",
+            "tests/auth-concurrency.test.mjs"
+          ],
+          "exit": 0,
+          "elapsedSeconds": 7.984,
+          "timeout": false,
+          "changedDuringRun": [],
+          "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+          "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+          "filesBefore": 807,
+          "filesAfter": 807
+        }
+      },
+      "browser": {
+        "passed": 12,
+        "total": 12,
+        "run": {
+          "name": "green-final-browser-matrix",
+          "command": [
+            "env",
+            "FORJA_AUTH_CONCURRENCY_CASE=12,13,14,15,16,17,18,19,20,21,22,23",
+            "node",
+            "tests/auth-concurrency.browser.mjs"
+          ],
+          "exit": 0,
+          "elapsedSeconds": 20.639,
+          "timeout": false,
+          "changedDuringRun": [],
+          "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+          "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+          "filesBefore": 807,
+          "filesAfter": 807
+        }
+      }
+    }
+  },
+  "finalSuites": {
+    "npmTest": {
+      "passed": 498,
+      "total": 498,
+      "footerTotal": 495,
+      "integratedWithoutFooter": 3,
+      "run": {
+        "name": "npm-test-final-tree",
+        "command": [
+          "npm",
+          "test"
+        ],
+        "exit": 0,
+        "elapsedSeconds": 387.517,
+        "timeout": false,
+        "changedDuringRun": [],
+        "beforeFingerprint": "f45ca781e2cc98fe2c56fd886f5683d7aed895e061898b692144cdde3d680a6b",
+        "afterFingerprint": "f45ca781e2cc98fe2c56fd886f5683d7aed895e061898b692144cdde3d680a6b",
+        "filesBefore": 809,
+        "filesAfter": 809
+      }
+    },
+    "authBrowser": {
+      "passed": 71,
+      "total": 71,
+      "groups": {
+        "auth": 29,
+        "recovery": 19,
+        "concurrency": 23
+      },
+      "run": {
+        "name": "auth-e2e-confirmed",
+        "command": [
+          "npm",
+          "run",
+          "test:auth:e2e"
+        ],
+        "exit": 0,
+        "elapsedSeconds": 176.856,
+        "timeout": false,
+        "changedDuringRun": [],
+        "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "filesBefore": 807,
+        "filesAfter": 807
+      }
+    },
+    "generalBrowser": {
+      "scrollGuard": {
+        "passed": 1,
+        "total": 1
+      },
+      "passed": 46,
+      "total": 46,
+      "assertCalls": 589,
+      "run": {
+        "name": "general-e2e-confirmed",
+        "command": [
+          "npm",
+          "run",
+          "test:e2e"
+        ],
+        "exit": 0,
+        "elapsedSeconds": 487.422,
+        "timeout": false,
+        "changedDuringRun": [],
+        "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "filesBefore": 807,
+        "filesAfter": 807
+      }
+    }
+  },
+  "fixedRepetitionBatch": {
+    "plannedRounds": 5,
+    "failFast": true,
+    "allPassed": true,
+    "unitPerRound": 18,
+    "browserPerRound": 23,
+    "runs": [
+      {
+        "name": "concurrency-repeat-1",
+        "command": [
+          "npm",
+          "run",
+          "test:auth:concurrency"
+        ],
+        "exit": 0,
+        "elapsedSeconds": 58.682,
+        "timeout": false,
+        "changedDuringRun": [],
+        "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "filesBefore": 807,
+        "filesAfter": 807
+      },
+      {
+        "name": "concurrency-repeat-2",
+        "command": [
+          "npm",
+          "run",
+          "test:auth:concurrency"
+        ],
+        "exit": 0,
+        "elapsedSeconds": 63.227,
+        "timeout": false,
+        "changedDuringRun": [],
+        "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "filesBefore": 807,
+        "filesAfter": 807
+      },
+      {
+        "name": "concurrency-repeat-3",
+        "command": [
+          "npm",
+          "run",
+          "test:auth:concurrency"
+        ],
+        "exit": 0,
+        "elapsedSeconds": 66.564,
+        "timeout": false,
+        "changedDuringRun": [],
+        "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "filesBefore": 807,
+        "filesAfter": 807
+      },
+      {
+        "name": "concurrency-repeat-4",
+        "command": [
+          "npm",
+          "run",
+          "test:auth:concurrency"
+        ],
+        "exit": 0,
+        "elapsedSeconds": 65.117,
+        "timeout": false,
+        "changedDuringRun": [],
+        "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "filesBefore": 807,
+        "filesAfter": 807
+      },
+      {
+        "name": "concurrency-repeat-5",
+        "command": [
+          "npm",
+          "run",
+          "test:auth:concurrency"
+        ],
+        "exit": 0,
+        "elapsedSeconds": 61.223,
+        "timeout": false,
+        "changedDuringRun": [],
+        "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+        "filesBefore": 807,
+        "filesAfter": 807
+      }
+    ],
+    "refreshLockEvidence": [
+      {
+        "round": "concurrency-repeat-1",
+        "rows": [
+          {
+            "rejected": false,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": false,
+            "sameUidNewSession": true,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": true,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          }
+        ]
+      },
+      {
+        "round": "concurrency-repeat-2",
+        "rows": [
+          {
+            "rejected": false,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": false,
+            "sameUidNewSession": true,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": true,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          }
+        ]
+      },
+      {
+        "round": "concurrency-repeat-3",
+        "rows": [
+          {
+            "rejected": false,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": false,
+            "sameUidNewSession": true,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": true,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          }
+        ]
+      },
+      {
+        "round": "concurrency-repeat-4",
+        "rows": [
+          {
+            "rejected": false,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": false,
+            "sameUidNewSession": true,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": true,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          }
+        ]
+      },
+      {
+        "round": "concurrency-repeat-5",
+        "rows": [
+          {
+            "rejected": false,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": false,
+            "sameUidNewSession": true,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          },
+          {
+            "rejected": true,
+            "sameUidNewSession": false,
+            "bVerifiedBeforeRelease": true,
+            "exactBPreserved": true,
+            "staleRefreshRejected": true,
+            "lockAvailable": true
+          }
+        ]
+      }
+    ],
+    "broadcastCasesPerRound": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22
+    ],
+    "storageCasePerRound": 23
+  },
+  "storageLimit": {
+    "immediatelyClosedInMemoryAndUi": true,
+    "bothStoragesAllMethodsDenied": true,
+    "revocationHttp503NotConfirmed": true,
+    "reloadWithoutRetryCanAuthorizeOriginalValidSession": true,
+    "retryAfterStorageRecoversPersistsLogoutAcrossReload": true,
+    "broadcastPayloadKeys": [
+      "at",
+      "nonce",
+      "sessionId",
+      "userId"
+    ],
+    "noTokensInAppLogoutChannel": true
+  },
+  "scroll": {
+    "oldFixedWaitMs": 180,
+    "red": {
+      "scrollY": 0,
+      "buttonTop": 782,
+      "hit": "NAV",
+      "exit": 1
+    },
+    "singleHitDuringAnimationInsufficient": true,
+    "final": {
+      "waitFor": "scrollend registered before scroll + visibility + hit-test",
+      "scrollY": 377,
+      "buttonTop": 405,
+      "hit": "BUTTON",
+      "realClick": true,
+      "conditionTimeoutMs": 4000,
+      "existingTimeoutsIncreased": false
+    },
+    "earlierWrapperFailureBeforeGeneralSuite": {
+      "exit": 1,
+      "run": "general-e2e-final",
+      "cause": "new guard clicked moving target before scrollend"
+    }
+  },
+  "security": {
+    "chromium": "HeadlessChrome/138.0.7204.0",
+    "cors": "TypeError",
+    "sop": "SecurityError",
+    "unsafeFlags": []
+  },
+  "static": {
+    "syntaxFiles": 96,
+    "syntaxErrors": [],
+    "shellExit": 0,
+    "trackedDiffCheckExit": 0,
+    "trackedDiffCheckOutput": "",
+    "guards": [
+      {
+        "file": "index.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "onboarding/index.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "treino/index.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "treino/calistenia.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "treino/musculacao.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "treino/biblioteca.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "treino/grupo.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "treino/rotina.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "treino/executar.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "progresso/index.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "explorar/index.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "explorar/atlas.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "exercicio/index.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "configuracoes/index.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      },
+      {
+        "file": "admin/exercicios.html",
+        "headGuard": true,
+        "guardBeforeApp": true,
+        "startsLocked": true
+      }
+    ],
+    "deltaWhitespaceCheck": {
+      "files": 15,
+      "errors": [],
+      "includesUntracked": true,
+      "exit": 0
+    }
+  },
+  "testPreservationAst": {
+    "files": 28,
+    "oldCallbacks": 587,
+    "currentCallbacks": 605,
+    "oldRemoved": [],
+    "oldChanged": [
+      {
+        "file": "tests/e2e.browser.mjs",
+        "key": "check:'Iniciar rotina, cronômetro por duração, pausa e descanso'"
+      }
+    ],
+    "unchangedOld": 586,
+    "skippedAdded": [],
+    "concurrencyOldBodiesUnchanged": true,
+    "general": {
+      "oldScenarios": 46,
+      "scenarios": 46,
+      "oldAsserts": 589,
+      "asserts": 589,
+      "allAssertCallsAndOrderIdentical": true
+    },
+    "expectedOnlyChange": true
+  },
+  "sourceIntegrity": {
+    "baselineFileCount": 804,
+    "baselineFingerprint": "8396b9ffd99f7f5f47b989f56245ec5a94c46e6e3f76f58cf3b95e4bf73a4342",
+    "finalFileCount": 809,
+    "modifiedExisting": [
+      "assets/js/forja-auth.js",
+      "docs/autenticacao-google.md",
+      "docs/entrega-google-auth.md",
+      "docs/evidencias-auth-final.md",
+      "docs/validacao-auth-auditoria-final.md",
+      "docs/validacao-login-google.md",
+      "package.json",
+      "tests/auth-concurrency.browser.mjs",
+      "tests/auth-concurrency.test.mjs",
+      "tests/e2e.browser.mjs"
+    ],
+    "newFiles": [
+      "docs/correcao-concorrencia-auth.md",
+      "docs/evidencias-corridas-auth.json",
+      "tests/browser-interaction.browser.mjs",
+      "tests/helpers/auth-lifecycle.mjs",
+      "tests/helpers/browser-interaction.mjs"
+    ],
+    "removed": [],
+    "unchangedExisting": 794,
+    "outsideAllowedDelta": [],
+    "indexSha256": "2779024fc80dd12ec7599e243ea254aa4d38144a394cfce2b2146fd1f8f712dc",
+    "indexEntriesUnchanged": true,
+    "cachedDiffEmpty": true,
+    "headAndBranchUnchanged": true,
+    "runtimeAndTestSourceSha256": {
+      "assets/js/forja-auth.js": "ebc0716a7dfaec4266113460ded8764402652b4a048df41710f139f8a1843ef8",
+      "assets/js/forja-auth-data.js": "02629a1689e06449175152431d7c4b31f219edf6a809826edc3838d6875226cb",
+      "assets/js/forja-auth-guard.js": "7e5fbb957e1e92565a322af0a348c3ab7d928073f16938f5e9384ea1d77c8694",
+      "assets/js/forja-login.js": "cf5b24dc550f4a97db802ff623a43eb949097d3efa543a0e9938e571362a35f5",
+      "assets/js/admin-exercicios.js": "d34dcf582af4fdff80d0a95dc119596fe4249a9731b6109814a08be4189d26ea",
+      "assets/js/forja-configuracoes.js": "c4beebf9dec1bbf13941452385a9bfc89d7a523886c20511025d06c77318be76",
+      "assets/js/forja-app.js": "50195fd8ba064ef8c9ece0a6effbde4a424b52f9eb325f781afd0319adea8e73",
+      "assets/vendor/supabase/supabase.js": "a867edbcfb029370aeec7223dd6180b560b621fbe3bc64c6584fb0369d1b7bce",
+      "assets/vendor/supabase/LICENSE": "334dd6820e2eaeab2064e7c59001b810566728a28a41a7c1dbf69bbee17d0936",
+      "package-lock.json": "b490e9738f8c589f3e84700468a0d49f78a9cbfe38abf0c1282d135951f49cd6",
+      "package.json": "90e69acbc229c6c338acd2d6db162322a2fef011038798d3acc6e9d502abe0b7",
+      "tests/auth.test.mjs": "6c04d74e75cd57f97d0a44d2234dd64842861fedd1143ab6162e314d43516b5a",
+      "tests/auth.browser.mjs": "2d9c53b8ef3be93949405ab14d7a43dbd76962c1025c1de16401e7595825980b",
+      "tests/auth-recovery.test.mjs": "d3f32f010516f71ac39420cf71fc825a4d7d5e185de30dbeadc8b336925e14b2",
+      "tests/auth-recovery.browser.mjs": "c37b9bed32973ce5d327116e0d46aebb57d7ab7370086c7ae526b2bc10adab51",
+      "tests/auth-concurrency.test.mjs": "b9dfdae21225d1952dc14434bd2e0fafa22d21dd8b2337f568922838281730f5",
+      "tests/auth-concurrency.browser.mjs": "d810cf92addb25564484b600ff236a66c1dc956128b913abc6ebe6dfafff3a15",
+      "tests/e2e.browser.mjs": "b893e002f3a5a4922f62985b002959073271fbe9c38ce7f958dc4fd976f6ae4f",
+      "tests/browser-interaction.browser.mjs": "79110bc55c61a2ba85fcc2ac0d3fb5117515853c905d0f6f8d8e5f88b8a6a3eb",
+      "tests/helpers/harness.mjs": "8decab607086a406053d1389c6721523c593dba64f233c5a797197e22104582f",
+      "tests/helpers/browser.mjs": "25d3f2cc9530257a89e5a68d701312c7eb1029d379caf3d05d7716d6e81faba8",
+      "tests/helpers/browser-auth.mjs": "bafab371179257deb7d9e2bc6d9dd34de45c5a663469a92f89e1a360d78a5055",
+      "tests/helpers/auth-fixture.mjs": "6e2200b121def1d8406c9e2597a94d69a3263ece1db9aead846ed2241cc77403",
+      "tests/helpers/auth-recovery.mjs": "a96208955152ed2c4ec38395b4fa7df8faa82f1b5b64567b4308f694c5ffe1c1",
+      "tests/helpers/auth-concurrency.mjs": "1da928bc3d3332ed4a3fa647f8b693ea204d202509cfe5406081f22fbfdbbbac",
+      "tests/helpers/auth-lifecycle.mjs": "df2ebeaef01c968eaa57f97a573630b26777208ea8cc926db7fdb350672056bd",
+      "tests/helpers/browser-interaction.mjs": "e529959361d81568edbaaad30fe1c3f5439afac8dd63bf6b4a873ba4616d7e1c",
+      ".github/workflows/static.yml": "9bba383bae9ac913c090b6ca36cacde2c719272f75c0be79c45656d95bba9053",
+      "netlify.toml": "2bb361af3117f054d5f134cdff2b1eeb5229e1e80a1761a6007cb94898bfa285"
+    }
+  },
+  "allGuardedRuns": [
+    {
+      "name": "auth-e2e-confirmed",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:e2e"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 176.856,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "auth-e2e-final",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:e2e"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 149.725,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "bd9dfe3b54bb8ec8b5b0920273a638d618c7042cb98519b7dc945f6e5572564f",
+      "afterFingerprint": "bd9dfe3b54bb8ec8b5b0920273a638d618c7042cb98519b7dc945f6e5572564f",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "concurrency-final-check",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 42.506,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "5c43e5127a60fa0d483f16c3e2bbf46c2136d2befbd9fa06777d727e5c903d10",
+      "afterFingerprint": "5c43e5127a60fa0d483f16c3e2bbf46c2136d2befbd9fa06777d727e5c903d10",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "concurrency-repeat-1",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 58.682,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "concurrency-repeat-2",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 63.227,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "concurrency-repeat-3",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 66.564,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "concurrency-repeat-4",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 65.117,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "concurrency-repeat-5",
+      "command": [
+        "npm",
+        "run",
+        "test:auth:concurrency"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 61.223,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "general-e2e-confirmed",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 487.422,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "general-e2e-final",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e"
+      ],
+      "exit": 1,
+      "elapsedSeconds": 0.98,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "5c43e5127a60fa0d483f16c3e2bbf46c2136d2befbd9fa06777d727e5c903d10",
+      "afterFingerprint": "5c43e5127a60fa0d483f16c3e2bbf46c2136d2befbd9fa06777d727e5c903d10",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "green-final-browser-matrix",
+      "command": [
+        "env",
+        "FORJA_AUTH_CONCURRENCY_CASE=12,13,14,15,16,17,18,19,20,21,22,23",
+        "node",
+        "tests/auth-concurrency.browser.mjs"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 20.639,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "green-final-unit-matrix",
+      "command": [
+        "env",
+        "FORJA_AUTH_CONCURRENCY_CASE=12,13,14,15,16,17,18",
+        "node",
+        "tests/auth-concurrency.test.mjs"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 7.984,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "afterFingerprint": "cd929a8ad49ab3a06acd4ce673b6bbf2707e04d8f5da86dc4a1bc5e3c768279e",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "npm-test-confirmed",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 384.986,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "5c43e5127a60fa0d483f16c3e2bbf46c2136d2befbd9fa06777d727e5c903d10",
+      "afterFingerprint": "5c43e5127a60fa0d483f16c3e2bbf46c2136d2befbd9fa06777d727e5c903d10",
+      "filesBefore": 807,
+      "filesAfter": 807
+    },
+    {
+      "name": "npm-test-final-tree",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 387.517,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "f45ca781e2cc98fe2c56fd886f5683d7aed895e061898b692144cdde3d680a6b",
+      "afterFingerprint": "f45ca781e2cc98fe2c56fd886f5683d7aed895e061898b692144cdde3d680a6b",
+      "filesBefore": 809,
+      "filesAfter": 809
+    },
+    {
+      "name": "npm-test-final",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 1,
+      "elapsedSeconds": 420.993,
+      "timeout": false,
+      "changedDuringRun": [],
+      "beforeFingerprint": "bd9dfe3b54bb8ec8b5b0920273a638d618c7042cb98519b7dc945f6e5572564f",
+      "afterFingerprint": "bd9dfe3b54bb8ec8b5b0920273a638d618c7042cb98519b7dc945f6e5572564f",
+      "filesBefore": 807,
+      "filesAfter": 807
+    }
+  ],
+  "intermediateFailures": [
+    {
+      "name": "partial first browser fixture",
+      "countedAsAppProof": false,
+      "reason": "CDP stalled with unresolved external navigation; fixture corrected, protocol timeout unchanged"
+    },
+    {
+      "name": "npm-test-final",
+      "exit": 1,
+      "reason": "Recovery 4/16 could not validate official same-document exchange; implementation corrected, old test bodies unchanged"
+    },
+    {
+      "name": "general-e2e-final",
+      "exit": 1,
+      "reason": "New scroll guard clicked during motion; 46-scenario suite not started, final helper now waits for scrollend"
+    }
+  ],
+  "restrictions": {
+    "sqlOrPglite": false,
+    "realAccountOrCredential": false,
+    "externalConfigMutation": false,
+    "stageCommitPushMerge": false,
+    "deployWorkflowPublication": false,
+    "prMutation": false,
+    "backendOutOfScopeChanged": false
+  },
+  "artifacts": {
+    "persistentSummary": "docs/correcao-concorrencia-auth.md",
+    "persistentEvidence": "docs/evidencias-corridas-auth.json",
+    "auxiliaryIgnoredCache": ".cache/correcao-concorrencia-auth/",
+    "cacheMayNotPersist": true
+  }
+}

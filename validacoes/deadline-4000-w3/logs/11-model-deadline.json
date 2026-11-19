@@ -1,0 +1,59 @@
+{
+  "name": "11-model-deadline",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-deadline.test.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T00:28:19.622874+00:00",
+  "finishedAtUtc": "2026-11-19T00:28:19.687697+00:00",
+  "elapsedSeconds": 0.064782,
+  "exitCode": 1,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "12094445b3044f29e649b77c7634742875846b2cec3d7880b79fbe7ceb23dd91",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.browser.mjs": "db7e130fdaea9dcf297b3c6e2a98c64baabef8c96d2f0848fb0212dd9537ef83",
+    "tests/browser-interaction-w3-regressions.test.mjs": "85ae5f4660cdc282431bdfcd721c1a911afe93399b29c318d5477c50af3ab686"
+  },
+  "sourceFingerprintBefore": "007d5ed0e243f338f0ff083ec0a90b5203d5fbda27c03481436969788d3bc2f9",
+  "sourceFingerprintAfter": "007d5ed0e243f338f0ff083ec0a90b5203d5fbda27c03481436969788d3bc2f9",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 11,
+    "failedCaseMarkers": 2,
+    "summaries": [
+      "DEADLINE CONTRACT — 11/13; relógio virtual/protocolo modelado, NÃO Chromium."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [
+    "❌ DEADLINE cleanup pendente",
+    "❌ DEADLINE cleanup tardio não modifica a aplicação"
+  ],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 0,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "FAILED_COMPLETED",
+  "log": "logs/11-model-deadline.log",
+  "logSha256": "ac7b4020b96c29479146d6d9b8cf58cb139ede9e4f2270352957bb79b61a4a0d",
+  "policyLog": null,
+  "policyLogSha256": null,
+  "browserLog": null,
+  "browserLogSha256": null
+}

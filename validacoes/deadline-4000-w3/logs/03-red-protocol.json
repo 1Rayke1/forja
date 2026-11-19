@@ -1,0 +1,61 @@
+{
+  "name": "03-red-protocol",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-protocol.browser.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T00:18:08.513620+00:00",
+  "finishedAtUtc": "2026-11-19T00:18:58.027766+00:00",
+  "elapsedSeconds": 49.514095,
+  "exitCode": 1,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {},
+  "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 5,
+    "failedCaseMarkers": 7,
+    "summaries": [
+      "PROTOCOL — 5/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [
+    "❌ PROTOCOL ON prepare",
+    "❌ PROTOCOL ON geometry",
+    "❌ PROTOCOL ON polling",
+    "❌ PROTOCOL ON diagnostic",
+    "❌ PROTOCOL ON dispose",
+    "❌ PROTOCOL OFF prepare",
+    "❌ PROTOCOL OFF dispose"
+  ],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 2,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "FAILED_COMPLETED",
+  "log": "logs/03-red-protocol.log",
+  "logSha256": "5de38405c7cbe037e78a8a1682f5cf451642f6822477dbba0750d29307b5875e",
+  "policyLog": "logs/03-red-protocol.policy.jsonl",
+  "policyLogSha256": "9f92c35be679ed32a4ea85f9617bf37b80d70df7ba207fdfbb25e2b3654af883",
+  "browserLog": "logs/03-red-protocol.browser.jsonl",
+  "browserLogSha256": "8f24c75a2d3c0d95e2df413ccba097382fffa5e77e503c15fa06e02d89387b4f"
+}

@@ -1,0 +1,24 @@
+{
+  "syntax": {
+    "files": 105,
+    "passed": 105,
+    "failures": []
+  },
+  "generalE2E": {
+    "asserts": 589,
+    "scenarios": 46,
+    "bytesIdentical": true,
+    "assertionTextAndOrderIdentical": true,
+    "scenarioTextAndOrderIdentical": true,
+    "skipOnlyCount": 0
+  },
+  "baselineCheck": {
+    "total": 825,
+    "isolatedMismatch": [],
+    "originalMismatch": []
+  },
+  "protectedCount": 35,
+  "ok": true
+}
+
+VALIDATION RUN exit=0 seconds=3.638496 watchdog=False

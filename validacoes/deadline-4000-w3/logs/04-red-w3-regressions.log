@@ -1,0 +1,8 @@
+Warning: Detected unsettled top-level await at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:213
+await runCase(1, 'Erro não-timeout após expiração lógica com controller ativo', async () => {
+^
+
+
+
+
+VALIDATION RUN exit=13 seconds=0.065223 watchdog=False

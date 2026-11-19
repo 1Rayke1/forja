@@ -1,0 +1,187 @@
+❌ W3-REG 01 Erro não-timeout após expiração lógica com controller ativo
+AssertionError [ERR_ASSERTION]: erro original não-timeout deve ser preservado
++ actual - expected
+
++ Error [TimeoutError]: Waiting failed: 4000ms integral scroll deadline exceeded
++     at timeout (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/helpers/browser-interaction.mjs:10:19)
++     at scrollToInteractable (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/helpers/browser-interaction.mjs:95:52) {
++   interaction: {
++     cleanupConfirmed: false,
++     deadlineMs: 4000,
++     disposed: true,
++     elapsedMs: 4000,
++     phase: 'dispose',
++     reason: 'destination',
++     safety: 'No click is performed by this helper.'
++   }
++ }
+- Error: protocol non-timeout failure at boundary
+-     at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:218:23
+-     at runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:27)
+-     at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:213:7
+-     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+-     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+-     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:232:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:213:1
+❌ W3-REG 02 Polling handle na fronteira do orçamento
+AssertionError [ERR_ASSERTION]: nenhuma etapa posterior ao cutoff deve iniciar
+
+1 !== 0
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:257:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:241:1
+❌ W3-REG 03 Erro diagnóstico na fronteira
+AssertionError [ERR_ASSERTION]: erro diagnóstico original deve ser preservado
++ actual - expected
+
++ Error [TimeoutError]: Waiting failed: 4000ms integral scroll deadline exceeded
++     at timeout (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/helpers/browser-interaction.mjs:10:19)
++     at scrollToInteractable (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/helpers/browser-interaction.mjs:95:52) {
++   interaction: {
++     cleanupConfirmed: false,
++     deadlineMs: 4000,
++     disposed: true,
++     elapsedMs: 4000,
++     phase: 'dispose',
++     reason: 'deadline',
++     safety: 'No click is performed by this helper.'
++   }
++ }
+- Error: diagnostic failed at cutoff
+-     at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:269:21
+-     at runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:27)
+-     at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:265:7
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:281:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:265:1
+❌ W3-REG 04 Erro de cleanup na fronteira
+AssertionError [ERR_ASSERTION]: erro de cleanup original deve propagar sem substituição nem perda
++ actual - expected
+
++ Error [TimeoutError]: Waiting failed: 4000ms integral scroll deadline exceeded
++     at timeout (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/helpers/browser-interaction.mjs:10:19)
++     at scrollToInteractable (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/helpers/browser-interaction.mjs:95:52) {
++   interaction: {
++     cleanupConfirmed: false,
++     deadlineMs: 4000,
++     disposed: false,
++     elapsedMs: 4000,
++     phase: 'cleanup',
++     reason: 'destination',
++     safety: 'No click is performed by this helper.'
++   }
++ }
+- Error: cleanup protocol crash at boundary
+-     at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:293:24
+-     at runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:27)
+-     at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:289:7
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:306:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:289:1
+❌ W3-REG 05 Dispose síncrono do controller com throw
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:330:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:314:1
+❌ W3-REG 06 Dispose assíncrono do controller com rejection
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:368:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:353:1
+❌ W3-REG 07 Dispose síncrono do polling com throw
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:406:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:391:1
+❌ W3-REG 08 Dispose assíncrono do polling com rejection
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:428:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:413:1
+❌ W3-REG 09 Callback afterLateSettle com throw
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:455:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:435:1
+❌ W3-REG 10 Timeout durante prepare
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:497:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:462:1
+❌ W3-REG 11 Timeout durante polling
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:515:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:503:1
+❌ W3-REG 12 Timeout durante cleanup
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:537:12
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:523:1
+✅ W3-REG 13 Dispose concorrente com timeout {"controllerDispose":1}
+❌ W3-REG 14 Cleanup parcial interrompido
+AssertionError [ERR_ASSERTION]: estado deve estar fechado após interrupção
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:601:10
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:561:1
+✅ W3-REG 15 Cleanup/dispose repetido (idempotência) {"first":true,"second":true,"third":true}
+✅ W3-REG 16 Operação antiga resolve após expiração {"verifiedPhases":[{"phase":"prepare","controllerDispose":0},{"phase":"geometry","controllerDispose":0},{"phase":"polling","controllerDispose":0},{"phase":"diagnostic","controllerDispose":0},{"phase":"cleanup","controllerDispose":0}]}
+❌ W3-REG 17 Operação antiga não inicia a próxima etapa
+AssertionError [ERR_ASSERTION]: fase seguinte não pode iniciar após expiração em prepare
++ actual - expected
+
+  [
+    'clock',
+    'prepare',
+-   'dispose'
+  ]
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:693:14
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:674:1
+✅ W3-REG 18 Ausência de clique tardio {"clicks":0}
+✅ W3-REG 19 Ausência de mutação tardia {"lateEffects":0,"references":0,"listeners":0}
+❌ W3-REG 20 Ausência de unhandled rejection e métricas temporais separadas
+TypeError: Cannot read properties of undefined (reading 'deadlineMs')
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:772:26
+    at async runCase (file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:199:21)
+    at async file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.test.mjs:749:1
+
+W3 REGRESSIONS — 5/20; 20 casos obrigatórios (modelo/protocolo, NÃO Chromium).
+
+VALIDATION RUN exit=1 seconds=0.115327 watchdog=False

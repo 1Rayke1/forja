@@ -1,0 +1,20 @@
+✅ W4-CHROMIUM ON A_non_timeout_cutoff {"caught":"real chromium non-timeout failure at cutoff","controllerDisposes":1,"cleanupCalls":0,"clicks":0,"metrics":{"deadlineMs":4000,"logicalCutoffMs":3976,"logicalExpired":true,"expirationSource":"node-cutoff-check","logicalExpiredAtMs":3976.92961,"timerFiredAtMs":null,"physicalReturnedAtMs":3977.356844,"physicalElapsedMs":3977.356844,"returnDelayMs":0.4272339999997712,"cleanupConfirmed":false}}
+✅ W4-CHROMIUM ON B_dispose_throws_and_metrics {"controllerDisposes":1,"pollingDisposes":1,"atReturn":{"metricsSnapshotScope":"partial-at-return","metricsPartialAtReturn":true,"lateDisposalPending":true,"logicalExpiredAtMs":3974.832416,"timerFiredAtMs":3974.832416,"timerDelayMs":0,"physicalReturnedAtMs":3974.974658,"returnDelayMs":0.1422419999998965,"disposeErrorsAtReturn":[]},"lateSettlement":{"scope":"final-settled","pending":false,"lateDisposeErrors":["real chromium polling sync dispose failure","real chromium controller async dispose failure"],"allDisposeErrorsCount":2}}
+❌ W4-CHROMIUM ON C_renderer_partial_cleanup_inert
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+false !== true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.browser.mjs:294:16
+✅ W4-CHROMIUM OFF A_non_timeout_cutoff {"caught":"real chromium non-timeout failure at cutoff","controllerDisposes":1,"cleanupCalls":0,"clicks":0,"metrics":{"deadlineMs":4000,"logicalCutoffMs":3976,"logicalExpired":true,"expirationSource":"node-cutoff-check","logicalExpiredAtMs":3977.2855170000003,"timerFiredAtMs":null,"physicalReturnedAtMs":3977.528316,"physicalElapsedMs":3977.528316,"returnDelayMs":0.24279899999964982,"cleanupConfirmed":false}}
+✅ W4-CHROMIUM OFF B_dispose_throws_and_metrics {"controllerDisposes":1,"pollingDisposes":1,"atReturn":{"metricsSnapshotScope":"partial-at-return","metricsPartialAtReturn":true,"lateDisposalPending":true,"logicalExpiredAtMs":3974.8606009999985,"timerFiredAtMs":3974.8606009999985,"timerDelayMs":0,"physicalReturnedAtMs":3974.9431620000014,"returnDelayMs":0.08256100000289734,"disposeErrorsAtReturn":[]},"lateSettlement":{"scope":"final-settled","pending":false,"lateDisposeErrors":["real chromium polling sync dispose failure","real chromium controller async dispose failure"],"allDisposeErrorsCount":2}}
+❌ W4-CHROMIUM OFF C_renderer_partial_cleanup_inert
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+false !== true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.browser.mjs:294:16
+
+W4 CHROMIUM REGRESSIONS — 4/6; Chromium real Blink ON/OFF.
+
+VALIDATION RUN exit=1 seconds=16.930775 watchdog=False

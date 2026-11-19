@@ -1,0 +1,10 @@
+{
+  "nodeVersion": "v22.22.3",
+  "platform": "linux",
+  "arch": "x64",
+  "tz": "UTC",
+  "lang": "C.UTF-8",
+  "chromiumBinarySha256": "7ddc6837ec0e0c9ff488cf8c8fa64d8eef71cc3fa7c79752c52367bddbfe94dd",
+  "puppeteerCoreVersion": "24.43.1",
+  "sparticuzChromiumVersion": "138.0.2"
+}

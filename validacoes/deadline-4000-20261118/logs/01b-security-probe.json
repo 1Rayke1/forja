@@ -1,0 +1,52 @@
+{
+  "name": "01b-security-probe",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "../instruments/security-probe.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-20261118/checkout",
+  "startedAtUtc": "2026-11-18T17:53:20.363924+00:00",
+  "finishedAtUtc": "2026-11-18T17:53:21.092327+00:00",
+  "elapsedSeconds": 0.728355,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 2,
+    "failedCaseMarkers": 0,
+    "summaries": [
+      "SECURITY CAPABILITY PROBE — 2/2 passed."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 2,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/01b-security-probe.log",
+  "logSha256": "a79471dcfa083bd42712e0d9580c467190db2c12556cdfab51d4504b8c9e8e93",
+  "policyLog": "logs/01b-security-probe.policy.jsonl",
+  "policyLogSha256": "b9a4187e7acd7987203739e8cb4047b85b5a1eebea4861948971f79252bea4c7",
+  "browserLog": "logs/01b-security-probe.browser.jsonl",
+  "browserLogSha256": "92ee107e8eea8a0a131fc311c5f6c75c905575b65861c96d7fe49218d89535e2"
+}

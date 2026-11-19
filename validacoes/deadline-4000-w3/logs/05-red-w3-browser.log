@@ -1,0 +1,44 @@
+❌ W3-CHROMIUM ON A_non_timeout_cutoff
+AssertionError [ERR_ASSERTION]: controller JSHandle real deve ser descartado 1x
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.browser.mjs:94:16
+❌ W3-CHROMIUM ON B_dispose_throws_and_metrics
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.browser.mjs:159:16
+❌ W3-CHROMIUM ON C_renderer_partial_cleanup_inert
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.browser.mjs:221:16
+❌ W3-CHROMIUM OFF A_non_timeout_cutoff
+AssertionError [ERR_ASSERTION]: controller JSHandle real deve ser descartado 1x
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.browser.mjs:94:16
+❌ W3-CHROMIUM OFF B_dispose_throws_and_metrics
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.browser.mjs:159:16
+❌ W3-CHROMIUM OFF C_renderer_partial_cleanup_inert
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- true
+
+    at file:///home/user/forja/validacoes/deadline-4000-w3/checkout/tests/browser-interaction-w3-regressions.browser.mjs:221:16
+
+W3 CHROMIUM REGRESSIONS — 0/6; Chromium real Blink ON/OFF.
+
+VALIDATION RUN exit=1 seconds=17.319841 watchdog=False

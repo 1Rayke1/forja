@@ -1,0 +1,5 @@
+✅ SECURITY PROBE ON {"scrollEndEvents":true,"observed":{"sop":"SecurityError","cors":"TypeError","nativeScrollend":true},"unsafe":[]}
+✅ SECURITY PROBE OFF {"scrollEndEvents":false,"observed":{"sop":"SecurityError","cors":"TypeError","nativeScrollend":false},"unsafe":[]}
+SECURITY CAPABILITY PROBE — 2/2 passed.
+
+VALIDATION RUN exit=0 seconds=0.728355 watchdog=False

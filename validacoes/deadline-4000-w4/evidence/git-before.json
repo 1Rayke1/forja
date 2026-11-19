@@ -1,0 +1,9 @@
+{
+  "head": "99cffc9147d72cc4eedd2eaf47310fc135815c3b",
+  "branch": "arena/468b7e01-forja",
+  "statusShortSha256": "f77b2c39be904f1db4aa7e8d351c5f8053f76389d1c11001ec177dde98695f99",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "packageJsonSha256": "90e69acbc229c6c338acd2d6db162322a2fef011038798d3acc6e9d502abe0b7",
+  "packageLockJsonSha256": "b490e9738f8c589f3e84700468a0d49f78a9cbfe38abf0c1282d135951f49cd6",
+  "baselineCount": 825
+}

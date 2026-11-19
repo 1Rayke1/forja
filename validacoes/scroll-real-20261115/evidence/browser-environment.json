@@ -1,0 +1,8 @@
+{
+  "chromiumBinary": "/home/user/forja/validacoes/scroll-real-20261115/.cache/tmp/chromium",
+  "chromiumBinarySha256": "7ddc6837ec0e0c9ff488cf8c8fa64d8eef71cc3fa7c79752c52367bddbfe94dd",
+  "chromiumVersion": "Chromium 138.0.7204.0",
+  "wrapper": "/home/user/forja/validacoes/scroll-real-20261115/instruments/chromium-local-only",
+  "wrapperSha256": "423bbb3bb2bc6b3dd9c4bb99658deafd2d70772dd1eb9745f4e587a5dc2d3b18",
+  "libraryPath": "/home/user/forja/validacoes/scroll-real-20261115/.cache/tmp/forja-browser-libs/lib"
+}

@@ -1,0 +1,183 @@
+{
+  "syntax": {
+    "files": 105,
+    "passed": 105,
+    "failures": []
+  },
+  "generalE2E": {
+    "asserts": 589,
+    "scenarios": 46,
+    "bytesIdentical": true,
+    "assertionTextAndOrderIdentical": true,
+    "scenarioTextAndOrderIdentical": true,
+    "skipOnlyCount": 0
+  },
+  "baselineCheck": {
+    "total": 825,
+    "isolatedMismatch": [
+      "tests/helpers/browser-interaction.mjs"
+    ],
+    "originalMismatch": []
+  },
+  "isolatedAllowedDeltaOnly": true,
+  "helperStatus": {
+    "isolatedSha256": "48e4659d4426f88303d0226df41277a7e87fe5797ef09115e272f171c3895bb8",
+    "originalSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+    "originalUntouched": true
+  },
+  "protectedStatus": {
+    "assets/js/forja-auth-data.js": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "02629a1689e06449175152431d7c4b31f219edf6a809826edc3838d6875226cb"
+    },
+    "assets/js/forja-auth-guard.js": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "7e5fbb957e1e92565a322af0a348c3ab7d928073f16938f5e9384ea1d77c8694"
+    },
+    "assets/js/forja-auth.js": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "ebc0716a7dfaec4266113460ded8764402652b4a048df41710f139f8a1843ef8"
+    },
+    "assets/js/forja-login.js": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "cf5b24dc550f4a97db802ff623a43eb949097d3efa543a0e9938e571362a35f5"
+    },
+    "assets/vendor/supabase/supabase.js": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "a867edbcfb029370aeec7223dd6180b560b621fbe3bc64c6584fb0369d1b7bce"
+    },
+    "docs/correcao-helper-scroll-aninhados-deadline.md": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "3a9f843ce8570a837ca75af942c17f1a303bf4ed47e2a70327869b27cd4a9e79"
+    },
+    "docs/correcao-helper-scroll-e2e.md": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "9e6058e3d6ffa5a97cb014d6324faf234152eb2364b352ae33a5aa29b7c53da8"
+    },
+    "docs/evidencias-helper-scroll-aninhados-deadline.json": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "3fdaeae01725ab9dcd1a50d1cff9ebb07275a75da39ae051d31dc825e891b3b8"
+    },
+    "docs/evidencias-helper-scroll-aninhados-deadline.sha256": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "384b0dd3a3b73f6c07b6954a88d8ae5ef64ef425e9987a5b10c55092256afa3b"
+    },
+    "docs/evidencias-helper-scroll-aninhados-deadline.zip": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "85571a2eba2db11ee824678e4f777516b09a16f00c8b388d937a442f81bc6a48"
+    },
+    "docs/evidencias-helper-scroll-e2e.json": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "e7305dfb9cde59dbda2e6c597f1c30b34b0f74a194f98c5b73f0aeaeef12a640"
+    },
+    "docs/evidencias-helper-scroll-e2e.zip": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "50eb7a29903ceff7dd192c1f9bb05f8b54f1e44fefc0b65d8d20d692c4de6615"
+    },
+    "tests/auth-concurrency.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "d810cf92addb25564484b600ff236a66c1dc956128b913abc6ebe6dfafff3a15"
+    },
+    "tests/auth-concurrency.test.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "b9dfdae21225d1952dc14434bd2e0fafa22d21dd8b2337f568922838281730f5"
+    },
+    "tests/auth-config.test.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "4c749c00b955d410a9dbe1b12541526b22ff4b4b622221c449fde48ef7c24fda"
+    },
+    "tests/auth-recovery.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "c37b9bed32973ce5d327116e0d46aebb57d7ab7370086c7ae526b2bc10adab51"
+    },
+    "tests/auth-recovery.test.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "d3f32f010516f71ac39420cf71fc825a4d7d5e185de30dbeadc8b336925e14b2"
+    },
+    "tests/auth.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "2d9c53b8ef3be93949405ab14d7a43dbd76962c1025c1de16401e7595825980b"
+    },
+    "tests/auth.test.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "6c04d74e75cd57f97d0a44d2234dd64842861fedd1143ab6162e314d43516b5a"
+    },
+    "tests/browser-interaction-chain.test.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "a41a49b5acf697c2219f9c4a3aa6311efd651bf66442f1bb39f283e12acef3a0"
+    },
+    "tests/browser-interaction-deadline.test.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "34ac2c4d07ea819c79e45776c3cb2430a83570c49685a9be0526ac399c913611"
+    },
+    "tests/browser-interaction-expanded.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "1c4695737c51305c09d305acb3822abdc178d9d2be7ce7b254c440426f3b02b0"
+    },
+    "tests/browser-interaction-late-protocol.test.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "ab0b0df47f69deccb9fa88384805339dfa470798301e39c40b82f9756bf3304a"
+    },
+    "tests/browser-interaction-nested.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "e4986c9fdcd847398a4ce5e7d5ba88df18799c86fc427ef38ac484c9e53b8067"
+    },
+    "tests/browser-interaction-protocol.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "9b82474ba06aa29526e7bd145b3c0cdd3de1cb5e8207fc0b3b03d45d386fe325"
+    },
+    "tests/browser-interaction-regressions.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "156c3967997bb25502620a28be9c0425974fe0a06bfec313abce3f7159356e1d"
+    },
+    "tests/browser-interaction.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "511e0f9161476f90d3cfad0c5894f75188e2b3b902fd45cbe9ed92a3d8d21e96"
+    },
+    "tests/helpers/auth-concurrency.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "1da928bc3d3332ed4a3fa647f8b693ea204d202509cfe5406081f22fbfdbbbac"
+    },
+    "tests/helpers/auth-fixture.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "6e2200b121def1d8406c9e2597a94d69a3263ece1db9aead846ed2241cc77403"
+    },
+    "tests/helpers/auth-lifecycle.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "df2ebeaef01c968eaa57f97a573630b26777208ea8cc926db7fdb350672056bd"
+    },
+    "tests/helpers/auth-recovery.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "a96208955152ed2c4ec38395b4fa7df8faa82f1b5b64567b4308f694c5ffe1c1"
+    },
+    "tests/helpers/browser-auth.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "bafab371179257deb7d9e2bc6d9dd34de45c5a663469a92f89e1a360d78a5055"
+    },
+    "tests/helpers/browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "7e24e50a79451187f32ce0b50c1ce527ebe3860d7d8feed1839671379b4e9fcb"
+    },
+    "tests/helpers/scroll-dom-model.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "e590be5475387a7d3a24d3b6731b2403e8a46e819bf4b002ef1303a7b5910a11"
+    },
+    "tests/helpers/scrollend-off.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "60fb3ab48a429f429dbf02bd0fddbfc14b8f05839c927b1555991486515f5f06"
+    },
+    "package-lock.json": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "b490e9738f8c589f3e84700468a0d49f78a9cbfe38abf0c1282d135951f49cd6"
+    },
+    "package.json": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "90e69acbc229c6c338acd2d6db162322a2fef011038798d3acc6e9d502abe0b7"
+    },
+    "tests/e2e.browser.mjs": {
+      "matchesOriginalAndBaseline": true,
+      "sha256": "b893e002f3a5a4922f62985b002959073271fbe9c38ce7f958dc4fd976f6ae4f"
+    }
+  },
+  "ok": true
+}

@@ -1,0 +1,15 @@
+{
+  "auditedAtUtc": "2026-11-19T04:18:17.974992+00:00",
+  "persistentFileCount": 201,
+  "persistentTotalBytes": 2729173,
+  "excludedDirsFound": [],
+  "gitLsFilesExactMatch": true,
+  "dependsOnTemporaryRuntime": false,
+  "runtimeCleanedAfterFinalCheck": true,
+  "diffReconstructionVerified": true,
+  "reconstructedHelperSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+  "sourceHelperSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+  "sourceHelperBytes": 40638,
+  "diffBytes": 32172,
+  "diffSha256": "1645c3a29bf20f8a43bab250b871440529e0014592ac6e0bb022e0dd72d3c442"
+}

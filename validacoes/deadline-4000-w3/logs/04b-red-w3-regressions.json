@@ -1,0 +1,67 @@
+{
+  "name": "04b-red-w3-regressions",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-w3-regressions.test.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T00:23:15.969979+00:00",
+  "finishedAtUtc": "2026-11-19T00:23:16.085104+00:00",
+  "elapsedSeconds": 0.115081,
+  "exitCode": 13,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.test.mjs": "22dfda21ab420a2710d0efba58df8bcb24173d53a35e75f7daeb45c0466d26aa"
+  },
+  "sourceFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "sourceFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 3,
+    "failedCaseMarkers": 13,
+    "summaries": [],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [
+    "❌ W3-REG 01 Erro não-timeout após expiração lógica com controller ativo",
+    "❌ W3-REG 03 Erro diagnóstico na fronteira",
+    "❌ W3-REG 04 Erro de cleanup na fronteira",
+    "❌ W3-REG 05 Dispose síncrono do controller com throw",
+    "❌ W3-REG 06 Dispose assíncrono do controller com rejection",
+    "❌ W3-REG 07 Dispose síncrono do polling com throw",
+    "❌ W3-REG 08 Dispose assíncrono do polling com rejection",
+    "❌ W3-REG 09 Callback afterLateSettle com throw",
+    "❌ W3-REG 10 Timeout durante prepare",
+    "❌ W3-REG 11 Timeout durante polling",
+    "❌ W3-REG 12 Timeout durante cleanup",
+    "❌ W3-REG 14 Cleanup parcial interrompido",
+    "❌ W3-REG 16 Operação antiga resolve após expiração"
+  ],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 0,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "FAILED_COMPLETED",
+  "log": "logs/04b-red-w3-regressions.log",
+  "logSha256": "91bfbfef8c7a0c10c5b575dd081c950e17129dbff76e63fa53535fda2fc85ad1",
+  "policyLog": null,
+  "policyLogSha256": null,
+  "browserLog": null,
+  "browserLogSha256": null
+}

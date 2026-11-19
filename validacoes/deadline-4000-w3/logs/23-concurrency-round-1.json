@@ -1,0 +1,58 @@
+{
+  "name": "23-concurrency-round-1",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "npm",
+    "run",
+    "test:auth:concurrency"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w3/checkout",
+  "startedAtUtc": "2026-11-19T01:05:47.036323+00:00",
+  "finishedAtUtc": "2026-11-19T01:06:30.266693+00:00",
+  "elapsedSeconds": 43.230313,
+  "exitCode": 0,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "ecedcdfbd4838cfa1ef298a1f1dd3a85d73d6f9bd900271b7168be621a7e6e40",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w3-regressions.browser.mjs": "db7e130fdaea9dcf297b3c6e2a98c64baabef8c96d2f0848fb0212dd9537ef83",
+    "tests/browser-interaction-w3-regressions.test.mjs": "85ae5f4660cdc282431bdfcd721c1a911afe93399b29c318d5477c50af3ab686"
+  },
+  "sourceFingerprintBefore": "ebb1ba92d918b9a32ebaa10d56656c7062a71700c1b6414d92cb9b2e8bd0d556",
+  "sourceFingerprintAfter": "ebb1ba92d918b9a32ebaa10d56656c7062a71700c1b6414d92cb9b2e8bd0d556",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 41,
+    "failedCaseMarkers": 0,
+    "summaries": [
+      "AUTH CONCURRENCY — 18/18 testes aprovados. SDK real, serviços fictícios, zero SQL.",
+      "BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 1,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "PASSED",
+  "log": "logs/23-concurrency-round-1.log",
+  "logSha256": "140874aab5610ad0dd00e599bbfe667900b9047c86c802f0a55ccfc161320dac",
+  "policyLog": "logs/23-concurrency-round-1.policy.jsonl",
+  "policyLogSha256": "10f5d69b1c2667037f905fa5d5484d459cccd892bae93fd53f1b7359cb643154",
+  "browserLog": "logs/23-concurrency-round-1.browser.jsonl",
+  "browserLogSha256": "4694ea8286efb97a4fa6c339971e81b2be6dc924c4577abc91cfafae8af36800"
+}

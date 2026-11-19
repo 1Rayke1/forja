@@ -1,0 +1,53 @@
+{
+  "phase": "green-w4",
+  "syntax": {
+    "files": 157,
+    "passed": 157,
+    "failures": []
+  },
+  "generalE2E": {
+    "asserts": 589,
+    "scenarios": 46,
+    "bytesIdentical": true,
+    "assertionTextAndOrderIdentical": true,
+    "scenarioTextAndOrderIdentical": true,
+    "skipOnlyCount": 0
+  },
+  "baselineCheck": {
+    "total": 825,
+    "isolatedMismatch": [
+      "tests/helpers/browser-interaction.mjs"
+    ],
+    "originalMismatch": []
+  },
+  "addedFiles": {
+    "tests/browser-interaction-w4-regressions.browser.mjs": {
+      "sha256": "bea8ae701bdea6331aca1f6bdcb05d23e76588ad2f0ce2c5c957ea9dd7aaa1a1",
+      "bytes": 16436,
+      "assertions": 48,
+      "skipOnlyCount": 0,
+      "matchesPersistentCopy": true,
+      "allowed": true
+    },
+    "tests/browser-interaction-w4-regressions.test.mjs": {
+      "sha256": "48b75017a77ace0b583cfc3068b13bc9321cd0efcc6a02c2798a4617378de2e1",
+      "bytes": 32185,
+      "assertions": 123,
+      "skipOnlyCount": 0,
+      "matchesPersistentCopy": true,
+      "allowed": true
+    }
+  },
+  "disallowedAdded": [],
+  "helperStatus": {
+    "isolatedSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+    "persistentSourceSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+    "originalSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+    "originalUntouched": true,
+    "helperSyncOk": true
+  },
+  "protectedCount": 38,
+  "ok": true
+}
+
+VALIDATION RUN exit=0 seconds=5.357798 watchdog=False

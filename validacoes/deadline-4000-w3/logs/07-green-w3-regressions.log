@@ -1,0 +1,24 @@
+✅ W3-REG 01 Erro não-timeout após expiração lógica com controller ativo {"controllerDispose":1,"err":"protocol non-timeout failure at boundary","metrics":{"deadlineMs":4000,"logicalCutoffMs":3976,"logicalExpiredAtMs":null,"physicalReturnedAtMs":3977,"physicalElapsedMs":3977,"eventLoopDelayMs":null,"cleanupConfirmed":false,"disposed":false,"pollingDisposed":false,"inertResources":["controller-handle","renderer-controller-lease-expired"],"disposeErrors":[],"cleanupErrors":[]}}
+✅ W3-REG 02 Polling handle na fronteira do orçamento {"pollingDispose":1,"controllerDispose":1}
+✅ W3-REG 03 Erro diagnóstico na fronteira {"preserved":"diagnostic failed at cutoff","pollingDispose":1,"controllerDispose":1}
+✅ W3-REG 04 Erro de cleanup na fronteira {"preserved":"cleanup protocol crash at boundary","controllerDispose":1}
+✅ W3-REG 05 Dispose síncrono do controller com throw {"timeoutHandled":"TimeoutError","originalPreserved":"original diagnostic boom"}
+✅ W3-REG 06 Dispose assíncrono do controller com rejection {"ok":true,"controllerDispose":1}
+✅ W3-REG 07 Dispose síncrono do polling com throw {"pollingDispose":1,"controllerDispose":1}
+✅ W3-REG 08 Dispose assíncrono do polling com rejection {"pollingDispose":1,"controllerDispose":1}
+✅ W3-REG 09 Callback afterLateSettle com throw {"pollingDispose":1,"controllerDispose":1}
+✅ W3-REG 10 Timeout durante prepare {"lateDisposes":1,"elapsedMs":3976}
+✅ W3-REG 11 Timeout durante polling {"calls":["clock","prepare","geometry","polling","polling-dispose","dispose"]}
+✅ W3-REG 12 Timeout durante cleanup {"controllerDispose":1,"mutationsAtExpiry":1}
+✅ W3-REG 13 Dispose concorrente com timeout {"controllerDispose":1}
+✅ W3-REG 14 Cleanup parcial interrompido {"res1":{"cleanupConfirmed":false,"ready":false,"closed":true,"partial":true,"inertResources":["reference-iframe","scroll-listeners:div#outer","scroll-listeners:div#inner","pending-scroll:div#inner"],"diagnostic":{"reason":"destination","connected":true,"position":[0,0],"destination":[0,0],"atDestination":false,"stableFrames":0,"nativeEnd":true,"requiresEnd":true,"nativeReceived":false,"requests":1,"revision":1,"scrollers":[{"id":"document","position":[0,0],"destination":[0,0],"max":[0,0],"atDestination":true,"nativeEnd":true,"requiresEnd":false,"nativeReceived":false,"lastScrollTime":null,"requestTime":0},{"id":"div#outer","position":[0,0],"destination":[0,700],"max":[0,1500],"atDestination":false,"nativeEnd":true,"requiresEnd":true,"nativeReceived":false,"lastScrollTime":null,"requestTime":0},{"id":"div#inner","position":[0,0],"destination":[0,867],"max":[0,1500],"atDestination":false,"nativeEnd":true,"requiresEnd":true,"nativeReceived":false,"lastScrollTime":null,"requestTime":0}]}},"res2":{"cleanupConfirmed":false,"ready":false,"closed":true,"partial":true,"inertResources":["reference-iframe","scroll-listeners:div#outer","scroll-listeners:div#inner","pending-scroll:div#inner"],"diagnostic":{"reason":"destination","connected":true,"position":[0,0],"destination":[0,0],"atDestination":false,"stableFrames":0,"nativeEnd":true,"requiresEnd":true,"nativeReceived":false,"requests":1,"revision":1,"scrollers":[{"id":"document","position":[0,0],"destination":[0,0],"max":[0,0],"atDestination":true,"nativeEnd":true,"requiresEnd":false,"nativeReceived":false,"lastScrollTime":null,"requestTime":0},{"id":"div#outer","position":[0,0],"destination":[0,700],"max":[0,1500],"atDestination":false,"nativeEnd":true,"requiresEnd":true,"nativeReceived":false,"lastScrollTime":null,"requestTime":0},{"id":"div#inner","position":[0,0],"destination":[0,867],"max":[0,1500],"atDestination":false,"nativeEnd":true,"requiresEnd":true,"nativeReceived":false,"lastScrollTime":null,"requestTime":0}]}},"effectsFrozen":true}
+✅ W3-REG 15 Cleanup/dispose repetido (idempotência) {"first":true,"second":true,"third":true}
+✅ W3-REG 16 Operação antiga resolve após expiração {"verifiedPhases":[{"phase":"prepare","controllerDispose":1},{"phase":"geometry","controllerDispose":1},{"phase":"polling","controllerDispose":1},{"phase":"diagnostic","controllerDispose":1},{"phase":"cleanup","controllerDispose":1}]}
+✅ W3-REG 17 Operação antiga não inicia a próxima etapa {"verified":["clock","prepare","geometry","polling","diagnostic","cleanup"]}
+✅ W3-REG 18 Ausência de clique tardio {"clicks":0}
+✅ W3-REG 19 Ausência de mutação tardia {"lateEffects":0,"references":0,"listeners":0}
+✅ W3-REG 20 Ausência de unhandled rejection e métricas temporais separadas {"metrics":{"deadlineMs":4000,"logicalCutoffMs":3976,"logicalExpiredAtMs":3976,"physicalReturnedAtMs":3976,"physicalElapsedMs":3976,"eventLoopDelayMs":0,"cleanupConfirmed":false,"disposed":false,"pollingDisposed":false,"inertResources":["controller-handle","renderer-controller-lease-expired"],"disposeErrors":[],"cleanupErrors":[]},"unhandledCount":0,"uncaughtCount":0}
+
+W3 REGRESSIONS — 20/20; 20 casos obrigatórios (modelo/protocolo, NÃO Chromium).
+
+VALIDATION RUN exit=0 seconds=0.1151 watchdog=False

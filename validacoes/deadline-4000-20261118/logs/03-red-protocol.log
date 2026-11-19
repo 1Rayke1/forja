@@ -1,0 +1,33 @@
+❌ PROTOCOL ON prepare
+AssertionError [ERR_ASSERTION]: integral: 4002.520469ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+✅ PROTOCOL ON geometry {"checkpoint":{"outcome":"rejected","elapsed":3999.776905999999,"name":"TimeoutError","message":"Waiting failed: 4000ms integral scroll deadline exceeded","diagnostic":{"reason":"deadline","phase":"cleanup","deadlineMs":4000,"elapsedMs":3999.766941,"cleanupConfirmed":false,"disposed":false,"safety":"No click is performed by this helper."}},"calls":["prepare","geometry","diagnostic","cleanup"],"before":{"mutations":4,"requests":1,"clicks":0,"scrolls":[[0,0,2],[0,0,8],[0,0,18],[0,0,32],[0,0,51],[0,0,74],[0,0,101],[0,0,133],[0,0,169],[0,0,209],[0,0,252],[0,0,298],[0,0,347],[0,0,397],[0,0,448],[0,0,498],[0,0,547],[0,0,595],[0,0,639],[0,0,681],[0,0,719],[0,0,752],[0,0,782],[0,0,807],[0,0,827],[0,0,843],[0,0,855],[0,0,863],[0,0,867]]},"after":{"mutations":4,"requests":1,"clicks":0,"scrolls":[[0,0,2],[0,0,8],[0,0,18],[0,0,32],[0,0,51],[0,0,74],[0,0,101],[0,0,133],[0,0,169],[0,0,209],[0,0,252],[0,0,298],[0,0,347],[0,0,397],[0,0,448],[0,0,498],[0,0,547],[0,0,595],[0,0,639],[0,0,681],[0,0,719],[0,0,752],[0,0,782],[0,0,807],[0,0,827],[0,0,843],[0,0,855],[0,0,863],[0,0,867]]},"consoleErrors":0}
+❌ PROTOCOL ON polling
+AssertionError [ERR_ASSERTION]: integral: 4000.3480099999997ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+❌ PROTOCOL ON diagnostic
+AssertionError [ERR_ASSERTION]: integral: 4000.297524999998ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+✅ PROTOCOL ON cleanup {"checkpoint":{"outcome":"rejected","elapsed":3999.0317639999994,"name":"TimeoutError","message":"Waiting failed: 4000ms integral scroll deadline exceeded","diagnostic":{"reason":"ready","connected":true,"position":[0,0],"destination":[0,0],"atDestination":true,"stableFrames":2,"nativeEnd":true,"requiresEnd":true,"nativeReceived":true,"requests":1,"revision":1,"scrollers":[{"id":"document","position":[0,0],"destination":[0,0],"max":[0,0],"atDestination":true,"nativeEnd":true,"requiresEnd":false,"nativeReceived":false,"lastScrollTime":null,"requestTime":48},{"id":"section#inner","position":[0,867],"destination":[0,867],"max":[0,1500],"atDestination":true,"nativeEnd":true,"requiresEnd":true,"nativeReceived":true,"lastScrollTime":538.8000000002794,"requestTime":48,"endTime":572.2000000001863}],"phase":"cleanup","deadlineMs":4000,"elapsedMs":3999.0186209999993,"cleanupConfirmed":false,"disposed":false,"safety":"No click is performed by this helper."}},"calls":["prepare","geometry","polling","diagnostic","cleanup"],"before":{"mutations":4,"requests":1,"clicks":0,"scrolls":[[0,0,2],[0,0,8],[0,0,18],[0,0,32],[0,0,51],[0,0,74],[0,0,101],[0,0,133],[0,0,169],[0,0,209],[0,0,252],[0,0,298],[0,0,347],[0,0,397],[0,0,448],[0,0,498],[0,0,547],[0,0,595],[0,0,639],[0,0,681],[0,0,719],[0,0,752],[0,0,782],[0,0,807],[0,0,827],[0,0,843],[0,0,855],[0,0,863],[0,0,867]]},"after":{"mutations":4,"requests":1,"clicks":0,"scrolls":[[0,0,2],[0,0,8],[0,0,18],[0,0,32],[0,0,51],[0,0,74],[0,0,101],[0,0,133],[0,0,169],[0,0,209],[0,0,252],[0,0,298],[0,0,347],[0,0,397],[0,0,448],[0,0,498],[0,0,547],[0,0,595],[0,0,639],[0,0,681],[0,0,719],[0,0,752],[0,0,782],[0,0,807],[0,0,827],[0,0,843],[0,0,855],[0,0,863],[0,0,867]]},"consoleErrors":0}
+❌ PROTOCOL ON dispose
+AssertionError [ERR_ASSERTION]: integral: 4003.1435249999995ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+❌ PROTOCOL OFF prepare
+AssertionError [ERR_ASSERTION]: integral: 4000.882525000001ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+✅ PROTOCOL OFF geometry {"checkpoint":{"outcome":"rejected","elapsed":3999.773991000002,"name":"TimeoutError","message":"Waiting failed: 4000ms integral scroll deadline exceeded","diagnostic":{"reason":"deadline","phase":"cleanup","deadlineMs":4000,"elapsedMs":3999.7582949999996,"cleanupConfirmed":false,"disposed":false,"safety":"No click is performed by this helper."}},"calls":["prepare","geometry","diagnostic","cleanup"],"before":{"mutations":4,"requests":1,"clicks":0,"scrolls":[[0,0,2],[0,0,8],[0,0,18],[0,0,32],[0,0,51],[0,0,74],[0,0,101],[0,0,133],[0,0,169],[0,0,209],[0,0,252],[0,0,298],[0,0,347],[0,0,397],[0,0,448],[0,0,498],[0,0,547],[0,0,595],[0,0,639],[0,0,681],[0,0,719],[0,0,752],[0,0,782],[0,0,807],[0,0,827],[0,0,843],[0,0,855],[0,0,863],[0,0,867]]},"after":{"mutations":4,"requests":1,"clicks":0,"scrolls":[[0,0,2],[0,0,8],[0,0,18],[0,0,32],[0,0,51],[0,0,74],[0,0,101],[0,0,133],[0,0,169],[0,0,209],[0,0,252],[0,0,298],[0,0,347],[0,0,397],[0,0,448],[0,0,498],[0,0,547],[0,0,595],[0,0,639],[0,0,681],[0,0,719],[0,0,752],[0,0,782],[0,0,807],[0,0,827],[0,0,843],[0,0,855],[0,0,863],[0,0,867]]},"consoleErrors":0}
+❌ PROTOCOL OFF polling
+AssertionError [ERR_ASSERTION]: integral: 4001.3591219999944ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+❌ PROTOCOL OFF diagnostic
+AssertionError [ERR_ASSERTION]: integral: 4000.0796190000037ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+❌ PROTOCOL OFF cleanup
+AssertionError [ERR_ASSERTION]: integral: 4000.130846ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+❌ PROTOCOL OFF dispose
+AssertionError [ERR_ASSERTION]: integral: 4001.9932199999967ms
+    at file:///home/user/forja/validacoes/deadline-4000-20261118/checkout/tests/browser-interaction-protocol.browser.mjs:52:60
+PROTOCOL — 3/12; 6 fronteiras × Blink ON/OFF, deadline estrito.
+
+VALIDATION RUN exit=1 seconds=49.312704 watchdog=False

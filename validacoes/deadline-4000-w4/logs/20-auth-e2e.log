@@ -1,0 +1,89 @@
+
+> forja@2.0.0 test:auth:e2e
+> node tests/auth.browser.mjs && node tests/auth-recovery.browser.mjs && node tests/auth-concurrency.browser.mjs
+
+AUTH Chromium: segurança web e isolamento de origens habilitados.
+✅ BROWSER AUTH 1. Acesso direto às 15 páginas exige Google
+✅ BROWSER AUTH 2. OAuth/PKCE completo e retorno correto sob /
+✅ BROWSER AUTH 3. OAuth/PKCE completo e retorno correto sob /forja/
+✅ BROWSER AUTH 4. Cancelamento OAuth não libera o app e limpa a URL
+✅ BROWSER AUTH 5. Sessão expirada renova pelo SDK e persiste no reload
+✅ BROWSER AUTH 6. Logout com erro remoto bloqueia as duas abas e não apaga dados
+✅ BROWSER AUTH 7. Troca A→B→A entre abas não mistura dados
+✅ BROWSER AUTH 8. Refresh entre abas preserva rascunho não salvo do editor
+✅ BROWSER AUTH 9. Escrita stale falha antes mesmo do evento storage
+✅ BROWSER AUTH 10. Legado só é vinculado com confirmação e cópia tem readback/checksum
+✅ BROWSER AUTH 11. Falha local de cota não perde legado; retry retoma sem apagar a origem
+✅ BROWSER AUTH 12. Readback divergente permanece pendente e pode ser repetido pela UI
+✅ BROWSER AUTH 13. Voltar/BFCache fecha o conteúdo antes de revalidar
+✅ BROWSER AUTH 14. Com JavaScript desativado, conteúdo interno fica fechado e há orientação
+✅ BROWSER AUTH 15. Login é utilizável por teclado e sem overflow em 320/390/1280 px
+✅ BROWSER AUTH 16. Configuração ausente nunca abre visitante ou uma página interna
+✅ BROWSER AUTH 17. PostgREST SIMULADO recebe JWT do usuário e nega ações cruzadas
+✅ BROWSER AUTH 18. Sessão alterada enquanto espera Web Lock não vincula legado à conta antiga
+✅ BROWSER AUTH 19. Missões atualizam imediatamente entre abas pelo namespace UID; eventos de B não chegam ao domínio
+✅ BROWSER AUTH 20. getUser 401 durante o uso retorna ao login sem perder destino ou dados
+✅ BROWSER AUTH 21. Falha transitória de Auth fecha o conteúdo e retry restaura sem OAuth/reload
+✅ BROWSER AUTH 22. Login em espera reage à conta Google verificada em outra aba e preserva o destino
+✅ BROWSER AUTH 23. Login restaura botão/estado após pageshow persistido (evento BFCache simulado)
+✅ BROWSER AUTH 24. Callback é sanitizado mesmo sem configuração pública; não existe fallback visitante
+✅ BROWSER AUTH 25. Logout e nova escolha Google A→B usam OAuth sem misturar os namespaces
+✅ BROWSER AUTH 26. Mobile emulado 320 px: Google, navegação, reload e logout pela UI
+✅ BROWSER AUTH 27. Mobile emulado 390 px: Google, navegação, reload e logout pela UI
+✅ BROWSER AUTH 28. Cancelamento não reutiliza sessão antiga; somente nova escolha Google permite continuar
+✅ BROWSER AUTH 29. session_not_found atrasado de A não encerra B nem seu login em outra aba
+
+BROWSER AUTH — 29/29 testes aprovados. Google/Auth/PostgREST simulados; nenhuma homologação remota ou SQL.
+AUTH RECOVERY Chromium: segurança web/isolamento ativos; HeadlessChrome/138.0.7204.0
+✅ BROWSER RECOVERY 1. Duas abas: logout A com refresh pendente não encerra Google B nem usa seu token
+✅ BROWSER RECOVERY 2. Administração: 503 inicial seguido de retry recupera conteúdo e filtros
+✅ BROWSER RECOVERY 3. HTTP real local: corpo infinito expira em 12 s, conexão aborta e retry recupera
+✅ BROWSER RECOVERY 4. Logout A concluído durante novo Google B não apaga o verifier PKCE compartilhado
+✅ BROWSER RECOVERY 5. UI A antes de receber storage não encerra nem sinaliza logout da sessão B já salva
+✅ BROWSER RECOVERY 6. Administração: segunda falha 503 não deixa loading permanente; terceiro retry recupera
+✅ BROWSER RECOVERY 7. Administração: sessão válida no retry não duplica listeners e mantém credencial adicional
+✅ BROWSER RECOVERY 8. Administração: sessão expira durante recuperação e exige novo Google sem apagar dados
+✅ BROWSER RECOVERY 9. Administração: resposta antiga A não libera B rejeitada; retry valida B por conta própria
+✅ BROWSER RECOVERY 10. Administração: dashboard de A que termina após troca para B não é renderizado
+✅ BROWSER RECOVERY 11. HTTP normal: corpo completo é validado sem cancelar a requisição
+✅ BROWSER RECOVERY 12. HTTP: cabeçalhos não liberam a UI antes de terminar o corpo atrasado dentro do prazo
+✅ BROWSER RECOVERY 13. HTTP: corpo >12 s é cancelado e sua conclusão tardia não interfere com B validada depois
+✅ BROWSER RECOVERY 14. HTTP: interrupção durante leitura fecha o gate; retry recupera sem apagar sessão
+✅ BROWSER RECOVERY 15. HTTP: trocar a geração aborta corpo pendente A e não prende a validação própria de B
+✅ BROWSER RECOVERY 16. Logout cancela getUser A pendente; resposta atrasada não remove novo Google B
+✅ BROWSER RECOVERY 17. Evento de logout antigo de A não fecha a UI/driver já validados de B
+✅ BROWSER RECOVERY 18. HTTP sem cabeçalhos tem prazo total de 12 s, cancelamento e retry utilizável
+✅ BROWSER RECOVERY 19. HTTP com corpo infinito em progresso é cancelado em 12 s; chunks não renovam o prazo
+
+BROWSER RECOVERY — 19/19 testes aprovados. Serviços simulados; zero SQL/deploy.
+AUTH CONCURRENCY: segurança web/isolamento ativos; HeadlessChrome/138.0.7204.0
+✅ BROWSER CONCURRENCY 1. Botão logout com SecurityError em getItem: fechado, botão restaurado e retry de saída
+✅ BROWSER CONCURRENCY 2. Botão logout com SecurityError em setItem: fechado, botão restaurado e retry de saída
+✅ BROWSER CONCURRENCY 3. Botão logout com SecurityError em removeItem: fechado, botão restaurado e retry de saída
+✅ BROWSER CONCURRENCY 4. PKCE A pendente não substitui B pronta com notificações de A ainda não entregues
+✅ BROWSER CONCURRENCY 5. Erro PKCE antigo preserva verifier e callback de B ainda pendente
+✅ BROWSER CONCURRENCY 6. Callback A que chega após B concluída não reaproveita nem substitui a geração recente
+✅ BROWSER CONCURRENCY 7. SDK refresh → logout imediato → 503 encerra A também na outra aba e no reload
+✅ BROWSER CONCURRENCY 8. Clique na UI ainda anterior às notificações encerra refresh real feito pela outra aba
+✅ BROWSER CONCURRENCY 9. Logout de UI A rotacionada não encerra B já persistida por outro SDK
+✅ BROWSER CONCURRENCY 10. Outro session_id do mesmo UID não pertence ao logout da UI anterior
+✅ BROWSER CONCURRENCY 11. Storage sem leitura/escrita/remoção não reautoriza A; sinal sem tokens fecha a outra aba
+  LOCK EVIDENCE {"rejected":false,"sameUidNewSession":false,"bVerifiedBeforeRelease":true,"exactBPreserved":true,"staleRefreshRejected":true,"lockAvailable":true}
+✅ BROWSER CONCURRENCY 12. Refresh A espera Web Lock real, B fica persistida e autorizada e A não a substitui
+  LOCK EVIDENCE {"rejected":false,"sameUidNewSession":true,"bVerifiedBeforeRelease":true,"exactBPreserved":true,"staleRefreshRejected":true,"lockAvailable":true}
+✅ BROWSER CONCURRENCY 13. Refresh A também não substitui outro session_id do MESMO UID após esperar o lock
+✅ BROWSER CONCURRENCY 14. Refresh legítimo da mesma sessão continua rotacionando e exigindo getUser
+  LOCK EVIDENCE {"rejected":true,"sameUidNewSession":false,"bVerifiedBeforeRelease":true,"exactBPreserved":true,"staleRefreshRejected":true,"lockAvailable":true}
+✅ BROWSER CONCURRENCY 15. Erro de refresh A com cleanup esperando lock não remove B persistida depois
+✅ BROWSER CONCURRENCY 16. Mensagem A antes de abrir OAuth não cancela nova intenção Google sob lock real
+✅ BROWSER CONCURRENCY 17. Mensagem A durante OAuth não bloqueia callback B nem reinstala logout
+✅ BROWSER CONCURRENCY 18. Mensagens duplicadas/fora de ordem durante exchange não cancelam B da nova intenção
+✅ BROWSER CONCURRENCY 19. Depois do exchange, logout antigo não bloqueia novo session_id do MESMO UID
+✅ BROWSER CONCURRENCY 20. Logout legítimo de A fecha a outra aba mesmo sem leitura/escrita/remoção de storage
+✅ BROWSER CONCURRENCY 21. Logout antigo e duplicado ignora B pronta, mas logout da sessão B atual continua eficaz
+✅ BROWSER CONCURRENCY 22. Duas abas/tentativas Google concorrentes: sinais antigos não vencem a intenção B mais nova
+✅ BROWSER CONCURRENCY 23. Storage totalmente indisponível + revogação 503: bloqueio imediato, limite no reload e retry durável
+
+BROWSER CONCURRENCY — 23/23 testes aprovados. Google/Auth fictícios, segurança web ativa.
+
+VALIDATION RUN exit=0 seconds=110.116539 watchdog=False

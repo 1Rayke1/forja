@@ -1,0 +1,57 @@
+{
+  "name": "13-scroll-expanded-2",
+  "newExecution": true,
+  "phase": "test",
+  "command": [
+    "node",
+    "tests/browser-interaction-expanded.browser.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-20261118/checkout",
+  "startedAtUtc": "2026-11-18T18:01:29.948764+00:00",
+  "finishedAtUtc": "2026-11-18T18:03:44.362683+00:00",
+  "elapsedSeconds": 134.413873,
+  "exitCode": 1,
+  "processWatchdogSeconds": 1200,
+  "processWatchdogTriggered": false,
+  "testTimeoutsChanged": false,
+  "isolatedHelperSha256": "48e4659d4426f88303d0226df41277a7e87fe5797ef09115e272f171c3895bb8",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "sourceFingerprintBefore": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "sourceFingerprintAfter": "5c8e1f644ed49e24c2522b824aae5f5e68abfc830bb1e9a9498824bbf77003ed",
+  "originalFingerprintBefore": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "originalFingerprintAfter": "af74da85b57a4224ae1c1736503758f8cc6d8336f222c8a88d419507dc9d6b65",
+  "changedTestedSourceFiles": [],
+  "changedOriginalSourceFiles": [],
+  "environment": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "os": "Debian GNU/Linux 12",
+    "architecture": "x86_64",
+    "timezone": "UTC"
+  },
+  "testCounts": {
+    "passedCaseMarkers": 77,
+    "failedCaseMarkers": 1,
+    "summaries": [
+      "SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.",
+      "SCROLL REGRESSIONS — 30/30 cenários aprovados; 15 casos × ON/OFF.",
+      "NESTED — 26/26; 13 casos × Blink ON/OFF.",
+      "PROTOCOL — 11/12; 6 fronteiras × Blink ON/OFF, deadline estrito."
+    ],
+    "note": "Printed case counts, not assertion counts; failures and exits are not suppressed."
+  },
+  "failures": [
+    "❌ PROTOCOL ON prepare"
+  ],
+  "blockingErrors": [],
+  "policyDenials": [],
+  "chromiumLaunches": 8,
+  "unsafeBrowserFlagsObserved": [],
+  "status": "FAILED_COMPLETED",
+  "log": "logs/13-scroll-expanded-2.log",
+  "logSha256": "29b4fd143721c1a62853c7041a100ae9869d5937e5cee1e2b408b61e9a46e4d8",
+  "policyLog": "logs/13-scroll-expanded-2.policy.jsonl",
+  "policyLogSha256": "a12815aff804cd11cd46e5141972c62cf1817df3b826e8a431d6bc169aaf2f0d",
+  "browserLog": "logs/13-scroll-expanded-2.browser.jsonl",
+  "browserLogSha256": "5f1d54df904d0f9c551e940b3139aff6ec735d16f2d47b8496b230db228068ba"
+}

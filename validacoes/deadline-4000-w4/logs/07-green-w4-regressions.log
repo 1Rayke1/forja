@@ -1,0 +1,13 @@
+✅ W4-REG 01 [discriminante] Erro não-timeout após expiração lógica com controller ativo {"subcases":[{"jumpTo":3977,"controllerDispose":1,"logicalExpiredAtMs":3977,"physicalReturnedAtMs":3977,"returnDelayMs":0},{"jumpTo":4001,"controllerDispose":1,"logicalExpiredAtMs":4001,"physicalReturnedAtMs":4001,"returnDelayMs":0}]}
+✅ W4-REG 02 [discriminante] Polling handle na fronteira do orçamento {"pollingDispose":1,"controllerDispose":1}
+✅ W4-REG 03 [discriminante] Erro diagnóstico na fronteira {"preserved":"diagnostic failed at cutoff","controllerDisposes":1,"pollingDisposes":1,"cleanupCalls":0,"diagnosticCalls":1}
+✅ W4-REG 04 [discriminante] Erro de cleanup na fronteira {"preserved":"cleanup protocol crash at boundary","controllerDispose":1}
+✅ W4-REG 05 [discriminante] Dispose síncrono do controller com throw {"timeoutHandled":"TimeoutError","originalPreserved":"original diagnostic boom","controllerDispose":1}
+Warning: Detected unsettled top-level await at file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/tests/browser-interaction-w4-regressions.test.mjs:349
+await runCase('06', 'discriminante', 'Dispose assíncrono do controller com rejection', async () => {
+^
+
+
+
+
+VALIDATION RUN exit=13 seconds=0.065624 watchdog=False

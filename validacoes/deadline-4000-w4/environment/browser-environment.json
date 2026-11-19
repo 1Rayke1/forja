@@ -1,0 +1,7 @@
+{
+  "chromiumBinary": "/home/user/forja/validacoes/deadline-4000-w4/runtime/.cache/tmp/chromium",
+  "chromiumBinarySha256": "7ddc6837ec0e0c9ff488cf8c8fa64d8eef71cc3fa7c79752c52367bddbfe94dd",
+  "wrapper": "/home/user/forja/validacoes/deadline-4000-w4/instruments/chromium-local-only",
+  "wrapperSha256": "08fd594756fec9dd75fd8b2389ea863af77c27386ed802b3bc446c6623464a5e",
+  "libraryPath": "/home/user/forja/validacoes/deadline-4000-w4/runtime/.cache/tmp/forja-browser-libs/lib:/home/user/forja/validacoes/deadline-4000-w4/runtime/.cache/tmp"
+}

@@ -1,0 +1,40 @@
+{
+  "name": "11-model-deadline",
+  "newExecution": true,
+  "phase": "green-w4",
+  "command": [
+    "node",
+    "tests/browser-interaction-deadline.test.mjs"
+  ],
+  "cwd": "/home/user/forja/validacoes/deadline-4000-w4/runtime/checkout",
+  "startedAtUtc": "2026-11-19T03:44:51.369959+00:00",
+  "finishedAtUtc": "2026-11-19T03:44:51.435245+00:00",
+  "elapsedSeconds": 0.065255,
+  "exitCode": 0,
+  "timedOut": false,
+  "blocked": false,
+  "isolatedHelperSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+  "persistentSourceHelperSha256": "f53bc7a9d1f156b0a848c2aaf4cb1c40f5cc9b595b2aaae215257c9aab6e73cc",
+  "originalHelperSha256": "ead9c732a5e62142ac04acecb737a2b7bbd5c1dc5b43fe0da99019b58d75f7dc",
+  "addedFiles": {
+    "tests/browser-interaction-w4-regressions.browser.mjs": "bea8ae701bdea6331aca1f6bdcb05d23e76588ad2f0ce2c5c957ea9dd7aaa1a1",
+    "tests/browser-interaction-w4-regressions.test.mjs": "48b75017a77ace0b583cfc3068b13bc9321cd0efcc6a02c2798a4617378de2e1"
+  },
+  "isolatedFingerprintBefore": "a7fad33bf0c2962e08d4b41b0e857a92bd849e844fe61cb5baf3e86bd686d0dd",
+  "isolatedFingerprintAfter": "a7fad33bf0c2962e08d4b41b0e857a92bd849e844fe61cb5baf3e86bd686d0dd",
+  "isolatedChangedDuringRun": [],
+  "sourceChangedDuringRun": [],
+  "policyDenials": [],
+  "unsafeFlags": [],
+  "browserSpawns": [],
+  "browserExits": [],
+  "criticalErrors": [],
+  "passedCount": 13,
+  "failureCount": 0,
+  "summaries": [
+    "DEADLINE CONTRACT \u2014 13/13; rel\u00f3gio virtual/protocolo modelado, N\u00c3O Chromium."
+  ],
+  "logSha256": "c85ff4e1bce9a2ec89bc1bdacd86857152b4e114b1c411bcfa6173345ae4ae58",
+  "policyLogSha256": null,
+  "browserLogSha256": null
+}

@@ -1,6 +1,8 @@
-# Entrega para revisão — Google/Supabase Auth
+# Registro histórico — entrega original Google/Supabase Auth
 
 **Data:** 2026-11-15. **Publicação não autorizada / não realizada pelo agente.**
+
+> **Registro histórico, não parecer atual.** A auditoria readonly posterior a esta entrega encontrou duas corridas bloqueadoras (refresh antigo × nova sessão e BroadcastChannel antigo × nova intenção Google). A correção local autorizada, seus novos RED→GREEN, resultados e limites estão em [Correção das últimas corridas de Auth](correcao-concorrencia-auth.md). Os números e aprovações abaixo pertencem à rodada anterior; não autorizam merge, publicação ou homologação remota.
 
 ## Base e escopo
 

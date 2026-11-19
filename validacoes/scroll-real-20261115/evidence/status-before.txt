@@ -1,0 +1,96 @@
+ M .env.example
+ M .github/workflows/static.yml
+ M .gitignore
+ M README.md
+ M admin/exercicios.html
+ M assets/js/admin-exercicios.js
+ M assets/js/forja-app.js
+ M assets/js/forja-backup.js
+ M assets/js/forja-calendario.js
+ M assets/js/forja-configuracoes.js
+ M assets/js/forja-core.js
+ M assets/js/forja-onboarding.js
+ M assets/js/forja-plano.js
+ M assets/js/forja-store.js
+ M configuracoes/index.html
+ M exercicio/index.html
+ M explorar/atlas.html
+ M explorar/index.html
+ M index.html
+ M netlify.toml
+ M onboarding/index.html
+ M package-lock.json
+ M package.json
+ M progresso/index.html
+ M tests/atlas.test.mjs
+ M tests/e2e.browser.mjs
+ M tests/exercicio-apresentacao.test.mjs
+ M tests/forja.test.mjs
+ M tests/grupo-muscular.test.mjs
+ M tests/helpers/harness.mjs
+ M tests/helpers/legacy-flows.mjs
+ M tests/onboarding.test.mjs
+ M tests/paridade.test.mjs
+ M tests/youtube-frontend.test.mjs
+ M tools/capturas-configuracoes.mjs
+ M tools/preparar-site.sh
+ M treino/biblioteca.html
+ M treino/calistenia.html
+ M treino/executar.html
+ M treino/grupo.html
+ M treino/index.html
+ M treino/musculacao.html
+ M treino/rotina.html
+?? .gitattributes
+?? assets/css/auth-guard.css
+?? assets/css/login.css
+?? assets/js/forja-auth-data.js
+?? assets/js/forja-auth-guard.js
+?? assets/js/forja-auth.js
+?? assets/js/forja-login.js
+?? assets/js/forja-supabase-config.js
+?? assets/vendor/supabase/LICENSE
+?? assets/vendor/supabase/README.md
+?? assets/vendor/supabase/supabase.js
+?? docs/autenticacao-google.md
+?? docs/correcao-concorrencia-auth.md
+?? docs/correcao-helper-scroll-aninhados-deadline.md
+?? docs/correcao-helper-scroll-e2e.md
+?? docs/entrega-google-auth.md
+?? docs/evidencias-auth-final.md
+?? docs/evidencias-corridas-auth.json
+?? docs/evidencias-helper-scroll-aninhados-deadline.json
+?? docs/evidencias-helper-scroll-aninhados-deadline.sha256
+?? docs/evidencias-helper-scroll-aninhados-deadline.zip
+?? docs/evidencias-helper-scroll-e2e.json
+?? docs/evidencias-helper-scroll-e2e.zip
+?? docs/validacao-auth-auditoria-final.md
+?? docs/validacao-login-google.md
+?? login.html
+?? tests/auth-concurrency.browser.mjs
+?? tests/auth-concurrency.test.mjs
+?? tests/auth-config.test.mjs
+?? tests/auth-recovery.browser.mjs
+?? tests/auth-recovery.test.mjs
+?? tests/auth.browser.mjs
+?? tests/auth.test.mjs
+?? tests/browser-interaction-chain.test.mjs
+?? tests/browser-interaction-deadline.test.mjs
+?? tests/browser-interaction-expanded.browser.mjs
+?? tests/browser-interaction-late-protocol.test.mjs
+?? tests/browser-interaction-nested.browser.mjs
+?? tests/browser-interaction-protocol.browser.mjs
+?? tests/browser-interaction-regressions.browser.mjs
+?? tests/browser-interaction.browser.mjs
+?? tests/helpers/auth-concurrency.mjs
+?? tests/helpers/auth-fixture.mjs
+?? tests/helpers/auth-lifecycle.mjs
+?? tests/helpers/auth-recovery.mjs
+?? tests/helpers/browser-auth.mjs
+?? tests/helpers/browser-interaction.mjs
+?? tests/helpers/browser.mjs
+?? tests/helpers/scroll-dom-model.mjs
+?? tests/helpers/scrollend-off.mjs
+?? tools/configurar-auth.mjs
+?? tools/sincronizar-supabase.mjs
+?? validacoes/scroll-real-20261115/evidence/baseline-files.json

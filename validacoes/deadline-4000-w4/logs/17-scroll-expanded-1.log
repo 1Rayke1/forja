@@ -1,0 +1,32 @@
+SCROLL CONFIG ON: HeadlessChrome/138.0.7204.0; segurança web/isolamento ativos
+✅ SCROLL ON 1. Pedido pendente e alvo obstruído; fim real, visibilidade, hit-test e clique {"ok":true,"top":"BUTTON","scrollY":377,"buttonTop":405,"atTarget":true,"visible":true,"feature":true,"nativeEvents":1,"intermediateMovementObserved":true,"trustedClick":true,"consoleErrors":0}
+✅ SCROLL ON 2. Alvo já livre não dispensa início nem pausa intermediária fora do destino {"ok":true,"top":"BUTTON","scrollY":245,"buttonTop":405,"atTarget":true,"visible":true,"feature":true,"nativeEvents":2,"intermediateMovementObserved":true,"trustedClick":true,"consoleErrors":0}
+✅ SCROLL ON 3. Sem deslocamento necessário não fica esperando evento inexistente {"ok":true,"top":"BUTTON","scrollY":0,"buttonTop":405,"trustedClick":true,"nativeEvents":0,"consoleErrors":0}
+✅ SCROLL ON 4. Pedido que nunca progride termina no limite original e limpa listener {"expectedTimeout":4000,"clickPrevented":true,"consoleErrors":0}
+✅ SCROLL ON 5. Chegar ao destino com alvo coberto não libera clique {"expectedTimeout":4000,"atTarget":true,"covered":true,"clickPrevented":true,"consoleErrors":0}
+SCROLL CONFIG OFF: HeadlessChrome/138.0.7204.0; segurança web/isolamento ativos
+✅ SCROLL OFF 1. Pedido pendente e alvo obstruído; fim real, visibilidade, hit-test e clique {"ok":true,"top":"BUTTON","scrollY":377,"buttonTop":405,"atTarget":true,"visible":true,"feature":false,"nativeEvents":0,"intermediateMovementObserved":true,"trustedClick":true,"consoleErrors":0}
+✅ SCROLL OFF 2. Alvo já livre não dispensa início nem pausa intermediária fora do destino {"ok":true,"top":"BUTTON","scrollY":245,"buttonTop":405,"atTarget":true,"visible":true,"feature":false,"nativeEvents":0,"intermediateMovementObserved":true,"trustedClick":true,"consoleErrors":0}
+✅ SCROLL OFF 3. Sem deslocamento necessário não fica esperando evento inexistente {"ok":true,"top":"BUTTON","scrollY":0,"buttonTop":405,"trustedClick":true,"nativeEvents":0,"consoleErrors":0}
+✅ SCROLL OFF 4. Pedido que nunca progride termina no limite original e limpa listener {"expectedTimeout":4000,"clickPrevented":true,"consoleErrors":0}
+✅ SCROLL OFF 5. Chegar ao destino com alvo coberto não libera clique {"expectedTimeout":4000,"atTarget":true,"covered":true,"clickPrevented":true,"consoleErrors":0}
+
+SCROLL SYNC — 10/10 cenários aprovados; eventos nativos ON/OFF, zero sleep/clique sintético.
+file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/node_modules/@puppeteer/browsers/lib/esm/launch.js:339
+                reject(new Error([
+                       ^
+
+Error: Failed to launch the browser process:  Code: null
+
+stderr:
+
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+    at ChildProcess.onClose (file:///home/user/forja/validacoes/deadline-4000-w4/runtime/checkout/node_modules/@puppeteer/browsers/lib/esm/launch.js:339:24)
+    at ChildProcess.emit (node:events:531:35)
+    at ChildProcess._handle.onexit (node:internal/child_process:293:12)
+
+Node.js v22.22.3
+
+VALIDATION RUN exit=1 seconds=19.386501 watchdog=False
