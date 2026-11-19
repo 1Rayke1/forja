@@ -22,6 +22,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { deflateSync } from 'node:zlib';
 import { launchBrowser, startServer, waitReady } from './helpers/browser.mjs';
+import { scrollToInteractable } from './helpers/browser-interaction.mjs';
 import { seedBrowserAuth, respondAuth } from './helpers/browser-auth.mjs';
 import { AuthFixture } from './helpers/auth-fixture.mjs';
 import youtubeProxyHandler, { resetRuntimeState as resetYoutubeBackend } from '../netlify/functions/youtube-search.mjs';
@@ -104,7 +105,8 @@ const EXPECTED_NAV = {
 
 const localServer = process.env.FORJA_URL ? null : await startServer();
 const BASE = (process.env.FORJA_URL || localServer.origin + '/forja/').replace(/\/?$/, '/');
-const browser = await launchBrowser();
+const browser = await launchBrowser({ enforceWebSecurity: true });
+console.log('E2E geral: segurança web/isolamento ativos; ' + await browser.version());
 const authFixture = new AuthFixture();
 
 const page = await browser.newPage();
@@ -219,18 +221,21 @@ function makeUpstreamFetch() {
 }
 
 /* Executa a Function real contra o upstream simulado. */
-async function runYoutubeBackend(requestUrl) {
+async function runYoutubeBackend(requestUrl, origin) {
   const query = requestUrl.includes('?') ? requestUrl.slice(requestUrl.indexOf('?')) : '';
   process.env.YOUTUBE_API_KEY = youtubeE2EState.mode === 'unconfigured' ? '' : 'E2E_BACKEND_KEY';
   process.env.YOUTUBE_DAILY_QUOTA_UNITS = '100000';
+  // Somente este processo de teste: origem local exata. Não altera a Function
+  // nem a allowlist de produção; o navegador continua exigindo CORS real.
+  process.env.FORJA_ALLOWED_ORIGINS = new URL(BASE).origin;
   const previousFetch = globalThis.fetch;
   globalThis.fetch = makeUpstreamFetch();
   try {
     const backendResponse = await youtubeProxyHandler(
-      new Request('https://forja.local/api/youtube-search' + query, { method: 'GET' }),
+      new Request('https://forja.local/api/youtube-search' + query, { method: 'GET', headers: origin ? { origin } : {} }),
       { ip: '203.0.113.7' }
     );
-    return { status: backendResponse.status, body: await backendResponse.text() };
+    return { status: backendResponse.status, headers: Object.fromEntries(backendResponse.headers), body: await backendResponse.text() };
   } finally {
     globalThis.fetch = previousFetch;
   }
@@ -250,8 +255,14 @@ async function routeRequest(req) {
   if (await respondAuth(req, authFixture)) return;
   const url = req.url();
   if (url.includes('/.netlify/functions/youtube-videos') || /\/api\/youtube-videos(\?|$)/.test(url)) {
+    const origin = req.headers().origin;
+    if (req.method() === 'OPTIONS') {
+      await req.respond({ status: 204, headers: { 'access-control-allow-origin': origin || new URL(BASE).origin,
+        'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'authorization,content-type,accept' } }); return;
+    }
     req.respond({
       status: 200,
+      headers: { 'access-control-allow-origin': origin || new URL(BASE).origin },
       contentType: 'application/json; charset=utf-8',
       body: JSON.stringify({ associations: [], report: { total: 165, approved: 0, pending: 165, review: 0, rejected: 0, unavailable: 0, coveragePercent: 0, withoutVideo: [], inconsistencies: [] } })
     });
@@ -286,9 +297,10 @@ async function routeRequest(req) {
   if (/\/api\/youtube-search(\?|$)/.test(url)) {
     (async () => {
       try {
-        const backend = await runYoutubeBackend(url);
+        const backend = await runYoutubeBackend(url, req.headers().origin);
         req.respond({
           status: backend.status,
+          headers: backend.headers,
           contentType: 'application/json; charset=utf-8',
           body: backend.body
         });
@@ -1410,15 +1422,14 @@ await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async
   assert.equal((await page.$$('#execution-figure .figura-svg, #execution-figure-body .figura-svg')).length, 1,
     'A figura da execução deveria ter uma vista');
   assert.match(await page.$eval('#execution-figure .figura-svg', el => el.getAttribute('aria-label')), /Modelo anatômico muscular/);
-  await page.$eval('#execution-figure-details', el => el.scrollIntoView({ block: 'center' }));
-  await sleep(180);
+  await scrollToInteractable(page, '#execution-figure-details');
   const detailsCovered = await page.$eval('#execution-figure-details', el => {
     const box = el.getBoundingClientRect();
     const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
     return JSON.stringify({ ok: top === el || el.contains(top), top: top ? top.tagName + '.' + String(top.className) : null, box: { top: Math.round(box.top), height: Math.round(box.height) }, vh: innerHeight });
   });
   if (JSON.parse(detailsCovered).ok !== true) assert.fail('Botão de detalhes coberto por outro elemento: ' + detailsCovered);
-  await jsClick('#execution-figure-details');
+  await page.click('#execution-figure-details');
   await page.waitForSelector('.modal-backdrop', { timeout: 4000 });
   assert.equal(await text('#modal-title'), 'Músculos trabalhados');
   assert.equal((await page.$$('.modal-details .figura-svg')).length, 2, 'O detalhe na execução não tem as duas vistas');

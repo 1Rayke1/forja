@@ -380,5 +380,162 @@ await test('32. Storage físico só emite a chave lógica da conta ativa; infrae
   assert.match(app.text('#home-greeting'), /Nome da conta ativa/);
   assert.deepEqual(app.storageWrites, [], 'sincronização externa é somente-leitura');
 });
+await test('33. getUser 401 encerra a sessão local, preserva os dados e retorna ao login com destino', async () => {
+  const fixture = new AuthFixture();
+  fixture.userErrors.set(fixture.defaultSession.access_token, { status: 401, code: 'bad_jwt' });
+  const local = fixture.seed(USERS.A, { [P]: PROFILE });
+  const target = 'progresso/index.html?origem=sessao#progress-goals-heading';
+  const app = await open(fixture, { page: target, local }); await login(app);
+  assert.equal(new URL(app.w.location.href).searchParams.get('next'), target);
+  assert.equal(app.F.auth.isVerified(), false);
+  assert.equal(app.w.localStorage.getItem(AUTH_STORAGE_KEY), null);
+  for (const key of [DATA_PREFIX(USERS.A) + P, COPY_KEY(USERS.A)]) assert.equal(app.w.localStorage.getItem(key), local[key]);
+  assert.equal(fixture.requests.some(r => r.url.includes('/auth/v1/logout')), false, 'não revoga outra sessão por uma resposta rejeitada');
+});
+await test('34. Rejeição definitiva 403 durante o uso não prende a conta no gate de rede', async () => {
+  const fixture = new AuthFixture(); const app = await open(fixture); await ready(app);
+  const original = app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P);
+  fixture.userErrors.set(fixture.defaultSession.access_token, { status: 403, code: 'user_banned' });
+  const check = app.F.auth.revalidate();
+  assert.equal(app.d.documentElement.dataset.forjaAuth, 'locked');
+  await check; await login(app);
+  assert.equal(app.F.auth.isVerified(), false);
+  assert.equal(app.w.localStorage.getItem(AUTH_STORAGE_KEY), null);
+  assert.equal(app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P), original);
+});
+await test('35. HTTP 503/429 são transitórios: gate fechado, token preservado e retry sem novo OAuth', async () => {
+  for (const status of [503, 429]) {
+    const fixture = new AuthFixture(); const app = await open(fixture); await ready(app);
+    const original = app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P);
+    fixture.userErrors.set(fixture.defaultSession.access_token, { status, code: 'temporarily_unavailable' });
+    await app.F.auth.revalidate();
+    assert.equal(app.d.body.dataset.page, 'inicio');
+    assert.equal(app.d.documentElement.dataset.forjaAuth, 'locked');
+    assert.equal(app.F.auth.canWrite(), false);
+    assert.equal(app.$('#auth-retry').hidden, false);
+    assert.equal(JSON.parse(app.w.localStorage.getItem(AUTH_STORAGE_KEY)).access_token, fixture.defaultSession.access_token);
+    fixture.userErrors.clear(); app.click('#auth-retry'); await ready(app);
+    assert.equal(app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P), original);
+    assert.equal(fixture.requests.some(r => r.url.includes('/auth/v1/authorize')), false);
+    app.close();
+  }
+});
+await test('36. Rejeição 401 atrasada de A não remove nem encerra a sessão nova de B', async () => {
+  const fixture = new AuthFixture(); const app = await open(fixture); await ready(app);
+  fixture.userDelay = 100;
+  fixture.userErrors.set(fixture.defaultSession.access_token, { status: 401, code: 'bad_jwt' });
+  const check = app.F.auth.revalidate(); await tick(20);
+  const b = fixture.issue(USERS.B);
+  await replaceSession(app, fixture, b, USERS.B);
+  await check;
+  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready', 'rejeição antiga encerrou B');
+  assert.equal(JSON.parse(app.w.localStorage.getItem(AUTH_STORAGE_KEY)).access_token, b.access_token);
+  assert.equal(app.F.state.profile.nomeExibicao, 'Conta B');
+});
+await test('37. Login já aberto continua ao destino quando uma sessão Google válida chega depois', async () => {
+  const fixture = new AuthFixture(); const local = fixture.seed(USERS.A, { [P]: PROFILE }); delete local[AUTH_STORAGE_KEY];
+  const target = 'progresso/index.html?origem=outra-aba#progress-goals-heading';
+  const app = await open(fixture, { page: 'login.html?next=' + encodeURIComponent(target), local });
+  await replaceSession(app, fixture, fixture.defaultSession);
+  await sleepUntil(() => app.w.location.href === BASE + target, 'login não reagiu à sessão verificada'); await ready(app);
+  assert.equal(app.F.auth.user.id, USERS.A);
+});
+await test('38. Login restaurado por BFCache revalida e reabilita o Google após voltar sem callback', async () => {
+  const app = await open(new AuthFixture(), { page: 'login.html', local: {} });
+  app.click('#google-login'); await sleepUntil(() => app.externalNavigations.length === 1, 'OAuth não abriu');
+  assert.equal(app.$('#google-login').disabled, true);
+  app.w.dispatchEvent(new app.w.PageTransitionEvent('pageshow', { persisted: true }));
+  await sleepUntil(() => !app.$('#google-login').disabled, 'voltar deixou o login desabilitado');
+  assert.equal(app.F.auth.isVerified(), false);
+  app.click('#google-login'); await sleepUntil(() => app.externalNavigations.length === 2, 'nova tentativa não abriu');
+  assert.equal(new URL(app.externalNavigations[1]).searchParams.get('prompt'), 'select_account');
+});
+await test('39. Código/tokens de callback são limpos mesmo quando falta configuração pública', async () => {
+  const fixture = new AuthFixture(); fixture.configured = false;
+  const app = await open(fixture, { page: 'login.html?code=fixture-code&state=fixture-state#access_token=fixture-token', local: {} });
+  assert.equal(app.w.location.search, ''); assert.equal(app.w.location.hash, '');
+  assert.equal(app.F.auth.isVerified(), false);
+  assert.match(app.text('#login-status'), /chave pública|configuração/i);
+});
+await test('40. Login recupera erro transitório após revalidação sem exigir outro clique no Google', async () => {
+  const fixture = new AuthFixture(); fixture.userErrors.set(fixture.defaultSession.access_token, { status: 503, code: 'temporarily_unavailable' });
+  const target = 'treino/index.html?origem=recuperacao';
+  const app = await open(fixture, { page: 'login.html?next=' + encodeURIComponent(target) });
+  await sleepUntil(() => app.F.auth.state === 'error', 'falha transitória não foi apresentada');
+  fixture.userErrors.clear(); await app.F.auth.revalidate();
+  await sleepUntil(() => app.w.location.href === BASE + target, 'sessão recuperada não continuou'); await ready(app);
+});
+await test('41. Callback cancelado/inválido não reutiliza sessão antiga recuperada pelo SDK', async () => {
+  for (const callback of ['?error=access_denied', '?code=fixture-invalid-code']) {
+    const app = await open(new AuthFixture(), { page: 'login.html' + callback });
+    await tick(200);
+    assert.equal(app.d.body.dataset.page, 'login');
+    assert.equal(app.F.auth.isVerified(), false);
+    assert.equal(app.F.auth.state, 'error');
+    assert.equal(app.$('#google-login').disabled, false);
+    assert.equal(app.w.location.search, '');
+    app.close();
+  }
+});
+await test('42. session_not_found 403 atrasado não permite ao SDK apagar a sessão nova de B', async () => {
+  const fixture = new AuthFixture(); const app = await open(fixture); await ready(app);
+  fixture.userErrors.set(fixture.defaultSession.access_token, { status: 403, code: 'session_not_found', delay: 150 });
+  const check = app.F.auth.revalidate(); await tick(25);
+  const b = fixture.issue(USERS.B); await replaceSession(app, fixture, b, USERS.B);
+  await check;
+  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready', 'SDK apagou B por rejeição antiga de A');
+  assert.equal(JSON.parse(app.w.localStorage.getItem(AUTH_STORAGE_KEY)).access_token, b.access_token);
+  assert.equal(app.F.state.profile.nomeExibicao, 'Conta B');
+  assert.equal(app.w.localStorage.getItem(AUTH_STORAGE_KEY + '-verification'), null, 'verificação não persiste outra sessão');
+  assert.equal(fixture.requests.some(r => r.url.includes('/auth/v1/logout')), false);
+});
+await test('43. session_not_found 403 da sessão atual ainda a encerra, sem apagar dados ou verifier paralelo', async () => {
+  const fixture = new AuthFixture(); const app = await open(fixture); await ready(app);
+  const original = app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P);
+  const verifier = AUTH_STORAGE_KEY + '-code-verifier';
+  app.w.localStorage.setItem(verifier, 'not-a-real-parallel-verifier');
+  fixture.userErrors.set(fixture.defaultSession.access_token, { status: 403, code: 'session_not_found' });
+  await app.F.auth.revalidate(); await login(app);
+  assert.equal(app.F.auth.isVerified(), false);
+  assert.equal(app.w.localStorage.getItem(AUTH_STORAGE_KEY), null);
+  assert.equal(app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P), original);
+  assert.equal(app.w.localStorage.getItem(verifier), 'not-a-real-parallel-verifier');
+});
+await test('44. error_code/error_description no callback são limpos, marcam .is-error no login e #account-email tem fallback seguro', async () => {
+  for (const callback of ['?error_code=access_denied&error_description=Negado', '#error_code=oauth_failed&error_description=Falha']) {
+    const app = await open(new AuthFixture(), { page: 'login.html' + callback });
+    await tick(200);
+    assert.equal(app.d.body.dataset.page, 'login');
+    assert.equal(app.F.auth.isVerified(), false);
+    assert.equal(app.F.auth.state, 'error');
+    assert.equal(app.w.location.search, '');
+    assert.equal(app.w.location.hash, '');
+    assert.equal(app.$('#login-status').classList.contains('is-error'), true);
+    assert.equal(app.$('#google-login').disabled, false);
+    app.close();
+  }
+  const fixture = new AuthFixture();
+  const s = fixture.issue(USERS.A);
+  delete s.user.email;
+  delete fixture.sessions.get(s.access_token).user.email;
+  const app = await open(fixture, { page: 'configuracoes/index.html', local: fixture.seed(USERS.A, { [P]: PROFILE }, { session: s }) });
+  await ready(app);
+  assert.equal(app.text('#account-email'), 'Conta Google conectada');
+  app.close();
+});
+await test('45. safeReturn limpa error_code/expires e transição error→guest no login restaura instrução neutra', async () => {
+  const fixture = new AuthFixture();
+  fixture.userErrors.set(fixture.defaultSession.access_token, { status: 503, code: 'temporarily_unavailable' });
+  const app = await open(fixture, { page: 'login.html' });
+  await sleepUntil(() => app.F.auth.state === 'error' && app.$('#login-status').classList.contains('is-error'), 'erro transitório no login não apareceu');
+  assert.equal(app.F.auth.safeReturn(BASE + 'treino/?ok=1&error_code=x&expires_in=10#error_code=y'), 'treino/index.html?ok=1');
+  assert.equal(app.F.auth.safeReturn(BASE + 'index.html?x=2#access_token=abc'), 'index.html?x=2');
+  app.w.localStorage.removeItem(AUTH_STORAGE_KEY);
+  await app.F.auth.revalidate();
+  await sleepUntil(() => app.F.auth.state === 'guest', 'transição error→guest não ocorreu');
+  assert.equal(app.$('#login-status').classList.contains('is-error'), false);
+  assert.equal(app.text('#login-status'), 'Entre com sua conta Google para continuar.');
+  app.close();
+});
 console.log(`\nAUTH — ${passed}/${passed + failed} testes aprovados (SDK real / HTTP simulado; zero SQL).`);
 if (failed) process.exitCode = 1;

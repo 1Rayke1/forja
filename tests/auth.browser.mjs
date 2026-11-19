@@ -4,12 +4,21 @@ import fs from 'node:fs';
 import { launchBrowser, startServer, waitReady, waitLogin } from './helpers/browser.mjs';
 import { installBrowserAuth, browserSetSession } from './helpers/browser-auth.mjs';
 import { AuthFixture, USERS, PROFILE, AUTH_STORAGE_KEY, AUTH_URL, DATA_PREFIX, COPY_KEY, completedJournal, checksum } from './helpers/auth-fixture.mjs';
+import { userResponse, within, holdNavigations } from './helpers/auth-concurrency.mjs';
 const localServer = await startServer();
-const browser = await launchBrowser();
+const browser = await launchBrowser({ enforceWebSecurity: true });
+const browserArgs = browser.process().spawnargs;
+assert.equal(browserArgs.includes('--disable-web-security'), false);
+assert.equal(browserArgs.includes('--allow-running-insecure-content'), false);
+assert.equal(browserArgs.includes('--disable-site-isolation-trials'), false);
+assert.equal(browserArgs.some(arg => arg.startsWith('--disable-features=') && /(?:^|,)(?:IsolateOrigins|site-per-process)(?:,|$)/.test(arg.split('=')[1])), false);
+console.log('AUTH Chromium: segurança web e isolamento de origens habilitados.');
 const base = localServer.origin + '/forja/';
 const P = 'forja-perfil-v1';
 let passed = 0, failed = 0;
+const selectedCase = process.env.FORJA_AUTH_BROWSER_CASE;
 async function test(name, task) {
+  if (selectedCase && name.split('.')[0] !== selectedCase) return;
   const context = await browser.createBrowserContext();
   const fixture = new AuthFixture();
   const page = await context.newPage();
@@ -238,6 +247,142 @@ try {
     assert.deepEqual(await page.evaluate(() => domainStorageEvents), [key]);
     assert.equal(await page.$eval('#progress-label', node => node.textContent), '1 de 1 · 100%');
   });
+  await test('20. getUser 401 durante o uso retorna ao login sem perder destino ou dados', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin);
+    const target = 'progresso/index.html?origem=expiracao#progress-goals-heading';
+    await goto(page, base + target); await waitReady(page);
+    const original = await page.evaluate(key => localStorage.getItem(key), DATA_PREFIX(USERS.A) + P);
+    fixture.userErrors.set(fixture.defaultSession.access_token, { status: 401, code: 'bad_jwt' });
+    await page.evaluate(() => { void Forja.auth.revalidate(); }); await waitLogin(page);
+    await page.waitForSelector('#google-login:not([disabled])');
+    assert.equal(new URL(page.url()).searchParams.get('next'), target);
+    assert.equal(await page.evaluate(key => localStorage.getItem(key), AUTH_STORAGE_KEY), null);
+    assert.equal(await page.evaluate(key => localStorage.getItem(key), DATA_PREFIX(USERS.A) + P), original);
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false);
+  });
+  await test('21. Falha transitória de Auth fecha o conteúdo e retry restaura sem OAuth/reload', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
+    const initialTime = await page.evaluate(() => performance.timeOrigin);
+    fixture.userErrors.set(fixture.defaultSession.access_token, { status: 503, code: 'temporarily_unavailable' });
+    await page.evaluate(() => { void Forja.auth.revalidate(); });
+    await until(page, () => Forja.auth.state === 'error');
+    assert.equal(await page.$eval('#conteudo', node => getComputedStyle(node).display), 'none');
+    assert.equal(await page.evaluate(() => Forja.auth.canWrite()), false);
+    assert.ok(await page.evaluate(key => localStorage.getItem(key), AUTH_STORAGE_KEY));
+    fixture.userErrors.clear(); await page.click('#auth-retry'); await waitReady(page);
+    assert.equal(await page.evaluate(() => performance.timeOrigin), initialTime);
+    assert.equal(fixture.requests.some(r => r.url.includes('/auth/v1/authorize')), false);
+  });
+  await test('22. Login em espera reage à conta Google verificada em outra aba e preserva o destino', async ({ context, fixture, page }) => {
+    const local = fixture.seed(USERS.A, { [P]: PROFILE }); delete local[AUTH_STORAGE_KEY];
+    await installBrowserAuth(page, fixture, localServer.origin, { local });
+    const target = 'treino/index.html?origem=outra-aba#preferences-heading';
+    await goto(page, base + 'login.html?next=' + encodeURIComponent(target)); await page.waitForSelector('#google-login:not([disabled])');
+    const other = await context.newPage(); await installBrowserAuth(other, fixture, localServer.origin, { seed: false });
+    await goto(other, base + 'login.html'); await other.waitForSelector('#google-login:not([disabled])');
+    await browserSetSession(other, fixture.defaultSession);
+    await page.bringToFront(); await until(page, () => document.body?.dataset.page === 'treino'); await waitReady(page);
+    assert.equal(page.url(), base + target);
+    assert.equal(await page.evaluate(() => Forja.auth.user.id), USERS.A);
+  });
+  await test('23. Login restaura botão/estado após pageshow persistido (evento BFCache simulado)', async ({ fixture, page }) => {
+    const local = fixture.seed(USERS.A, { [P]: PROFILE }); delete local[AUTH_STORAGE_KEY];
+    await installBrowserAuth(page, fixture, localServer.origin, { local });
+    const target = 'progresso/index.html?origem=voltar';
+    await goto(page, base + 'login.html?next=' + encodeURIComponent(target)); await page.waitForSelector('#google-login:not([disabled])');
+    // Somente a navegação de saída é retida, para restaurar o mesmo documento
+    // com o botão ocupado. O SDK/PKCE e a revalidação continuam reais.
+    await page.evaluate(() => { window.realNavigate = Forja.navigate; Forja.navigate = url => { window.pendingOAuth = url; }; });
+    await page.click('#google-login'); await until(page, () => Boolean(window.pendingOAuth));
+    assert.equal(await page.$eval('#google-login', button => button.disabled), true);
+    await page.evaluate(() => { Forja.navigate = window.realNavigate; dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })); });
+    await page.waitForSelector('#google-login:not([disabled])');
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false);
+    await page.click('#google-login'); await until(page, () => document.body?.dataset.page === 'progresso'); await waitReady(page);
+    assert.equal(page.url(), base + target);
+  });
+  await test('24. Callback é sanitizado mesmo sem configuração pública; não existe fallback visitante', async ({ fixture, page }) => {
+    fixture.configured = false; await installBrowserAuth(page, fixture, localServer.origin, { local: {} });
+    await goto(page, base + 'login.html?code=fixture-code&state=fixture-state#access_token=fixture-token');
+    await until(page, () => Forja.auth.state === 'error');
+    assert.equal(new URL(page.url()).search, ''); assert.equal(new URL(page.url()).hash, '');
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false);
+    assert.match(await page.$eval('#login-status', node => node.textContent), /chave pública|configuração/i);
+  });
+  await test('25. Logout e nova escolha Google A→B usam OAuth sem misturar os namespaces', async ({ fixture, page }) => {
+    const local = fixture.seed(USERS.A, { [P]: { ...PROFILE, nomeExibicao: 'Conta A' } });
+    local[DATA_PREFIX(USERS.B) + P] = JSON.stringify({ ...PROFILE, nomeExibicao: 'Conta B' }); local[COPY_KEY(USERS.B)] = completedJournal(USERS.B);
+    await installBrowserAuth(page, fixture, localServer.origin, { local }); await goto(page, base + 'configuracoes/index.html'); await waitReady(page);
+    const originalA = await page.evaluate(key => localStorage.getItem(key), DATA_PREFIX(USERS.A) + P);
+    await page.click('#account-signout'); await waitLogin(page); await page.waitForSelector('#google-login:not([disabled])');
+    fixture.oauthUser = USERS.B; await page.click('#google-login');
+    await until(page, id => window.Forja?.auth?.user?.id === id && document.documentElement.dataset.forjaAuth === 'ready', USERS.B);
+    assert.equal(await page.evaluate(() => Forja.state.profile.nomeExibicao), 'Conta B');
+    assert.equal(await page.evaluate(key => localStorage.getItem(key), DATA_PREFIX(USERS.A) + P), originalA);
+    const authorize = fixture.requests.find(r => r.url.includes('/auth/v1/authorize'));
+    assert.equal(new URL(authorize.url).searchParams.get('prompt'), 'select_account');
+  });
+  for (const [number, width] of [[26, 320], [27, 390]]) await test(number + '. Mobile emulado ' + width + ' px: Google, navegação, reload e logout pela UI', async ({ fixture, page }) => {
+    await page.setViewport({ width, height: 844, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    const local = fixture.seed(USERS.A, { [P]: PROFILE }); delete local[AUTH_STORAGE_KEY];
+    await installBrowserAuth(page, fixture, localServer.origin, { local });
+    await goto(page, base + 'login.html'); await page.waitForSelector('#google-login:not([disabled])');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await page.tap('#google-login'); await until(page, () => document.body?.dataset.page === 'inicio'); await waitReady(page);
+    await page.tap('a.bottom-nav-link[data-nav="treino"]'); await until(page, () => document.body?.dataset.page === 'treino'); await waitReady(page);
+    await page.reload({ waitUntil: 'domcontentloaded' }); await waitReady(page);
+    assert.equal(await page.evaluate(() => Forja.auth.user.id), USERS.A);
+    await page.tap('a.bottom-nav-link[data-nav="perfil"]'); await until(page, () => document.body?.dataset.page === 'configuracoes'); await waitReady(page);
+    await page.$eval('#account-signout', button => button.scrollIntoView({ block: 'center' })); await page.tap('#account-signout');
+    await waitLogin(page); await page.waitForSelector('#google-login:not([disabled])');
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false);
+    assert.equal(await page.evaluate(key => localStorage.getItem(key), AUTH_STORAGE_KEY), null);
+    await page.reload({ waitUntil: 'domcontentloaded' }); await page.waitForSelector('#google-login:not([disabled])');
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false);
+  });
+  await test('28. Cancelamento não reutiliza sessão antiga; somente nova escolha Google permite continuar', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base + 'login.html?error=access_denied');
+    await page.waitForSelector('#google-login:not([disabled])');
+    await new Promise(resolve => setTimeout(resolve, 250));
+    assert.equal(await page.evaluate(() => document.body.dataset.page), 'login');
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false);
+    assert.match(await page.$eval('#login-status', node => node.textContent), /cancelado|não autorizado/i);
+    await page.click('#google-login'); await until(page, () => document.body?.dataset.page === 'inicio'); await waitReady(page);
+    assert.ok(fixture.requests.some(r => r.url.includes('grant_type=pkce')));
+  });
+  await test('29. session_not_found atrasado de A não encerra B nem seu login em outra aba', async ({ context, fixture, page }) => {
+    const local = fixture.seed(USERS.A, { [P]: { ...PROFILE, nomeExibicao: 'Conta A' } });
+    local[DATA_PREFIX(USERS.B) + P] = JSON.stringify({ ...PROFILE, nomeExibicao: 'Conta B' }); local[COPY_KEY(USERS.B)] = completedJournal(USERS.B);
+    await installBrowserAuth(page, fixture, localServer.origin, { local }); await goto(page, base); await waitReady(page);
+    const other = await context.newPage(); await installBrowserAuth(other, fixture, localServer.origin, { seed: false }); await goto(other, base); await waitReady(other);
+    fixture.userErrors.set(fixture.defaultSession.access_token, { status: 403, code: 'session_not_found' });
+    const old = userResponse(fixture, fixture.defaultSession.access_token);
+    const resumeA = await holdNavigations(page), resumeB = await holdNavigations(other);
+    try {
+      await page.evaluate(() => { window.authScenario29 = Forja.auth.revalidate(); });
+      await within(old.entered, 'getUser A não iniciou');
+      const b = fixture.issue(USERS.B); await browserSetSession(other, b);
+      // Prova o commit B ANTES de permitir a resposta antiga, sem uma janela
+      // arbitrária de 300 ms e sem destruir a Promise CDP por navegação.
+      await until(other, id => Forja.auth.isVerified(id), USERS.B);
+      assert.equal(await other.evaluate((key, expected) => {
+        const current = JSON.parse(localStorage.getItem(key));
+        return current.access_token === expected.access_token && current.refresh_token === expected.refresh_token;
+      }, AUTH_STORAGE_KEY, b), true);
+      old.release(); await within(old.completed, 'resposta A não foi liberada');
+      await page.evaluate(() => authScenario29);
+      assert.equal(await page.evaluate((key, expected) => JSON.parse(localStorage.getItem(key) || 'null')?.access_token === expected, AUTH_STORAGE_KEY, b.access_token), true, 'rejeição antiga removeu B');
+      await resumeB(); await resumeA();
+      await page.bringToFront();
+      await until(page, id => window.Forja?.auth?.user?.id === id && document.documentElement.dataset.forjaAuth === 'ready', USERS.B);
+      await other.bringToFront();
+      await until(other, id => window.Forja?.auth?.user?.id === id && document.documentElement.dataset.forjaAuth === 'ready', USERS.B);
+      assert.equal(await page.evaluate(key => JSON.parse(localStorage.getItem(key)).access_token, AUTH_STORAGE_KEY), b.access_token);
+      assert.equal(await page.evaluate(() => Forja.state.profile.nomeExibicao), 'Conta B');
+      assert.equal(fixture.requests.some(r => r.url.includes('/auth/v1/logout')), false);
+    } finally { old.restore(); }
+  });
 } finally { await browser.close(); await localServer.close(); }
+assert.ok(passed + failed > 0 && (!selectedCase || passed + failed === 1), 'filtro não selecionou exatamente o cenário solicitado');
 console.log(`\nBROWSER AUTH — ${passed}/${passed + failed} testes aprovados. Google/Auth/PostgREST simulados; nenhuma homologação remota ou SQL.`);
 if (failed) process.exitCode = 1;

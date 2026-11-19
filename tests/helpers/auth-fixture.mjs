@@ -40,6 +40,7 @@ export class AuthFixture {
   constructor() {
     this.sessions = new Map(); this.refreshes = new Map(); this.codes = new Map(); this.imports = new Map();
     this.requests = []; this.sequence = 0; this.userDelay = 0; this.restDelay = 0;
+    this.userErrors = new Map();
     this.offline = false; this.failRest = false; this.failLogout = false; this.badReadback = false;
     this.oauthMode = 'allow'; this.oauthUser = USERS.A; this.configured = true;
     this.defaultSession = this.issue(USERS.A);
@@ -49,12 +50,15 @@ export class AuthFixture {
       app_metadata: { provider, providers: [provider] }, user_metadata: { full_name: 'Fixture Google' },
       is_anonymous: false, identities: [{ id: uid, user_id: uid, provider, identity_data: { sub: uid } }], created_at: '2026-01-01T00:00:00Z' };
   }
-  issue(uid, { expiresAt = 4102444800, provider = 'google', anonymous = false } = {}) {
+  issue(uid, { expiresAt = 4102444800, provider = 'google', anonymous = false,
+    sessionId = '00000000-0000-4000-8000-' + String(this.sequence + 1).padStart(12, '0') } = {}) {
     const actual = this.user(uid, provider); actual.is_anonymous = anonymous;
-    const access_token = b64({ alg: 'HS256', typ: 'JWT' }) + '.' + b64({ sub: uid, role: 'authenticated', aud: 'authenticated', iss: AUTH_URL + '/auth/v1', iat: Math.floor(Date.now() / 1000), exp: expiresAt, jti: ++this.sequence, email: actual.email, app_metadata: actual.app_metadata }) + '.' + b64('not-a-real-signature');
+    // O Auth real mantém session_id na rotação e cria outro id a cada login.
+    // É somente metadado fictício; a assinatura continua deliberadamente inválida.
+    const access_token = b64({ alg: 'HS256', typ: 'JWT' }) + '.' + b64({ sub: uid, session_id: sessionId, role: 'authenticated', aud: 'authenticated', iss: AUTH_URL + '/auth/v1', iat: Math.floor(Date.now() / 1000), exp: expiresAt, jti: ++this.sequence, email: actual.email, app_metadata: actual.app_metadata }) + '.' + b64('not-a-real-signature');
     const refresh_token = 'not-a-real-refresh-' + this.sequence;
     const session = { access_token, refresh_token, expires_at: expiresAt, expires_in: Math.max(0, expiresAt - Math.floor(Date.now() / 1000)), token_type: 'bearer', user: actual };
-    this.sessions.set(access_token, structuredClone(session)); this.refreshes.set(refresh_token, { uid, provider, anonymous });
+    this.sessions.set(access_token, structuredClone(session)); this.refreshes.set(refresh_token, { uid, provider, anonymous, sessionId });
     return session;
   }
   seed(uid = USERS.A, data = {}, { completed = true, session = null } = {}) {
@@ -76,9 +80,10 @@ export class AuthFixture {
     const method = (options.method || (typeof input === 'object' && input.method) || 'GET').toUpperCase();
     const token = (headers.get('authorization') || '').replace(/^Bearer /i, '');
     const known = this.sessions.get(token);
+    const userError = this.userErrors.get(token);
     const body = options.body ? JSON.parse(options.body) : null;
     this.requests.push({ url: url.href, method, body, headers: Object.fromEntries(headers) });
-    const delay = url.pathname === '/auth/v1/user' ? this.userDelay : url.pathname.startsWith('/rest/') ? this.restDelay : 0;
+    const delay = url.pathname === '/auth/v1/user' ? (userError?.delay ?? this.userDelay) : url.pathname.startsWith('/rest/') ? this.restDelay : 0;
     if (delay) await new Promise(resolve => setTimeout(resolve, delay));
     if (url.pathname === '/auth/v1/authorize') {
       const redirect = new URL(url.searchParams.get('redirect_to'));
@@ -98,7 +103,7 @@ export class AuthFixture {
       const refresh = this.refreshes.get(body.refresh_token);
       if (!refresh) return json({ code: 'refresh_token_not_found', message: 'refresh revoked' }, 400);
       this.refreshes.delete(body.refresh_token);
-      return json(this.issue(refresh.uid, { provider: refresh.provider, anonymous: refresh.anonymous }));
+      return json(this.issue(refresh.uid, { provider: refresh.provider, anonymous: refresh.anonymous, sessionId: refresh.sessionId }));
     }
     if (url.pathname === '/auth/v1/logout') {
       if (this.failLogout) return json({ message: 'logout unavailable' }, 503);
@@ -106,6 +111,7 @@ export class AuthFixture {
       return json({}, 200);
     }
     if (url.pathname === '/auth/v1/user') {
+      if (userError) return json({ code: userError.code, message: 'Auth fixture error' }, userError.status, { 'x-supabase-api-version': '2024-01-01' });
       if (!known || known.expires_at <= Date.now() / 1000) return json({ code: 'bad_jwt', message: 'invalid JWT' }, 401);
       return json(known.user);
     }

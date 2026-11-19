@@ -261,7 +261,7 @@
   function renderAccount() {
     const account = F.auth && F.auth.user;
     const email = byId("account-email");
-    if (email) email.textContent = account ? account.email : "Sessão não validada.";
+    if (email) email.textContent = account ? (account.email || "Conta Google conectada") : "Sessão não validada.";
     const status = byId("initial-copy-status");
     const retry = byId("initial-copy-retry");
     if (!status || !F.authData) return;
@@ -285,7 +285,12 @@
     initialized = true;
     renderAccount();
     const logout = byId("account-signout");
-    if (logout) logout.addEventListener("click", () => { logout.disabled = true; void F.auth.signOut(); });
+    if (logout) logout.addEventListener("click", async () => {
+      if (logout.disabled) return;
+      logout.disabled = true;
+      try { await F.auth.signOut(); }
+      finally { logout.disabled = false; }
+    });
     const retryCopy = byId("initial-copy-retry");
     if (retryCopy) retryCopy.addEventListener("click", () => { void F.authData.runInitialCopy(); });
     hydrateIcons(doc);

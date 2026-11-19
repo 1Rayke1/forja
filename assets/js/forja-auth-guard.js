@@ -21,6 +21,9 @@
   // Guardas de escrita checam também o token persistido, sem esperar este evento.
   addEventListener("storage", event => {
     const key = window.Forja && Forja.auth && Forja.auth.storageKey;
+    if (event.key === "forja-auth-logout-v1" && event.newValue !== null && window.Forja?.auth && !Forja.auth.isLogoutCurrent(event)) {
+      event.stopImmediatePropagation(); return;
+    }
     if (event.key === null || (key && event.key === key) || (event.key === "forja-auth-logout-v1" && event.newValue !== null)) {
       lock();
       // Eventos de autenticação não são eventos de dados de negócio. As

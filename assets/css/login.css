@@ -12,6 +12,7 @@ h1 { font-size: clamp(1.85rem, 7vw, 2.7rem); line-height: 1.12; letter-spacing: 
 #google-login:disabled { opacity: .6; cursor: wait; }
 :focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 .login-status { min-height: 3.2rem; margin: 1rem 0; color: #e0e8d8; font-size: .85rem; overflow-wrap: anywhere; }
+.login-status.is-error { color: #ffb4b4; }
 .login-privacy { border-top: 1px solid #34402d; padding-top: 1.2rem; font-size: .8rem; }
 .login-privacy summary { cursor: pointer; }
 .login-footer { text-align: center; color: #a5b19b; font-size: .7rem; margin: 1.8rem 0 0; }

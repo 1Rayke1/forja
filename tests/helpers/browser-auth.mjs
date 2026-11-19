@@ -45,6 +45,7 @@ export async function installBrowserAuth(page, fixture, origin, options = {}) {
   page.on('request', async request => {
     try {
       if (await respondAuth(request, fixture)) return;
+      if (options.respondApi && await options.respondApi(request)) return;
       if (new URL(request.url()).origin === origin || request.url().startsWith('data:')) { await request.continue(); return; }
       // Todo serviço que não é objeto da suíte fica isolado, sem rede externa.
       if (/youtube-videos|youtube-search|workout-plan/.test(request.url())) {
@@ -55,9 +56,30 @@ export async function installBrowserAuth(page, fixture, origin, options = {}) {
 }
 export async function browserSetSession(page, session) {
   // O SDK real valida o usuário antes de persistir/anunciar a nova sessão.
-  await page.evaluate(async value => {
-    const result = await window.Forja.auth.client.auth.setSession({ access_token: value.access_token, refresh_token: value.refresh_token });
-    if (result.error) throw new Error('fixture setSession failed');
-  }, session);
+  try {
+    await page.evaluate(async value => {
+      const result = await window.Forja.auth.client.auth.setSession({ access_token: value.access_token, refresh_token: value.refresh_token });
+      if (result.error) throw new Error('fixture setSession failed: ' + [result.error.name, result.error.code, result.error.status].filter(Boolean).join('/'));
+    }, session);
+  } catch (error) {
+    // A troca de UID pode navegar ANTES de o CDP entregar o retorno da Promise.
+    // Só aceitar essa interrupção se o novo documento comprovar o commit exato
+    // E a verificação independente do usuário; demais erros continuam falhando.
+    if (!/Execution context was destroyed|Cannot find context|Inspected target navigated/i.test(error.message)) throw error;
+    const limit = Date.now() + 6000;
+    while (Date.now() < limit) {
+      try {
+        if (await page.evaluate((key, expected) => {
+          const current = JSON.parse(localStorage.getItem(key));
+          return current?.access_token === expected.access_token && current?.refresh_token === expected.refresh_token &&
+            window.Forja?.auth?.isVerified(expected.user.id);
+        }, AUTH_STORAGE_KEY, session)) return;
+      } catch (next) {
+        if (!/Execution context was destroyed|Cannot find context|Inspected target navigated/i.test(next.message)) throw next;
+      }
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+    throw error;
+  }
 }
 export { AUTH_STORAGE_KEY };

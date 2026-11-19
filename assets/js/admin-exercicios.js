@@ -1,9 +1,27 @@
-(async function () {
+(function () {
   "use strict";
-  const googleUser = await window.Forja.auth.init();
-  if (!googleUser || !window.Forja.auth.isVerified(googleUser.id)) return;
-  window.Forja.auth.unlock(googleUser.id);
+  const F = window.Forja;
+  let bootWork = null, initializedUid = null;
+  async function boot(retry) {
+    if (bootWork) return bootWork;
+    bootWork = (async () => {
+      const googleUser = await (retry ? F.auth.revalidate() : F.auth.init());
+      if (!googleUser || !F.auth.isVerified(googleUser.id)) return;
+      if (initializedUid && initializedUid !== googleUser.id) {
+        // Nunca reutilizar closures/credencial administrativa de outra conta.
+        F.navigate(location.href); return;
+      }
+      if (!initializedUid) { initializeAdmin(googleUser); initializedUid = googleUser.id; }
+      if (F.auth.isVerified(googleUser.id)) F.auth.unlock(googleUser.id);
+    })().catch(() => {
+      F.auth.gate("A administração não pôde ser iniciada. Confira a conexão e tente novamente.", true);
+    }).finally(() => { bootWork = null; });
+    return bootWork;
+  }
+  F.retryBoot = () => boot(true);
+  void boot(false);
 
+  function initializeAdmin(googleUser) {
   const catalog = window.Forja.exerciseCatalog;
   const API_URL = /(^|\.)netlify\.app$/.test(location.hostname)
     ? "/.netlify/functions/youtube-videos"
@@ -25,6 +43,7 @@
   async function request(action, body = {}) {
     if (!window.Forja.auth.isVerified(googleUser.id)) throw new Error("Entre novamente com Google antes de administrar.");
     if (!credential) throw new Error("Inicie uma sessão administrativa.");
+    const generation = F.auth.revision;
     const response = await fetch(API_URL, {
       method: "POST", credentials: "omit", referrerPolicy: "no-referrer",
       headers: { "content-type": "application/json", authorization: "Bearer " + credential, accept: "application/json" },
@@ -32,6 +51,9 @@
     });
     let payload;
     try { payload = await response.json(); } catch (_) { payload = { error: "Resposta inválida do backend." }; }
+    if (generation !== F.auth.revision || !F.auth.isVerified(googleUser.id)) {
+      throw new Error("A sessão mudou durante a operação. Entre novamente antes de administrar.");
+    }
     if (!response.ok) {
       if (response.status === 401) { credential = null; setAuthenticated(false); }
       throw new Error(payload.error || "Operação administrativa não concluída.");
@@ -183,4 +205,5 @@
   catalog.muscleGroups.forEach(group => $("#muscle-filter").append(new Option(group.name, group.id)));
   catalog.modalities.forEach(mode => $("#modality-filter").append(new Option(mode.name, mode.id)));
   renderExercises(); setAuthenticated(false);
+  }
 })();
