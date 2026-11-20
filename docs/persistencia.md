@@ -41,3 +41,32 @@ Coleções de formato antigo não representáveis sem perda usam uma cópia text
 **Homologação real pendente:** em uma máquina com rede para Google/Supabase e Chrome visível, use o artefato desta branch em uma origem **já autorizada** para o callback. Não publique para rodar o teste. Configure `PUPPETEER_EXECUTABLE_PATH` e `FORJA_HOMOLOGACAO_URL` (raiz do artefato), execute `npm run test:cloud:live` e siga os passos no terminal com duas contas descartáveis autorizadas. A autenticação é interativa no navegador: não fornecer senha, sessão, JWT ou refresh token ao script/chat. O teste não intercepta HTTP, não semeia storage e verifica as linhas por leitura PostgREST com o JWT real antes de comparar os dados após reload/logout e recuperação sem cache. O runner cria uma rotina-canário descartável para verificar UPDATE e DELETE entre contas. As contas de teste conservam os dados ao final.
 
 Antes do merge, confirmar que o canário permaneceu íntegro na releitura final e repetir a queda de rede e o retry durante um treino. Não testar mutações em dados de terceiros. Registrar somente contagens, estados e resultado; nunca conteúdo pessoal, HAR com headers de autorização ou capturas do Google.
+
+## Relatório de entrega — PR #72
+
+**Base:** `4c2c973`, merge do PR #71 na `main`. [Pull request em rascunho](https://github.com/1Rayke1/forja/pull/72) · [diff por arquivo](https://github.com/1Rayke1/forja/pull/72/files). Sem merge ou deploy.
+
+| Arquivos principais | Alteração |
+| --- | --- |
+| `assets/js/forja-cloud.js`, `forja-cloud-codec.js` | Recuperação, fila, conciliação, serialização, transporte PostgREST e indicador |
+| `assets/js/forja-auth.js`, `forja-auth-data.js` | Cliente de dados preso à sessão verificada; vínculo e hidratação antes do boot |
+| `assets/js/forja-plano.js`, `forja-calendario.js` | Gravação pela fachada do store |
+| `assets/js/forja-configuracoes.js`, `forja-backup.js`, `forja-onboarding.js` | Avisos de privacidade, armazenamento e cópia inicial alinhados ao comportamento atual |
+| HTML de login e das páginas de domínio, `assets/css/marca.css` | Carregamento dos módulos, estado de sincronização, retry e acesso às alternativas em conflito |
+| `tests/cloud*.mjs`, `tests/helpers/`, regressões existentes e `package.json` | Testes do codec, integração, Chromium, homologação interativa e adaptação das fixtures ao novo contrato |
+| `README.md`, `docs/autenticacao-google.md`, este relatório | Instruções atuais e separação do escopo histórico do PR #71 |
+
+**Resultados locais.** A suíte foi executada por blocos. Foram corrigidas expectativas da versão exclusivamente local, uma espera de navegação após descarte e uma corrida do próprio teste W4 entre relógio do renderer e chamadas CDP. Os critérios de isolamento, prazos e assertions do W4 foram mantidos.
+
+| Verificação | Resultado observado |
+| --- | --- |
+| Domínio e regressões (`npm test`, scripts componentes) | Aprovados após reexecução dos blocos corrigidos; entre eles FORJA **110/110**, paridade **40/40**, onboarding **21/21**, Auth/config/recuperação/concorrência **45/45 + 12/12 + 19/19 + 18/18** |
+| Jornadas gerais em Chromium | **46/46** |
+| Auth em Chromium | **29/29**; recuperação **19/19**; concorrência **23/23** |
+| Interação em Chromium, Blink ON/OFF | Scroll **10/10**, regressões **30/30**, aninhamento **26/26**, protocolo **12/12**, W4 **6/6** |
+| `test:cloud` e `test:cloud:e2e` | Aprovados. Incluem perfil default contra remoto válido, aparelho pré-sync com rotina apagada, migração repetida, resposta atrasada após logout e CAS entre dispositivos |
+| Build estático do Pages | **292 arquivos**, **148 WebP**, validação dos links relativos aprovada com configuração pública de teste. O build não publica o site |
+| Projeto Supabase real | Metadados de colunas, PKs, constraints, permissões, políticas, FORCE RLS e contagens conferidos por SELECT. **Nenhuma mutação** |
+| OAuth Google + persistência no projeto real | **Não executado neste ambiente.** Não há duas contas de teste interativas nem acesso de saída a Google/Auth/PostgREST no sandbox. O conector administrativo não substitui esse teste |
+
+**Decisão de entrega:** código disponível para revisão; manter sem merge até a homologação real acima. Passar no Chromium com HTTP simulado não comprova que uma sessão Google real conseguiu gravar ou recuperar dados no projeto hospedado.

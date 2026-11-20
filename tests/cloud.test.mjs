@@ -76,6 +76,13 @@ try {
   await flush(b);
   assert.equal(b.raw(K.routines), null);
   assert.ok(![...f.rows.keys()].some((k) => JSON.parse(k)[0] === 'routines'));
+  // A pre-sync installation has no baseline, contains the deleted routine and
+  // an unconfigured default profile. Neither may overwrite the remote decision.
+  const oldDevice = await device({ [K.routines]: sample[K.routines], [K.profile]: {} });
+  assert.equal(oldDevice.raw(K.routines), null);
+  assert.equal(oldDevice.data(K.profile).nomeExibicao, 'Primeira');
+  await flush(oldDevice);
+  assert.ok(![...f.rows.keys()].some((k) => JSON.parse(k)[0] === 'routines'));
   await flush(other);
   assert.equal(other.data(K.profile).nomeExibicao, 'Outra');
   const old = { 'forja-perfil-v1': JSON.stringify(PROFILE), 'forja-antigo-v1': '"preservado"' };
