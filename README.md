@@ -4,9 +4,10 @@ Aplicativo estático multipágina de treinos, calendário e missões, com acesso
 **obrigatório por Google via Supabase Auth** (PKCE). Não há senha própria,
 modo visitante nem autenticação anônima. O perfil guiado continua obrigatório.
 
-Os dados de uso diário ficam no `localStorage`, separados pelo UID verificado.
-Uma **cópia inicial verificável** é enviada ao Supabase; não há sincronização
-contínua nem restauração automática entre aparelhos. Continue exportando backups.
+O cache local e as operações pendentes pertencem ao UID verificado. O FORJA
+recupera os dados do Supabase antes do onboarding e sincroniza alterações e
+exclusões com o JWT da conta. Aguarde **Sincronizado** antes de limpar o navegador.
+Veja [persistência e homologação](docs/persistencia.md). Continue exportando backups.
 O isolamento remoto depende do JWT do usuário e do RLS existente, não do guard
 da interface. HTML/JS estáticos são públicos; armazenamento local não é criptografia.
 

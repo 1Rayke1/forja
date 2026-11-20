@@ -28,7 +28,7 @@ function readTasks(date) {
   const key = "forja-missoes-" + dateKey(date);
 
   try {
-    const saved = window.Forja.store.driver().getItem(key);
+    const saved = window.Forja.store.readRaw(key);
     if (!saved) return [];
 
     const parsed = JSON.parse(saved);
@@ -55,16 +55,7 @@ function readTasks(date) {
 }
 
 function saveTasks(date, tasks) {
-  try {
-    window.Forja.store.driver().setItem(
-      "forja-missoes-" + dateKey(date),
-      JSON.stringify(tasks)
-    );
-    return true;
-  } catch (error) {
-    alert("Não foi possível salvar. Verifique o espaço disponível no navegador.");
-    return false;
-  }
+  return window.Forja.saveJSON("forja-missoes-" + dateKey(date), tasks);
 }
 
 function formatDate(date, options = {}) {

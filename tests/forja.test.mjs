@@ -734,7 +734,7 @@ await runTest("21. Preferências de descanso são salvas e a biblioteca é valid
 await runTest("22. Armazenamento local é informado em todas as páginas", async () => {
   for (const page of PAGES) {
     const app = await boot({}, page);
-    assert.match(app.text(".storage-note"), /somente neste navegador/, "Aviso ausente em " + page);
+    assert.match(app.text(".storage-note"), /Sincronização com o Supabase/, "Aviso ausente em " + page);
     app.close();
   }
 });
@@ -753,8 +753,8 @@ await runTest("23. Código: sem localStorage.clear(), um único intervalo e cale
 
   const calendar = fs.readFileSync(path.join(jsDir, "forja-calendario.js"), "utf8").trim();
   assert.equal(
-    createHash("sha256").update(calendar.replaceAll("window.Forja.store.driver()", "localStorage")).digest("hex"),
-    "30a825330793e156adc357ae714f022c853033c1016ee66ffeaec1ab705928c5",
+    createHash("sha256").update(calendar).digest("hex"),
+    "5041a4309c0748113c8229206ed06c9b26136e3075ed2b0c02583515e21c82b0",
     "A lógica de calendário/missões mudou além do adaptador de storage autenticado"
   );
 });
@@ -2396,7 +2396,7 @@ await runTest("45. Perfil: usa o controlador de Configurações e os checkboxes 
 
       /* Painel de backup inicializado: sem cópia de segurança, nada para desfazer. */
       assert.equal(app.$("#restore-safety-backup").hidden, true, "Desfazer visível sem cópia em " + where);
-      assert.match(app.text("#backup-status"), /permanecem apenas neste navegador/);
+      assert.match(app.text("#backup-status"), /pendentes ficam neste navegador até a sincronização/);
       assert.deepEqual(app.storageWrites, [], "Abrir " + where + " gravou no armazenamento");
       assertNoErrors(app, where);
       app.close();

@@ -1721,11 +1721,11 @@ await runTest("12b. Nenhuma função/ID antiga referenciada e um único boot", a
     assert.equal(boots, 1, "Página " + page + " deve carregar o boot exatamente uma vez");
   }
 
-  // O bloco de calendário/missões é idêntico ao extraído da main (SHA-256 verificado).
+  // Calendário com escrita pelo store sincronizado (SHA-256 verificado).
   assert.equal(
-    createHash("sha256").update(calendar.trim().replaceAll("window.Forja.store.driver()", "localStorage")).digest("hex"),
-    "30a825330793e156adc357ae714f022c853033c1016ee66ffeaec1ab705928c5",
-    "O código de calendário/missões mudou em relação à main"
+    createHash("sha256").update(calendar.trim()).digest("hex"),
+    "5041a4309c0748113c8229206ed06c9b26136e3075ed2b0c02583515e21c82b0",
+    "O código de calendário/missões diverge da versão com o store sincronizado"
   );
 
   const indexApp = await boot({}, PAGE.index);

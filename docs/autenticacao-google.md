@@ -1,5 +1,6 @@
 # Google + Supabase Auth no FORJA
 
+> **Escopo histórico do PR #71.** Para o comportamento atual de armazenamento, recuperação e testes, consulte [Persistência no Supabase](persistencia.md). As limitações de cópia inicial descritas abaixo são da versão anterior.
 > Auditoria final local do PR #71: [relatório atual](validacao-auth-auditoria-final.md), [guia de homologação real](homologacao-google-auth.md), [evidências](evidencias-auth-final.md) e [histórico anterior](validacao-login-google.md). Resultados atuais: suítes unitárias, Auth/Chromium, E2E geral e suítes W4 verdes (com serviços Auth/Google/PostgREST simulados). Isso não é homologação de Google/Supabase/RLS reais nem autorização de publicação.
 
 ## Escopo e limites

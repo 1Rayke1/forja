@@ -1876,3 +1876,6 @@ body[data-page="inicio"] .home-secondary .missions-panel .task input[type="check
   body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) *::before,
   body:is([data-page="inicio"],[data-page="treino"],[data-page="explorar"],[data-page="progresso"],[data-page="perfil"]) *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Identifica o estado sem depender de cor; usa os tokens existentes do rodapé. */
+[data-sync-retry]:not([hidden]) { margin-inline-start: .4em; color: inherit; text-decoration: underline; }
