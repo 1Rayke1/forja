@@ -292,6 +292,12 @@
     // especial, uma escrita de B nunca deve provocar leituras/redesenhos em A.
     event.stopImmediatePropagation();
     if (!boundUid || !F.auth.isVerified(boundUid)) return;
+    if (event.newValue !== null && event.key.startsWith("forja-auth-sync-v1:" + boundUid + ":edit:")) {
+      // A peer may close/navigate before its debounce fires. Wake this worker,
+      // without forwarding the private journal or emitting a domain write.
+      F.cloud.pendingFromPeer(boundUid);
+      return;
+    }
     const prefix = DATA + boundUid + ":";
     if (!event.key.startsWith(prefix)) return;
     const key = event.key.slice(prefix.length);

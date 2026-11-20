@@ -422,6 +422,7 @@
   F.cloud = Object.freeze({
     recover,
     record,
+    pendingFromPeer(uid) { changed(uid); },
     flush,
     get status() {
       return status;
