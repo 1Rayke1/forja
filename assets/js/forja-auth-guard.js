@@ -3,7 +3,17 @@
   "use strict";
   const root = document.documentElement;
   const lock = () => { root.dataset.forjaAuth = "locked"; };
-  addEventListener("pagehide", lock);
+  // pagehide: a página pode entrar no BFCache (persisted=true) e ser
+  // restaurada depois. Quando a sessão já está verificada em memória, a
+  // interface autenticada já exibida permanece liberada — a revalidação
+  // ocorre silenciosamente no pageshow. Só trava (fail closed) quando não
+  // há sessão verificada. Não usamos flags locais como prova de sessão:
+  // a decisão é do estado real de autenticação (isVerified()). O
+  // event.persisted indica se haverá restauração (tratada pelo pageshow),
+  // não se travamos agora.
+  addEventListener("pagehide", event => {
+    if (!(window.Forja && Forja.auth && Forja.auth.isVerified())) lock();
+  });
   addEventListener("pageshow", event => {
     if (event.persisted && !event.forjaVerified) {
       // Sessão ainda verificada em memória: a revalidação é silenciosa e a
