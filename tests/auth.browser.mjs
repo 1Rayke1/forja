@@ -162,19 +162,126 @@ try {
     fixture.badReadback = false; await page.click('#initial-copy-retry');
     await until(page, () => window.Forja?.authData?.copyStatus.state === 'confirmed'); assert.equal(fixture.imports.size, 1);
   });
-  await test('13. Voltar/BFCache fecha o conteúdo antes de revalidar', async ({ fixture, page }) => {
+  await test('13. Voltar/BFCache com sessão válida não bloqueia; pageshow revalida silenciosamente', async ({ fixture, page }) => {
     await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
     await goto(page, base + 'configuracoes/index.html'); await waitReady(page);
     await page.goBack({ waitUntil: 'domcontentloaded' }); await waitReady(page);
-    const locked = await page.evaluate(() => {
+    // Sessão válida: pagehide com BFCache NÃO pode fechar o conteúdo.
+    const notLocked = await page.evaluate(() => {
       dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
       const hidden = getComputedStyle(document.getElementById('conteudo')).display === 'none';
-      dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })); return hidden;
+      return { hidden, ready: document.documentElement.dataset.forjaAuth };
     });
-    assert.equal(locked, true); await waitReady(page);
+    assert.equal(notLocked.hidden, false, 'pagehide não deve bloquear com sessão válida');
+    assert.equal(notLocked.ready, 'ready', 'pagehide não deve tirar o ready com sessão válida');
+    // pageshow persistido revalida silenciosamente, sem retornar a tela bloqueante.
+    await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+    await waitReady(page);
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), true);
+    // O conteúdo deve estar visível (não ocultado pelo gate), independente do
+    // display concreto da página (block na home, flex em outras).
+    assert.notEqual(await page.$eval('#conteudo', node => getComputedStyle(node).display), 'none');
     await page.evaluate(() => { void Forja.auth.signOut(); }); await waitLogin(page);
     await page.goBack({ waitUntil: 'domcontentloaded' }); await waitLogin(page);
     assert.equal(await page.evaluate(() => window.Forja?.auth?.isVerified()), false);
+  });
+  await test('13b. pagehide com sessão inválida bloqueia (fail closed)', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
+    // Intercepta a navegação para login, para manter a página interna e
+    // observar o pagehide no estado bloqueado (fail closed).
+    await page.evaluate(() => { window.realNavigate = Forja.navigate; Forja.navigate = () => {}; });
+    fixture.sessions.clear();
+    await page.evaluate(() => { void Forja.auth.revalidate(); });
+    await until(page, () => document.documentElement.dataset.forjaAuth === 'locked');
+    const locked = await page.evaluate(() => {
+      dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+      const hidden = getComputedStyle(document.getElementById('conteudo')).display === 'none';
+      return { hidden, ready: document.documentElement.dataset.forjaAuth };
+    });
+    assert.equal(locked.hidden, true, 'pagehide deve bloquear com sessão inválida');
+    assert.equal(locked.ready, 'locked');
+    await page.evaluate(() => { Forja.navigate = window.realNavigate; });
+  });
+  await test('13c. pagehide após logout bloqueia', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
+    await page.evaluate(() => { window.realNavigate = Forja.navigate; Forja.navigate = () => {}; });
+    await page.evaluate(() => { void Forja.auth.signOut(); });
+    await until(page, () => document.documentElement.dataset.forjaAuth === 'locked');
+    const locked = await page.evaluate(() => {
+      dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+      return { ready: document.documentElement.dataset.forjaAuth, hidden: getComputedStyle(document.getElementById('conteudo')).display === 'none' };
+    });
+    assert.equal(locked.ready, 'locked', 'pagehide após logout deve bloquear');
+    assert.equal(locked.hidden, true);
+    await page.evaluate(() => { Forja.navigate = window.realNavigate; });
+  });
+  await test('13d. Troca de UID por pagehide/pageshow não libera dados da conta anterior', async ({ fixture, page }) => {
+    const local = fixture.seed(USERS.A, { [P]: { ...PROFILE, nomeExibicao: 'Conta A' } });
+    local[DATA_PREFIX(USERS.B) + P] = JSON.stringify({ ...PROFILE, nomeExibicao: 'Conta B' }); local[COPY_KEY(USERS.B)] = completedJournal(USERS.B);
+    await installBrowserAuth(page, fixture, localServer.origin, { local }); await goto(page, base); await waitReady(page);
+    assert.equal(await page.evaluate(() => Forja.state.profile.nomeExibicao), 'Conta A');
+    // Troca para B e volta com BFCache: o pagehide não deve liberar A durante a transição.
+    const b = fixture.issue(USERS.B);
+    await browserSetSession(page, b);
+    await until(page, id => window.Forja?.auth?.user?.id === id && document.documentElement.dataset.forjaAuth === 'ready', USERS.B);
+    assert.equal(await page.evaluate(() => Forja.state.profile.nomeExibicao), 'Conta B');
+    const hide = await page.evaluate(() => {
+      dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+      return document.documentElement.dataset.forjaAuth;
+    });
+    assert.equal(hide, 'ready', 'pagehide com sessão B válida não bloqueia');
+    await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+    await waitReady(page);
+    // Dados de A não voltam: o namespace atual é de B.
+    assert.equal(await page.evaluate(() => Forja.state.profile.nomeExibicao), 'Conta B');
+    assert.equal(await page.evaluate(() => Forja.auth.user.id), USERS.B);
+  });
+  await test('13e. Navegação normal entre páginas permanece protegida', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
+    // Com sessão válida, cada página autenticada é liberada (não aparece a tela de verificação).
+    const routes = ['treino/index.html', 'configuracoes/index.html', 'progresso/index.html', 'explorar/index.html'];
+    for (const route of routes) {
+      await goto(page, base + route); await waitReady(page);
+      assert.equal(await page.evaluate(() => document.documentElement.dataset.forjaAuth), 'ready', 'página autenticada deve liberar em ' + route);
+      assert.equal(await page.evaluate(() => Forja.auth.isVerified()), true);
+    }
+    // Sem sessão (logout), a navegação volta a bloquear.
+    await page.evaluate(() => { void Forja.auth.signOut(); }); await waitLogin(page);
+    await goto(page, base + 'treino/index.html'); await waitLogin(page);
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false, 'navegação sem sessão deve bloquear');
+  });
+  await test('13f. Falha definitiva de autenticação bloqueia no pagehide', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
+    // Bloqueia a navegação para login, mantendo a página interna para observar o pagehide no estado travado.
+    await page.evaluate(() => { window.realNavigate = Forja.navigate; Forja.navigate = () => {}; });
+    fixture.userErrors.set(fixture.defaultSession.access_token, { status: 403, code: 'user_banned' });
+    await page.evaluate(() => { void Forja.auth.revalidate(); });
+    await until(page, () => document.documentElement.dataset.forjaAuth === 'locked');
+    const locked = await page.evaluate(() => {
+      dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+      return { ready: document.documentElement.dataset.forjaAuth, hidden: getComputedStyle(document.getElementById('conteudo')).display === 'none' };
+    });
+    assert.equal(locked.ready, 'locked', 'falha definitiva deve bloquear no pagehide');
+    assert.equal(locked.hidden, true);
+    await page.evaluate(() => { Forja.navigate = window.realNavigate; });
+  });
+  await test('13g. Falha transitória preserva o comportamento silencioso para sessão previamente verificada', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
+    // Sessão previamente verificada: falha 503 é transitória. pagehide não bloqueia.
+    fixture.userErrors.set(fixture.defaultSession.access_token, { status: 503, code: 'temporarily_unavailable' });
+    const hide = await page.evaluate(() => {
+      dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+      return document.documentElement.dataset.forjaAuth;
+    });
+    assert.equal(hide, 'ready', 'falha transitória não deve bloquear o pagehide');
+    // pageshow revalida silenciosamente; a interface permanece liberada.
+    await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+    await new Promise(resolve => setTimeout(resolve, 500));
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.forjaAuth), 'ready');
+    // Após a recuperação, a sessão volta a estar verificada.
+    fixture.userErrors.clear();
+    await until(page, () => Forja.auth.isVerified() && document.documentElement.dataset.forjaAuth === 'ready', 8000);
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), true);
   });
   await test('14. Com JavaScript desativado, conteúdo interno fica fechado e há orientação', async ({ page }) => {
     await page.setJavaScriptEnabled(false); await goto(page, base + 'treino/index.html');
@@ -260,16 +367,23 @@ try {
     assert.equal(await page.evaluate(key => localStorage.getItem(key), DATA_PREFIX(USERS.A) + P), original);
     assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false);
   });
-  await test('21. Falha transitória de Auth fecha o conteúdo e retry restaura sem OAuth/reload', async ({ fixture, page }) => {
+  await test('21. Falha transitória de Auth preserva sessão verificada; retry restaura sem OAuth/reload', async ({ fixture, page }) => {
     await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
     const initialTime = await page.evaluate(() => performance.timeOrigin);
     fixture.userErrors.set(fixture.defaultSession.access_token, { status: 503, code: 'temporarily_unavailable' });
     await page.evaluate(() => { void Forja.auth.revalidate(); });
-    await until(page, () => Forja.auth.state === 'error');
-    assert.equal(await page.$eval('#conteudo', node => getComputedStyle(node).display), 'none');
-    assert.equal(await page.evaluate(() => Forja.auth.canWrite()), false);
+    // Sessão previamente verificada: falha 5xx do servidor é transitória —
+    // não trava o conteúdo nem muda o estado para error; a revalidação é
+    // repetida com recuo silencioso.
+    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 150)));
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), true);
+    assert.notEqual(await page.$eval('#conteudo', node => getComputedStyle(node).display), 'none');
+    assert.equal(await page.evaluate(() => Forja.auth.canWrite()), true);
     assert.ok(await page.evaluate(key => localStorage.getItem(key), AUTH_STORAGE_KEY));
-    fixture.userErrors.clear(); await page.click('#auth-retry'); await waitReady(page);
+    // O erro é removido; a revalidação em curso/retry restabelece a sessão
+    // sem novo OAuth e sem recarregar o documento.
+    fixture.userErrors.clear();
+    await until(page, () => Forja.auth.state === 'authenticated');
     assert.equal(await page.evaluate(() => performance.timeOrigin), initialTime);
     assert.equal(fixture.requests.some(r => r.url.includes('/auth/v1/authorize')), false);
   });

@@ -351,10 +351,18 @@ await test('30. Guard estático, JS desativado, BFCache e ordem de scripts são 
   assert.ok(html.indexOf('forja-auth-data.js') < html.indexOf('forja-dados.js'));
   assert.match(html, /<noscript>/);
   const app = await open(); await ready(app);
+  // Sessão verificada: pagehide (BFCache) não trava; o retorno é tratado
+  // pelo pageshow, que revalida silenciosamente.
   app.w.dispatchEvent(new app.w.PageTransitionEvent('pagehide', { persisted: true }));
-  assert.equal(app.d.documentElement.dataset.forjaAuth, 'locked');
+  assert.equal(app.d.documentElement.dataset.forjaAuth, 'ready', 'pagehide não trava com sessão verificada');
   app.w.dispatchEvent(new app.w.PageTransitionEvent('pageshow', { persisted: true }));
   await ready(app);
+  // Rejeição definitiva (401): a sessão não é verificada e o pagehide trava.
+  app.fixture.userErrors.set(app.fixture.defaultSession.access_token, { status: 401, code: 'bad_jwt' });
+  await app.F.auth.revalidate();
+  await sleepUntil(() => app.d.documentElement.dataset.forjaAuth === 'locked', 'rejeição definitiva não travou');
+  app.w.dispatchEvent(new app.w.PageTransitionEvent('pagehide', { persisted: true }));
+  assert.equal(app.d.documentElement.dataset.forjaAuth, 'locked', 'pagehide trava sem sessão verificada');
 });
 await test('31. Conta alterada durante consentimento cancela o vínculo antigo e pede nova confirmação', async () => {
   const fixture = new AuthFixture(); const raw = JSON.stringify({ ...PROFILE, nomeExibicao: 'Sem vínculo' });
