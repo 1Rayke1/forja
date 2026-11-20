@@ -263,14 +263,16 @@ for (const mode of [true, false]) {
         // before the test had even inspected the reference.
         const ctrl = await page.evaluateHandle(new Function(`
           const now0 = performance.timeOrigin + performance.now();
-          const lease = { finalAt: now0 + 120, expiresAt: now0 + 56, cleanupUntil: now0 + 88, timeoutMs: 4000 };
+          // Use the real controller budget. A 56ms artificial install window can
+          // expire during layout, before an iframe exists to exercise cleanup.
+          const finalAt = now0 + 4000;
+          const lease = { finalAt, expiresAt: finalAt - 64, cleanupUntil: finalAt - 32, timeoutMs: 4000 };
           const state = (${installFn})('#target', lease);
           const ref = document.querySelector('iframe[data-forja-scroll-reference]');
           window.referenceAttributes = ref && { inert: ref.inert, tabIndex: ref.tabIndex,
             ariaHidden: ref.getAttribute('aria-hidden'), pointerEvents: getComputedStyle(ref).pointerEvents,
             sandbox: ref.getAttribute('sandbox') };
-          const until = performance.now() + 110;
-          while (performance.now() < until) {}
+          while (performance.timeOrigin + performance.now() <= lease.cleanupUntil) {}
           return state;
         `));
         const refAttrs = await page.evaluate(() => window.referenceAttributes);
