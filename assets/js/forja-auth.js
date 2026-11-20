@@ -266,8 +266,12 @@
         storedToken() === verifiedToken && !retiredLogin(session) && !logoutApplies();
     } catch (_) { return false; }
   }
-  function unlock(uid) {
-    if (!isVerified(uid)) { gate("Sua sessão precisa ser verificada novamente.", true); return false; }
+  function unlock(uid, verified) {
+    // `verified`: esta chamada vem de um verify() que já concluiu getUser
+    // para este acesso. Nesse caso a sessão foi efetivamente validada agora,
+    // então não recorremos à checagem de memória (que pode ter sido zerada
+    // por uma rotação silenciosa que ocorreu entre a validação e este ponto).
+    if (!verified && !isVerified(uid)) { gate("Sua sessão precisa ser verificada novamente.", true); return false; }
     dataUid = uid;
     doc.documentElement.dataset.forjaAuth = "ready";
     return true;
@@ -288,7 +292,15 @@
     return error.loginRequired || error.name === "AuthSessionMissingError" ||
       (error.name === "AuthApiError" && (error.status === 401 || error.status === 403 || SESSION_ERRORS.has(error.code)));
   }
-  function invalidate() {
+  // Erros do servidor que explicitamente não encerram a sessão e dão para
+  // tentar novamente: 5xx e 429. Apenas esses sustentam a interface
+  // autenticada durante uma revalidação silenciosa. O SDK nomeia 5xx/rede
+  // repetáveis como AuthRetryableFetchError; 429 como AuthApiError.
+  function isServerTransient(error) {
+    if (error.name === "AuthRetryableFetchError") return error.status >= 500 || error.status === 429;
+    return error.name === "AuthApiError" && (error.status >= 500 || error.status === 429);
+  }
+  function invalidate(silent) {
     if (dataUid) needsDataRefresh = true;
     revision += 1;
     for (const request of requests) if (["verification", "data"].includes(request.kind)) request.controller.abort();
@@ -296,11 +308,24 @@
     verifiedToken = "";
     global.clearTimeout(expiryTimer);
     global.clearTimeout(validationTimer);
-    gate("Verificando sua sessão…", false);
+    // Rotação de token da MESMA sessão (rotação silenciosa): a sessão
+    // continua válida e será revalidada imediatamente, então a interface
+    // autenticada não volta a ser bloqueada. Erros reais ainda fecham.
+    if (!silent) gate("Verificando sua sessão…", false);
   }
   function scheduleValidation() {
     global.clearTimeout(validationTimer);
     if (!disabled) validationTimer = global.setTimeout(() => { void revalidate(); }, 0);
+  }
+  // Revalidação silenciosa após uma falha transitória (rede/5xx) de uma sessão
+  // que continua verificada: a interface autenticada permanece, e a checagem
+  // é repetida com recuo, sem bloquear e sem rodape infinito.
+  let silentRetryMs = 1000;
+  function scheduleSilentRetry() {
+    global.clearTimeout(validationTimer);
+    if (disabled) return;
+    validationTimer = global.setTimeout(() => { void revalidate(); }, silentRetryMs);
+    silentRetryMs = Math.min(30000, silentRetryMs * 2);
   }
   function config() {
     const cfg = global.FORJA_PUBLIC_CONFIG || {};
@@ -408,7 +433,9 @@
         if (storedToken()) { invalidate(); emit("validating"); scheduleValidation(); return; }
         invalidate(); session = null; emit("guest"); goLogin();
       } else if (next && next.access_token === storedToken() && next.access_token !== verifiedToken) {
-        invalidate(); emit("validating"); scheduleValidation();
+        // Rotação da MESMA sessão: a interface autenticada já exibida
+        // permanece enquanto a revalidação conclui (sem flash bloqueante).
+        invalidate(true); emit("validating"); scheduleValidation();
       }
     });
     return client;
@@ -423,6 +450,12 @@
     }, delay);
   }
   async function verify(generation, signal) {
+    // Se a sessão já estava verificada em memória quando esta checagem começou,
+    // ela é uma REVALIDAÇÃO SILENCIOSA: uma falha transitória não pode tirar a
+    // interface autenticada do usuário (a sessão continua válida até sua
+    // expiração). Sessões encerradas/alteradas e erros em inicializações
+    // continuam bloqueando com rigor.
+    const wasVerified = isVerified();
     for (let attempt = 0; attempt < 3; attempt += 1) {
       if (disabled || generation !== epoch || (oauthIntent && !oauthIntent.sessionIdentity)) return null;
       let candidate = null;
@@ -451,6 +484,7 @@
         // SIGNED_IN da recuperação inicial pode ter agendado uma validação
         // redundante. Não deixar esse timer apagar um erro de vínculo local.
         global.clearTimeout(validationTimer);
+        silentRetryMs = 1000;
         emit("authenticated"); armExpiry();
         if (oldDataUid) {
           if (oldDataUid === actual.id && (!F.authData || F.authData.isBound(actual.id))) {
@@ -461,7 +495,16 @@
               for (const key of new Set(Object.values(F.KEYS))) global.dispatchEvent(new global.StorageEvent("storage", { key }));
             }
             needsDataRefresh = false;
-            unlock(actual.id);
+            unlock(actual.id, true);
+          }
+          else if (oldDataUid === actual.id) {
+            // Mesma conta, mas a ligação dos dados ainda não está pronta. A
+            // sessão continua válida e igual, então não há necessidade de
+            // recarregar (o que reintroduziria a tela bloqueante): apenas
+            // religa os dados e libera a interface.
+            if (typeof F.authData?.bind === "function") { void F.authData.bind(actual.id).catch(() => { /* bind reentrante/silencioso seguro */ }); }
+            needsDataRefresh = false;
+            unlock(actual.id, true);
           }
           else if (!isLogin()) F.navigate(global.location.href);
         }
@@ -470,8 +513,8 @@
         if (disabled || generation !== epoch) return null;
         if (observed !== revision || (candidate && storedToken() !== candidate.access_token)) error = stale();
         if (error.stale && attempt < 2) continue;
-        invalidate();
         if (endedSession(error)) {
+          invalidate();
           // O Auth já rejeitou este acesso. Esqueça apenas o token observado,
           // sem revogar no servidor uma sessão nova de outra aba. Não toque
           // nos dados/journals nem no verifier de uma tentativa OAuth paralela.
@@ -482,6 +525,18 @@
           } catch (_) { /* Mesmo sem remoção, só getUser pode autorizar acesso. */ }
           session = null; emit("guest"); goLogin(); return null;
         }
+        // Erro explicitamente transitório DO SERVIDOR (5xx/429) em uma
+        // REVALIDAÇÃO SILENCIOSA: o servidor confirmou que a sessão existe e
+        // pede para tentar depois. A sessão continua verificada e válida em
+        // memória, então a interface autenticada já exibida é preservada e
+        // a checagem se repete com recuo. Timeout, abort, falha de rede e
+        // qualquer erro que não confirme a sessão continuam bloqueando:
+        // uma checagem não concluída não pode sustentar a liberação.
+        if (wasVerified && !error.stale && isServerTransient(error)) {
+          scheduleSilentRetry();
+          return null;
+        }
+        invalidate();
         emit("error");
         gate(error.stale ? "A conta mudou. Recarregue para continuar com segurança." :
           "Não foi possível validar sua sessão. Confira a conexão e tente novamente; seus dados continuam preservados.", true);
@@ -493,7 +548,10 @@
   function revalidate() {
     if (disabled) return Promise.resolve(null);
     if (work) return work.promise;
-    gate("Verificando sua sessão…", false);
+    // Revalidação: a checagem ocorre e só TRAVA se a sessão for encerrada,
+    // expirada ou alterada (ver verify). Não dispara tela bloqueante no
+    // início, para que o retorno do segundo plano com sessão válida não
+    // reintroduza "Verificando sua sessão…". O cold-start usa init().
     const job = {};
     job.promise = verify(epoch, lifetime.signal).finally(() => { if (work === job) work = null; });
     work = job;
@@ -704,8 +762,12 @@
     }
   }
   global.addEventListener("storage", handleStorage);
+  // Retorno do segundo plano: revalidação SILENCIOSA. Se a sessão continuar
+  // verificada, a interface autenticada já exibida permanece (sem tela
+  // bloqueante); se a sessão estiver encerrada/expirada, revalidate()
+  // bloqueia e solicita autenticação.
   doc.addEventListener("visibilitychange", () => {
-    if (!doc.hidden && !disabled && dataUid) { gate("Verificando sua sessão…", false); void revalidate(); }
+    if (!doc.hidden && !disabled && dataUid) void revalidate();
   });
   doc.addEventListener("click", event => {
     if (event.target.closest && event.target.closest("#auth-retry")) {

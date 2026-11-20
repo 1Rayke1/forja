@@ -15,7 +15,15 @@ async function open(fixture = new AuthFixture(), { page = 'index.html', local = 
   await app.load(BASE + page, { local, session });
   return app;
 }
-const ready = app => sleepUntil(() => app.d.documentElement.dataset.forjaAuth === 'ready', 'página não liberou: ' + app.w.location.href + ' ' + app.text('#auth-gate-status'));
+// "Pronto" significa: sessão verificada, dados vinculados (nas páginas do
+// app) e página iniciada. O atributo data-forja-auth="ready" libera a
+// interface logo após a verificação da sessão; a ligação dos dados e o
+// boot completo seguem atrás. A administração não usa o namespace da conta.
+const ready = async app => {
+  await sleepUntil(() => app.d.documentElement.dataset.forjaAuth === 'ready', 'página não liberou: ' + app.w.location.href + ' ' + app.text('#auth-gate-status'));
+  if (app.F.authData) await sleepUntil(() => app.F.authData?.userId, 'dados da conta não foram vinculados');
+  if (app.F.ready) await app.F.ready;
+};
 const login = app => sleepUntil(() => app.d.body.dataset.page === 'login', 'não chegou ao login');
 async function replaceSession(app, fixture, session, uid) {
   const old = app.w.localStorage.getItem(AUTH_STORAGE_KEY);
@@ -154,12 +162,12 @@ await test('12. UID A→B→A: namespaces, preferências e perfil não se mistur
   const rawA = app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + 'forja-preferencias-v1');
   const b = fixture.issue(USERS.B);
   await replaceSession(app, fixture, b, USERS.B);
-  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready', 'troca B não concluiu');
+  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready' && app.F.authData?.userId === USERS.B, 'troca B não concluiu');
   assert.equal(app.F.state.profile.nomeExibicao, 'Conta B');
   assert.equal(app.F.store.readRaw('forja-preferencias-v1'), null);
   app.F.store.write('forja-preferencias-v1', { soundOnRest: true, vibrateOnRest: true });
   await replaceSession(app, fixture, fixture.defaultSession);
-  await sleepUntil(() => app.F.auth.user?.id === USERS.A && app.d.documentElement.dataset.forjaAuth === 'ready', 'volta A não concluiu');
+  await sleepUntil(() => app.F.auth.user?.id === USERS.A && app.d.documentElement.dataset.forjaAuth === 'ready' && app.F.authData?.userId === USERS.A, 'volta A não concluiu');
   assert.equal(app.F.store.readRaw('forja-preferencias-v1'), rawA);
 });
 await test('13. Escrita com token antigo é bloqueada antes do evento storage', async () => {
@@ -176,7 +184,7 @@ await test('14. Refresh em outra aba da mesma conta revalida sem apagar dados/lo
   const dom = app.dom;
   const refreshed = fixture.issue(USERS.A);
   await replaceSession(app, fixture, refreshed);
-  await sleepUntil(() => app.F.auth.isVerified() && app.d.documentElement.dataset.forjaAuth === 'ready', 'refresh não revalidou');
+  await sleepUntil(() => app.F.auth.isVerified() && app.d.documentElement.dataset.forjaAuth === 'ready' && app.F.authData?.userId === USERS.A, 'refresh não revalidou');
   assert.equal(app.dom, dom);
   assert.equal(app.F.auth.user.id, USERS.A);
   assert.ok(app.F.state.profile.updatedAt);
@@ -191,7 +199,7 @@ await test('15. Resposta getUser atrasada não aceita token substituído no meio
   app.w.localStorage.setItem(COPY_KEY(USERS.B), completedJournal(USERS.B));
   app.w.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(b));
   await pending;
-  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready', 'resposta antiga venceu');
+  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready' && app.F.authData?.userId === USERS.B, 'resposta antiga venceu');
   assert.equal(app.F.state.profile.nomeExibicao, 'B atrasado');
 });
 await test('16. Legado exige consentimento; strings, segurança e desconhecidos são preservados', async () => {
@@ -397,24 +405,32 @@ await test('34. Rejeição definitiva 403 durante o uso não prende a conta no g
   const original = app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P);
   fixture.userErrors.set(fixture.defaultSession.access_token, { status: 403, code: 'user_banned' });
   const check = app.F.auth.revalidate();
+  await check;
   assert.equal(app.d.documentElement.dataset.forjaAuth, 'locked');
-  await check; await login(app);
+  await login(app);
   assert.equal(app.F.auth.isVerified(), false);
   assert.equal(app.w.localStorage.getItem(AUTH_STORAGE_KEY), null);
   assert.equal(app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P), original);
 });
-await test('35. HTTP 503/429 são transitórios: gate fechado, token preservado e retry sem novo OAuth', async () => {
+await test('35. HTTP 503/429 são transitórios: interface preservada, token mantido e revalidação silenciosa sem novo OAuth', async () => {
   for (const status of [503, 429]) {
     const fixture = new AuthFixture(); const app = await open(fixture); await ready(app);
     const original = app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P);
     fixture.userErrors.set(fixture.defaultSession.access_token, { status, code: 'temporarily_unavailable' });
-    await app.F.auth.revalidate();
+    const check = app.F.auth.revalidate();
+    await check;
+    // A sessão continua válida: a interface autenticada permanece liberada,
+    // sem tela bloqueante e sem exigir retry manual.
     assert.equal(app.d.body.dataset.page, 'inicio');
-    assert.equal(app.d.documentElement.dataset.forjaAuth, 'locked');
-    assert.equal(app.F.auth.canWrite(), false);
-    assert.equal(app.$('#auth-retry').hidden, false);
+    assert.equal(app.d.documentElement.dataset.forjaAuth, 'ready');
+    assert.equal(app.F.auth.isVerified(), true);
+    assert.equal(app.F.auth.canWrite(), true);
+    assert.equal(app.$('#auth-retry').hidden, true);
     assert.equal(JSON.parse(app.w.localStorage.getItem(AUTH_STORAGE_KEY)).access_token, fixture.defaultSession.access_token);
-    fixture.userErrors.clear(); app.click('#auth-retry'); await ready(app);
+    // Recuperação automática e silenciosa, sem nova autenticação Google.
+    fixture.userErrors.clear();
+    await sleepUntil(() => app.F.auth.isVerified() && app.d.documentElement.dataset.forjaAuth === 'ready' && app.F.authData?.userId,
+      'revalidação silenciosa não recuperou', 8000);
     assert.equal(app.w.localStorage.getItem(DATA_PREFIX(USERS.A) + P), original);
     assert.equal(fixture.requests.some(r => r.url.includes('/auth/v1/authorize')), false);
     app.close();
@@ -428,7 +444,7 @@ await test('36. Rejeição 401 atrasada de A não remove nem encerra a sessão n
   const b = fixture.issue(USERS.B);
   await replaceSession(app, fixture, b, USERS.B);
   await check;
-  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready', 'rejeição antiga encerrou B');
+  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready' && app.F.authData?.userId === USERS.B, 'rejeição antiga encerrou B');
   assert.equal(JSON.parse(app.w.localStorage.getItem(AUTH_STORAGE_KEY)).access_token, b.access_token);
   assert.equal(app.F.state.profile.nomeExibicao, 'Conta B');
 });
@@ -483,7 +499,7 @@ await test('42. session_not_found 403 atrasado não permite ao SDK apagar a sess
   const check = app.F.auth.revalidate(); await tick(25);
   const b = fixture.issue(USERS.B); await replaceSession(app, fixture, b, USERS.B);
   await check;
-  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready', 'SDK apagou B por rejeição antiga de A');
+  await sleepUntil(() => app.F.auth.user?.id === USERS.B && app.d.documentElement.dataset.forjaAuth === 'ready' && app.F.authData?.userId === USERS.B, 'SDK apagou B por rejeição antiga de A');
   assert.equal(JSON.parse(app.w.localStorage.getItem(AUTH_STORAGE_KEY)).access_token, b.access_token);
   assert.equal(app.F.state.profile.nomeExibicao, 'Conta B');
   assert.equal(app.w.localStorage.getItem(AUTH_STORAGE_KEY + '-verification'), null, 'verificação não persiste outra sessão');

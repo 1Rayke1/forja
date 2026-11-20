@@ -15,7 +15,11 @@ async function test(name, run) {
 async function open(fixture, { page = 'configuracoes/index.html', local = twoAccounts(fixture) } = {}) {
   const app = new App({ fixture }); await app.load(BASE + page, { local, session: {} }); return app;
 }
-const ready = app => until(() => app.d.documentElement.dataset.forjaAuth === 'ready', 'documento não ficou pronto');
+const ready = async app => {
+  await until(() => app.d.documentElement.dataset.forjaAuth === 'ready', 'documento não ficou pronto');
+  await until(() => app.F.authData?.userId, 'dados da conta não foram vinculados');
+  await app.F.ready;
+};
 const guest = app => until(() => ['guest', 'error'].includes(app.F.auth.state), 'documento não permaneceu fechado');
 const keep = app => { app.F.navigate = url => { if (new URL(url).origin === AUTH_URL) app.externalNavigations.push(url); }; };
 const payload = session => JSON.parse(Buffer.from(session.access_token.split('.')[1], 'base64url').toString());

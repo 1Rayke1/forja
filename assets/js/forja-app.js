@@ -46,16 +46,25 @@
   let resolveReady;
   F.ready = new Promise(resolve => { resolveReady = resolve; });
 
+  // Se a sessão mudou durante a inicialização, revalida uma única vez e
+  // continua o boot com o usuário verificado — sem validação duplicada.
   async function retryChangedSession() {
-    await F.auth.revalidate();
-    if (F.auth.isVerified()) global.setTimeout(() => { void boot(true); }, 0);
+    const user = await F.auth.revalidate();
+    if (!user) return;
+    if (!F.auth.isVerified(user.id)) return;
+    global.setTimeout(() => { void continueBoot(user); }, 0);
   }
 
-  async function bootPage(retry) {
-    if (booted) return F.auth.revalidate();
-    const actualUser = await (retry ? F.auth.revalidate() : F.auth.init());
-    if (!actualUser) return;
-    if (!F.auth.isVerified(actualUser.id)) { await retryChangedSession(); return; }
+  /*
+    Continuação do boot a partir de um usuário CUJO a sessão já foi
+    verificada (getUser). A interface é liberada imediatamente após a
+    verificação: a recuperação dos dados (vinculação, journal, hidratação
+    remota) acontece por trás da tela autenticada, sem manter a tela
+    "Verificando sua sessão…" visível além do necessário. A segurança
+    não muda: a escrita continua bloqueada até a ligação dos dados, e
+    qualquer mudança de sessão durante a recuperação reinicia o fluxo.
+  */
+  async function continueBoot(actualUser) {
     try {
       await F.authData.bind(actualUser);
     } catch (error) {
@@ -64,9 +73,16 @@
       return;
     }
     if (!F.auth.isVerified(actualUser.id)) { await retryChangedSession(); return; }
+    // O vínculo do legado pode ter exibido o painel de consentimento através
+    // do gate (bloqueio temporário). O bootData roda antes do unlock final,
+    // de modo que, quando a interface é liberada, o estado já está completo
+    // (e o "ready" não aparece antes da hidratação dos dados).
     prepareSkipTarget();
     F.bootData();
     if (typeof F.applyAppearance === "function") F.applyAppearance();
+    // Liberação definitiva: a interface autenticada fica pronta somente
+    // depois da hidratação dos dados.
+    if (!F.auth.unlock(actualUser.id, true)) return;
 
     const name = F.pageName();
     /*
@@ -85,7 +101,6 @@
     }
 
     if (name !== "onboarding") F.auth.clearReturn();
-    if (!F.auth.unlock(actualUser.id)) return;
     booted = true;
     const init = F.pages[name];
 
@@ -114,6 +129,14 @@
     global.addEventListener("pageshow", event => {
       if (event.persisted && F.auth.canWrite()) refreshAfterVisibility();
     });
+  }
+
+  async function bootPage(retry) {
+    if (booted) return F.auth.revalidate();
+    const actualUser = await (retry ? F.auth.revalidate() : F.auth.init());
+    if (!actualUser) return;
+    if (!F.auth.isVerified(actualUser.id)) { await retryChangedSession(); return; }
+    await continueBoot(actualUser);
   }
 
   function boot(retry) {

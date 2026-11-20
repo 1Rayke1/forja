@@ -183,7 +183,10 @@
     assertUser(uid);
     const initialOwner = owner();
     const hasJournal = global.localStorage.getItem(COPY + uid) !== null;
-    const rawLegacy = legacy();
+    // A conta já está vinculada neste navegador: o legado já foi filiado e
+    // copiado. Não refaz a varredura completa do armazenamento a cada
+    // navegação — só a primeira ligação precisa escaneá-lo.
+    const rawLegacy = initialOwner && initialOwner.userId === uid ? {} : legacy();
     let consent = false;
     if (!hasJournal && !initialOwner && Object.keys(rawLegacy).length) consent = await confirmLegacy(uid, Object.keys(rawLegacy).length);
     const prepared = await withBindingLock(async () => {
@@ -206,8 +209,11 @@
         saveJournal(uid, entry);
       }
       if (entry.phase === "preparing") copyToNamespace(uid, entry);
-      // Outra aba da conta legada pode ter seu próprio rascunho, ainda não copiado.
-      if (binding && binding.userId === uid) copyDrafts(uid, scan(global.sessionStorage, ""));
+      // Outra aba da conta legada pode ter seu próprio rascunho, ainda não
+      // copiado. Só importa na primeira ligação ou quando uma cópia
+      // interrompida ainda está sendo preparada; com journal confirmado os
+      // rascunhos já estão no namespace da conta (sem varredura desnecessária).
+      if (binding && binding.userId === uid && (!hasJournal || entry.phase === "preparing")) copyDrafts(uid, scan(global.sessionStorage, ""));
       assertUser(uid);
       return { checksum: entry.checksum, phase: entry.phase };
     }, consent || Boolean(initialOwner && initialOwner.userId === uid && !hasJournal));
