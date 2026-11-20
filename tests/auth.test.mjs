@@ -213,7 +213,7 @@ await test('16. Legado exige consentimento; strings, segurança e desconhecidos 
   assert.equal(row.raw_by_key['forja-auth-credencial'], undefined);
   assert.equal(row.raw_by_key['forja-backup-seguranca-v1'], undefined);
   assert.equal(row.checksum, checksum(row.raw_by_key));
-  assert.ok(fixture.requests.find(r => r.method === 'POST' && r.url.includes('/rest/')).headers.prefer.includes('resolution=ignore-duplicates'));
+  assert.ok(fixture.requests.find(r => r.method === 'POST' && r.url.includes('/rest/v1/user_data_imports')).headers.prefer.includes('resolution=ignore-duplicates'));
 });
 await test('17. Recusar o vínculo mantém o legado intocado e não o atribui à conta', async () => {
   const fixture = new AuthFixture(); const raw = JSON.stringify({ ...PROFILE, nomeExibicao: 'não vincular' });
@@ -273,10 +273,10 @@ await test('22. Readback divergente não conclui; retry é INSERT idempotente, n
   assert.equal(await app.F.authData.runInitialCopy(), true);
   assert.equal(fixture.imports.size, 1);
   assert.equal(fixture.requests.some(r => ['PATCH', 'PUT'].includes(r.method)), false);
-  const before = fixture.requests.filter(r => r.url.includes('/rest/')).length;
+  const before = fixture.requests.filter(r => r.url.includes('/rest/v1/user_data_imports')).length;
   app.F.store.write('forja-futuro-diario', { modificado: true });
   await app.F.authData.runInitialCopy();
-  assert.equal(fixture.requests.filter(r => r.url.includes('/rest/')).length, before, 'não deve sincronizar o uso diário');
+  assert.equal(fixture.requests.filter(r => r.url.includes('/rest/v1/user_data_imports')).length, before, 'não deve reenviar a cópia imutável para sincronizar uso diário');
 });
 await test('23. Falha remota deixa retry e conserva integralmente o journal local', async () => {
   const fixture = new AuthFixture(); fixture.failRest = true;

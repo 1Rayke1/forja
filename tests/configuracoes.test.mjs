@@ -288,7 +288,7 @@ await test("C11. Preferências de treino aponta para o planejador existente e ma
 
 await test("C12. Privacidade mantém backup, auditoria sem conteúdo pessoal e aviso de armazenamento local", async () => {
   const app = await boot({ [PROFILE_KEY]: profileSeed({ nomeExibicao: "Nome Sensível" }) }, PAGE + "#privacidade");
-  assert.match(app.text("#backup-status"), /permanecem apenas neste navegador/);
+  assert.match(app.text("#backup-status"), /pendentes ficam neste navegador até a sincronização/);
   assert.ok(app.$("#export-backup"));
   assert.ok(app.$("#import-backup-input"));
   app.$("#settings-storage-audit").open = true;

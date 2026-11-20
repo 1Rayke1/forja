@@ -258,19 +258,22 @@ for (const mode of [true, false]) {
         });
 
         // Parte 1: controller real interrompido em cleanupUntil no Chromium
-        const now0 = await page.evaluate(() => performance.timeOrigin + performance.now());
-        const lease = { finalAt: now0 + 120, expiresAt: now0 + 56, cleanupUntil: now0 + 88, timeoutMs: 4000 };
-        const ctrl = await page.evaluateHandle(installFn, '#target', lease);
-        const refAttrs = await page.evaluate(() => {
+        // Arm the short lease, inspect the iframe and cross cleanupUntil in ONE
+        // renderer task. CDP round trips under CPU load used to spend the lease
+        // before the test had even inspected the reference.
+        const ctrl = await page.evaluateHandle(new Function(`
+          const now0 = performance.timeOrigin + performance.now();
+          const lease = { finalAt: now0 + 120, expiresAt: now0 + 56, cleanupUntil: now0 + 88, timeoutMs: 4000 };
+          const state = (${installFn})('#target', lease);
           const ref = document.querySelector('iframe[data-forja-scroll-reference]');
-          return ref ? {
-            inert: ref.inert,
-            tabIndex: ref.tabIndex,
-            ariaHidden: ref.getAttribute('aria-hidden'),
-            pointerEvents: getComputedStyle(ref).pointerEvents,
-            sandbox: ref.getAttribute('sandbox')
-          } : null;
-        });
+          window.referenceAttributes = ref && { inert: ref.inert, tabIndex: ref.tabIndex,
+            ariaHidden: ref.getAttribute('aria-hidden'), pointerEvents: getComputedStyle(ref).pointerEvents,
+            sandbox: ref.getAttribute('sandbox') };
+          const until = performance.now() + 110;
+          while (performance.now() < until) {}
+          return state;
+        `));
+        const refAttrs = await page.evaluate(() => window.referenceAttributes);
         assert.deepEqual(refAttrs, {
           inert: true,
           tabIndex: -1,
@@ -279,11 +282,6 @@ for (const mode of [true, false]) {
           sandbox: 'allow-same-origin'
         });
 
-        // Simula bloqueio real da main thread do renderer cruzando cleanupUntil antes do timer expirar
-        await page.evaluate(() => {
-          const until = performance.now() + 110;
-          while (performance.now() < until) {}
-        });
         const mutsBefore = await page.evaluate(() => window.muts);
         const reqsBefore = await page.evaluate(() => window.reqs);
         const c1 = await ctrl.evaluate(s => s.cleanup(false));

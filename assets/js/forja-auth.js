@@ -291,7 +291,7 @@
   function invalidate() {
     if (dataUid) needsDataRefresh = true;
     revision += 1;
-    for (const request of requests) if (request.kind === "verification") request.controller.abort();
+    for (const request of requests) if (["verification", "data"].includes(request.kind)) request.controller.abort();
     user = null;
     verifiedToken = "";
     global.clearTimeout(expiryTimer);
@@ -664,8 +664,23 @@
       }
     }
   }
+  // The data client cannot switch accounts or refresh. Pin the verified JWT
+  // through every SDK await/retry and abort outstanding HTTP on invalidation.
+  function dataClient(uid) {
+    const token = verifiedToken, rev = revision, cfg = config();
+    const check = () => {
+      if (!isVerified(uid) || revision !== rev || verifiedToken !== token) {
+        const error = stale(); error.sessionChanged = true; throw error;
+      }
+    };
+    check();
+    return { check, api: global.supabase.createClient(cfg.url, cfg.key, {
+      accessToken: async () => { check(); return token; }, db: { retry: false },
+      global: { fetch: (url, options) => { check(); return boundedFetch(url, options, "data"); } }
+    }) };
+  }
   F.auth = Object.freeze({
-    init, revalidate, startGoogle, signOut, isVerified, unlock, gate, safeReturn, resumeUrl, handleStorage, isLogoutCurrent,
+    dataClient, init, revalidate, startGoogle, signOut, isVerified, unlock, gate, safeReturn, resumeUrl, handleStorage, isLogoutCurrent,
     clearReturn, setReturn, loginUrl,
     get client() { return sdk(); },
     get storageKey() { return storageKey; },

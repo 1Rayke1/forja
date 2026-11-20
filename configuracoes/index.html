@@ -74,7 +74,7 @@
       <h2 class="section-title" id="account-heading">Sua conta Google</h2>
       <p id="account-email"></p>
       <button class="secondary-button" id="account-signout" type="button">Sair da conta Google</button>
-      <p class="field-hint">Sair bloqueia o acesso. Os dados locais da conta não são apagados.</p>
+      <p class="field-hint">Sair bloqueia o acesso. Alterações pendentes ficam neste navegador e voltam à fila quando você entrar com a mesma conta.</p>
     </section>
 
     <section class="settings-group" aria-labelledby="settings-group-profile">
@@ -145,7 +145,7 @@
           <label class="field-label" for="prof-nome">Nome de exibição</label>
           <input id="prof-nome" class="field-input" type="text" maxlength="24"
             placeholder="Digite seu primeiro nome" autocomplete="nickname" spellcheck="false">
-          <p class="field-hint">Use seu primeiro nome. Ele aparece na saudação da Home e no cartão desta tela. Fica salvo neste navegador, junto do seu perfil.</p>
+          <p class="field-hint">Use seu primeiro nome. Ele aparece na saudação da Home e no cartão desta tela. É sincronizado com o perfil da sua conta.</p>
         </div>
       </div>
       <p class="field-error" id="prof-nome-error" role="status" hidden></p>
@@ -245,7 +245,7 @@
         <input type="checkbox" id="pref-reduced-motion" role="switch" aria-describedby="pref-motion-hint">
         <span class="settings-switch-track" aria-hidden="true"></span>
       </label>
-      <p class="settings-save-status" id="appearance-status" role="status" aria-live="polite">As alterações são salvas automaticamente neste navegador.</p>
+      <p class="settings-save-status" id="appearance-status" role="status" aria-live="polite">As alterações são salvas localmente e sincronizadas com sua conta.</p>
       <button type="button" class="secondary-button ui-button full-width" id="appearance-reset">Restaurar aparência padrão</button>
     </div>
     <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
@@ -255,8 +255,13 @@
     <h2 class="ui-visually-hidden" id="privacy-heading">Privacidade e dados</h2>
     <section class="settings-note" aria-labelledby="storage-heading">
     <h2 class="section-title" id="storage-heading">Onde seus dados ficam</h2>
-    <p>Os dados de uso diário ficam neste navegador, separados por conta Google. Uma cópia inicial verificável é enviada ao Supabase. Não há sincronização contínua nem restauração automática entre aparelhos. Para levar seus dados para outro aparelho, exporte um backup e importe-o lá.</p>
+    <p>Os dados são sincronizados com a conta Google no Supabase. Aguarde a confirmação antes de limpar o navegador.</p>
   </section>
+    <section class="settings-note" data-sync-conflicts hidden>
+      <h2 class="section-title">Versões em conflito</h2>
+      <p>Quando o mesmo campo muda nos dois aparelhos, a versão do servidor prevalece. Baixe as alternativas preservadas neste navegador para compará-las.</p>
+      <button type="button" class="secondary-button" data-sync-export>Baixar versões preservadas</button>
+    </section>
     <section class="settings-note" aria-labelledby="initial-copy-heading">
       <h2 class="section-title" id="initial-copy-heading">Cópia inicial no Supabase</h2>
       <p id="initial-copy-status" role="status" aria-live="polite">Aguardando conferência da cópia inicial.</p>
@@ -277,7 +282,7 @@
     </div>
     <input type="file" id="import-backup-input" accept=".json,application/json" hidden>
     <div class="backup-meta" id="backup-status">
-      Seus dados de uso diário permanecem apenas neste navegador. A cópia inicial não é backup contínuo. Faça backups regulares.
+      A sincronização diária é separada da cópia inicial. Faça backups regulares.
     </div>
   </section>
     <details class="settings-disclosure" id="settings-storage-audit">
@@ -291,7 +296,7 @@
     <h2 class="ui-visually-hidden" id="help-heading">Central de ajuda</h2>
     <details class="settings-disclosure" open>
       <summary class="settings-disclosure-summary"><h3>Onde meus dados ficam salvos?</h3></summary>
-      <div class="settings-disclosure-content"><p>No armazenamento local deste navegador. Eles não sincronizam entre aparelhos. Exporte um backup em <a href="#privacidade">Privacidade e dados</a> para transferi-los ou guardá-los fora do navegador.</p></div>
+      <div class="settings-disclosure-content"><p>Neste navegador e, após a sincronização, no Supabase da sua conta Google. Exporte um backup em <a href="#privacidade">Privacidade e dados</a> para transferi-los ou guardá-los fora do navegador.</p></div>
     </details>
     <details class="settings-disclosure">
       <summary class="settings-disclosure-summary"><h3>Como mudo o nome que aparece no app?</h3></summary>
@@ -307,7 +312,7 @@
     </details>
     <details class="settings-disclosure">
       <summary class="settings-disclosure-summary"><h3>Existe conta para sair ou senha para recuperar?</h3></summary>
-      <div class="settings-disclosure-content"><p>Sim. O acesso exige Google. Use “Sair da conta Google” no início das Configurações para encerrar a sessão; seus dados locais são preservados. “Sair das configurações” apenas volta ao Início. A recuperação de acesso é feita no Google, sem senha própria no FORJA. Se limpar o navegador, restaure um backup JSON exportado: não há restauração remota automática.</p></div>
+      <div class="settings-disclosure-content"><p>Sim. O acesso exige Google. Use “Sair da conta Google” no início das Configurações para encerrar a sessão; seus dados locais são preservados. “Sair das configurações” apenas volta ao Início. A recuperação de acesso é feita no Google, sem senha própria no FORJA. Ao entrar novamente com a mesma conta, o FORJA recupera os dados já sincronizados. Um backup JSON também permite restaurar uma cópia exportada.</p></div>
     </details>
     <a class="settings-return" href="#inicio"><span class="ui-icon" data-icon="arrow-left" aria-hidden="true"></span>Voltar às configurações</a>
   </section>
@@ -331,7 +336,7 @@
       <h2 class="screen-title" id="about-heading">FORJA</h2>
       <p class="settings-version" id="settings-version">Versão 2.0.0</p>
       <p class="settings-description">Disciplina diária: calendário, missões e treinos com rotinas A/B/C. Menos promessas. Mais ação.</p>
-      <p class="field-hint">Acesso obrigatório por Google. Dados de uso diário locais por conta, com cópia inicial no Supabase e sem sincronização contínua.</p>
+      <p class="field-hint">Acesso obrigatório por Google. Dados de uso diário sincronizados por conta.</p>
     </div>
     <details class="settings-disclosure credits-panel" id="creditos-imagens" aria-labelledby="creditos-imagens-heading">
 <summary class="settings-disclosure-summary"><h2 class="section-title" id="creditos-imagens-heading">Créditos e licenças das ilustrações</h2></summary>
@@ -442,7 +447,7 @@
 <footer class="site-footer">
   <div class="container">
     <p class="footer-motto">MENOS PROMESSAS. MAIS AÇÃO.</p>
-    <p class="storage-note">Os dados de uso diário ficam salvos somente neste navegador, separados por conta Google. Há uma cópia inicial no Supabase, sem sincronização contínua.</p>
+    <p class="storage-note">Sincronização com o Supabase: <span role="status" data-sync-status>Recuperando dados…</span> <button type="button" data-sync-retry hidden>Tentar novamente</button></p>
     <p class="footer-credits">Exercise data by <a href="https://repdb.co" target="_blank" rel="noopener noreferrer" data-external-credit="repdb">RepDB (repdb.co)</a> · <a href="../configuracoes/index.html#creditos-imagens">Créditos e licenças das ilustrações</a></p>
   </div>
 </footer>
@@ -456,6 +461,8 @@
 <script src="../assets/js/forja-auth.js" defer></script>
 <script src="../assets/js/forja-store.js" defer></script>
 <script src="../assets/js/forja-auth-data.js" defer></script>
+<script src="../assets/js/forja-cloud-codec.js" defer></script>
+<script src="../assets/js/forja-cloud.js" defer></script>
 <script src="../assets/js/forja-dados.js" defer></script>
 <script src="../assets/js/forja-metricas.js" defer></script>
 <script src="../assets/js/forja-exercicios-dados.js" defer></script>

@@ -959,7 +959,7 @@ function updateBackupStatus() {
   if (!status || !undoButton) return;
 
   const parts = [
-    "Seus dados de uso diário permanecem apenas neste navegador. A cópia inicial não é backup contínuo. Faça backups regulares."
+    "Alterações pendentes ficam neste navegador até a sincronização. Faça backups regulares."
   ];
 
   if (lastExportAt) {

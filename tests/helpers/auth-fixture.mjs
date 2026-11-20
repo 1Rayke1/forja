@@ -38,7 +38,7 @@ export class TestLocks {
 }
 export class AuthFixture {
   constructor() {
-    this.sessions = new Map(); this.refreshes = new Map(); this.codes = new Map(); this.imports = new Map();
+    this.sessions = new Map(); this.refreshes = new Map(); this.codes = new Map(); this.imports = new Map(); this.rows = new Map();
     this.requests = []; this.sequence = 0; this.userDelay = 0; this.restDelay = 0;
     this.userErrors = new Map();
     this.offline = false; this.failRest = false; this.failLogout = false; this.badReadback = false;
@@ -115,8 +115,30 @@ export class AuthFixture {
       if (!known || known.expires_at <= Date.now() / 1000) return json({ code: 'bad_jwt', message: 'invalid JWT' }, 401);
       return json(known.user);
     }
+    const table = url.pathname.split('/')[3];
+    if (url.pathname.startsWith('/rest/v1/') && ['profiles','goals','activity_history','progress_entries','routines','user_settings','user_preferences'].includes(table)) {
+      if (this.failSync) return json({message:'unavailable'},503);
+      if (!known || known.user.is_anonymous || known.user.app_metadata.provider !== 'google') return json({message:'denied'},403);
+      const uid = known.user.id, pk = r => JSON.stringify([table,r.user_id,r.id]);
+      let rows = [...this.rows].filter(([key,row]) => JSON.parse(key)[0] === table && row.user_id === uid).map(([,row]) => row);
+      for (const [field,filter] of url.searchParams) {
+        const get = r => field === 'data->>rev' ? r.data.rev : r[field];
+        if (filter.startsWith('eq.')) rows = rows.filter(r => get(r) === filter.slice(3));
+        if (filter.startsWith('gt.')) rows = rows.filter(r => get(r) > filter.slice(3));
+      }
+      if (method === 'POST') {
+        if (body.user_id !== uid) return json({message:'denied'},403);
+        if (this.rows.has(pk(body))) return json({code:'23505'},409);
+        this.rows.set(pk(body),body); return json([body],201);
+      }
+      if (method === 'DELETE') rows.forEach(row => this.rows.delete(pk(row)));
+      if (method === 'PATCH') rows.forEach(row => Object.assign(row,body));
+      const order = url.searchParams.get('order')?.split('.')[0];
+      if (order) rows.sort((a,b) => a[order] < b[order] ? -1 : 1);
+      return json(rows.slice(0,Number(url.searchParams.get('limit') || rows.length)));
+    }
     if (url.pathname === '/rest/v1/user_data_imports') {
-      if (this.failRest) return json({ code: 'fixture_unavailable', message: 'unavailable' }, 503);
+      if (this.failRest && (method !== 'GET' || url.searchParams.has('checksum'))) return json({ code: 'fixture_unavailable', message: 'unavailable' }, 503);
       if (!known || known.user.is_anonymous || known.user.app_metadata.provider !== 'google') return json({ code: '42501', message: 'RLS' }, 403);
       const uid = known.user.id;
       if (method === 'PATCH' || method === 'PUT') return json({ code: '42501', message: 'UPDATE denied' }, 403);
@@ -134,6 +156,9 @@ export class AuthFixture {
       const requestedUid = url.searchParams.get('user_id')?.replace(/^eq\./, '');
       const requestedHash = url.searchParams.get('checksum')?.replace(/^eq\./, '');
       let rows = [...this.imports.values()].filter(row => row.user_id === uid && (!requestedUid || row.user_id === requestedUid) && (!requestedHash || row.checksum === requestedHash)).map(row => structuredClone(row));
+      const cursor = url.searchParams.get('checksum');
+      if (cursor?.startsWith('gt.')) rows = [...this.imports.values()].filter(r => r.user_id === uid && r.checksum > cursor.slice(3));
+      rows.sort((a,b) => a.checksum.localeCompare(b.checksum));
       if (method === 'DELETE') {
         for (const row of rows) this.imports.delete(row.user_id + ':' + row.checksum);
         return json(rows);

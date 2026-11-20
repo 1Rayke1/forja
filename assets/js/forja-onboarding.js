@@ -180,7 +180,7 @@
       obrigatorio: true,
       rotuloCurto: "Altura",
       titulo: "Qual é a sua altura?",
-      descricao: "Fica guardada só no seu perfil, neste aparelho. Nenhum cálculo é feito a partir dela sem você saber.",
+      descricao: "Fica guardada no perfil da sua conta. Nenhum cálculo é feito a partir dela sem você saber.",
       min: 80,
       max: 250,
       passoValor: 1,
@@ -203,7 +203,7 @@
       obrigatorio: true,
       rotuloCurto: "Peso atual",
       titulo: "Qual é o seu peso atual?",
-      descricao: "Um valor aproximado já basta. Fica guardado só neste aparelho.",
+      descricao: "Um valor aproximado já basta. Fica guardado no perfil da sua conta.",
       min: 25,
       max: 350,
       passoValor: 0.5,
@@ -269,7 +269,7 @@
       obrigatorio: true,
       rotuloCurto: "Ano de nascimento",
       titulo: "Em que ano você nasceu?",
-      descricao: "Guardamos apenas o ano, neste aparelho.",
+      descricao: "Guardamos apenas o ano no seu perfil.",
       min: 1900,
       max: ANO_ATUAL,
       passoValor: 1,
@@ -1426,7 +1426,7 @@
     host.appendChild(criar(
       "p",
       "onboarding-note",
-      "Nada foi gravado ainda: o perfil só é salvo na próxima tela, apenas neste navegador. " +
+      "Nada foi gravado ainda: o perfil só é salvo na próxima tela e sincronizado com sua conta. " +
       "Depois você pode alterar ou limpar os dados em Perfil."
     ));
   }
@@ -1467,7 +1467,7 @@
     host.appendChild(criar(
       "p",
       "onboarding-note",
-      "Ao entrar, o perfil é gravado apenas neste navegador. Você pode refazer este " +
+      "Ao entrar, o perfil é salvo e colocado na fila de sincronização. Você pode refazer este " +
       "cadastro ou limpar os dados quando quiser em Perfil."
     ));
   }
@@ -1692,7 +1692,7 @@
 
       F.flash(
         metasSalvas
-          ? "Cadastro concluído. Seu perfil está salvo neste aparelho."
+          ? "Cadastro concluído. Confira a sincronização antes de trocar de aparelho."
           : "Perfil salvo. As metas semanais não puderam ser criadas — configure em Progresso.",
         metasSalvas ? "info" : "error"
       );

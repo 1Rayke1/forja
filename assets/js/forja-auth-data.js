@@ -2,7 +2,7 @@
   Adapta o store existente a um namespace por UID, sem trocar/apagar o conjunto
   global entre contas. Chaves e formatos lógicos do FORJA continuam iguais.
   O legado original é preservado byte a byte; um journal verificável permite
-  retomar a cópia local. Só uma cópia inicial vai ao servidor, NÃO uso diário.
+  retomar a cópia local. A cópia inicial é independente da sincronização diária em forja-cloud.
 */
 (function (global) {
   "use strict";
@@ -158,12 +158,23 @@
   function scopedDriver(uid) {
     const prefix = DATA + uid + ":";
     function check(key) { assertUser(uid); if (key !== undefined && !dataKey(key)) throw new Error("Chave privada não pertence ao conjunto de dados."); }
+    const seen = new Map();
+    function write(key,raw) {
+      check(key);
+      const before = global.localStorage.getItem(prefix + key);
+      const observed = seen.has(key) ? seen.get(key) : before;
+      const committed = F.cloud.record(uid,key,observed,raw,before,value => {
+        if (value === null) global.localStorage.removeItem(prefix + key);
+        else checkedWrite(global.localStorage,prefix + key,value);
+      });
+      seen.set(key,committed);
+    }
     return {
       id: "account-local-storage",
       available() { try { check(); return Boolean(global.localStorage); } catch (_) { return false; } },
-      getItem(key) { check(key); return global.localStorage.getItem(prefix + key); },
-      setItem(key, value) { check(key); checkedWrite(global.localStorage, prefix + key, String(value)); },
-      removeItem(key) { check(key); global.localStorage.removeItem(prefix + key); },
+      getItem(key) { check(key); const raw = global.localStorage.getItem(prefix + key); seen.set(key,raw); return raw; },
+      setItem(key, value) { write(key,String(value)); },
+      removeItem(key) { write(key,null); },
       keys() { check(); return Object.keys(scan(global.localStorage, prefix)); }
     };
   }
@@ -175,7 +186,7 @@
     const rawLegacy = legacy();
     let consent = false;
     if (!hasJournal && !initialOwner && Object.keys(rawLegacy).length) consent = await confirmLegacy(uid, Object.keys(rawLegacy).length);
-    await withBindingLock(async () => {
+    const prepared = await withBindingLock(async () => {
       assertUser(uid);
       let entry = await readJournal(uid);
       let binding = owner();
@@ -198,12 +209,21 @@
       // Outra aba da conta legada pode ter seu próprio rascunho, ainda não copiado.
       if (binding && binding.userId === uid) copyDrafts(uid, scan(global.sessionStorage, ""));
       assertUser(uid);
-      boundUid = uid;
-      F.store.useDriver(scopedDriver(uid));
-      copyState = entry.phase === "confirmed" ? "confirmed" : "pending";
-      announce();
+      return { checksum: entry.checksum, phase: entry.phase };
     }, consent || Boolean(initialOwner && initialOwner.userId === uid && !hasJournal));
+    await F.cloud.recover(uid, { read: () => remoteMap(scan(global.localStorage, DATA + uid + ":")),
+      apply(key, raw) {
+        assertUser(uid);
+        if (!dataKey(key) || key === F.KEYS.safety) throw new Error("Chave inválida.");
+        const physical = DATA + uid + ":" + key;
+        if (raw === null) global.localStorage.removeItem(physical);
+        else checkedWrite(global.localStorage, physical, raw);
+      }, digest, validRaw, original: hasJournal ? prepared.checksum : null });
     assertUser(uid);
+    boundUid = uid;
+    F.store.useDriver(scopedDriver(uid));
+    copyState = prepared.phase === "confirmed" ? "confirmed" : "pending";
+    announce();
     return true;
   }
   function announce() {
@@ -222,7 +242,7 @@
       throw new Error("A cópia inicial excede 12 MiB. Os dados locais foram preservados; exporte um backup e peça suporte.");
     }
     check(); copyState = "sending"; copyMessage = ""; announce();
-    const api = F.auth.client;
+    const api = F.auth.dataClient(uid).api;
     const payload = { user_id: uid, checksum: entry.checksum, format_version: 1, raw_by_key: raw };
     // INSERT ON CONFLICT DO NOTHING. UPDATE é negado no banco e nunca é pedido.
     const inserted = await api.from("user_data_imports").upsert(payload, { onConflict: "user_id,checksum", ignoreDuplicates: true });

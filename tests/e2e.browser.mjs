@@ -2069,8 +2069,8 @@ await check('Armazenamento local é informado em todas as páginas', async () =>
   for (const rel of ['', 'treino/', 'progresso/', 'configuracoes/', 'onboarding/index.html']) {
     await go(rel);
     const body = await page.evaluate(() => document.body.textContent);
-    assert.match(body, /dados de uso diário.*somente neste navegador/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
-    assert.match(body, /cópia inicial no Supabase, sem sincronização contínua/i, 'Aviso de cópia inicial ausente em ' + (rel || 'index'));
+    assert.match(body, /Sincronização com o Supabase/i, 'Aviso de armazenamento local ausente em ' + (rel || 'index'));
+    assert.match(body, /Sincronizado|Sincronizando|Alterações pendentes/i, 'Aviso de cópia inicial ausente em ' + (rel || 'index'));
   }
 });
 

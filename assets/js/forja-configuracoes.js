@@ -22,7 +22,7 @@
     "editar-perfil": { title: "Editar perfil", subtitle: "Altere seu nome e suas informações", icon: "user" },
     notificacoes: { title: "Notificações", subtitle: "Gerencie os avisos durante o treino", icon: "bell" },
     aparencia: { title: "Aparência", subtitle: "Escolha o tema e o movimento do app", icon: "palette" },
-    privacidade: { title: "Privacidade e dados", subtitle: "Seus dados ficam neste navegador", icon: "shield-check" },
+    privacidade: { title: "Privacidade e dados", subtitle: "Armazenamento local e sincronização", icon: "shield-check" },
     ajuda: { title: "Central de ajuda", subtitle: "Respostas para usar o FORJA com tranquilidade", icon: "help-circle" },
     contato: { title: "Fale conosco", subtitle: "Canal oficial do projeto no GitHub", icon: "mail" },
     sobre: { title: "Sobre o FORJA", subtitle: "Disciplina diária, sem promessas vazias", icon: "info" }
@@ -269,7 +269,7 @@
     const messages = {
       pending: "Cópia inicial pendente. Os dados locais estão preservados.",
       sending: "Enviando e conferindo a cópia inicial…",
-      confirmed: "Cópia inicial conferida no Supabase. Não há sincronização contínua.",
+      confirmed: "Cópia inicial conferida no Supabase. A sincronização diária é independente.",
       error: copy.message
     };
     status.textContent = messages[copy.state] || messages.pending;

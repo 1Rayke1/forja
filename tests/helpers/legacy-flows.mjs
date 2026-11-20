@@ -157,8 +157,10 @@ export async function completeSet(app) {
 export async function endSession(app, action) {
   app.click("#end-session");
   await wait(20);
+  const destination = action === "discard" ? new URL(app.F.modalityUrl(app.F.state.activeWorkout.modality), app.w.location.href) : null;
   app.modalAction(action);
-  await wait(35);
+  if (destination) await waitPath(app, destination.pathname);
+  else await wait(35);
 }
 
 export function formatSelected(w, year, month, day) {
