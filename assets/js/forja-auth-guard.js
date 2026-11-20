@@ -6,7 +6,10 @@
   addEventListener("pagehide", lock);
   addEventListener("pageshow", event => {
     if (event.persisted && !event.forjaVerified) {
-      lock();
+      // Sessão ainda verificada em memória: a revalidação é silenciosa e a
+      // interface autenticada já exibida permanece. Só bloqueia o retorno
+      // do BFCache quando não há sessão verificada (fail closed).
+      if (!(window.Forja && Forja.auth && Forja.auth.isVerified())) lock();
       // As telas só recebem o retorno BFCache depois da revalidação. Não
       // deixamos um snapshot antigo redesenhar/ler dados da conta anterior.
       event.stopImmediatePropagation();

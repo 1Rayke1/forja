@@ -12,7 +12,14 @@ async function test(name, task) {
 async function open(fixture = new AuthFixture(), { page = 'index.html', local = twoAccounts(fixture) } = {}) {
   const app = new App({ fixture }); await app.load(BASE + page, { local, session: {} }); return app;
 }
-const ready = app => until(() => app.d.documentElement.dataset.forjaAuth === 'ready', 'conteúdo não foi recuperado');
+// Pronto = sessão verificada + (dados vinculados, quando a página usa o
+// namespace da conta) + boot completo. O atributo "ready" libera a interface
+// antes da ligação dos dados; a administração não usa o namespace da conta.
+const ready = async app => {
+  await until(() => app.d.documentElement.dataset.forjaAuth === 'ready', 'conteúdo não foi recuperado');
+  if (app.F.authData) await until(() => app.F.authData?.userId, 'dados da conta não foram vinculados');
+  if (app.F.ready) await app.F.ready;
+};
 const guest = app => until(() => app.d.body.dataset.page === 'login', 'não retornou ao login');
 async function beginGoogleB(app, fixture) {
   await app.F.auth.startGoogle();
@@ -180,14 +187,20 @@ await test('11. HTTP normal: corpo completo dentro do prazo mantém sessão e da
     assert.equal(transport.signals[0].aborted, false); assert.equal(transport.requests[0].finishAttempts, 1);
   } finally { await transport.stop(); }
 });
-await test('12. Cabeçalhos chegam primeiro: conteúdo só é liberado após corpo atrasado dentro de 12 s', async () => {
+await test('12. Cabeçalhos chegam primeiro: corpo atrasado conclui a revalidação silenciosa sem bloqueio', async () => {
   const fixture = new AuthFixture(), app = await open(fixture); await ready(app);
   const transport = await unitBodyTransport(app);
   try {
     const entered = transport.queue('delayed', fixture.user(USERS.A), 200);
     const checking = app.F.auth.revalidate(); const request = await entered;
-    assert.equal(request.finishAttempts, 0); assert.equal(app.d.documentElement.dataset.forjaAuth, 'locked');
-    await checking; assert.equal(app.d.documentElement.dataset.forjaAuth, 'ready'); assert.equal(transport.signals[0].aborted, false);
+    // Sessão já verificada: a revalidação é silenciosa e a interface permanece
+    // liberada enquanto o corpo atrasado ainda não chegou.
+    assert.equal(request.finishAttempts, 0);
+    assert.equal(app.d.documentElement.dataset.forjaAuth, 'ready');
+    await checking;
+    assert.equal(app.d.documentElement.dataset.forjaAuth, 'ready');
+    assert.equal(app.F.auth.isVerified(), true);
+    assert.equal(transport.signals[0].aborted, false);
   } finally { await transport.stop(); }
 });
 await test('13. Corpo atrasado além de 12 s não altera B validada no retry seguinte', async () => {
