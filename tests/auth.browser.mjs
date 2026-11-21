@@ -250,6 +250,31 @@ try {
     await goto(page, base + 'treino/index.html'); await waitLogin(page);
     assert.equal(await page.evaluate(() => Forja.auth.isVerified()), false, 'navegação sem sessão deve bloquear');
   });
+  await test('13h. Navegação com sessão válida não exibe a tela de verificação', async ({ fixture, page }) => {
+    await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
+    // Marcador de sessão verificada gravado pelo módulo auth após o getUser.
+    assert.ok(await page.evaluate(key => localStorage.getItem(key), 'forja-auth-ready-v1'), 'marcador deve existir');
+    // Navega para outra página HTML (novo documento). Imediatamente após o
+    // DOM carregar, o gate de verificação NÃO deve estar visível: a página
+    // surge em "warm" (ou já "ready"), sem reiniciar "Verificando sua sessão…".
+    await goto(page, base + 'treino/index.html');
+    const early = await page.evaluate(() => {
+      const gate = document.querySelector('[data-auth-gate]');
+      return {
+        attr: document.documentElement.dataset.forjaAuth,
+        gateDisplay: gate ? getComputedStyle(gate).display : 'ausente',
+        statusText: document.getElementById('auth-gate-status')?.textContent,
+        contentDisplay: getComputedStyle(document.getElementById('conteudo')).display
+      };
+    });
+    console.log('   estado imediato na navegação: attr=' + early.attr + ' gateDisplay=' + early.gateDisplay);
+    assert.ok(['warm', 'ready'].includes(early.attr), 'navegação com sessão válida não deve começar locked: ' + early.attr);
+    assert.equal(early.gateDisplay, 'none', 'gate de verificação deve estar oculto na navegação');
+    assert.notEqual(early.contentDisplay, 'none', 'conteúdo deve aparecer sem tela intermediária');
+    await waitReady(page);
+    assert.equal(await page.evaluate(() => Forja.auth.user.id), USERS.A);
+    assert.equal(await page.evaluate(() => Forja.auth.isVerified()), true);
+  });
   await test('13f. Falha definitiva de autenticação bloqueia no pagehide', async ({ fixture, page }) => {
     await installBrowserAuth(page, fixture, localServer.origin); await goto(page, base); await waitReady(page);
     // Bloqueia a navegação para login, mantendo a página interna para observar o pagehide no estado travado.
