@@ -174,6 +174,10 @@
     return "";
   }
 
+  function greetingForHour(hour) {
+    return hour >= 5 && hour < 12 ? "Bom dia," : hour >= 12 && hour < 18 ? "Boa tarde," : "Boa noite,";
+  }
+
   function renderGreeting() {
     var title = byId("home-title");
     var subtitle = byId("home-subtitle");
@@ -182,12 +186,64 @@
     var name = displayName();
 
     var hour = new Date().getHours();
-    var greeting = hour < 12 ? "Bom dia," : hour < 18 ? "Boa tarde," : "Boa noite,";
+    var greeting = greetingForHour(hour);
     title.textContent = "";
     title.appendChild(el("span", "home-greeting-time", greeting));
     title.appendChild(el("strong", "home-greeting-name", (name || "Guerreiro") + "."));
     subtitle.textContent = "Disciplina hoje. Resultados amanhã.";
     title.setAttribute("aria-label", greeting + " " + (name || "Guerreiro"));
+  }
+
+  /* A escolha dura uma visita; sessionStorage só evita repetição na aba. */
+  var motivationalMessages = [
+    "Foco hoje, força amanhã.",
+    "Um passo de cada vez.",
+    "Seu esforço vale a pena.",
+    "A rotina cria força.",
+    "Siga firme no seu caminho.",
+    "Cada dia conta para você.",
+    "Seu ritmo move você.",
+    "Evolua sem deixar de agir.",
+    "Sua força vem da ação.",
+    "Vá em frente, sem parar."
+  ];
+  var previousMotivation = -1;
+  var motivationStorageKey = "forja-home-motivacao-anterior";
+  var greetingTimer = null;
+
+  function renderMotivation() {
+    var target = byId("home-motivation");
+    if (!target) return;
+    try {
+      var saved = global.sessionStorage.getItem(motivationStorageKey);
+      if (previousMotivation < 0 && saved !== null && /^\d+$/.test(saved) && Number(saved) < motivationalMessages.length) {
+        previousMotivation = Number(saved);
+      }
+    } catch (error) { /* Sem armazenamento, evita repetição enquanto a página existir. */ }
+    var count = motivationalMessages.length;
+    var index = Math.floor(Math.random() * (previousMotivation >= 0 ? count - 1 : count));
+    if (previousMotivation >= 0 && index >= previousMotivation) index++;
+    previousMotivation = index;
+    target.textContent = motivationalMessages[index];
+    try { global.sessionStorage.setItem(motivationStorageKey, String(index)); } catch (error) { /* opcional */ }
+  }
+
+  function scheduleGreetingRefresh() {
+    if (greetingTimer !== null) return;
+    greetingTimer = global.setTimeout(function () {
+      greetingTimer = null;
+      refreshGreetingIfNeeded();
+      scheduleGreetingRefresh();
+    }, 30000);
+  }
+
+  function refreshGreetingIfNeeded() {
+    if (!isHomeActive()) return;
+    var current = byId("home-title");
+    var time = current && current.querySelector(".home-greeting-time");
+    var hour = new Date().getHours();
+    var expected = greetingForHour(hour);
+    if (!time || time.textContent !== expected) renderGreeting();
   }
 
   /* ------------------------------------------------------------------ */
@@ -1300,6 +1356,8 @@
   F.pages.inicio = function initInicio() {
     if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
     renderHome();
+    renderMotivation();
+    scheduleGreetingRefresh();
     var calendarLink = byId("home-calendar-shortcut");
     if (calendarLink) calendarLink.addEventListener("click", function () {
       var deep = byId("home-deep");
@@ -1328,8 +1386,14 @@
     applyKeyUpdateToHome(event.key, { syncMemory: true });
   });
 
+  doc.addEventListener("visibilitychange", function () {
+    if (!doc.hidden) refreshGreetingIfNeeded();
+  });
+
   global.addEventListener("pageshow", function (event) {
     if (!isHomeActive()) return;
+    refreshGreetingIfNeeded();
+    if (event && event.persisted) renderMotivation();
 
     var currentSig = homeStorageSignature();
     var currentDay = F.dateKey ? F.dateKey(new Date()) : "";
