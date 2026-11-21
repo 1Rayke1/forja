@@ -181,10 +181,13 @@
 
     var name = displayName();
 
-    /* Sem nome cadastrado a saudação é neutra — nunca um nome de exemplo. */
-    title.textContent = name ? "Olá, " + name + "!" : "Olá!";
-    subtitle.textContent = "Hora de evoluir ainda mais.";
-    title.setAttribute("aria-label", name ? "Olá, " + name : "Olá");
+    var hour = new Date().getHours();
+    var greeting = hour < 12 ? "Bom dia," : hour < 18 ? "Boa tarde," : "Boa noite,";
+    title.textContent = "";
+    title.appendChild(el("span", "home-greeting-time", greeting));
+    title.appendChild(el("strong", "home-greeting-name", (name || "Guerreiro") + "."));
+    subtitle.textContent = "Disciplina hoje. Resultados amanhã.";
+    title.setAttribute("aria-label", greeting + " " + (name || "Guerreiro"));
   }
 
   /* ------------------------------------------------------------------ */
@@ -262,7 +265,7 @@
 
     var eyebrow = el("p", "home-action-eyebrow");
     eyebrow.appendChild(icon(routine ? "calendar" : "plus", "home-action-eyebrow-icon"));
-    eyebrow.appendChild(doc.createTextNode(routine ? "Treino do dia" : "Comece por aqui"));
+    eyebrow.appendChild(doc.createTextNode("Treino de hoje"));
     main.appendChild(eyebrow);
 
     var title = el("h2", "home-action-title", "");
@@ -322,7 +325,7 @@
       ? "Abrir " + routine.name + " em Treinos"
       : "Abrir Treinos");
     open.appendChild(icon("chevron-right"));
-    card.appendChild(open);
+    /* A ação principal abaixo é a única entrada para o treino. */
 
     var button;
     if (routine) {
@@ -792,80 +795,47 @@
   function renderProgress() {
     var host = byId("home-progress-body");
     if (!host) return;
-
     clear(host);
-
-    var records = history().filter(function (record) {
-      return record && typeof record === "object" && !Array.isArray(record);
-    });
-
-    var series = buildEvolutionSeries(records);
-
-    if (!series) {
-      progressEmpty(host);
-      return;
+    var data = computeMetrics();
+    var goal = null;
+    try {
+      var progress = F.metricas.goalProgress(history(), F.state && F.state.goals, { now: new Date() });
+      goal = progress.items.find(function (item) { return item.id === "weeklySessions" && item.active; });
+    } catch (error) { /* Sem meta disponível. */ }
+    var percent = goal ? Math.max(0, Math.min(100, goal.percent)) : 0;
+    var layout = el("div", "home-summary-layout");
+    var weekly = el("div", "home-summary-weekly");
+    var ring = el("div", "home-summary-ring");
+    ring.style.setProperty("--percent", percent + "%");
+    ring.setAttribute("role", "img");
+    ring.setAttribute("aria-label", goal ? "Meta semanal: " + goal.percent + "%" : "Meta semanal não configurada");
+    ring.appendChild(el("strong", null, goal ? goal.percent + "%" : "—"));
+    weekly.appendChild(ring);
+    var info = el("div", "home-summary-goal");
+    info.appendChild(el("span", null, "Meta semanal"));
+    info.appendChild(el("strong", null, goal ? goal.current + "/" + goal.target + " treinos" : "Não configurada"));
+    if (goal) {
+      var bars = el("div", "home-summary-bars");
+      // Limite visual evita criar uma barra por meta quando a meta é muito grande.
+      var count = Math.min(goal.target, 10);
+      for (var i = 0; i < count; i++) bars.appendChild(el("span", i < goal.current ? "done" : ""));
+      bars.setAttribute("aria-hidden", "true");
+      info.appendChild(bars);
+      info.appendChild(el("small", null, goal.remaining ? "Faltam " + goal.remaining + " para completar" : "Meta concluída"));
+    } else info.appendChild(el("small", null, "Defina uma meta em Evolução."));
+    weekly.appendChild(info);
+    layout.appendChild(weekly);
+    var stats = el("div", "home-summary-stats");
+    function stat(iconName, value, label) {
+      var row = el("div", "home-summary-stat");
+      row.appendChild(icon(iconName));
+      var text = el("div"); text.appendChild(el("strong", null, value)); text.appendChild(el("span", null, label));
+      row.appendChild(text); stats.appendChild(row);
     }
-
-    var grid = el("div", "home-progress-grid");
-
-    var chartHost = el("div", "home-progress-chart");
-    var chart = null;
-
-    if (F.charts && typeof F.charts.line === "function") {
-      try {
-        chart = F.charts.line({
-          points: series.points.map(function (point) {
-            return { label: point.label, y: point.y, note: point.note };
-          }),
-          format: formatEvolutionValue(series.unit),
-          ariaLabel: series.title + " — " + series.valueLabel,
-          /* O critério aparece uma vez só, logo abaixo do cartão. */
-          tableCaption: "Evolução — " + series.title,
-          tableColumns: ["Data", series.valueLabel]
-        });
-      } catch (e) {
-        chart = null;
-      }
-    }
-
-    if (chart) {
-      chartHost.appendChild(chart);
-    } else {
-      chartHost.appendChild(el("p", "home-progress-note",
-        "Não foi possível desenhar o gráfico agora."));
-    }
-    grid.appendChild(chartHost);
-
-    var achievement = buildAchievement(records);
-    if (achievement) {
-      var card = el("div", "home-achievement" + (achievement.fresh ? " is-fresh" : ""));
-      card.setAttribute("role", "note");
-      if (achievement.criteria) card.title = achievement.criteria;
-
-      var head = el("div", "home-achievement-head");
-      head.appendChild(icon("flag", "home-achievement-icon"));
-      head.appendChild(doc.createTextNode(achievement.title));
-      card.appendChild(head);
-
-      card.appendChild(el("p", "home-achievement-value", achievement.subtitle));
-
-      if (achievement.date && F.metricas.formatRecordDate) {
-        card.appendChild(el("p", "home-achievement-date",
-          "em " + F.metricas.formatDayMonth(achievement.date)));
-      }
-
-      grid.appendChild(card);
-    } else {
-      var hint = el("p", "home-progress-note",
-        "Nenhum recorde registrado ainda. Seus melhores resultados aparecem aqui quando existirem.");
-      grid.appendChild(hint);
-    }
-
-    host.appendChild(grid);
-
-    if (seriesKindNote(series)) {
-      host.appendChild(el("p", "home-progress-criteria", seriesKindNote(series)));
-    }
+    stat("dumbbell", String(data.completed), "Treinos concluídos");
+    stat("clock", data.totalMinutes ? formatTotalTime(data.totalMinutes) : "—", "Tempo registrado");
+    stat("chart", data.strength.available ? (data.strength.percent > 0 ? "+" : "") + data.strength.percent + "%" : "—", "Força: últimos 30 dias");
+    layout.appendChild(stats); host.appendChild(layout);
   }
 
   function seriesKindNote(series) {
@@ -913,54 +883,17 @@
     var grid = byId("home-explore-grid");
     var note = byId("home-explore-note");
     if (!grid) return;
-
-    clear(grid);
-    if (note) note.textContent = "";
-
-    grid.appendChild(exploreCard({
-      id: "home-explore-biblioteca",
-      icon: "book",
-      label: "Biblioteca de Exercícios",
-      href: F.url("biblioteca"),
-      available: true,
-      ariaLabel: "Abrir a Biblioteca de Exercícios"
-    }));
-
-    grid.appendChild(exploreCard({
-      id: "home-explore-atlas",
-      icon: "target",
-      label: "Atlas Muscular",
-      href: F.url("atlas"),
-      available: true,
-      anatomy: true,
-      ariaLabel: "Abrir o Atlas muscular"
-    }));
-
-    grid.appendChild(exploreCard({
-      id: "home-explore-planejador",
-      icon: "calendar",
-      label: "Planejador Semanal",
-      href: F.url("treino") + "#training-plan-heading",
-      available: true,
-      ariaLabel: "Abrir o planejador semanal em Treinos"
-    }));
-
-    /*
-      Substituições inteligentes não existem no FORJA: o cartão é mostrado como
-      indisponível, sem link e sem rota vazia — nada de prometer o que não há.
-    */
-    grid.appendChild(exploreCard({
-      id: "home-explore-substituicoes",
-      icon: "repeat",
-      label: "Substituições Inteligentes",
-      available: false,
-      hint: "Ainda não disponível: o FORJA não tem substituição automática de exercícios."
-    }));
-
-    if (note) {
-      note.textContent = "Planejador Semanal abre o plano por regras no hub Treinos. " +
-        "Substituições Inteligentes ainda não fazem parte do app.";
-    }
+    clear(grid); if (note) note.textContent = "";
+    [
+      { id: "home-explore-planejador", label: "Planos de treino", href: F.url("treino") + "#training-plan-heading", photo: "assets/fotografias/levantamento-terra-480.webp" },
+      { id: "home-explore-biblioteca", label: "Exercícios", href: F.url("biblioteca"), photo: "assets/fotografias/prateleira-halteres-480.webp" },
+      { id: "home-explore-atlas", label: "Atlas muscular", href: F.url("atlas"), photo: "assets/fotografias/puxada-frontal-480.webp" }
+    ].forEach(function (item) {
+      var link = doc.createElement("a"); link.id = item.id; link.href = item.href;
+      link.className = "home-explore-photo-card"; link.setAttribute("role", "listitem");
+      link.style.backgroundImage = "linear-gradient(0deg, rgba(0,0,0,.94), rgba(0,0,0,.15)), url('" + item.photo + "')";
+      link.appendChild(el("span", null, item.label)); link.appendChild(el("b", null, "›")); grid.appendChild(link);
+    });
   }
 
   /* ------------------------------------------------------------------ */
@@ -1314,6 +1247,7 @@
     if (key === F.KEYS.goals) {
       sync();
       renderGoals();
+      renderProgress();
       refreshHomeSnapshotMeta();
       return;
     }
@@ -1366,6 +1300,13 @@
   F.pages.inicio = function initInicio() {
     if (typeof global.updateTodayLabel === "function") global.updateTodayLabel();
     renderHome();
+    var calendarLink = byId("home-calendar-shortcut");
+    if (calendarLink) calendarLink.addEventListener("click", function () {
+      var deep = byId("home-deep");
+      var details = byId("home-calendar");
+      if (deep) deep.hidden = false;
+      if (details) details.open = true;
+    });
     refreshHomeSnapshotMeta();
   };
 
