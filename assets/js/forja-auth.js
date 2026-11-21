@@ -7,6 +7,7 @@
 (function (global) {
   "use strict";
   const F = global.Forja;
+  const diag = global.ForjaDiagnostics; // instrumentação diagnóstica temporária (leitura)
   const doc = global.document;
   const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const NEXT = "forja-auth-return-v1";
@@ -178,11 +179,14 @@
     return Promise.race([promise, stopped]).finally(() => signal.removeEventListener("abort", cancel));
   }
   function nextEpoch() {
+    const epochBefore = epoch;
+    if (diag) diag.record("auth:nextEpoch", { epochBefore: epochBefore });
     epoch += 1;
     oauthIntent = null;
     if (pkceWork) pkceWork.cancelled = true;
     lifetime.abort(); lifetime = new global.AbortController();
     work = null;
+    if (diag) diag.record("auth:nextEpoch:after", { epochAfter: epoch });
     // Revogações já vinculadas a um JWT explícito não administram a sessão
     // atual. Todas as demais operações da geração encerrada são canceladas.
     for (const request of requests) if (request.kind !== "logout") request.controller.abort();
@@ -234,11 +238,13 @@
     global.dispatchEvent(new global.CustomEvent("forja:auth", { detail: { state, userId: user ? user.id : null } }));
   }
   function gate(message, retry) {
+    if (diag) diag.record("auth:gate", { reason: "gate-call", message: message, retry: retry });
     doc.documentElement.dataset.forjaAuth = "locked";
     const text = doc.getElementById("auth-gate-status");
     if (text && message) text.textContent = message;
     const button = doc.getElementById("auth-retry");
     if (button) button.hidden = !retry;
+    if (diag) diag.record("auth:gate:after", {});
   }
   function storedToken() {
     if (!storageKey) return null;
@@ -271,9 +277,12 @@
     // para este acesso. Nesse caso a sessão foi efetivamente validada agora,
     // então não recorremos à checagem de memória (que pode ter sido zerada
     // por uma rotação silenciosa que ocorreu entre a validação e este ponto).
+    const ok = (!verified && !isVerified(uid)) ? false : true;
+    if (diag) diag.record("auth:unlock", { hasUid: Boolean(uid), verified: verified, willUnlock: ok, unlockReason: ok ? "verify-ok" : "verify-missing" });
     if (!verified && !isVerified(uid)) { gate("Sua sessão precisa ser verificada novamente.", true); return false; }
     dataUid = uid;
     doc.documentElement.dataset.forjaAuth = "ready";
+    if (diag) diag.record("auth:unlock:after", {});
     return true;
   }
   function loginUrl() {
@@ -301,6 +310,8 @@
     return error.name === "AuthApiError" && (error.status >= 500 || error.status === 429);
   }
   function invalidate(silent) {
+    const revBefore = revision;
+    if (diag) diag.record("auth:invalidate", { silent: silent, revisionBefore: revBefore });
     if (dataUid) needsDataRefresh = true;
     revision += 1;
     for (const request of requests) if (["verification", "data"].includes(request.kind)) request.controller.abort();
@@ -312,9 +323,11 @@
     // continua válida e será revalidada imediatamente, então a interface
     // autenticada não volta a ser bloqueada. Erros reais ainda fecham.
     if (!silent) gate("Verificando sua sessão…", false);
+    if (diag) diag.record("auth:invalidate:after", { revisionAfter: revision });
   }
   function scheduleValidation() {
     global.clearTimeout(validationTimer);
+    if (diag) diag.record("auth:scheduleValidation", { timer: "validationTimer", delayMs: 0 });
     if (!disabled) validationTimer = global.setTimeout(() => { void revalidate(); }, 0);
   }
   // Revalidação silenciosa após uma falha transitória (rede/5xx) de uma sessão
@@ -323,6 +336,7 @@
   let silentRetryMs = 1000;
   function scheduleSilentRetry() {
     global.clearTimeout(validationTimer);
+    if (diag) diag.record("auth:scheduleSilentRetry", { timer: "validationTimer", delayMs: silentRetryMs });
     if (disabled) return;
     validationTimer = global.setTimeout(() => { void revalidate(); }, silentRetryMs);
     silentRetryMs = Math.min(30000, silentRetryMs * 2);
@@ -420,6 +434,12 @@
     } catch (_) { /* Storage events continuam disponíveis; falhas são mostradas no logout. */ }
     // Nunca aguardar chamadas do SDK dentro do callback: ele roda sob lock do Auth.
     client.auth.onAuthStateChange((event, next) => {
+      if (diag) diag.record("auth:onAuthStateChange", {
+        supabaseEvent: String(event),
+        hasNextToken: Boolean(next && next.access_token),
+        hasStoredToken: Boolean(storedToken()),
+        verifiedTokenPresent: Boolean(verifiedToken)
+      });
       if (disabled || event === "INITIAL_SESSION") return;
       if (pkceWork) {
         if (global.localStorage.getItem(storageKey) === pkceWork.expected && global.localStorage.getItem(OAUTH_CURRENT) === pkceWork.intent) return;
@@ -442,9 +462,14 @@
   }
   function armExpiry() {
     global.clearTimeout(expiryTimer);
-    if (!session || disabled) return;
+    if (!session || disabled) {
+      if (diag) diag.record("auth:armExpiry", { armed: false });
+      return;
+    }
     const delay = Math.max(0, Math.min(60000, session.expires_at * 1000 - Date.now()));
+    if (diag) diag.record("auth:armExpiry", { armed: true, delayMs: delay, expiresAt: session.expires_at });
     expiryTimer = global.setTimeout(() => {
+      if (diag) diag.record("auth:armExpiry:fired", { expiresAt: session && session.expires_at });
       if (!isVerified()) { invalidate(); emit("validating"); scheduleValidation(); }
       else armExpiry();
     }, delay);
@@ -456,10 +481,17 @@
     // expiração). Sessões encerradas/alteradas e erros em inicializações
     // continuam bloqueando com rigor.
     const wasVerified = isVerified();
+    const verifyId = diag ? diag.nextRevalidateId() : null;
+    if (diag) diag.record("auth:verify:start", { verifyId: verifyId, generation: generation, epoch: epoch, wasVerified: wasVerified, workExists: Boolean(work) });
     for (let attempt = 0; attempt < 3; attempt += 1) {
-      if (disabled || generation !== epoch || (oauthIntent && !oauthIntent.sessionIdentity)) return null;
+      if (disabled || generation !== epoch || (oauthIntent && !oauthIntent.sessionIdentity)) {
+        if (diag) diag.record("auth:verify:aborted", { verifyId: verifyId, attempt: attempt, reason: "generation-or-disabled" });
+        return null;
+      }
       let candidate = null;
       const observed = revision;
+      const attemptStart = Date.now();
+      if (diag) diag.record("auth:verify:attempt", { verifyId: verifyId, attempt: attempt, observed: observed });
       try {
         const api = sdk(), tokenAtStart = storedToken();
         const result = await cancellable(api.auth.getSession(), signal);
@@ -508,11 +540,18 @@
           }
           else if (!isLogin()) F.navigate(global.location.href);
         }
+        if (diag) diag.record("auth:verify:attempt-ok", { verifyId: verifyId, attempt: attempt, durationMs: Date.now() - attemptStart });
         return actual;
       } catch (error) {
-        if (disabled || generation !== epoch) return null;
+        if (disabled || generation !== epoch) {
+          if (diag) diag.record("auth:verify:aborted", { verifyId: verifyId, attempt: attempt, reason: "generation-or-disabled" });
+          return null;
+        }
         if (observed !== revision || (candidate && storedToken() !== candidate.access_token)) error = stale();
-        if (error.stale && attempt < 2) continue;
+        if (error.stale && attempt < 2) {
+          if (diag) diag.record("auth:verify:stale", { verifyId: verifyId, attempt: attempt, durationMs: Date.now() - attemptStart, error: diag ? diag.safeError(error) : undefined });
+          continue;
+        }
         if (endedSession(error)) {
           invalidate();
           // O Auth já rejeitou este acesso. Esqueça apenas o token observado,
@@ -533,9 +572,11 @@
         // qualquer erro que não confirme a sessão continuam bloqueando:
         // uma checagem não concluída não pode sustentar a liberação.
         if (wasVerified && !error.stale && isServerTransient(error)) {
+          if (diag) diag.record("auth:verify:transient", { verifyId: verifyId, attempt: attempt, durationMs: Date.now() - attemptStart, error: diag ? diag.safeError(error) : undefined });
           scheduleSilentRetry();
           return null;
         }
+        if (diag) diag.record("auth:verify:error", { verifyId: verifyId, attempt: attempt, durationMs: Date.now() - attemptStart, error: diag ? diag.safeError(error) : undefined });
         invalidate();
         emit("error");
         gate(error.stale ? "A conta mudou. Recarregue para continuar com segurança." :
@@ -543,18 +584,28 @@
         return null;
       }
     }
+    if (diag) diag.record("auth:verify:end", { verifyId: verifyId, result: "null-after-loop" });
     return null;
   }
   function revalidate() {
-    if (disabled) return Promise.resolve(null);
-    if (work) return work.promise;
+    if (disabled) {
+      if (diag) diag.record("auth:revalidate", { disabled: true, dedup: false });
+      return Promise.resolve(null);
+    }
+    if (work) {
+      // Deduplicação: uma revalidação em curso retorna a mesma promise.
+      if (diag) diag.record("auth:revalidate", { disabled: false, dedup: true, workExists: true, reusing: true });
+      return work.promise;
+    }
     // Revalidação: a checagem ocorre e só TRAVA se a sessão for encerrada,
     // expirada ou alterada (ver verify). Não dispara tela bloqueante no
     // início, para que o retorno do segundo plano com sessão válida não
     // reintroduza "Verificando sua sessão…". O cold-start usa init().
     const job = {};
+    if (diag) diag.record("auth:revalidate", { disabled: false, dedup: false, workExists: false, newJob: true });
     job.promise = verify(epoch, lifetime.signal).finally(() => { if (work === job) work = null; });
     work = job;
+    if (diag) diag.record("auth:revalidate:after", {});
     return job.promise;
   }
   function cleanCallback(url) {
@@ -563,9 +614,11 @@
     global.history.replaceState(null, "", url.pathname + url.search + url.hash);
   }
   async function init() {
+    if (diag) diag.record("auth:init", { initWorkExists: Boolean(initWork) });
     if (initWork) return initWork;
     initWork = (async () => {
       const generation = epoch;
+      if (diag) diag.record("auth:init:start", { generation: generation });
       try {
         const url = new URL(global.location.href);
         const code = url.searchParams.get("code");
@@ -749,6 +802,10 @@
     requireAuth() { if (!isVerified()) { gate("Sua sessão precisa ser validada para continuar.", true); return false; } return true; }
   });
   function handleStorage(event) {
+    if (diag) diag.record("auth:handleStorage", {
+      key: event.key === null ? "(all)" : String(event.key),
+      newValuePresent: event.newValue !== null
+    });
     if (event.key === LOGOUT && event.newValue !== null) {
       if (!isLogoutCurrent(event)) return;
       try { receiveLogout(JSON.parse(event.newValue), true); }
@@ -767,9 +824,14 @@
   // bloqueante); se a sessão estiver encerrada/expirada, revalidate()
   // bloqueia e solicita autenticação.
   doc.addEventListener("visibilitychange", () => {
+    if (diag) {
+      diag.noteListener("auth:visibilitychange");
+      diag.record("auth:visibilitychange", { hidden: doc.hidden, hasDataUid: Boolean(dataUid), disabled: disabled });
+    }
     if (!doc.hidden && !disabled && dataUid) void revalidate();
   });
   doc.addEventListener("click", event => {
+    if (diag) diag.record("auth:click", { target: event.target && event.target.id ? String(event.target.id) : null });
     if (event.target.closest && event.target.closest("#auth-retry")) {
       if (logoutPending) void signOut();
       else if (typeof F.retryBoot === "function") void F.retryBoot(); else void revalidate();
