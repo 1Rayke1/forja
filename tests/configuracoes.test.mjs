@@ -132,7 +132,7 @@ await test("C4. Editar nome persiste no perfil existente, preserva campos e alim
   await app.reload();
   assert.equal(app.$("#prof-nome").value, "Nova Pessoa");
   await app.go(BASE + "index.html");
-  assert.equal(app.text("#home-title"), "Olá, Nova Pessoa!");
+  assert.equal(app.text(".home-greeting-name"), "Nova Pessoa.");
 
   await app.go(BASE + PAGE + "#editar-perfil");
   const before = app.raw(PROFILE_KEY);
@@ -161,7 +161,7 @@ await test("C5. Apagar nome pede confirmação; cancelar não grava e confirmar 
   assert.equal(app.data(PROFILE_KEY).nomeExibicao, "");
   assert.equal(app.text("#settings-profile-name"), "Seu perfil");
   await app.go(BASE + "index.html");
-  assert.equal(app.text("#home-title"), "Olá!");
+  assert.equal(app.text(".home-greeting-name"), "Guerreiro.");
   assertNoErrors(app, "apagar nome");
 });
 

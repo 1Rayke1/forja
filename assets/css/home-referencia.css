@@ -1,6 +1,7 @@
 /* Home apenas: composição mobile, sem alterar o casco das outras telas. */
 body[data-page="inicio"] { --home-accent:#b7f34a; background:#050605; color:#f6f6f6; }
-body[data-page="inicio"] .site-header { position:relative; background:transparent; }
+body[data-page="inicio"] .site-header { position:relative; background:#050605; backdrop-filter:none; -webkit-backdrop-filter:none; }
+html[data-forja-theme="contrast"] body[data-page="inicio"] .site-header { background:#050605; }
 body[data-page="inicio"]::before { content:""; position:absolute; z-index:0; inset:0 0 auto; height:320px; pointer-events:none; background:linear-gradient(90deg,#050605 4%,rgba(5,6,5,.5) 55%,rgba(5,6,5,.2)),linear-gradient(0deg,#050605,transparent 75%),url('../fotografias/puxada-frontal-960.webp') center 35%/cover no-repeat; filter:grayscale(1); }
 body[data-page="inicio"] .home-header-inner,body[data-page="inicio"] #conteudo { width:min(100% - 28px, 720px); max-width:720px; position:relative; }
 body[data-page="inicio"] .home-header-inner { min-height:60px; }
