@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="assets/css/demonstracoes.css">
 <link rel="stylesheet" href="assets/css/inicio.css">
 <link rel="stylesheet" href="assets/css/aparencia.css">
+<link rel="stylesheet" href="assets/css/home-referencia.css">
 </head>
 
 <body data-page="inicio" data-root="">
@@ -47,17 +48,9 @@
       </span>
     </a>
     <div class="home-header-actions">
-      <!-- Avisos ainda não têm central própria no FORJA: o sino leva aos dados
-           e preferências e só mostra o ponto com pendência real (sessão ativa
-           ou treino do dia não executado). -->
-      <a class="home-icon-button" id="home-notifications" href="configuracoes/index.html#notificacoes"
-         aria-label="Avisos do FORJA" title="Avisos do FORJA">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-          <path d="M18 15.5V10a6 6 0 1 0-12 0v5.5L4.5 18h15L18 15.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>
-        </svg>
-        <span class="home-icon-dot" id="home-notifications-dot" hidden></span>
-      </a>
+      <span class="home-icon-button" id="home-notifications" aria-label="Notificações indisponíveis" title="Notificações indisponíveis">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 15.5V10a6 6 0 1 0-12 0v5.5L4.5 18h15L18 15.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>
+      </span>
       <a class="home-avatar" id="home-avatar" href="configuracoes/index.html" aria-label="Abrir meu perfil" title="Meu perfil">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -88,6 +81,17 @@
 
   <section id="home-action" aria-labelledby="home-action-heading"></section>
 
+  <section class="home-consistency" aria-label="Consistência">
+    <span class="home-quote" aria-hidden="true">“</span><p>Grandes resultados<br>nascem da consistência.</p>
+    <div class="home-streak"><span aria-hidden="true">♨</span><div>Sequência<strong>—</strong><small>Não disponível</small></div></div>
+  </section>
+  <nav class="home-shortcuts" aria-label="Atalhos principais">
+    <a href="#calendar-heading" id="home-calendar-shortcut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg><span>Calendário</span></a>
+    <a href="progresso/index.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h4v8H3zm7-5h4v13h-4zm7-6h4v19h-4z"/></svg><span>Evolução</span></a>
+    <a href="explorar/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5z"/></svg><span>Explorar</span></a>
+    <a href="progresso/index.html#progress-goals-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h10v6a5 5 0 0 1-10 0zm0 2H3v2c0 3 2 5 5 5m9-7h4v2c0 3-2 5-5 5M12 14v5m-4 2h8m-6-2h4"/></svg><span>Metas</span></a>
+  </nav>
+
   <section class="home-metrics" id="home-metrics" aria-labelledby="home-metrics-heading">
     <h2 class="home-metrics-heading ui-visually-hidden" id="home-metrics-heading">Seus indicadores</h2>
     <div class="home-metrics-grid" id="home-metrics-grid" role="list"></div>
@@ -97,21 +101,21 @@
   <section class="home-progress" id="home-progress" aria-labelledby="home-progress-heading">
     <div class="home-block-head">
       <h2 class="home-block-title" id="home-progress-heading">Seu progresso</h2>
-      <a class="home-block-link" id="home-progress-link" href="progresso/index.html">Ver detalhes <span aria-hidden="true">›</span></a>
+      <a class="home-block-link" id="home-progress-link" href="progresso/index.html">Ver evolução <span aria-hidden="true">›</span></a>
     </div>
     <div class="home-progress-body" id="home-progress-body"></div>
   </section>
 
   <section class="home-explore" id="home-explore" aria-labelledby="home-explore-heading">
     <div class="home-block-head">
-      <h2 class="home-block-title" id="home-explore-heading">Explore o FORJA</h2>
-      <a class="home-block-link" id="home-explore-link" href="explorar/index.html">Ver mais <span aria-hidden="true">›</span></a>
+      <h2 class="home-block-title" id="home-explore-heading">Continue explorando</h2>
+      <a class="home-block-link" id="home-explore-link" href="explorar/index.html">Ver todos <span aria-hidden="true">›</span></a>
     </div>
     <div class="home-explore-grid" id="home-explore-grid" role="list"></div>
     <p class="home-explore-note" id="home-explore-note"></p>
   </section>
 
-  <div class="home-deep" id="home-deep" aria-label="Mais dados da semana">
+  <div class="home-deep" id="home-deep" aria-label="Calendário e missões" hidden>
   <div class="home-overview" role="group" aria-label="Resumo da semana">
   <section class="home-week" id="home-week" aria-labelledby="home-week-heading">
     <div class="home-week-head">
@@ -143,7 +147,7 @@
   </section>
 
   <div class="home-secondary" id="home-secondary">
-    <details class="home-section home-disclosure">
+    <details class="home-section home-disclosure" id="home-calendar">
       <summary class="section-title" id="calendar-heading">Seu calendário <span class="disclosure-hint">Consultar ou organizar dias</span></summary>
       <div class="calendar-panel">
         <div class="month-navigation">

@@ -625,7 +625,8 @@ await check('Calendário e missões funcionam na página inicial', async () => {
     'Calendário começa recolhido');
   assert.equal(await page.$eval('#missions-heading', el => el.closest('details').open), false,
     'Missões começam recolhidas');
-  await page.click('#calendar-heading');
+  await page.click('#home-calendar-shortcut');
+  assert.equal(await page.$eval('#calendar-heading', el => el.closest('details').open), true);
   await page.click('#missions-heading');
   assert.ok((await page.$$('#calendar-grid .day')).length >= 28, 'Calendário sem dias');
   await page.$eval('#task-input', el => { el.value = 'Missão E2E'; });
@@ -1701,7 +1702,7 @@ await check('Configurações — hub, painéis, nome, aparência, suporte e inte
     await page.reload({ waitUntil: 'networkidle0' });
     assert.equal(await page.$eval('#prof-nome', node => node.value), 'Nome Verificado');
     await go('');
-    assert.equal(await text('#home-title'), 'Olá, Nome Verificado!');
+    assert.equal(await text('.home-greeting-name'), 'Nome Verificado.');
 
     /* Aparência: seleção real, persistência e aplicação fora de Configurações. */
     await go('configuracoes/#aparencia');
