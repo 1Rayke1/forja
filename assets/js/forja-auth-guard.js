@@ -3,6 +3,37 @@
   "use strict";
   const root = document.documentElement;
   const lock = () => { root.dataset.forjaAuth = "locked"; };
+  const READY = "forja-auth-ready-v1";
+  const SIGNED_OUT = "forja-auth-signed-out-v1";
+  const LOGOUT = "forja-auth-logout-v1";
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  /*
+    Inicialização fluida em navegação entre páginas (multipágina, não SPA).
+    Se este navegador já verificou uma sessão (marcador escrito pelo módulo
+    auth após getUser) e não houve saída/troca, libera a página IMEDIATAMENTE,
+    antes da primeira pintura: o conteúdo aparece sem reiniciar a tela
+    "Verificando sua sessão…". O estado "warm" mostra a página, mas a
+    autenticação real (getUser) e o bloqueio dos dados (driver auth-locked)
+    continuam a cargo do módulo auth, que revalida em segundo plano e volta a
+    travar a página (gate) se a sessão estiver expirada/inválida/alterada.
+    O marcador NUNCA autoriza acesso: sem ele, a página continua "locked".
+  */
+  function warmStart() {
+    try {
+      const raw = localStorage.getItem(READY);
+      if (!raw) return;
+      const marker = JSON.parse(raw);
+      if (!marker || !UUID.test(marker.uid) || !Number.isFinite(marker.at)) return;
+      // Fail closed: qualquer sinal de saída/troca impede a liberação antecipada.
+      if (sessionStorage.getItem(SIGNED_OUT) !== null) return;
+      if (localStorage.getItem(LOGOUT) !== null) return;
+      root.dataset.forjaAuth = "warm";
+    } catch (_) {
+      /* Marcador ilegível/ausente: a página verifica normalmente (locked). */
+    }
+  }
+  warmStart();
   // pagehide: a página pode entrar no BFCache (persisted=true) e ser
   // restaurada depois. Quando a sessão já está verificada em memória, a
   // interface autenticada já exibida permanece liberada — a revalidação

@@ -14,6 +14,14 @@
   const LOGOUT = "forja-auth-logout-v1";
   const SIGNED_OUT = "forja-auth-signed-out-v1";
   const OAUTH_CURRENT = "forja-auth-oauth-current-v1";
+  // Marcador de sessão já verificada neste navegador. Serve SOMENTE para que
+  // uma navegação entre páginas (novo documento) não reinicie a tela
+  // "Verificando sua sessão…": o guard, carregado no <head> antes da primeira
+  // pintura, o lê e libera a página imediatamente quando já há uma sessão
+  // verificada e não houve saída/troca. NUNCA autoriza acesso: a segurança real
+  // continua a cargo de isVerified()/getUser, e os dados permanecem bloqueados
+  // (driver auth-locked) até o bind após a verificação.
+  const READY = "forja-auth-ready-v1";
   const RETURN_TTL = 30 * 60 * 1000;
   const SESSION_ERRORS = new Set([
     "bad_jwt", "session_expired", "session_not_found", "user_not_found", "user_banned",
@@ -246,6 +254,17 @@
     if (!raw) return null;
     try { return JSON.parse(raw).access_token || null; } catch (_) { return null; }
   }
+  // Grava/limpa o marcador de sessão verificada. Escrito após getUser concluir
+  // (verify/unlock) e removido em qualquer evento que invalide a sessão de
+  // verdade (saída, troca de conta, falha definitiva) — MAS NÃO em uma
+  // rotação silenciosa da MESMA conta, que preserva a interface liberada.
+  function markReady(uid) {
+    try { global.localStorage.setItem(READY, JSON.stringify({ uid, at: Date.now() })); }
+    catch (_) { /* Sem armazenamento: cada página volta a verificar normalmente. */ }
+  }
+  function clearReadyMarker() {
+    try { global.localStorage.removeItem(READY); } catch (_) { /* opcional */ }
+  }
   function logoutApplies(raw = global.localStorage.getItem(LOGOUT)) {
     if (!raw) return false;
     try {
@@ -274,6 +293,7 @@
     if (!verified && !isVerified(uid)) { gate("Sua sessão precisa ser verificada novamente.", true); return false; }
     dataUid = uid;
     doc.documentElement.dataset.forjaAuth = "ready";
+    markReady(uid);
     return true;
   }
   function loginUrl() {
@@ -311,7 +331,13 @@
     // Rotação de token da MESMA sessão (rotação silenciosa): a sessão
     // continua válida e será revalidada imediatamente, então a interface
     // autenticada não volta a ser bloqueada. Erros reais ainda fecham.
-    if (!silent) gate("Verificando sua sessão…", false);
+    if (!silent) {
+      // Falha real/fechamento: o marcador não pode sustentar uma liberação
+      // antecipada na próxima navegação. Rotação silenciosa (silent=true)
+      // preserva o marcador junto com a interface liberada.
+      clearReadyMarker();
+      gate("Verificando sua sessão…", false);
+    }
   }
   function scheduleValidation() {
     global.clearTimeout(validationTimer);
@@ -494,7 +520,7 @@
         // redundante. Não deixar esse timer apagar um erro de vínculo local.
         global.clearTimeout(validationTimer);
         silentRetryMs = 1000;
-        emit("authenticated"); armExpiry();
+        emit("authenticated"); markReady(actual.id); armExpiry();
         if (oldDataUid) {
           if (oldDataUid === actual.id && (!F.authData || F.authData.isBound(actual.id))) {
             if (needsDataRefresh && F.authData && typeof F.syncStateFromStorage === "function") {
@@ -515,7 +541,12 @@
             needsDataRefresh = false;
             unlock(actual.id, true);
           }
-          else if (!isLogin()) F.navigate(global.location.href);
+          else if (!isLogin()) {
+            // Troca de conta confirmada por getUser: o marcador da conta
+            // anterior não pode sustentar a liberação antecipada no recarregamento.
+            clearReadyMarker();
+            F.navigate(global.location.href);
+          }
         }
         return actual;
       } catch (error) {

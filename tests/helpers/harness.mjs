@@ -229,6 +229,21 @@ export class App {
         window.AudioContext = undefined;
         window.webkitAudioContext = undefined;
 
+        /* Histórico do estado do gate. O guard roda no <head>, mas o JSDOM pode
+           executar scripts externos após a construção síncrona do documento;
+           um MutationObserver captura a transição locked → warm → ready para
+           provar que uma navegação com sessão verificada não reiniciou a tela
+           de verificação. */
+        app.forjaAuthHistory = [];
+        try {
+          const recordAuth = () => {
+            const root = window.document.documentElement;
+            const value = root && root.dataset.forjaAuth;
+            if (value && app.forjaAuthHistory[app.forjaAuthHistory.length - 1] !== value) app.forjaAuthHistory.push(value);
+          };
+          new window.MutationObserver(recordAuth).observe(window.document, { subtree: true, attributes: true, attributeFilter: ["data-forja-auth"] });
+        } catch (_) { /* sem observador: os testes usam o estado final */ }
+
         /* Só observa: registra e repassa ao método original desta janela. */
         const local = window.localStorage;
         ["setItem", "removeItem", "clear"].forEach(method => {
@@ -250,6 +265,10 @@ export class App {
       }
     });
 
+    // Estado do gate IMEDIATAMENTE após a construção do DOM. O guard roda
+    // síncrono no <head>, antes dos scripts defer: "warm" prova que uma
+    // navegação com sessão já verificada não reiniciou a tela de verificação.
+    this.initialForjaAuth = this.d.documentElement.dataset.forjaAuth;
     if (carry.fakeNow !== null && carry.fakeNow !== undefined) {
       this.setNow(carry.fakeNow);
     } else if (this.fakeNow !== null) {

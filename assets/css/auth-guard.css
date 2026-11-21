@@ -1,6 +1,9 @@
-/* Fail closed desde o HTML: nenhuma página interna aparece antes da validação. */
-html[data-forja-auth]:not([data-forja-auth="ready"]) body > :not([data-auth-gate]):not(noscript):not(script) { display: none !important; }
-html[data-forja-auth="ready"] [data-auth-gate] { display: none !important; }
+/* Fail closed desde o HTML: nenhuma página interna aparece antes da validação.
+   O estado "warm" (marcador de sessão já verificada) mostra a página sem o
+   gate: a revalidação ocorre em segundo plano e a segurança permanece a cargo
+   do módulo auth (driver de dados fica bloqueado até o bind após getUser). */
+html[data-forja-auth]:not([data-forja-auth="ready"]):not([data-forja-auth="warm"]) body > :not([data-auth-gate]):not(noscript):not(script) { display: none !important; }
+html[data-forja-auth="ready"] [data-auth-gate], html[data-forja-auth="warm"] [data-auth-gate] { display: none !important; }
 [data-auth-gate] { box-sizing: border-box; max-width: 36rem; margin: 12vh auto 2rem; padding: 1.5rem; color: #eee; background: #141714; border: 1px solid #414a37; border-radius: 1rem; font: 1rem/1.6 system-ui, sans-serif; }
 [data-auth-gate] .auth-gate-title { font-size: 1.4rem; font-weight: 700; }
 [data-auth-gate] p { overflow-wrap: anywhere; }
