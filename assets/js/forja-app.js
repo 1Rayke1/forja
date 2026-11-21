@@ -9,7 +9,6 @@
   "use strict";
 
   const F = global.Forja;
-  const diag = global.ForjaDiagnostics; // instrumentação diagnóstica temporária (leitura)
   const doc = global.document;
 
   const TICK_MS = 250;
@@ -25,7 +24,6 @@
   }
 
   function refreshAfterVisibility() {
-    if (diag) diag.record("app:refreshAfterVisibility", {});
     F.workoutTick();
     if (typeof F.renderExecution === "function") F.renderExecution();
   }
@@ -51,9 +49,7 @@
   // Se a sessão mudou durante a inicialização, revalida uma única vez e
   // continua o boot com o usuário verificado — sem validação duplicada.
   async function retryChangedSession() {
-    if (diag) diag.record("app:retryChangedSession", {});
     const user = await F.auth.revalidate();
-    if (diag) diag.record("app:retryChangedSession:after", { hasUser: Boolean(user) });
     if (!user) return;
     if (!F.auth.isVerified(user.id)) return;
     global.setTimeout(() => { void continueBoot(user); }, 0);
@@ -69,7 +65,6 @@
     qualquer mudança de sessão durante a recuperação reinicia o fluxo.
   */
   async function continueBoot(actualUser) {
-    if (diag) diag.record("app:continueBoot", { hasUid: Boolean(actualUser && actualUser.id) });
     try {
       await F.authData.bind(actualUser);
     } catch (error) {
@@ -128,18 +123,10 @@
     void F.authData.runInitialCopy();
 
     doc.addEventListener("visibilitychange", () => {
-      if (diag) {
-        diag.noteListener("app:visibilitychange");
-        diag.record("app:visibilitychange", { hidden: doc.hidden, canWrite: F.auth.canWrite() });
-      }
       if (!doc.hidden && F.auth.canWrite()) refreshAfterVisibility();
     });
 
     global.addEventListener("pageshow", event => {
-      if (diag) {
-        diag.noteListener("app:pageshow");
-        diag.record("app:pageshow", { persisted: event.persisted, canWrite: F.auth.canWrite() });
-      }
       if (event.persisted && F.auth.canWrite()) refreshAfterVisibility();
     });
   }
