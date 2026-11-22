@@ -506,6 +506,8 @@
       showToast("Série " + setNumber + " de " + exercise.sets + " concluída.");
     }
 
+    if (restStarted) keepRestPanelVisible();
+
     return true;
   }
 
@@ -590,9 +592,6 @@
     const exercise = currentSessionExercise();
     if (!exercise) return;
 
-    const done = Number(s.completedSets[exercise.id]) || 0;
-    if (done < exercise.sets) return;
-
     if (s.currentIndex < s.queue.length - 1) {
       s.currentIndex += 1;
       saveActiveWorkout();
@@ -600,6 +599,9 @@
       renderExecution();
       return;
     }
+
+    const done = Number(s.completedSets[exercise.id]) || 0;
+    if (done < exercise.sets) return;
 
     finalizeSession({ natural: true });
   }
@@ -1222,6 +1224,7 @@
     summaryVisible = true;
     byId("execution-live").hidden = true;
     byId("execution-footer").hidden = true;
+    byId("end-session").hidden = true;
     byId("execution-empty").hidden = true;
     byId("execution-summary").hidden = false;
 
@@ -1470,6 +1473,299 @@
 
   F.updateActiveBanner = updateActiveBanner;
 
+  const WORKOUT_RING_CIRCUMFERENCE = 2 * Math.PI * 32;
+  const SERIES_DIAL_CIRCUMFERENCE = 2 * Math.PI * 94;
+  let currentHeroPhotoKey = "";
+
+  /* Estimativa real da duração da fila a partir de séries, tempo e descanso. */
+  function estimateQueueMinutes(queue) {
+    if (!Array.isArray(queue) || queue.length === 0) return 5;
+    let totalSeconds = 0;
+    queue.forEach(item => {
+      const sets = Math.max(1, Number(item && item.sets) || 1);
+      const workSec = item && item.type === "duration"
+        ? Math.max(10, Number(item.duration) || 40)
+        : 35;
+      const restSec = Math.max(0, Number(item && item.rest) || 0);
+      totalSeconds += sets * workSec + Math.max(0, sets - 1) * restSec;
+    });
+    return Math.max(5, Math.round(totalSeconds / 60));
+  }
+
+  /* Complemento real do exercício com base no catálogo central e na rotina. */
+  function resolveExerciseComplement(exercise, modality) {
+    if (!exercise) return "";
+    const parts = [];
+    const lookupId = exercise.libraryId || exercise.id;
+    const central = F.exerciseCatalog && typeof F.exerciseCatalog.byId === "function" && lookupId
+      ? F.exerciseCatalog.byId(lookupId)
+      : null;
+    let equipment = "";
+    if (central) {
+      if (central.modality === "peso-corporal") {
+        equipment = "Peso corporal";
+      } else if (
+        Array.isArray(central.equipment) &&
+        central.equipment.length &&
+        typeof F.exerciseCatalog.equipmentLabel === "function"
+      ) {
+        equipment = F.exerciseCatalog.equipmentLabel(central.equipment[0]);
+      }
+    }
+
+    if (equipment) {
+      parts.push(equipment);
+    } else if (MODE_NAMES[modality]) {
+      parts.push(MODE_NAMES[modality]);
+    }
+
+    if (exercise.load) {
+      parts.push("Carga: " + exercise.load);
+    } else if (exercise.section && SECTION_NAMES[exercise.section]) {
+      parts.push(SECTION_NAMES[exercise.section]);
+    }
+
+    return parts.join(" · ");
+  }
+
+  /*
+    Imagem de fundo do exercício atual: usa exclusivamente fotografias locais
+    marcadas como `exato` para o próprio exercício. Sem correspondência exata,
+    mantém o fundo escuro neutro do FORJA (sem fotos de outros movimentos).
+  */
+  function renderExerciseHeroMedia(exercise, modality) {
+    const hero = byId("execution-hero");
+    const media = byId("execution-hero-media");
+    if (!hero || !media) return;
+
+    if (!exercise || !F.fotos || typeof F.fotos.forExercise !== "function") {
+      currentHeroPhotoKey = "";
+      media.innerHTML = "";
+      hero.classList.add("sem-foto");
+      return;
+    }
+
+    const described = F.catalog && typeof F.catalog.describeExercise === "function"
+      ? F.catalog.describeExercise(exercise, modality)
+      : null;
+    const candidate = F.fotos.forExercise(exercise, modality) ||
+      (described && described.fromCatalog ? F.fotos.forExercise(described, modality) : null);
+    const exactPhoto = candidate && candidate.tipo === "exato" ? candidate : null;
+    const nextKey = exactPhoto ? (modality + ":" + exactPhoto.id) : "none";
+
+    if (nextKey === currentHeroPhotoKey) return;
+    currentHeroPhotoKey = nextKey;
+    media.innerHTML = "";
+
+    if (!exactPhoto) {
+      hero.classList.add("sem-foto");
+      return;
+    }
+
+    const picture = F.fotos.buildPicture(exactPhoto, {
+      className: "exec-hero-picture",
+      imgClass: "exec-hero-img",
+      sizes: "(max-width: 600px) 100vw, 540px",
+      eager: true,
+      alt: ""
+    });
+
+    if (picture) {
+      hero.classList.remove("sem-foto");
+      media.appendChild(picture);
+    } else {
+      hero.classList.add("sem-foto");
+    }
+  }
+
+  function renderSeriesDial(exercise, done, timer, restActive, isRunning) {
+    const eyebrow = byId("series-dial-eyebrow");
+    const valueEl = byId("series-dial-value");
+    const unitEl = byId("series-dial-unit");
+    const arc = byId("series-ring-arc");
+    if (!eyebrow || !valueEl || !unitEl || !arc) return;
+
+    const dialWrap = arc.closest(".exec-series-dial");
+    const isTimed = exercise.type === "duration";
+    const targetKind = logTarget(exercise).kind;
+
+    if (!isRunning) {
+      eyebrow.textContent = "TREINO PAUSADO";
+    } else if (restActive) {
+      eyebrow.textContent = "EM DESCANSO";
+    } else if (done >= exercise.sets) {
+      eyebrow.textContent = "SÉRIES CONCLUÍDAS";
+    } else {
+      eyebrow.textContent = "SÉRIE EM ANDAMENTO";
+    }
+
+    let valueText = "—";
+    let unitText = "repetições";
+
+    if (isTimed) {
+      const remainingMs = timer
+        ? Math.max(0, timer.targetMs - timerElapsedMs(timer))
+        : (Number(exercise.duration) || 0) * 1000;
+      valueText = timer
+        ? formatClock(Math.ceil(remainingMs / 1000))
+        : formatRestValue(exercise.duration);
+      unitText = timer ? "tempo restante" : "por série";
+    } else if (targetKind === "distance") {
+      valueText = String(exercise.distance || "—");
+      unitText = distanceUnitLabel(exercise) === "km" ? "quilômetros" : "metros";
+    } else {
+      valueText = String(exercise.reps || "—");
+      unitText = "repetições";
+    }
+
+    valueEl.textContent = valueText;
+    valueEl.classList.toggle("is-compact", valueText.length >= 5);
+    unitEl.textContent = unitText;
+
+    let ratio = 1;
+    if (isTimed && timer && timer.targetMs > 0) {
+      ratio = Math.min(1, Math.max(0.06, timerElapsedMs(timer) / timer.targetMs));
+    } else if (exercise.sets > 0) {
+      const activeCount = done < exercise.sets ? done + 1 : exercise.sets;
+      ratio = Math.min(1, Math.max(0.12, activeCount / exercise.sets));
+    }
+
+    arc.style.strokeDasharray = SERIES_DIAL_CIRCUMFERENCE.toFixed(2);
+    arc.style.strokeDashoffset = (SERIES_DIAL_CIRCUMFERENCE * (1 - ratio)).toFixed(2);
+    if (dialWrap) {
+      dialWrap.classList.toggle("is-muted", !isRunning || restActive);
+    }
+  }
+
+  function setCompleteButtonContent(button, options) {
+    button.innerHTML = "";
+
+    if (options.showCheck) {
+      const iconWrap = document.createElement("span");
+      iconWrap.className = "exec-cta-check";
+      iconWrap.setAttribute("aria-hidden", "true");
+      iconWrap.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M5 12.5l4.5 4.5L19 7.5"/>' +
+        "</svg>";
+      button.appendChild(iconWrap);
+    }
+
+    const labelSpan = document.createElement("span");
+    labelSpan.appendChild(document.createTextNode(options.label));
+
+    if (options.srSuffix) {
+      const sr = document.createElement("span");
+      sr.className = "exec-sr-only";
+      sr.textContent = " " + options.srSuffix;
+      labelSpan.appendChild(sr);
+    }
+
+    button.appendChild(labelSpan);
+  }
+
+  async function openMoreOptionsDialog() {
+    const s = session();
+    const exercise = currentSessionExercise();
+    if (!s || !exercise) return;
+
+    const done = Number(s.completedSets[exercise.id]) || 0;
+    const restActive = hasRestState();
+    const timer = currentTimerFor(exercise);
+    const blocked = restActive || Boolean(s.setTimer);
+    const hasNext = s.currentIndex < s.queue.length - 1;
+    const canStartRest = s.running &&
+      !restActive &&
+      !(timer && timer.startedAt) &&
+      exercise.rest > 0 &&
+      done < exercise.sets;
+    const hasMuscles = Boolean(
+      F.atlas &&
+      typeof F.atlas.findRecordFor === "function" &&
+      F.atlas.findRecordFor(exercise)
+    );
+
+    const details = document.createElement("div");
+    details.className = "modal-details";
+    details.innerHTML =
+      "<strong>" + escapeHtml(exercise.name) + "</strong><br>" +
+      escapeHtml(s.routineName) + " · Exercício " +
+      (s.currentIndex + 1) + " de " + s.queue.length;
+
+    const actions = [
+      { id: "log", label: "Registrar carga / repetições", className: "secondary-button" }
+    ];
+
+    if (canStartRest) {
+      actions.push({
+        id: "rest",
+        label: "Iniciar descanso (" + formatRest(exercise.rest) + ")",
+        className: "secondary-button"
+      });
+    }
+
+    if (hasMuscles) {
+      actions.push({
+        id: "muscles",
+        label: "Ver músculos trabalhados",
+        className: "secondary-button"
+      });
+    }
+
+    if (hasNext && done < exercise.sets && !blocked) {
+      actions.push({
+        id: "skip",
+        label: "Pular exercício",
+        className: "secondary-button"
+      });
+    }
+
+    actions.push(
+      { id: "minimize", label: "Voltar aos treinos (manter ativo)", className: "secondary-button" },
+      { id: "cancel", label: "Fechar", className: "secondary-button" }
+    );
+
+    const result = await showModal({
+      title: "Mais opções",
+      message: "Ações disponíveis para o exercício e a sessão em andamento.",
+      details,
+      actions
+    });
+
+    if (!result || result.action === "cancel") return;
+
+    if (result.action === "log") {
+      const logPanel = byId("log-panel");
+      if (logPanel) safeScrollIntoView(logPanel, { block: "start" });
+      const firstInput = ["log-reps", "log-load", "log-distance"]
+        .map(id => byId(id))
+        .find(input => input && !input.closest("[hidden]"));
+      if (firstInput && typeof firstInput.focus === "function") {
+        firstInput.focus({ preventScroll: true });
+      }
+      return;
+    }
+
+    if (result.action === "rest") {
+      startRestManually();
+      return;
+    }
+
+    if (result.action === "muscles") {
+      openExerciseFigureDetails();
+      return;
+    }
+
+    if (result.action === "skip") {
+      skipExercise();
+      return;
+    }
+
+    if (result.action === "minimize") {
+      leaveExecution();
+    }
+  }
+
   /* Renderização da página de execução */
 
   function renderExecution() {
@@ -1482,12 +1778,15 @@
     if (!s) {
       live.hidden = true;
       byId("execution-footer").hidden = true;
+      byId("end-session").hidden = true;
+      renderExerciseHeroMedia(null, null);
       empty.hidden = false;
       return;
     }
 
     live.hidden = false;
     byId("execution-footer").hidden = false;
+    byId("end-session").hidden = false;
     empty.hidden = true;
 
     const exercise = currentSessionExercise();
@@ -1499,6 +1798,7 @@
     const queue = s.queue;
     const done = Number(s.completedSets[exercise.id]) || 0;
     const totalDone = totalCompletedSets();
+    const doneExercises = completedExerciseCount(s);
     const percent = s.totalPlannedSets > 0
       ? Math.min(100, Math.round(totalDone / s.totalPlannedSets * 100))
       : 0;
@@ -1506,10 +1806,24 @@
     const timer = currentTimerFor(exercise);
     const isTimed = exercise.type === "duration";
 
-    byId("execution-mode").textContent =
-      MODE_NAMES[s.modality].toUpperCase() + " · SESSÃO ATIVA";
+    byId("execution-status-eyebrow").textContent = "TREINO EM ANDAMENTO";
+    byId("execution-mode").textContent = MODE_NAMES[s.modality] || "Treino";
     byId("execution-title").textContent = s.routineName;
     byId("execution-clock").textContent = formatClock(Math.floor(getElapsedMs() / 1000));
+    byId("execution-estimate").textContent = "· ~" + estimateQueueMinutes(queue) + " min";
+
+    byId("execution-progress-percent").textContent = percent + "%";
+    byId("execution-progress-count").textContent =
+      doneExercises + " de " + queue.length;
+    const ringFill = byId("execution-ring-progress");
+    ringFill.style.strokeDasharray = WORKOUT_RING_CIRCUMFERENCE.toFixed(2);
+    ringFill.style.strokeDashoffset =
+      (WORKOUT_RING_CIRCUMFERENCE * (1 - percent / 100)).toFixed(2);
+    byId("execution-ring-box").setAttribute(
+      "aria-label",
+      "Progresso do treino: " + percent + "% (" + totalDone + " de " +
+      s.totalPlannedSets + " séries, " + doneExercises + " de " + queue.length + " exercícios)"
+    );
 
     byId("execution-position").textContent =
       "Exercício " + (s.currentIndex + 1) + " de " + queue.length;
@@ -1522,6 +1836,12 @@
       "Exercício " + (s.currentIndex + 1) + " de " + queue.length;
     byId("current-name").textContent = exercise.name;
 
+    const complement = resolveExerciseComplement(exercise, s.modality);
+    const complementEl = byId("current-complement");
+    complementEl.textContent = complement;
+    complementEl.hidden = !complement;
+
+    renderExerciseHeroMedia(exercise, s.modality);
     renderExerciseDemo(exercise);
     renderExerciseFigure(exercise);
 
@@ -1550,6 +1870,15 @@
       plan.appendChild(loadChip);
     }
 
+    const activeSeriesEl = byId("active-series-value");
+    activeSeriesEl.innerHTML = "";
+    activeSeriesEl.appendChild(document.createTextNode(String(Math.min(done + 1, exercise.sets)) + " "));
+    const seriesSep = document.createElement("span");
+    seriesSep.className = "exec-stat-de";
+    seriesSep.textContent = "de ";
+    activeSeriesEl.appendChild(seriesSep);
+    activeSeriesEl.appendChild(document.createTextNode(String(exercise.sets)));
+
     byId("current-sets-value").innerHTML = "";
     byId("current-sets-value").appendChild(document.createTextNode(String(done) + " "));
     const totalSmall = document.createElement("small");
@@ -1557,22 +1886,20 @@
     byId("current-sets-value").appendChild(totalSmall);
 
     const plannedValue = byId("current-plan-value");
+    const plannedLabel = byId("current-plan-label");
     const plannedKind = logTarget(exercise).kind;
     plannedValue.innerHTML = "";
-    plannedValue.appendChild(document.createTextNode(
-      (plannedKind === "time"
-        ? String(exercise.duration)
-        : plannedKind === "distance"
-          ? String(exercise.distance)
-          : String(exercise.reps)) + " "
-    ));
-    const plannedUnit = document.createElement("small");
-    plannedUnit.textContent = plannedKind === "time"
-      ? "seg"
-      : plannedKind === "distance"
-        ? distanceUnitLabel(exercise)
-        : "reps";
-    plannedValue.appendChild(plannedUnit);
+
+    if (plannedKind === "time") {
+      plannedLabel.textContent = "Duração";
+      plannedValue.textContent = formatRestValue(exercise.duration);
+    } else if (plannedKind === "distance") {
+      plannedLabel.textContent = "Distância";
+      plannedValue.textContent = exercise.distance + " " + distanceUnitLabel(exercise);
+    } else {
+      plannedLabel.textContent = "Repetições";
+      plannedValue.textContent = String(exercise.reps || "—");
+    }
 
     byId("current-rest-value").textContent = exercise.rest > 0
       ? formatRest(exercise.rest)
@@ -1598,6 +1925,7 @@
     byId("set-count-label").textContent = "Séries concluídas";
     byId("set-progress-label").textContent = done + " de " + exercise.sets;
 
+    renderSeriesDial(exercise, done, timer, restActive, s.running);
     renderTimerPanel(exercise, done, timer, restActive);
     renderLogPanel(exercise, done);
 
@@ -1607,16 +1935,29 @@
 
     if (!isTimed) {
       if (!s.running) {
-        completeButton.textContent = "Retome o treino para continuar";
+        setCompleteButtonContent(completeButton, {
+          showCheck: false,
+          label: "Retome o treino para continuar"
+        });
         completeButton.disabled = true;
       } else if (restActive) {
-        completeButton.textContent = "Aguarde o descanso";
+        setCompleteButtonContent(completeButton, {
+          showCheck: false,
+          label: "Aguarde o descanso"
+        });
         completeButton.disabled = true;
       } else if (done >= exercise.sets) {
-        completeButton.textContent = "Séries concluídas";
+        setCompleteButtonContent(completeButton, {
+          showCheck: true,
+          label: "Séries concluídas"
+        });
         completeButton.disabled = true;
       } else {
-        completeButton.textContent = "Concluir série " + (done + 1) + " de " + exercise.sets;
+        setCompleteButtonContent(completeButton, {
+          showCheck: true,
+          label: "Concluir série",
+          srSuffix: (done + 1) + " de " + exercise.sets
+        });
       }
     }
 
@@ -1638,14 +1979,16 @@
 
     const exerciseDone = done >= exercise.sets;
     const hasNext = s.currentIndex < queue.length - 1;
-    const canAdvance = exerciseDone && !restActive;
 
     const nextButton = byId("next-exercise");
-    nextButton.hidden = !canAdvance;
-    if (canAdvance) {
-      nextButton.textContent = hasNext ? "Próximo exercício →" : "Concluir treino →";
-      nextButton.disabled = false;
-    }
+    nextButton.hidden = false;
+    nextButton.disabled = blocked || (!hasNext && !exerciseDone);
+    nextButton.setAttribute(
+      "aria-label",
+      hasNext
+        ? "Próximo exercício"
+        : (exerciseDone ? "Concluir treino" : "Último exercício do treino")
+    );
 
     const skipButton = byId("skip-exercise");
     skipButton.hidden = exerciseDone || !hasNext;
@@ -1724,6 +2067,14 @@
       ? "Decorrido " + formatClock(Math.floor(elapsed / 1000))
       : "Aguardando início";
     byId("set-timer-fill").style.width = Math.round(ratio * 100) + "%";
+
+    renderSeriesDial(
+      exercise,
+      Number(s.completedSets[exercise.id]) || 0,
+      timer,
+      hasRestState(),
+      s.running
+    );
   }
 
   function logEntryParts(exercise, entry) {
@@ -1961,6 +2312,7 @@
     if (!box || !box.height) return;
 
     const nav = document.querySelector(".bottom-nav");
+    const toast = byId("toast");
     let limit = global.innerHeight || 0;
 
     if (nav) {
@@ -1968,9 +2320,14 @@
       if (navBox && navBox.height) limit = Math.min(limit || navBox.top, navBox.top);
     }
 
+    if (toast && !toast.hidden) {
+      const toastBox = toast.getBoundingClientRect();
+      if (toastBox && toastBox.height) limit = Math.min(limit || toastBox.top, toastBox.top);
+    }
+
     /* Rolagem imediata: é uma correção depois do redimensionamento, não uma
        animação pedida pelo usuário. */
-    if (limit && box.bottom > limit) {
+    if ((limit && box.bottom > limit) || box.top < 0) {
       safeScrollIntoView(panel, { block: "nearest", behavior: "auto" });
     }
   }
@@ -1990,6 +2347,7 @@
       const s = session();
       if (exercise && s) F.catalog.showDetail(F.catalog.describeExercise(exercise, s.modality), { readOnly: true });
     });
+    bind("execution-more-options", openMoreOptionsDialog);
     bind("start-rest", startRestManually);
     bind("previous-exercise", goToPreviousExercise);
     bind("next-exercise", goToNextExercise);

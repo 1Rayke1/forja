@@ -1,0 +1,1524 @@
+/* ==========================================================================
+   FORJA — Treino em Andamento (executar.html)
+   --------------------------------------------------------------------------
+   Camada visual dedicada à execução ativa de treino, escopada estritamente a
+   body[data-page="executar"] e às classes .exec-*.
+
+   Isolamento preservado:
+   - Nenhum token global (--bg, --panel, --text, --muted, --border, --lime,
+     --gold, --accent-*) é redefinido.
+   - Nenhum seletor de elemento nu alcança .execution-figure, .modal-figure
+     ou .modal-details.atlas-modal.
+   ========================================================================== */
+
+html:has(body[data-page="executar"]) {
+  background: #050605;
+}
+
+body[data-page="executar"] {
+  --exec-bg: #050605;
+  --exec-surface: #101210;
+  --exec-surface-2: #161916;
+  --exec-surface-3: #1d211d;
+  --exec-line: rgba(255, 255, 255, 0.09);
+  --exec-line-strong: rgba(255, 255, 255, 0.16);
+  --exec-lime: #b7f34a;
+  --exec-lime-bright: #c5fa5f;
+  --exec-lime-ink: #0a1005;
+  --exec-lime-soft: rgba(183, 243, 74, 0.12);
+  --exec-lime-glow: rgba(183, 243, 74, 0.26);
+  --exec-ink: #f5f7f4;
+  --exec-muted: #9da59b;
+  --exec-muted-strong: #c5cdc3;
+
+  background-color: var(--exec-bg);
+  background-image:
+    radial-gradient(circle at 50% 52%, rgba(183, 243, 74, 0.065), transparent 54%),
+    radial-gradient(circle at 82% 8%, rgba(183, 243, 74, 0.045), transparent 36%);
+  color: var(--exec-ink);
+}
+
+/* Acessibilidade: oculto visualmente, lido por leitores de tela e DOM text. */
+.exec-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   1. Cabeçalho superior (FORJA à esquerda · ✕ Encerrar à direita)
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-site-header {
+  position: relative;
+  top: auto;
+  z-index: 20;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: transparent;
+  border-bottom: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+body[data-page="executar"] .exec-header-inner {
+  width: min(100% - 28px, 520px);
+  min-height: 54px;
+  margin-inline: auto;
+  padding-block: 6px;
+  padding-inline: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+body[data-page="executar"] .exec-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--exec-ink);
+  font-family: var(--fj-fonte-titulo, "Archivo Forja", "Archivo", sans-serif);
+  font-size: 23px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.05em;
+  text-decoration: none;
+  text-shadow: none;
+}
+
+body[data-page="executar"] .exec-header-tagline {
+  display: none;
+}
+
+body[data-page="executar"] .exec-end-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--exec-line-strong);
+  border-radius: 999px;
+  background: rgba(20, 23, 20, 0.92);
+  color: var(--exec-ink);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.14s ease;
+}
+
+body[data-page="executar"] .exec-end-button[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-end-button:hover {
+  background: rgba(32, 36, 32, 0.96);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+body[data-page="executar"] .exec-end-button:active {
+  transform: scale(0.97);
+}
+
+body[data-page="executar"] .exec-end-icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: var(--exec-muted-strong);
+}
+
+body[data-page="executar"] .exec-end-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   2. Contêiner principal e palco imersivo mobile-first
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-main {
+  width: min(100% - 28px, 520px);
+  max-width: 520px;
+  margin-inline: auto;
+  padding-top: 8px;
+  padding-bottom: 18px;
+  padding-inline: 0;
+}
+
+body[data-page="executar"] .execution-screen {
+  margin: 0;
+  padding: 0;
+}
+
+body[data-page="executar"] .exec-wrap {
+  max-width: none;
+  margin: 0;
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-live {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-live[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-empty-state {
+  margin-top: 16px;
+  padding: 28px 22px;
+  border: 1px solid var(--exec-line);
+  border-radius: 20px;
+  background: var(--exec-surface);
+}
+
+/* --------------------------------------------------------------------------
+   3. Bloco de informações do treino + anel circular de progresso
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-workout-head,
+body[data-page="executar"] .execution-header.exec-workout-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-workout-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+body[data-page="executar"] .exec-eyebrow-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-eyebrow {
+  color: var(--exec-lime);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+body[data-page="executar"] .exec-workout-title {
+  margin: 0;
+  color: var(--exec-ink);
+  font-family: var(--fj-fonte-titulo, "Archivo Forja", sans-serif);
+  font-size: clamp(23px, 6.4vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+body[data-page="executar"] .exec-workout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2px;
+  color: var(--exec-muted-strong);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+body[data-page="executar"] .exec-modality-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+body[data-page="executar"] .exec-meta-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--exec-muted-strong);
+}
+
+body[data-page="executar"] .exec-meta-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+body[data-page="executar"] .exec-modality {
+  color: var(--exec-muted-strong);
+  font-weight: 500;
+}
+
+body[data-page="executar"] .exec-meta-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--exec-muted-strong);
+}
+
+body[data-page="executar"] .exec-meta-clock-icon {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  color: var(--exec-muted-strong);
+}
+
+body[data-page="executar"] .exec-meta-clock-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+body[data-page="executar"] .exec-meta-time .execution-clock {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--exec-ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="executar"] .exec-meta-estimate {
+  color: var(--exec-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="executar"] .exec-progress-ring-wrap {
+  position: relative;
+  flex: 0 0 74px;
+  width: 74px;
+  height: 74px;
+  display: grid;
+  place-items: center;
+}
+
+body[data-page="executar"] .exec-progress-ring-svg {
+  width: 74px;
+  height: 74px;
+  display: block;
+  transform: rotate(-90deg);
+}
+
+body[data-page="executar"] .exec-progress-ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 5;
+}
+
+body[data-page="executar"] .exec-progress-ring-fill {
+  fill: none;
+  stroke: var(--exec-lime);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 201.06;
+  stroke-dashoffset: 201.06;
+  filter: drop-shadow(0 0 6px rgba(183, 243, 74, 0.38));
+  transition: stroke-dashoffset 0.32s ease;
+}
+
+body[data-page="executar"] .exec-progress-ring-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  text-align: center;
+  pointer-events: none;
+}
+
+body[data-page="executar"] .exec-progress-ring-text {
+  color: #ffffff;
+  font-family: var(--fj-fonte-numero, "Inter Forja", sans-serif);
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="executar"] .exec-progress-ring-sub,
+body[data-page="executar"] .exec-progress-ring-sub-unit {
+  color: var(--exec-muted);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 8.2px;
+  font-weight: 500;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Banner compacto quando o treino está pausado */
+body[data-page="executar"] .exec-paused-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(183, 243, 74, 0.35);
+  border-radius: 14px;
+  background: rgba(183, 243, 74, 0.08);
+  color: var(--exec-ink);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 12.5px;
+  line-height: 1.35;
+  text-align: left;
+}
+
+body[data-page="executar"] .exec-paused-banner[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-paused-banner strong {
+  display: block;
+  color: var(--exec-lime);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+body[data-page="executar"] .exec-paused-dot {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--exec-lime);
+  box-shadow: 0 0 8px var(--exec-lime);
+}
+
+/* --------------------------------------------------------------------------
+   4. Área principal do exercício (Hero com foto real ou fallback neutro)
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-hero {
+  position: relative;
+  overflow: hidden;
+  width: calc(100% + 28px);
+  max-width: none;
+  min-height: 144px;
+  margin-inline: -14px;
+  padding: 14px 14px 12px;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(183, 243, 74, 0.08), transparent 62%),
+    linear-gradient(180deg, #050605 0%, #121512 46%, #050605 100%);
+  display: flex;
+  align-items: flex-end;
+  isolation: isolate;
+}
+
+body[data-page="executar"] .exec-hero.sem-foto::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    -36deg,
+    transparent 0 24px,
+    rgba(183, 243, 74, 0.026) 24px 25px,
+    transparent 25px 48px
+  );
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+}
+
+body[data-page="executar"] .exec-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body[data-page="executar"] .exec-hero-picture,
+body[data-page="executar"] .exec-hero-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.82) contrast(1.14) brightness(0.62);
+}
+
+body[data-page="executar"] .exec-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, #050605 0%, rgba(5, 6, 5, 0.18) 28%, rgba(5, 6, 5, 0.58) 72%, #050605 100%),
+    linear-gradient(90deg, rgba(5, 6, 5, 0.75) 0%, rgba(5, 6, 5, 0.22) 55%, rgba(5, 6, 5, 0.72) 100%);
+}
+
+body[data-page="executar"] .exec-hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-hero-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+body[data-page="executar"] .exec-hero-pos-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+body[data-page="executar"] .exec-hero-pos-bar {
+  flex: 0 0 3px;
+  width: 3px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--exec-lime);
+}
+
+body[data-page="executar"] .exec-hero-position {
+  margin: 0;
+  color: var(--exec-lime);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+body[data-page="executar"] .exec-hero-name {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--fj-fonte-titulo, "Archivo Forja", sans-serif);
+  font-size: clamp(22px, 6vw, 27px);
+  font-weight: 800;
+  letter-spacing: -0.028em;
+  line-height: 1.12;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+body[data-page="executar"] .exec-hero-complement {
+  margin: 1px 0 0;
+  color: var(--exec-muted-strong);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+body[data-page="executar"] .exec-hero-complement[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-demo-btn {
+  appearance: none;
+  flex: 0 0 auto;
+  min-width: 84px;
+  min-height: 72px;
+  margin: 0;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--exec-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.16s ease, filter 0.16s ease;
+}
+
+body[data-page="executar"] .exec-demo-btn:hover {
+  color: #ffffff;
+}
+
+body[data-page="executar"] .exec-demo-btn:active {
+  transform: scale(0.96);
+}
+
+body[data-page="executar"] .exec-demo-play {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.26);
+  background: rgba(14, 17, 14, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.16s ease, color 0.16s ease;
+}
+
+body[data-page="executar"] .exec-demo-btn:hover .exec-demo-play {
+  border-color: var(--exec-lime);
+  color: var(--exec-lime);
+}
+
+body[data-page="executar"] .exec-demo-play svg {
+  width: 19px;
+  height: 19px;
+  transform: translateX(1px);
+}
+
+body[data-page="executar"] .exec-demo-label {
+  max-width: 86px;
+  color: #d6ddd4;
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.18;
+}
+
+/* --------------------------------------------------------------------------
+   5. Faixa horizontal de informações das séries (3 colunas alinhadas)
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  padding-block: 6px;
+}
+
+body[data-page="executar"] .exec-stat-cell {
+  min-width: 0;
+  padding-inline: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: left;
+}
+
+body[data-page="executar"] .exec-stat-cell + .exec-stat-cell {
+  border-left: 1px solid var(--exec-line);
+}
+
+body[data-page="executar"] .exec-stat-badge {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  color: var(--exec-muted-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body[data-page="executar"] .exec-stat-badge svg {
+  width: 100%;
+  height: 100%;
+}
+
+body[data-page="executar"] .exec-stat-stack {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+body[data-page="executar"] .exec-stat-label {
+  color: var(--exec-muted);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+body[data-page="executar"] .exec-stat-value {
+  color: #ffffff;
+  font-family: var(--fj-fonte-numero, "Inter Forja", sans-serif);
+  font-size: clamp(16px, 4.5vw, 19px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+body[data-page="executar"] .exec-stat-de {
+  color: var(--exec-muted);
+  font-weight: 500;
+  font-size: 0.82em;
+}
+
+/* --------------------------------------------------------------------------
+   6. Bloco central de controle da série + navegação Anterior / Próximo
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-center-control {
+  display: grid;
+  grid-template-columns: minmax(60px, 76px) minmax(0, 1fr) minmax(60px, 76px);
+  align-items: center;
+  justify-items: center;
+  gap: 8px;
+  padding-block: 2px;
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-nav-btn {
+  appearance: none;
+  min-width: 60px;
+  min-height: 74px;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--exec-muted-strong);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.16s ease, color 0.16s ease;
+}
+
+body[data-page="executar"] .exec-nav-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--exec-line-strong);
+  background: var(--exec-surface-2);
+  color: var(--exec-ink);
+  display: grid;
+  place-items: center;
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+body[data-page="executar"] .exec-nav-circle svg {
+  width: 20px;
+  height: 20px;
+}
+
+body[data-page="executar"] .exec-nav-label {
+  color: var(--exec-muted);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+body[data-page="executar"] .exec-nav-btn:hover:not(:disabled) .exec-nav-circle {
+  border-color: rgba(183, 243, 74, 0.55);
+  background: var(--exec-surface-3);
+}
+
+body[data-page="executar"] .exec-nav-btn:hover:not(:disabled) .exec-nav-label {
+  color: var(--exec-ink);
+}
+
+body[data-page="executar"] .exec-nav-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+body[data-page="executar"] .exec-nav-btn:disabled {
+  opacity: 0.34;
+  cursor: not-allowed;
+}
+
+body[data-page="executar"] .exec-series-dial {
+  position: relative;
+  width: clamp(148px, 42vw, 174px);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, rgba(25, 31, 23, 0.85) 0%, rgba(9, 11, 9, 0.96) 72%);
+  box-shadow:
+    0 0 38px rgba(183, 243, 74, 0.11),
+    inset 0 0 24px rgba(183, 243, 74, 0.05);
+}
+
+body[data-page="executar"] .exec-series-dial-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+body[data-page="executar"] .exec-series-dial-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 5.5;
+}
+
+body[data-page="executar"] .exec-series-dial-arc {
+  fill: none;
+  stroke: var(--exec-lime);
+  stroke-width: 5.5;
+  stroke-linecap: round;
+  stroke-dasharray: 590.62;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 8px rgba(183, 243, 74, 0.44));
+  transition: stroke-dashoffset 0.32s ease, opacity 0.2s ease;
+}
+
+body[data-page="executar"] .exec-series-dial.is-muted .exec-series-dial-arc {
+  opacity: 0.48;
+}
+
+body[data-page="executar"] .exec-series-dial-inner {
+  position: relative;
+  z-index: 1;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+
+body[data-page="executar"] .exec-dial-eyebrow {
+  color: var(--exec-lime);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 8.8px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+body[data-page="executar"] .exec-dial-value {
+  margin-block: 2px;
+  color: #ffffff;
+  font-family: var(--fj-fonte-numero, "Inter Forja", sans-serif);
+  font-size: clamp(38px, 11vw, 50px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  font-variant-numeric: tabular-nums;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+body[data-page="executar"] .exec-dial-value.is-compact {
+  font-size: clamp(26px, 7.6vw, 34px);
+  letter-spacing: -0.03em;
+}
+
+body[data-page="executar"] .exec-dial-unit {
+  color: var(--exec-muted-strong);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+body[data-page="executar"] .exec-dial-pips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 7px 0 0;
+  min-height: 6px;
+}
+
+body[data-page="executar"] .exec-dial-pips .set-pip {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 4px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+body[data-page="executar"] .exec-dial-pips .set-pip.done {
+  background: var(--exec-lime);
+  box-shadow: 0 0 6px rgba(183, 243, 74, 0.5);
+}
+
+/* Painel do cronômetro em exercícios por duração */
+body[data-page="executar"] .exec-timer-panel {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--exec-line-strong);
+  border-radius: 16px;
+  background: var(--exec-surface);
+}
+
+body[data-page="executar"] .exec-timer-panel[hidden] {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. Botão principal: ✓ Concluir série
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-cta-wrap {
+  width: 100%;
+}
+
+body[data-page="executar"] .exec-cta-button {
+  appearance: none;
+  width: 100%;
+  min-height: 58px;
+  padding: 13px 20px;
+  border: 1px solid var(--exec-lime);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--exec-lime-bright) 0%, var(--exec-lime) 100%);
+  color: var(--exec-lime-ink);
+  box-shadow:
+    0 10px 30px rgba(183, 243, 74, 0.25),
+    0 2px 8px rgba(183, 243, 74, 0.18);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 17.5px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.14s ease, filter 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+}
+
+body[data-page="executar"] .exec-cta-button[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-cta-button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #d1ff72 0%, #c1f85a 100%);
+  box-shadow: 0 12px 34px rgba(183, 243, 74, 0.34);
+}
+
+body[data-page="executar"] .exec-cta-button:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+body[data-page="executar"] .exec-cta-button:disabled {
+  border-color: var(--exec-line-strong);
+  background: var(--exec-surface-2);
+  color: var(--exec-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+body[data-page="executar"] .exec-cta-check {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0b0f08;
+  color: #ffffff;
+  flex: 0 0 28px;
+}
+
+body[data-page="executar"] .exec-cta-button:disabled .exec-cta-check {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--exec-muted);
+}
+
+body[data-page="executar"] .exec-cta-check svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   8. Bloco de descanso (Próxima série em · contador · Pular descanso)
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-rest-card {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(183, 243, 74, 0.28);
+  border-radius: 16px;
+  background: var(--exec-surface);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  /* Garante visibilidade acima de .bottom-nav e #toast em qualquer tela (320x568+). */
+  scroll-margin-top: 68px;
+  scroll-margin-bottom: calc(var(--bottom-nav-height, 69px) + 96px);
+}
+
+body[data-page="executar"] .exec-rest-card[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-rest-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-rest-info {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+body[data-page="executar"] .exec-rest-icon {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--exec-lime);
+  display: inline-flex;
+}
+
+body[data-page="executar"] .exec-rest-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+body[data-page="executar"] .exec-rest-text {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  color: var(--exec-muted-strong);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 13.5px;
+  line-height: 1.25;
+}
+
+body[data-page="executar"] .exec-rest-prefix {
+  color: var(--exec-muted-strong);
+  font-weight: 500;
+}
+
+body[data-page="executar"] .exec-rest-countdown {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--fj-fonte-numero, "Inter Forja", sans-serif);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="executar"] .exec-rest-skip {
+  appearance: none;
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--exec-line-strong);
+  border-radius: 11px;
+  background: var(--exec-surface-2);
+  color: var(--exec-ink);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.14s ease;
+}
+
+body[data-page="executar"] .exec-rest-skip:hover:not(:disabled) {
+  border-color: var(--exec-lime);
+  color: var(--exec-lime);
+}
+
+body[data-page="executar"] .exec-rest-skip:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+body[data-page="executar"] .exec-rest-skip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+body[data-page="executar"] .exec-rest-sub {
+  display: grid;
+  gap: 6px;
+  padding-top: 7px;
+  border-top: 1px solid var(--exec-line);
+}
+
+body[data-page="executar"] .exec-rest-caption {
+  margin: 0;
+  color: var(--exec-muted);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+body[data-page="executar"] .exec-rest-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+body[data-page="executar"] .exec-rest-adjust,
+body[data-page="executar"] .exec-rest-pause-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+body[data-page="executar"] .exec-rest-adjust-label {
+  color: var(--exec-muted);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="executar"] .exec-rest-chip {
+  appearance: none;
+  min-height: 44px;
+  padding: 6px 11px;
+  border: 1px solid var(--exec-line-strong);
+  border-radius: 10px;
+  background: var(--exec-surface-2);
+  color: var(--exec-ink);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+body[data-page="executar"] .exec-rest-chip[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-rest-chip.is-accent {
+  border-color: rgba(183, 243, 74, 0.48);
+  color: var(--exec-lime);
+}
+
+body[data-page="executar"] .exec-rest-chip:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body[data-page="executar"] .exec-rest-chip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   9. Barra inferior de controle (⏸ Pausar treino | ⚙ Mais opções)
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-bottom-bar {
+  margin-top: auto;
+  padding: 6px 0 2px;
+  border-top: 1px solid var(--exec-line);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  align-items: center;
+  gap: 0;
+}
+
+body[data-page="executar"] .exec-bottom-bar[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-bottom-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--exec-line);
+}
+
+body[data-page="executar"] .exec-bottom-action {
+  appearance: none;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--exec-muted-strong);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: color 0.16s ease, background-color 0.16s ease;
+}
+
+body[data-page="executar"] .exec-bottom-action[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-bottom-action:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+body[data-page="executar"] .exec-bottom-action.is-resume {
+  color: var(--exec-lime);
+}
+
+body[data-page="executar"] .exec-bottom-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+body[data-page="executar"] .exec-bottom-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   10. Zona complementar da sessão (abaixo da dobra: registro, atlas e demo)
+   -------------------------------------------------------------------------- */
+
+body[data-page="executar"] .exec-details-zone {
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--exec-line);
+  min-width: 0;
+}
+
+body[data-page="executar"] .exec-session-notes {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--exec-line);
+  border-left: 3px solid var(--exec-lime);
+  border-radius: 14px;
+  background: var(--exec-surface);
+}
+
+body[data-page="executar"] .exec-log-panel {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--exec-line);
+  border-radius: 18px;
+  background: var(--exec-surface);
+  display: grid;
+  gap: 12px;
+}
+
+body[data-page="executar"] .exec-log-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+body[data-page="executar"] .exec-set-summary {
+  margin: 4px 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--exec-muted);
+  font-size: 12.5px;
+}
+
+body[data-page="executar"] .exec-set-summary strong {
+  color: var(--exec-muted);
+  font-weight: 500;
+}
+
+body[data-page="executar"] .exec-set-summary #set-progress-label {
+  color: var(--exec-lime);
+  font-weight: 700;
+}
+
+body[data-page="executar"] .exec-quick-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+body[data-page="executar"] .exec-tool-btn {
+  appearance: none;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--exec-line-strong);
+  border-radius: 11px;
+  background: var(--exec-surface-2);
+  color: var(--exec-muted-strong);
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+body[data-page="executar"] .exec-tool-btn[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-tool-btn:hover:not(:disabled) {
+  border-color: rgba(183, 243, 74, 0.45);
+  color: #ffffff;
+}
+
+body[data-page="executar"] .exec-tool-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Opções reais listadas no modal "Mais opções" */
+.exec-options-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.exec-option-item {
+  appearance: none;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: #151815;
+  color: #f4f7f3;
+  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.exec-option-item:hover {
+  border-color: rgba(183, 243, 74, 0.55);
+  background: #1b1f1b;
+}
+
+.exec-option-item small {
+  color: #9da59b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Foco visível em todos os controles novos */
+body[data-page="executar"] :is(
+  .exec-end-button,
+  .exec-demo-btn,
+  .exec-nav-btn,
+  .exec-cta-button,
+  .exec-rest-skip,
+  .exec-rest-chip,
+  .exec-bottom-action,
+  .exec-tool-btn
+):focus-visible,
+.exec-option-item:focus-visible {
+  outline: 3px solid var(--exec-lime);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   11. Responsividade em telas estreitas (320–360 px) e maiores (720 px+)
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 360px) {
+  body[data-page="executar"] .exec-header-inner,
+  body[data-page="executar"] .exec-main {
+    width: calc(100% - 20px);
+  }
+
+  body[data-page="executar"] .exec-hero {
+    width: calc(100% + 20px);
+    margin-inline: -10px;
+    min-height: 126px;
+    padding: 12px 10px 10px;
+  }
+
+  body[data-page="executar"] .exec-demo-btn {
+    min-width: 74px;
+    padding: 4px;
+  }
+
+  body[data-page="executar"] .exec-demo-play {
+    width: 42px;
+    height: 42px;
+  }
+
+  body[data-page="executar"] .exec-stat-cell {
+    padding-inline: 4px;
+    gap: 5px;
+  }
+
+  body[data-page="executar"] .exec-stat-badge {
+    width: 16px;
+    height: 16px;
+    flex-basis: 16px;
+  }
+
+  body[data-page="executar"] .exec-stat-label {
+    font-size: 9px;
+    letter-spacing: 0.03em;
+  }
+
+  body[data-page="executar"] .exec-center-control {
+    grid-template-columns: 54px minmax(0, 1fr) 54px;
+    gap: 4px;
+  }
+
+  body[data-page="executar"] .exec-nav-circle {
+    width: 44px;
+    height: 44px;
+  }
+
+  body[data-page="executar"] .exec-series-dial {
+    width: clamp(146px, 46vw, 168px);
+  }
+
+  body[data-page="executar"] .exec-rest-main {
+    flex-wrap: wrap;
+  }
+
+  body[data-page="executar"] .exec-rest-skip {
+    width: 100%;
+    text-align: center;
+  }
+
+  body[data-page="executar"] .exec-bottom-action {
+    font-size: 13px;
+    padding-inline: 4px;
+  }
+}
+
+@media (max-height: 700px) {
+  body[data-page="executar"] .exec-stage {
+    gap: 10px;
+    min-height: 0;
+  }
+
+  body[data-page="executar"] .exec-hero {
+    min-height: 114px;
+    padding: 13px 14px;
+  }
+
+  body[data-page="executar"] .exec-series-dial {
+    width: 152px;
+  }
+}
+
+@media (min-width: 720px) {
+  body[data-page="executar"] .exec-header-inner,
+  body[data-page="executar"] .exec-main {
+    width: min(100% - 40px, 540px);
+    max-width: 540px;
+  }
+
+  body[data-page="executar"] .exec-stage {
+    min-height: 0;
+    gap: 18px;
+    padding-top: 6px;
+  }
+
+  body[data-page="executar"] .exec-hero {
+    width: 100%;
+    margin-inline: 0;
+    border-radius: 18px;
+    min-height: 156px;
+    padding: 22px 20px;
+  }
+}
+
+/* Alto contraste e redução de movimento */
+html[data-forja-theme="contrast"] body[data-page="executar"] {
+  --exec-bg: #000000;
+  --exec-surface: #080c0d;
+  --exec-surface-2: #121819;
+  --exec-line: #87958e;
+  --exec-line-strong: #b4c0ba;
+  --exec-lime: #c5ff57;
+  --exec-lime-bright: #d8ff8a;
+  --exec-ink: #ffffff;
+  --exec-muted: #d0d8d5;
+  --exec-muted-strong: #eef4f2;
+  background-image: none;
+}
+
+body[data-page="executar"] .exec-end-button,
+body[data-page="executar"] .exec-end-button:hover,
+body[data-page="executar"] .exec-demo-btn,
+body[data-page="executar"] .exec-demo-btn:hover,
+body[data-page="executar"] .exec-nav-btn,
+body[data-page="executar"] .exec-nav-btn:hover,
+body[data-page="executar"] .exec-cta-button,
+body[data-page="executar"] .exec-cta-button:hover:not(:disabled),
+body[data-page="executar"] .exec-rest-skip,
+body[data-page="executar"] .exec-rest-skip:hover,
+body[data-page="executar"] .exec-rest-chip,
+body[data-page="executar"] .exec-rest-chip:hover,
+body[data-page="executar"] .exec-bottom-action,
+body[data-page="executar"] .exec-bottom-action:hover {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-page="executar"] .exec-progress-ring-fill,
+  body[data-page="executar"] .exec-series-dial-arc,
+  body[data-page="executar"] .exec-end-button,
+  body[data-page="executar"] .exec-demo-btn,
+  body[data-page="executar"] .exec-nav-btn,
+  body[data-page="executar"] .exec-cta-button,
+  body[data-page="executar"] .exec-rest-skip,
+  body[data-page="executar"] .exec-bottom-action {
+    transition: none !important;
+  }
+}
