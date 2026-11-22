@@ -594,16 +594,16 @@ await runTest("D16. Sessão e execução preservam a imagem personalizada", asyn
   seed["forja-treino-sessao-ativa-v1"] = active;
   const app = await boot(seed, "treino/executar.html", { now: 1000 });
   assert.equal(app.F.state.activeWorkout.queue[0].demoId, "repdb:plyo-push-up");
-  assert.ok(app.$("#execution-demo .demo-media"), "sem ilustração na execução");
-  assert.equal(app.$("#execution-demo .demo-media").getAttribute("data-demo-id"),
-    "repdb:plyo-push-up");
-  assert.match(app.text("#execution-demo .demo-credit"), /RepDB/);
+  assert.equal(app.$("#execution-demo"), null, "bloco de referência inferior não deve existir na execução");
   assert.equal(app.$("#execution-figure"), null, "figura anatômica não deve aparecer na tela de execução");
+  assert.equal(app.$("#log-panel"), null, "card de registro não deve aparecer na tela de execução");
+  assert.equal(app.$("#session-notes"), null, "card de observação não deve aparecer na tela de execução");
 
   app.click("#execution-instructions");
   await wait(20);
   assert.equal(app.$(".modal-details .demo-media").getAttribute("data-demo-id"),
     "repdb:plyo-push-up", "modal readOnly perdeu a escolha");
+  assert.match(app.text(".modal-details .demo-credit"), /RepDB/);
   app.modalAction("cancel");
   await wait(25);
   app.close();

@@ -145,7 +145,7 @@ try {
         duration: 45,
         rest: 60,
         load: '60 kg',
-        notes: 'Escápulas retraídas no banco.',
+        notes: 'Alternativa compatível: Supino com halteres.',
         youtubeVideo: {
           videoId: 'BenchDemo01',
           title: 'Supino Reto Execução',
@@ -248,8 +248,11 @@ try {
         dialValue: document.getElementById('series-dial-value').textContent.trim(),
         dialUnit: document.getElementById('series-dial-unit').textContent.trim(),
         dialOffset: Number(dialOffset),
+        hasSessionNotes: Boolean(document.getElementById('session-notes')),
+        hasLogPanel: Boolean(document.getElementById('log-panel') || document.getElementById('execution-details-zone')),
         hasAnatomyFigure: Boolean(document.getElementById('execution-figure') || document.querySelector('.figura-svg')),
-        detailsZoneHidden: document.getElementById('execution-details-zone').hidden,
+        hasReferenceBlock: Boolean(document.getElementById('execution-demo')) ||
+          /Referência\s*·\s*Treino|Registre as séries conforme forem concluídas|Alternativa compatível/i.test(document.body.textContent),
         prevDisabled: document.getElementById('previous-exercise').disabled,
         nextDisabled: document.getElementById('next-exercise').disabled
       };
@@ -275,8 +278,10 @@ try {
     assert.equal(ui.dialValue, '8');
     assert.equal(ui.dialUnit, 'DE 12 REPETIÇÕES');
     assert.ok(ui.dialOffset > 180 && ui.dialOffset < 210, 'Arco central deve refletir 8 de 12 repetições');
-    assert.equal(ui.hasAnatomyFigure, false, 'Não deve existir ilustração anatômica na tela de execução');
-    assert.equal(ui.detailsZoneHidden, true, 'Não deve haver cards empilhados abaixo do palco principal');
+    assert.equal(ui.hasSessionNotes, false, 'Card de Observação deve ser completamente removido');
+    assert.equal(ui.hasLogPanel, false, 'Card Registro da série deve ser completamente removido');
+    assert.equal(ui.hasAnatomyFigure, false, 'Ilustração anatômica deve ser completamente removida');
+    assert.equal(ui.hasReferenceBlock, false, 'Seção Referência · Treino Principal deve ser completamente removida');
     assert.equal(ui.prevDisabled, false);
     assert.equal(ui.nextDisabled, false);
 
@@ -470,12 +475,23 @@ try {
       btns.map(b => b.textContent.trim())
     );
     assert.ok(optionLabels.includes('Registrar carga / repetições'));
+    assert.ok(optionLabels.includes('Corrigir série 2'));
     assert.ok(optionLabels.some(label => label.startsWith('Iniciar descanso')));
     assert.ok(!optionLabels.includes('Ver músculos trabalhados'), 'Não deve expor figura anatômica na execução');
     assert.ok(optionLabels.includes('Pular exercício'));
     assert.ok(optionLabels.includes('Voltar aos treinos (manter ativo)'));
-    await page.keyboard.press('Escape');
+
+    /* Registrar carga / repetições usa modal limpo, nunca card inferior na página. */
+    await page.click('[data-modal-action="log"]');
+    await page.waitForSelector('[data-modal-field="load"]', { timeout: 4000 });
+    await page.$eval('[data-modal-field="load"]', el => {
+      el.value = '62 kg';
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await page.click('[data-modal-action="save"]');
     await sleep(150);
+    assert.equal(await page.$('#log-panel'), null, 'Nenhum card inferior pode aparecer após salvar parâmetros');
+    assert.equal(await page.evaluate(() => window.Forja.state.activeWorkout.logDraft['ex-supino'].load), '62 kg');
 
     /* Encerrar pede confirmação: cancelar mantém treino; salvar registra parcial. */
     await click(page, '#end-session');

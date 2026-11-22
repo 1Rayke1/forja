@@ -826,8 +826,10 @@ await runTest("4b. Pular descanso não prende o usuário e descanso manual funci
   const app = await boot({ "forja-treino-rotinas-v1": routines }, PAGE.calistenia);
   await startRoutine(app);
 
-  // Descanso manual antes da série
-  app.click("#start-rest");
+  // Descanso manual antes da série (via Mais opções)
+  app.click("#execution-more-options");
+  await wait(20);
+  app.modalAction("rest");
   await wait(20);
   assert.equal(shown(app, "#execution-rest"), true);
   assert.match(app.text("#skip-rest"), /Pular descanso/);
@@ -1349,7 +1351,8 @@ const ESSENTIAL_BY_PAGE = {
   [PAGE.rotina]: ["save-routine", "save-routine-top", "exercise-form", "library-search"],
   [PAGE.executar]: [
     "complete-set", "pause-session", "resume-session", "end-session", "pause-rest",
-    "resume-rest", "skip-rest", "start-rest", "previous-exercise", "next-exercise"
+    "resume-rest", "skip-rest", "series-dial-trigger", "execution-more-options",
+    "previous-exercise", "next-exercise"
   ],
   [PAGE.config]: ["export-backup", "import-backup-button", "restore-safety-backup", "pref-sound", "profile-form", "prof-sexo", "prof-modalidade", "prof-dias", "prof-duracao"],
   [PAGE.onboarding]: ["onboarding-shell", "onboarding-step", "onboarding-form", "onboarding-back", "onboarding-next"]

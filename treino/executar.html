@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="../assets/css/marca.css">
 <link rel="stylesheet" href="../assets/css/demonstracoes.css">
 <link rel="stylesheet" href="../assets/css/aparencia.css">
-<link rel="stylesheet" href="../assets/css/execucao-referencia.css">
+<link rel="stylesheet" href="../assets/css/execucao-referencia.css?v=3">
 </head>
 
 <body data-page="executar" data-root="../">
@@ -175,6 +175,7 @@
               <div class="exec-stat-stack">
                 <span class="exec-stat-label">Séries</span>
                 <strong class="exec-stat-value focus-stat-value" id="active-series-value">—</strong>
+                <span class="exec-sr-only" id="current-sets-value">0 <small>/ 0</small></span>
               </div>
             </div>
 
@@ -230,7 +231,6 @@
                 <span class="exec-dial-unit" id="series-dial-unit">DE — REPETIÇÕES</span>
               </span>
             </button>
-            <div class="set-pips exec-sr-only" id="set-pips" aria-hidden="true"></div>
 
             <button type="button" class="exec-nav-btn" id="next-exercise">
               <span class="exec-nav-circle" aria-hidden="true">
@@ -350,68 +350,6 @@
             </button>
           </footer>
         </div>
-
-        <!-- Gaveta complementar fechada por padrão (aberta apenas sob demanda em Mais opções) -->
-        <div class="exec-details-zone" id="execution-details-zone" hidden>
-          <div class="exec-drawer-bar">
-            <strong class="exec-drawer-title">Detalhes e registro da série</strong>
-            <button type="button" class="exec-tool-btn" id="close-details-zone">Fechar</button>
-          </div>
-
-          <div class="session-notes exec-session-notes" id="session-notes" hidden>
-            <strong>Observação</strong>
-            <span id="session-notes-text"></span>
-          </div>
-
-          <section class="log-panel exec-log-panel" id="log-panel" aria-labelledby="log-heading">
-            <div class="exec-log-header">
-              <div>
-                <h3 class="form-heading" id="log-heading">Registro da série</h3>
-                <div class="set-count exec-set-summary" id="set-progress-heading">
-                  <strong id="set-count-label">Séries concluídas</strong>
-                  <span id="set-progress-label">0 de 0</span>
-                  <span class="exec-sr-only" id="current-sets-value">0 <small>/ 0</small></span>
-                </div>
-              </div>
-              <div class="exec-quick-tools">
-                <button type="button" class="exec-tool-btn" id="start-rest" hidden>Iniciar descanso</button>
-                <button type="button" class="exec-tool-btn" id="skip-exercise">Pular exercício</button>
-                <button type="button" class="exec-tool-btn" id="minimize-session">Voltar aos treinos</button>
-              </div>
-            </div>
-
-            <div class="log-fields">
-              <div class="field-block" id="log-reps-field">
-                <label class="field-label" for="log-reps">Repetições feitas</label>
-                <input id="log-reps" type="text" maxlength="30" autocomplete="off">
-              </div>
-              <div class="field-block" id="log-load-field">
-                <label class="field-label" for="log-load">Carga usada</label>
-                <input id="log-load" type="text" maxlength="50" autocomplete="off" placeholder="Ex.: 20 kg">
-              </div>
-              <div class="field-block" id="log-distance-field" hidden>
-                <label class="field-label" for="log-distance">Distância da série (<span id="log-distance-unit">m</span>)</label>
-                <input id="log-distance" type="number" min="0" max="100000" step="1" inputmode="decimal" autocomplete="off" placeholder="Ex.: 400">
-                <p class="field-hint" id="log-distance-hint"></p>
-              </div>
-              <div class="field-block" id="log-rpe-field">
-                <label class="field-label" for="log-rpe">Esforço desta série (RPE)</label>
-                <select id="log-rpe">
-                  <option value="">Não registrar</option>
-                  <option value="6">6 · folgado</option>
-                  <option value="7">7 · difícil</option>
-                  <option value="8">8 · bem difícil</option>
-                  <option value="9">9 · quase falha</option>
-                  <option value="10">10 · falha</option>
-                </select>
-              </div>
-            </div>
-            <p class="log-note" id="log-note-line" hidden></p>
-            <ul class="log-list" id="log-list"></ul>
-          </section>
-
-          <div class="execution-demo exec-sr-only" id="execution-demo" hidden></div>
-        </div>
       </div>
 
       <section class="session-summary" id="execution-summary" aria-labelledby="summary-title" hidden>
@@ -493,7 +431,7 @@
 <script src="../assets/js/forja-biblioteca.js" defer></script>
 <script src="../assets/js/forja-fotografias-dados.js" defer></script>
 <script src="../assets/js/forja-fotografias.js" defer></script>
-<script src="../assets/js/forja-sessao.js" defer></script>
+<script src="../assets/js/forja-sessao.js?v=3" defer></script>
 <script src="../assets/js/forja-treino.js" defer></script>
 <script src="../assets/js/forja-progresso.js" defer></script>
 <script src="../assets/js/forja-backup.js" defer></script>

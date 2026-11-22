@@ -1480,9 +1480,9 @@ await check('Pausar sessão, descanso com pular e confirmação antes de descart
   await jsClick('#resume-session');
   assert.ok(!(await isVisible('#session-paused-overlay')), 'Overlay não fechou');
 
-  // Descanso: a sessão pode ter um exercício com descanso; apenas confirmamos o controle.
-  const hasRest = await page.$('#start-rest');
-  assert.ok(hasRest, 'Botão de descanso ausente');
+  // Descanso: a estrutura de descanso compacto e o botão Pular descanso estão presentes.
+  const hasRest = await page.$('#execution-rest');
+  assert.ok(hasRest, 'Painel compacto de descanso ausente');
 
   await jsClick('#end-session');
   await page.waitForSelector('[data-modal-action]', { timeout: 4000 });
@@ -3101,7 +3101,13 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
       window.Forja.store.driver().setItem(key, JSON.stringify(s));
     });
     await go('treino/executar.html');
-    await fill('#log-reps', '12');
+    await clickCentered('#execution-more-options');
+    await page.waitForSelector('[data-modal-action="log"]', { timeout: 4000 });
+    await jsClick('[data-modal-action="log"]');
+    await page.waitForSelector('[data-modal-field="reps"]', { timeout: 4000 });
+    await fill('[data-modal-field="reps"]', '12');
+    await jsClick('[data-modal-action="save"]');
+    await sleep(120);
     const before = await forjaRaw();
     const deadline = (await data('forja-treino-sessao-ativa-v1')).restEndAt;
     await clickCentered('#execution-instructions');
@@ -3113,7 +3119,10 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
     await page.keyboard.press('Escape');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'execution-instructions');
     assert.deepEqual(await forjaRaw(), before, 'Consulta não escreve a sessão');
-    assert.equal(await page.$eval('#log-reps', el => el.value), '12');
+    assert.equal(await page.evaluate(() => {
+      const s = Forja.state.activeWorkout;
+      return s.logDraft[s.queue[0].id].reps;
+    }), '12');
     await clickCentered('#pause-session');
     const paused = await forjaRaw();
     await clickCentered('#execution-instructions');
@@ -3121,7 +3130,10 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
     assert.deepEqual(await forjaRaw(), paused);
     await page.reload({ waitUntil: 'networkidle0' });
     assert.equal(await page.evaluate(() => Forja.state.activeWorkout.running), false);
-    assert.equal(await page.$eval('#log-reps', el => el.value), '12');
+    assert.equal(await page.evaluate(() => {
+      const s = Forja.state.activeWorkout;
+      return s.logDraft[s.queue[0].id].reps;
+    }), '12');
     await clickCentered('#resume-session');
     assert.equal(await page.evaluate(() => Forja.state.activeWorkout.running), true);
   } finally {
@@ -3257,14 +3269,18 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
       window.Forja.store.driver().setItem('forja-treino-sessao-ativa-v1', JSON.stringify(session));
     }, routine, today);
     await go('treino/executar.html');
+    assert.equal(await page.$('#execution-demo'), null, 'bloco inferior de referência não deve existir na execução');
+    assert.equal(await page.$('#execution-figure'), null, 'figura anatômica não deve existir na execução');
+    await clickCentered('#execution-instructions');
     await page.waitForFunction(() => {
-      const img = document.querySelector('#execution-demo .demo-image');
+      const img = document.querySelector('.modal-details .demo-image');
       return img && img.complete && img.naturalWidth > 0;
     }, { timeout: 5000 });
-    assert.equal(await page.$eval('#execution-demo .demo-media', el => el.dataset.demoId),
+    assert.equal(await page.$eval('.modal-details .demo-media', el => el.dataset.demoId),
       'repdb:spiderman-push-up');
-    assert.match(await text('#execution-demo .demo-credit'), /RepDB/);
-    assert.equal(await page.$('#execution-figure'), null, 'figura anatômica não deve existir na execução');
+    assert.match(await text('.modal-details .demo-credit'), /RepDB/);
+    await page.keyboard.press('Escape');
+    await sleep(120);
   } finally {
     await go('configuracoes/');
     await restoreForjaRaw(saved);
@@ -3523,17 +3539,23 @@ await check('Vídeos YouTube: Procurar vídeo — nomenclatura, resultados horiz
     }, savedRoutines.calisthenics[1], today);
 
     await go('treino/executar.html');
-    await page.waitForSelector('#execution-demo .video-demo-player', { timeout: 6000 });
-    assert.equal(await page.$('#execution-demo .video-demo-player.is-zoom-crop'), null,
+    await clickCentered('#execution-instructions');
+    await page.waitForSelector('.modal-details .video-demo-player', { timeout: 6000 });
+    assert.equal(await page.$('.modal-details .video-demo-player.is-zoom-crop'), null,
       'zoom/corte não pode existir na execução');
+    await page.keyboard.press('Escape');
+    await sleep(120);
     await page.reload({ waitUntil: 'networkidle0' });
-    await page.waitForSelector('#execution-demo .video-demo-iframe', { timeout: 6000 });
-    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoId), 'LegacyZoom1');
-    assert.equal(await page.$eval('#execution-demo .video-demo', el => el.dataset.videoFraming), 'original');
-    const execSrc = await page.$eval('#execution-demo .video-demo-iframe', el => el.getAttribute('src'));
+    await clickCentered('#execution-instructions');
+    await page.waitForSelector('.modal-details .video-demo-iframe', { timeout: 6000 });
+    assert.equal(await page.$eval('.modal-details .video-demo', el => el.dataset.videoId), 'LegacyZoom1');
+    assert.equal(await page.$eval('.modal-details .video-demo', el => el.dataset.videoFraming), 'original');
+    const execSrc = await page.$eval('.modal-details .video-demo-iframe', el => el.getAttribute('src'));
     assert.match(execSrc, /[?&]mute=1(&|$)/, 'vídeo personalizado na execução inicia sem áudio');
     assert.match(execSrc, /autoplay=0/);
     assert.match(execSrc, /controls=1/);
+    await page.keyboard.press('Escape');
+    await sleep(120);
 
     /* Exportação e restauração de backup preservando os vídeos por rotina. */
     await go('configuracoes/');
@@ -3601,16 +3623,19 @@ await check('Vídeos YouTube: fallback de vídeo removido, busca vazia, backend 
       }));
     }, routineDead, today);
 
-    /* 1. Vídeo removido cai automaticamente na imagem de referência + aviso discreto. */
+    /* 1. Vídeo removido cai automaticamente na imagem de referência + aviso discreto ao abrir demonstração. */
     await go('treino/executar.html');
+    await clickCentered('#execution-instructions');
     await page.waitForFunction(() => {
-      const stage = document.querySelector('#execution-demo .video-demo');
+      const stage = document.querySelector('.modal-details .video-demo');
       return stage && stage.dataset.videoState === 'unavailable';
     }, { timeout: 6000 });
-    assert.equal(await page.$('#execution-demo .video-demo-iframe'), null);
-    assert.equal(await page.$eval('#execution-demo .demo-media', el => el.dataset.demoId), 'repdb:push-up');
-    assert.equal(await text('#execution-demo .video-demo-unavailable'),
+    assert.equal(await page.$('.modal-details .video-demo-iframe'), null);
+    assert.equal(await page.$eval('.modal-details .demo-media', el => el.dataset.demoId), 'repdb:push-up');
+    assert.equal(await text('.modal-details .video-demo-unavailable'),
       'Demonstração em vídeo ainda não disponível para este exercício.');
+    await page.keyboard.press('Escape');
+    await sleep(120);
 
     /* 2. Busca sem resultados. */
     youtubeE2EState.mode = 'empty';
