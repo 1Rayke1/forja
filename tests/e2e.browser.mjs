@@ -1418,33 +1418,16 @@ await check('Iniciar rotina, cronômetro por duração, pausa e descanso', async
   assert.ok(await isVisible('#execution-live'), 'Tela de execução não visível');
   assert.match(await text('#current-name'), /^Agachamento/);
 
-  /* A execução reaproveita a figura do atlas para o exercício atual. */
-  assert.ok(await isVisible('#execution-figure'), 'Execução sem figura do exercício com metadados');
-  assert.equal((await page.$$('#execution-figure .figura-svg, #execution-figure-body .figura-svg')).length, 1,
-    'A figura da execução deveria ter uma vista');
-  assert.match(await page.$eval('#execution-figure .figura-svg', el => el.getAttribute('aria-label')), /Modelo anatômico muscular/);
-  await scrollToInteractable(page, '#execution-figure-details');
-  const detailsCovered = await page.$eval('#execution-figure-details', el => {
-    const box = el.getBoundingClientRect();
-    const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
-    return JSON.stringify({ ok: top === el || el.contains(top), top: top ? top.tagName + '.' + String(top.className) : null, box: { top: Math.round(box.top), height: Math.round(box.height) }, vh: innerHeight });
-  });
-  if (JSON.parse(detailsCovered).ok !== true) assert.fail('Botão de detalhes coberto por outro elemento: ' + detailsCovered);
-  await page.click('#execution-figure-details');
-  await page.waitForSelector('.modal-backdrop', { timeout: 4000 });
-  assert.equal(await text('#modal-title'), 'Músculos trabalhados');
-  assert.equal((await page.$$('.modal-details .figura-svg')).length, 2, 'O detalhe na execução não tem as duas vistas');
-  await page.click('[data-modal-action="close"]');
-  await sleep(150);
+  /* A tela de execução não exibe a ilustração anatômica inline. */
+  assert.equal(await page.$('#execution-figure'), null, 'A ilustração anatômica não deve aparecer na tela de execução');
 
   await page.screenshot({ path: artifactPath('executar-ativo-390.png') });
 
   // Conclui as séries de Agachamento (pulando descansos) até chegar à prancha.
   await advanceUntil(/^Prancha E2E/);
 
-  /* Exercício sem classificação muscular: a figura some em vez de inventar. */
-  assert.equal(await isVisible('#execution-figure'), false,
-    'A execução mostrou figura para exercício sem metadados');
+  assert.equal(await page.$('#execution-figure'), null,
+    'A execução não deve conter o bloco da figura anatômica');
   // Prancha por duração de 2 s, medida com timestamps reais.
   await jsClick('#set-timer-start');
   await sleep(700);
@@ -3281,7 +3264,7 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
     assert.equal(await page.$eval('#execution-demo .demo-media', el => el.dataset.demoId),
       'repdb:spiderman-push-up');
     assert.match(await text('#execution-demo .demo-credit'), /RepDB/);
-    assert.ok(await page.$('#execution-figure'), 'figura do atlas sumiu');
+    assert.equal(await page.$('#execution-figure'), null, 'figura anatômica não deve existir na execução');
   } finally {
     await go('configuracoes/');
     await restoreForjaRaw(saved);

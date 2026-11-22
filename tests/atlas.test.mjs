@@ -822,8 +822,8 @@ await runTest("ATLAS 11. CSS responsivo (320–1280), foco visível e figura int
     assert.ok(atlas > figure, "forja-figura.js precisa vir antes de forja-atlas.js");
     assert.match(html, /atlas\.css/, "Página " + index + " sem atlas.css");
   });
-  assert.match(executionHtml, /id="execution-figure"/, "A execução não tem o bloco da figura");
-  assert.match(executionHtml, /id="execution-figure-details"/, "A execução não tem o botão de detalhes dos músculos");
+  assert.doesNotMatch(executionHtml, /id="execution-figure"/, "A execução não deve exibir a ilustração anatômica inline");
+  assert.doesNotMatch(executionHtml, /id="execution-figure-details"/, "A execução não deve exibir o bloco de figura anatômica");
 
   /* Sem URL remota externa: pranchas locais, origem e pendência de licença documentadas. */
   assert.doesNotMatch(atlasHtml, /<img[^>]+atlas/i);
@@ -973,14 +973,11 @@ await runTest("ATLAS 12. Execução de treino preserva sessão, séries e storag
   assert.deepEqual(Array.from(Object.keys(app.F.figura.REGIONS)).sort(), expectedIds.slice().sort());
   assert.deepEqual(Array.from(app.F.atlas.GROUPS, g => g.id).sort(), expectedIds.slice().sort());
 
-  /* Registra 1 série real antes de consultar o modal anatômico. */
+  /* Registra 1 série real e confirma que a tela de execução não renderiza a figura anatômica inline. */
   app.click("#complete-set");
   await wait(30);
 
-  const figSvg = app.$("#execution-figure .figura-svg");
-  assert.ok(figSvg, "Figura compacta não renderizou na execução");
-  assert.equal(figSvg.getAttribute("role"), "img");
-  assert.equal(figSvg.querySelectorAll("text, circle").length, 0);
+  assert.equal(app.$("#execution-figure"), null, "Figura anatômica não deve aparecer na tela de execução");
 
   const storageBeforeModal = {};
   app.keys().forEach(k => { storageBeforeModal[k] = app.raw(k); });
@@ -988,17 +985,14 @@ await runTest("ATLAS 12. Execução de treino preserva sessão, séries e storag
   assert.equal(activeBefore.completedSets["ex-supino"], 1, "Série concluída não estava registrada");
   const timerBefore = app.text("#session-timer");
 
-  /* Abre e fecha o modal "Músculos trabalhados" sem alterar sessão nem storage. */
-  app.click("#execution-figure-details");
-  await until(() => app.$(".modal-backdrop"), "modal Músculos trabalhados na execução");
+  /* Abre e fecha o modal de demonstração/detalhe sem alterar sessão nem storage. */
+  app.click("#execution-instructions");
+  await until(() => app.$(".modal-backdrop"), "modal de demonstração na execução");
   await wait(25);
 
-  assert.match(app.text(".modal-card"), /Músculos trabalhados/);
   assert.match(app.text(".modal-card"), /Supino reto com barra/);
-  assert.equal(app.$$(".modal-card .figura-svg").length, 2, "O modal deve exibir as vistas anterior e posterior");
-  assert.match(app.text(".modal-card .atlas-modal-note"), /projeções funcionais aproximadas/);
 
-  app.modalAction("close");
+  app.modalAction("cancel");
   await wait(25);
   assert.equal(app.$(".modal-backdrop"), null, "Modal não fechou");
 

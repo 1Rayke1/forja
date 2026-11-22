@@ -598,7 +598,7 @@ await runTest("D16. Sessão e execução preservam a imagem personalizada", asyn
   assert.equal(app.$("#execution-demo .demo-media").getAttribute("data-demo-id"),
     "repdb:plyo-push-up");
   assert.match(app.text("#execution-demo .demo-credit"), /RepDB/);
-  assert.ok(app.$("#execution-figure"), "figura do atlas continua presente");
+  assert.equal(app.$("#execution-figure"), null, "figura anatômica não deve aparecer na tela de execução");
 
   app.click("#execution-instructions");
   await wait(20);

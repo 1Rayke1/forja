@@ -208,7 +208,7 @@
             </div>
           </div>
 
-          <!-- 4. Bloco central de controle da série + navegação Anterior / Próximo -->
+          <!-- 4. Bloco central interativo de controle da série / descanso + navegação -->
           <section class="exec-center-control" aria-labelledby="series-dial-eyebrow">
             <button type="button" class="exec-nav-btn" id="previous-exercise">
               <span class="exec-nav-circle" aria-hidden="true">
@@ -219,18 +219,18 @@
               <span class="exec-nav-label">Anterior</span>
             </button>
 
-            <div class="exec-series-dial">
+            <button type="button" class="exec-series-dial" id="series-dial-trigger">
               <svg class="exec-series-dial-svg" viewBox="0 0 212 212" aria-hidden="true">
                 <circle class="exec-series-dial-track" cx="106" cy="106" r="94"/>
                 <circle class="exec-series-dial-arc" id="series-ring-arc" cx="106" cy="106" r="94"/>
               </svg>
-              <div class="exec-series-dial-inner">
+              <span class="exec-series-dial-inner">
                 <span class="exec-dial-eyebrow" id="series-dial-eyebrow">SÉRIE EM ANDAMENTO</span>
                 <strong class="exec-dial-value" id="series-dial-value">—</strong>
-                <span class="exec-dial-unit" id="series-dial-unit">repetições</span>
-                <div class="set-pips exec-dial-pips" id="set-pips" aria-hidden="true"></div>
-              </div>
-            </div>
+                <span class="exec-dial-unit" id="series-dial-unit">DE — REPETIÇÕES</span>
+              </span>
+            </button>
+            <div class="set-pips exec-sr-only" id="set-pips" aria-hidden="true"></div>
 
             <button type="button" class="exec-nav-btn" id="next-exercise">
               <span class="exec-nav-circle" aria-hidden="true">
@@ -242,17 +242,17 @@
             </button>
           </section>
 
-          <!-- Cronômetro para exercícios por duração -->
+          <!-- Cronômetro compacto apenas para exercícios por duração -->
           <section class="timer-panel exec-timer-panel" id="timer-panel" aria-label="Cronômetro da série" hidden>
             <div class="timer-head">
               <span class="status-label" id="set-timer-status"></span>
               <span class="timer-elapsed" id="set-timer-elapsed"></span>
             </div>
-            <div class="timer-display" id="set-timer-display" role="timer" aria-live="off">00:00</div>
+            <div class="timer-display exec-sr-only" id="set-timer-display" role="timer" aria-live="off">00:00</div>
             <div class="progress-track timer-track">
               <div class="progress-fill" id="set-timer-fill"></div>
             </div>
-            <p class="timer-caption" id="set-timer-caption"></p>
+            <p class="timer-caption exec-sr-only" id="set-timer-caption"></p>
             <div class="timer-actions">
               <button type="button" class="primary-button" id="set-timer-start">Iniciar série</button>
               <button type="button" class="secondary-button" id="set-timer-pause" hidden>Pausar série</button>
@@ -275,39 +275,45 @@
             </button>
           </div>
 
-          <!-- 6. Bloco de descanso (sem aria-live no painel nem no contador) -->
-          <section class="rest-panel exec-rest-card" id="execution-rest" hidden>
-            <div class="exec-rest-main">
-              <div class="exec-rest-info">
-                <span class="exec-rest-icon" aria-hidden="true">
-                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7.8 2.5h4.4"/>
-                    <circle cx="10" cy="11.2" r="6.5"/>
-                    <path d="M10 8v3.4l2.2 1.4"/>
-                  </svg>
-                </span>
-                <span class="exec-rest-text">
-                  <span class="exec-rest-prefix">Próxima série em</span>
-                  <strong class="rest-timer exec-rest-countdown" id="rest-timer" role="timer" aria-live="off">00:00</strong>
-                </span>
-              </div>
-              <button type="button" class="exec-rest-skip" id="skip-rest">Pular descanso</button>
+          <!-- 6. Barra compacta de descanso (substitui o slot do CTA sem aumentar a altura da tela) -->
+          <section class="rest-panel exec-rest-bar" id="execution-rest" hidden>
+            <strong class="rest-timer exec-sr-only" id="rest-timer" role="timer" aria-live="off">00:00</strong>
+            <span class="rest-adjust-state exec-sr-only" id="rest-adjust-state"></span>
+            <p class="rest-caption exec-sr-only" id="rest-caption"></p>
+
+            <div class="exec-rest-quick" role="group" aria-label="Ajustar descanso">
+              <button type="button" class="exec-rest-icon-btn" id="pause-rest" aria-label="Pausar descanso">
+                <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <rect x="5.2" y="4.2" width="3.3" height="11.6" rx="1"/>
+                  <rect x="11.5" y="4.2" width="3.3" height="11.6" rx="1"/>
+                </svg>
+                <span class="exec-sr-only">Pausar descanso</span>
+              </button>
+              <button type="button" class="exec-rest-icon-btn is-accent" id="resume-rest" aria-label="Retomar descanso" hidden>
+                <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M6.2 4.4l9.6 5.6-9.6 5.6V4.4Z"/>
+                </svg>
+                <span class="exec-sr-only">Retomar descanso</span>
+              </button>
+              <button type="button" class="exec-rest-step-btn" id="rest-minus" aria-label="Diminuir 15 segundos deste descanso">&minus;15s</button>
+              <button type="button" class="exec-rest-step-btn" id="rest-plus" aria-label="Aumentar 15 segundos deste descanso">+15s</button>
             </div>
 
-            <div class="exec-rest-sub">
-              <p class="rest-caption exec-rest-caption" id="rest-caption"></p>
-              <div class="exec-rest-controls">
-                <div class="exec-rest-adjust" role="group" aria-label="Ajustar a duração deste descanso">
-                  <button type="button" class="exec-rest-chip" id="rest-minus" aria-label="Diminuir 15 segundos deste descanso">&minus;15 s</button>
-                  <span class="rest-adjust-state exec-rest-adjust-label" id="rest-adjust-state"></span>
-                  <button type="button" class="exec-rest-chip" id="rest-plus" aria-label="Aumentar 15 segundos deste descanso">+15 s</button>
-                </div>
-                <div class="exec-rest-pause-group">
-                  <button type="button" class="exec-rest-chip" id="pause-rest">Pausar</button>
-                  <button type="button" class="exec-rest-chip is-accent" id="resume-rest" hidden>Retomar</button>
-                </div>
-              </div>
-            </div>
+            <span class="exec-rest-divider" aria-hidden="true"></span>
+
+            <button type="button" class="exec-rest-skip" id="skip-rest">
+              <span class="exec-rest-skip-icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M4.5 5.2l7.2 4.8-7.2 4.8V5.2ZM13.5 5.2h2v9.6h-2V5.2Z"/>
+                </svg>
+              </span>
+              <span id="skip-rest-label">Pular descanso</span>
+              <span class="exec-rest-skip-chevron" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 3.8L10.2 8 6 12.2"/>
+                </svg>
+              </span>
+            </button>
           </section>
 
           <!-- 7. Barra inferior de controle do treino -->
@@ -345,8 +351,13 @@
           </footer>
         </div>
 
-        <!-- Painéis complementares reais da sessão (registro de carga/reps, notas, atlas e mídia) -->
-        <div class="exec-details-zone" id="execution-details-zone">
+        <!-- Gaveta complementar fechada por padrão (aberta apenas sob demanda em Mais opções) -->
+        <div class="exec-details-zone" id="execution-details-zone" hidden>
+          <div class="exec-drawer-bar">
+            <strong class="exec-drawer-title">Detalhes e registro da série</strong>
+            <button type="button" class="exec-tool-btn" id="close-details-zone">Fechar</button>
+          </div>
+
           <div class="session-notes exec-session-notes" id="session-notes" hidden>
             <strong>Observação</strong>
             <span id="session-notes-text"></span>
@@ -399,16 +410,7 @@
             <ul class="log-list" id="log-list"></ul>
           </section>
 
-          <div class="execution-figure" id="execution-figure" hidden>
-            <div id="execution-figure-body"></div>
-            <div class="execution-figure-actions">
-              <button type="button" class="nav-text-button" id="execution-figure-details">Ver músculos trabalhados</button>
-            </div>
-          </div>
-
-          <!-- Irmã da figura anatômica: vem DEPOIS dela para não deslocar o
-               botão "Ver músculos trabalhados" no viewport do celular. -->
-          <div class="execution-demo" id="execution-demo" hidden></div>
+          <div class="execution-demo exec-sr-only" id="execution-demo" hidden></div>
         </div>
       </div>
 

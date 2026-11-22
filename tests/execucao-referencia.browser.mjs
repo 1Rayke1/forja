@@ -7,7 +7,7 @@ import { installBrowserAuth } from './helpers/browser-auth.mjs';
 import { AuthFixture, PROFILE, USERS } from './helpers/auth-fixture.mjs';
 import { scrollToInteractable } from './helpers/browser-interaction.mjs';
 
-function makeHorizontalPng(width = 32, height = 18) {
+function makeHorizontalPng(width = 320, height = 180) {
   const crcTable = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
     let c = n;
@@ -248,6 +248,8 @@ try {
         dialValue: document.getElementById('series-dial-value').textContent.trim(),
         dialUnit: document.getElementById('series-dial-unit').textContent.trim(),
         dialOffset: Number(dialOffset),
+        hasAnatomyFigure: Boolean(document.getElementById('execution-figure') || document.querySelector('.figura-svg')),
+        detailsZoneHidden: document.getElementById('execution-details-zone').hidden,
         prevDisabled: document.getElementById('previous-exercise').disabled,
         nextDisabled: document.getElementById('next-exercise').disabled
       };
@@ -268,18 +270,33 @@ try {
     assert.equal(ui.hasExactPhoto, true, 'Deveria exibir foto exata local do supino reto');
     assert.equal(ui.seriesStrip, '2 de 4');
     assert.equal(ui.repsStrip, '8 - 12');
-    assert.equal(ui.restStrip, '1 min');
+    assert.equal(ui.restStrip, '60 s');
     assert.equal(ui.dialEyebrow, 'SÉRIE EM ANDAMENTO');
-    assert.equal(ui.dialValue, '8 - 12');
-    assert.equal(ui.dialUnit, 'repetições');
+    assert.equal(ui.dialValue, '8');
+    assert.equal(ui.dialUnit, 'DE 12 REPETIÇÕES');
+    assert.ok(ui.dialOffset > 180 && ui.dialOffset < 210, 'Arco central deve refletir 8 de 12 repetições');
+    assert.equal(ui.hasAnatomyFigure, false, 'Não deve existir ilustração anatômica na tela de execução');
+    assert.equal(ui.detailsZoneHidden, true, 'Não deve haver cards empilhados abaixo do palco principal');
     assert.equal(ui.prevDisabled, false);
     assert.equal(ui.nextDisabled, false);
 
     await page.screenshot({ path: path.join(captureDir, 'treino-em-andamento-mobile-390.png') });
   });
 
-  await step('2. Concluir série atualiza progresso, bloqueia clique duplo, inicia descanso real e permite pular', async () => {
-    /* Três cliques rápidos consecutivos devem concluir apenas 1 série. */
+  await step('2. Círculo central interativo: conta repetições, conclui série e vira TEMPO DE DESCANSO no mesmo círculo', async () => {
+    /* Tocar duas vezes no círculo central incrementa 8 -> 9 -> 10 repetições reais. */
+    await click(page, '#series-dial-trigger');
+    await click(page, '#series-dial-trigger');
+    const tapped = await page.evaluate(() => ({
+      dialValue: document.getElementById('series-dial-value').textContent.trim(),
+      dialUnit: document.getElementById('series-dial-unit').textContent.trim(),
+      dialOffset: Number(document.getElementById('series-ring-arc').style.strokeDashoffset)
+    }));
+    assert.equal(tapped.dialValue, '10');
+    assert.equal(tapped.dialUnit, 'DE 12 REPETIÇÕES');
+    assert.ok(tapped.dialOffset > 90 && tapped.dialOffset < 105, 'Arco central deve avançar para 10/12');
+
+    /* Três cliques rápidos consecutivos em Concluir série concluem apenas 1 série. */
     await page.evaluate(() => {
       const btn = document.getElementById('complete-set');
       btn.click();
@@ -290,34 +307,51 @@ try {
 
     const afterSet = await page.evaluate(() => ({
       completedSupino: window.Forja.state.activeWorkout.completedSets['ex-supino'],
+      loggedReps: window.Forja.state.activeWorkout.setLogs['ex-supino'].at(-1).reps,
       percent: document.getElementById('execution-progress-percent').textContent.trim(),
       seriesStrip: document.getElementById('active-series-value').textContent.replace(/\s+/g, ' ').trim(),
+      dialEyebrow: document.getElementById('series-dial-eyebrow').textContent.trim(),
+      dialValue: document.getElementById('series-dial-value').textContent.trim(),
+      dialUnit: document.getElementById('series-dial-unit').textContent.trim(),
+      dialIsRest: document.getElementById('series-dial-trigger').classList.contains('is-rest'),
       restVisible: !document.getElementById('execution-rest').hidden,
       restTimer: document.getElementById('rest-timer').textContent.trim(),
       completeDisabled: document.getElementById('complete-set').disabled
     }));
 
     assert.equal(afterSet.completedSupino, 2, 'Clique duplo não pode concluir duas séries');
+    assert.equal(afterSet.loggedReps, '10', 'Repetições ajustadas no círculo central devem ser gravadas no log da série');
     assert.equal(afterSet.percent, '50%');
     assert.equal(afterSet.seriesStrip, '3 de 4');
+    assert.equal(afterSet.dialEyebrow, 'TEMPO DE DESCANSO', 'Mesmo círculo central deve assumir o estado de descanso');
+    assert.match(afterSet.dialValue, /^0(0:5\d|1:00)$/, 'Círculo central deve exibir o cronômetro regressivo');
+    assert.equal(afterSet.dialUnit, 'PRÓXIMA: SÉRIE 3 DE 4');
+    assert.equal(afterSet.dialIsRest, true);
     assert.equal(afterSet.restVisible, true);
     assert.match(afterSet.restTimer, /^0(0:5\d|1:00)$/);
     assert.equal(afterSet.completeDisabled, true);
 
-    await sleep(120);
+    await sleep(1100);
+    const tickedDial = await page.$eval('#series-dial-value', el => el.textContent.trim());
+    assert.match(tickedDial, /^00:5\d$/, 'Círculo central deve atualizar a contagem regressiva a cada segundo');
+
     await page.screenshot({ path: path.join(captureDir, 'treino-em-andamento-descanso-390.png') });
 
-    /* Pular descanso encerra timer e reabilita Concluir série. */
+    /* Pular descanso encerra timer, restaura o círculo central para SÉRIE EM ANDAMENTO e reabilita Concluir série. */
     await click(page, '#skip-rest');
     await sleep(160);
 
     const afterSkip = await page.evaluate(() => ({
       restHidden: document.getElementById('execution-rest').hidden,
       restEndAt: window.Forja.state.activeWorkout.restEndAt,
+      dialEyebrow: document.getElementById('series-dial-eyebrow').textContent.trim(),
+      dialUnit: document.getElementById('series-dial-unit').textContent.trim(),
       completeDisabled: document.getElementById('complete-set').disabled
     }));
     assert.equal(afterSkip.restHidden, true);
     assert.equal(afterSkip.restEndAt, null);
+    assert.equal(afterSkip.dialEyebrow, 'SÉRIE EM ANDAMENTO');
+    assert.equal(afterSkip.dialUnit, 'DE 12 REPETIÇÕES');
     assert.equal(afterSkip.completeDisabled, false);
   });
 
@@ -437,7 +471,7 @@ try {
     );
     assert.ok(optionLabels.includes('Registrar carga / repetições'));
     assert.ok(optionLabels.some(label => label.startsWith('Iniciar descanso')));
-    assert.ok(optionLabels.includes('Ver músculos trabalhados'));
+    assert.ok(!optionLabels.includes('Ver músculos trabalhados'), 'Não deve expor figura anatômica na execução');
     assert.ok(optionLabels.includes('Pular exercício'));
     assert.ok(optionLabels.includes('Voltar aos treinos (manter ativo)'));
     await page.keyboard.press('Escape');
@@ -461,8 +495,9 @@ try {
       { width: 768, height: 1024 },
       { width: 1280, height: 900 }
     ]) {
-      await page.setViewport({ ...vp, deviceScaleFactor: 2, isMobile: vp.width < 768, hasTouch: vp.width < 768 });
-      await sleep(120);
+      await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 2 });
+      await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+      await sleep(80);
 
       const layout = await page.evaluate(() => {
         const overflow = document.documentElement.scrollWidth - window.innerWidth;
@@ -471,6 +506,7 @@ try {
         const targets = [
           '#end-session',
           '#execution-instructions',
+          '#series-dial-trigger',
           '#previous-exercise',
           '#next-exercise',
           '#complete-set',

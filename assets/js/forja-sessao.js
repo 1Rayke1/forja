@@ -642,6 +642,13 @@
     };
 
     saveActiveWorkout();
+    renderSeriesDial(
+      exercise,
+      Number(s.completedSets[exercise.id]) || 0,
+      currentTimerFor(exercise),
+      hasRestState(),
+      s.running
+    );
   }
 
   function clampRpe(value) {
@@ -1442,35 +1449,6 @@
     }
   }
 
-  function renderExerciseFigure(exercise) {
-    const box = byId("execution-figure");
-    const body = byId("execution-figure-body");
-    if (!box || !body) return;
-
-    if (!F.atlas || !F.atlas.attachToExecution) {
-      box.hidden = true;
-      return;
-    }
-
-    F.atlas.attachToExecution(exercise, body);
-    box.hidden = body.hidden;
-  }
-
-  function openExerciseFigureDetails() {
-    if (!F.atlas || !F.atlas.showMuscles) return;
-
-    const exercise = currentSessionExercise();
-    if (!exercise) return;
-
-    const record = F.atlas.findRecordFor(exercise);
-    if (!record) {
-      F.ui.announce("Este exercício não tem classificação muscular salva. Nada foi alterado.");
-      return;
-    }
-
-    F.atlas.showMuscles(record);
-  }
-
   F.updateActiveBanner = updateActiveBanner;
 
   const WORKOUT_RING_CIRCUMFERENCE = 2 * Math.PI * 32;
@@ -1578,21 +1556,150 @@
     }
   }
 
+  function parseRepSpec(repsRaw) {
+    const raw = String(repsRaw || "").trim();
+    const rangeMatch = raw.match(/^(\d+)\s*(?:[-–—a]|até)\s*(\d+)/i);
+    if (rangeMatch) {
+      const first = Number(rangeMatch[1]);
+      const second = Number(rangeMatch[2]);
+      return {
+        min: Math.min(first, second),
+        target: Math.max(first, second)
+      };
+    }
+    const exactMatch = raw.match(/^(\d+)$/);
+    if (exactMatch) {
+      const count = Number(exactMatch[1]);
+      return { min: count, target: count };
+    }
+    return { min: null, target: null };
+  }
+
+  function getCurrentDialReps(exercise) {
+    if (!exercise) return null;
+    const draft = getLogDraft(exercise);
+    const trimmed = String(draft.reps || "").trim();
+    if (/^\d+$/.test(trimmed)) {
+      return Number(trimmed);
+    }
+    const spec = parseRepSpec(exercise.reps);
+    return spec.min !== null ? spec.min : null;
+  }
+
+  function toggleDetailsZone(forceOpen) {
+    const zone = byId("execution-details-zone");
+    if (!zone) return;
+    const nextOpen = typeof forceOpen === "boolean" ? forceOpen : zone.hidden;
+    zone.hidden = !nextOpen;
+  }
+
+  function handleSeriesDialInteraction() {
+    const s = session();
+    const exercise = currentSessionExercise();
+    if (!s || !exercise) return;
+
+    if (!s.running) {
+      resumeSession();
+      return;
+    }
+
+    if (hasRestState()) {
+      if (s.restPaused) resumeRest();
+      else pauseRest();
+      return;
+    }
+
+    if (exercise.type === "duration") {
+      const timer = currentTimerFor(exercise);
+      if (!timer) startSetTimer();
+      else if (timer.startedAt) pauseSetTimer();
+      else resumeSetTimer();
+      return;
+    }
+
+    if (measuresDistance(exercise)) {
+      toggleDetailsZone(true);
+      const distInput = byId("log-distance");
+      if (distInput) {
+        safeScrollIntoView(byId("log-panel"), { block: "nearest" });
+        distInput.focus({ preventScroll: true });
+      }
+      return;
+    }
+
+    const done = Number(s.completedSets[exercise.id]) || 0;
+    if (done >= exercise.sets) return;
+
+    const spec = parseRepSpec(exercise.reps);
+    const current = getCurrentDialReps(exercise);
+    const cap = spec.target && spec.target > 0 ? spec.target : 30;
+    const nextReps = current === null ? 1 : (current >= cap ? 1 : current + 1);
+
+    s.logDraft = s.logDraft || {};
+    const existing = getLogDraft(exercise);
+    s.logDraft[exercise.id] = {
+      reps: String(nextReps),
+      load: existing.load || "",
+      distance: existing.distance || "",
+      rpe: existing.rpe || ""
+    };
+
+    const repsInput = byId("log-reps");
+    if (repsInput) repsInput.value = String(nextReps);
+
+    saveActiveWorkout();
+    renderSeriesDial(exercise, done, null, false, s.running);
+  }
+
   function renderSeriesDial(exercise, done, timer, restActive, isRunning) {
+    const dialBtn = byId("series-dial-trigger");
     const eyebrow = byId("series-dial-eyebrow");
     const valueEl = byId("series-dial-value");
     const unitEl = byId("series-dial-unit");
     const arc = byId("series-ring-arc");
-    if (!eyebrow || !valueEl || !unitEl || !arc) return;
+    if (!dialBtn || !eyebrow || !valueEl || !unitEl || !arc) return;
 
-    const dialWrap = arc.closest(".exec-series-dial");
+    const s = session();
     const isTimed = exercise.type === "duration";
     const targetKind = logTarget(exercise).kind;
 
+    if (restActive) {
+      const paused = Boolean(s && (s.restPaused || !isRunning));
+      const remainingMs = getRestRemainingMs();
+      const remainingSeconds = Math.ceil(remainingMs / 1000);
+      const plannedSeconds = Math.max(
+        1,
+        Number(s && s.restPlannedSeconds) || Number(exercise.rest) || 1
+      );
+      const plannedMs = plannedSeconds * 1000;
+      const ratio = Math.max(0, Math.min(1, remainingMs / plannedMs));
+      const clockText = formatClock(remainingSeconds);
+
+      eyebrow.textContent = paused ? "DESCANSO PAUSADO" : "TEMPO DE DESCANSO";
+      valueEl.textContent = clockText;
+      valueEl.classList.add("is-timer");
+      valueEl.classList.remove("is-compact");
+      unitEl.textContent = s && s.pendingAdvance
+        ? "PRÓXIMO EXERCÍCIO"
+        : "PRÓXIMA: SÉRIE " + Math.min(done + 1, exercise.sets) + " DE " + exercise.sets;
+
+      arc.style.strokeDasharray = SERIES_DIAL_CIRCUMFERENCE.toFixed(2);
+      arc.style.strokeDashoffset = (SERIES_DIAL_CIRCUMFERENCE * (1 - ratio)).toFixed(2);
+      dialBtn.classList.add("is-rest");
+      dialBtn.classList.toggle("is-muted", paused);
+      dialBtn.setAttribute(
+        "aria-label",
+        (paused ? "Descanso pausado: " : "Tempo de descanso: ") + clockText +
+        ". Toque para " + (paused ? "retomar" : "pausar") + " o descanso."
+      );
+      return;
+    }
+
+    dialBtn.classList.remove("is-rest");
+    dialBtn.classList.toggle("is-muted", !isRunning);
+
     if (!isRunning) {
       eyebrow.textContent = "TREINO PAUSADO";
-    } else if (restActive) {
-      eyebrow.textContent = "EM DESCANSO";
     } else if (done >= exercise.sets) {
       eyebrow.textContent = "SÉRIES CONCLUÍDAS";
     } else {
@@ -1600,41 +1707,61 @@
     }
 
     let valueText = "—";
-    let unitText = "repetições";
+    let unitText = "REPETIÇÕES";
+    let ratio = 1;
+    let isTimerLook = false;
 
     if (isTimed) {
       const remainingMs = timer
         ? Math.max(0, timer.targetMs - timerElapsedMs(timer))
         : (Number(exercise.duration) || 0) * 1000;
-      valueText = timer
-        ? formatClock(Math.ceil(remainingMs / 1000))
-        : formatRestValue(exercise.duration);
-      unitText = timer ? "tempo restante" : "por série";
+      valueText = formatClock(Math.ceil(remainingMs / 1000));
+      unitText = "DE " + (Number(exercise.duration) || 0) + " SEGUNDOS";
+      isTimerLook = true;
+      ratio = timer && timer.targetMs > 0
+        ? Math.min(1, Math.max(0.06, timerElapsedMs(timer) / timer.targetMs))
+        : 1;
     } else if (targetKind === "distance") {
-      valueText = String(exercise.distance || "—");
-      unitText = distanceUnitLabel(exercise) === "km" ? "quilômetros" : "metros";
+      const draftDist = String(getLogDraft(exercise).distance || "").trim();
+      const distVal = draftDist || String(exercise.distance || "—");
+      valueText = distVal;
+      unitText = "DE " + (exercise.distance || "—") + " " + distanceUnitLabel(exercise).toUpperCase();
+      ratio = exercise.sets > 0
+        ? Math.min(1, Math.max(0.14, Math.min(done + 1, exercise.sets) / exercise.sets))
+        : 1;
     } else {
-      valueText = String(exercise.reps || "—");
-      unitText = "repetições";
+      const spec = parseRepSpec(exercise.reps);
+      const currentReps = getCurrentDialReps(exercise);
+
+      if (done >= exercise.sets) {
+        valueText = String(spec.target || currentReps || exercise.sets);
+        unitText = spec.target ? "DE " + spec.target + " REPETIÇÕES" : "CONCLUÍDO";
+        ratio = 1;
+      } else if (currentReps !== null && spec.target) {
+        valueText = String(currentReps);
+        unitText = "DE " + spec.target + " REPETIÇÕES";
+        ratio = Math.min(1, Math.max(0.08, currentReps / spec.target));
+      } else {
+        valueText = String(exercise.reps || "—");
+        unitText = "REPETIÇÕES";
+        ratio = exercise.sets > 0
+          ? Math.min(1, Math.max(0.14, Math.min(done + 1, exercise.sets) / exercise.sets))
+          : 1;
+      }
     }
 
     valueEl.textContent = valueText;
-    valueEl.classList.toggle("is-compact", valueText.length >= 5);
+    valueEl.classList.toggle("is-timer", isTimerLook);
+    valueEl.classList.toggle("is-compact", !isTimerLook && valueText.length >= 5);
     unitEl.textContent = unitText;
-
-    let ratio = 1;
-    if (isTimed && timer && timer.targetMs > 0) {
-      ratio = Math.min(1, Math.max(0.06, timerElapsedMs(timer) / timer.targetMs));
-    } else if (exercise.sets > 0) {
-      const activeCount = done < exercise.sets ? done + 1 : exercise.sets;
-      ratio = Math.min(1, Math.max(0.12, activeCount / exercise.sets));
-    }
 
     arc.style.strokeDasharray = SERIES_DIAL_CIRCUMFERENCE.toFixed(2);
     arc.style.strokeDashoffset = (SERIES_DIAL_CIRCUMFERENCE * (1 - ratio)).toFixed(2);
-    if (dialWrap) {
-      dialWrap.classList.toggle("is-muted", !isRunning || restActive);
-    }
+    dialBtn.setAttribute(
+      "aria-label",
+      eyebrow.textContent + ": " + valueText + " " + unitText.toLowerCase() +
+      (done < exercise.sets ? ". Toque para ajustar." : ".")
+    );
   }
 
   function setCompleteButtonContent(button, options) {
@@ -1679,11 +1806,6 @@
       !(timer && timer.startedAt) &&
       exercise.rest > 0 &&
       done < exercise.sets;
-    const hasMuscles = Boolean(
-      F.atlas &&
-      typeof F.atlas.findRecordFor === "function" &&
-      F.atlas.findRecordFor(exercise)
-    );
 
     const details = document.createElement("div");
     details.className = "modal-details";
@@ -1696,18 +1818,22 @@
       { id: "log", label: "Registrar carga / repetições", className: "secondary-button" }
     ];
 
+    if (restActive && s.running) {
+      actions.push(
+        { id: "rest-minus", label: "Diminuir descanso (-15 s)", className: "secondary-button" },
+        { id: "rest-plus", label: "Aumentar descanso (+15 s)", className: "secondary-button" },
+        {
+          id: s.restPaused ? "rest-resume" : "rest-pause",
+          label: s.restPaused ? "Retomar descanso" : "Pausar descanso",
+          className: "secondary-button"
+        }
+      );
+    }
+
     if (canStartRest) {
       actions.push({
         id: "rest",
         label: "Iniciar descanso (" + formatRest(exercise.rest) + ")",
-        className: "secondary-button"
-      });
-    }
-
-    if (hasMuscles) {
-      actions.push({
-        id: "muscles",
-        label: "Ver músculos trabalhados",
         className: "secondary-button"
       });
     }
@@ -1735,6 +1861,7 @@
     if (!result || result.action === "cancel") return;
 
     if (result.action === "log") {
+      toggleDetailsZone(true);
       const logPanel = byId("log-panel");
       if (logPanel) safeScrollIntoView(logPanel, { block: "start" });
       const firstInput = ["log-reps", "log-load", "log-distance"]
@@ -1746,13 +1873,28 @@
       return;
     }
 
-    if (result.action === "rest") {
-      startRestManually();
+    if (result.action === "rest-minus") {
+      adjustRest(-1);
       return;
     }
 
-    if (result.action === "muscles") {
-      openExerciseFigureDetails();
+    if (result.action === "rest-plus") {
+      adjustRest(1);
+      return;
+    }
+
+    if (result.action === "rest-pause") {
+      pauseRest();
+      return;
+    }
+
+    if (result.action === "rest-resume") {
+      resumeRest();
+      return;
+    }
+
+    if (result.action === "rest") {
+      startRestManually();
       return;
     }
 
@@ -1806,7 +1948,9 @@
     const timer = currentTimerFor(exercise);
     const isTimed = exercise.type === "duration";
 
-    byId("execution-status-eyebrow").textContent = "TREINO EM ANDAMENTO";
+    byId("execution-status-eyebrow").textContent = s.running
+      ? "TREINO EM ANDAMENTO"
+      : "TREINO PAUSADO";
     byId("execution-mode").textContent = MODE_NAMES[s.modality] || "Treino";
     byId("execution-title").textContent = s.routineName;
     byId("execution-clock").textContent = formatClock(Math.floor(getElapsedMs() / 1000));
@@ -1843,7 +1987,6 @@
 
     renderExerciseHeroMedia(exercise, s.modality);
     renderExerciseDemo(exercise);
-    renderExerciseFigure(exercise);
 
     const plan = byId("current-plan");
     plan.innerHTML = "";
@@ -1902,8 +2045,8 @@
     }
 
     byId("current-rest-value").textContent = exercise.rest > 0
-      ? formatRest(exercise.rest)
-      : "Sem descanso";
+      ? (exercise.rest <= 120 ? exercise.rest + " s" : formatRest(exercise.rest))
+      : "Sem";
 
     const notes = byId("session-notes");
     if (exercise.notes) {
@@ -2222,16 +2365,31 @@
         ? "ajustado de " + formatRest(planned)
         : formatRest(current) + " neste descanso";
     }
-    byId("skip-rest").textContent = s.pendingAdvance
-      ? "Pular e avançar"
-      : "Pular descanso";
+    const skipLabel = byId("skip-rest-label");
+    const nextSkipText = s.pendingAdvance ? "Pular e avançar" : "Pular descanso";
+    if (skipLabel) skipLabel.textContent = nextSkipText;
+    else byId("skip-rest").textContent = nextSkipText;
   }
 
   function updateExecutionClockText() {
-    if (!session() || !isExecutionPage()) return;
+    const s = session();
+    if (!s || !isExecutionPage()) return;
 
     byId("execution-clock").textContent = formatClock(Math.floor(getElapsedMs() / 1000));
+    const restActive = hasRestState();
     byId("rest-timer").textContent = formatClock(Math.ceil(getRestRemainingMs() / 1000));
+    if (restActive) {
+      const exercise = currentSessionExercise();
+      if (exercise) {
+        renderSeriesDial(
+          exercise,
+          Number(s.completedSets[exercise.id]) || 0,
+          currentTimerFor(exercise),
+          true,
+          s.running
+        );
+      }
+    }
     updateSetTimerClock();
   }
 
@@ -2341,7 +2499,8 @@
     };
 
     bind("complete-set", completeCurrentSet);
-    bind("execution-figure-details", openExerciseFigureDetails);
+    bind("series-dial-trigger", handleSeriesDialInteraction);
+    bind("close-details-zone", () => toggleDetailsZone(false));
     bind("execution-instructions", () => {
       const exercise = currentSessionExercise();
       const s = session();
