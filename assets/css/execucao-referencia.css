@@ -13,6 +13,7 @@
 
 html:has(body[data-page="executar"]) {
   background: #050605;
+  scroll-behavior: auto;
 }
 
 body[data-page="executar"] {
@@ -84,12 +85,12 @@ body[data-page="executar"] .exec-brand-logo {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  color: var(--exec-ink);
+  color: #ffffff;
   font-family: var(--fj-fonte-titulo, "Archivo Forja", "Archivo", sans-serif);
   font-size: 23px;
   font-weight: 900;
-  font-style: italic;
-  letter-spacing: -0.05em;
+  font-style: normal;
+  letter-spacing: -0.02em;
   text-decoration: none;
   text-shadow: none;
 }
@@ -152,7 +153,7 @@ body[data-page="executar"] .exec-main {
   max-width: 520px;
   margin-inline: auto;
   padding-top: 8px;
-  padding-bottom: 18px;
+  padding-bottom: calc(var(--bottom-nav-height, 69px) + 12px);
   padding-inline: 0;
 }
 
@@ -162,8 +163,10 @@ body[data-page="executar"] .execution-screen {
 }
 
 body[data-page="executar"] .exec-wrap {
+  width: 100%;
   max-width: none;
   margin: 0;
+  padding: 0;
   min-width: 0;
 }
 
@@ -426,16 +429,16 @@ body[data-page="executar"] .exec-paused-dot {
 body[data-page="executar"] .exec-hero {
   position: relative;
   overflow: hidden;
-  width: calc(100% + 28px);
-  max-width: none;
-  min-height: 144px;
+  width: calc(100% + 28px) !important;
+  max-width: calc(100% + 28px) !important;
+  min-height: 192px;
   margin-inline: -14px;
-  padding: 14px 14px 12px;
+  padding: 18px 14px 12px;
   border: 0;
   border-radius: 0;
   background:
-    radial-gradient(circle at 50% 42%, rgba(183, 243, 74, 0.08), transparent 62%),
-    linear-gradient(180deg, #050605 0%, #121512 46%, #050605 100%);
+    radial-gradient(circle at 50% 38%, rgba(183, 243, 74, 0.08), transparent 64%),
+    linear-gradient(180deg, #050605 0%, #141814 45%, #050605 100%);
   display: flex;
   align-items: flex-end;
   isolation: isolate;
@@ -470,7 +473,8 @@ body[data-page="executar"] .exec-hero-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(0.82) contrast(1.14) brightness(0.62);
+  object-position: center 26%;
+  filter: grayscale(0.88) contrast(1.14) brightness(0.76);
 }
 
 body[data-page="executar"] .exec-hero-scrim {
@@ -479,8 +483,8 @@ body[data-page="executar"] .exec-hero-scrim {
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(180deg, #050605 0%, rgba(5, 6, 5, 0.18) 28%, rgba(5, 6, 5, 0.58) 72%, #050605 100%),
-    linear-gradient(90deg, rgba(5, 6, 5, 0.75) 0%, rgba(5, 6, 5, 0.22) 55%, rgba(5, 6, 5, 0.72) 100%);
+    linear-gradient(180deg, #050605 0%, rgba(5, 6, 5, 0.1) 20%, rgba(5, 6, 5, 0.28) 54%, rgba(5, 6, 5, 0.9) 86%, #050605 100%),
+    linear-gradient(90deg, rgba(5, 6, 5, 0.42) 0%, rgba(5, 6, 5, 0.06) 35%, rgba(5, 6, 5, 0.06) 65%, rgba(5, 6, 5, 0.42) 100%);
 }
 
 body[data-page="executar"] .exec-hero-content {
@@ -768,16 +772,35 @@ body[data-page="executar"] .exec-nav-btn:disabled {
 }
 
 body[data-page="executar"] .exec-series-dial {
+  appearance: none;
   position: relative;
-  width: clamp(148px, 42vw, 174px);
+  width: clamp(160px, 44vw, 186px);
   aspect-ratio: 1 / 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 45%, rgba(25, 31, 23, 0.85) 0%, rgba(9, 11, 9, 0.96) 72%);
+  background: radial-gradient(circle at 50% 45%, rgba(22, 27, 21, 0.88) 0%, rgba(8, 10, 8, 0.96) 72%);
   box-shadow:
-    0 0 38px rgba(183, 243, 74, 0.11),
+    0 0 38px rgba(183, 243, 74, 0.12),
     inset 0 0 24px rgba(183, 243, 74, 0.05);
+  color: #ffffff;
+  cursor: pointer;
+  filter: none;
+  transition: transform 0.14s ease, box-shadow 0.2s ease;
+}
+
+body[data-page="executar"] .exec-series-dial:hover {
+  filter: none;
+  box-shadow:
+    0 0 44px rgba(183, 243, 74, 0.18),
+    inset 0 0 26px rgba(183, 243, 74, 0.08);
+}
+
+body[data-page="executar"] .exec-series-dial:active {
+  transform: scale(0.975);
 }
 
 body[data-page="executar"] .exec-series-dial-svg {
@@ -793,57 +816,69 @@ body[data-page="executar"] .exec-series-dial-svg {
 body[data-page="executar"] .exec-series-dial-track {
   fill: none;
   stroke: rgba(255, 255, 255, 0.08);
-  stroke-width: 5.5;
+  stroke-width: 5.8;
 }
 
 body[data-page="executar"] .exec-series-dial-arc {
   fill: none;
   stroke: var(--exec-lime);
-  stroke-width: 5.5;
+  stroke-width: 5.8;
   stroke-linecap: round;
   stroke-dasharray: 590.62;
   stroke-dashoffset: 0;
-  filter: drop-shadow(0 0 8px rgba(183, 243, 74, 0.44));
+  filter: drop-shadow(0 0 9px rgba(183, 243, 74, 0.48));
   transition: stroke-dashoffset 0.32s ease, opacity 0.2s ease;
 }
 
 body[data-page="executar"] .exec-series-dial.is-muted .exec-series-dial-arc {
-  opacity: 0.48;
+  opacity: 0.45;
 }
 
 body[data-page="executar"] .exec-series-dial-inner {
   position: relative;
   z-index: 1;
-  width: 80%;
+  width: 82%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   text-align: center;
+  pointer-events: none;
 }
 
 body[data-page="executar"] .exec-dial-eyebrow {
-  color: var(--exec-lime);
+  color: #aeb7ac;
   font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
   font-size: 8.8px;
-  font-weight: 800;
-  letter-spacing: 0.09em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   line-height: 1.2;
   text-transform: uppercase;
 }
 
+body[data-page="executar"] .exec-series-dial.is-rest .exec-dial-eyebrow {
+  color: var(--exec-lime);
+  font-weight: 800;
+}
+
 body[data-page="executar"] .exec-dial-value {
-  margin-block: 2px;
+  margin-block: 1px;
   color: #ffffff;
   font-family: var(--fj-fonte-numero, "Inter Forja", sans-serif);
-  font-size: clamp(38px, 11vw, 50px);
+  font-size: clamp(46px, 13vw, 56px);
   font-weight: 800;
   letter-spacing: -0.04em;
-  line-height: 1.02;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
   max-width: 100%;
   overflow-wrap: anywhere;
+}
+
+body[data-page="executar"] .exec-dial-value.is-timer {
+  font-size: clamp(33px, 9.4vw, 40px);
+  letter-spacing: -0.03em;
+  line-height: 1.06;
 }
 
 body[data-page="executar"] .exec-dial-value.is-compact {
@@ -852,11 +887,13 @@ body[data-page="executar"] .exec-dial-value.is-compact {
 }
 
 body[data-page="executar"] .exec-dial-unit {
-  color: var(--exec-muted-strong);
+  color: #a6afa4;
   font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.055em;
   line-height: 1.2;
+  text-transform: uppercase;
 }
 
 body[data-page="executar"] .exec-dial-pips {
@@ -901,6 +938,12 @@ body[data-page="executar"] .exec-timer-panel[hidden] {
 
 body[data-page="executar"] .exec-cta-wrap {
   width: 100%;
+}
+
+/* Durante o descanso, a barra compacta de descanso assume o mesmo slot de 58px
+   do CTA principal, evitando repetir o cronômetro ou alongar a tela. */
+body[data-page="executar"] .exec-cta-wrap:has(+ .exec-rest-bar:not([hidden])) {
+  display: none;
 }
 
 body[data-page="executar"] .exec-cta-button {
@@ -971,17 +1014,20 @@ body[data-page="executar"] .exec-cta-check svg {
 }
 
 /* --------------------------------------------------------------------------
-   8. Bloco de descanso (Próxima série em · contador · Pular descanso)
+   8. Barra compacta de descanso (Próxima série em · contador · Pular descanso)
    -------------------------------------------------------------------------- */
 
-body[data-page="executar"] .exec-rest-card {
+body[data-page="executar"] .exec-rest-bar {
   margin: 0;
-  padding: 12px 14px;
-  border: 1px solid rgba(183, 243, 74, 0.28);
-  border-radius: 16px;
-  background: var(--exec-surface);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
-  display: grid;
+  min-height: 58px;
+  padding: 6px 10px;
+  border: 1px solid rgba(183, 243, 74, 0.24);
+  border-radius: 18px;
+  background: #0e120d;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
   text-align: left;
   /* Garante visibilidade acima de .bottom-nav e #toast em qualquer tela (320x568+). */
@@ -989,88 +1035,119 @@ body[data-page="executar"] .exec-rest-card {
   scroll-margin-bottom: calc(var(--bottom-nav-height, 69px) + 96px);
 }
 
-body[data-page="executar"] .exec-rest-card[hidden] {
+body[data-page="executar"] .exec-rest-bar[hidden] {
   display: none;
 }
 
-body[data-page="executar"] .exec-rest-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  min-width: 0;
-}
-
-body[data-page="executar"] .exec-rest-info {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-body[data-page="executar"] .exec-rest-icon {
-  flex: 0 0 20px;
-  width: 20px;
-  height: 20px;
-  color: var(--exec-lime);
+body[data-page="executar"] .exec-rest-quick {
   display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
 }
 
-body[data-page="executar"] .exec-rest-icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-body[data-page="executar"] .exec-rest-text {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 6px;
-  min-width: 0;
-  color: var(--exec-muted-strong);
-  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
-  font-size: 13.5px;
-  line-height: 1.25;
-}
-
-body[data-page="executar"] .exec-rest-prefix {
-  color: var(--exec-muted-strong);
-  font-weight: 500;
-}
-
-body[data-page="executar"] .exec-rest-countdown {
-  margin: 0;
-  color: #ffffff;
+body[data-page="executar"] .exec-rest-icon-btn,
+body[data-page="executar"] .exec-rest-step-btn {
+  appearance: none;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--exec-ink);
   font-family: var(--fj-fonte-numero, "Inter Forja", sans-serif);
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  font-size: 12.5px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+
+body[data-page="executar"] .exec-rest-icon-btn {
+  padding: 0;
+  border-color: rgba(183, 243, 74, 0.3);
+  background: rgba(183, 243, 74, 0.1);
+  color: var(--exec-lime);
+}
+
+body[data-page="executar"] .exec-rest-icon-btn[hidden] {
+  display: none;
+}
+
+body[data-page="executar"] .exec-rest-icon-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+body[data-page="executar"] .exec-rest-icon-btn.is-accent {
+  border-color: var(--exec-lime);
+  background: var(--exec-lime);
+  color: var(--exec-lime-ink);
+}
+
+body[data-page="executar"] .exec-rest-step-btn:hover:not(:disabled),
+body[data-page="executar"] .exec-rest-icon-btn:hover:not(:disabled) {
+  border-color: rgba(183, 243, 74, 0.5);
+  color: #ffffff;
+}
+
+body[data-page="executar"] .exec-rest-step-btn:disabled,
+body[data-page="executar"] .exec-rest-icon-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+body[data-page="executar"] .exec-rest-divider {
+  flex: 0 0 1px;
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 body[data-page="executar"] .exec-rest-skip {
   appearance: none;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   min-height: 44px;
-  padding: 8px 12px;
-  border: 1px solid var(--exec-line-strong);
-  border-radius: 11px;
-  background: var(--exec-surface-2);
-  color: var(--exec-ink);
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(183, 243, 74, 0.12);
+  color: var(--exec-lime);
   font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   line-height: 1.15;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   cursor: pointer;
-  transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.14s ease;
+  transition: background-color 0.16s ease, color 0.16s ease, transform 0.14s ease;
+}
+
+body[data-page="executar"] .exec-rest-skip-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--exec-lime);
+}
+
+body[data-page="executar"] .exec-rest-skip-chevron {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: var(--exec-lime);
 }
 
 body[data-page="executar"] .exec-rest-skip:hover:not(:disabled) {
-  border-color: var(--exec-lime);
-  color: var(--exec-lime);
+  background: rgba(183, 243, 74, 0.2);
+  color: #ffffff;
 }
 
 body[data-page="executar"] .exec-rest-skip:active:not(:disabled) {
@@ -1082,27 +1159,11 @@ body[data-page="executar"] .exec-rest-skip:disabled {
   cursor: not-allowed;
 }
 
-body[data-page="executar"] .exec-rest-sub {
-  display: grid;
-  gap: 6px;
-  padding-top: 7px;
-  border-top: 1px solid var(--exec-line);
-}
-
-body[data-page="executar"] .exec-rest-caption {
-  margin: 0;
-  color: var(--exec-muted);
-  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
-  font-size: 12px;
-  line-height: 1.35;
-}
-
 body[data-page="executar"] .exec-rest-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
 }
 
 body[data-page="executar"] .exec-rest-adjust,
@@ -1228,9 +1289,27 @@ body[data-page="executar"] .exec-bottom-icon svg {
 body[data-page="executar"] .exec-details-zone {
   display: grid;
   gap: 14px;
-  padding-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid var(--exec-line);
   min-width: 0;
+}
+
+body[data-page="executar"] .exec-details-zone[hidden] {
+  display: none !important;
+}
+
+body[data-page="executar"] .exec-drawer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+body[data-page="executar"] .exec-drawer-title {
+  color: #ffffff;
+  font-family: var(--fj-fonte-titulo, "Archivo Forja", sans-serif);
+  font-size: 15px;
+  font-weight: 700;
 }
 
 body[data-page="executar"] .exec-session-notes {
@@ -1379,10 +1458,11 @@ body[data-page="executar"] :is(
   }
 
   body[data-page="executar"] .exec-hero {
-    width: calc(100% + 20px);
+    width: calc(100% + 20px) !important;
+    max-width: calc(100% + 20px) !important;
     margin-inline: -10px;
-    min-height: 126px;
-    padding: 12px 10px 10px;
+    min-height: 156px;
+    padding: 14px 10px 10px;
   }
 
   body[data-page="executar"] .exec-demo-btn {
@@ -1425,13 +1505,21 @@ body[data-page="executar"] :is(
     width: clamp(146px, 46vw, 168px);
   }
 
-  body[data-page="executar"] .exec-rest-main {
-    flex-wrap: wrap;
+  body[data-page="executar"] .exec-rest-bar {
+    padding-inline: 10px;
+    gap: 8px;
+  }
+
+  body[data-page="executar"] .exec-rest-badge {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
   }
 
   body[data-page="executar"] .exec-rest-skip {
-    width: 100%;
-    text-align: center;
+    font-size: 12px;
+    padding-inline: 4px;
+    gap: 4px;
   }
 
   body[data-page="executar"] .exec-bottom-action {
@@ -1442,17 +1530,17 @@ body[data-page="executar"] :is(
 
 @media (max-height: 700px) {
   body[data-page="executar"] .exec-stage {
-    gap: 10px;
+    gap: 8px;
     min-height: 0;
   }
 
   body[data-page="executar"] .exec-hero {
-    min-height: 114px;
-    padding: 13px 14px;
+    min-height: 140px;
+    padding: 12px 14px 10px;
   }
 
   body[data-page="executar"] .exec-series-dial {
-    width: 152px;
+    width: 148px;
   }
 }
 
@@ -1465,16 +1553,17 @@ body[data-page="executar"] :is(
 
   body[data-page="executar"] .exec-stage {
     min-height: 0;
-    gap: 18px;
+    gap: 16px;
     padding-top: 6px;
   }
 
   body[data-page="executar"] .exec-hero {
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
     margin-inline: 0;
     border-radius: 18px;
-    min-height: 156px;
-    padding: 22px 20px;
+    min-height: 210px;
+    padding: 24px 20px 16px;
   }
 }
 
@@ -1493,6 +1582,25 @@ html[data-forja-theme="contrast"] body[data-page="executar"] {
   background-image: none;
 }
 
+body[data-page="executar"] .site-footer {
+  margin-top: 8px;
+  padding-top: 10px;
+  padding-bottom: calc(var(--bottom-nav-height, 69px) + 12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  opacity: 0.72;
+}
+
+body[data-page="executar"]:has(#execution-live:not([hidden])) .site-footer {
+  display: none;
+}
+
+body[data-page="executar"] .exec-series-dial:focus-visible {
+  outline: 3px solid var(--exec-lime);
+  outline-offset: 3px;
+}
+
+body[data-page="executar"] .exec-series-dial,
+body[data-page="executar"] .exec-series-dial:hover,
 body[data-page="executar"] .exec-end-button,
 body[data-page="executar"] .exec-end-button:hover,
 body[data-page="executar"] .exec-demo-btn,
@@ -1503,6 +1611,10 @@ body[data-page="executar"] .exec-cta-button,
 body[data-page="executar"] .exec-cta-button:hover:not(:disabled),
 body[data-page="executar"] .exec-rest-skip,
 body[data-page="executar"] .exec-rest-skip:hover,
+body[data-page="executar"] .exec-rest-icon-btn,
+body[data-page="executar"] .exec-rest-icon-btn:hover,
+body[data-page="executar"] .exec-rest-step-btn,
+body[data-page="executar"] .exec-rest-step-btn:hover,
 body[data-page="executar"] .exec-rest-chip,
 body[data-page="executar"] .exec-rest-chip:hover,
 body[data-page="executar"] .exec-bottom-action,
@@ -1512,6 +1624,7 @@ body[data-page="executar"] .exec-bottom-action:hover {
 
 @media (prefers-reduced-motion: reduce) {
   body[data-page="executar"] .exec-progress-ring-fill,
+  body[data-page="executar"] .exec-series-dial,
   body[data-page="executar"] .exec-series-dial-arc,
   body[data-page="executar"] .exec-end-button,
   body[data-page="executar"] .exec-demo-btn,
