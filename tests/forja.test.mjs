@@ -1374,31 +1374,52 @@ await runTest("31. Execução: corrigir e remover uma série já registrada", as
   const app = await bootExecution();
 
   assert.equal(app.text("#current-name"), "Supino");
+  assert.equal(app.$("#log-panel"), null, "Card Registro da série não deve existir na parte inferior da tela");
+  assert.equal(app.$("#session-notes"), null, "Card Observação não deve existir na parte inferior da tela");
+  assert.equal(app.$("#execution-demo"), null, "Bloco Referência inferior não deve existir na tela");
 
-  typeField(app, "#log-reps", "8");
-  typeField(app, "#log-load", "62 kg");
-  typeField(app, "#log-rpe", "8", "change");
+  app.click("#execution-more-options");
+  await wait(20);
+  app.modalAction("log");
+  await wait(20);
+  app.modalField("reps").value = "8";
+  app.modalField("load").value = "62 kg";
+  app.modalField("rpe").value = "8";
+  app.modalAction("save");
+  await wait(20);
+
   app.click("#complete-set");
   app.advance(600);
 
-  assert.equal(app.text("#set-progress-label"), "1 de 3");
-  assert.match(app.text("#log-list"), /Série 1 · 8 reps · 62 kg · RPE 8/);
+  assert.equal(app.F.state.activeWorkout.completedSets.bench, 1);
+  assert.deepEqual(
+    {
+      reps: app.F.state.activeWorkout.setLogs.bench[0].reps,
+      load: app.F.state.activeWorkout.setLogs.bench[0].load,
+      rpe: app.F.state.activeWorkout.setLogs.bench[0].rpe
+    },
+    { reps: "8", load: "62 kg", rpe: 8 }
+  );
   assert.equal(app.$("#execution-rest").hidden, false, "descanso não começou depois da série");
 
   /* No meio do descanso não se remove série: o tempo em andamento é dali. */
-  app.click("#log-list .log-entry button");
+  app.click("#execution-more-options");
+  await wait(20);
+  app.modalAction("edit-last");
   await wait(20);
   app.modalAction("remove");
   await wait(20);
   assert.match(app.text("#toast"), /Termine ou pule o descanso/);
   assert.equal(app.F.state.activeWorkout.completedSets.bench, 1, "Removeu série durante o descanso");
-  assert.equal(app.$$("#log-list .log-entry").length, 1);
+  assert.equal(app.F.state.activeWorkout.setLogs.bench.length, 1);
 
   app.click("#skip-rest");
   await wait(20);
 
   /* Corrigir mostra só os campos que fazem sentido para o exercício. */
-  app.click("#log-list .log-entry button");
+  app.click("#execution-more-options");
+  await wait(20);
+  app.modalAction("edit-last");
   await wait(20);
   assert.match(app.text("#modal-title"), /Corrigir série 1/);
   assert.deepEqual(
@@ -1411,7 +1432,6 @@ await runTest("31. Execução: corrigir e remover uma série já registrada", as
   app.modalAction("save");
   await wait(30);
 
-  assert.match(app.text("#log-list"), /Série 1 · 10 reps · 65 kg · RPE 8 · corrigida/);
   assert.match(app.text("#toast"), /atualizada/);
   assert.equal(app.F.state.activeWorkout.completedSets.bench, 1, "Corrigir mudou a contagem de séries");
 
@@ -1421,19 +1441,21 @@ await runTest("31. Execução: corrigir e remover uma série já registrada", as
   assert.ok(stored.editedAt > 0, "edição sem marca de tempo");
 
   /* Remover a última série devolve o direito de registrá-la de novo. */
-  app.click("#log-list .log-entry button");
+  app.click("#execution-more-options");
+  await wait(20);
+  app.modalAction("edit-last");
   await wait(20);
   app.modalAction("remove");
   await wait(20);
 
-  assert.equal(app.text("#set-progress-label"), "0 de 3");
-  assert.equal(app.$$("#log-list .log-entry").length, 0);
+  assert.equal(app.F.state.activeWorkout.completedSets.bench, 0);
+  assert.equal(app.F.state.activeWorkout.setLogs.bench.length, 0);
   assert.match(app.text("#toast"), /removida/);
 
   app.click("#complete-set");
   app.advance(600);
-  assert.equal(app.text("#set-progress-label"), "1 de 3", "não deixou registrar a série removida");
-  assert.match(app.text("#log-list"), /Série 1 ·/);
+  assert.equal(app.F.state.activeWorkout.completedSets.bench, 1, "não deixou registrar a série removida");
+  assert.equal(app.F.state.activeWorkout.setLogs.bench.length, 1);
 
   assertNoErrors(app, "corrigir e remover série");
   app.close();
@@ -1515,12 +1537,16 @@ await runTest("33. Execução: série por distância e resumo com volume real", 
 
   assert.equal(app.text("#current-name"), "Esteira 400 m");
   assert.match(app.text("#current-plan-value"), /400 m/);
-  assert.equal(app.$("#log-reps-field").hidden, true, "pediu repetições em exercício de distância");
-  assert.equal(app.$("#log-distance-field").hidden, false, "campo de distância não apareceu");
-  assert.equal(app.text("#log-distance-unit"), "m");
-  assert.match(app.text("#log-distance-hint"), /Alvo da série: 400 m/);
 
-  typeField(app, "#log-distance", "420");
+  app.click("#series-dial-trigger");
+  await wait(20);
+  assert.equal(app.modalField("reps"), null, "pediu repetições em exercício de distância");
+  assert.ok(app.modalField("distance"), "campo de distância não apareceu no modal");
+  assert.match(app.text(".modal-card"), /Alvo da série: 400 m/);
+
+  app.modalField("distance").value = "420";
+  app.modalAction("save");
+  await wait(20);
   app.click("#complete-set");
   await wait(60);
 
@@ -5366,8 +5392,13 @@ await runTest("80. Instruções na sessão não escrevem nem reiniciam descanso,
     "forja-treino-sessao-ativa-v1": active
   }, "treino/executar.html", { now: 1000 });
   app.setNow(1000);
-  app.$("#log-load").value = "42";
-  app.$("#log-load").dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  app.click("#execution-more-options");
+  await wait(20);
+  app.modalAction("log");
+  await wait(20);
+  app.modalField("load").value = "42";
+  app.modalAction("save");
+  await wait(20);
   const before = app.raw(app.F.KEYS.active);
   const memory = JSON.stringify(app.F.state.activeWorkout);
   const writes = app.storageWrites.length;
@@ -5392,7 +5423,7 @@ await runTest("80. Instruções na sessão não escrevem nem reiniciam descanso,
   assert.equal(app.raw(app.F.KEYS.active), before);
   assert.equal(JSON.stringify(app.F.state.activeWorkout), memory);
   assert.equal(app.storageWrites.length, writes);
-  assert.equal(app.$("#log-load").value, "42");
+  assert.equal(app.F.state.activeWorkout.logDraft[exercise.id].load, "42");
   app.click("#pause-session");
   const paused = app.raw(app.F.KEYS.active);
   app.click(trigger);

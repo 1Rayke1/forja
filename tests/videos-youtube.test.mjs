@@ -469,18 +469,24 @@ await runTest("V4. Exercício sem vídeo exibe imagem de referência corresponde
     { now: 1000 }
   );
 
-  const stage = app.$("#execution-demo .video-demo");
-  assert.ok(stage, "área de demonstração ausente na execução");
-  assert.equal(stage.dataset.videoState, "none");
-  assert.equal(app.$("#execution-demo .video-demo-iframe"), null, "não deve criar iframe sem vídeo");
+  assert.equal(app.$("#execution-demo"), null, "não deve exibir bloco de referência inferior na tela de execução");
+  app.click("#execution-instructions");
+  await wait(25);
 
-  const media = app.$("#execution-demo .demo-media");
+  const stage = app.$(".modal-details .video-demo");
+  assert.ok(stage, "área de demonstração ausente no modal da execução");
+  assert.equal(stage.dataset.videoState, "none");
+  assert.equal(app.$(".modal-details .video-demo-iframe"), null, "não deve criar iframe sem vídeo");
+
+  const media = app.$(".modal-details .demo-media");
   assert.ok(media, "imagem de referência correspondente ausente");
   assert.equal(media.getAttribute("data-demo-id"), "repdb:jumping-jacks");
 
-  const note = app.$("#execution-demo .video-demo-unavailable");
+  const note = app.$(".modal-details .video-demo-unavailable");
   assert.ok(note && !note.hidden, "aviso discreto ausente");
   assert.equal(note.textContent, "Demonstração em vídeo ainda não disponível para este exercício.");
+  app.modalAction("cancel");
+  await wait(20);
   assertNoErrors(app, "exercício sem vídeo na execução");
 });
 
@@ -829,13 +835,17 @@ await runTest("V9. Dados antigos com framing 'zoom' continuam válidos e tocam s
   assert.equal(loaded.youtubeVideo.videoId, "LegadoZoom1");
   assert.equal(loaded.youtubeVideo.framing, "original", "zoom legado é normalizado");
 
-  const stage = app.$("#execution-demo .video-demo");
+  app.click("#execution-instructions");
+  await wait(25);
+  const stage = app.$(".modal-details .video-demo");
   assert.equal(stage.dataset.videoState, "ready");
   assert.equal(stage.dataset.videoId, "LegadoZoom1");
   assert.equal(stage.dataset.videoFraming, "original");
-  assert.equal(app.$("#execution-demo .video-demo-player").classList.contains("is-zoom-crop"), false);
-  assertSilentEmbed(app.$("#execution-demo .video-demo-iframe").src, "vídeo legado na execução");
-  assert.match(app.text("#execution-demo .video-demo-badge"), /Vídeo do treino/);
+  assert.equal(app.$(".modal-details .video-demo-player").classList.contains("is-zoom-crop"), false);
+  assertSilentEmbed(app.$(".modal-details .video-demo-iframe").src, "vídeo legado na execução");
+  assert.match(app.text(".modal-details .video-demo-badge"), /Vídeo do treino/);
+  app.modalAction("cancel");
+  await wait(20);
 
   /* O seletor abre com o vídeo legado já selecionado e sem opção de zoom. */
   await app.go("/forja/treino/rotina.html?id=r-legado&modalidade=calisthenics");
@@ -880,9 +890,13 @@ await runTest("V10. Persistência após recarregar a página (rotina e execuçã
     { now: 1000 }
   );
 
-  assert.equal(app.$("#execution-demo .video-demo").dataset.videoId, "PersistVd01");
-  assert.equal(app.$("#execution-demo .video-demo").dataset.videoFraming, "original");
-  assert.equal(app.$("#execution-demo .video-demo").dataset.videoSource, "custom");
+  app.click("#execution-instructions");
+  await wait(25);
+  assert.equal(app.$(".modal-details .video-demo").dataset.videoId, "PersistVd01");
+  assert.equal(app.$(".modal-details .video-demo").dataset.videoFraming, "original");
+  assert.equal(app.$(".modal-details .video-demo").dataset.videoSource, "custom");
+  app.modalAction("cancel");
+  await wait(20);
 
   await app.reload();
 
@@ -890,8 +904,12 @@ await runTest("V10. Persistência após recarregar a página (rotina e execuçã
     app.F.state.routines.calisthenics[0].sections.main[0].youtubeVideo.videoId,
     "PersistVd01"
   );
-  assert.equal(app.$("#execution-demo .video-demo").dataset.videoId, "PersistVd01");
-  assertSilentEmbed(app.$("#execution-demo .video-demo-iframe").src, "vídeo personalizado após reload");
+  app.click("#execution-instructions");
+  await wait(25);
+  assert.equal(app.$(".modal-details .video-demo").dataset.videoId, "PersistVd01");
+  assertSilentEmbed(app.$(".modal-details .video-demo-iframe").src, "vídeo personalizado após reload");
+  app.modalAction("cancel");
+  await wait(20);
   assertNoErrors(app, "persistência após reload");
 });
 
@@ -1103,7 +1121,11 @@ await runTest("V14. Modo silencioso em todas as etapas (mute=1, autoplay=0, cont
     "treino/executar.html",
     { now: 1000 }
   );
-  assertSilentEmbed(app.$("#execution-demo .video-demo-iframe").src, "execução do treino");
+  app.click("#execution-instructions");
+  await wait(25);
+  assertSilentEmbed(app.$(".modal-details .video-demo-iframe").src, "execução do treino");
+  app.modalAction("cancel");
+  await wait(20);
   app.close();
 
   /* Biblioteca: vídeo oficial. */

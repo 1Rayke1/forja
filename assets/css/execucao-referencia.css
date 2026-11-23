@@ -152,12 +152,13 @@ body[data-page="executar"] .exec-main {
   width: min(100% - 28px, 520px);
   max-width: 520px;
   margin-inline: auto;
-  padding-top: 8px;
-  padding-bottom: calc(var(--bottom-nav-height, 69px) + 12px);
+  padding-top: 6px;
+  padding-bottom: calc(var(--bottom-nav-height, 69px) + 6px + env(safe-area-inset-bottom, 0px));
   padding-inline: 0;
 }
 
 body[data-page="executar"] .execution-screen {
+  min-height: 0;
   margin: 0;
   padding: 0;
 }
@@ -171,8 +172,8 @@ body[data-page="executar"] .exec-wrap {
 }
 
 body[data-page="executar"] .exec-live {
-  display: grid;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
@@ -183,7 +184,9 @@ body[data-page="executar"] .exec-live[hidden] {
 body[data-page="executar"] .exec-stage {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: calc(100dvh - 54px - var(--bottom-nav-height, 69px) - 18px - env(safe-area-inset-bottom, 0px));
   min-width: 0;
 }
 
@@ -1282,167 +1285,17 @@ body[data-page="executar"] .exec-bottom-icon svg {
   height: 100%;
 }
 
-/* --------------------------------------------------------------------------
-   10. Zona complementar da sessão (abaixo da dobra: registro, atlas e demo)
-   -------------------------------------------------------------------------- */
-
-body[data-page="executar"] .exec-details-zone {
-  display: grid;
-  gap: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--exec-line);
-  min-width: 0;
-}
-
-body[data-page="executar"] .exec-details-zone[hidden] {
-  display: none !important;
-}
-
-body[data-page="executar"] .exec-drawer-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-body[data-page="executar"] .exec-drawer-title {
-  color: #ffffff;
-  font-family: var(--fj-fonte-titulo, "Archivo Forja", sans-serif);
-  font-size: 15px;
-  font-weight: 700;
-}
-
-body[data-page="executar"] .exec-session-notes {
-  margin: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--exec-line);
-  border-left: 3px solid var(--exec-lime);
-  border-radius: 14px;
-  background: var(--exec-surface);
-}
-
-body[data-page="executar"] .exec-log-panel {
-  margin: 0;
-  padding: 16px;
-  border: 1px solid var(--exec-line);
-  border-radius: 18px;
-  background: var(--exec-surface);
-  display: grid;
-  gap: 12px;
-}
-
-body[data-page="executar"] .exec-log-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-body[data-page="executar"] .exec-set-summary {
-  margin: 4px 0 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--exec-muted);
-  font-size: 12.5px;
-}
-
-body[data-page="executar"] .exec-set-summary strong {
-  color: var(--exec-muted);
-  font-weight: 500;
-}
-
-body[data-page="executar"] .exec-set-summary #set-progress-label {
-  color: var(--exec-lime);
-  font-weight: 700;
-}
-
-body[data-page="executar"] .exec-quick-tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-body[data-page="executar"] .exec-tool-btn {
-  appearance: none;
-  min-height: 44px;
-  padding: 8px 12px;
-  border: 1px solid var(--exec-line-strong);
-  border-radius: 11px;
-  background: var(--exec-surface-2);
-  color: var(--exec-muted-strong);
-  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
-  font-size: 12.5px;
-  font-weight: 600;
-  line-height: 1.2;
-  cursor: pointer;
-}
-
-body[data-page="executar"] .exec-tool-btn[hidden] {
-  display: none;
-}
-
-body[data-page="executar"] .exec-tool-btn:hover:not(:disabled) {
-  border-color: rgba(183, 243, 74, 0.45);
-  color: #ffffff;
-}
-
-body[data-page="executar"] .exec-tool-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Opções reais listadas no modal "Mais opções" */
-.exec-options-list {
-  display: grid;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.exec-option-item {
-  appearance: none;
-  width: 100%;
-  min-height: 48px;
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  background: #151815;
-  color: #f4f7f3;
-  font-family: var(--fj-fonte-texto, "Inter Forja", sans-serif);
-  font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.exec-option-item:hover {
-  border-color: rgba(183, 243, 74, 0.55);
-  background: #1b1f1b;
-}
-
-.exec-option-item small {
-  color: #9da59b;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* Foco visível em todos os controles novos */
+/* Foco visível em todos os controles da execução */
 body[data-page="executar"] :is(
   .exec-end-button,
   .exec-demo-btn,
   .exec-nav-btn,
   .exec-cta-button,
   .exec-rest-skip,
-  .exec-rest-chip,
-  .exec-bottom-action,
-  .exec-tool-btn
-):focus-visible,
-.exec-option-item:focus-visible {
+  .exec-rest-icon-btn,
+  .exec-rest-step-btn,
+  .exec-bottom-action
+):focus-visible {
   outline: 3px solid var(--exec-lime);
   outline-offset: 2px;
 }

@@ -625,30 +625,100 @@
       ". Ele ficará pendente no registro.");
   }
 
-  function updateLogDraft() {
+  function draftEditorFields(exercise, draft) {
     const s = session();
-    const exercise = currentSessionExercise();
+    const fields = [];
+
+    if (exercise.type !== "duration" && !measuresDistance(exercise)) {
+      fields.push({
+        id: "reps",
+        label: "Repetições feitas",
+        value: draft.reps || "",
+        maxlength: 30,
+        placeholder: String(exercise.reps || "10")
+      });
+    }
+
+    if (s && s.modality === "weights") {
+      fields.push({
+        id: "load",
+        label: "Carga usada",
+        value: draft.load || "",
+        maxlength: 50,
+        placeholder: exercise.load || "Ex.: 20 kg"
+      });
+    }
+
+    if (measuresDistance(exercise)) {
+      fields.push({
+        id: "distance",
+        label: "Distância (em " + distanceUnitLabel(exercise) + ")",
+        type: "number",
+        value: draft.distance ? String(draft.distance) : "",
+        min: 0,
+        max: 100000,
+        placeholder: exercise.distance ? String(exercise.distance) : "Ex.: 400",
+        hint: exercise.distance
+          ? "Alvo da série: " + exercise.distance + " " + distanceUnitLabel(exercise) + "."
+          : "Quanto você percorreu nesta série."
+      });
+    }
+
+    fields.push({
+      id: "rpe",
+      label: "Esforço desta série (RPE)",
+      type: "select",
+      value: draft.rpe ? String(draft.rpe) : "",
+      options: [
+        { value: "", label: "Não registrar" },
+        { value: "6", label: "6 · folgado" },
+        { value: "7", label: "7 · difícil" },
+        { value: "8", label: "8 · bem difícil" },
+        { value: "9", label: "9 · quase falha" },
+        { value: "10", label: "10 · falha" }
+      ]
+    });
+
+    return fields;
+  }
+
+  async function openDraftEditorDialog(exerciseArg) {
+    const s = session();
+    const exercise = exerciseArg || currentSessionExercise();
     if (!s || !exercise) return;
 
-    const distanceField = byId("log-distance");
-    const rpeField = byId("log-rpe");
+    const draft = getLogDraft(exercise);
+    const result = await showModal({
+      title: "Registrar carga / repetições",
+      message: exercise.name,
+      fields: draftEditorFields(exercise, draft),
+      validate(values) {
+        const errors = {};
+        const distance = values.distance === undefined || values.distance === "" ? null : Number(values.distance);
+        if (distance !== null && (!Number.isFinite(distance) || distance < 0 || distance > 100000)) {
+          errors.distance = "Use uma distância entre 0 e 100000.";
+        }
+        return { ok: Object.keys(errors).length === 0, errors };
+      },
+      actions: [
+        { id: "cancel", label: "Cancelar", className: "secondary-button" },
+        { id: "save", label: "Salvar", className: "primary-button" }
+      ]
+    });
 
+    if (!result || result.action !== "save") return;
+
+    const values = result.values || {};
     s.logDraft = s.logDraft || {};
     s.logDraft[exercise.id] = {
-      reps: byId("log-reps").value.slice(0, 30),
-      load: byId("log-load").value.slice(0, 50),
-      distance: distanceField && !byId("log-distance-field").hidden ? distanceField.value.trim().slice(0, 8) : "",
-      rpe: rpeField ? rpeField.value : ""
+      reps: values.reps !== undefined ? String(values.reps).slice(0, 30) : String(draft.reps || ""),
+      load: values.load !== undefined ? String(values.load).slice(0, 50) : String(draft.load || ""),
+      distance: values.distance !== undefined ? String(values.distance).trim().slice(0, 8) : String(draft.distance || ""),
+      rpe: values.rpe !== undefined ? String(values.rpe) : String(draft.rpe || "")
     };
 
     saveActiveWorkout();
-    renderSeriesDial(
-      exercise,
-      Number(s.completedSets[exercise.id]) || 0,
-      currentTimerFor(exercise),
-      hasRestState(),
-      s.running
-    );
+    renderExecution();
   }
 
   function clampRpe(value) {
@@ -1399,56 +1469,6 @@
     banner.hidden = false;
   }
 
-  /*
-    Figura das regiões trabalhadas dentro da execução. Usa a mesma peça do
-    atlas (`F.atlas.attachToExecution`) e some sem drama quando o exercício não
-    tem classificação muscular — a sessão continua idêntica.
-  */
-  /*
-    Demonstração do movimento na execução: vídeo oficial ou personalizado em
-    16:9 (sem autoplay e com controles) e fallback automático para a ilustração
-    de referência correspondente (RepDB) quando não há vídeo disponível.
-  */
-  let currentExecutionDemoKey = "";
-  function renderExerciseDemo(exercise) {
-    const box = byId("execution-demo");
-    if (!box) return;
-
-    const activeSession = session();
-    const modality = activeSession ? activeSession.modality : null;
-    if (!exercise) {
-      currentExecutionDemoKey = "";
-      if (F.videos) F.videos.destroyStage(box);
-      box.hidden = true;
-      return;
-    }
-
-    const nextKey = [
-      activeSession ? activeSession.id : "",
-      exercise.id || "",
-      exercise.libraryId || "",
-      exercise.demoId || "",
-      exercise.youtubeVideo ? exercise.youtubeVideo.videoId : ""
-    ].join("|");
-
-    /* Evita recriar o iframe a cada tique de cronômetro/série do mesmo exercício. */
-    if (nextKey === currentExecutionDemoKey && box.firstChild && !box.hidden) {
-      return;
-    }
-    currentExecutionDemoKey = nextKey;
-
-    if (F.videos) {
-      F.videos.renderStage(box, exercise, modality, { compact: true });
-      return;
-    }
-
-    if (!F.demos || !F.demos.available()) {
-      box.hidden = true;
-    } else {
-      F.demos.renderMedia(box, exercise, modality, { eager: true });
-    }
-  }
-
   F.updateActiveBanner = updateActiveBanner;
 
   const WORKOUT_RING_CIRCUMFERENCE = 2 * Math.PI * 32;
@@ -1586,13 +1606,6 @@
     return spec.min !== null ? spec.min : null;
   }
 
-  function toggleDetailsZone(forceOpen) {
-    const zone = byId("execution-details-zone");
-    if (!zone) return;
-    const nextOpen = typeof forceOpen === "boolean" ? forceOpen : zone.hidden;
-    zone.hidden = !nextOpen;
-  }
-
   function handleSeriesDialInteraction() {
     const s = session();
     const exercise = currentSessionExercise();
@@ -1618,12 +1631,7 @@
     }
 
     if (measuresDistance(exercise)) {
-      toggleDetailsZone(true);
-      const distInput = byId("log-distance");
-      if (distInput) {
-        safeScrollIntoView(byId("log-panel"), { block: "nearest" });
-        distInput.focus({ preventScroll: true });
-      }
+      openDraftEditorDialog(exercise);
       return;
     }
 
@@ -1643,9 +1651,6 @@
       distance: existing.distance || "",
       rpe: existing.rpe || ""
     };
-
-    const repsInput = byId("log-reps");
-    if (repsInput) repsInput.value = String(nextReps);
 
     saveActiveWorkout();
     renderSeriesDial(exercise, done, null, false, s.running);
@@ -1814,9 +1819,19 @@
       escapeHtml(s.routineName) + " · Exercício " +
       (s.currentIndex + 1) + " de " + s.queue.length;
 
+    const logs = setLogsOf(exercise.id);
     const actions = [
       { id: "log", label: "Registrar carga / repetições", className: "secondary-button" }
     ];
+
+    if (logs.length > 0) {
+      const lastEntry = logs[logs.length - 1];
+      actions.push({
+        id: "edit-last",
+        label: "Corrigir série " + lastEntry.set,
+        className: "secondary-button"
+      });
+    }
 
     if (restActive && s.running) {
       actions.push(
@@ -1861,14 +1876,14 @@
     if (!result || result.action === "cancel") return;
 
     if (result.action === "log") {
-      toggleDetailsZone(true);
-      const logPanel = byId("log-panel");
-      if (logPanel) safeScrollIntoView(logPanel, { block: "start" });
-      const firstInput = ["log-reps", "log-load", "log-distance"]
-        .map(id => byId(id))
-        .find(input => input && !input.closest("[hidden]"));
-      if (firstInput && typeof firstInput.focus === "function") {
-        firstInput.focus({ preventScroll: true });
+      await openDraftEditorDialog(exercise);
+      return;
+    }
+
+    if (result.action === "edit-last") {
+      const latestLogs = setLogsOf(exercise.id);
+      if (latestLogs.length > 0) {
+        await openSetEditor(exercise, latestLogs.length - 1);
       }
       return;
     }
@@ -1986,7 +2001,6 @@
     complementEl.hidden = !complement;
 
     renderExerciseHeroMedia(exercise, s.modality);
-    renderExerciseDemo(exercise);
 
     const plan = byId("current-plan");
     plan.innerHTML = "";
@@ -2048,29 +2062,8 @@
       ? (exercise.rest <= 120 ? exercise.rest + " s" : formatRest(exercise.rest))
       : "Sem";
 
-    const notes = byId("session-notes");
-    if (exercise.notes) {
-      byId("session-notes-text").textContent = exercise.notes;
-      notes.hidden = false;
-    } else {
-      byId("session-notes-text").textContent = "";
-      notes.hidden = true;
-    }
-
-    const pips = byId("set-pips");
-    pips.innerHTML = "";
-    for (let index = 0; index < exercise.sets; index++) {
-      const pip = document.createElement("span");
-      pip.className = "set-pip" + (index < done ? " done" : "");
-      pips.appendChild(pip);
-    }
-
-    byId("set-count-label").textContent = "Séries concluídas";
-    byId("set-progress-label").textContent = done + " de " + exercise.sets;
-
     renderSeriesDial(exercise, done, timer, restActive, s.running);
     renderTimerPanel(exercise, done, timer, restActive);
-    renderLogPanel(exercise, done);
 
     const completeButton = byId("complete-set");
     completeButton.hidden = isTimed;
@@ -2104,16 +2097,6 @@
       }
     }
 
-    const startRestButton = byId("start-rest");
-    const canStartRest = s.running &&
-      !restActive &&
-      !(timer && timer.startedAt) &&
-      exercise.rest > 0 &&
-      done < exercise.sets;
-
-    startRestButton.hidden = !canStartRest;
-    startRestButton.textContent = "Iniciar descanso (" + formatRest(exercise.rest) + ")";
-
     const blocked = restActive || Boolean(s.setTimer);
 
     const previousButton = byId("previous-exercise");
@@ -2132,10 +2115,6 @@
         ? "Próximo exercício"
         : (exerciseDone ? "Concluir treino" : "Último exercício do treino")
     );
-
-    const skipButton = byId("skip-exercise");
-    skipButton.hidden = exerciseDone || !hasNext;
-    skipButton.disabled = blocked;
 
     byId("pause-session").hidden = !s.running;
     byId("resume-session").hidden = s.running;
@@ -2235,82 +2214,6 @@
     if (entry.editedAt) parts.push("corrigida");
 
     return parts;
-  }
-
-  function renderLogPanel(exercise, done) {
-    const s = session();
-    const panel = byId("log-panel");
-    const draft = getLogDraft(exercise);
-    const isTimed = exercise.type === "duration";
-    const isWeights = s.modality === "weights";
-    const isDistance = measuresDistance(exercise);
-
-    byId("log-reps-field").hidden = isTimed || isDistance;
-    byId("log-load-field").hidden = !isWeights;
-    byId("log-distance-field").hidden = !isDistance;
-    panel.hidden = false;
-
-    const repsInput = byId("log-reps");
-    const loadInput = byId("log-load");
-    const distanceInput = byId("log-distance");
-    const rpeSelect = byId("log-rpe");
-
-    if (document.activeElement !== repsInput) repsInput.value = draft.reps;
-    if (document.activeElement !== loadInput) loadInput.value = draft.load;
-    if (document.activeElement !== distanceInput) distanceInput.value = draft.distance;
-    if (rpeSelect && document.activeElement !== rpeSelect) rpeSelect.value = draft.rpe;
-
-    repsInput.placeholder = exercise.type === "reps" ? String(exercise.reps) : "";
-    loadInput.placeholder = exercise.load || "Ex.: 20 kg";
-
-    if (isDistance) {
-      byId("log-distance-unit").textContent = distanceUnitLabel(exercise);
-      distanceInput.placeholder = exercise.distance ? String(exercise.distance) : "Ex.: 400";
-      byId("log-distance-hint").textContent = exercise.distance
-        ? "Alvo da série: " + exercise.distance + " " + distanceUnitLabel(exercise) + "."
-        : "Quanto você percorreu nesta série.";
-    }
-
-    const list = byId("log-list");
-    list.innerHTML = "";
-
-    const logs = Array.isArray(s.setLogs && s.setLogs[exercise.id])
-      ? s.setLogs[exercise.id]
-      : [];
-
-    if (logs.length === 0) {
-      const empty = document.createElement("li");
-      empty.className = "log-empty";
-      empty.textContent = done > 0
-        ? "Nenhuma série com registro detalhado."
-        : "Registre as séries conforme forem concluídas.";
-      list.appendChild(empty);
-      return;
-    }
-
-    logs.forEach((entry, index) => {
-      const item = document.createElement("li");
-      item.className = "log-entry";
-
-      const main = document.createElement("span");
-      main.className = "log-entry-main";
-      main.textContent = logEntryParts(exercise, entry).join(" · ");
-      item.appendChild(main);
-
-      const actions = document.createElement("div");
-      actions.className = "log-entry-actions";
-
-      const edit = document.createElement("button");
-      edit.type = "button";
-      edit.className = "secondary-button small-button";
-      edit.textContent = "Corrigir";
-      edit.setAttribute("aria-label", "Corrigir a série " + entry.set + " de " + exercise.name);
-      edit.addEventListener("click", () => openSetEditor(exercise, index));
-      actions.appendChild(edit);
-      item.appendChild(actions);
-
-      list.appendChild(item);
-    });
   }
 
   function renderRestPanel() {
@@ -2500,17 +2403,14 @@
 
     bind("complete-set", completeCurrentSet);
     bind("series-dial-trigger", handleSeriesDialInteraction);
-    bind("close-details-zone", () => toggleDetailsZone(false));
     bind("execution-instructions", () => {
       const exercise = currentSessionExercise();
       const s = session();
       if (exercise && s) F.catalog.showDetail(F.catalog.describeExercise(exercise, s.modality), { readOnly: true });
     });
     bind("execution-more-options", openMoreOptionsDialog);
-    bind("start-rest", startRestManually);
     bind("previous-exercise", goToPreviousExercise);
     bind("next-exercise", goToNextExercise);
-    bind("skip-exercise", skipExercise);
     bind("pause-rest", pauseRest);
     bind("resume-rest", resumeRest);
     bind("skip-rest", skipRest);
@@ -2519,7 +2419,6 @@
     bind("pause-session", () => pauseSession());
     bind("resume-session", resumeSession);
     bind("end-session", openEndSessionDialog);
-    bind("minimize-session", leaveExecution);
     bind("summary-close", closeSessionSummary);
 
     let resizeTimer = null;
@@ -2541,16 +2440,6 @@
       lastSetActionAt = now;
       registerSet({ endedAt: now });
     });
-
-    ["log-reps", "log-load", "log-distance"].forEach(id => {
-      const input = byId(id);
-      if (input) input.addEventListener("input", updateLogDraft);
-    });
-
-    const rpeSelect = byId("log-rpe");
-    if (rpeSelect) {
-      rpeSelect.addEventListener("change", updateLogDraft);
-    }
 
     const params = new URLSearchParams(global.location.search);
     const summaryId = params.get("resumo");
@@ -2584,4 +2473,7 @@
   F.completedExerciseCount = completedExerciseCount;
   F.persistHistoryRecord = persistHistoryRecord;
   F.buildSessionRecord = buildSessionRecord;
+  F.openDraftEditor = openDraftEditorDialog;
+  F.openSetEditor = openSetEditor;
+  F.startRestManually = startRestManually;
 })(window);
