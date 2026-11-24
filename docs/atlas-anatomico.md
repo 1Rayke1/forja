@@ -130,6 +130,28 @@ Continuam intactos:
 O Atlas continua apenas lendo a classificação. Não grava nem limpa dados do
 usuário.
 
+### 5.1 Demonstração durante a execução (atlas + vídeo)
+
+A consulta **Ver demonstração** aberta na tela de execução é deliberadamente
+enxuta, para leitura rápida no meio do treino:
+
+- título do diálogo = nome do exercício;
+- **Atlas muscular** — a mesma prancha do Atlas (`F.atlas.figurePair`) com os
+  destaques das regiões registradas no exercício; sem legenda escrita, tabela
+  de papéis ou texto descritivo;
+- **Demonstração** — o vídeo já associado ao exercício, no mesmo palco 16:9
+  (`youtube-nocookie`, sem autoplay, com controles). Sem vídeo, o palco mostra a
+  imagem de referência disponível e o aviso de indisponibilidade.
+
+Não entram nessa tela: técnica, cuidados, listas de músculos principal e
+secundários, observações, alternativa compatível, foto de identificação nem
+botão de adicionar ao treino. O detalhe completo da biblioteca e do editor
+continua igual (`showDetail` sem a opção `demonstration`).
+
+Medidas de referência e capturas: `docs/simplificacao-demonstracao-execucao.md`
+e `docs/capturas/demonstracao-atlas-video-390.png` (também em 320 px e no
+estado sem vídeo).
+
 ## 6. Testes que verificam a imagem, não apenas o SVG
 
 ### `npm test`

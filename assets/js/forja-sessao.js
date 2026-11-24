@@ -2406,7 +2406,13 @@
     bind("execution-instructions", () => {
       const exercise = currentSessionExercise();
       const s = session();
-      if (exercise && s) F.catalog.showDetail(F.catalog.describeExercise(exercise, s.modality), { readOnly: true });
+      if (!exercise || !s) return;
+      /* Demonstração da execução: só o atlas muscular e o vídeo já associado,
+         sem os textos editoriais do detalhe completo da biblioteca. */
+      F.catalog.showDetail(F.catalog.describeExercise(exercise, s.modality), {
+        readOnly: true,
+        demonstration: true
+      });
     });
     bind("execution-more-options", openMoreOptionsDialog);
     bind("previous-exercise", goToPreviousExercise);
