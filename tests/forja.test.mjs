@@ -5405,15 +5405,19 @@ await runTest("80. Instruções na sessão não escrevem nem reiniciam descanso,
   const trigger = app.$("#execution-instructions");
   trigger.focus();
   app.click(trigger);
-  assert.match(app.text(".modal-details"), /Instrução da sessão, não do nome/);
+  /*
+    A demonstração da execução é só o atlas muscular e o vídeo: os textos
+    editoriais (inclusive a instrução da sessão) não entram nessa tela.
+  */
+  const demoText = app.text(".modal-details");
+  assert.match(demoText, /Atlas muscular/);
+  assert.match(demoText, /Demonstração/);
+  assert.doesNotMatch(demoText, /Instrução da sessão, não do nome/,
+    "A demonstração não pode repetir os textos editoriais do detalhe completo");
   assert.equal(app.$$("[data-modal-field]").length, 0);
   assert.equal(app.d.activeElement.dataset.modalAction, "cancel");
   app.d.dispatchEvent(new app.w.KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
-  /*
-    O detalhe agora contém links de crédito e botões de pose (elementos
-    focáveis). A proteção continua sendo o TRAP: Tab nunca sai do modal.
-    Antes havia um único botão e o teste comparava com "cancel".
-  */
+  /* A proteção continua sendo o TRAP: Tab nunca sai do modal. */
   assert.ok(app.d.activeElement.closest(".modal-card"),
     "Tab não pode sair do modal de execução");
   app.advance(5000);

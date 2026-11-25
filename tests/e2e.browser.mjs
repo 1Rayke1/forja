@@ -3111,7 +3111,10 @@ await check('Evolução 1 — instruções preservam sessão, descanso, valores,
     const before = await forjaRaw();
     const deadline = (await data('forja-treino-sessao-ativa-v1')).restEndAt;
     await clickCentered('#execution-instructions');
-    assert.match(await text('.modal-details'), /Instrução da sessão/);
+    /* A consulta mostra só atlas + vídeo: nem instrução da sessão, nem textos editoriais. */
+    assert.deepEqual(await page.$$eval('.modal-details .bl-detail-heading', nodes => nodes.map(n => n.textContent.trim())),
+      ['Atlas muscular', 'Demonstração']);
+    assert.doesNotMatch(await text('.modal-details'), /Instrução da sessão|Técnica|Cuidados|Suas observações/);
     assert.equal(await page.evaluate(() => document.activeElement.dataset.modalAction), 'cancel');
     await sleep(1300);
     assert.equal(await page.evaluate(() => Forja.state.activeWorkout.restEndAt), deadline);
@@ -3272,13 +3275,18 @@ await check('Demonstrações: seletor no editor persiste demoId e chega à execu
     assert.equal(await page.$('#execution-demo'), null, 'bloco inferior de referência não deve existir na execução');
     assert.equal(await page.$('#execution-figure'), null, 'figura anatômica não deve existir na execução');
     await clickCentered('#execution-instructions');
-    await page.waitForFunction(() => {
-      const img = document.querySelector('.modal-details .demo-image');
-      return img && img.complete && img.naturalWidth > 0;
-    }, { timeout: 5000 });
-    assert.equal(await page.$eval('.modal-details .demo-media', el => el.dataset.demoId),
-      'repdb:spiderman-push-up');
-    assert.match(await text('.modal-details .demo-credit'), /RepDB/);
+    await page.waitForSelector('.modal-details [data-detail-section="atlas"]', { timeout: 4000 });
+    /* A escolha de demonstração continua na sessão, mas a consulta mostra
+       apenas o atlas muscular e o vídeo aprovado. */
+    const sessionDemo = await page.evaluate(() => ({
+      sections: Array.from(document.querySelectorAll('.modal-details > *'))
+        .map(node => node.dataset.detailSection).filter(Boolean),
+      demoId: window.Forja.state.activeWorkout.queue[0].demoId,
+      hasPhoto: Boolean(document.querySelector('.modal-details .demo-media, .modal-details .demo-image'))
+    }));
+    assert.deepEqual(sessionDemo.sections, ['atlas', 'video']);
+    assert.equal(sessionDemo.demoId, 'repdb:spiderman-push-up', 'a sessão perdeu a escolha de demonstração');
+    assert.equal(sessionDemo.hasPhoto, false, 'consulta não repete a imagem de demonstração');
     await page.keyboard.press('Escape');
     await sleep(120);
   } finally {

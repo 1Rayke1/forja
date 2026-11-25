@@ -519,7 +519,13 @@
     stage.appendChild(playerWrap);
     stage.appendChild(meta);
 
-    if (repDbMedia && repDbMedia.node && options.reference !== false) {
+    /*
+      A imagem de referência recolhível é um bloco extra do detalhe completo.
+      A tela de demonstração da execução mantém a ilustração apenas como
+      substituta do vídeo ausente (`referenceDetails: false`), sem repetir a
+      imagem ao lado de um player disponível.
+    */
+    if (repDbMedia && repDbMedia.node && options.reference !== false && options.referenceDetails !== false) {
       const refDetails = doc.createElement("details");
       refDetails.className = "video-demo-reference";
       const summary = doc.createElement("summary");

@@ -1009,6 +1009,63 @@ await runTest("ATLAS 12. Execução de treino preserva sessão, séries e storag
   app.close();
 });
 
+await runTest("ATLAS 12b. 'Ver demonstração' mostra só atlas + vídeo, com os músculos do exercício", async () => {
+  const routine = makeRoutine("weights", "Força Base", [
+    { id: "ex-supino", name: "Supino reto com barra", section: "main", sets: 3, reps: "8", rest: 90, load: "70 kg" }
+  ], "rot-demo-atlas");
+  /* `makeRoutine` monta o mínimo; o vínculo com o catálogo é o que dá ao
+     exercício a classificação muscular usada pelo atlas. */
+  routine.sections.main[0].libraryId = "mus-supino-reto";
+
+  const app = await boot({ "forja-treino-rotinas-v1": routinesStore([], [routine]) }, "treino/musculacao.html");
+  await wait(30);
+  app.click("#routine-list .routine-start");
+  await until(() => app.d.body.dataset.page === "executar", "abrir página de execução");
+  await wait(30);
+
+  app.click("#execution-instructions");
+  await until(() => app.$(".modal-backdrop"), "modal de demonstração na execução");
+  await wait(25);
+
+  /* Só dois blocos: o atlas muscular e o vídeo. Sem identificação, técnica,
+     cuidados, músculos escritos, observações ou alternativa. */
+  const sections = Array.from(app.$$(".modal-details > *"))
+    .map(node => node.getAttribute("data-detail-section"))
+    .filter(Boolean);
+  assert.deepEqual(sections, ["atlas", "video"], "demonstração deve ter só atlas e vídeo");
+
+  const text = app.text(".modal-details");
+  ["Técnica", "Cuidados", "Principal", "Secundário", "Suas observações",
+    "Observação salva", "Alternativa compatível"].forEach(label => {
+    assert.equal(text.includes(label), false, "texto/bloco removido reapareceu: " + label);
+  });
+
+  /* O destaque da prancha é exatamente a classificação registrada no
+     exercício: nada é pintado por suposição. */
+  const exercise = app.F.state.activeWorkout.queue[0];
+  const record = app.F.catalog.describeExercise(exercise, app.F.state.activeWorkout.modality);
+  const highlights = app.F.atlas.highlightsFor(record);
+  assert.deepEqual(Object.keys(highlights).sort(), ["dorsais", "ombros", "peito", "triceps"]);
+
+  Object.entries(highlights).forEach(([region, role]) => {
+    const nodes = app.$$('.modal-details [data-detail-section="atlas"] .figura-region[data-region="' + region + '"]');
+    assert.ok(nodes.length > 0, "região destacada ausente no atlas: " + region);
+    nodes.forEach(node => {
+      assert.ok(node.classList.contains("is-" + role),
+        "papel errado para " + region + " (esperado " + role + ")");
+    });
+  });
+
+  assert.equal(app.$('.modal-details [data-detail-section="atlas"] [data-detail-section="musculos"]'), null);
+  assert.ok(app.$('.modal-details [data-detail-section="atlas"] .figura-pair, .modal-details [data-detail-section="atlas"] .atlas-figuras'),
+    "figura anatômica ausente");
+
+  app.modalAction("cancel");
+  await wait(25);
+  assertNoErrors(app, "demonstração enxuta da execução");
+  app.close();
+});
+
 /* ------------------------------------------------------------------ */
 /* 14. Modelo anatômico oficial: enquadramento, mapeamento e Progresso */
 /* ------------------------------------------------------------------ */

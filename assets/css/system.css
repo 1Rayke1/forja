@@ -414,6 +414,37 @@
 .bl-detail-atlas-key-item.is-informed .bl-detail-atlas-dot { background: #a0a69f; }
 .bl-detail-note { margin: 6px 0 0; color: var(--muted); font-size: var(--font-xs); line-height: 1.45; }
 
+/*
+  "Ver demonstração" na execução: apresentação limpa e visual, com apenas o
+  nome do exercício (título do diálogo), o atlas muscular e o vídeo. Nada de
+  seções editoriais, cards, legendas escritas ou textos auxiliares. O atlas e
+  o vídeo ocupam a largura do painel e são os protagonistas.
+*/
+.bl-demo { gap: 10px; }
+.bl-demo > .bl-detail-section { gap: 6px; padding-top: 0; border-top: 0; }
+.bl-demo .bl-demo-figure { margin: 0; padding: 0; border: 0; }
+.bl-demo .atlas-figuras { gap: var(--space-2); padding: 0; }
+.bl-demo .atlas-figura-cell { gap: 6px; }
+.bl-demo .modal-figure .figura { width: 100%; max-width: 140px; }
+.bl-demo .atlas-figura-caption { font-size: var(--font-xs); }
+.bl-demo .bl-demo-video .video-demo { margin: 0; }
+
+/* O painel da demonstração usa quase toda a tela do celular: o atlas fica
+   maior e o vídeo 16:9 cabe sem apertar os dois. */
+.modal-backdrop:has(.bl-demo) { padding: 8px; }
+.modal-card:has(.bl-demo) {
+  width: min(100%, 540px);
+  max-height: calc(100dvh - 16px);
+  padding: 16px 14px;
+}
+.modal-card:has(.bl-demo) .modal-actions { margin-top: 12px; }
+.modal-card:has(.bl-demo) .modal-details { padding: 10px; }
+
+@media (max-width: 360px) {
+  .bl-demo .modal-figure .figura { max-width: 100%; }
+  .modal-card:has(.bl-demo) { padding: 16px 12px; }
+}
+
 @media (max-width: 560px) {
   .bl-detail-roles { grid-template-columns: 1fr; gap: 2px; }
   .bl-detail-roles dd { margin-bottom: 6px; }

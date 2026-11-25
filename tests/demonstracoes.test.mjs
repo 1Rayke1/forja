@@ -577,7 +577,7 @@ await runTest("D15. demoId malformado é rejeitado no backup e descartado no boo
   app2.close();
 });
 
-await runTest("D16. Sessão e execução preservam a imagem personalizada", async () => {
+await runTest("D16. Sessão preserva a escolha de demonstração e a execução mostra só atlas e vídeo", async () => {
   const routine = routineWithDemo({ demoId: "repdb:plyo-push-up" });
   const exercise = routine.sections.main[0];
   const active = {
@@ -601,9 +601,21 @@ await runTest("D16. Sessão e execução preservam a imagem personalizada", asyn
 
   app.click("#execution-instructions");
   await wait(20);
-  assert.equal(app.$(".modal-details .demo-media").getAttribute("data-demo-id"),
-    "repdb:plyo-push-up", "modal readOnly perdeu a escolha");
-  assert.match(app.text(".modal-details .demo-credit"), /RepDB/);
+  /*
+    A tela "Ver demonstração" da execução mostra apenas o atlas muscular e o
+    vídeo. A escolha personalizada continua salva na sessão (e reaparece no
+    detalhe completo do editor/biblioteca), mas não vira um terceiro bloco
+    nessa tela.
+  */
+  const sections = Array.from(app.$$(".modal-details > *"))
+    .map(node => node.getAttribute("data-detail-section"))
+    .filter(Boolean);
+  assert.deepEqual(sections, ["atlas", "video"], "demonstração fora do contrato atlas + vídeo");
+  assert.equal(app.$(".modal-details [data-detail-section='identificacao']"), null);
+  assert.equal(app.$(".modal-details .bl-detail-photo"), null,
+    "a demonstração não repete a foto/ilustração de identificação");
+  assert.equal(app.F.state.activeWorkout.queue[0].demoId, "repdb:plyo-push-up",
+    "a escolha de demonstração continua salva na sessão");
   app.modalAction("cancel");
   await wait(25);
   app.close();

@@ -48,7 +48,8 @@ async function click(page, selector) {
   await page.click(selector);
 }
 
-const VALID_THUMB_PNG = makeHorizontalPng(32, 18);
+/* Miniatura no tamanho real do YouTube (mqdefault), para o vídeo continuar disponível na sonda. */
+const VALID_THUMB_PNG = makeHorizontalPng(320, 180);
 
 const captureDir = path.join(root, '.cache', 'capturas');
 fs.mkdirSync(captureDir, { recursive: true });
@@ -225,9 +226,16 @@ try {
 
     const ui = await page.evaluate(() => {
       const heroImg = document.querySelector('#execution-hero-media img');
+      const heroBox = document.getElementById('execution-hero').getBoundingClientRect();
+      const heroImgBox = heroImg ? heroImg.getBoundingClientRect() : null;
       const ringOffset = document.getElementById('execution-ring-progress').style.strokeDashoffset;
       const dialOffset = document.getElementById('series-ring-arc').style.strokeDashoffset;
       return {
+        heroHeight: Math.round(heroBox.height),
+        heroWidth: Math.round(heroBox.width),
+        heroImgHeight: heroImgBox ? Math.round(heroImgBox.height) : 0,
+        viewportWidth: window.innerWidth,
+        heroImgFit: heroImg ? getComputedStyle(heroImg).objectFit : "",
         logo: document.querySelector('.exec-brand-logo')?.textContent.trim(),
         endVisible: !document.getElementById('end-session').hidden,
         eyebrow: document.getElementById('execution-status-eyebrow').textContent.trim(),
@@ -271,6 +279,16 @@ try {
     assert.equal(ui.name, 'Supino reto com barra');
     assert.equal(ui.complement, 'Barra · Carga: 60 kg');
     assert.equal(ui.hasExactPhoto, true, 'Deveria exibir foto exata local do supino reto');
+    /*
+      A imagem de demonstração precisa aparecer grande: o herói ocupa toda a
+      largura do celular e passa da altura antiga (192 px), com a foto
+      inteira no quadro (cover sem esticar) — e sem empurrar os controles de
+      série/descanso para fora da primeira tela.
+    */
+    assert.equal(ui.heroWidth, ui.viewportWidth, 'A imagem deve ocupar toda a largura disponível');
+    assert.ok(ui.heroHeight >= 205, 'Imagem de demonstração pequena: ' + ui.heroHeight + 'px');
+    assert.equal(ui.heroImgHeight, ui.heroHeight, 'A foto deve preencher o bloco de demonstração');
+    assert.equal(ui.heroImgFit, 'cover');
     assert.equal(ui.seriesStrip, '2 de 4');
     assert.equal(ui.repsStrip, '8 - 12');
     assert.equal(ui.restStrip, '60 s');
@@ -410,7 +428,7 @@ try {
     await sleep(300);
   });
 
-  await step('4. Ver demonstração abre player oficial sem autoplay e fallback limpo quando não há vídeo', async () => {
+  await step('4. Ver demonstração mostra só atlas + vídeo, sem textos editoriais, e fallback limpo sem vídeo', async () => {
     await click(page, '#execution-instructions');
     await page.waitForSelector('.modal-backdrop', { timeout: 4000 });
     await page.waitForSelector('.modal-backdrop .video-demo-iframe', { timeout: 4000 });
@@ -419,6 +437,39 @@ try {
     assert.match(demoSrc, /^https:\/\/www\.youtube-nocookie\.com\/embed\/BenchDemo01\?/);
     assert.match(demoSrc, /autoplay=0/);
     assert.match(demoSrc, /controls=1/);
+
+    const screen = await page.evaluate(() => {
+      const card = document.querySelector('.modal-backdrop .modal-card');
+      const atlas = card.querySelector('[data-detail-section="atlas"]');
+      return {
+        sections: Array.from(card.querySelectorAll('.modal-details > *'))
+          .map(node => node.getAttribute('data-detail-section')).filter(Boolean),
+        headings: Array.from(card.querySelectorAll('.bl-detail-heading'))
+          .map(node => node.textContent.trim()),
+        regions: atlas
+          ? Array.from(atlas.querySelectorAll('.figura-region')).map(node => node.dataset.region + ':' + node.dataset.role)
+          : [],
+        atlasFigures: atlas ? atlas.querySelectorAll('.figura-svg').length : 0,
+        writtenLegend: Boolean(card.querySelector('.bl-detail-atlas-key, .atlas-legenda')),
+        /* O canal do vídeo pode conter palavras como "Técnica"; a checagem
+           ignora a linha de créditos do player e olha só o conteúdo do modal. */
+        editorialText: (() => {
+          const clone = card.cloneNode(true);
+          clone.querySelectorAll('.video-demo-meta').forEach(node => node.remove());
+          return /Técnica|Cuidados|Suas observações|Observação salva|Alternativa compatível|Principal|Secundário/.test(clone.textContent);
+        })(),
+        hasPhotoBlock: Boolean(card.querySelector('.bl-detail-photo, [data-detail-section="identificacao"]'))
+      };
+    });
+
+    assert.deepEqual(screen.sections, ['atlas', 'video'], 'Demonstração deve ter somente atlas e vídeo');
+    assert.deepEqual(screen.headings, ['Atlas muscular', 'Demonstração']);
+    assert.equal(screen.atlasFigures, 2, 'O atlas deve mostrar as duas vistas da prancha existente');
+    assert.ok(screen.regions.includes('peito:primary'), 'Peitoral deve ser o grupo principal do supino');
+    assert.ok(screen.regions.includes('triceps:secondary'), 'Tríceps deve aparecer como secundário');
+    assert.equal(screen.writtenLegend, false, 'Legenda escrita/tabela de papéis não entra na demonstração');
+    assert.equal(screen.editorialText, false, 'Textos editoriais não podem voltar para a demonstração');
+    assert.equal(screen.hasPhotoBlock, false, 'A demonstração não repete a foto de identificação');
 
     await page.keyboard.press('Escape');
     await sleep(150);
@@ -519,6 +570,10 @@ try {
         const overflow = document.documentElement.scrollWidth - window.innerWidth;
         const nameEl = document.getElementById('current-name');
         const titleEl = document.getElementById('execution-title');
+        const heroEl = document.getElementById('execution-hero');
+        const heroImg = document.querySelector('#execution-hero-media img');
+        const heroBox = heroEl.getBoundingClientRect();
+        const heroImgBox = heroImg ? heroImg.getBoundingClientRect() : null;
         const targets = [
           '#end-session',
           '#execution-instructions',
@@ -537,7 +592,10 @@ try {
           overflow,
           nameClipped: nameEl.scrollWidth > nameEl.clientWidth + 1,
           titleClipped: titleEl.scrollWidth > titleEl.clientWidth + 1,
-          smallTargets: targets.filter(t => t.h < 44 || t.w < 44)
+          smallTargets: targets.filter(t => t.h < 44 || t.w < 44),
+          heroWidth: Math.round(heroBox.width),
+          heroHeight: Math.round(heroBox.height),
+          heroImgHeight: heroImgBox ? Math.round(heroImgBox.height) : 0
         };
       });
 
@@ -545,6 +603,13 @@ try {
       assert.equal(layout.nameClipped, false, `Nome do exercício cortado em ${vp.width}px`);
       assert.equal(layout.titleClipped, false, `Título do treino cortado em ${vp.width}px`);
       assert.deepEqual(layout.smallTargets, [], `Alvos menores que 44px em ${vp.width}px: ${JSON.stringify(layout.smallTargets)}`);
+      /* A demonstração continua grande e proporcional em toda a matriz. */
+      assert.equal(layout.heroWidth, Math.min(vp.width, 540),
+        `Demonstração fora da largura disponível em ${vp.width}px`);
+      assert.ok(layout.heroHeight >= 190 && layout.heroHeight <= 320,
+        `Altura da demonstração fora da faixa em ${vp.width}px: ${layout.heroHeight}`);
+      assert.equal(layout.heroImgHeight, layout.heroHeight,
+        `Foto não preenche a demonstração em ${vp.width}px`);
 
       if (vp.width === 412) {
         await page.evaluate(() => window.scrollTo(0, 0));

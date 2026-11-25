@@ -1063,17 +1063,28 @@
 
   /*
     Demonstração em vídeo. O palco é o mesmo da Etapa 3 (16:9, nocookie, sem
-    autoplay, sem som inicial, controles visíveis). A foto já está logo acima,
-    então o palco entra sem repetir a ilustração: quando não há vídeo ele diz,
-    com todas as letras, que a demonstração em vídeo não existe.
+    autoplay, sem som inicial, controles visíveis). No detalhe completo a foto
+    já está logo acima, então o palco entra sem repetir a ilustração: quando
+    não há vídeo ele diz, com todas as letras, que a demonstração em vídeo não
+    existe.
+
+    Na tela de demonstração da execução (`demonstration`), o vídeo é o
+    protagonista: o rótulo fica curto e, se não houver vídeo, a imagem de
+    referência do exercício ocupa o palco com o aviso de indisponibilidade, em
+    vez de um retângulo vazio.
   */
-  function videoBlock(record) {
-    const section = detailSection("Demonstração em vídeo", "video");
+  function videoBlock(record, options) {
+    const settings = options || {};
+    const section = detailSection(settings.title || "Demonstração em vídeo", "video");
     section.classList.add("bl-detail-video");
 
     let stageHandle = null;
     if (F.videos) {
-      stageHandle = F.videos.createStage(record, record.mode, { compact: false, reference: false });
+      stageHandle = F.videos.createStage(record, record.mode, {
+        compact: false,
+        reference: settings.reference === true,
+        referenceDetails: false
+      });
       section.appendChild(stageHandle.node);
     } else if (F.demos) {
       const demoMedia = F.demos.createMedia(record, record.mode, { eager: false });
@@ -1172,7 +1183,74 @@
     return section;
   }
 
+  /*
+    Atlas da tela de demonstração: a mesma prancha anatômica do atlas, com as
+    regiões do exercício destacadas pelas cores da classificação. Sem legenda,
+    sem tabela de papéis e sem texto: a leitura é visual.
+  */
+  function demonstrationAtlasBlock(record) {
+    if (!F.atlas || !F.atlas.figurePair) return null;
+
+    const highlights = F.atlas.highlightsFor(record);
+    if (Object.keys(highlights).length === 0) return null;
+
+    const section = detailSection("Atlas muscular", "atlas");
+    section.classList.add("bl-demo-atlas");
+
+    const figure = doc.createElement("div");
+    figure.className = "modal-figure bl-demo-figure";
+    figure.appendChild(F.atlas.figurePair(highlights));
+    section.appendChild(figure);
+
+    return section;
+  }
+
+  /*
+    "Ver demonstração" na execução do treino: apresentação visual e direta.
+    Somente o nome do exercício (título do diálogo), o atlas muscular com os
+    músculos registrados no exercício e o vídeo já associado. Nenhum texto
+    editorial, card ou botão de adicionar ao treino entra nesta tela — o
+    detalhe completo da biblioteca continua em `showDetail`.
+  */
+  async function showDemonstration(record) {
+    const details = F.ui.el("div", "modal-details bl-detail bl-demo");
+
+    const atlas = demonstrationAtlasBlock(record);
+    if (atlas) details.appendChild(atlas);
+
+    /* Se o vídeo não existir, o palco só recorre à ilustração de referência
+       quando ela é a do próprio exercício; sem ela, fica apenas o aviso. */
+    const hasReferenceImage = Boolean(F.demos && F.demos.available() && F.demos.resolve(record, record.mode));
+    const video = videoBlock(record, { title: "Demonstração", reference: hasReferenceImage });
+    details.appendChild(video.section);
+
+    const abertura = F.showModal({
+      title: record.name,
+      details,
+      fields: [],
+      actions: [{ id: "cancel", label: "Fechar", className: "secondary-button" }]
+    });
+
+    if (video.youtubeHost) {
+      setTimeout(() => {
+        if (video.youtubeHost.isConnected) F.youtube.render(record, video.youtubeHost);
+      }, 0);
+    }
+
+    const result = await abertura;
+
+    if (video.stageHandle && F.videos) {
+      F.videos.destroyStage(video.stageHandle.node);
+    }
+
+    return result;
+  }
+
   async function showDetail(record, options = {}) {
+    /* A execução usa a demonstração enxuta (atlas + vídeo). O detalhe
+       completo continua sendo o padrão da biblioteca e do editor. */
+    if (options.demonstration) return showDemonstration(record);
+
     const central = centralRecordFor(record);
     const details = F.ui.el("div", "modal-details bl-detail");
 
